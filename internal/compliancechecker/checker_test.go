@@ -368,10 +368,10 @@ func TestFixSuggestion(t *testing.T) {
 func TestMarshalReport(t *testing.T) {
 	report := &ComplianceReport{
 		Summary: ComplianceScore{
-			Overall: 95.5,
-			Level:   "A",
-			GDPR:    100,
-			GB20:    90,
+			Overall:  95.5,
+			Level:    "A",
+			GDPR:     100,
+			GB20:     90,
 			Security: 96.5,
 		},
 		Issues: []Issue{

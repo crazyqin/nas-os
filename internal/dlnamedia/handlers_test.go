@@ -96,11 +96,11 @@ func TestCreateLibrary(t *testing.T) {
 	router, _, _ := setupTestRouter()
 
 	reqBody := CreateLibraryRequest{
-		Name:        "Test Library",
-		Path:        "/tmp",
-		MediaType:   MediaTypeVideo,
-		Recursive:   true,
-		AutoScan:    true,
+		Name:         "Test Library",
+		Path:         "/tmp",
+		MediaType:    MediaTypeVideo,
+		Recursive:    true,
+		AutoScan:     true,
 		ScanInterval: 60,
 	}
 	body, _ := json.Marshal(reqBody)
@@ -305,9 +305,9 @@ func TestPushMedia(t *testing.T) {
 		IsOnline:     true,
 	}
 	manager.mediaItems["media-1"] = &MediaItem{
-		ID:        "media-1",
-		Title:     "Test Video.mp4",
-		Duration:  3600,
+		ID:       "media-1",
+		Title:    "Test Video.mp4",
+		Duration: 3600,
 	}
 	manager.mu.Unlock()
 
@@ -339,9 +339,9 @@ func TestPushMediaDeviceNotFound(t *testing.T) {
 	// 添加测试媒体
 	manager.mu.Lock()
 	manager.mediaItems["media-1"] = &MediaItem{
-		ID:        "media-1",
-		Title:     "Test Video.mp4",
-		Duration:  3600,
+		ID:       "media-1",
+		Title:    "Test Video.mp4",
+		Duration: 3600,
 	}
 	manager.mu.Unlock()
 
@@ -371,9 +371,9 @@ func TestPushMediaOfflineDevice(t *testing.T) {
 		IsOnline:     false,
 	}
 	manager.mediaItems["media-1"] = &MediaItem{
-		ID:        "media-1",
-		Title:     "Test Video.mp4",
-		Duration:  3600,
+		ID:       "media-1",
+		Title:    "Test Video.mp4",
+		Duration: 3600,
 	}
 	manager.mu.Unlock()
 

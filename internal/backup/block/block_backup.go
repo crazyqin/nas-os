@@ -4,12 +4,12 @@ package backup
 
 import (
 	"context"
-	"net/http"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
@@ -51,21 +51,21 @@ const (
 
 // BlockBackupJob 块级备份任务
 type BlockBackupJob struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	SourcePaths  []string          `json:"source_paths"`
-	DestPath     string            `json:"dest_path"`
-	Status       BlockBackupStatus `json:"status"`
-	BlockSize    int               `json:"block_size"`
-	Compression  bool              `json:"compression"`
-	Encryption   bool              `json:"encryption"`
-	EncryptionKey string           `json:"encryption_key,omitempty"`
-	Schedule     string            `json:"schedule,omitempty"` // cron表达式
-	MaxVersions  int               `json:"max_versions"`
-	CreatedAt    time.Time         `json:"created_at"`
-	UpdatedAt    time.Time         `json:"updated_at"`
-	LastRunAt    *time.Time        `json:"last_run_at,omitempty"`
-	NextRunAt    *time.Time        `json:"next_run_at,omitempty"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	SourcePaths   []string          `json:"source_paths"`
+	DestPath      string            `json:"dest_path"`
+	Status        BlockBackupStatus `json:"status"`
+	BlockSize     int               `json:"block_size"`
+	Compression   bool              `json:"compression"`
+	Encryption    bool              `json:"encryption"`
+	EncryptionKey string            `json:"encryption_key,omitempty"`
+	Schedule      string            `json:"schedule,omitempty"` // cron表达式
+	MaxVersions   int               `json:"max_versions"`
+	CreatedAt     time.Time         `json:"created_at"`
+	UpdatedAt     time.Time         `json:"updated_at"`
+	LastRunAt     *time.Time        `json:"last_run_at,omitempty"`
+	NextRunAt     *time.Time        `json:"next_run_at,omitempty"`
 }
 
 // BlockBackupRun 备份执行记录
@@ -80,8 +80,8 @@ type BlockBackupRun struct {
 	DoneFiles   int               `json:"done_files"`
 	DoneBlocks  int               `json:"done_blocks"`
 	DoneBytes   int64             `json:"done_bytes"`
-	DedupSaved  int64             `json:"dedup_saved"`    // 去重节省的字节
-	CompSaved   int64             `json:"comp_saved"`     // 压缩节省的字节
+	DedupSaved  int64             `json:"dedup_saved"` // 去重节省的字节
+	CompSaved   int64             `json:"comp_saved"`  // 压缩节省的字节
 	Error       string            `json:"error,omitempty"`
 	StartedAt   time.Time         `json:"started_at"`
 	EndedAt     *time.Time        `json:"ended_at,omitempty"`
@@ -118,12 +118,12 @@ type Manifest struct {
 
 // FileRecord 文件记录
 type FileRecord struct {
-	Path       string       `json:"path"`
-	Size       int64        `json:"size"`
-	ModTime    time.Time    `json:"mod_time"`
-	Permission string       `json:"permission"`
-	BlockRefs  []string     `json:"block_refs"` // 块哈希列表
-	Checksum   string       `json:"checksum"`
+	Path       string    `json:"path"`
+	Size       int64     `json:"size"`
+	ModTime    time.Time `json:"mod_time"`
+	Permission string    `json:"permission"`
+	BlockRefs  []string  `json:"block_refs"` // 块哈希列表
+	Checksum   string    `json:"checksum"`
 }
 
 // BlockBackupEngine 块级备份引擎

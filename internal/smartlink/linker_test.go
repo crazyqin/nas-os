@@ -67,9 +67,9 @@ func TestCreateLinkWithExpiration(t *testing.T) {
 
 	expiresIn := 3600 // 1 hour
 	req := CreateLinkRequest{
-		FileID:    "file-123",
+		FileID:     "file-123",
 		Permission: PermissionReadOnly,
-		ExpiresIn: &expiresIn,
+		ExpiresIn:  &expiresIn,
 	}
 
 	link, err := linker.CreateLink("user-1", req)

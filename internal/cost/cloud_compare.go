@@ -27,74 +27,74 @@ const (
 
 // PricingTier represents storage pricing tier.
 type PricingTier struct {
-	Name         string  `json:"name"`          // e.g., "Standard", "Low-Frequency"
-	StoragePrice float64 `json:"storage_price"` // CNY/GB/month
-	DownloadPrice float64 `json:"download_price"` // CNY/GB
-	UploadPrice   float64 `json:"upload_price"`   // CNY/GB (usually free)
-	MinStorageDays int    `json:"min_storage_days"` // Minimum storage period
-	Description   string `json:"description"`
+	Name           string  `json:"name"`             // e.g., "Standard", "Low-Frequency"
+	StoragePrice   float64 `json:"storage_price"`    // CNY/GB/month
+	DownloadPrice  float64 `json:"download_price"`   // CNY/GB
+	UploadPrice    float64 `json:"upload_price"`     // CNY/GB (usually free)
+	MinStorageDays int     `json:"min_storage_days"` // Minimum storage period
+	Description    string  `json:"description"`
 }
 
 // CloudPricing represents pricing data for a cloud provider.
 type CloudPricing struct {
 	Provider    CloudProvider `json:"provider"`
 	DisplayName string        `json:"display_name"`
-	Region      string        `json:"region"`         // e.g., "cn-east-1", "us-west-2"
+	Region      string        `json:"region"` // e.g., "cn-east-1", "us-west-2"
 	Tiers       []PricingTier `json:"tiers"`
 	LastUpdated time.Time     `json:"last_updated"`
-	Currency    string        `json:"currency"`       // "CNY" or "USD"
+	Currency    string        `json:"currency"` // "CNY" or "USD"
 }
 
 // CostComparison represents a cost comparison result.
 type CostComparison struct {
-	GeneratedAt     time.Time        `json:"generated_at"`
-	StorageSizeGB   float64          `json:"storage_size_gb"`
-	MonthlyDownloadGB float64        `json:"monthly_download_gb"`
-	StorageDurationDays int          `json:"storage_duration_days"`
-	Providers       []ProviderCost   `json:"providers"`
-	BestValue       *ProviderCost    `json:"best_value"`
-	LocalCost       float64          `json:"local_cost"`    // Local NAS storage cost
-	Savings         float64          `json:"savings"`       // Savings vs cheapest cloud
+	GeneratedAt         time.Time      `json:"generated_at"`
+	StorageSizeGB       float64        `json:"storage_size_gb"`
+	MonthlyDownloadGB   float64        `json:"monthly_download_gb"`
+	StorageDurationDays int            `json:"storage_duration_days"`
+	Providers           []ProviderCost `json:"providers"`
+	BestValue           *ProviderCost  `json:"best_value"`
+	LocalCost           float64        `json:"local_cost"` // Local NAS storage cost
+	Savings             float64        `json:"savings"`    // Savings vs cheapest cloud
 }
 
 // ProviderCost represents cost for a specific provider.
 type ProviderCost struct {
-	Provider        CloudProvider `json:"provider"`
-	DisplayName     string        `json:"display_name"`
-	TierName        string        `json:"tier_name"`
-	MonthlyStorageCost float64    `json:"monthly_storage_cost"`
-	MonthlyTransferCost float64   `json:"monthly_transfer_cost"`
-	TotalMonthlyCost   float64    `json:"total_month_cost"`
-	TotalYearlyCost    float64    `json:"total_year_cost"`
-	RecommendedTier    bool        `json:"recommended"`
+	Provider            CloudProvider `json:"provider"`
+	DisplayName         string        `json:"display_name"`
+	TierName            string        `json:"tier_name"`
+	MonthlyStorageCost  float64       `json:"monthly_storage_cost"`
+	MonthlyTransferCost float64       `json:"monthly_transfer_cost"`
+	TotalMonthlyCost    float64       `json:"total_month_cost"`
+	TotalYearlyCost     float64       `json:"total_year_cost"`
+	RecommendedTier     bool          `json:"recommended"`
 }
 
 // MigrationCost represents migration cost estimate.
 type MigrationCost struct {
-	DataSizeGB       float64            `json:"data_size_gb"`
-	SourceProvider   CloudProvider      `json:"source_provider"`
-	TargetProvider   CloudProvider      `json:"target_provider"`
-	UploadCost       float64            `json:"upload_cost"`
-	DownloadCost     float64            `json:"download_cost"`
-	TransferTimeEst  time.Duration      `json:"transfer_time_est"`
-	TransferSpeedMbps int               `json:"transfer_speed_mbps"` // Assumed speed
-	BreakEvenMonths  int                `json:"break_even_months"`  // Months to recover migration cost
+	DataSizeGB        float64       `json:"data_size_gb"`
+	SourceProvider    CloudProvider `json:"source_provider"`
+	TargetProvider    CloudProvider `json:"target_provider"`
+	UploadCost        float64       `json:"upload_cost"`
+	DownloadCost      float64       `json:"download_cost"`
+	TransferTimeEst   time.Duration `json:"transfer_time_est"`
+	TransferSpeedMbps int           `json:"transfer_speed_mbps"` // Assumed speed
+	BreakEvenMonths   int           `json:"break_even_months"`   // Months to recover migration cost
 }
 
 // CostAnalyzerConfig holds cost analyzer configuration.
 type CostAnalyzerConfig struct {
-	LocalStorageCostPerGB float64       `json:"local_storage_cost_per_gb"` // CNY/GB/month (hardware amortization)
-	DefaultTransferSpeedMbps int         `json:"default_transfer_speed_mbps"`
-	PricingUpdateIntervalDays int        `json:"pricing_update_interval_days"`
-	DataDir                 string        `json:"data_dir"`
+	LocalStorageCostPerGB     float64 `json:"local_storage_cost_per_gb"` // CNY/GB/month (hardware amortization)
+	DefaultTransferSpeedMbps  int     `json:"default_transfer_speed_mbps"`
+	PricingUpdateIntervalDays int     `json:"pricing_update_interval_days"`
+	DataDir                   string  `json:"data_dir"`
 }
 
 // CloudCostAnalyzer provides cloud cost comparison analysis.
 type CloudCostAnalyzer struct {
-	mu        sync.RWMutex
-	pricing   map[CloudProvider]*CloudPricing
-	config    *CostAnalyzerConfig
-	logger    *zap.Logger
+	mu         sync.RWMutex
+	pricing    map[CloudProvider]*CloudPricing
+	config     *CostAnalyzerConfig
+	logger     *zap.Logger
 	configPath string
 }
 
@@ -105,10 +105,10 @@ func NewCloudCostAnalyzer(configPath string, logger *zap.Logger) (*CloudCostAnal
 	}
 
 	config := &CostAnalyzerConfig{
-		LocalStorageCostPerGB:   0.05,     // ~60 CNY/TB/year amortized
-		DefaultTransferSpeedMbps: 100,     // 100 Mbps upload
+		LocalStorageCostPerGB:     0.05, // ~60 CNY/TB/year amortized
+		DefaultTransferSpeedMbps:  100,  // 100 Mbps upload
 		PricingUpdateIntervalDays: 30,
-		DataDir:                 "/var/lib/nas-os/cost",
+		DataDir:                   "/var/lib/nas-os/cost",
 	}
 
 	a := &CloudCostAnalyzer{
@@ -242,7 +242,7 @@ func (a *CloudCostAnalyzer) CompareCosts(ctx context.Context, storageGB, monthly
 			}
 
 			// Recommend cheapest tier per provider
-			if len(comparison.Providers) == 0 || 
+			if len(comparison.Providers) == 0 ||
 				provider != comparison.Providers[len(comparison.Providers)-1].Provider {
 				providerCost.RecommendedTier = true
 			}
@@ -260,7 +260,7 @@ func (a *CloudCostAnalyzer) CompareCosts(ctx context.Context, storageGB, monthly
 			}
 		}
 		comparison.BestValue = &comparison.Providers[bestIdx]
-		comparison.Savings = comparison.LocalCost - comparison.BestValue.TotalMonthlyCost * float64(durationDays) / 30
+		comparison.Savings = comparison.LocalCost - comparison.BestValue.TotalMonthlyCost*float64(durationDays)/30
 	}
 
 	a.logger.Info("Cost comparison completed",
@@ -294,11 +294,11 @@ func (a *CloudCostAnalyzer) EstimateMigrationCost(ctx context.Context, dataSizeG
 	}
 
 	migration := &MigrationCost{
-		DataSizeGB:      dataSizeGB,
-		SourceProvider:  source,
-		TargetProvider:  target,
-		DownloadCost:    dataSizeGB * sourceDownloadPrice,
-		UploadCost:      dataSizeGB * targetUploadPrice,
+		DataSizeGB:        dataSizeGB,
+		SourceProvider:    source,
+		TargetProvider:    target,
+		DownloadCost:      dataSizeGB * sourceDownloadPrice,
+		UploadCost:        dataSizeGB * targetUploadPrice,
 		TransferSpeedMbps: a.config.DefaultTransferSpeedMbps,
 	}
 
@@ -392,19 +392,19 @@ func (a *CloudCostAnalyzer) GetCostDashboard(ctx context.Context, storageGB floa
 		}
 		cloudMonthly := storageGB * cheapestTier.StoragePrice
 		cloudOptions = append(cloudOptions, map[string]interface{}{
-			"provider":       pricing.DisplayName,
-			"tier":           cheapestTier.Name,
-			"monthly_cost":   cloudMonthly,
-			"vs_local":       localMonthly - cloudMonthly,
-			"currency":       pricing.Currency,
+			"provider":     pricing.DisplayName,
+			"tier":         cheapestTier.Name,
+			"monthly_cost": cloudMonthly,
+			"vs_local":     localMonthly - cloudMonthly,
+			"currency":     pricing.Currency,
 		})
 	}
 
 	return map[string]interface{}{
-		"storage_gb":        storageGB,
+		"storage_gb":         storageGB,
 		"local_monthly_cost": localMonthly,
-		"cloud_options":     cloudOptions,
-		"pricing_updated":   a.getLastPricingUpdate(),
+		"cloud_options":      cloudOptions,
+		"pricing_updated":    a.getLastPricingUpdate(),
 	}
 }
 
@@ -427,7 +427,7 @@ func (a *CloudCostAnalyzer) loadConfig() error {
 	}
 
 	var cfg struct {
-		Config  *CostAnalyzerConfig           `json:"config"`
+		Config  *CostAnalyzerConfig             `json:"config"`
 		Pricing map[CloudProvider]*CloudPricing `json:"pricing"`
 	}
 
@@ -448,7 +448,7 @@ func (a *CloudCostAnalyzer) loadConfig() error {
 // saveConfig saves cost analyzer configuration.
 func (a *CloudCostAnalyzer) saveConfig() error {
 	cfg := struct {
-		Config  *CostAnalyzerConfig           `json:"config"`
+		Config  *CostAnalyzerConfig             `json:"config"`
 		Pricing map[CloudProvider]*CloudPricing `json:"pricing"`
 	}{
 		Config:  a.config,

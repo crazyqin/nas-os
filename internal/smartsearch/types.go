@@ -14,10 +14,10 @@ import (
 type SearchType string
 
 const (
-	SearchTypeFullText  SearchType = "fulltext"  // 全文搜索
-	SearchTypeSemantic  SearchType = "semantic"   // 语义搜索
-	SearchTypeAI        SearchType = "ai"         // AI 增强搜索
-	SearchTypeMetadata  SearchType = "metadata"   // 元数据搜索
+	SearchTypeFullText SearchType = "fulltext" // 全文搜索
+	SearchTypeSemantic SearchType = "semantic" // 语义搜索
+	SearchTypeAI       SearchType = "ai"       // AI 增强搜索
+	SearchTypeMetadata SearchType = "metadata" // 元数据搜索
 )
 
 // FileType 文件类型
@@ -42,41 +42,41 @@ type SearchResult struct {
 	FileSize    int64     `json:"file_size"`
 	ModTime     time.Time `json:"mod_time"`
 	Score       float64   `json:"score"`       // 相关性评分 0-1
-	Snippet     string    `json:"snippet"`      // 匹配内容片段
-	Highlighted string    `json:"highlighted"`  // 高亮显示
+	Snippet     string    `json:"snippet"`     // 匹配内容片段
+	Highlighted string    `json:"highlighted"` // 高亮显示
 	Tags        []string  `json:"tags,omitempty"`
 	Labels      []string  `json:"labels,omitempty"`
 }
 
 // SearchRequest 搜索请求
 type SearchRequest struct {
-	Query      string     `json:"query"`
-	Type       SearchType `json:"type"`
-	FileTypes  []FileType `json:"file_types,omitempty"`
-	Path       string     `json:"path,omitempty"`       // 限定搜索路径
-	Tags       []string   `json:"tags,omitempty"`
-	Labels     []string   `json:"labels,omitempty"`
-	DateFrom   *time.Time `json:"date_from,omitempty"`
-	DateTo     *time.Time `json:"date_to,omitempty"`
-	SizeMin    *int64     `json:"size_min,omitempty"`
-	SizeMax    *int64     `json:"size_max,omitempty"`
-	SortBy     string     `json:"sort_by,omitempty"`     // relevance, date, size, name
-	SortOrder  string     `json:"sort_order,omitempty"`  // asc, desc
-	Page       int        `json:"page"`
-	PageSize   int        `json:"page_size"`
-	TenantID   string     `json:"tenant_id,omitempty"`
+	Query     string     `json:"query"`
+	Type      SearchType `json:"type"`
+	FileTypes []FileType `json:"file_types,omitempty"`
+	Path      string     `json:"path,omitempty"` // 限定搜索路径
+	Tags      []string   `json:"tags,omitempty"`
+	Labels    []string   `json:"labels,omitempty"`
+	DateFrom  *time.Time `json:"date_from,omitempty"`
+	DateTo    *time.Time `json:"date_to,omitempty"`
+	SizeMin   *int64     `json:"size_min,omitempty"`
+	SizeMax   *int64     `json:"size_max,omitempty"`
+	SortBy    string     `json:"sort_by,omitempty"`    // relevance, date, size, name
+	SortOrder string     `json:"sort_order,omitempty"` // asc, desc
+	Page      int        `json:"page"`
+	PageSize  int        `json:"page_size"`
+	TenantID  string     `json:"tenant_id,omitempty"`
 }
 
 // SearchResponse 搜索响应
 type SearchResponse struct {
-	Query      string          `json:"query"`
-	Total      int             `json:"total"`
-	Page       int             `json:"page"`
-	PageSize   int             `json:"page_size"`
-	Results    []SearchResult  `json:"results"`
-	Facets     *SearchFacets   `json:"facets,omitempty"`
+	Query       string         `json:"query"`
+	Total       int            `json:"total"`
+	Page        int            `json:"page"`
+	PageSize    int            `json:"page_size"`
+	Results     []SearchResult `json:"results"`
+	Facets      *SearchFacets  `json:"facets,omitempty"`
 	Suggestions []string       `json:"suggestions,omitempty"`
-	Took       time.Duration   `json:"took"` // 搜索耗时
+	Took        time.Duration  `json:"took"` // 搜索耗时
 }
 
 // SearchFacets 搜索分面（用于过滤）
@@ -101,7 +101,7 @@ type IndexEntry struct {
 	FileType  FileType  `json:"file_type"`
 	FileSize  int64     `json:"file_size"`
 	ModTime   time.Time `json:"mod_time"`
-	Content   string    `json:"content"`   // 文件内容（用于全文搜索）
+	Content   string    `json:"content"` // 文件内容（用于全文搜索）
 	Tags      []string  `json:"tags"`
 	Labels    []string  `json:"labels"`
 	TenantID  string    `json:"tenant_id"`

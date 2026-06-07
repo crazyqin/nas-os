@@ -62,10 +62,10 @@ const (
 type AccessFrequency string
 
 const (
-	AccessFrequent AccessFrequency = "frequent" // 频繁
+	AccessFrequent   AccessFrequency = "frequent"   // 频繁
 	AccessOccasional AccessFrequency = "occasional" // 偶尔
-	AccessRare     AccessFrequency = "rare"     // 很少
-	AccessNever    AccessFrequency = "never"    // 从未访问
+	AccessRare       AccessFrequency = "rare"       // 很少
+	AccessNever      AccessFrequency = "never"      // 从未访问
 )
 
 // ========== 分析请求 ==========
@@ -84,12 +84,12 @@ type AnalyzeRequest struct {
 
 // FileInfo 文件信息.
 type FileInfo struct {
-	Path      string    `json:"path"`
-	Size      int64     `json:"size"`       // 字节
-	ModTime   time.Time `json:"mod_time"`
+	Path       string    `json:"path"`
+	Size       int64     `json:"size"` // 字节
+	ModTime    time.Time `json:"mod_time"`
 	AccessTime time.Time `json:"access_time"`
-	IsDir     bool      `json:"is_dir"`
-	FileType  FileType  `json:"file_type"`
+	IsDir      bool      `json:"is_dir"`
+	FileType   FileType  `json:"file_type"`
 }
 
 // DirectoryInfo 目录统计信息.
@@ -102,22 +102,22 @@ type DirectoryInfo struct {
 
 // CollectResult 采集结果.
 type CollectResult struct {
-	ScanPath   string         `json:"scan_path"`
-	ScanTime   time.Time      `json:"scan_time"`
-	Files      []FileInfo     `json:"files"`
+	ScanPath    string          `json:"scan_path"`
+	ScanTime    time.Time       `json:"scan_time"`
+	Files       []FileInfo      `json:"files"`
 	Directories []DirectoryInfo `json:"directories"`
-	TotalSize  int64          `json:"total_size"`
-	TotalFiles int            `json:"total_files"`
-	TotalDirs  int            `json:"total_dirs"`
+	TotalSize   int64           `json:"total_size"`
+	TotalFiles  int             `json:"total_files"`
+	TotalDirs   int             `json:"total_dirs"`
 }
 
 // ========== 分析结果 ==========
 
 // CategoryStat 分类统计.
 type CategoryStat struct {
-	Category string `json:"category"`
-	FileCount int   `json:"file_count"`
-	TotalSize int64 `json:"total_size"` // 字节
+	Category   string  `json:"category"`
+	FileCount  int     `json:"file_count"`
+	TotalSize  int64   `json:"total_size"` // 字节
 	Percentage float64 `json:"percentage"` // 占比百分比
 }
 
@@ -169,9 +169,9 @@ type TrendPoint struct {
 
 // TrendAnalysis 趋势分析结果.
 type TrendAnalysis struct {
-	Daily    []TrendPoint `json:"daily"`
-	Weekly   []TrendPoint `json:"weekly"`
-	Monthly  []TrendPoint `json:"monthly"`
+	Daily   []TrendPoint `json:"daily"`
+	Weekly  []TrendPoint `json:"weekly"`
+	Monthly []TrendPoint `json:"monthly"`
 	// DailyGrowthRate 日均增长率（字节/天）.
 	DailyGrowthRate int64 `json:"daily_growth_rate"`
 	// DaysUntilFull 预计几天后用满，-1表示无法预测.
@@ -182,10 +182,10 @@ type TrendAnalysis struct {
 
 // CategoryGrowthInfo 各类数据增长信息.
 type CategoryGrowthInfo struct {
-	Category        string  `json:"category"`
-	GrowthBytes     int64   `json:"growth_bytes"`
-	GrowthPercent   float64 `json:"growth_percent"`
-	CurrentSize     int64   `json:"current_size"`
+	Category      string  `json:"category"`
+	GrowthBytes   int64   `json:"growth_bytes"`
+	GrowthPercent float64 `json:"growth_percent"`
+	CurrentSize   int64   `json:"current_size"`
 }
 
 // Insight 智能洞察.
@@ -211,29 +211,29 @@ type InsightAnalysis struct {
 
 // StorageReport 完整存储分析报告.
 type StorageReport struct {
-	ScanPath       string              `json:"scan_path"`
-	GeneratedAt    time.Time           `json:"generated_at"`
-	Summary        Summary             `json:"summary"`
-	FileTypeStats  []CategoryStat      `json:"file_type_stats"`
-	TopDirectories []DirectoryInfo     `json:"top_directories"`
-	SizeDist       []SizeDistribution  `json:"size_distribution"`
-	AgeDist        []AgeDistribution   `json:"age_distribution"`
+	ScanPath       string               `json:"scan_path"`
+	GeneratedAt    time.Time            `json:"generated_at"`
+	Summary        Summary              `json:"summary"`
+	FileTypeStats  []CategoryStat       `json:"file_type_stats"`
+	TopDirectories []DirectoryInfo      `json:"top_directories"`
+	SizeDist       []SizeDistribution   `json:"size_distribution"`
+	AgeDist        []AgeDistribution    `json:"age_distribution"`
 	AccessDist     []AccessDistribution `json:"access_distribution"`
-	Health         HealthMetrics       `json:"health"`
-	Trends         TrendAnalysis       `json:"trends"`
-	Insights       InsightAnalysis     `json:"insights"`
+	Health         HealthMetrics        `json:"health"`
+	Trends         TrendAnalysis        `json:"trends"`
+	Insights       InsightAnalysis      `json:"insights"`
 }
 
 // Summary 存储概览摘要.
 type Summary struct {
-	TotalSize     int64   `json:"total_size"`
-	TotalFiles    int     `json:"total_files"`
-	TotalDirs     int     `json:"total_dirs"`
-	LargestFile   string  `json:"largest_file"`
-	LargestSize   int64   `json:"largest_size"`
-	OldestFile    string  `json:"oldest_file"`
-	OldestAge     string  `json:"oldest_age"`
-	AvgFileSize   int64   `json:"avg_file_size"`
+	TotalSize      int64  `json:"total_size"`
+	TotalFiles     int    `json:"total_files"`
+	TotalDirs      int    `json:"total_dirs"`
+	LargestFile    string `json:"largest_file"`
+	LargestSize    int64  `json:"largest_size"`
+	OldestFile     string `json:"oldest_file"`
+	OldestAge      string `json:"oldest_age"`
+	AvgFileSize    int64  `json:"avg_file_size"`
 	MedianFileSize int64  `json:"median_file_size"`
 }
 

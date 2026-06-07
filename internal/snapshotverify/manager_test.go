@@ -245,10 +245,10 @@ func TestCreateVerificationPolicy(t *testing.T) {
 	manager := NewSnapshotVerifyManager(nil)
 
 	policy := &VerificationPolicy{
-		Name:     "daily-verify",
-		Schedule: "0 0 * * *",
+		Name:      "daily-verify",
+		Schedule:  "0 0 * * *",
 		Snapshots: []string{"snapshot-1", "snapshot-2"},
-		Enabled:  true,
+		Enabled:   true,
 	}
 
 	err := manager.CreateVerificationPolicy(policy)

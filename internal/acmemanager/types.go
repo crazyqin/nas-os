@@ -8,10 +8,10 @@ import (
 
 // ACMEManager ACME证书管理器
 type ACMEManager struct {
-	mu        sync.RWMutex
-	certs     map[string]*Certificate
-	accounts  map[string]*Account
-	config    *ACMEConfig
+	mu       sync.RWMutex
+	certs    map[string]*Certificate
+	accounts map[string]*Account
+	config   *ACMEConfig
 }
 
 // ACMEConfig ACME配置
@@ -34,19 +34,19 @@ type Account struct {
 
 // Certificate 证书
 type Certificate struct {
-	ID          string    `json:"id"`
-	Domain      string    `json:"domain"`
-	Status      string    `json:"status"`
-	Issuer      string    `json:"issuer"`
-	Serial      string    `json:"serial"`
-	NotBefore   time.Time `json:"not_before"`
-	NotAfter    time.Time `json:"not_after"`
-	CertPEM     string    `json:"cert_pem,omitempty"`
-	KeyPEM      string    `json:"key_pem,omitempty"`
-	ChainPEM    string    `json:"chain_pem,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
-	RenewedAt   time.Time `json:"renewed_at,omitempty"`
-	AutoRenew   bool      `json:"auto_renew"`
+	ID        string    `json:"id"`
+	Domain    string    `json:"domain"`
+	Status    string    `json:"status"`
+	Issuer    string    `json:"issuer"`
+	Serial    string    `json:"serial"`
+	NotBefore time.Time `json:"not_before"`
+	NotAfter  time.Time `json:"not_after"`
+	CertPEM   string    `json:"cert_pem,omitempty"`
+	KeyPEM    string    `json:"key_pem,omitempty"`
+	ChainPEM  string    `json:"chain_pem,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+	RenewedAt time.Time `json:"renewed_at,omitempty"`
+	AutoRenew bool      `json:"auto_renew"`
 }
 
 // NewACMEManager 创建ACME管理器

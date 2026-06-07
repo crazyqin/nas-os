@@ -52,7 +52,7 @@ type HoneypotManager struct {
 	onTrigger func(event HoneypotAccessEvent)
 
 	// running 运行状态
-	running bool
+	running  bool
 	stopChan chan struct{}
 }
 
@@ -93,13 +93,13 @@ type HoneypotAccessEvent struct {
 
 // HoneypotStats 蜜罐统计
 type HoneypotStats struct {
-	TotalDeployed    int       `json:"total_deployed"`
-	TotalTriggered   int64     `json:"total_triggered"`
-	ActiveHoneypots  int       `json:"active_honeypots"`
-	LastRefreshTime  time.Time `json:"last_refresh_time"`
-	LastTriggerTime  time.Time `json:"last_trigger_time"`
-	AccessEvents24h  int       `json:"access_events_24h"`
-	UniqueAttackers  int       `json:"unique_attackers"`
+	TotalDeployed   int       `json:"total_deployed"`
+	TotalTriggered  int64     `json:"total_triggered"`
+	ActiveHoneypots int       `json:"active_honeypots"`
+	LastRefreshTime time.Time `json:"last_refresh_time"`
+	LastTriggerTime time.Time `json:"last_trigger_time"`
+	AccessEvents24h int       `json:"access_events_24h"`
+	UniqueAttackers int       `json:"unique_attackers"`
 }
 
 // ============================================================

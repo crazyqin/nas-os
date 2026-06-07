@@ -13,7 +13,7 @@ type EngineStatus string
 
 const (
 	// EngineStatusIdle 空闲状态
-	EngineStatusIdle    EngineStatus = "idle"
+	EngineStatusIdle EngineStatus = "idle"
 	// EngineStatusRunning 运行状态
 	EngineStatusRunning EngineStatus = "running"
 	// EngineStatusStopped 已停止
@@ -32,31 +32,31 @@ const (
 
 // EngineConfig 引擎配置
 type EngineConfig struct {
-	MaxConcurrent int `json:"maxConcurrent"` // 最大并发执行数
-	Timeout       int `json:"timeout"`        // 默认超时(秒)
+	MaxConcurrent int          `json:"maxConcurrent"` // 最大并发执行数
+	Timeout       int          `json:"timeout"`       // 默认超时(秒)
 	RetryPolicy   *RetryPolicy `json:"retryPolicy,omitempty"`
 }
 
 // RetryPolicy 重试策略
 type RetryPolicy struct {
-	MaxRetries  int `json:"maxRetries"`
-	DelayMs     int `json:"delayMs"`     // 重试间隔(毫秒)
-	MaxDelayMs  int `json:"maxDelayMs"` // 最大重试间隔
+	MaxRetries    int `json:"maxRetries"`
+	DelayMs       int `json:"delayMs"`                 // 重试间隔(毫秒)
+	MaxDelayMs    int `json:"maxDelayMs"`              // 最大重试间隔
 	BackoffFactor int `json:"backoffFactor,omitempty"` // 退避因子
 }
 
 // StepConfig 步骤配置
 type StepConfig struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Type        StepType          `json:"type"`
-	Action      string            `json:"action"`
-	Config      map[string]interface{} `json:"config,omitempty"`
-	Condition   *Condition        `json:"condition,omitempty"`
-	Steps       []StepConfig      `json:"steps,omitempty"`
-	MaxRetries  int               `json:"maxRetries,omitempty"`
-	Timeout     int               `json:"timeout,omitempty"`
-	LoopCount   int               `json:"loopCount,omitempty"`
+	ID         string                 `json:"id"`
+	Name       string                 `json:"name"`
+	Type       StepType               `json:"type"`
+	Action     string                 `json:"action"`
+	Config     map[string]interface{} `json:"config,omitempty"`
+	Condition  *Condition             `json:"condition,omitempty"`
+	Steps      []StepConfig           `json:"steps,omitempty"`
+	MaxRetries int                    `json:"maxRetries,omitempty"`
+	Timeout    int                    `json:"timeout,omitempty"`
+	LoopCount  int                    `json:"loopCount,omitempty"`
 }
 
 // StepExecutor 步骤执行器接口
@@ -66,12 +66,12 @@ type StepExecutor interface {
 
 // WorkflowEngine 工作流引擎
 type WorkflowEngine struct {
-	mu          sync.RWMutex
-	config      EngineConfig
-	manager     *Manager
-	executors   map[string]StepExecutor
-	status      EngineStatus
-	semaphore   chan struct{}
+	mu        sync.RWMutex
+	config    EngineConfig
+	manager   *Manager
+	executors map[string]StepExecutor
+	status    EngineStatus
+	semaphore chan struct{}
 }
 
 // NewWorkflowEngine 创建工作流引擎
@@ -329,11 +329,11 @@ func (e *WorkflowEngine) executeNode(ctx context.Context, node *WorkflowNode, ex
 
 		lastErr = err
 		exec.NodeStates[node.ID] = NodeExecutionState{
-			NodeID:      node.ID,
-			Status:      NodeStatusRunning,
-			StartedAt:   exec.NodeStates[node.ID].StartedAt,
-			Error:       err.Error(),
-			RetryCount:  retry + 1,
+			NodeID:     node.ID,
+			Status:     NodeStatusRunning,
+			StartedAt:  exec.NodeStates[node.ID].StartedAt,
+			Error:      err.Error(),
+			RetryCount: retry + 1,
 		}
 
 		if retry < maxRetries-1 {

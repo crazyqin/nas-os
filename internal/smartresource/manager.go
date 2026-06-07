@@ -32,64 +32,64 @@ const (
 
 // Resource represents a system resource
 type Resource struct {
-	ID        string       `json:"id"`
-	Type      ResourceType `json:"type"`
-	Name      string       `json:"name"`
-	Total     float64      `json:"total"`
-	Used      float64      `json:"used"`
-	Available float64      `json:"available"`
-	Unit      string       `json:"unit"`
-	Status    string       `json:"status"`
-	NodeID    string       `json:"node_id,omitempty"`
+	ID        string            `json:"id"`
+	Type      ResourceType      `json:"type"`
+	Name      string            `json:"name"`
+	Total     float64           `json:"total"`
+	Used      float64           `json:"used"`
+	Available float64           `json:"available"`
+	Unit      string            `json:"unit"`
+	Status    string            `json:"status"`
+	NodeID    string            `json:"node_id,omitempty"`
 	Metadata  map[string]string `json:"metadata,omitempty"`
 }
 
 // Allocation represents a resource allocation
 type Allocation struct {
-	ID        string           `json:"id"`
-	ResourceID string          `json:"resource_id"`
-	Service   string           `json:"service"`
-	Amount    float64          `json:"amount"`
-	Priority  int              `json:"priority"`
-	Status    AllocationStatus `json:"status"`
-	CreatedAt time.Time        `json:"created_at"`
-	ExpiresAt *time.Time       `json:"expires_at,omitempty"`
-	ReleasedAt *time.Time      `json:"released_at,omitempty"`
+	ID         string           `json:"id"`
+	ResourceID string           `json:"resource_id"`
+	Service    string           `json:"service"`
+	Amount     float64          `json:"amount"`
+	Priority   int              `json:"priority"`
+	Status     AllocationStatus `json:"status"`
+	CreatedAt  time.Time        `json:"created_at"`
+	ExpiresAt  *time.Time       `json:"expires_at,omitempty"`
+	ReleasedAt *time.Time       `json:"released_at,omitempty"`
 }
 
 // Prediction represents resource usage prediction
 type Prediction struct {
 	ResourceType ResourceType `json:"resource_type"`
-	Current     float64      `json:"current"`
-	Predicted   float64      `json:"predicted"`
-	TimeWindow  string       `json:"time_window"`
-	Confidence  float64      `json:"confidence"`
-	Trend       string       `json:"trend"`
-	GeneratedAt time.Time    `json:"generated_at"`
+	Current      float64      `json:"current"`
+	Predicted    float64      `json:"predicted"`
+	TimeWindow   string       `json:"time_window"`
+	Confidence   float64      `json:"confidence"`
+	Trend        string       `json:"trend"`
+	GeneratedAt  time.Time    `json:"generated_at"`
 }
 
 // Optimization represents a resource optimization suggestion
 type Optimization struct {
-	ID          string    `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
+	ID           string       `json:"id"`
+	Title        string       `json:"title"`
+	Description  string       `json:"description"`
 	ResourceType ResourceType `json:"resource_type"`
-	Savings     float64   `json:"savings"`
-	Impact      string    `json:"impact"`
-	Effort      string    `json:"effort"`
-	Priority    int       `json:"priority"`
-	CreatedAt   time.Time `json:"created_at"`
+	Savings      float64      `json:"savings"`
+	Impact       string       `json:"impact"`
+	Effort       string       `json:"effort"`
+	Priority     int          `json:"priority"`
+	CreatedAt    time.Time    `json:"created_at"`
 }
 
 // Node represents a cluster node
 type Node struct {
-	ID        string              `json:"id"`
-	Name      string              `json:"name"`
-	Host      string              `json:"host"`
+	ID        string                     `json:"id"`
+	Name      string                     `json:"name"`
+	Host      string                     `json:"host"`
 	Resources map[ResourceType]*Resource `json:"resources"`
-	Status    string              `json:"status"`
-	Labels    map[string]string   `json:"labels,omitempty"`
-	LastSeen  time.Time           `json:"last_seen"`
+	Status    string                     `json:"status"`
+	Labels    map[string]string          `json:"labels,omitempty"`
+	LastSeen  time.Time                  `json:"last_seen"`
 }
 
 // Manager manages resource scheduling
@@ -396,9 +396,9 @@ func (m *Manager) GetClusterStats() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"total_nodes":      len(m.nodes),
-		"online_nodes":     0,
-		"total_resources":  len(m.resources),
+		"total_nodes":       len(m.nodes),
+		"online_nodes":      0,
+		"total_resources":   len(m.resources),
 		"total_allocations": len(m.allocations),
 	}
 

@@ -63,19 +63,19 @@ type DiscoveryConfig struct {
 
 // ScanResult 扫描结果
 type ScanResult struct {
-	ID            string     `json:"id"`
-	StartTime     time.Time  `json:"start_time"`
-	EndTime       *time.Time `json:"end_time,omitempty"`
-	Duration      string     `json:"duration"`
-	Status        ScanStatus `json:"status"`
-	DevicesFound  int        `json:"devices_found"`
-	TotalDevices  int        `json:"total_devices"`
-	Error         string     `json:"error,omitempty"`
+	ID           string     `json:"id"`
+	StartTime    time.Time  `json:"start_time"`
+	EndTime      *time.Time `json:"end_time,omitempty"`
+	Duration     string     `json:"duration"`
+	Status       ScanStatus `json:"status"`
+	DevicesFound int        `json:"devices_found"`
+	TotalDevices int        `json:"total_devices"`
+	Error        string     `json:"error,omitempty"`
 }
 
 // DiscoveryMessage UDP 发现消息
 type DiscoveryMessage struct {
-	Type      string `json:"type"`      // "discovery" 或 "response"
+	Type      string `json:"type"` // "discovery" 或 "response"
 	Hostname  string `json:"hostname"`
 	Timestamp int64  `json:"timestamp"`
 	Version   string `json:"version"`

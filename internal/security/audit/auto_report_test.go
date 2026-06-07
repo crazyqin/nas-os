@@ -79,8 +79,8 @@ func newTestReportGenerator(t *testing.T) *ReportGenerator {
 		{Timestamp: time.Now().Add(-50 * time.Minute), UserID: "u2", Username: "user1", IP: "10.0.0.1", Success: false},
 		{Timestamp: time.Now().Add(-40 * time.Minute), UserID: "u2", Username: "user1", IP: "10.0.0.1", Success: false},
 		{Timestamp: time.Now().Add(-30 * time.Minute), UserID: "u2", Username: "user1", IP: "10.0.0.1", Success: false},
-		{Timestamp: time.Now().Add(-3*time.Hour), UserID: "u3", Username: "admin", IP: "203.0.113.50", Success: true, Country: "US"},
-		{Timestamp: time.Now().Add(-10*time.Hour), UserID: "u1", Username: "admin", IP: "192.168.1.10", Success: true},
+		{Timestamp: time.Now().Add(-3 * time.Hour), UserID: "u3", Username: "admin", IP: "203.0.113.50", Success: true, Country: "US"},
+		{Timestamp: time.Now().Add(-10 * time.Hour), UserID: "u1", Username: "admin", IP: "192.168.1.10", Success: true},
 	}
 
 	rg := NewReportGenerator(

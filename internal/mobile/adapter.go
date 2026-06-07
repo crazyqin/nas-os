@@ -63,7 +63,7 @@ type PaginatedResponse struct {
 // OfflineAction 离线队列操作
 type OfflineAction struct {
 	ID        string          `json:"id"`
-	Type      string          `json:"type"`   // create/update/delete
+	Type      string          `json:"type"` // create/update/delete
 	Resource  string          `json:"resource"`
 	Payload   json.RawMessage `json:"payload"`
 	Timestamp time.Time       `json:"timestamp"`

@@ -438,10 +438,10 @@ func TestCalculateRiskScore(t *testing.T) {
 	m := NewManager()
 
 	tests := []struct {
-		name       string
-		incident   BreachIncident
-		minScore   int
-		maxScore   int
+		name     string
+		incident BreachIncident
+		minScore int
+		maxScore int
 	}{
 		{
 			name: "高风险 - 勒索软件+PHI+大量记录",

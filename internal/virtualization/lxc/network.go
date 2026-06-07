@@ -25,29 +25,29 @@ type FirewallRule struct {
 
 // SandboxBridgeConfig 沙箱网桥配置（避免与 types.go 中的 Network 冲突）
 type SandboxBridgeConfig struct {
-	Name       string   `json:"name"`        // 网桥名称
-	IPAddress  string   `json:"ip_address"`  // 网桥 IP 地址
-	Subnet     string   `json:"subnet"`      // 子网掩码
-	MTU        int      `json:"mtu"`         // 最大传输单元
-	STP        bool     `json:"stp"`         // 是否启用 STP
-	Interfaces []string `json:"interfaces"`  // 绑定的物理接口
+	Name       string   `json:"name"`       // 网桥名称
+	IPAddress  string   `json:"ip_address"` // 网桥 IP 地址
+	Subnet     string   `json:"subnet"`     // 子网掩码
+	MTU        int      `json:"mtu"`        // 最大传输单元
+	STP        bool     `json:"stp"`        // 是否启用 STP
+	Interfaces []string `json:"interfaces"` // 绑定的物理接口
 }
 
 // SandboxVethPair 虚拟以太网对
 type SandboxVethPair struct {
-	HostSide  string `json:"host_side"`   // 宿主机端接口名
-	GuestSide string `json:"guest_side"`  // 沙箱端接口名
-	Bridge    string `json:"bridge"`      // 所属网桥
-	IPAddress string `json:"ip_address"`  // 分配的 IP 地址
-	MAC       string `json:"mac"`         // MAC 地址
+	HostSide  string `json:"host_side"`  // 宿主机端接口名
+	GuestSide string `json:"guest_side"` // 沙箱端接口名
+	Bridge    string `json:"bridge"`     // 所属网桥
+	IPAddress string `json:"ip_address"` // 分配的 IP 地址
+	MAC       string `json:"mac"`        // MAC 地址
 }
 
 // SandboxNetworkManager 沙箱网络管理器
 type SandboxNetworkManager struct {
 	mu        sync.RWMutex
 	bridges   map[string]*SandboxBridgeConfig
-	rules     map[string][]FirewallRule      // sandbox_id -> rules
-	vethPairs map[string]*SandboxVethPair    // sandbox_id -> veth pair
+	rules     map[string][]FirewallRule   // sandbox_id -> rules
+	vethPairs map[string]*SandboxVethPair // sandbox_id -> veth pair
 	config    *SandboxNetManagerConfig
 	logger    *zap.Logger
 }

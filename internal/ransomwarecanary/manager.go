@@ -15,13 +15,13 @@ import (
 
 // Manager 勒索软件金丝雀管理器.
 type Manager struct {
-	canaries    map[string]*CanaryFile   // id -> canary
-	alerts      []*CanaryAlert
-	lockedShares map[string]string       // share -> lock reason
-	config      CanaryConfig
-	lastCheck   *time.Time
-	mu          sync.RWMutex
-	stopCh      chan struct{}
+	canaries     map[string]*CanaryFile // id -> canary
+	alerts       []*CanaryAlert
+	lockedShares map[string]string // share -> lock reason
+	config       CanaryConfig
+	lastCheck    *time.Time
+	mu           sync.RWMutex
+	stopCh       chan struct{}
 }
 
 // NewManager 创建金丝雀管理器.
@@ -436,5 +436,3 @@ func computeFileSHA256(filePath string) (string, error) {
 	}
 	return computeSHA256(data), nil
 }
-
-

@@ -132,11 +132,11 @@ func (m *Manager) AddNode(node *ClusterNode) error {
 
 	// 发送节点加入事件
 	m.emitEvent(FailoverEvent{
-		ID:          generateEventID(),
-		Timestamp:   time.Now(),
-		Type:        EventNodeJoined,
+		ID:             generateEventID(),
+		Timestamp:      time.Now(),
+		Type:           EventNodeJoined,
 		PromotedNodeID: node.ID,
-		Reason:      "node joined cluster",
+		Reason:         "node joined cluster",
 	})
 
 	return nil
@@ -160,11 +160,11 @@ func (m *Manager) RemoveNode(nodeID string) error {
 
 	// 发送节点离开事件
 	m.emitEvent(FailoverEvent{
-		ID:        generateEventID(),
-		Timestamp: time.Now(),
-		Type:      EventNodeLeft,
+		ID:           generateEventID(),
+		Timestamp:    time.Now(),
+		Type:         EventNodeLeft,
 		FailedNodeID: nodeID,
-		Reason:    "node removed from cluster",
+		Reason:       "node removed from cluster",
 	})
 
 	return nil

@@ -237,9 +237,9 @@ func TestAddWidget(t *testing.T) {
 	layout := d.Layouts[0]
 
 	widget, err := m.AddWidget(d.ID, layout.ID, AddWidgetRequest{
-		Type:  WidgetTypeNASStatus,
-		Title: "NAS状态",
-		Size:  WidgetSize{Width: 6, Height: 4},
+		Type:     WidgetTypeNASStatus,
+		Title:    "NAS状态",
+		Size:     WidgetSize{Width: 6, Height: 4},
 		Position: WidgetPosition{X: 0, Y: 0},
 	})
 	if err != nil {
@@ -501,8 +501,8 @@ func TestWidgetDataCache(t *testing.T) {
 	m := NewManager()
 
 	data := NASStatusData{
-		Hostname: "nas-server",
-		CPU:      CPUData{UsagePercent: 45.5, Cores: 8},
+		Hostname:  "nas-server",
+		CPU:       CPUData{UsagePercent: 45.5, Cores: 8},
 		Timestamp: time.Now(),
 	}
 

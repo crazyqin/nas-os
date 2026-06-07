@@ -32,21 +32,21 @@ type FailoverExecutor struct {
 
 // FailoverMetrics tracks failover metrics
 type FailoverMetrics struct {
-	mu                sync.RWMutex
-	TotalFailovers    int64         `json:"total_failovers"`
-	Successful        int64         `json:"successful"`
-	Failed            int64         `json:"failed"`
-	AverageDuration   time.Duration `json:"average_duration"`
-	LastFailoverTime  time.Time     `json:"last_failover_time"`
-	TotalSessions     int64         `json:"total_sessions_transferred"`
-	FailoverHistory   []FailoverEvent `json:"failover_history"`
+	mu               sync.RWMutex
+	TotalFailovers   int64           `json:"total_failovers"`
+	Successful       int64           `json:"successful"`
+	Failed           int64           `json:"failed"`
+	AverageDuration  time.Duration   `json:"average_duration"`
+	LastFailoverTime time.Time       `json:"last_failover_time"`
+	TotalSessions    int64           `json:"total_sessions_transferred"`
+	FailoverHistory  []FailoverEvent `json:"failover_history"`
 }
 
 // VIPManager manages virtual IP addresses
 type VIPManager struct {
-	mu        sync.RWMutex
-	vips      map[string]*VIPConfig
-	logger    *zap.Logger
+	mu            sync.RWMutex
+	vips          map[string]*VIPConfig
+	logger        *zap.Logger
 	interfaceName string
 }
 
@@ -451,13 +451,13 @@ func (fe *FailoverExecutor) GetFailoverMetrics() *FailoverMetrics {
 	defer fe.mu.RUnlock()
 
 	metrics := &FailoverMetrics{
-		TotalFailovers:  fe.metrics.TotalFailovers,
-		Successful:      fe.metrics.Successful,
-		Failed:          fe.metrics.Failed,
-		AverageDuration: fe.metrics.AverageDuration,
+		TotalFailovers:   fe.metrics.TotalFailovers,
+		Successful:       fe.metrics.Successful,
+		Failed:           fe.metrics.Failed,
+		AverageDuration:  fe.metrics.AverageDuration,
 		LastFailoverTime: fe.metrics.LastFailoverTime,
-		TotalSessions:   fe.metrics.TotalSessions,
-		FailoverHistory: make([]FailoverEvent, len(fe.eventHistory)),
+		TotalSessions:    fe.metrics.TotalSessions,
+		FailoverHistory:  make([]FailoverEvent, len(fe.eventHistory)),
 	}
 	copy(metrics.FailoverHistory, fe.eventHistory)
 
@@ -566,12 +566,12 @@ func (fe *FailoverExecutor) GetFailoverStatus() map[string]interface{} {
 	defer fe.mu.RUnlock()
 
 	metrics := &FailoverMetrics{
-		TotalFailovers:  fe.metrics.TotalFailovers,
-		Successful:      fe.metrics.Successful,
-		Failed:          fe.metrics.Failed,
-		AverageDuration: fe.metrics.AverageDuration,
+		TotalFailovers:   fe.metrics.TotalFailovers,
+		Successful:       fe.metrics.Successful,
+		Failed:           fe.metrics.Failed,
+		AverageDuration:  fe.metrics.AverageDuration,
 		LastFailoverTime: fe.metrics.LastFailoverTime,
-		TotalSessions:   fe.metrics.TotalSessions,
+		TotalSessions:    fe.metrics.TotalSessions,
 	}
 
 	return map[string]interface{}{

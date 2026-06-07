@@ -12,12 +12,12 @@ import (
 
 // OAuthServer OAuth2.0服务器.
 type OAuthServer struct {
-	mu              sync.RWMutex
-	clients         map[string]*OAuthClient
-	users           map[string]*OAuthUser
-	authCodes       map[string]*AuthorizationCode
-	accessTokens    map[string]*AccessToken
-	refreshTokens   map[string]*RefreshToken
+	mu               sync.RWMutex
+	clients          map[string]*OAuthClient
+	users            map[string]*OAuthUser
+	authCodes        map[string]*AuthorizationCode
+	accessTokens     map[string]*AccessToken
+	refreshTokens    map[string]*RefreshToken
 	authorizationTTL time.Duration
 	accessTokenTTL   time.Duration
 	refreshTokenTTL  time.Duration
@@ -650,10 +650,10 @@ func (s *OAuthServer) GetStats() map[string]int {
 	defer s.mu.RUnlock()
 
 	return map[string]int{
-		"clients":       len(s.clients),
-		"users":         len(s.users),
-		"auth_codes":    len(s.authCodes),
-		"access_tokens": len(s.accessTokens),
+		"clients":        len(s.clients),
+		"users":          len(s.users),
+		"auth_codes":     len(s.authCodes),
+		"access_tokens":  len(s.accessTokens),
 		"refresh_tokens": len(s.refreshTokens),
 	}
 }

@@ -55,10 +55,10 @@ func (h *Handler) GetScore(c *gin.Context) {
 	}
 
 	score := SecurityScore{
-		Overall:    report.OverallScore,
-		Level:      report.SecurityLevel,
-		Summary:    generateSummary(report),
-		UpdatedAt:  report.ScanTime,
+		Overall:   report.OverallScore,
+		Level:     report.SecurityLevel,
+		Summary:   generateSummary(report),
+		UpdatedAt: report.ScanTime,
 	}
 
 	// 计算各类别分数
@@ -99,14 +99,14 @@ func (h *Handler) GetStatus(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"level":          report.SecurityLevel,
-		"score":          report.OverallScore,
-		"total_issues":   report.TotalIssues,
-		"critical":       report.CriticalIssues,
-		"warning":        report.WarningIssues,
-		"info":           report.InfoIssues,
-		"last_scan":      report.ScanTime,
-		"scan_duration":  report.Duration.String(),
+		"level":         report.SecurityLevel,
+		"score":         report.OverallScore,
+		"total_issues":  report.TotalIssues,
+		"critical":      report.CriticalIssues,
+		"warning":       report.WarningIssues,
+		"info":          report.InfoIssues,
+		"last_scan":     report.ScanTime,
+		"scan_duration": report.Duration.String(),
 	})
 }
 

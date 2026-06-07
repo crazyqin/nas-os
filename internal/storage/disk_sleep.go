@@ -12,10 +12,10 @@ import (
 
 // DiskSleepPolicy 磁盘休眠策略配置
 type DiskSleepPolicy struct {
-	IdleTimeoutMinutes int           `json:"idle_timeout_minutes"` // 空闲超时（分钟）
-	ExcludeDisks       []string      `json:"exclude_disks"`        // 排除的磁盘
-	ExceptionTimeRanges []TimeRange  `json:"exception_time_ranges"` // 例外时段（如备份时段）
-	Enabled            bool          `json:"enabled"`              // 是否启用
+	IdleTimeoutMinutes  int         `json:"idle_timeout_minutes"`  // 空闲超时（分钟）
+	ExcludeDisks        []string    `json:"exclude_disks"`         // 排除的磁盘
+	ExceptionTimeRanges []TimeRange `json:"exception_time_ranges"` // 例外时段（如备份时段）
+	Enabled             bool        `json:"enabled"`               // 是否启用
 }
 
 // TimeRange 时间范围
@@ -35,13 +35,13 @@ type DiskSleepStatus struct {
 
 // DiskSleepManager 磁盘休眠管理器
 type DiskSleepManager struct {
-	policy    DiskSleepPolicy
-	statuses  map[string]*DiskSleepStatus
-	mu        sync.RWMutex
+	policy     DiskSleepPolicy
+	statuses   map[string]*DiskSleepStatus
+	mu         sync.RWMutex
 	configPath string
-	ctx       context.Context
-	cancel    context.CancelFunc
-	logger    *SleepEventLogger
+	ctx        context.Context
+	cancel     context.CancelFunc
+	logger     *SleepEventLogger
 }
 
 // SleepEventLogger 休眠事件日志记录器

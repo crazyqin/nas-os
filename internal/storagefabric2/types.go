@@ -12,10 +12,10 @@ import (
 type LinkProtocol string
 
 const (
-	ProtocolFC      LinkProtocol = "FC"       // 光纤通道
-	ProtocolISCSI   LinkProtocol = "iSCSI"    // 互联网小型计算机系统接口
-	ProtocolNVMeOF  LinkProtocol = "NVMe-oF"  // NVMe over Fabrics
-	ProtocolRDMA    LinkProtocol = "RDMA"      // 远程直接内存访问
+	ProtocolFC     LinkProtocol = "FC"      // 光纤通道
+	ProtocolISCSI  LinkProtocol = "iSCSI"   // 互联网小型计算机系统接口
+	ProtocolNVMeOF LinkProtocol = "NVMe-oF" // NVMe over Fabrics
+	ProtocolRDMA   LinkProtocol = "RDMA"    // 远程直接内存访问
 )
 
 // LinkState 链路状态
@@ -39,44 +39,44 @@ const (
 type MultipathPolicy string
 
 const (
-	MultipathRoundRobin     MultipathPolicy = "RoundRobin"     // 轮询
-	MultipathActivePassive  MultipathPolicy = "ActivePassive"  // 主备
-	MultipathLeastIO        MultipathPolicy = "LeastIO"        // 最少IO
+	MultipathRoundRobin    MultipathPolicy = "RoundRobin"    // 轮询
+	MultipathActivePassive MultipathPolicy = "ActivePassive" // 主备
+	MultipathLeastIO       MultipathPolicy = "LeastIO"       // 最少IO
 )
 
 // DiscoveryProtocol 自动发现协议
 type DiscoveryProtocol string
 
 const (
-	DiscoverySLP   DiscoveryProtocol = "SLP"      // 服务定位协议
-	DiscoveryISNS  DiscoveryProtocol = "iSNS"     // 互联网存储名称服务
-	DiscoveryFCNS  DiscoveryProtocol = "FCNS"     // FC名称服务
+	DiscoverySLP  DiscoveryProtocol = "SLP"  // 服务定位协议
+	DiscoveryISNS DiscoveryProtocol = "iSNS" // 互联网存储名称服务
+	DiscoveryFCNS DiscoveryProtocol = "FCNS" // FC名称服务
 )
 
 // FabricNode 存储Fabric节点
 type FabricNode struct {
-	ID          string            // 节点唯一标识
-	Name        string            // 节点名称
-	Type        NodeType          // 节点类型（Target/Initiator）
-	IPAddress   string            // IP地址
-	WWN         string            // 全球名称（WWN）
-	PortCount   int               // 端口数量
-	MetaData    map[string]string // 扩展元数据
-	LastSeenAt  time.Time         // 最后发现时间
+	ID         string            // 节点唯一标识
+	Name       string            // 节点名称
+	Type       NodeType          // 节点类型（Target/Initiator）
+	IPAddress  string            // IP地址
+	WWN        string            // 全球名称（WWN）
+	PortCount  int               // 端口数量
+	MetaData   map[string]string // 扩展元数据
+	LastSeenAt time.Time         // 最后发现时间
 }
 
 // FabricLink 存储Fabric链路
 type FabricLink struct {
-	ID           string        // 链路唯一标识
-	SrcNodeID    string        // 源节点ID
-	DstNodeID    string        // 目标节点ID
-	Protocol     LinkProtocol  // 协议类型
-	State        LinkState     // 链路状态
-	Bandwidth    int64         // 带宽（bps）
-	LatencyMs    float64       // 延迟（毫秒）
-	ThroughputIO  int64        // 当前IOPS
-	ErrCount     int64         // 错误计数
-	UpSince      time.Time     // 上线时间
+	ID           string       // 链路唯一标识
+	SrcNodeID    string       // 源节点ID
+	DstNodeID    string       // 目标节点ID
+	Protocol     LinkProtocol // 协议类型
+	State        LinkState    // 链路状态
+	Bandwidth    int64        // 带宽（bps）
+	LatencyMs    float64      // 延迟（毫秒）
+	ThroughputIO int64        // 当前IOPS
+	ErrCount     int64        // 错误计数
+	UpSince      time.Time    // 上线时间
 }
 
 // FabricZone 分区（Zone）
@@ -96,17 +96,17 @@ type FabricTopology struct {
 
 // HealthScore 链路健康评分
 type HealthScore struct {
-	LinkID    string    // 链路ID
-	Score     int       // 健康评分（0-100）
-	Reason    string    // 评分依据
-	ScoredAt  time.Time // 评分时间
+	LinkID   string    // 链路ID
+	Score    int       // 健康评分（0-100）
+	Reason   string    // 评分依据
+	ScoredAt time.Time // 评分时间
 }
 
 // LatencyMonitor 延迟监控器
 type LatencyMonitor struct {
-	mu          sync.RWMutex
-	history     map[string][]float64 // linkID -> 延迟历史
-	maxHistory  int                  // 最大历史记录数
+	mu         sync.RWMutex
+	history    map[string][]float64 // linkID -> 延迟历史
+	maxHistory int                  // 最大历史记录数
 }
 
 // NewLatencyMonitor 创建延迟监控器
@@ -166,8 +166,8 @@ func (m *LatencyMonitor) Max(linkID string) float64 {
 
 // BandwidthAggregator 带宽聚合器
 type BandwidthAggregator struct {
-	mu       sync.RWMutex
-	links    map[string]int64 // linkID -> 带宽bps
+	mu    sync.RWMutex
+	links map[string]int64 // linkID -> 带宽bps
 }
 
 // NewBandwidthAggregator 创建带宽聚合器
@@ -211,10 +211,10 @@ func (a *BandwidthAggregator) Count() int {
 
 // AutoDiscovery 自动发现引擎
 type AutoDiscovery struct {
-	mu        sync.RWMutex
-	protocol  DiscoveryProtocol
-	nodes     map[string]FabricNode // 发现到的节点
-	enabled   bool
+	mu       sync.RWMutex
+	protocol DiscoveryProtocol
+	nodes    map[string]FabricNode // 发现到的节点
+	enabled  bool
 }
 
 // NewAutoDiscovery 创建自动发现引擎
@@ -280,15 +280,15 @@ func (d *AutoDiscovery) GetNode(id string) (FabricNode, bool) {
 
 // FabricManager 存储Fabric管理器
 type FabricManager struct {
-	mu          sync.RWMutex
-	nodes       map[string]FabricNode
-	links       map[string]FabricLink
-	zones       map[string]FabricZone
-	multipaths  map[string][]string // targetID -> []linkID（多路径链路组）
-	policy      MultipathPolicy
-	latencyMon  *LatencyMonitor
+	mu           sync.RWMutex
+	nodes        map[string]FabricNode
+	links        map[string]FabricLink
+	zones        map[string]FabricZone
+	multipaths   map[string][]string // targetID -> []linkID（多路径链路组）
+	policy       MultipathPolicy
+	latencyMon   *LatencyMonitor
 	bandwidthAgg *BandwidthAggregator
-	discovery   *AutoDiscovery
+	discovery    *AutoDiscovery
 }
 
 // NewFabricManager 创建存储Fabric管理器

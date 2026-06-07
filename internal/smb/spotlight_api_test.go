@@ -34,34 +34,34 @@ func TestSpotlightSearchRequestValidation(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "empty query",
-			req:  SpotlightSearchRequest{Query: ""},
+			name:    "empty query",
+			req:     SpotlightSearchRequest{Query: ""},
 			wantErr: false, // 允许空查询
 		},
 		{
-			name: "simple keyword",
-			req:  SpotlightSearchRequest{Query: "testfile"},
+			name:    "simple keyword",
+			req:     SpotlightSearchRequest{Query: "testfile"},
 			wantErr: false,
 		},
 		{
-			name: "spotlight syntax",
-			req:  SpotlightSearchRequest{Query: "kMDItemDisplayName == 'document.pdf'"},
+			name:    "spotlight syntax",
+			req:     SpotlightSearchRequest{Query: "kMDItemDisplayName == 'document.pdf'"},
 			wantErr: false,
 		},
 		{
 			name: "complex query",
-			req:  SpotlightSearchRequest{
-				Query:    "test",
-				Scope:    []string{"/data/share"},
-				Limit:    50,
-				OnlyFiles: true,
+			req: SpotlightSearchRequest{
+				Query:      "test",
+				Scope:      []string{"/data/share"},
+				Limit:      50,
+				OnlyFiles:  true,
 				FuzzyMatch: true,
 			},
 			wantErr: false,
 		},
 		{
-			name: "limit too large",
-			req:  SpotlightSearchRequest{Query: "test", Limit: 5000},
+			name:    "limit too large",
+			req:     SpotlightSearchRequest{Query: "test", Limit: 5000},
 			wantErr: false, // handler会限制到1000
 		},
 	}
@@ -81,16 +81,16 @@ func TestSpotlightSearchRequestValidation(t *testing.T) {
 func TestSpotlightFileResultFields(t *testing.T) {
 	now := time.Now()
 	result := &SpotlightFileResult{
-		Path:        "/data/share/document.pdf",
+		Path:         "/data/share/document.pdf",
 		RelativePath: "document.pdf",
-		Name:        "document.pdf",
-		Size:        1024000,
-		ModTime:     now,
-		Type:        "com.adobe.pdf",
-		Kind:        "PDF文档",
-		Extension:   ".pdf",
-		IsDirectory: false,
-		Score:       85.5,
+		Name:         "document.pdf",
+		Size:         1024000,
+		ModTime:      now,
+		Type:         "com.adobe.pdf",
+		Kind:         "PDF文档",
+		Extension:    ".pdf",
+		IsDirectory:  false,
+		Score:        85.5,
 		Attributes: map[string]string{
 			"kMDItemDisplayName": "document.pdf",
 			"kMDItemFSSize":      "1024000",
@@ -135,14 +135,14 @@ func TestFilepathExt(t *testing.T) {
 
 func TestSpotlightIndexStatusFields(t *testing.T) {
 	status := &SpotlightIndexStatus{
-		Enabled:      true,
-		Status:       "ready",
-		TotalFiles:   10000,
-		IndexedFiles: 8500,
-		IndexedSize:  524288000,
-		Progress:     85.0,
-		LastUpdate:   time.Now(),
-		SharePaths:   []string{"/data/share1", "/data/share2"},
+		Enabled:        true,
+		Status:         "ready",
+		TotalFiles:     10000,
+		IndexedFiles:   8500,
+		IndexedSize:    524288000,
+		Progress:       85.0,
+		LastUpdate:     time.Now(),
+		SharePaths:     []string{"/data/share1", "/data/share2"},
 		ContentIndexed: true,
 	}
 
@@ -200,10 +200,10 @@ func TestSpotlightConfigDefaults(t *testing.T) {
 
 func TestNewIndexer(t *testing.T) {
 	config := SpotlightConfig{
-		CacheSize:        50,
-		CacheTTLSeconds:  60,
+		CacheSize:           50,
+		CacheTTLSeconds:     60,
 		MaxConcurrentSearch: 4,
-		IndexBatchSize:   500,
+		IndexBatchSize:      500,
 	}
 
 	logger := zap.NewNop()
@@ -310,19 +310,19 @@ func TestMDQueryHandlerParseQuery(t *testing.T) {
 		expected map[string]interface{}
 	}{
 		{
-			query: "testfile",
+			query:    "testfile",
 			expected: map[string]interface{}{"name": "testfile"},
 		},
 		{
-			query: "kMDItemDisplayName == \"document.pdf\"",
+			query:    "kMDItemDisplayName == \"document.pdf\"",
 			expected: map[string]interface{}{"name": "document.pdf"},
 		},
 		{
-			query: "kMDItemContentType == \"public.image\"",
+			query:    "kMDItemContentType == \"public.image\"",
 			expected: map[string]interface{}{"type": "public.image"},
 		},
 		{
-			query: "kMDItemDisplayName == \"file\" OR kMDItemContentType == \"public.pdf\"",
+			query:    "kMDItemDisplayName == \"file\" OR kMDItemContentType == \"public.pdf\"",
 			expected: map[string]interface{}{"name": "file", "type": "public.pdf"},
 		},
 	}
@@ -429,8 +429,8 @@ func TestNewSpotlightService(t *testing.T) {
 
 func TestSpotlightServiceGetIndexStatus(t *testing.T) {
 	config := SpotlightConfig{
-		Enabled:        true,
-		SharePaths:     []string{"/data/share"},
+		Enabled:          true,
+		SharePaths:       []string{"/data/share"},
 		EnableContentIdx: true,
 	}
 
@@ -465,8 +465,8 @@ func TestSpotlightAPIHandlerGetStatus(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	config := SpotlightConfig{
-		Enabled:      true,
-		SharePaths:   []string{"/data/share"},
+		Enabled:          true,
+		SharePaths:       []string{"/data/share"},
 		EnableContentIdx: true,
 	}
 
@@ -491,10 +491,10 @@ func TestSpotlightAPIHandlerGetStats(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	config := SpotlightConfig{
-		Enabled:        true,
-		SharePaths:     []string{"/data/share"},
+		Enabled:          true,
+		SharePaths:       []string{"/data/share"},
 		EnableContentIdx: true,
-		CacheSize:      100,
+		CacheSize:        100,
 	}
 
 	logger := zap.NewNop()
@@ -584,8 +584,8 @@ func TestGenerateSMBConfSpotlight(t *testing.T) {
 	assert.Empty(t, disabled)
 
 	// 包含排除路径
-	withExcluded := GenerateSMBConfSpotlight(true, 
-		[]string{"/data/share"}, 
+	withExcluded := GenerateSMBConfSpotlight(true,
+		[]string{"/data/share"},
 		[]string{"/data/share/tmp", "/data/share/cache"})
 	assert.Contains(t, withExcluded, "spotlight exclude paths")
 }
@@ -689,14 +689,14 @@ func TestIndexerExtractKeywords(t *testing.T) {
 
 func TestSpotlightQuery(t *testing.T) {
 	query := SpotlightQuery{
-		Query:        "kMDItemDisplayName == 'test.pdf'",
-		Attributes:   []string{"kMDItemDisplayName", "kMDItemFSSize"},
-		Scope:        []string{"/data/share"},
-		Limit:        50,
-		SortBy:       "score",
-		SortDesc:     true,
-		OnlyFiles:    true,
-		FuzzyMatch:   true,
+		Query:         "kMDItemDisplayName == 'test.pdf'",
+		Attributes:    []string{"kMDItemDisplayName", "kMDItemFSSize"},
+		Scope:         []string{"/data/share"},
+		Limit:         50,
+		SortBy:        "score",
+		SortDesc:      true,
+		OnlyFiles:     true,
+		FuzzyMatch:    true,
 		ContentSearch: false,
 	}
 
@@ -770,10 +770,10 @@ func TestIndexStats(t *testing.T) {
 
 func TestSpotlightMDQueryRequest(t *testing.T) {
 	req := SpotlightMDQueryRequest{
-		Query:     "kMDItemDisplayName == '*.pdf'",
-		OnlyIn:    "/data/share",
-		Live:      false,
-		Interpret: true,
+		Query:      "kMDItemDisplayName == '*.pdf'",
+		OnlyIn:     "/data/share",
+		Live:       false,
+		Interpret:  true,
 		Attributes: []string{"kMDItemDisplayName", "kMDItemFSSize"},
 	}
 

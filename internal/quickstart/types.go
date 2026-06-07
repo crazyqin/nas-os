@@ -13,14 +13,14 @@ import (
 type Category string
 
 const (
-	CategoryMedia     Category = "media"     // 媒体中心
-	CategoryDownload  Category = "download"  // 下载工具
-	CategoryCloud     Category = "cloud"     // 网盘同步
-	CategoryPhoto     Category = "photo"     // 照片管理
-	CategoryDevTools  Category = "devtools"  // 开发工具
-	CategoryAIML      Category = "aiml"      // AI/ML
-	CategoryDatabase  Category = "database"  // 数据库
-	CategoryMonitor   Category = "monitor"   // 监控
+	CategoryMedia    Category = "media"    // 媒体中心
+	CategoryDownload Category = "download" // 下载工具
+	CategoryCloud    Category = "cloud"    // 网盘同步
+	CategoryPhoto    Category = "photo"    // 照片管理
+	CategoryDevTools Category = "devtools" // 开发工具
+	CategoryAIML     Category = "aiml"     // AI/ML
+	CategoryDatabase Category = "database" // 数据库
+	CategoryMonitor  Category = "monitor"  // 监控
 )
 
 // CategoryInfo 分类信息
@@ -49,12 +49,12 @@ var DefaultCategories = []CategoryInfo{
 type ParamType string
 
 const (
-	ParamTypeString  ParamType = "string"
-	ParamTypeInt     ParamType = "int"
-	ParamTypeBool    ParamType = "bool"
-	ParamTypePath    ParamType = "path"
-	ParamTypePort    ParamType = "port"
-	ParamTypeSelect  ParamType = "select"
+	ParamTypeString ParamType = "string"
+	ParamTypeInt    ParamType = "int"
+	ParamTypeBool   ParamType = "bool"
+	ParamTypePath   ParamType = "path"
+	ParamTypePort   ParamType = "port"
+	ParamTypeSelect ParamType = "select"
 )
 
 // TemplateParam 模板可配置参数
@@ -65,9 +65,9 @@ type TemplateParam struct {
 	Type         ParamType `json:"type"`
 	DefaultValue string    `json:"default_value"`
 	Required     bool      `json:"required"`
-	Options      []string  `json:"options,omitempty"`   // 用于 select 类型
-	Min          *int      `json:"min,omitempty"`       // 用于 int/port 类型最小值
-	Max          *int      `json:"max,omitempty"`       // 用于 int/port 类型最大值
+	Options      []string  `json:"options,omitempty"` // 用于 select 类型
+	Min          *int      `json:"min,omitempty"`     // 用于 int/port 类型最小值
+	Max          *int      `json:"max,omitempty"`     // 用于 int/port 类型最大值
 	Placeholder  string    `json:"placeholder,omitempty"`
 }
 
@@ -172,12 +172,12 @@ type Requirements struct {
 type DeployStatus string
 
 const (
-	DeployStatusDeploying DeployStatus = "deploying"  // 部署中
-	DeployStatusRunning   DeployStatus = "running"    // 运行中
-	DeployStatusStopped   DeployStatus = "stopped"    // 已停止
-	DeployStatusFailed    DeployStatus = "failed"     // 失败
-	DeployStatusStarting  DeployStatus = "starting"   // 启动中
-	DeployStatusStopping  DeployStatus = "stopping"   // 停止中
+	DeployStatusDeploying DeployStatus = "deploying" // 部署中
+	DeployStatusRunning   DeployStatus = "running"   // 运行中
+	DeployStatusStopped   DeployStatus = "stopped"   // 已停止
+	DeployStatusFailed    DeployStatus = "failed"    // 失败
+	DeployStatusStarting  DeployStatus = "starting"  // 启动中
+	DeployStatusStopping  DeployStatus = "stopping"  // 停止中
 )
 
 // Deployment 部署实例

@@ -197,8 +197,8 @@ func (h *Handlers) listAlertRules(c *gin.Context) {
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
-			"total":  len(rules),
-			"rules":  rules,
+			"total": len(rules),
+			"rules": rules,
 		},
 	})
 }

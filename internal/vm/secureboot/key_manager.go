@@ -23,14 +23,14 @@ import (
 //   - PK (Platform Key): 平台根信任锚，控制 KEK 的更新
 //   - KEK (Key Exchange Key): 控制 db/dbx 的更新
 //   - db (Signature Database): 存储被信任的签名/证书
-//   -dbx (Forbidden Signatures Database): 存储被吊销的签名/证书
+//     -dbx (Forbidden Signatures Database): 存储被吊销的签名/证书
 type KeyManager struct {
-	mu       sync.RWMutex
-	store    *keyStore
-	pk       *x509.Certificate // 当前平台密钥
-	logger   *zap.Logger
-	caCert   *x509.Certificate // 用于签发 PK 的 CA
-	caKey    interface{}        // CA 私钥
+	mu     sync.RWMutex
+	store  *keyStore
+	pk     *x509.Certificate // 当前平台密钥
+	logger *zap.Logger
+	caCert *x509.Certificate // 用于签发 PK 的 CA
+	caKey  interface{}       // CA 私钥
 }
 
 // NewKeyManager 创建密钥管理器。

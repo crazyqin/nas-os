@@ -17,8 +17,8 @@ import (
 type Manager struct {
 	mu           sync.RWMutex
 	logger       *zap.Logger
-	tiers        map[TierLevel]*tierData   // 层级数据
-	entries      map[string]*CacheEntry    // key -> CacheEntry
+	tiers        map[TierLevel]*tierData // 层级数据
+	entries      map[string]*CacheEntry  // key -> CacheEntry
 	config       *CacheConfig
 	totalHits    int64
 	totalMisses  int64

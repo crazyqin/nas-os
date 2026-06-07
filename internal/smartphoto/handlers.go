@@ -56,9 +56,9 @@ func (h *Handler) listPhotos(w http.ResponseWriter, r *http.Request) {
 	}
 
 	req := &SearchRequest{
-		Page:     page,
-		PageSize: pageSize,
-		SortBy:   r.URL.Query().Get("sort_by"),
+		Page:      page,
+		PageSize:  pageSize,
+		SortBy:    r.URL.Query().Get("sort_by"),
 		SortOrder: r.URL.Query().Get("sort_order"),
 	}
 

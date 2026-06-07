@@ -33,13 +33,13 @@ const (
 type FunctionRuntime string
 
 const (
-	RuntimePython FunctionRuntime = "python"
-	RuntimeNode   FunctionRuntime = "nodejs"
-	RuntimeGo     FunctionRuntime = "go"
-	RuntimeRust   FunctionRuntime = "rust"
-	RuntimeJava   FunctionRuntime = "java"
-	RuntimeDotNet FunctionRuntime = "dotnet"
-	RuntimeWasm   FunctionRuntime = "wasm"
+	RuntimePython    FunctionRuntime = "python"
+	RuntimeNode      FunctionRuntime = "nodejs"
+	RuntimeGo        FunctionRuntime = "go"
+	RuntimeRust      FunctionRuntime = "rust"
+	RuntimeJava      FunctionRuntime = "java"
+	RuntimeDotNet    FunctionRuntime = "dotnet"
+	RuntimeWasm      FunctionRuntime = "wasm"
 	RuntimeCustom    FunctionRuntime = "custom"
 	RuntimeContainer FunctionRuntime = "container"
 )
@@ -161,15 +161,15 @@ type VolumeMount struct {
 
 // HealthCheck 健康检查
 type HealthCheck struct {
-	Type               string `json:"type"`
-	Path               string `json:"path,omitempty"`
-	Port               int    `json:"port,omitempty"`
-	Command            string `json:"command,omitempty"`
-	IntervalSeconds    int    `json:"interval_seconds"`
-	TimeoutSeconds     int    `json:"timeout_seconds"`
-	FailureThreshold   int    `json:"failure_threshold"`
-	SuccessThreshold   int    `json:"success_threshold"`
-	InitialDelaySeconds int  `json:"initial_delay_seconds"`
+	Type                string `json:"type"`
+	Path                string `json:"path,omitempty"`
+	Port                int    `json:"port,omitempty"`
+	Command             string `json:"command,omitempty"`
+	IntervalSeconds     int    `json:"interval_seconds"`
+	TimeoutSeconds      int    `json:"timeout_seconds"`
+	FailureThreshold    int    `json:"failure_threshold"`
+	SuccessThreshold    int    `json:"success_threshold"`
+	InitialDelaySeconds int    `json:"initial_delay_seconds"`
 }
 
 // Trigger 触发器
@@ -209,7 +209,7 @@ type Affinity struct {
 
 // NodeAffinity 节点亲和性
 type NodeAffinity struct {
-	Required  []NodeSelector `json:"required,omitempty"`
+	Required  []NodeSelector  `json:"required,omitempty"`
 	Preferred []PreferredTerm `json:"preferred,omitempty"`
 }
 
@@ -240,8 +240,8 @@ type SelectorExpr struct {
 
 // PreferredTerm 首选项
 type PreferredTerm struct {
-	Weight     int           `json:"weight"`
-	Preference NodeSelector  `json:"preference"`
+	Weight     int          `json:"weight"`
+	Preference NodeSelector `json:"preference"`
 }
 
 // PodSelectorTerm Pod 选择器项
@@ -261,9 +261,9 @@ type WeightedPodTerm struct {
 type FunctionState string
 
 const (
-	StateActive   FunctionState = "active"
-	StateInactive FunctionState = "inactive"
-	StateError    FunctionState = "error"
+	StateActive    FunctionState = "active"
+	StateInactive  FunctionState = "inactive"
+	StateError     FunctionState = "error"
 	StateDeploying FunctionState = "deploying"
 )
 
@@ -287,26 +287,26 @@ type Config struct {
 
 // Function 函数计算
 type Function struct {
-	ID          string          `json:"id"`
-	Name        string          `json:"name"`
-	Description string          `json:"description"`
-	Runtime     FunctionRuntime `json:"runtime"`
-	Handler     string          `json:"handler"`
-	Code        string          `json:"code"`
-	CodePath    string          `json:"code_path"`
-	State       FunctionState   `json:"state"`
-	Config      FunctionConfig  `json:"config"`
-	MemoryMB    int             `json:"memory_mb"`
-	TimeoutSec  int             `json:"timeout_sec"`
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Runtime     FunctionRuntime   `json:"runtime"`
+	Handler     string            `json:"handler"`
+	Code        string            `json:"code"`
+	CodePath    string            `json:"code_path"`
+	State       FunctionState     `json:"state"`
+	Config      FunctionConfig    `json:"config"`
+	MemoryMB    int               `json:"memory_mb"`
+	TimeoutSec  int               `json:"timeout_sec"`
 	EnvVars     map[string]string `json:"env_vars,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty"`
-	Trigger     Trigger         `json:"trigger"`
-	Status      string          `json:"status"`
-	InvokeCount int64           `json:"invoke_count"`
-	LastError   string          `json:"last_error,omitempty"`
-	LastInvoked *time.Time      `json:"last_invoked,omitempty"`
-	CreatedAt   time.Time       `json:"created_at"`
-	UpdatedAt   time.Time       `json:"updated_at"`
+	Trigger     Trigger           `json:"trigger"`
+	Status      string            `json:"status"`
+	InvokeCount int64             `json:"invoke_count"`
+	LastError   string            `json:"last_error,omitempty"`
+	LastInvoked *time.Time        `json:"last_invoked,omitempty"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
 // AIInferenceTask AI 推理任务
@@ -330,32 +330,32 @@ type AIInferenceTask struct {
 
 // DeploymentRecord 部署记录
 type DeploymentRecord struct {
-	ID          string       `json:"id"`
-	WorkloadID  string       `json:"workload_id"`
-	WorkloadName string      `json:"workload_name"`
-	Version     string       `json:"version"`
-	Status      string       `json:"status"`
-	NodeID      string       `json:"node_id"`
-	StartedAt   time.Time    `json:"started_at"`
-	CompletedAt *time.Time   `json:"completed_at,omitempty"`
-	Duration    int64        `json:"duration"`
-	Message     string       `json:"message,omitempty"`
-	RollbackID  string       `json:"rollback_id,omitempty"`
+	ID           string     `json:"id"`
+	WorkloadID   string     `json:"workload_id"`
+	WorkloadName string     `json:"workload_name"`
+	Version      string     `json:"version"`
+	Status       string     `json:"status"`
+	NodeID       string     `json:"node_id"`
+	StartedAt    time.Time  `json:"started_at"`
+	CompletedAt  *time.Time `json:"completed_at,omitempty"`
+	Duration     int64      `json:"duration"`
+	Message      string     `json:"message,omitempty"`
+	RollbackID   string     `json:"rollback_id,omitempty"`
 }
 
 // EdgeCluster 边缘集群
 type EdgeCluster struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Description string       `json:"description"`
-	Nodes       []EdgeNode   `json:"nodes"`
-	Workloads   []Workload   `json:"workloads"`
-	Status      string       `json:"status"`
-	Version     string       `json:"version"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Nodes       []EdgeNode    `json:"nodes"`
+	Workloads   []Workload    `json:"workloads"`
+	Status      string        `json:"status"`
+	Version     string        `json:"version"`
 	Network     NetworkConfig `json:"network"`
 	Storage     StorageConfig `json:"storage"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
 // NetworkConfig 网络配置
@@ -369,16 +369,16 @@ type NetworkConfig struct {
 
 // StorageConfig 存储配置
 type StorageConfig struct {
-	DefaultClass string `json:"default_class"`
+	DefaultClass string         `json:"default_class"`
 	Classes      []StorageClass `json:"classes"`
 }
 
 // StorageClass 存储类
 type StorageClass struct {
-	Name        string            `json:"name"`
-	Provisioner string            `json:"provisioner"`
-	Parameters  map[string]string `json:"parameters,omitempty"`
-	ReclaimPolicy string          `json:"reclaim_policy"`
+	Name          string            `json:"name"`
+	Provisioner   string            `json:"provisioner"`
+	Parameters    map[string]string `json:"parameters,omitempty"`
+	ReclaimPolicy string            `json:"reclaim_policy"`
 }
 
 // WorkloadMetrics 工作负载指标
@@ -397,28 +397,28 @@ type WorkloadMetrics struct {
 
 // ClusterStats 集群统计
 type ClusterStats struct {
-	TotalNodes      int     `json:"total_nodes"`
-	ReadyNodes      int     `json:"ready_nodes"`
-	TotalWorkloads  int     `json:"total_workloads"`
-	RunningWorkloads int   `json:"running_workloads"`
-	TotalFunctions  int     `json:"total_functions"`
-	TotalAITasks    int     `json:"total_ai_tasks"`
-	TotalCPU        float64 `json:"total_cpu"`
-	UsedCPU         float64 `json:"used_cpu"`
-	TotalMemoryMB   int     `json:"total_memory_mb"`
-	UsedMemoryMB    int     `json:"used_memory_mb"`
-	TotalGPU        int     `json:"total_gpu"`
-	UsedGPU         int     `json:"used_gpu"`
-	Deployments     int     `json:"deployments"`
+	TotalNodes       int     `json:"total_nodes"`
+	ReadyNodes       int     `json:"ready_nodes"`
+	TotalWorkloads   int     `json:"total_workloads"`
+	RunningWorkloads int     `json:"running_workloads"`
+	TotalFunctions   int     `json:"total_functions"`
+	TotalAITasks     int     `json:"total_ai_tasks"`
+	TotalCPU         float64 `json:"total_cpu"`
+	UsedCPU          float64 `json:"used_cpu"`
+	TotalMemoryMB    int     `json:"total_memory_mb"`
+	UsedMemoryMB     int     `json:"used_memory_mb"`
+	TotalGPU         int     `json:"total_gpu"`
+	UsedGPU          int     `json:"used_gpu"`
+	Deployments      int     `json:"deployments"`
 }
 
 // EdgeEvent 边缘事件
 type EdgeEvent struct {
-	ID        string    `json:"id"`
-	Type      string    `json:"type"`
-	NodeID    string    `json:"node_id"`
-	WorkloadID string   `json:"workload_id,omitempty"`
-	Message   string    `json:"message"`
-	Severity  string    `json:"severity"`
-	Timestamp time.Time `json:"timestamp"`
+	ID         string    `json:"id"`
+	Type       string    `json:"type"`
+	NodeID     string    `json:"node_id"`
+	WorkloadID string    `json:"workload_id,omitempty"`
+	Message    string    `json:"message"`
+	Severity   string    `json:"severity"`
+	Timestamp  time.Time `json:"timestamp"`
 }

@@ -34,8 +34,8 @@ type wsClient struct {
 // NewAPIHandlers 创建API处理器
 func NewAPIHandlers(manager *ClientManager, logger *zap.Logger) *APIHandlers {
 	h := &APIHandlers{
-		manager:    manager,
-		logger:     logger,
+		manager: manager,
+		logger:  logger,
 		wsUpgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -109,19 +109,19 @@ type ListTunnelsResponse struct {
 
 // TunnelListEntry 隧道列表条目
 type TunnelListEntry struct {
-	ID           string     `json:"id"`
-	Name         string     `json:"name"`
-	Type         TunnelType `json:"type"`
-	ClientID     string     `json:"client_id"`
-	Status       string     `json:"status"`
-	LocalAddr    string     `json:"local_addr"`
-	RemoteAddr   string     `json:"remote_addr,omitempty"`
-	PublicURL    string     `json:"public_url,omitempty"`
-	BytesSent    uint64     `json:"bytes_sent"`
-	BytesRecv    uint64     `json:"bytes_recv"`
-	Connections  int        `json:"connections"`
-	LastActive   time.Time  `json:"last_active"`
-	Enabled      bool       `json:"enabled"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Type        TunnelType `json:"type"`
+	ClientID    string     `json:"client_id"`
+	Status      string     `json:"status"`
+	LocalAddr   string     `json:"local_addr"`
+	RemoteAddr  string     `json:"remote_addr,omitempty"`
+	PublicURL   string     `json:"public_url,omitempty"`
+	BytesSent   uint64     `json:"bytes_sent"`
+	BytesRecv   uint64     `json:"bytes_recv"`
+	Connections int        `json:"connections"`
+	LastActive  time.Time  `json:"last_active"`
+	Enabled     bool       `json:"enabled"`
 }
 
 // ListTunnels 列出所有隧道
@@ -236,9 +236,9 @@ func (h *APIHandlers) GetTunnel(c *gin.Context) {
 					"code":    0,
 					"message": "success",
 					"data": TunnelDetailResponse{
-						Tunnel:    tunnel,
-						ClientID:  clientStatus.ClientID,
-						NodeName:  clientStatus.NodeName,
+						Tunnel:     tunnel,
+						ClientID:   clientStatus.ClientID,
+						NodeName:   clientStatus.NodeName,
 						NodeRegion: clientStatus.Region,
 					},
 				})
@@ -314,7 +314,7 @@ func (h *APIHandlers) GetAllClientStatus(c *gin.Context) {
 
 // ClientStatusListResponse 客户端状态列表响应
 type ClientStatusListResponse struct {
-	Total   int                `json:"total"`
+	Total   int                 `json:"total"`
 	Clients []*ClientStatusInfo `json:"clients"`
 }
 
@@ -349,17 +349,17 @@ func (h *APIHandlers) GetClientStatus(c *gin.Context) {
 
 // CreateTunnelRequest 创建隧道请求
 type CreateTunnelRequest struct {
-	ClientID     string     `json:"client_id" binding:"required"` // 使用指定客户端
-	NodeID       string     `json:"node_id"`                     // 或指定节点自动创建
-	Name         string     `json:"name" binding:"required"`
-	Type         TunnelType `json:"type" binding:"required"`
-	LocalIP      string     `json:"local_ip"`
-	LocalPort    int        `json:"local_port" binding:"required"`
-	RemotePort   int        `json:"remote_port"`
-	SubDomain    string     `json:"sub_domain"`
-	CustomDomains []string  `json:"custom_domains"`
-	Sk           string     `json:"sk"` // STCP密钥
-	Enabled      bool       `json:"enabled"`
+	ClientID      string     `json:"client_id" binding:"required"` // 使用指定客户端
+	NodeID        string     `json:"node_id"`                      // 或指定节点自动创建
+	Name          string     `json:"name" binding:"required"`
+	Type          TunnelType `json:"type" binding:"required"`
+	LocalIP       string     `json:"local_ip"`
+	LocalPort     int        `json:"local_port" binding:"required"`
+	RemotePort    int        `json:"remote_port"`
+	SubDomain     string     `json:"sub_domain"`
+	CustomDomains []string   `json:"custom_domains"`
+	Sk            string     `json:"sk"` // STCP密钥
+	Enabled       bool       `json:"enabled"`
 }
 
 // CreateTunnel 创建隧道
@@ -782,12 +782,12 @@ func (h *APIHandlers) StopTunnel(c *gin.Context) {
 
 // QuickConnectRequest 一键连接请求
 type QuickConnectRequest struct {
-	NodeID     string     `json:"node_id"`      // 可选：指定节点
-	Region     NodeRegion `json:"region"`       // 可选：指定区域
+	NodeID     string     `json:"node_id"` // 可选：指定节点
+	Region     NodeRegion `json:"region"`  // 可选：指定区域
 	LocalPort  int        `json:"local_port" binding:"required"`
-	RemotePort int        `json:"remote_port"`  // 可选：远程端口
-	TunnelName string     `json:"tunnel_name"`  // 可选：隧道名称
-	TunnelType TunnelType `json:"tunnel_type"`  // 可选：隧道类型
+	RemotePort int        `json:"remote_port"` // 可选：远程端口
+	TunnelName string     `json:"tunnel_name"` // 可选：隧道名称
+	TunnelType TunnelType `json:"tunnel_type"` // 可选：隧道类型
 }
 
 // QuickConnectAPIHandler 一键连接API
@@ -994,7 +994,7 @@ func (h *APIHandlers) HealthCheckNodes(c *gin.Context) {
 
 // HealthCheckResponse 健康检查响应
 type HealthCheckResponse struct {
-	Total   int                       `json:"total"`
+	Total   int                          `json:"total"`
 	Results map[string]*NodeHealthResult `json:"results"`
 }
 

@@ -92,10 +92,10 @@ func (p *AudioPreviewer) Generate(ctx context.Context, req *PreviewRequest) (*Pr
 		GeneratedAt: stat.ModTime(),
 		Duration:    audioInfo.Duration,
 		Metadata: map[string]string{
-			"codec":      audioInfo.Codec,
+			"codec":       audioInfo.Codec,
 			"sample_rate": fmt.Sprintf("%d", audioInfo.SampleRate),
-			"channels":   fmt.Sprintf("%d", audioInfo.Channels),
-			"bitrate":    fmt.Sprintf("%d", audioInfo.Bitrate),
+			"channels":    fmt.Sprintf("%d", audioInfo.Channels),
+			"bitrate":     fmt.Sprintf("%d", audioInfo.Bitrate),
 		},
 	}, nil
 }

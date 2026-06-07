@@ -17,19 +17,19 @@ type Engine struct {
 
 // Config 是 TrueSearch 引擎配置。
 type Config struct {
-	IndexPath    string   `json:"indexPath"`    // 索引存储路径
-	MaxFileSize  int64    `json:"maxFileSize"`  // 最大索引文件大小 (bytes)
-	BatchSize    int      `json:"batchSize"`    // 批量索引大小
+	IndexPath     string   `json:"indexPath"`     // 索引存储路径
+	MaxFileSize   int64    `json:"maxFileSize"`   // 最大索引文件大小 (bytes)
+	BatchSize     int      `json:"batchSize"`     // 批量索引大小
 	SupportedExts []string `json:"supportedExts"` // 支持索引内容的扩展名
-	ExcludeDirs  []string `json:"excludeDirs"`  // 排除目录
+	ExcludeDirs   []string `json:"excludeDirs"`   // 排除目录
 }
 
 // DefaultConfig 返回默认配置。
 func DefaultConfig() Config {
 	return Config{
-		IndexPath:    "/var/lib/nas-os/truesearch/index.bleve",
-		MaxFileSize:  50 * 1024 * 1024, // 50MB
-		BatchSize:    100,
+		IndexPath:   "/var/lib/nas-os/truesearch/index.bleve",
+		MaxFileSize: 50 * 1024 * 1024, // 50MB
+		BatchSize:   100,
 		SupportedExts: []string{
 			".txt", ".md", ".markdown", ".pdf", ".docx",
 			".json", ".yaml", ".yml", ".xml", ".csv",

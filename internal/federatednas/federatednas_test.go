@@ -26,10 +26,10 @@ func TestRegisterNode(t *testing.T) {
 	f := NewFederation()
 
 	node := &FederationNode{
-		ID:      "node-1",
-		Name:    "NAS-1",
-		Address: "192.168.1.100",
-		Port:    8080,
+		ID:       "node-1",
+		Name:     "NAS-1",
+		Address:  "192.168.1.100",
+		Port:     8080,
 		Capacity: 1024 * 1024 * 1024 * 10, // 10GB
 	}
 

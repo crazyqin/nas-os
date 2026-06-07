@@ -15,10 +15,10 @@ import (
 type BanLevel int
 
 const (
-	BanLevelWarn    BanLevel = 1 // 警告（不封禁）
-	BanLevelTemp    BanLevel = 2 // 临时封禁（30分钟）
-	BanLevelMedium  BanLevel = 3 // 中期封禁（24小时）
-	BanLevelPerm    BanLevel = 4 // 永久封禁（需手动解除）
+	BanLevelWarn   BanLevel = 1 // 警告（不封禁）
+	BanLevelTemp   BanLevel = 2 // 临时封禁（30分钟）
+	BanLevelMedium BanLevel = 3 // 中期封禁（24小时）
+	BanLevelPerm   BanLevel = 4 // 永久封禁（需手动解除）
 )
 
 // String 返回封禁级别描述
@@ -41,22 +41,22 @@ func (l BanLevel) String() string {
 type AttackPattern string
 
 const (
-	PatternBruteForce  AttackPattern = "brute_force"  // 暴力破解
-	PatternDistributed AttackPattern = "distributed"  // 分布式攻击
-	PatternCredential  AttackPattern = "credential"   // 凭据填充
-	PatternScan        AttackPattern = "port_scan"    // 端口扫描
+	PatternBruteForce  AttackPattern = "brute_force" // 暴力破解
+	PatternDistributed AttackPattern = "distributed" // 分布式攻击
+	PatternCredential  AttackPattern = "credential"  // 凭据填充
+	PatternScan        AttackPattern = "port_scan"   // 端口扫描
 )
 
 // GuardConfig 配置
 type GuardConfig struct {
-	Enabled          bool          `json:"enabled"`
-	MaxAttempts      int           `json:"max_attempts"`       // 最大失败尝试次数
-	WindowDuration   time.Duration `json:"window_duration"`    // 检测窗口时长
-	TempBanDuration  time.Duration `json:"temp_ban_duration"`  // 临时封禁时长
-	MediumBanDuration time.Duration `json:"medium_ban_duration"` // 中期封禁时长
-	WhitelistCIDRs   []string      `json:"whitelist_cidrs"`    // 白名单 CIDR
-	EnableAutoEscalate bool        `json:"auto_escalate"`      // 自动升级封禁级别
-	LogAttempts      bool          `json:"log_attempts"`       // 记录所有尝试
+	Enabled            bool          `json:"enabled"`
+	MaxAttempts        int           `json:"max_attempts"`        // 最大失败尝试次数
+	WindowDuration     time.Duration `json:"window_duration"`     // 检测窗口时长
+	TempBanDuration    time.Duration `json:"temp_ban_duration"`   // 临时封禁时长
+	MediumBanDuration  time.Duration `json:"medium_ban_duration"` // 中期封禁时长
+	WhitelistCIDRs     []string      `json:"whitelist_cidrs"`     // 白名单 CIDR
+	EnableAutoEscalate bool          `json:"auto_escalate"`       // 自动升级封禁级别
+	LogAttempts        bool          `json:"log_attempts"`        // 记录所有尝试
 }
 
 // DefaultConfig 返回默认配置
@@ -83,14 +83,14 @@ type FailedAttempt struct {
 
 // BannedEntry 封禁条目
 type BannedEntry struct {
-	IP        string      `json:"ip"`
-	Level     BanLevel    `json:"level"`
+	IP        string        `json:"ip"`
+	Level     BanLevel      `json:"level"`
 	Pattern   AttackPattern `json:"pattern"`
-	BannedAt  time.Time   `json:"banned_at"`
-	ExpiresAt *time.Time  `json:"expires_at,omitempty"`
-	Attempts  int         `json:"attempts"`
-	Reason    string      `json:"reason"`
-	Released  bool        `json:"released"`
+	BannedAt  time.Time     `json:"banned_at"`
+	ExpiresAt *time.Time    `json:"expires_at,omitempty"`
+	Attempts  int           `json:"attempts"`
+	Reason    string        `json:"reason"`
+	Released  bool          `json:"released"`
 }
 
 // AttackStats 攻击统计
@@ -111,13 +111,13 @@ type IPCount struct {
 
 // Guard SMB 安全守卫
 type Guard struct {
-	mu          sync.RWMutex
-	config      GuardConfig
-	attempts    map[string][]FailedAttempt // IP -> 尝试列表
-	banned      map[string]*BannedEntry    // IP -> 封禁条目
-	whitelist   map[string]*net.IPNet      // 白名单网络
-	stats       AttackStats
-	stopCh      chan struct{}
+	mu        sync.RWMutex
+	config    GuardConfig
+	attempts  map[string][]FailedAttempt // IP -> 尝试列表
+	banned    map[string]*BannedEntry    // IP -> 封禁条目
+	whitelist map[string]*net.IPNet      // 白名单网络
+	stats     AttackStats
+	stopCh    chan struct{}
 }
 
 // NewGuard 创建新的 SMB 安全守卫

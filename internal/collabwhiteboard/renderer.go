@@ -267,11 +267,11 @@ func (r *Renderer) renderElementToCanvas(elem Element) []CanvasCommand {
 		commands = append(commands, CanvasCommand{
 			Action: "fillText",
 			Params: map[string]interface{}{
-				"x":        elem.X,
-				"y":        elem.Y,
-				"font":     fmt.Sprintf("%s %dpx", elem.Style.FontFamily, elem.Style.FontSize),
-				"color":    elem.Style.StrokeColor,
-				"text":     "",
+				"x":     elem.X,
+				"y":     elem.Y,
+				"font":  fmt.Sprintf("%s %dpx", elem.Style.FontFamily, elem.Style.FontSize),
+				"color": elem.Style.StrokeColor,
+				"text":  "",
 			},
 		})
 	}
@@ -396,15 +396,15 @@ func (r *Renderer) GetRenderStats(board *Board) map[string]int {
 	defer r.mu.RUnlock()
 
 	stats := map[string]int{
-		"total":     len(board.Elements),
-		"visible":   0,
-		"hidden":    0,
-		"locked":    0,
-		"unlocked":  0,
-		"strokes":   0,
-		"shapes":    0,
-		"texts":     0,
-		"images":    0,
+		"total":    len(board.Elements),
+		"visible":  0,
+		"hidden":   0,
+		"locked":   0,
+		"unlocked": 0,
+		"strokes":  0,
+		"shapes":   0,
+		"texts":    0,
+		"images":   0,
 	}
 
 	for _, elem := range board.Elements {

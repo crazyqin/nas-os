@@ -12,11 +12,11 @@ import (
 
 // Manager 数据完整性校验管理器.
 type Manager struct {
-	mu      sync.RWMutex
-	jobs    map[string]*VerifyJob
-	results map[string]*VerifyResult
+	mu        sync.RWMutex
+	jobs      map[string]*VerifyJob
+	results   map[string]*VerifyResult
 	checksums map[string]*ChecksumEntry // path -> checksum
-	stats   VerifyStats
+	stats     VerifyStats
 }
 
 // NewManager 创建校验管理器.

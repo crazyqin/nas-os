@@ -8,9 +8,9 @@ import (
 
 // RateLimiter controls concurrent sync tasks and bandwidth
 type RateLimiter struct {
-	mu            sync.Mutex
-	maxConcurrent int
-	activeCount   int
+	mu             sync.Mutex
+	maxConcurrent  int
+	activeCount    int
 	bandwidthLimit int64 // bytes per second, 0 = unlimited
 }
 

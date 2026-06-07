@@ -10,12 +10,12 @@ import (
 
 // RealtimeEngine 实时协作引擎.
 type RealtimeEngine struct {
-	mu         sync.RWMutex
-	engine     *Engine
-	cursors    map[string]map[string]*Cursor // boardID -> userID -> cursor
-	clients    map[string]map[string]bool    // boardID -> userID -> connected
-	listeners  map[string][]chan Operation   // boardID -> operation channels
-	otBuffer   map[string][]OTOperation     // boardID -> OT operations
+	mu        sync.RWMutex
+	engine    *Engine
+	cursors   map[string]map[string]*Cursor // boardID -> userID -> cursor
+	clients   map[string]map[string]bool    // boardID -> userID -> connected
+	listeners map[string][]chan Operation   // boardID -> operation channels
+	otBuffer  map[string][]OTOperation      // boardID -> OT operations
 }
 
 // OTOperation OT操作.
@@ -47,10 +47,10 @@ type SyncMessage struct {
 
 // SyncState 同步状态.
 type SyncState struct {
-	BoardID       string `json:"board_id"`
-	Version       int    `json:"version"`
-	ConnectedUsers int   `json:"connected_users"`
-	LastOperation time.Time `json:"last_operation"`
+	BoardID        string    `json:"board_id"`
+	Version        int       `json:"version"`
+	ConnectedUsers int       `json:"connected_users"`
+	LastOperation  time.Time `json:"last_operation"`
 }
 
 // NewRealtimeEngine 创建实时协作引擎.
@@ -352,10 +352,10 @@ func (re *RealtimeEngine) SyncFull(boardID string) ([]byte, error) {
 	}
 
 	syncData := map[string]interface{}{
-		"board":    board,
-		"cursors":  cursors,
-		"users":    users,
-		"version":  0,
+		"board":   board,
+		"cursors": cursors,
+		"users":   users,
+		"version": 0,
 	}
 
 	if buffer, ok := re.otBuffer[boardID]; ok {

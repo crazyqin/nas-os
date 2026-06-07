@@ -59,10 +59,10 @@ func TestFeedManagement(t *testing.T) {
 
 	t.Run("adds feed successfully", func(t *testing.T) {
 		feed := &ThreatFeed{
-			ID:       "feed-1",
-			Name:     "Test Feed",
-			Type:     FeedTypeOpenSource,
-			URL:      "https://example.com/feed",
+			ID:         "feed-1",
+			Name:       "Test Feed",
+			Type:       FeedTypeOpenSource,
+			URL:        "https://example.com/feed",
 			TrustLevel: 80,
 		}
 
@@ -266,13 +266,13 @@ func TestScanResults(t *testing.T) {
 
 	t.Run("saves and retrieves scan result", func(t *testing.T) {
 		result := &ScanResult{
-			ID:        "scan-1",
-			ScanType:  "port",
-			Status:    ScanStatusComplete,
-			Target:    "192.168.1.1",
-			StartTime: time.Now().Add(-5 * time.Minute),
-			EndTime:   time.Now(),
-			OpenPorts: 5,
+			ID:         "scan-1",
+			ScanType:   "port",
+			Status:     ScanStatusComplete,
+			Target:     "192.168.1.1",
+			StartTime:  time.Now().Add(-5 * time.Minute),
+			EndTime:    time.Now(),
+			OpenPorts:  5,
 			TotalPorts: 20,
 		}
 
@@ -422,8 +422,8 @@ func TestIOCValidator(t *testing.T) {
 			hash  string
 			valid bool
 		}{
-			{"d41d8cd98f00b204e9800998ecf8427e", true},            // MD5
-			{"da39a3ee5e6b4b0d3255bfef95601890afd80709", true},    // SHA1
+			{"d41d8cd98f00b204e9800998ecf8427e", true},                                 // MD5
+			{"da39a3ee5e6b4b0d3255bfef95601890afd80709", true},                         // SHA1
 			{"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", true}, // SHA256
 			{"invalid", false},
 			{"", false},
@@ -730,8 +730,8 @@ func TestCleanupExpiredIOCs(t *testing.T) {
 		ExpiresAt: &expired,
 	})
 	engine.AddIOC(&IOC{
-		ID:   "valid-ioc",
-		Type: IOCTypeIP,
+		ID:    "valid-ioc",
+		Type:  IOCTypeIP,
 		Value: "5.6.7.8",
 	})
 

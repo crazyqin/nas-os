@@ -34,10 +34,10 @@ const (
 type CipherSuite string
 
 const (
-	CipherAES256GCM    CipherSuite = "AES-256-GCM"
-	CipherAES256CBC    CipherSuite = "AES-256-CBC"
-	CipherChaCha20     CipherSuite = "ChaCha20-Poly1305"
-	CipherAES128GCM    CipherSuite = "AES-128-GCM"
+	CipherAES256GCM CipherSuite = "AES-256-GCM"
+	CipherAES256CBC CipherSuite = "AES-256-CBC"
+	CipherChaCha20  CipherSuite = "ChaCha20-Poly1305"
+	CipherAES128GCM CipherSuite = "AES-128-GCM"
 )
 
 // Protocol 传输协议
@@ -55,41 +55,41 @@ const (
 type KeyStatus string
 
 const (
-	KeyStatusActive    KeyStatus = "active"
-	KeyStatusRotating  KeyStatus = "rotating"
-	KeyStatusRetired   KeyStatus = "retired"
+	KeyStatusActive      KeyStatus = "active"
+	KeyStatusRotating    KeyStatus = "rotating"
+	KeyStatusRetired     KeyStatus = "retired"
 	KeyStatusCompromised KeyStatus = "compromised"
 )
 
 // EncryptionKey 加密密钥
 type EncryptionKey struct {
-	ID         string    `json:"id"`
-	Name       string    `json:"name"`
+	ID         string      `json:"id"`
+	Name       string      `json:"name"`
 	Algorithm  CipherSuite `json:"algorithm"`
-	KeySize    int       `json:"keySize"`    // bits
-	Status     KeyStatus `json:"status"`
-	CreatedAt  time.Time `json:"createdAt"`
-	ExpiresAt  time.Time `json:"expiresAt"`
-	RotatedAt  time.Time `json:"rotatedAt"`
-	UsageCount int64     `json:"usageCount"`
-	MaxUsage   int64     `json:"maxUsage"`   // 最大使用次数
-	Version    int       `json:"version"`
+	KeySize    int         `json:"keySize"` // bits
+	Status     KeyStatus   `json:"status"`
+	CreatedAt  time.Time   `json:"createdAt"`
+	ExpiresAt  time.Time   `json:"expiresAt"`
+	RotatedAt  time.Time   `json:"rotatedAt"`
+	UsageCount int64       `json:"usageCount"`
+	MaxUsage   int64       `json:"maxUsage"` // 最大使用次数
+	Version    int         `json:"version"`
 }
 
 // EncryptedShare 加密共享
 type EncryptedShare struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Path        string    `json:"path"`
-	Protocol    Protocol  `json:"protocol"`
-	KeyID       string    `json:"keyId"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Path        string      `json:"path"`
+	Protocol    Protocol    `json:"protocol"`
+	KeyID       string      `json:"keyId"`
 	CipherSuite CipherSuite `json:"cipherSuite"`
-	TLSVersion  string    `json:"tlsVersion"` // 1.3
-	FIPSLevel   FIPSLevel `json:"fipsLevel"`
-	Enabled     bool      `json:"enabled"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
-	AuditLog    bool      `json:"auditLog"`   // 是否记录审计日志
+	TLSVersion  string      `json:"tlsVersion"` // 1.3
+	FIPSLevel   FIPSLevel   `json:"fipsLevel"`
+	Enabled     bool        `json:"enabled"`
+	CreatedAt   time.Time   `json:"createdAt"`
+	UpdatedAt   time.Time   `json:"updatedAt"`
+	AuditLog    bool        `json:"auditLog"` // 是否记录审计日志
 }
 
 // AuditEntry 审计条目
@@ -108,15 +108,15 @@ type AuditEntry struct {
 
 // ComplianceReport 合规报告
 type ComplianceReport struct {
-	GeneratedAt    time.Time            `json:"generatedAt"`
-	FIPSLevel      FIPSLevel            `json:"fipsLevel"`
-	OverallStatus  string               `json:"overallStatus"` // compliant, non_compliant, warning
-	TotalShares    int                  `json:"totalShares"`
-	EncryptedShares int                 `json:"encryptedShares"`
-	ActiveKeys     int                  `json:"activeKeys"`
-	ExpiredKeys    int                  `json:"expiredKeys"`
-	Issues         []ComplianceIssue    `json:"issues"`
-	Protocols      map[string]ProtocolStatus `json:"protocols"`
+	GeneratedAt     time.Time                 `json:"generatedAt"`
+	FIPSLevel       FIPSLevel                 `json:"fipsLevel"`
+	OverallStatus   string                    `json:"overallStatus"` // compliant, non_compliant, warning
+	TotalShares     int                       `json:"totalShares"`
+	EncryptedShares int                       `json:"encryptedShares"`
+	ActiveKeys      int                       `json:"activeKeys"`
+	ExpiredKeys     int                       `json:"expiredKeys"`
+	Issues          []ComplianceIssue         `json:"issues"`
+	Protocols       map[string]ProtocolStatus `json:"protocols"`
 }
 
 // ComplianceIssue 合规问题

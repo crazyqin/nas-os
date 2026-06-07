@@ -8,14 +8,14 @@ import (
 
 // Theme represents a UI theme configuration.
 type Theme struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	IsDark      bool      `json:"is_dark"`
+	ID          string       `json:"id"`
+	Name        string       `json:"name"`
+	Description string       `json:"description"`
+	IsDark      bool         `json:"is_dark"`
 	Colors      *ColorScheme `json:"colors,omitempty"`
-	Layout      *Layout   `json:"layout,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	Layout      *Layout      `json:"layout,omitempty"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
 // ThemeManager manages theme creation, deletion, and switching.

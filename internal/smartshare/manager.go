@@ -12,24 +12,24 @@ import (
 
 // Manager 分享链接管理器
 type Manager struct {
-	mu             sync.RWMutex
-	logger         *zap.Logger
-	policy         *SharePolicy
-	links          map[string]*ShareLink   // ID -> ShareLink
-	linksByToken   map[string]*ShareLink   // Token -> ShareLink
-	accessLogs     []*AccessLog
-	notifyConfig   *NotifyConfig
-	previewConfig  *PreviewConfig
-	notifyEvents   []*NotifyEvent
-	generator      *Generator
-	accessCtrl     *AccessController
-	analytics      *AnalyticsEngine
-	watermark      *WatermarkEngine
-	preview        *PreviewEngine
-	notifier       *Notifier
-	branding       *BrandingEngine
-	stopChan       chan struct{}
-	running        bool
+	mu            sync.RWMutex
+	logger        *zap.Logger
+	policy        *SharePolicy
+	links         map[string]*ShareLink // ID -> ShareLink
+	linksByToken  map[string]*ShareLink // Token -> ShareLink
+	accessLogs    []*AccessLog
+	notifyConfig  *NotifyConfig
+	previewConfig *PreviewConfig
+	notifyEvents  []*NotifyEvent
+	generator     *Generator
+	accessCtrl    *AccessController
+	analytics     *AnalyticsEngine
+	watermark     *WatermarkEngine
+	preview       *PreviewEngine
+	notifier      *Notifier
+	branding      *BrandingEngine
+	stopChan      chan struct{}
+	running       bool
 }
 
 // NewManager 创建分享链接管理器
@@ -215,31 +215,31 @@ func (m *Manager) CreateShareLink(req *CreateShareRequest) (*ShareLink, error) {
 	}
 
 	link := &ShareLink{
-		ID:               generateID(),
-		Token:            token,
-		ShortURL:         fmt.Sprintf("/s/%s", shortCode),
-		FullURL:          fmt.Sprintf("/share/%s", token),
-		FilePath:         req.FilePath,
-		FileName:         req.FileName,
-		FileSize:         req.FileSize,
-		FileType:         req.FileType,
-		Mode:             mode,
-		Status:           ShareStatusActive,
-		CreatorID:        req.CreatorID,
-		CreatorName:      req.CreatorName,
-		Description:      req.Description,
-		Tags:             req.Tags,
-		Password:         req.Password,
-		ExpiresAt:        expiresAt,
-		MaxDownloads:     maxDownloads,
-		DownloadCount:    0,
-		ViewCount:        0,
-		AllowedUsers:     req.AllowedUsers,
-		IPWhitelist:      req.IPWhitelist,
-		EnableWatermark:  req.EnableWatermark,
-		EnablePreview:    req.EnablePreview,
-		CreatedAt:        now,
-		UpdatedAt:        now,
+		ID:              generateID(),
+		Token:           token,
+		ShortURL:        fmt.Sprintf("/s/%s", shortCode),
+		FullURL:         fmt.Sprintf("/share/%s", token),
+		FilePath:        req.FilePath,
+		FileName:        req.FileName,
+		FileSize:        req.FileSize,
+		FileType:        req.FileType,
+		Mode:            mode,
+		Status:          ShareStatusActive,
+		CreatorID:       req.CreatorID,
+		CreatorName:     req.CreatorName,
+		Description:     req.Description,
+		Tags:            req.Tags,
+		Password:        req.Password,
+		ExpiresAt:       expiresAt,
+		MaxDownloads:    maxDownloads,
+		DownloadCount:   0,
+		ViewCount:       0,
+		AllowedUsers:    req.AllowedUsers,
+		IPWhitelist:     req.IPWhitelist,
+		EnableWatermark: req.EnableWatermark,
+		EnablePreview:   req.EnablePreview,
+		CreatedAt:       now,
+		UpdatedAt:       now,
 	}
 
 	// 设置水印配置

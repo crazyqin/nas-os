@@ -92,8 +92,8 @@ type ScanRequest struct {
 
 // MaskRequest 脱敏请求
 type MaskRequest struct {
-	Content  string      `json:"content"`
-	Strategy string      `json:"strategy"` // mask, partial, hash, redact
+	Content  string       `json:"content"`
+	Strategy string       `json:"strategy"` // mask, partial, hash, redact
 	Options  *MaskOptions `json:"options,omitempty"`
 }
 

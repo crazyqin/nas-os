@@ -11,11 +11,11 @@ func TestCreateSchedule(t *testing.T) {
 	defer m.Stop()
 
 	s := Schedule{
-		ID:   "test-1",
-		Name: "夜间休眠",
+		ID:     "test-1",
+		Name:   "夜间休眠",
 		Action: ActionSuspend,
-		Time: "02:00",
-		Days: []DayOfWeek{Monday, Tuesday, Wednesday, Thursday, Friday},
+		Time:   "02:00",
+		Days:   []DayOfWeek{Monday, Tuesday, Wednesday, Thursday, Friday},
 	}
 	result, err := m.CreateSchedule(s)
 	if err != nil {

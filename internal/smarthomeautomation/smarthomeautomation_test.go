@@ -182,10 +182,10 @@ func TestUpdateRule(t *testing.T) {
 	sha := NewSmartHomeAutomation()
 
 	rule := &AutomationRule{
-		ID:   "rule1",
-		Name: "规则1",
-		Trigger: Trigger{Type: TriggerManual},
-		Actions: []Action{},
+		ID:        "rule1",
+		Name:      "规则1",
+		Trigger:   Trigger{Type: TriggerManual},
+		Actions:   []Action{},
 		CreatedBy: "user1",
 	}
 
@@ -207,8 +207,8 @@ func TestDeleteRule(t *testing.T) {
 	sha := NewSmartHomeAutomation()
 
 	sha.CreateRule(&AutomationRule{
-		ID:   "rule1",
-		Name: "规则1",
+		ID:      "rule1",
+		Name:    "规则1",
 		Trigger: Trigger{Type: TriggerManual},
 		Actions: []Action{},
 	})
@@ -321,8 +321,8 @@ func TestExecuteRule(t *testing.T) {
 
 	// 创建规则
 	rule := &AutomationRule{
-		ID:   "rule1",
-		Name: "光线暗自动开灯",
+		ID:      "rule1",
+		Name:    "光线暗自动开灯",
 		Trigger: Trigger{Type: TriggerSensor, DeviceID: "sensor1"},
 		Conditions: ConditionGroup{
 			Logic: LogicAnd,
@@ -379,8 +379,8 @@ func TestExecuteRuleWithElse(t *testing.T) {
 	})
 
 	rule := &AutomationRule{
-		ID:   "rule1",
-		Name: "光线调节",
+		ID:      "rule1",
+		Name:    "光线调节",
 		Trigger: Trigger{Type: TriggerSensor, DeviceID: "sensor1"},
 		Conditions: ConditionGroup{
 			Logic: LogicAnd,
@@ -425,11 +425,11 @@ func TestExecuteRuleCooldown(t *testing.T) {
 	})
 
 	rule := &AutomationRule{
-		ID:       "rule1",
-		Name:     "冷却测试",
-		Trigger:  Trigger{Type: TriggerManual},
-		Actions:  []Action{{DeviceID: "light1", Command: "on"}},
-		Cooldown: 5 * time.Second,
+		ID:        "rule1",
+		Name:      "冷却测试",
+		Trigger:   Trigger{Type: TriggerManual},
+		Actions:   []Action{{DeviceID: "light1", Command: "on"}},
+		Cooldown:  5 * time.Second,
 		CreatedBy: "user1",
 	}
 
@@ -570,10 +570,10 @@ func TestGetLogs(t *testing.T) {
 	sha.AddDevice(&Device{ID: "light1", Name: "灯1", Type: DeviceLight, Properties: make(map[string]string)})
 
 	sha.CreateRule(&AutomationRule{
-		ID:       "rule1",
-		Name:     "规则1",
-		Trigger:  Trigger{Type: TriggerManual},
-		Actions:  []Action{{DeviceID: "light1", Command: "on"}},
+		ID:        "rule1",
+		Name:      "规则1",
+		Trigger:   Trigger{Type: TriggerManual},
+		Actions:   []Action{{DeviceID: "light1", Command: "on"}},
 		CreatedBy: "user1",
 	})
 
@@ -598,10 +598,10 @@ func TestClearLogs(t *testing.T) {
 
 	sha.AddDevice(&Device{ID: "light1", Name: "灯1", Type: DeviceLight, Properties: make(map[string]string)})
 	sha.CreateRule(&AutomationRule{
-		ID:       "rule1",
-		Name:     "规则1",
-		Trigger:  Trigger{Type: TriggerManual},
-		Actions:  []Action{{DeviceID: "light1", Command: "on"}},
+		ID:        "rule1",
+		Name:      "规则1",
+		Trigger:   Trigger{Type: TriggerManual},
+		Actions:   []Action{{DeviceID: "light1", Command: "on"}},
 		CreatedBy: "user1",
 	})
 
@@ -669,15 +669,15 @@ func TestGetStats(t *testing.T) {
 
 	// 添加规则
 	sha.CreateRule(&AutomationRule{
-		ID:   "rule1",
-		Name: "规则1",
+		ID:      "rule1",
+		Name:    "规则1",
 		Trigger: Trigger{Type: TriggerManual},
 		Actions: []Action{{DeviceID: "light1", Command: "on"}},
 	})
 	sha.CreateRule(&AutomationRule{
-		ID:   "rule2",
-		Name: "规则2",
-		Status: RuleInactive,
+		ID:      "rule2",
+		Name:    "规则2",
+		Status:  RuleInactive,
 		Trigger: Trigger{Type: TriggerManual},
 		Actions: []Action{},
 	})
@@ -746,11 +746,11 @@ func TestExecuteInactiveRule(t *testing.T) {
 	sha := NewSmartHomeAutomation()
 
 	sha.CreateRule(&AutomationRule{
-		ID:       "rule1",
-		Name:     "规则1",
-		Status:   RuleInactive,
-		Trigger:  Trigger{Type: TriggerManual},
-		Actions:  []Action{},
+		ID:      "rule1",
+		Name:    "规则1",
+		Status:  RuleInactive,
+		Trigger: Trigger{Type: TriggerManual},
+		Actions: []Action{},
 	})
 
 	_, err := sha.ExecuteRule("rule1")

@@ -389,17 +389,17 @@ func (a *AgileManager) GetSprintProgress(sprintID string) (map[string]interface{
 	}
 
 	return map[string]interface{}{
-		"sprint_id":        sprint.ID,
-		"sprint_name":      sprint.Name,
-		"status":           sprint.Status,
-		"total_cards":      totalCards,
-		"completed_cards":  completedCards,
+		"sprint_id":         sprint.ID,
+		"sprint_name":       sprint.Name,
+		"status":            sprint.Status,
+		"total_cards":       totalCards,
+		"completed_cards":   completedCards,
 		"in_progress_cards": inProgressCards,
-		"total_points":     totalPoints,
-		"completed_points": completedPoints,
-		"progress":         progress,
-		"start_date":       sprint.StartDate,
-		"end_date":         sprint.EndDate,
+		"total_points":      totalPoints,
+		"completed_points":  completedPoints,
+		"progress":          progress,
+		"start_date":        sprint.StartDate,
+		"end_date":          sprint.EndDate,
 	}, nil
 }
 

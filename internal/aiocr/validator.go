@@ -9,8 +9,8 @@ import (
 
 // Validator 结果校验器.
 type Validator struct {
-	config     *Config
-	rules      []*ValidationRule
+	config      *Config
+	rules       []*ValidationRule
 	corrections map[string]string
 }
 
@@ -26,10 +26,10 @@ type ValidationRule struct {
 
 // ValidationResult 校验结果.
 type ValidationResult struct {
-	IsValid  bool     `json:"is_valid"`  // 是否有效
-	Errors   []string `json:"errors"`    // 错误列表
-	Warnings []string `json:"warnings"`  // 警告列表
-	Fixed    []string `json:"fixed"`     // 已修复项
+	IsValid  bool     `json:"is_valid"` // 是否有效
+	Errors   []string `json:"errors"`   // 错误列表
+	Warnings []string `json:"warnings"` // 警告列表
+	Fixed    []string `json:"fixed"`    // 已修复项
 }
 
 // NewValidator 创建校验器.

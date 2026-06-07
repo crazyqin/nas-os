@@ -9,31 +9,31 @@ import (
 
 // ZFSMaintainer ZFS 维护管理器
 type ZFSMaintainer struct {
-	mu              sync.RWMutex
-	pools           map[string]*ZPool
-	scrubs          map[string]*ScrubTask
-	snapshots       map[string]*AutoSnapshot
-	replications    map[string]*SnapshotReplication
-	arcStats        *ARCStats
-	thresholds      *MaintenanceThresholds
-	stopChan        chan struct{}
+	mu           sync.RWMutex
+	pools        map[string]*ZPool
+	scrubs       map[string]*ScrubTask
+	snapshots    map[string]*AutoSnapshot
+	replications map[string]*SnapshotReplication
+	arcStats     *ARCStats
+	thresholds   *MaintenanceThresholds
+	stopChan     chan struct{}
 }
 
 // ZPool ZFS 存储池
 type ZPool struct {
-	ID            string           `json:"id"`
-	Name          string           `json:"name"`
-	Status        PoolStatus       `json:"status"`
-	Health        HealthStatus     `json:"health"`
-	TotalSize     int64            `json:"total_size"`
-	UsedSize      int64            `json:"used_size"`
-	FreeSize      int64            `json:"free_size"`
-	Fragmentation float64          `json:"fragmentation"`
-	Compression   float64          `json:"compression"`    // 压缩比
-	Deduplication float64          `json:"deduplication"`  // 去重比
-	VDevs         []*VDev          `json:"vdevs"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Status        PoolStatus        `json:"status"`
+	Health        HealthStatus      `json:"health"`
+	TotalSize     int64             `json:"total_size"`
+	UsedSize      int64             `json:"used_size"`
+	FreeSize      int64             `json:"free_size"`
+	Fragmentation float64           `json:"fragmentation"`
+	Compression   float64           `json:"compression"`   // 压缩比
+	Deduplication float64           `json:"deduplication"` // 去重比
+	VDevs         []*VDev           `json:"vdevs"`
 	Properties    map[string]string `json:"properties"`
-	Timestamp     time.Time        `json:"timestamp"`
+	Timestamp     time.Time         `json:"timestamp"`
 }
 
 // PoolStatus 存储池状态
@@ -57,56 +57,56 @@ const (
 
 // VDev 虚拟设备
 type VDev struct {
-	ID       string     `json:"id"`
-	Name     string     `json:"name"`
-	Type     string     `json:"type"` // mirror, raidz1, raidz2, raidz3
-	Devices  []*Device  `json:"devices"`
-	Status   PoolStatus `json:"status"`
+	ID      string     `json:"id"`
+	Name    string     `json:"name"`
+	Type    string     `json:"type"` // mirror, raidz1, raidz2, raidz3
+	Devices []*Device  `json:"devices"`
+	Status  PoolStatus `json:"status"`
 }
 
 // Device 存储设备
 type Device struct {
-	ID           string       `json:"id"`
-	Name         string       `json:"name"`
-	Path         string       `json:"path"`
-	Type         string       `json:"type"`
-	Status       DeviceStatus `json:"status"`
-	Size         int64        `json:"size"`
-	Errors       int64        `json:"errors"`
-	Temperature  float64      `json:"temperature"`
-	SMARTStatus  SMARTStatus  `json:"smart_status"`
+	ID          string       `json:"id"`
+	Name        string       `json:"name"`
+	Path        string       `json:"path"`
+	Type        string       `json:"type"`
+	Status      DeviceStatus `json:"status"`
+	Size        int64        `json:"size"`
+	Errors      int64        `json:"errors"`
+	Temperature float64      `json:"temperature"`
+	SMARTStatus SMARTStatus  `json:"smart_status"`
 }
 
 // DeviceStatus 设备状态
 type DeviceStatus string
 
 const (
-	DeviceOnline  DeviceStatus = "online"
-	DeviceFailed  DeviceStatus = "failed"
+	DeviceOnline   DeviceStatus = "online"
+	DeviceFailed   DeviceStatus = "failed"
 	DeviceDegraded DeviceStatus = "degraded"
 )
 
 // SMARTStatus SMART 状态
 type SMARTStatus struct {
-	Healthy           bool  `json:"healthy"`
-	ReallocatedSectors int64 `json:"reallocated_sectors"`
-	PendingSectors     int64 `json:"pending_sectors"`
+	Healthy              bool  `json:"healthy"`
+	ReallocatedSectors   int64 `json:"reallocated_sectors"`
+	PendingSectors       int64 `json:"pending_sectors"`
 	OfflineUncorrectable int64 `json:"offline_uncorrectable"`
 }
 
 // ScrubTask 清理任务
 type ScrubTask struct {
-	ID         string        `json:"id"`
-	PoolID     string        `json:"pool_id"`
-	State      ScrubState    `json:"state"`
-	Progress   float64       `json:"progress"`
-	StartedAt  time.Time     `json:"started_at"`
-	FinishedAt *time.Time    `json:"finished_at,omitempty"`
-	ETA        *time.Time    `json:"eta,omitempty"`
-	Errors     int64         `json:"errors"`
-	Repaired   int64         `json:"repaired"`
-	BytesScanned int64       `json:"bytes_scanned"`
-	BytesTotal   int64       `json:"bytes_total"`
+	ID           string     `json:"id"`
+	PoolID       string     `json:"pool_id"`
+	State        ScrubState `json:"state"`
+	Progress     float64    `json:"progress"`
+	StartedAt    time.Time  `json:"started_at"`
+	FinishedAt   *time.Time `json:"finished_at,omitempty"`
+	ETA          *time.Time `json:"eta,omitempty"`
+	Errors       int64      `json:"errors"`
+	Repaired     int64      `json:"repaired"`
+	BytesScanned int64      `json:"bytes_scanned"`
+	BytesTotal   int64      `json:"bytes_total"`
 }
 
 // ScrubState 清理状态
@@ -121,17 +121,17 @@ const (
 
 // AutoSnapshot 自动快照策略
 type AutoSnapshot struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Dataset     string        `json:"dataset"`
-	Schedule    string        `json:"schedule"`      // Cron 表达式
-	Recursive   bool          `json:"recursive"`
-	MaxCount    int           `json:"max_count"`
-	MaxAge      time.Duration `json:"max_age"`
-	Enabled     bool          `json:"enabled"`
-	LastRun     time.Time     `json:"last_run"`
-	NextRun     time.Time     `json:"next_run"`
-	CreatedAt   time.Time     `json:"created_at"`
+	ID        string        `json:"id"`
+	Name      string        `json:"name"`
+	Dataset   string        `json:"dataset"`
+	Schedule  string        `json:"schedule"` // Cron 表达式
+	Recursive bool          `json:"recursive"`
+	MaxCount  int           `json:"max_count"`
+	MaxAge    time.Duration `json:"max_age"`
+	Enabled   bool          `json:"enabled"`
+	LastRun   time.Time     `json:"last_run"`
+	NextRun   time.Time     `json:"next_run"`
+	CreatedAt time.Time     `json:"created_at"`
 }
 
 // SnapshotReplication 快照复制
@@ -149,17 +149,17 @@ type SnapshotReplication struct {
 
 // ARCStats ARC 缓存统计
 type ARCStats struct {
-	Hits        int64   `json:"hits"`
-	Misses      int64   `json:"misses"`
-	HitRatio    float64 `json:"hit_ratio"`
-	Size        int64   `json:"size"`
-	MaxSize     int64   `json:"max_size"`
-	TargetSize  int64   `json:"target_size"`
-	L2Size      int64   `json:"l2_size"`
-	L2Hits      int64   `json:"l2_hits"`
-	L2Misses    int64   `json:"l2_misses"`
-	L2HitRatio  float64 `json:"l2_hit_ratio"`
-	Timestamp   time.Time `json:"timestamp"`
+	Hits       int64     `json:"hits"`
+	Misses     int64     `json:"misses"`
+	HitRatio   float64   `json:"hit_ratio"`
+	Size       int64     `json:"size"`
+	MaxSize    int64     `json:"max_size"`
+	TargetSize int64     `json:"target_size"`
+	L2Size     int64     `json:"l2_size"`
+	L2Hits     int64     `json:"l2_hits"`
+	L2Misses   int64     `json:"l2_misses"`
+	L2HitRatio float64   `json:"l2_hit_ratio"`
+	Timestamp  time.Time `json:"timestamp"`
 }
 
 // MaintenanceThresholds 维护阈值
@@ -175,14 +175,14 @@ type MaintenanceThresholds struct {
 
 // MaintenanceReport 维护报告
 type MaintenanceReport struct {
-	PoolID      string          `json:"pool_id"`
-	PoolName    string          `json:"pool_name"`
-	Health      HealthStatus    `json:"health"`
-	SpaceUsage  SpaceUsage      `json:"space_usage"`
-	DataIntegrity DataIntegrity `json:"data_integrity"`
-	Performance   Performance   `json:"performance"`
-	Recommendations []string    `json:"recommendations"`
-	Timestamp   time.Time       `json:"timestamp"`
+	PoolID          string        `json:"pool_id"`
+	PoolName        string        `json:"pool_name"`
+	Health          HealthStatus  `json:"health"`
+	SpaceUsage      SpaceUsage    `json:"space_usage"`
+	DataIntegrity   DataIntegrity `json:"data_integrity"`
+	Performance     Performance   `json:"performance"`
+	Recommendations []string      `json:"recommendations"`
+	Timestamp       time.Time     `json:"timestamp"`
 }
 
 // SpaceUsage 空间使用
@@ -207,12 +207,12 @@ type DataIntegrity struct {
 
 // Performance 性能指标
 type Performance struct {
-	ARCHitRatio   float64 `json:"arc_hit_ratio"`
-	L2HitRatio    float64 `json:"l2_hit_ratio"`
-	ReadIOPS      int64   `json:"read_iops"`
-	WriteIOPS     int64   `json:"write_iops"`
-	ReadBandwidth int64   `json:"read_bandwidth"`
-	WriteBandwidth int64  `json:"write_bandwidth"`
+	ARCHitRatio    float64 `json:"arc_hit_ratio"`
+	L2HitRatio     float64 `json:"l2_hit_ratio"`
+	ReadIOPS       int64   `json:"read_iops"`
+	WriteIOPS      int64   `json:"write_iops"`
+	ReadBandwidth  int64   `json:"read_bandwidth"`
+	WriteBandwidth int64   `json:"write_bandwidth"`
 }
 
 // NewZFSMaintainer 创建 ZFS 维护管理器
@@ -339,11 +339,11 @@ func (m *ZFSMaintainer) StartScrub(poolID string) (*ScrubTask, error) {
 	}
 
 	task := &ScrubTask{
-		ID:        fmt.Sprintf("scrub_%d", time.Now().UnixNano()),
-		PoolID:    poolID,
-		State:     ScrubRunning,
-		Progress:  0,
-		StartedAt: time.Now(),
+		ID:         fmt.Sprintf("scrub_%d", time.Now().UnixNano()),
+		PoolID:     poolID,
+		State:      ScrubRunning,
+		Progress:   0,
+		StartedAt:  time.Now(),
 		BytesTotal: pool.UsedSize,
 	}
 
@@ -496,11 +496,11 @@ func (m *ZFSMaintainer) AnalyzeCompression(poolID string) (map[string]interface{
 	}
 
 	result := map[string]interface{}{
-		"pool_id":        poolID,
-		"compression":    pool.Compression,
-		"deduplication":  pool.Deduplication,
-		"used_size":      pool.UsedSize,
-		"physical_size":  int64(float64(pool.UsedSize) / pool.Compression),
+		"pool_id":       poolID,
+		"compression":   pool.Compression,
+		"deduplication": pool.Deduplication,
+		"used_size":     pool.UsedSize,
+		"physical_size": int64(float64(pool.UsedSize) / pool.Compression),
 	}
 
 	return result, nil
@@ -531,8 +531,8 @@ func (m *ZFSMaintainer) GenerateReport(poolID string) (*MaintenanceReport, error
 			Dedup:        pool.Deduplication,
 		},
 		Performance: Performance{
-			ARCHitRatio:  m.arcStats.HitRatio,
-			L2HitRatio:   m.arcStats.L2HitRatio,
+			ARCHitRatio: m.arcStats.HitRatio,
+			L2HitRatio:  m.arcStats.L2HitRatio,
 		},
 		Timestamp: time.Now(),
 	}

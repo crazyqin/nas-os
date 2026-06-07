@@ -10,22 +10,22 @@ import (
 
 // Application 应用信息
 type Application struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description,omitempty"`
-	Domain      string            `json:"domain"`              // 自定义域名，如 app.nas.local
-	Path        string            `json:"path"`                // 路径前缀，如 /appname
-	Port        int               `json:"port"`                // 应用监听端口
-	Protocol    string            `json:"protocol"`            // http, https, ws, wss
-	Enabled     bool              `json:"enabled"`
-	Tags        []string          `json:"tags,omitempty"`
-	Metadata    map[string]string `json:"metadata,omitempty"`
+	ID          string             `json:"id"`
+	Name        string             `json:"name"`
+	Description string             `json:"description,omitempty"`
+	Domain      string             `json:"domain"`   // 自定义域名，如 app.nas.local
+	Path        string             `json:"path"`     // 路径前缀，如 /appname
+	Port        int                `json:"port"`     // 应用监听端口
+	Protocol    string             `json:"protocol"` // http, https, ws, wss
+	Enabled     bool               `json:"enabled"`
+	Tags        []string           `json:"tags,omitempty"`
+	Metadata    map[string]string  `json:"metadata,omitempty"`
 	HealthCheck *HealthCheckConfig `json:"health_check,omitempty"`
-	Access      *AccessConfig     `json:"access,omitempty"`
-	SSL         *SSLConfig        `json:"ssl,omitempty"`
-	Instances   []AppInstance     `json:"instances,omitempty"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	Access      *AccessConfig      `json:"access,omitempty"`
+	SSL         *SSLConfig         `json:"ssl,omitempty"`
+	Instances   []AppInstance      `json:"instances,omitempty"`
+	CreatedAt   time.Time          `json:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
 // AppInstance 应用实例
@@ -33,29 +33,29 @@ type AppInstance struct {
 	ID        string    `json:"id"`
 	Host      string    `json:"host"`
 	Port      int       `json:"port"`
-	Weight    int       `json:"weight"`   // 负载均衡权重
-	Health    string    `json:"health"`   // healthy, unhealthy, unknown
+	Weight    int       `json:"weight"` // 负载均衡权重
+	Health    string    `json:"health"` // healthy, unhealthy, unknown
 	LastCheck time.Time `json:"last_check,omitempty"`
 }
 
 // HealthCheckConfig 健康检查配置
 type HealthCheckConfig struct {
-	Enabled       bool          `json:"enabled"`
-	Path          string        `json:"path"`           // 健康检查路径，如 /health
-	Interval      time.Duration `json:"interval"`       // 检查间隔
-	Timeout       time.Duration `json:"timeout"`        // 超时时间
-	HealthyCodes  []int         `json:"healthy_codes"`  // 期望的状态码
-	UnhealthyThreshold int     `json:"unhealthy_threshold"` // 连续失败次数判定不健康
-	HealthyThreshold   int     `json:"healthy_threshold"`   // 连续成功次数判定健康
+	Enabled            bool          `json:"enabled"`
+	Path               string        `json:"path"`                // 健康检查路径，如 /health
+	Interval           time.Duration `json:"interval"`            // 检查间隔
+	Timeout            time.Duration `json:"timeout"`             // 超时时间
+	HealthyCodes       []int         `json:"healthy_codes"`       // 期望的状态码
+	UnhealthyThreshold int           `json:"unhealthy_threshold"` // 连续失败次数判定不健康
+	HealthyThreshold   int           `json:"healthy_threshold"`   // 连续成功次数判定健康
 }
 
 // AccessConfig 访问控制配置
 type AccessConfig struct {
-	RequireAuth    bool     `json:"require_auth"`     // 是否需要认证
-	AllowedIPs     []string `json:"allowed_ips"`      // 允许的IP列表
-	BlockedIPs     []string `json:"blocked_ips"`      // 拒绝的IP列表
-	AllowedDomains []string `json:"allowed_domains"`  // 允许的来源域名
-	APIKey         string   `json:"api_key,omitempty"` // API Key 认证
+	RequireAuth    bool       `json:"require_auth"`         // 是否需要认证
+	AllowedIPs     []string   `json:"allowed_ips"`          // 允许的IP列表
+	BlockedIPs     []string   `json:"blocked_ips"`          // 拒绝的IP列表
+	AllowedDomains []string   `json:"allowed_domains"`      // 允许的来源域名
+	APIKey         string     `json:"api_key,omitempty"`    // API Key 认证
 	BasicAuth      *BasicAuth `json:"basic_auth,omitempty"` // Basic认证
 }
 
@@ -77,16 +77,16 @@ type SSLConfig struct {
 
 // RouteRule 路由规则
 type RouteRule struct {
-	ID            string            `json:"id"`
-	AppID         string            `json:"app_id"`
-	Domain        string            `json:"domain"`        // 匹配的域名
-	Path          string            `json:"path"`          // 匹配的路径前缀
-	StripPrefix   bool              `json:"strip_prefix"`  // 是否剥离前缀
-	Headers       map[string]string `json:"headers,omitempty"` // 自定义响应头
-	Priority      int               `json:"priority"`      // 优先级，越大越优先
-	Enabled       bool              `json:"enabled"`
-	CreatedAt     time.Time         `json:"created_at"`
-	UpdatedAt     time.Time         `json:"updated_at"`
+	ID          string            `json:"id"`
+	AppID       string            `json:"app_id"`
+	Domain      string            `json:"domain"`            // 匹配的域名
+	Path        string            `json:"path"`              // 匹配的路径前缀
+	StripPrefix bool              `json:"strip_prefix"`      // 是否剥离前缀
+	Headers     map[string]string `json:"headers,omitempty"` // 自定义响应头
+	Priority    int               `json:"priority"`          // 优先级，越大越优先
+	Enabled     bool              `json:"enabled"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
 // ==================== 代理相关 ====================
@@ -127,11 +127,11 @@ func DefaultProxyConfig() *ProxyConfig {
 type LoadBalancerAlgorithm string
 
 const (
-	AlgorithmRoundRobin    LoadBalancerAlgorithm = "round-robin"
-	AlgorithmWeighted      LoadBalancerAlgorithm = "weighted"
-	AlgorithmLeastConn     LoadBalancerAlgorithm = "least-connections"
-	AlgorithmIPHash        LoadBalancerAlgorithm = "ip-hash"
-	AlgorithmRandom        LoadBalancerAlgorithm = "random"
+	AlgorithmRoundRobin LoadBalancerAlgorithm = "round-robin"
+	AlgorithmWeighted   LoadBalancerAlgorithm = "weighted"
+	AlgorithmLeastConn  LoadBalancerAlgorithm = "least-connections"
+	AlgorithmIPHash     LoadBalancerAlgorithm = "ip-hash"
+	AlgorithmRandom     LoadBalancerAlgorithm = "random"
 )
 
 // LoadBalancerConfig 负载均衡配置
@@ -143,22 +143,22 @@ type LoadBalancerConfig struct {
 
 // AccessLog 访问日志
 type AccessLog struct {
-	ID            string        `json:"id"`
-	RequestID     string        `json:"request_id"`
-	AppID         string        `json:"app_id"`
-	AppName       string        `json:"app_name"`
-	Method        string        `json:"method"`
-	Path          string        `json:"path"`
-	StatusCode    int           `json:"status_code"`
-	ClientIP      string        `json:"client_ip"`
-	UserAgent     string        `json:"user_agent"`
-	RequestSize   int64         `json:"request_size"`
-	ResponseSize  int64         `json:"response_size"`
-	Duration      time.Duration `json:"duration"`
-	UpstreamHost  string        `json:"upstream_host"`
-	IsWebSocket   bool          `json:"is_websocket"`
-	Error         string        `json:"error,omitempty"`
-	Timestamp     time.Time     `json:"timestamp"`
+	ID           string        `json:"id"`
+	RequestID    string        `json:"request_id"`
+	AppID        string        `json:"app_id"`
+	AppName      string        `json:"app_name"`
+	Method       string        `json:"method"`
+	Path         string        `json:"path"`
+	StatusCode   int           `json:"status_code"`
+	ClientIP     string        `json:"client_ip"`
+	UserAgent    string        `json:"user_agent"`
+	RequestSize  int64         `json:"request_size"`
+	ResponseSize int64         `json:"response_size"`
+	Duration     time.Duration `json:"duration"`
+	UpstreamHost string        `json:"upstream_host"`
+	IsWebSocket  bool          `json:"is_websocket"`
+	Error        string        `json:"error,omitempty"`
+	Timestamp    time.Time     `json:"timestamp"`
 }
 
 // ==================== 统计相关 ====================
@@ -181,16 +181,16 @@ type GatewayStats struct {
 
 // Manager 应用网关管理器
 type Manager struct {
-	mu           sync.RWMutex
-	config       *ProxyConfig
-	apps         map[string]*Application
-	routes       map[string]*RouteRule
-	lbConfig     *LoadBalancerConfig
-	requestLogs  []*AccessLog
-	stats        *GatewayStats
-	startTime    time.Time
-	stopChan     chan struct{}
-	running      bool
+	mu            sync.RWMutex
+	config        *ProxyConfig
+	apps          map[string]*Application
+	routes        map[string]*RouteRule
+	lbConfig      *LoadBalancerConfig
+	requestLogs   []*AccessLog
+	stats         *GatewayStats
+	startTime     time.Time
+	stopChan      chan struct{}
+	running       bool
 	roundRobinIdx map[string]int // 应用ID -> 当前轮询索引
 }
 

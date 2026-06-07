@@ -19,54 +19,54 @@ import (
 type IndexFieldType int
 
 const (
-	FieldText     IndexFieldType = iota // 文本
-	FieldKeyword                        // 关键词（不分词）
-	FieldNumeric                        // 数值
-	FieldDate                           // 日期
-	FieldBoolean                        // 布尔
+	FieldText    IndexFieldType = iota // 文本
+	FieldKeyword                       // 关键词（不分词）
+	FieldNumeric                       // 数值
+	FieldDate                          // 日期
+	FieldBoolean                       // 布尔
 )
 
 // IndexField 索引字段定义
 type IndexField struct {
-	Name     string         `json:"name"`
-	Type     IndexFieldType `json:"type"`
-	Stored   bool           `json:"stored"`   // 是否存储原始值
-	Indexed  bool           `json:"indexed"`  // 是否建立索引
-	Boost    float64        `json:"boost"`    // 权重提升
+	Name    string         `json:"name"`
+	Type    IndexFieldType `json:"type"`
+	Stored  bool           `json:"stored"`  // 是否存储原始值
+	Indexed bool           `json:"indexed"` // 是否建立索引
+	Boost   float64        `json:"boost"`   // 权重提升
 }
 
 // IndexDocument 索引文档
 type IndexDocument struct {
-	ID         string                 `json:"id"`
-	Path       string                 `json:"path"`
-	Name       string                 `json:"name"`
-	Extension  string                 `json:"extension"`
-	MimeType   string                 `json:"mimeType"`
-	Size       int64                  `json:"size"`
-	CreatedAt  time.Time              `json:"createdAt"`
-	ModifiedAt time.Time              `json:"modifiedAt"`
-	Content    string                 `json:"content,omitempty"`
-	Tags       []string               `json:"tags,omitempty"`
-	Attributes map[string]any         `json:"attributes,omitempty"`
-	UpdatedAt  time.Time              `json:"updatedAt"`
+	ID         string         `json:"id"`
+	Path       string         `json:"path"`
+	Name       string         `json:"name"`
+	Extension  string         `json:"extension"`
+	MimeType   string         `json:"mimeType"`
+	Size       int64          `json:"size"`
+	CreatedAt  time.Time      `json:"createdAt"`
+	ModifiedAt time.Time      `json:"modifiedAt"`
+	Content    string         `json:"content,omitempty"`
+	Tags       []string       `json:"tags,omitempty"`
+	Attributes map[string]any `json:"attributes,omitempty"`
+	UpdatedAt  time.Time      `json:"updatedAt"`
 }
 
 // SearchResult 搜索结果
 type SearchResult struct {
-	Document *IndexDocument `json:"document"`
-	Score    float64        `json:"score"`
-	Highlights []string     `json:"highlights,omitempty"`
+	Document   *IndexDocument `json:"document"`
+	Score      float64        `json:"score"`
+	Highlights []string       `json:"highlights,omitempty"`
 }
 
 // SearchQuery 搜索查询
 type SearchQuery struct {
-	Query      string            `json:"query"`
-	Filters    map[string]string `json:"filters,omitempty"`
-	SortBy     string            `json:"sortBy,omitempty"`
-	SortDesc   bool              `json:"sortDesc,omitempty"`
-	Page       int               `json:"page"`
-	PageSize   int               `json:"pageSize"`
-	Highlight  bool              `json:"highlight"`
+	Query     string            `json:"query"`
+	Filters   map[string]string `json:"filters,omitempty"`
+	SortBy    string            `json:"sortBy,omitempty"`
+	SortDesc  bool              `json:"sortDesc,omitempty"`
+	Page      int               `json:"page"`
+	PageSize  int               `json:"pageSize"`
+	Highlight bool              `json:"highlight"`
 }
 
 // IndexStats 索引统计
@@ -81,17 +81,17 @@ type IndexStats struct {
 
 // SpotlightEngine Spotlight 搜索引擎
 type SpotlightEngine struct {
-	mu          sync.RWMutex
-	documents   map[string]*IndexDocument
-	index       map[string]map[string]float64 // token -> docID -> tf-idf
-	fieldIndex  map[string]map[string][]string // field -> value -> docIDs
-	tagsIndex   map[string][]string            // tag -> docIDs
-	stats       *IndexStats
-	stopWords   map[string]bool
-	maxResults  int
-	stopCh      chan struct{}
-	ctx         context.Context
-	cancel      context.CancelFunc
+	mu         sync.RWMutex
+	documents  map[string]*IndexDocument
+	index      map[string]map[string]float64  // token -> docID -> tf-idf
+	fieldIndex map[string]map[string][]string // field -> value -> docIDs
+	tagsIndex  map[string][]string            // tag -> docIDs
+	stats      *IndexStats
+	stopWords  map[string]bool
+	maxResults int
+	stopCh     chan struct{}
+	ctx        context.Context
+	cancel     context.CancelFunc
 }
 
 // NewSpotlightEngine 创建搜索引擎

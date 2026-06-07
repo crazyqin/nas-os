@@ -117,10 +117,10 @@ func TestCalculateScore_ReallocatedSectors(t *testing.T) {
 	engine := NewHealthScoreEngine()
 
 	disk := &DiskHealth{
-		Device:            "sdc",
-		Temperature:       35,
-		PowerOnHours:      1000,
-		SMARTStatus:       SMARTStatusPASSED,
+		Device:             "sdc",
+		Temperature:        35,
+		PowerOnHours:       1000,
+		SMARTStatus:        SMARTStatusPASSED,
 		ReallocatedSectors: 25,
 	}
 
@@ -230,12 +230,12 @@ func TestCalculateScore_IOErrors(t *testing.T) {
 	engine := NewHealthScoreEngine()
 
 	disk := &DiskHealth{
-		Device:        "sdg",
-		Temperature:   35,
-		PowerOnHours:  1000,
-		SMARTStatus:   SMARTStatusPASSED,
-		SeekErrorRate: 3.0,
-		ReadErrorRate: 2.0,
+		Device:         "sdg",
+		Temperature:    35,
+		PowerOnHours:   1000,
+		SMARTStatus:    SMARTStatusPASSED,
+		SeekErrorRate:  3.0,
+		ReadErrorRate:  2.0,
 		WriteErrorRate: 1.0,
 	}
 
@@ -250,10 +250,10 @@ func TestCalculateScore_Deductions(t *testing.T) {
 	engine := NewHealthScoreEngine()
 
 	disk := &DiskHealth{
-		Device:            "sdh",
-		Temperature:       60,
-		PowerOnHours:      1000,
-		SMARTStatus:       SMARTStatusWARNING,
+		Device:             "sdh",
+		Temperature:        60,
+		PowerOnHours:       1000,
+		SMARTStatus:        SMARTStatusWARNING,
 		ReallocatedSectors: 5,
 		PendingSectors:     3,
 	}
@@ -444,10 +444,10 @@ func TestGenerateReport_Recommendations(t *testing.T) {
 
 	// 故障磁盘应该有维护建议
 	disk := &DiskHealth{
-		Device:            "sdc",
-		Temperature:       62,
-		PowerOnHours:      60000,
-		SMARTStatus:       SMARTStatusWARNING,
+		Device:             "sdc",
+		Temperature:        62,
+		PowerOnHours:       60000,
+		SMARTStatus:        SMARTStatusWARNING,
 		ReallocatedSectors: 50,
 		PendingSectors:     20,
 	}

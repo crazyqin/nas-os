@@ -53,74 +53,74 @@ const (
 
 // AccessRecord 访问审计记录.
 type AccessRecord struct {
-	ID          string       `json:"id"`
-	Timestamp   time.Time    `json:"timestamp"`
-	UserID      string       `json:"user_id"`
-	UserName    string       `json:"user_name,omitempty"`
-	SourceIP    string       `json:"source_ip"`
-	UserAgent   string       `json:"user_agent,omitempty"`
-	Resource    string       `json:"resource"`
-	ResourceType string      `json:"resource_type,omitempty"`
-	Action      string       `json:"action"`
-	Status      AccessStatus `json:"status"`
-	StatusCode  int          `json:"status_code,omitempty"`
-	Duration    int64        `json:"duration_ms,omitempty"` // 毫秒
-	RequestSize int64        `json:"request_size,omitempty"`
-	RiskScore   float64      `json:"risk_score"`
-	RiskLevel   RiskLevel    `json:"risk_level"`
-	Reason      string       `json:"reason,omitempty"`
-	Metadata    map[string]string `json:"metadata,omitempty"`
+	ID           string            `json:"id"`
+	Timestamp    time.Time         `json:"timestamp"`
+	UserID       string            `json:"user_id"`
+	UserName     string            `json:"user_name,omitempty"`
+	SourceIP     string            `json:"source_ip"`
+	UserAgent    string            `json:"user_agent,omitempty"`
+	Resource     string            `json:"resource"`
+	ResourceType string            `json:"resource_type,omitempty"`
+	Action       string            `json:"action"`
+	Status       AccessStatus      `json:"status"`
+	StatusCode   int               `json:"status_code,omitempty"`
+	Duration     int64             `json:"duration_ms,omitempty"` // 毫秒
+	RequestSize  int64             `json:"request_size,omitempty"`
+	RiskScore    float64           `json:"risk_score"`
+	RiskLevel    RiskLevel         `json:"risk_level"`
+	Reason       string            `json:"reason,omitempty"`
+	Metadata     map[string]string `json:"metadata,omitempty"`
 }
 
 // AccessQuery 访问记录查询条件.
 type AccessQuery struct {
-	StartTime    *time.Time    `json:"start_time,omitempty"`
-	EndTime      *time.Time    `json:"end_time,omitempty"`
-	UserID       string        `json:"user_id,omitempty"`
-	SourceIP     string        `json:"source_ip,omitempty"`
-	Resource     string        `json:"resource,omitempty"`
-	ResourceType string        `json:"resource_type,omitempty"`
-	Action       string        `json:"action,omitempty"`
-	Status       AccessStatus  `json:"status,omitempty"`
-	RiskLevel    RiskLevel     `json:"risk_level,omitempty"`
-	MinRiskScore *float64      `json:"min_risk_score,omitempty"`
-	Limit        int           `json:"limit,omitempty"`
-	Offset       int           `json:"offset,omitempty"`
+	StartTime    *time.Time   `json:"start_time,omitempty"`
+	EndTime      *time.Time   `json:"end_time,omitempty"`
+	UserID       string       `json:"user_id,omitempty"`
+	SourceIP     string       `json:"source_ip,omitempty"`
+	Resource     string       `json:"resource,omitempty"`
+	ResourceType string       `json:"resource_type,omitempty"`
+	Action       string       `json:"action,omitempty"`
+	Status       AccessStatus `json:"status,omitempty"`
+	RiskLevel    RiskLevel    `json:"risk_level,omitempty"`
+	MinRiskScore *float64     `json:"min_risk_score,omitempty"`
+	Limit        int          `json:"limit,omitempty"`
+	Offset       int          `json:"offset,omitempty"`
 }
 
 // AnomalyDetection 异常检测结果.
 type AnomalyDetection struct {
-	ID          string    `json:"id"`
-	Timestamp   time.Time `json:"timestamp"`
-	AnomalyType string    `json:"anomaly_type"`
-	Description string    `json:"description"`
-	Severity    RiskLevel `json:"severity"`
-	UserID      string    `json:"user_id,omitempty"`
-	SourceIP    string     `json:"source_ip,omitempty"`
-	RelatedRecords []string `json:"related_records,omitempty"`
-	RiskScore   float64   `json:"risk_score"`
-	IsResolved  bool      `json:"is_resolved"`
+	ID             string    `json:"id"`
+	Timestamp      time.Time `json:"timestamp"`
+	AnomalyType    string    `json:"anomaly_type"`
+	Description    string    `json:"description"`
+	Severity       RiskLevel `json:"severity"`
+	UserID         string    `json:"user_id,omitempty"`
+	SourceIP       string    `json:"source_ip,omitempty"`
+	RelatedRecords []string  `json:"related_records,omitempty"`
+	RiskScore      float64   `json:"risk_score"`
+	IsResolved     bool      `json:"is_resolved"`
 }
 
 // AuditReport 审计报告.
 type AuditReport struct {
-	ID              string           `json:"id"`
-	GeneratedAt     time.Time        `json:"generated_at"`
-	StartTime       time.Time        `json:"start_time"`
-	EndTime         time.Time        `json:"end_time"`
-	TotalRecords    int              `json:"total_records"`
-	SuccessCount    int              `json:"success_count"`
-	DeniedCount     int              `json:"denied_count"`
-	FailedCount     int              `json:"failed_count"`
-	ErrorCount      int              `json:"error_count"`
-	AvgRiskScore    float64          `json:"avg_risk_score"`
-	HighRiskCount   int              `json:"high_risk_count"`
-	TopUsers        []UserStats      `json:"top_users"`
-	TopResources    []ResourceStats  `json:"top_resources"`
-	TopSourceIPs    []IPStats        `json:"top_source_ips"`
-	Anomalies       []AnomalyDetection `json:"anomalies"`
-	RiskDistribution map[RiskLevel]int `json:"risk_distribution"`
-	HourlyActivity  []HourlyActivity `json:"hourly_activity"`
+	ID               string             `json:"id"`
+	GeneratedAt      time.Time          `json:"generated_at"`
+	StartTime        time.Time          `json:"start_time"`
+	EndTime          time.Time          `json:"end_time"`
+	TotalRecords     int                `json:"total_records"`
+	SuccessCount     int                `json:"success_count"`
+	DeniedCount      int                `json:"denied_count"`
+	FailedCount      int                `json:"failed_count"`
+	ErrorCount       int                `json:"error_count"`
+	AvgRiskScore     float64            `json:"avg_risk_score"`
+	HighRiskCount    int                `json:"high_risk_count"`
+	TopUsers         []UserStats        `json:"top_users"`
+	TopResources     []ResourceStats    `json:"top_resources"`
+	TopSourceIPs     []IPStats          `json:"top_source_ips"`
+	Anomalies        []AnomalyDetection `json:"anomalies"`
+	RiskDistribution map[RiskLevel]int  `json:"risk_distribution"`
+	HourlyActivity   []HourlyActivity   `json:"hourly_activity"`
 }
 
 // UserStats 用户统计.

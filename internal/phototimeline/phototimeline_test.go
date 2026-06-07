@@ -567,11 +567,11 @@ func TestAlbumRules_Matches(t *testing.T) {
 	am := NewAlbumManager(config, photos)
 
 	photo := &Photo{
-		ID:       "test1",
-		TakenAt:  time.Date(2024, 6, 15, 0, 0, 0, 0, time.UTC),
-		Tags:     []string{"vacation", "beach"},
-		Rating:   4,
-		Trashed:  false,
+		ID:      "test1",
+		TakenAt: time.Date(2024, 6, 15, 0, 0, 0, 0, time.UTC),
+		Tags:    []string{"vacation", "beach"},
+		Rating:  4,
+		Trashed: false,
 	}
 
 	rules := &AlbumRules{

@@ -821,9 +821,9 @@ func (m *Manager) load() error {
 		return err
 	}
 	var stored struct {
-		Workflows  map[string]*Workflow   `json:"workflows"`
-		Executions map[string]*Execution  `json:"executions"`
-		Versions   map[string][]*Version  `json:"versions"`
+		Workflows  map[string]*Workflow  `json:"workflows"`
+		Executions map[string]*Execution `json:"executions"`
+		Versions   map[string][]*Version `json:"versions"`
 	}
 	if err := json.Unmarshal(data, &stored); err != nil {
 		return err
@@ -846,9 +846,9 @@ func (m *Manager) save() error {
 		return nil
 	}
 	data, err := json.MarshalIndent(struct {
-		Workflows  map[string]*Workflow   `json:"workflows"`
-		Executions map[string]*Execution  `json:"executions"`
-		Versions   map[string][]*Version  `json:"versions"`
+		Workflows  map[string]*Workflow  `json:"workflows"`
+		Executions map[string]*Execution `json:"executions"`
+		Versions   map[string][]*Version `json:"versions"`
 	}{m.workflows, m.executions, m.versions}, "", "  ")
 	if err != nil {
 		return err

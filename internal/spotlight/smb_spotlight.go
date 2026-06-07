@@ -37,11 +37,11 @@ type SpotlightMessage struct {
 type SpotlightCommand uint32
 
 const (
-	CmdQuery     SpotlightCommand = 0x01 // 查询请求
-	CmdFetch     SpotlightCommand = 0x02 // 获取结果
-	CmdClose     SpotlightCommand = 0x03 // 关闭查询
-	CmdPing      SpotlightCommand = 0x04 // 心跳
-	CmdRegister  SpotlightCommand = 0x05 // 注册通知
+	CmdQuery      SpotlightCommand = 0x01 // 查询请求
+	CmdFetch      SpotlightCommand = 0x02 // 获取结果
+	CmdClose      SpotlightCommand = 0x03 // 关闭查询
+	CmdPing       SpotlightCommand = 0x04 // 心跳
+	CmdRegister   SpotlightCommand = 0x05 // 注册通知
 	CmdUnregister SpotlightCommand = 0x06 // 取消注册
 )
 

@@ -10,14 +10,14 @@ import (
 
 // Engine 威胁情报引擎
 type Engine struct {
-	config     *ThreatIntelConfig
-	feeds      map[string]*ThreatFeed
-	iocs       map[string]*IOC
-	alerts     map[string]*Alert
+	config      *ThreatIntelConfig
+	feeds       map[string]*ThreatFeed
+	iocs        map[string]*IOC
+	alerts      map[string]*Alert
 	scanResults map[string]*ScanResult
-	scanMgr    *ScanManager
-	score      *ThreatScore
-	mu         sync.RWMutex
+	scanMgr     *ScanManager
+	score       *ThreatScore
+	mu          sync.RWMutex
 }
 
 // NewEngine 创建威胁情报引擎

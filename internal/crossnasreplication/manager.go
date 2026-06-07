@@ -13,61 +13,61 @@ import (
 type ReplicationState string
 
 const (
-	StatePending    ReplicationState = "pending"
-	StateRunning    ReplicationState = "running"
-	StateCompleted  ReplicationState = "completed"
-	StateFailed     ReplicationState = "failed"
-	StatePaused     ReplicationState = "paused"
-	StateCancelled  ReplicationState = "cancelled"
+	StatePending   ReplicationState = "pending"
+	StateRunning   ReplicationState = "running"
+	StateCompleted ReplicationState = "completed"
+	StateFailed    ReplicationState = "failed"
+	StatePaused    ReplicationState = "paused"
+	StateCancelled ReplicationState = "cancelled"
 )
 
 // RemoteNode 远程节点
 type RemoteNode struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Host        string `json:"host"`
-	Port        int    `json:"port"`
-	Protocol    string `json:"protocol"` // ssh/https/smb
-	AuthType    string `json:"auth_type"` // key/token/password
-	Fingerprint string `json:"fingerprint,omitempty"`
-	Status      string `json:"status"` // online/offline/unknown
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Host        string    `json:"host"`
+	Port        int       `json:"port"`
+	Protocol    string    `json:"protocol"`  // ssh/https/smb
+	AuthType    string    `json:"auth_type"` // key/token/password
+	Fingerprint string    `json:"fingerprint,omitempty"`
+	Status      string    `json:"status"` // online/offline/unknown
 	LastSeen    time.Time `json:"last_seen"`
 }
 
 // ReplicationTask 复制任务
 type ReplicationTask struct {
-	ID            string           `json:"id"`
-	Name          string           `json:"name"`
-	SourceNode    string           `json:"source_node"`
-	SourcePath    string           `json:"source_path"`
-	TargetNode    string           `json:"target_node"`
-	TargetPath    string           `json:"target_path"`
-	State         ReplicationState `json:"state"`
-	Schedule      string           `json:"schedule,omitempty"` // cron expression
-	Enabled       bool             `json:"enabled"`
-	Compress      bool             `json:"compress"`
-	Encrypt       bool             `json:"encrypt"`
-	Bandwidth     int              `json:"bandwidth_limit"` // MB/s, 0 = unlimited
-	TotalBytes    int64            `json:"total_bytes"`
-	SyncedBytes   int64            `json:"synced_bytes"`
-	TotalFiles    int64            `json:"total_files"`
-	SyncedFiles   int64            `json:"synced_files"`
-	LastSync      time.Time        `json:"last_sync,omitempty"`
-	NextSync      time.Time        `json:"next_sync,omitempty"`
-	Error         string           `json:"error,omitempty"`
-	CreatedAt     time.Time        `json:"created_at"`
-	UpdatedAt     time.Time        `json:"updated_at"`
+	ID          string           `json:"id"`
+	Name        string           `json:"name"`
+	SourceNode  string           `json:"source_node"`
+	SourcePath  string           `json:"source_path"`
+	TargetNode  string           `json:"target_node"`
+	TargetPath  string           `json:"target_path"`
+	State       ReplicationState `json:"state"`
+	Schedule    string           `json:"schedule,omitempty"` // cron expression
+	Enabled     bool             `json:"enabled"`
+	Compress    bool             `json:"compress"`
+	Encrypt     bool             `json:"encrypt"`
+	Bandwidth   int              `json:"bandwidth_limit"` // MB/s, 0 = unlimited
+	TotalBytes  int64            `json:"total_bytes"`
+	SyncedBytes int64            `json:"synced_bytes"`
+	TotalFiles  int64            `json:"total_files"`
+	SyncedFiles int64            `json:"synced_files"`
+	LastSync    time.Time        `json:"last_sync,omitempty"`
+	NextSync    time.Time        `json:"next_sync,omitempty"`
+	Error       string           `json:"error,omitempty"`
+	CreatedAt   time.Time        `json:"created_at"`
+	UpdatedAt   time.Time        `json:"updated_at"`
 }
 
 // SyncResult 同步结果
 type SyncResult struct {
-	TaskID       string        `json:"task_id"`
-	State        ReplicationState `json:"state"`
-	BytesSynced  int64         `json:"bytes_synced"`
-	FilesSynced  int64         `json:"files_synced"`
-	Duration     time.Duration `json:"duration"`
-	Throughput   float64       `json:"throughput_mbps"`
-	Errors       []string      `json:"errors,omitempty"`
+	TaskID      string           `json:"task_id"`
+	State       ReplicationState `json:"state"`
+	BytesSynced int64            `json:"bytes_synced"`
+	FilesSynced int64            `json:"files_synced"`
+	Duration    time.Duration    `json:"duration"`
+	Throughput  float64          `json:"throughput_mbps"`
+	Errors      []string         `json:"errors,omitempty"`
 }
 
 // ManagerConfig 管理器配置
@@ -77,7 +77,7 @@ type ManagerConfig struct {
 	RetryDelay       time.Duration `json:"retry_delay"`
 	VerifySync       bool          `json:"verify_sync"`
 	SnapshotBefore   bool          `json:"snapshot_before"`
-	CompressionLevel int          `json:"compression_level"`
+	CompressionLevel int           `json:"compression_level"`
 }
 
 // DefaultManagerConfig 默认配置
@@ -162,14 +162,14 @@ func (m *Manager) GetNodes() []RemoteNode {
 func (m *Manager) CreateTask(task *ReplicationTask) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if _, ok := m.nodes[task.SourceNode]; !ok {
 		return fmt.Errorf("source node %s not found", task.SourceNode)
 	}
 	if _, ok := m.nodes[task.TargetNode]; !ok {
 		return fmt.Errorf("target node %s not found", task.TargetNode)
 	}
-	
+
 	task.State = StatePending
 	task.CreatedAt = time.Now()
 	task.UpdatedAt = time.Now()
@@ -223,34 +223,34 @@ func (m *Manager) StartSync(taskID string) (*SyncResult, error) {
 	task.State = StateRunning
 	task.UpdatedAt = time.Now()
 	m.mu.Unlock()
-	
+
 	// 模拟同步
 	start := time.Now()
 	result := &SyncResult{
 		TaskID: taskID,
 		State:  StateCompleted,
 	}
-	
+
 	// 模拟数据传输
 	task.TotalBytes = 1024 * 1024 * 100 // 100MB
 	task.SyncedBytes = task.TotalBytes
 	task.TotalFiles = 150
 	task.SyncedFiles = 150
 	task.LastSync = time.Now()
-	
+
 	result.BytesSynced = task.SyncedBytes
 	result.FilesSynced = task.SyncedFiles
 	result.Duration = time.Since(start)
 	if result.Duration.Seconds() > 0 {
 		result.Throughput = float64(result.BytesSynced) / result.Duration.Seconds() / 1024 / 1024
 	}
-	
+
 	m.mu.Lock()
 	task.State = StateCompleted
 	task.UpdatedAt = time.Now()
 	m.results[taskID] = append(m.results[taskID], *result)
 	m.mu.Unlock()
-	
+
 	return result, nil
 }
 
@@ -268,12 +268,12 @@ func (m *Manager) GetTaskResults(taskID string) []SyncResult {
 func (m *Manager) GetReplicationStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	totalTasks := len(m.tasks)
 	completed := 0
 	failed := 0
 	running := 0
-	
+
 	for _, t := range m.tasks {
 		switch t.State {
 		case StateCompleted:
@@ -284,13 +284,13 @@ func (m *Manager) GetReplicationStats() map[string]interface{} {
 			running++
 		}
 	}
-	
+
 	return map[string]interface{}{
-		"total_tasks":    totalTasks,
-		"completed":      completed,
-		"failed":         failed,
-		"running":        running,
-		"total_nodes":    len(m.nodes),
+		"total_tasks": totalTasks,
+		"completed":   completed,
+		"failed":      failed,
+		"running":     running,
+		"total_nodes": len(m.nodes),
 	}
 }
 
@@ -298,7 +298,7 @@ func (m *Manager) GetReplicationStats() map[string]interface{} {
 func (m *Manager) scheduleLoop() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-m.ctx.Done():

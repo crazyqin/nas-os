@@ -253,10 +253,10 @@ func (s *Service) GetRepoStats(repoID string) (map[string]interface{}, error) {
 	}
 
 	stats := map[string]interface{}{
-		"id":        repo.ID,
-		"name":      repo.Name,
-		"size_mb":   repo.SizeMB,
-		"quota_mb":  repo.QuotaMB,
+		"id":       repo.ID,
+		"name":     repo.Name,
+		"size_mb":  repo.SizeMB,
+		"quota_mb": repo.QuotaMB,
 	}
 
 	// count commits

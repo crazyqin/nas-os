@@ -34,10 +34,10 @@ const (
 type FolderStatus string
 
 const (
-	FolderActive   FolderStatus = "active"
-	FolderPaused   FolderStatus = "paused"
-	FolderError    FolderStatus = "error"
-	FolderSyncing  FolderStatus = "syncing"
+	FolderActive  FolderStatus = "active"
+	FolderPaused  FolderStatus = "paused"
+	FolderError   FolderStatus = "error"
+	FolderSyncing FolderStatus = "syncing"
 )
 
 // ConflictPolicy 冲突策略
@@ -65,9 +65,9 @@ const (
 type EventType string
 
 const (
-	EventCreate  EventType = "create"
-	EventUpdate  EventType = "update"
-	EventDelete  EventType = "delete"
+	EventCreate   EventType = "create"
+	EventUpdate   EventType = "update"
+	EventDelete   EventType = "delete"
 	EventConflict EventType = "conflict"
 )
 
@@ -98,15 +98,15 @@ type SyncFolder struct {
 
 // SyncConflict 同步冲突
 type SyncConflict struct {
-	ID             string    `json:"id"`
-	FolderID       string    `json:"folder_id"`
-	FilePath       string    `json:"file_path"`
-	LocalVersion   string    `json:"local_version"`
-	RemoteVersion  string    `json:"remote_version"`
-	LocalModTime   time.Time `json:"local_mod_time"`
-	RemoteModTime  time.Time `json:"remote_mod_time"`
-	Resolution     string    `json:"resolution,omitempty"`
-	ResolvedAt     time.Time `json:"resolved_at,omitempty"`
+	ID            string    `json:"id"`
+	FolderID      string    `json:"folder_id"`
+	FilePath      string    `json:"file_path"`
+	LocalVersion  string    `json:"local_version"`
+	RemoteVersion string    `json:"remote_version"`
+	LocalModTime  time.Time `json:"local_mod_time"`
+	RemoteModTime time.Time `json:"remote_mod_time"`
+	Resolution    string    `json:"resolution,omitempty"`
+	ResolvedAt    time.Time `json:"resolved_at,omitempty"`
 }
 
 // SyncFile 同步文件

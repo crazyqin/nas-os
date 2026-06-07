@@ -178,17 +178,17 @@ func (s *Scanner) ScanFilePermissions(ctx *CheckContext) *CheckResult {
 
 	// 敏感目录及其期望权限
 	sensitiveDirs := map[string]os.FileMode{
-		"/etc":           0755,
-		"/etc/ssh":       0700,
-		"/etc/ssl":       0755,
-		"/var/log":       0755,
-		"/root":          0700,
-		"/home":          0755,
-		"/etc/crontab":   0600,
-		"/etc/shadow":    0640,
-		"/etc/passwd":    0644,
-		"/etc/gshadow":   0640,
-		"/etc/group":     0644,
+		"/etc":         0755,
+		"/etc/ssh":     0700,
+		"/etc/ssl":     0755,
+		"/var/log":     0755,
+		"/root":        0700,
+		"/home":        0755,
+		"/etc/crontab": 0600,
+		"/etc/shadow":  0640,
+		"/etc/passwd":  0644,
+		"/etc/gshadow": 0640,
+		"/etc/group":   0644,
 	}
 
 	for path, expected := range sensitiveDirs {
@@ -240,16 +240,16 @@ func (s *Scanner) checkSUIDFiles() []string {
 
 	// 已知安全的 SUID 文件
 	knownSafe := map[string]bool{
-		"/usr/bin/passwd":    true,
-		"/usr/bin/sudo":     true,
-		"/usr/bin/su":       true,
-		"/usr/bin/newgrp":   true,
-		"/usr/bin/chsh":     true,
-		"/usr/bin/chfn":     true,
-		"/usr/bin/gpasswd":  true,
-		"/usr/bin/mount":    true,
-		"/usr/bin/umount":   true,
-		"/usr/bin/pkexec":   true,
+		"/usr/bin/passwd":              true,
+		"/usr/bin/sudo":                true,
+		"/usr/bin/su":                  true,
+		"/usr/bin/newgrp":              true,
+		"/usr/bin/chsh":                true,
+		"/usr/bin/chfn":                true,
+		"/usr/bin/gpasswd":             true,
+		"/usr/bin/mount":               true,
+		"/usr/bin/umount":              true,
+		"/usr/bin/pkexec":              true,
 		"/usr/lib/openssh/ssh-keysign": true,
 	}
 
@@ -478,18 +478,18 @@ func (s *Scanner) ScanNetworkExposure(ctx *CheckContext) *CheckResult {
 
 	// 高风险端口
 	highRiskPorts := map[int]string{
-		21:   "FTP",
-		23:   "Telnet",
-		25:   "SMTP (未加密)",
-		135:  "RPC",
-		139:  "NetBIOS",
-		445:  "SMB",
-		1433: "MSSQL",
-		3306: "MySQL",
-		3389: "RDP",
-		5432: "PostgreSQL",
-		5900: "VNC",
-		6379: "Redis",
+		21:    "FTP",
+		23:    "Telnet",
+		25:    "SMTP (未加密)",
+		135:   "RPC",
+		139:   "NetBIOS",
+		445:   "SMB",
+		1433:  "MSSQL",
+		3306:  "MySQL",
+		3389:  "RDP",
+		5432:  "PostgreSQL",
+		5900:  "VNC",
+		6379:  "Redis",
 		27017: "MongoDB",
 	}
 

@@ -32,69 +32,69 @@ const (
 
 // BatteryHealth 电池健康数据
 type BatteryHealth struct {
-	UPSID             string            `json:"ups_id"`              // UPS 设备 ID
-	InstalledDate     time.Time         `json:"installed_date"`      // 安装日期
-	AgeMonths         int               `json:"age_months"`          // 使用月数
-	CycleCount        int               `json:"cycle_count"`         // 充放电次数
-	DesignCapacity    int               `json:"design_capacity"`     // 设计容量 mAh
-	CurrentCapacity   int               `json:"current_capacity"`    // 当前容量 mAh
-	CapacityPercent   float64           `json:"capacity_percent"`    // 容量百分比
-	Condition         BatteryCondition  `json:"condition"`           // 电池状况
-	HealthScore       int               `json:"health_score"`        // 健康评分 0-100
-	LastTestDate      time.Time         `json:"last_test_date"`      // 上次测试日期
-	LastTestResult    BatteryTestResult `json:"last_test_result"`    // 上次测试结果
-	EstimatedLifeLeft time.Duration     `json:"estimated_life_left"` // 预计剩余寿命
-	ReplaceRecommended bool             `json:"replace_recommended"` // 建议更换
-	ReplaceDeadline   time.Time         `json:"replace_deadline"`    // 建议更换日期
-	TemperatureAvg    float64           `json:"temperature_avg"`     // 平均温度
-	DischargeDepthAvg float64           `json:"discharge_depth_avg"` // 平均放电深度
-	LastUpdated       time.Time         `json:"last_updated"`        // 最后更新时间
+	UPSID              string            `json:"ups_id"`              // UPS 设备 ID
+	InstalledDate      time.Time         `json:"installed_date"`      // 安装日期
+	AgeMonths          int               `json:"age_months"`          // 使用月数
+	CycleCount         int               `json:"cycle_count"`         // 充放电次数
+	DesignCapacity     int               `json:"design_capacity"`     // 设计容量 mAh
+	CurrentCapacity    int               `json:"current_capacity"`    // 当前容量 mAh
+	CapacityPercent    float64           `json:"capacity_percent"`    // 容量百分比
+	Condition          BatteryCondition  `json:"condition"`           // 电池状况
+	HealthScore        int               `json:"health_score"`        // 健康评分 0-100
+	LastTestDate       time.Time         `json:"last_test_date"`      // 上次测试日期
+	LastTestResult     BatteryTestResult `json:"last_test_result"`    // 上次测试结果
+	EstimatedLifeLeft  time.Duration     `json:"estimated_life_left"` // 预计剩余寿命
+	ReplaceRecommended bool              `json:"replace_recommended"` // 建议更换
+	ReplaceDeadline    time.Time         `json:"replace_deadline"`    // 建议更换日期
+	TemperatureAvg     float64           `json:"temperature_avg"`     // 平均温度
+	DischargeDepthAvg  float64           `json:"discharge_depth_avg"` // 平均放电深度
+	LastUpdated        time.Time         `json:"last_updated"`        // 最后更新时间
 }
 
 // BatteryHealthConfig 电池健康管理配置
 type BatteryHealthConfig struct {
-	ReplacementAgeMonths  int           `json:"replacement_age_months"`   // 更换年龄阈值（月）
-	ReplacementCycleCount int           `json:"replacement_cycle_count"`  // 更换充放电次数阈值
-	CapacityThreshold     float64       `json:"capacity_threshold"`       // 容量衰减阈值（百分比）
-	TestInterval          time.Duration `json:"test_interval"`            // 测试间隔
-	AlertOnReplace        bool          `json:"alert_on_replace"`         // 更换时发送告警
-	HealthyTempMin        float64       `json:"healthy_temp_min"`         // 健康温度最小值
-	HealthyTempMax        float64       `json:"healthy_temp_max"`         // 健康温度最大值
+	ReplacementAgeMonths  int           `json:"replacement_age_months"`  // 更换年龄阈值（月）
+	ReplacementCycleCount int           `json:"replacement_cycle_count"` // 更换充放电次数阈值
+	CapacityThreshold     float64       `json:"capacity_threshold"`      // 容量衰减阈值（百分比）
+	TestInterval          time.Duration `json:"test_interval"`           // 测试间隔
+	AlertOnReplace        bool          `json:"alert_on_replace"`        // 更换时发送告警
+	HealthyTempMin        float64       `json:"healthy_temp_min"`        // 健康温度最小值
+	HealthyTempMax        float64       `json:"healthy_temp_max"`        // 健康温度最大值
 }
 
 // DefaultBatteryHealthConfig 返回默认配置
 func DefaultBatteryHealthConfig() BatteryHealthConfig {
 	return BatteryHealthConfig{
-		ReplacementAgeMonths:  36,         // 3年
-		ReplacementCycleCount: 500,        // 500次充放电
-		CapacityThreshold:     80.0,       // 容量低于80%建议更换
+		ReplacementAgeMonths:  36,                 // 3年
+		ReplacementCycleCount: 500,                // 500次充放电
+		CapacityThreshold:     80.0,               // 容量低于80%建议更换
 		TestInterval:          7 * 24 * time.Hour, // 每周测试一次
 		AlertOnReplace:        true,
-		HealthyTempMin:        15.0,       // 最低15°C
-		HealthyTempMax:        30.0,       // 最高30°C
+		HealthyTempMin:        15.0, // 最低15°C
+		HealthyTempMax:        30.0, // 最高30°C
 	}
 }
 
 // BatteryManager 电池健康管理器
 type BatteryManager struct {
-	mu          sync.RWMutex
-	config      BatteryHealthConfig
-	upsManager  *UPSManager
-	healthMap   map[string]*BatteryHealth // UPS ID -> 健康数据
-	testQueue   chan string               // 待测试队列
-	stopCh      chan struct{}
-	running     bool
-	onAlert     func(string, *BatteryHealth) // 告警回调
+	mu         sync.RWMutex
+	config     BatteryHealthConfig
+	upsManager *UPSManager
+	healthMap  map[string]*BatteryHealth // UPS ID -> 健康数据
+	testQueue  chan string               // 待测试队列
+	stopCh     chan struct{}
+	running    bool
+	onAlert    func(string, *BatteryHealth) // 告警回调
 }
 
 // NewBatteryManager 创建电池管理器
 func NewBatteryManager(upsManager *UPSManager, config BatteryHealthConfig) *BatteryManager {
 	return &BatteryManager{
-		config:    config,
+		config:     config,
 		upsManager: upsManager,
-		healthMap: make(map[string]*BatteryHealth),
-		testQueue: make(chan string, 100),
-		stopCh:    make(chan struct{}),
+		healthMap:  make(map[string]*BatteryHealth),
+		testQueue:  make(chan string, 100),
+		stopCh:     make(chan struct{}),
 	}
 }
 
@@ -388,7 +388,7 @@ func (bm *BatteryManager) calculateReplaceDeadline(health *BatteryHealth) time.T
 	// 基于健康评分估算剩余时间
 	switch {
 	case health.HealthScore < 20:
-		return time.Now().Add(7 * 24 * time.Hour)  // 1周内
+		return time.Now().Add(7 * 24 * time.Hour) // 1周内
 	case health.HealthScore < 40:
 		return time.Now().Add(30 * 24 * time.Hour) // 1个月内
 	case health.HealthScore < 60:
@@ -413,7 +413,7 @@ func (bm *BatteryManager) estimateRemainingLife(health *BatteryHealth) time.Dura
 	}
 
 	remainingMonths := remainingCycles / math.Max(1, avgCyclesPerMonth)
-	return time.Duration(remainingMonths * 30 * 24) * time.Hour
+	return time.Duration(remainingMonths*30*24) * time.Hour
 }
 
 // runBatteryTest 运行电池测试

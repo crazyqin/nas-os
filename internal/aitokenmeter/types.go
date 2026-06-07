@@ -46,16 +46,16 @@ var (
 
 // TokenUsage 单次 Token 使用记录.
 type TokenUsage struct {
-	ID          string    `json:"id"`
-	UserID      string    `json:"userId"`
-	Provider    Provider  `json:"provider"`
-	Model       string    `json:"model"`
-	PromptTokens     int  `json:"promptTokens"`
-	CompletionTokens int  `json:"completionTokens"`
-	TotalTokens      int  `json:"totalTokens"`
-	Cost        float64   `json:"cost"` // 美元
-	RequestID   string    `json:"requestId,omitempty"`
-	Timestamp   time.Time `json:"timestamp"`
+	ID               string    `json:"id"`
+	UserID           string    `json:"userId"`
+	Provider         Provider  `json:"provider"`
+	Model            string    `json:"model"`
+	PromptTokens     int       `json:"promptTokens"`
+	CompletionTokens int       `json:"completionTokens"`
+	TotalTokens      int       `json:"totalTokens"`
+	Cost             float64   `json:"cost"` // 美元
+	RequestID        string    `json:"requestId,omitempty"`
+	Timestamp        time.Time `json:"timestamp"`
 }
 
 // ========== 用户配额 ==========
@@ -72,30 +72,30 @@ const (
 
 // UserQuota 用户 Token 配额.
 type UserQuota struct {
-	UserID        string            `json:"userId"`
-	PlanID        string            `json:"planId,omitempty"`
-	Limits        map[QuotaPeriod]int `json:"limits"`        // 每周期 Token 上限
-	CostLimits    map[QuotaPeriod]float64 `json:"costLimits"` // 每周期费用上限（美元）
-	ProviderQuota map[Provider]int  `json:"providerQuota,omitempty"` // 按提供商限额
-	Enabled       bool              `json:"enabled"`
-	CreatedAt     time.Time         `json:"createdAt"`
-	UpdatedAt     time.Time         `json:"updatedAt"`
+	UserID        string                  `json:"userId"`
+	PlanID        string                  `json:"planId,omitempty"`
+	Limits        map[QuotaPeriod]int     `json:"limits"`                  // 每周期 Token 上限
+	CostLimits    map[QuotaPeriod]float64 `json:"costLimits"`              // 每周期费用上限（美元）
+	ProviderQuota map[Provider]int        `json:"providerQuota,omitempty"` // 按提供商限额
+	Enabled       bool                    `json:"enabled"`
+	CreatedAt     time.Time               `json:"createdAt"`
+	UpdatedAt     time.Time               `json:"updatedAt"`
 }
 
 // ========== 套餐 ==========
 
 // Plan AI 使用套餐.
 type Plan struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description,omitempty"`
-	TokenLimits map[QuotaPeriod]int `json:"tokenLimits"`
-	CostLimits  map[QuotaPeriod]float64 `json:"costLimits"`
-	ProviderQuota map[Provider]int  `json:"providerQuota,omitempty"`
-	Priority    int               `json:"priority"` // 越高优先级越高
-	Enabled     bool              `json:"enabled"`
-	CreatedAt   time.Time         `json:"createdAt"`
-	UpdatedAt   time.Time         `json:"updatedAt"`
+	ID            string                  `json:"id"`
+	Name          string                  `json:"name"`
+	Description   string                  `json:"description,omitempty"`
+	TokenLimits   map[QuotaPeriod]int     `json:"tokenLimits"`
+	CostLimits    map[QuotaPeriod]float64 `json:"costLimits"`
+	ProviderQuota map[Provider]int        `json:"providerQuota,omitempty"`
+	Priority      int                     `json:"priority"` // 越高优先级越高
+	Enabled       bool                    `json:"enabled"`
+	CreatedAt     time.Time               `json:"createdAt"`
+	UpdatedAt     time.Time               `json:"updatedAt"`
 }
 
 // ========== 预算 ==========
@@ -105,34 +105,34 @@ type BudgetType string
 
 const (
 	BudgetTypeGlobal  BudgetType = "global"  // 全局预算
-	BudgetTypeUser    BudgetType = "user"     // 用户预算
-	BudgetTypeProject BudgetType = "project"  // 项目预算
+	BudgetTypeUser    BudgetType = "user"    // 用户预算
+	BudgetTypeProject BudgetType = "project" // 项目预算
 )
 
 // Budget 预算配置.
 type Budget struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	Type        BudgetType  `json:"type"`
-	TargetID    string      `json:"targetId"`    // 用户ID/项目ID，全局时为空
-	Amount      float64     `json:"amount"`      // 预算金额（美元）
-	Spent       float64     `json:"spent"`       // 已花费
-	Period      QuotaPeriod `json:"period"`      // 预算周期
-	AlertThreshold float64  `json:"alertThreshold"` // 告警阈值 (0.0-1.0)
-	Enabled     bool        `json:"enabled"`
-	CreatedAt   time.Time   `json:"createdAt"`
-	UpdatedAt   time.Time   `json:"updatedAt"`
+	ID             string      `json:"id"`
+	Name           string      `json:"name"`
+	Type           BudgetType  `json:"type"`
+	TargetID       string      `json:"targetId"`       // 用户ID/项目ID，全局时为空
+	Amount         float64     `json:"amount"`         // 预算金额（美元）
+	Spent          float64     `json:"spent"`          // 已花费
+	Period         QuotaPeriod `json:"period"`         // 预算周期
+	AlertThreshold float64     `json:"alertThreshold"` // 告警阈值 (0.0-1.0)
+	Enabled        bool        `json:"enabled"`
+	CreatedAt      time.Time   `json:"createdAt"`
+	UpdatedAt      time.Time   `json:"updatedAt"`
 }
 
 // ========== 限流 ==========
 
 // RateLimit 限流配置.
 type RateLimit struct {
-	UserID     string      `json:"userId"`
-	Provider   Provider    `json:"provider,omitempty"`
-	MaxTokens  int         `json:"maxTokens"`  // 窗口内最大 Token 数
-	Window     time.Duration `json:"window"`   // 滑动窗口大小
-	MaxRequests int        `json:"maxRequests"` // 窗口内最大请求数
+	UserID      string        `json:"userId"`
+	Provider    Provider      `json:"provider,omitempty"`
+	MaxTokens   int           `json:"maxTokens"`   // 窗口内最大 Token 数
+	Window      time.Duration `json:"window"`      // 滑动窗口大小
+	MaxRequests int           `json:"maxRequests"` // 窗口内最大请求数
 }
 
 // ========== 告警 ==========
@@ -148,14 +148,14 @@ const (
 
 // Alert 告警事件.
 type Alert struct {
-	ID        string      `json:"id"`
-	Level     AlertLevel  `json:"level"`
-	Message   string      `json:"message"`
-	UserID    string      `json:"userId,omitempty"`
-	BudgetID  string      `json:"budgetId,omitempty"`
-	Threshold float64     `json:"threshold,omitempty"`
-	Actual    float64     `json:"actual,omitempty"`
-	Timestamp time.Time   `json:"timestamp"`
+	ID        string     `json:"id"`
+	Level     AlertLevel `json:"level"`
+	Message   string     `json:"message"`
+	UserID    string     `json:"userId,omitempty"`
+	BudgetID  string     `json:"budgetId,omitempty"`
+	Threshold float64    `json:"threshold,omitempty"`
+	Actual    float64    `json:"actual,omitempty"`
+	Timestamp time.Time  `json:"timestamp"`
 }
 
 // ========== 审计日志 ==========
@@ -191,11 +191,11 @@ type AlertHandler func(alert Alert)
 
 // slidingWindow 滑动窗口限流器 (并发安全).
 type slidingWindow struct {
-	mu         sync.Mutex
-	window     time.Duration
-	maxTokens  int
+	mu          sync.Mutex
+	window      time.Duration
+	maxTokens   int
 	maxRequests int
-	events     []windowEvent
+	events      []windowEvent
 }
 
 // windowEvent 窗口事件.
@@ -208,9 +208,9 @@ type windowEvent struct {
 
 // ringBuffer 环形缓冲区，用于高效审计日志.
 type ringBuffer struct {
-	mu      sync.Mutex
-	buf     []AuditLog
-	size    int
-	head    int
-	cnt     int
+	mu   sync.Mutex
+	buf  []AuditLog
+	size int
+	head int
+	cnt  int
 }

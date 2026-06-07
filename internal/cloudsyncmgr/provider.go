@@ -11,12 +11,12 @@ import (
 
 // FileInfo 云端文件信息.
 type FileInfo struct {
-	Path         string    `json:"path"`
-	Size         int64     `json:"size"`
-	ModTime      time.Time `json:"mod_time"`
-	IsDir        bool      `json:"is_dir"`
-	ETag         string    `json:"etag,omitempty"`
-	ContentType  string    `json:"content_type,omitempty"`
+	Path        string    `json:"path"`
+	Size        int64     `json:"size"`
+	ModTime     time.Time `json:"mod_time"`
+	IsDir       bool      `json:"is_dir"`
+	ETag        string    `json:"etag,omitempty"`
+	ContentType string    `json:"content_type,omitempty"`
 }
 
 // CloudProvider 云存储后端抽象接口.
@@ -207,10 +207,10 @@ func (p *ossProvider) TestConnection(ctx context.Context) error {
 // ============================================================
 
 type b2Provider struct {
-	keyID     string
-	appKey    string
-	bucketID  string
-	bucket    string
+	keyID    string
+	appKey   string
+	bucketID string
+	bucket   string
 }
 
 func newB2Provider(config map[string]string) (CloudProvider, error) {

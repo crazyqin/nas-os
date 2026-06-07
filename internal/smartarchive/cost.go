@@ -27,15 +27,15 @@ type CostManager struct {
 // CostConfig 成本配置.
 type CostConfig struct {
 	// 基准价格（元/GB/月）
-	HotTierCostPerGB   float64 `json:"hotTierCostPerGB"`
-	WarmTierCostPerGB  float64 `json:"warmTierCostPerGB"`
-	ColdTierCostPerGB  float64 `json:"coldTierCostPerGB"`
-	IceTierCostPerGB   float64 `json:"iceTierCostPerGB"`
+	HotTierCostPerGB  float64 `json:"hotTierCostPerGB"`
+	WarmTierCostPerGB float64 `json:"warmTierCostPerGB"`
+	ColdTierCostPerGB float64 `json:"coldTierCostPerGB"`
+	IceTierCostPerGB  float64 `json:"iceTierCostPerGB"`
 
 	// 运营成本
-	TransferCostPerGB  float64 `json:"transferCostPerGB"`  // 数据传输成本
-	OperationCostPerK  float64 `json:"operationCostPerK"`  // 每千次操作成本
-	BackupCostPerGB    float64 `json:"backupCostPerGB"`    // 备份成本
+	TransferCostPerGB float64 `json:"transferCostPerGB"` // 数据传输成本
+	OperationCostPerK float64 `json:"operationCostPerK"` // 每千次操作成本
+	BackupCostPerGB   float64 `json:"backupCostPerGB"`   // 备份成本
 
 	// 分析配置
 	AnalysisInterval   time.Duration `json:"analysisInterval"`
@@ -63,12 +63,12 @@ func DefaultCostConfig() CostConfig {
 
 // CostSnapshot 成本快照.
 type CostSnapshot struct {
-	Timestamp    time.Time                    `json:"timestamp"`
-	TotalCost    float64                      `json:"totalCost"`
-	CostByTier   map[StorageTier]float64      `json:"costByTier"`
-	StorageByTier map[StorageTier]int64       `json:"storageByTier"`
-	TotalStorage int64                        `json:"totalStorage"`
-	Metrics      *CostMetrics                 `json:"metrics"`
+	Timestamp     time.Time               `json:"timestamp"`
+	TotalCost     float64                 `json:"totalCost"`
+	CostByTier    map[StorageTier]float64 `json:"costByTier"`
+	StorageByTier map[StorageTier]int64   `json:"storageByTier"`
+	TotalStorage  int64                   `json:"totalStorage"`
+	Metrics       *CostMetrics            `json:"metrics"`
 }
 
 // CostMetrics 成本指标.
@@ -83,13 +83,13 @@ type CostMetrics struct {
 
 // CostManagerStats 成本管理器统计.
 type CostManagerStats struct {
-	TotalAnalysis      int64     `json:"totalAnalysis"`
-	LastAnalysis       time.Time `json:"lastAnalysis"`
-	CurrentMonthCost   float64   `json:"currentMonthCost"`
-	PreviousMonthCost  float64   `json:"previousMonthCost"`
-	MonthOverMonth     float64   `json:"monthOverMonth"` // 环比变化
-	TotalSaving        float64   `json:"totalSaving"`
-	ForecastNextMonth  float64   `json:"forecastNextMonth"`
+	TotalAnalysis     int64     `json:"totalAnalysis"`
+	LastAnalysis      time.Time `json:"lastAnalysis"`
+	CurrentMonthCost  float64   `json:"currentMonthCost"`
+	PreviousMonthCost float64   `json:"previousMonthCost"`
+	MonthOverMonth    float64   `json:"monthOverMonth"` // 环比变化
+	TotalSaving       float64   `json:"totalSaving"`
+	ForecastNextMonth float64   `json:"forecastNextMonth"`
 }
 
 // NewCostManager 创建成本管理器.
@@ -445,10 +445,10 @@ func (cm *CostManager) EstimateMigrationCost(source, target StorageTier, sizeGB 
 	defer cm.mu.RUnlock()
 
 	estimate := &MigrationCostEstimate{
-		SourceTier:    source,
-		TargetTier:    target,
-		SizeGB:        sizeGB,
-		TransferCost:  sizeGB * cm.config.TransferCostPerGB,
+		SourceTier:   source,
+		TargetTier:   target,
+		SizeGB:       sizeGB,
+		TransferCost: sizeGB * cm.config.TransferCostPerGB,
 	}
 
 	// 计算月度存储成本变化
@@ -511,11 +511,11 @@ func (cm *CostManager) CompareTiers(sizeGB float64) map[StorageTier]*TierCostCom
 		monthlyCost := sizeGB * costPerGB
 
 		comparison[tier] = &TierCostComparison{
-			Tier:          tier,
-			CostPerGB:     costPerGB,
-			MonthlyCost:   monthlyCost,
-			AnnualCost:    monthlyCost * 12,
-			RelativeCost:  monthlyCost / (sizeGB * cm.config.HotTierCostPerGB) * 100,
+			Tier:         tier,
+			CostPerGB:    costPerGB,
+			MonthlyCost:  monthlyCost,
+			AnnualCost:   monthlyCost * 12,
+			RelativeCost: monthlyCost / (sizeGB * cm.config.HotTierCostPerGB) * 100,
 		}
 	}
 

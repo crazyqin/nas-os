@@ -15,24 +15,24 @@ import (
 
 // Manager 管理容器安全扫描的所有操作
 type Manager struct {
-	mu             sync.Mutex
-	configPath     string                     // 配置文件路径
-	scanResults    map[string]*ScanResult     // 扫描结果（key: scanID）
-	policies       map[string]*ScanPolicy     // 扫描策略（key: policyID）
-	complianceRules map[string]*ComplianceRule // 合规规则（key: ruleID）
-	runtimeMonitors map[string]*RuntimeMonitor // 运行时监控（key: containerID）
-	blacklist      map[string]*ListEntry      // 镜像黑名单
-	whitelist      map[string]*ListEntry      // 镜像白名单
-	cveDatabase    map[string]*VulnerabilityCVE // 模拟 CVE 数据库
-	stopCh         chan struct{}
+	mu              sync.Mutex
+	configPath      string                       // 配置文件路径
+	scanResults     map[string]*ScanResult       // 扫描结果（key: scanID）
+	policies        map[string]*ScanPolicy       // 扫描策略（key: policyID）
+	complianceRules map[string]*ComplianceRule   // 合规规则（key: ruleID）
+	runtimeMonitors map[string]*RuntimeMonitor   // 运行时监控（key: containerID）
+	blacklist       map[string]*ListEntry        // 镜像黑名单
+	whitelist       map[string]*ListEntry        // 镜像白名单
+	cveDatabase     map[string]*VulnerabilityCVE // 模拟 CVE 数据库
+	stopCh          chan struct{}
 }
 
 // managerData 持久化数据结构
 type managerData struct {
-	Policies        map[string]*ScanPolicy      `json:"policies"`
-	ComplianceRules map[string]*ComplianceRule  `json:"compliance_rules"`
-	Blacklist       map[string]*ListEntry       `json:"blacklist"`
-	Whitelist       map[string]*ListEntry       `json:"whitelist"`
+	Policies        map[string]*ScanPolicy     `json:"policies"`
+	ComplianceRules map[string]*ComplianceRule `json:"compliance_rules"`
+	Blacklist       map[string]*ListEntry      `json:"blacklist"`
+	Whitelist       map[string]*ListEntry      `json:"whitelist"`
 }
 
 // NewManager 创建新的扫描管理器

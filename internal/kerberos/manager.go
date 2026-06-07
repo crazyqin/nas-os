@@ -9,14 +9,14 @@ import (
 
 // Manager Kerberos 认证管理器.
 type Manager struct {
-	mu          sync.RWMutex
-	config      KerberosConfig
-	principals  map[string]*Principal
-	keytabs     map[string]*Keytab
-	realm       *Realm
-	tickets     map[string]*Ticket
-	running     bool
-	stopCh      chan struct{}
+	mu         sync.RWMutex
+	config     KerberosConfig
+	principals map[string]*Principal
+	keytabs    map[string]*Keytab
+	realm      *Realm
+	tickets    map[string]*Ticket
+	running    bool
+	stopCh     chan struct{}
 }
 
 // NewManager 创建管理器.
@@ -243,12 +243,12 @@ func (m *Manager) GetStats() *KerberosStats {
 		}
 	}
 	return &KerberosStats{
-		Realm:          m.config.Realm,
+		Realm:           m.config.Realm,
 		TotalPrincipals: len(m.principals),
-		TotalKeytabs:   len(m.keytabs),
-		TotalTickets:   len(m.tickets),
-		ActiveTickets:  activeTickets,
-		ExpiredTickets: expiredTickets,
+		TotalKeytabs:    len(m.keytabs),
+		TotalTickets:    len(m.tickets),
+		ActiveTickets:   activeTickets,
+		ExpiredTickets:  expiredTickets,
 	}
 }
 

@@ -145,10 +145,10 @@ func (h *Handlers) listMessages(c *gin.Context) {
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
-			"total":    total,
-			"page":     page,
+			"total":     total,
+			"page":      page,
 			"page_size": pageSize,
-			"messages": messages,
+			"messages":  messages,
 		},
 	})
 }

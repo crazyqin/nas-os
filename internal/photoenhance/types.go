@@ -19,13 +19,13 @@ import (
 type EnhancementType string
 
 const (
-	EnhanceSuperRes  EnhancementType = "super_resolution" // 超分辨率放大
-	EnhanceDenoise   EnhancementType = "denoise"          // 智能降噪
-	EnhanceRepair    EnhancementType = "repair"            // 老照片修复
-	EnhanceColorize  EnhancementType = "colorize"          // 黑白照片上色
-	EnhanceHDR       EnhancementType = "hdr"               // HDR增强
-	EnhanceDehaze    EnhancementType = "dehaze"            // 去雾
-	EnhanceFace      EnhancementType = "face_restore"      // 人脸修复
+	EnhanceSuperRes   EnhancementType = "super_resolution" // 超分辨率放大
+	EnhanceDenoise    EnhancementType = "denoise"          // 智能降噪
+	EnhanceRepair     EnhancementType = "repair"           // 老照片修复
+	EnhanceColorize   EnhancementType = "colorize"         // 黑白照片上色
+	EnhanceHDR        EnhancementType = "hdr"              // HDR增强
+	EnhanceDehaze     EnhancementType = "dehaze"           // 去雾
+	EnhanceFace       EnhancementType = "face_restore"     // 人脸修复
 	EnhanceBackground EnhancementType = "background_blur"  // 背景虚化
 )
 
@@ -69,30 +69,30 @@ type EnhancementResult struct {
 
 // EnhancementJob represents a batch enhancement job
 type EnhancementJob struct {
-	ID         string               `json:"id"`
-	Name       string               `json:"name"`
+	ID         string                `json:"id"`
+	Name       string                `json:"name"`
 	Requests   []*EnhancementRequest `json:"requests"`
 	Results    []*EnhancementResult  `json:"results"`
-	Status     string               `json:"status"` // pending, processing, completed, failed
-	Progress   float64              `json:"progress"`
-	TotalCount int                  `json:"total_count"`
-	DoneCount  int                  `json:"done_count"`
-	StartTime  time.Time            `json:"start_time"`
-	EndTime    time.Time            `json:"end_time"`
+	Status     string                `json:"status"` // pending, processing, completed, failed
+	Progress   float64               `json:"progress"`
+	TotalCount int                   `json:"total_count"`
+	DoneCount  int                   `json:"done_count"`
+	StartTime  time.Time             `json:"start_time"`
+	EndTime    time.Time             `json:"end_time"`
 }
 
 // Config represents photo enhancement configuration
 type Config struct {
-	Enabled        bool          `json:"enabled"`
-	ModelPath      string        `json:"model_path"`       // AI模型路径
-	GPUEnabled     bool          `json:"gpu_enabled"`      // 是否启用GPU加速
-	MaxConcurrent  int           `json:"max_concurrent"`   // 最大并发处理数
-	DefaultQuality QualityLevel  `json:"default_quality"`
-	OutputDir      string        `json:"output_dir"`
-	KeepOriginal   bool          `json:"keep_original"`    // 是否保留原图
-	AutoEnhance    bool          `json:"auto_enhance"`     // 上传时自动增强
-	Watermark      bool          `json:"watermark"`        // 是否添加水印
-	BatchLimit     int           `json:"batch_limit"`      // 批量处理限制
+	Enabled        bool         `json:"enabled"`
+	ModelPath      string       `json:"model_path"`     // AI模型路径
+	GPUEnabled     bool         `json:"gpu_enabled"`    // 是否启用GPU加速
+	MaxConcurrent  int          `json:"max_concurrent"` // 最大并发处理数
+	DefaultQuality QualityLevel `json:"default_quality"`
+	OutputDir      string       `json:"output_dir"`
+	KeepOriginal   bool         `json:"keep_original"` // 是否保留原图
+	AutoEnhance    bool         `json:"auto_enhance"`  // 上传时自动增强
+	Watermark      bool         `json:"watermark"`     // 是否添加水印
+	BatchLimit     int          `json:"batch_limit"`   // 批量处理限制
 }
 
 // Manager manages photo enhancement operations
@@ -110,7 +110,7 @@ type Manager struct {
 // NewManager creates a new photo enhancement manager
 func NewManager(config *Config) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	maxConcurrent := config.MaxConcurrent
 	if maxConcurrent <= 0 {
 		maxConcurrent = 2
@@ -132,12 +132,12 @@ func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return nil
 	}
-	
+
 	// Load AI models
 	if err := m.loadModels(); err != nil {
 		return fmt.Errorf("failed to load models: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -152,31 +152,31 @@ func (m *Manager) loadModels() error {
 	if modelDir == "" {
 		modelDir = "/opt/nas-os/models/photo-enhance"
 	}
-	
+
 	// Register available models
 	m.models[EnhanceSuperRes] = filepath.Join(modelDir, "real-esrgan-x4.bin")
 	m.models[EnhanceDenoise] = filepath.Join(modelDir, "nafnet-denoise.bin")
 	m.models[EnhanceRepair] = filepath.Join(modelDir, "gfpgan-repair.bin")
 	m.models[EnhanceColorize] = filepath.Join(modelDir, "deoldify-colorize.bin")
 	m.models[EnhanceFace] = filepath.Join(modelDir, "codeformer-face.bin")
-	
+
 	return nil
 }
 
 // EnhancePhoto enhances a single photo
 func (m *Manager) EnhancePhoto(ctx context.Context, req *EnhancementRequest) (*EnhancementResult, error) {
-	m.workerPool <- struct{}{} // acquire worker
+	m.workerPool <- struct{}{}        // acquire worker
 	defer func() { <-m.workerPool }() // release worker
-	
+
 	startTime := time.Now()
-	
+
 	result := &EnhancementResult{
 		RequestID:  req.ID,
 		SourcePath: req.SourcePath,
 		OutputPath: req.OutputPath,
 		Status:     "processing",
 	}
-	
+
 	// Read source image
 	srcFile, err := os.Open(req.SourcePath)
 	if err != nil {
@@ -185,11 +185,11 @@ func (m *Manager) EnhancePhoto(ctx context.Context, req *EnhancementRequest) (*E
 		return result, err
 	}
 	defer srcFile.Close()
-	
+
 	// Get file info
 	srcInfo, _ := srcFile.Stat()
 	result.FileSizeBefore = srcInfo.Size()
-	
+
 	// Decode image
 	srcImg, format, err := image.Decode(srcFile)
 	if err != nil {
@@ -198,7 +198,7 @@ func (m *Manager) EnhancePhoto(ctx context.Context, req *EnhancementRequest) (*E
 		return result, err
 	}
 	result.OriginalSize = srcImg.Bounds().Size()
-	
+
 	// Apply enhancement based on type
 	enhancedImg, err := m.applyEnhancement(ctx, srcImg, req)
 	if err != nil {
@@ -207,24 +207,24 @@ func (m *Manager) EnhancePhoto(ctx context.Context, req *EnhancementRequest) (*E
 		return result, err
 	}
 	result.EnhancedSize = enhancedImg.Bounds().Size()
-	
+
 	// Save enhanced image
 	if err := m.saveImage(enhancedImg, req.OutputPath, format, req.Quality); err != nil {
 		result.Status = "failed"
 		result.Error = fmt.Sprintf("failed to save: %v", err)
 		return result, err
 	}
-	
+
 	// Get output file size
 	outInfo, _ := os.Stat(req.OutputPath)
 	if outInfo != nil {
 		result.FileSizeAfter = outInfo.Size()
 	}
-	
+
 	result.ProcessingTime = time.Since(startTime)
 	result.Status = "completed"
 	result.QualityScore = m.calculateQualityScore(srcImg, enhancedImg)
-	
+
 	return result, nil
 }
 
@@ -257,19 +257,19 @@ func (m *Manager) superResolution(ctx context.Context, img image.Image, scale in
 	if scale <= 0 {
 		scale = 4
 	}
-	
+
 	bounds := img.Bounds()
 	newWidth := bounds.Dx() * scale
 	newHeight := bounds.Dy() * scale
-	
+
 	// Create output image
 	dst := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
-	
+
 	// Use GPU-accelerated scaling if available
 	if m.config.GPUEnabled {
 		return m.gpuScale(ctx, img, dst, scale)
 	}
-	
+
 	// Fallback to high-quality software scaling
 	m.softwareScale(img, dst, scale)
 	return dst, nil
@@ -349,13 +349,13 @@ func (m *Manager) saveImage(img image.Image, path string, format string, quality
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		return err
 	}
-	
+
 	f, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-	
+
 	jpegQuality := 95
 	switch quality {
 	case QualityFast:
@@ -365,7 +365,7 @@ func (m *Manager) saveImage(img image.Image, path string, format string, quality
 	case QualityBest:
 		jpegQuality = 98
 	}
-	
+
 	switch format {
 	case "jpeg", "jpg":
 		return jpeg.Encode(f, img, &jpeg.Options{Quality: jpegQuality})
@@ -387,7 +387,7 @@ func (m *Manager) calculateQualityScore(original, enhanced image.Image) float64 
 func (m *Manager) CreateBatchJob(name string, requests []*EnhancementRequest) *EnhancementJob {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	job := &EnhancementJob{
 		ID:         fmt.Sprintf("job_%d", time.Now().UnixNano()),
 		Name:       name,
@@ -396,7 +396,7 @@ func (m *Manager) CreateBatchJob(name string, requests []*EnhancementRequest) *E
 		TotalCount: len(requests),
 		StartTime:  time.Now(),
 	}
-	
+
 	m.jobs[job.ID] = job
 	return job
 }
@@ -411,14 +411,14 @@ func (m *Manager) ProcessBatchJob(ctx context.Context, jobID string) error {
 	}
 	job.Status = "processing"
 	m.mu.Unlock()
-	
+
 	for i, req := range job.Requests {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
 		default:
 		}
-		
+
 		result, err := m.EnhancePhoto(ctx, req)
 		if err != nil {
 			result = &EnhancementResult{
@@ -427,19 +427,19 @@ func (m *Manager) ProcessBatchJob(ctx context.Context, jobID string) error {
 				Error:     err.Error(),
 			}
 		}
-		
+
 		m.mu.Lock()
 		job.Results = append(job.Results, result)
 		job.DoneCount = i + 1
 		job.Progress = float64(job.DoneCount) / float64(job.TotalCount) * 100
 		m.mu.Unlock()
 	}
-	
+
 	m.mu.Lock()
 	job.Status = "completed"
 	job.EndTime = time.Now()
 	m.mu.Unlock()
-	
+
 	return nil
 }
 
@@ -447,7 +447,7 @@ func (m *Manager) ProcessBatchJob(ctx context.Context, jobID string) error {
 func (m *Manager) GetJob(jobID string) (*EnhancementJob, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	job, ok := m.jobs[jobID]
 	if !ok {
 		return nil, fmt.Errorf("job not found: %s", jobID)
@@ -459,7 +459,7 @@ func (m *Manager) GetJob(jobID string) (*EnhancementJob, error) {
 func (m *Manager) ListJobs() []*EnhancementJob {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	jobs := make([]*EnhancementJob, 0, len(m.jobs))
 	for _, job := range m.jobs {
 		jobs = append(jobs, job)
@@ -471,23 +471,23 @@ func (m *Manager) ListJobs() []*EnhancementJob {
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	totalJobs := len(m.jobs)
 	completedJobs := 0
 	totalPhotos := 0
-	
+
 	for _, job := range m.jobs {
 		if job.Status == "completed" {
 			completedJobs++
 		}
 		totalPhotos += job.TotalCount
 	}
-	
+
 	return map[string]interface{}{
-		"total_jobs":      totalJobs,
-		"completed_jobs":  completedJobs,
-		"total_photos":    totalPhotos,
-		"gpu_enabled":     m.config.GPUEnabled,
-		"max_concurrent":  m.config.MaxConcurrent,
+		"total_jobs":     totalJobs,
+		"completed_jobs": completedJobs,
+		"total_photos":   totalPhotos,
+		"gpu_enabled":    m.config.GPUEnabled,
+		"max_concurrent": m.config.MaxConcurrent,
 	}
 }

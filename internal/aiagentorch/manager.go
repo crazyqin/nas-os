@@ -9,12 +9,12 @@ import (
 
 // Manager 代理编排管理器.
 type Manager struct {
-	mu         sync.RWMutex
-	agents     map[string]*Agent
-	tasks      map[string]*AgentTask
-	logs       []*ExecutionLog
-	messages   []*AgentMessage
-	nameIndex  map[string]string // name -> agentID
+	mu        sync.RWMutex
+	agents    map[string]*Agent
+	tasks     map[string]*AgentTask
+	logs      []*ExecutionLog
+	messages  []*AgentMessage
+	nameIndex map[string]string // name -> agentID
 }
 
 // NewManager 创建管理器.

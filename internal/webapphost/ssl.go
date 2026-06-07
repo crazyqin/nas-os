@@ -16,11 +16,11 @@ import (
 
 // SSLManager SSL 证书管理器
 type SSLManager struct {
-	mu        sync.RWMutex
-	certs     map[string]*SSLEntry
-	certDir   string
-	provider  string // letsencrypt, selfsigned
-	email     string
+	mu       sync.RWMutex
+	certs    map[string]*SSLEntry
+	certDir  string
+	provider string // letsencrypt, selfsigned
+	email    string
 }
 
 // NewSSLManager 创建 SSL 管理器

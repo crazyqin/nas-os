@@ -102,34 +102,34 @@ type RouteRequest struct {
 
 // RouteStats 路由统计
 type RouteStats struct {
-	RouteID          string         `json:"routeId"`
-	TotalRequests    int64          `json:"totalRequests"`
-	SuccessRequests  int64          `json:"successRequests"`
-	FailedRequests   int64          `json:"failedRequests"`
-	AvgLatencyMs     int64          `json:"avgLatencyMs"`
-	P99LatencyMs     int64          `json:"p99LatencyMs"`
-	TotalTokens      int64          `json:"totalTokens"`
-	TotalCost        float64        `json:"totalCost"`
+	RouteID           string           `json:"routeId"`
+	TotalRequests     int64            `json:"totalRequests"`
+	SuccessRequests   int64            `json:"successRequests"`
+	FailedRequests    int64            `json:"failedRequests"`
+	AvgLatencyMs      int64            `json:"avgLatencyMs"`
+	P99LatencyMs      int64            `json:"p99LatencyMs"`
+	TotalTokens       int64            `json:"totalTokens"`
+	TotalCost         float64          `json:"totalCost"`
 	ModelDistribution map[string]int64 `json:"modelDistribution"`
-	LastRequestTime  time.Time      `json:"lastRequestTime"`
+	LastRequestTime   time.Time        `json:"lastRequestTime"`
 }
 
 // ModelMetrics 模型性能指标
 type ModelMetrics struct {
-	ModelID       string    `json:"modelName"`
+	ModelID       string      `json:"modelName"`
 	Health        ModelHealth `json:"health"`
-	AvgLatencyMs  int64     `json:"avgLatencyMs"`
-	P50LatencyMs  int64     `json:"p50LatencyMs"`
-	P95LatencyMs  int64     `json:"p95LatencyMs"`
-	P99LatencyMs  int64     `json:"p99LatencyMs"`
-	SuccessRate   float64   `json:"successRate"`
-	QPS           float64   `json:"qps"`
-	TotalRequests int64     `json:"totalRequests"`
-	TotalTokens   int64     `json:"totalTokens"`
-	TotalCost     float64   `json:"totalCost"`
-	Uptime        float64   `json:"uptime"`
-	LastCheckTime time.Time `json:"lastCheckTime"`
-	ErrorMessage  string    `json:"errorMessage,omitempty"`
+	AvgLatencyMs  int64       `json:"avgLatencyMs"`
+	P50LatencyMs  int64       `json:"p50LatencyMs"`
+	P95LatencyMs  int64       `json:"p95LatencyMs"`
+	P99LatencyMs  int64       `json:"p99LatencyMs"`
+	SuccessRate   float64     `json:"successRate"`
+	QPS           float64     `json:"qps"`
+	TotalRequests int64       `json:"totalRequests"`
+	TotalTokens   int64       `json:"totalTokens"`
+	TotalCost     float64     `json:"totalCost"`
+	Uptime        float64     `json:"uptime"`
+	LastCheckTime time.Time   `json:"lastCheckTime"`
+	ErrorMessage  string      `json:"errorMessage,omitempty"`
 }
 
 // ========== 路由接口 ==========

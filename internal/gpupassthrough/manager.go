@@ -13,13 +13,13 @@ import (
 
 // Manager GPU直通管理器
 type Manager struct {
-	config       *Config
-	devices      map[string]*GPUDevice          // PCI地址 -> 设备
-	vmAssigns    map[string][]VMAssignment      // VM ID -> 分配列表
+	config           *Config
+	devices          map[string]*GPUDevice            // PCI地址 -> 设备
+	vmAssigns        map[string][]VMAssignment        // VM ID -> 分配列表
 	containerAssigns map[string][]ContainerAssignment // 容器ID -> 分配列表
-	alerts       []GPUAlert
-	mu           sync.RWMutex
-	stopCh       chan struct{}
+	alerts           []GPUAlert
+	mu               sync.RWMutex
+	stopCh           chan struct{}
 }
 
 // NewManager 创建GPU直通管理器
@@ -154,18 +154,18 @@ func (m *Manager) scanPCIDevices() (map[string]*GPUDevice, error) {
 		model := fmt.Sprintf("%s GPU (%s)", vendor, pciAddr)
 
 		device := &GPUDevice{
-			PCIAddress:  pciAddr,
-			VendorID:    vendorID,
-			DeviceID:    deviceID,
-			Model:       model,
-			Vendor:      vendor,
-			Driver:      driver,
-			BindState:   bindState,
-			IOMMUGroup:  iommuGroup,
-			NUMANode:    numaNode,
-			DevicePath:  devPath,
-			Status:      DeviceStatusAvailable,
-			UpdatedAt:   time.Now(),
+			PCIAddress: pciAddr,
+			VendorID:   vendorID,
+			DeviceID:   deviceID,
+			Model:      model,
+			Vendor:     vendor,
+			Driver:     driver,
+			BindState:  bindState,
+			IOMMUGroup: iommuGroup,
+			NUMANode:   numaNode,
+			DevicePath: devPath,
+			Status:     DeviceStatusAvailable,
+			UpdatedAt:  time.Now(),
 		}
 
 		devices[pciAddr] = device
@@ -356,14 +356,14 @@ func (m *Manager) GetDeviceStats(pciAddr string) (*GPUStats, error) {
 
 	// 返回当前缓存的统计信息
 	stats := &GPUStats{
-		PCIAddress:   pciAddr,
-		GPUUsage:     0, // 实际使用需要nvidia-smi或类似工具
-		MemoryUsage:  0,
-		MemoryUsed:   device.VRAMUsed,
-		MemoryTotal:  device.VRAM,
-		Temperature:  device.Temperature,
-		PowerUsage:   device.PowerUsage,
-		UpdatedAt:    time.Now(),
+		PCIAddress:  pciAddr,
+		GPUUsage:    0, // 实际使用需要nvidia-smi或类似工具
+		MemoryUsage: 0,
+		MemoryUsed:  device.VRAMUsed,
+		MemoryTotal: device.VRAM,
+		Temperature: device.Temperature,
+		PowerUsage:  device.PowerUsage,
+		UpdatedAt:   time.Now(),
 	}
 
 	if device.VRAM > 0 {
@@ -523,8 +523,8 @@ func (m *Manager) addAlert(level AlertLevel, pciAddr, message string) {
 // saveConfig 保存配置到文件
 func (m *Manager) saveConfig() error {
 	data := struct {
-		Devices          map[string]*GPUDevice          `json:"devices"`
-		VMAssignments    map[string][]VMAssignment      `json:"vmAssignments"`
+		Devices          map[string]*GPUDevice            `json:"devices"`
+		VMAssignments    map[string][]VMAssignment        `json:"vmAssignments"`
 		ContainerAssigns map[string][]ContainerAssignment `json:"containerAssignments"`
 	}{
 		Devices:          m.devices,
@@ -557,8 +557,8 @@ func (m *Manager) loadConfig() error {
 	}
 
 	config := struct {
-		Devices          map[string]*GPUDevice          `json:"devices"`
-		VMAssignments    map[string][]VMAssignment      `json:"vmAssignments"`
+		Devices          map[string]*GPUDevice            `json:"devices"`
+		VMAssignments    map[string][]VMAssignment        `json:"vmAssignments"`
 		ContainerAssigns map[string][]ContainerAssignment `json:"containerAssignments"`
 	}{}
 

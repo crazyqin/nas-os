@@ -226,10 +226,10 @@ func (m *IOCMatcher) MatchAny(value string) []*IOC {
 
 // BlockManager IOC 阻断管理器
 type BlockManager struct {
-	engine    *Engine
-	blockedIPs   map[string]time.Time
+	engine         *Engine
+	blockedIPs     map[string]time.Time
 	blockedDomains map[string]time.Time
-	mu        sync.RWMutex
+	mu             sync.RWMutex
 }
 
 // NewBlockManager 创建阻断管理器

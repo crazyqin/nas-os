@@ -31,13 +31,13 @@ var PriorityWeight = map[Priority]int{
 type Category string
 
 const (
-	CategoryStorage   Category = "storage"   // 存储
-	CategoryNetwork   Category = "network"   // 网络
-	CategorySystem    Category = "system"    // 系统
-	CategorySecurity  Category = "security"  // 安全
-	CategoryService   Category = "service"   // 服务
-	CategoryHardware  Category = "hardware"  // 硬件
-	CategoryUnknown   Category = "unknown"   // 未知
+	CategoryStorage  Category = "storage"  // 存储
+	CategoryNetwork  Category = "network"  // 网络
+	CategorySystem   Category = "system"   // 系统
+	CategorySecurity Category = "security" // 安全
+	CategoryService  Category = "service"  // 服务
+	CategoryHardware Category = "hardware" // 硬件
+	CategoryUnknown  Category = "unknown"  // 未知
 )
 
 // TriageState 告警分类处理状态.
@@ -58,10 +58,10 @@ const (
 type NotificationChannel string
 
 const (
-	ChannelEmail    NotificationChannel = "email"    // 邮件
-	ChannelWebhook  NotificationChannel = "webhook"  // Webhook
-	ChannelSMS      NotificationChannel = "sms"      // 短信
-	ChannelIM       NotificationChannel = "im"       // 即时通讯（企业微信/钉钉/Slack）
+	ChannelEmail   NotificationChannel = "email"   // 邮件
+	ChannelWebhook NotificationChannel = "webhook" // Webhook
+	ChannelSMS     NotificationChannel = "sms"     // 短信
+	ChannelIM      NotificationChannel = "im"      // 即时通讯（企业微信/钉钉/Slack）
 )
 
 // Alert 智能告警条目.
@@ -79,9 +79,9 @@ type Alert struct {
 	Fingerprint      string            `json:"fingerprint"` // 告警指纹（用于去重）
 
 	// 关联信息
-	GroupID      string   `json:"group_id,omitempty"`      // 聚合组ID
-	RootCauseID  string   `json:"root_cause_id,omitempty"` // 根因ID
-	RelatedIDs   []string `json:"related_ids,omitempty"`   // 关联告警ID
+	GroupID     string   `json:"group_id,omitempty"`      // 聚合组ID
+	RootCauseID string   `json:"root_cause_id,omitempty"` // 根因ID
+	RelatedIDs  []string `json:"related_ids,omitempty"`   // 关联告警ID
 
 	// 知识库推荐
 	RecommendedActions []RecommendedAction `json:"recommended_actions,omitempty"`
@@ -103,7 +103,7 @@ type RecommendedAction struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Command     string `json:"command,omitempty"`
-	Automated   bool   `json:"automated"` // 是否可自动化执行
+	Automated   bool   `json:"automated"`  // 是否可自动化执行
 	RiskLevel   string `json:"risk_level"` // low/medium/high
 }
 
@@ -117,7 +117,7 @@ type AlertGroup struct {
 	LastSeen    time.Time `json:"last_seen"`
 	Priority    Priority  `json:"priority"`
 	Category    Category  `json:"category"`
-	Source      string    `json:"source"`      // 告警来源
+	Source      string    `json:"source"` // 告警来源
 	Title       string    `json:"title"`
 }
 
@@ -136,62 +136,62 @@ type EscalationPolicy struct {
 	ID           string        `json:"id"`
 	Name         string        `json:"name"`
 	Priority     Priority      `json:"priority"`      // 适用的优先级
-	UpgradeAfter time.Duration `json:"upgrade_after"`  // 未处理多久后升级
-	MaxPriority  Priority      `json:"max_priority"`   // 最高升到什么级别
-	NotifyOnEsc  bool          `json:"notify_on_esc"`  // 升级时是否通知
+	UpgradeAfter time.Duration `json:"upgrade_after"` // 未处理多久后升级
+	MaxPriority  Priority      `json:"max_priority"`  // 最高升到什么级别
+	NotifyOnEsc  bool          `json:"notify_on_esc"` // 升级时是否通知
 	Enabled      bool          `json:"enabled"`
 }
 
 // SuppressionRule 告警抑制规则.
 type SuppressionRule struct {
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	Category    Category   `json:"category,omitempty"` // 按分类抑制
-	Source      string     `json:"source,omitempty"`   // 按来源抑制
-	Pattern     string     `json:"pattern,omitempty"`  // 标题匹配模式
-	StartTime   time.Time  `json:"start_time"`
-	EndTime     time.Time  `json:"end_time"`
-	Reason      string     `json:"reason"` // 抑制原因（维护窗口/已知问题）
-	CreatedBy   string     `json:"created_by"`
-	Enabled     bool       `json:"enabled"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Category    Category  `json:"category,omitempty"` // 按分类抑制
+	Source      string    `json:"source,omitempty"`   // 按来源抑制
+	Pattern     string    `json:"pattern,omitempty"`  // 标题匹配模式
+	StartTime   time.Time `json:"start_time"`
+	EndTime     time.Time `json:"end_time"`
+	Reason      string    `json:"reason"` // 抑制原因（维护窗口/已知问题）
+	CreatedBy   string    `json:"created_by"`
+	Enabled     bool      `json:"enabled"`
 }
 
 // KnowledgeEntry 知识库条目.
 type KnowledgeEntry struct {
-	ID              string             `json:"id"`
-	Keywords        []string           `json:"keywords"`
-	Title           string             `json:"title"`
-	Summary         string             `json:"summary"`
-	Category        Category           `json:"category"`
-	Priority        Priority           `json:"priority"`
-	Actions         []RecommendedAction `json:"actions"`
-	References      []string           `json:"references"`
-	RootCauseKey    string             `json:"root_cause_key"`
+	ID           string              `json:"id"`
+	Keywords     []string            `json:"keywords"`
+	Title        string              `json:"title"`
+	Summary      string              `json:"summary"`
+	Category     Category            `json:"category"`
+	Priority     Priority            `json:"priority"`
+	Actions      []RecommendedAction `json:"actions"`
+	References   []string            `json:"references"`
+	RootCauseKey string              `json:"root_cause_key"`
 }
 
 // AlertStats 告警统计.
 type AlertStats struct {
-	TotalAlerts     int                `json:"total_alerts"`
-	ActiveAlerts    int                `json:"active_alerts"`
-	CriticalCount   int                `json:"critical_count"`
-	HighCount       int                `json:"high_count"`
-	MediumCount     int                `json:"medium_count"`
-	LowCount        int                `json:"low_count"`
-	InfoCount       int                `json:"info_count"`
-	SuppressedCount int                `json:"suppressed_count"`
-	ByCategory      map[Category]int   `json:"by_category"`
-	BySource        map[string]int     `json:"by_source"`
-	AcknowledgedPct float64            `json:"acknowledged_pct"`
-	AvgResolution   time.Duration      `json:"avg_resolution"` // 平均解决时间
+	TotalAlerts     int              `json:"total_alerts"`
+	ActiveAlerts    int              `json:"active_alerts"`
+	CriticalCount   int              `json:"critical_count"`
+	HighCount       int              `json:"high_count"`
+	MediumCount     int              `json:"medium_count"`
+	LowCount        int              `json:"low_count"`
+	InfoCount       int              `json:"info_count"`
+	SuppressedCount int              `json:"suppressed_count"`
+	ByCategory      map[Category]int `json:"by_category"`
+	BySource        map[string]int   `json:"by_source"`
+	AcknowledgedPct float64          `json:"acknowledged_pct"`
+	AvgResolution   time.Duration    `json:"avg_resolution"` // 平均解决时间
 }
 
 // TrendPoint 趋势数据点.
 type TrendPoint struct {
-	Timestamp    time.Time `json:"timestamp"`
-	Count        int       `json:"count"`
-	CriticalCount int      `json:"critical_count"`
-	WarningCount  int      `json:"warning_count"`
+	Timestamp     time.Time `json:"timestamp"`
+	Count         int       `json:"count"`
+	CriticalCount int       `json:"critical_count"`
+	WarningCount  int       `json:"warning_count"`
 }
 
 // NotificationConfig 通知配置.
@@ -232,10 +232,10 @@ type SuppressRequest struct {
 
 // ListQuery 告警列表查询参数.
 type ListQuery struct {
-	Category Category   `form:"category"`
-	Priority Priority   `form:"priority"`
+	Category Category    `form:"category"`
+	Priority Priority    `form:"priority"`
 	State    TriageState `form:"state"`
-	Source   string     `form:"source"`
+	Source   string      `form:"source"`
 }
 
 // StatsQuery 统计查询参数.

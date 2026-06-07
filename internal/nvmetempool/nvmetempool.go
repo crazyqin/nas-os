@@ -16,19 +16,19 @@ import (
 type TransportType string
 
 const (
-	TransportRDMA  TransportType = "rdma"  // RDMA
-	TransportTCP   TransportType = "tcp"   // TCP
-	TransportFC    TransportType = "fc"    // Fibre Channel
+	TransportRDMA TransportType = "rdma" // RDMA
+	TransportTCP  TransportType = "tcp"  // TCP
+	TransportFC   TransportType = "fc"   // Fibre Channel
 )
 
 // DeviceStatus 设备状态
 type DeviceStatus string
 
 const (
-	DeviceStatusOnline  DeviceStatus = "online"  // 在线
-	DeviceStatusOffline DeviceStatus = "offline" // 离线
+	DeviceStatusOnline   DeviceStatus = "online"   // 在线
+	DeviceStatusOffline  DeviceStatus = "offline"  // 离线
 	DeviceStatusDegraded DeviceStatus = "degraded" // 降级
-	DeviceStatusFault   DeviceStatus = "fault"   // 故障
+	DeviceStatusFault    DeviceStatus = "fault"    // 故障
 )
 
 // PoolStatus 存储池状态
@@ -45,7 +45,7 @@ const (
 type NvmeTarget struct {
 	ID          string        `json:"id"`          // 目标ID
 	Name        string        `json:"name"`        // 目标名称
-	Address     string        `json:"address"`      // 地址
+	Address     string        `json:"address"`     // 地址
 	Port        int           `json:"port"`        // 端口
 	Transport   TransportType `json:"transport"`   // 传输类型
 	Subsystem   string        `json:"subsystem"`   // 子系统NQN
@@ -56,76 +56,76 @@ type NvmeTarget struct {
 
 // NvmeDevice NVMe 设备信息
 type NvmeDevice struct {
-	ID         string       `json:"id"`         // 设备ID
-	Model      string       `json:"model"`      // 型号
-	Serial     string       `json:"serial"`     // 序列号
-	Namespace  string       `json:"namespace"`  // 命名空间
-	Capacity   uint64       `json:"capacity"`   // 容量 (字节)
-	UsedSpace  uint64       `json:"usedSpace"`  // 已用空间
-	TargetID   string       `json:"targetId"`   // 所属目标ID
-	Status     DeviceStatus `json:"status"`     // 状态
-	UpdatedAt  time.Time    `json:"updatedAt"`
+	ID        string       `json:"id"`        // 设备ID
+	Model     string       `json:"model"`     // 型号
+	Serial    string       `json:"serial"`    // 序列号
+	Namespace string       `json:"namespace"` // 命名空间
+	Capacity  uint64       `json:"capacity"`  // 容量 (字节)
+	UsedSpace uint64       `json:"usedSpace"` // 已用空间
+	TargetID  string       `json:"targetId"`  // 所属目标ID
+	Status    DeviceStatus `json:"status"`    // 状态
+	UpdatedAt time.Time    `json:"updatedAt"`
 }
 
 // NvmePool NVMe-oF 存储池
 type NvmePool struct {
-	ID          string       `json:"id"`          // 存储池ID
-	Name        string       `json:"name"`        // 存储池名称
-	Devices     []string     `json:"devices"`     // 设备ID列表
-	TotalSpace  uint64       `json:"totalSpace"`  // 总空间
-	UsedSpace   uint64       `json:"usedSpace"`   // 已用空间
-	FreeSpace   uint64       `json:"freeSpace"`   // 可用空间
-	Status      PoolStatus   `json:"status"`      // 状态
-	Redundancy  string       `json:"redundancy"`  // 冗余策略
-	CreatedAt   time.Time    `json:"createdAt"`   // 创建时间
-	UpdatedAt   time.Time    `json:"updatedAt"`
+	ID         string     `json:"id"`         // 存储池ID
+	Name       string     `json:"name"`       // 存储池名称
+	Devices    []string   `json:"devices"`    // 设备ID列表
+	TotalSpace uint64     `json:"totalSpace"` // 总空间
+	UsedSpace  uint64     `json:"usedSpace"`  // 已用空间
+	FreeSpace  uint64     `json:"freeSpace"`  // 可用空间
+	Status     PoolStatus `json:"status"`     // 状态
+	Redundancy string     `json:"redundancy"` // 冗余策略
+	CreatedAt  time.Time  `json:"createdAt"`  // 创建时间
+	UpdatedAt  time.Time  `json:"updatedAt"`
 }
 
 // PerformanceMetrics 性能指标
 type PerformanceMetrics struct {
-	IOPS       float64   `json:"iops"`       // IOPS
-	ReadIOPS   float64   `json:"readIops"`   // 读IOPS
-	WriteIOPS  float64   `json:"writeIops"`  // 写IOPS
-	Latency    float64   `json:"latency"`    // 平均延迟 (μs)
-	ReadLat    float64   `json:"readLat"`    // 读延迟
-	WriteLat   float64   `json:"writeLat"`   // 写延迟
-	Bandwidth  float64   `json:"bandwidth"`  // 带宽 (MB/s)
-	ReadBW     float64   `json:"readBw"`     // 读带宽
-	WriteBW    float64   `json:"writeBw"`    // 写带宽
-	Timestamp  time.Time `json:"timestamp"`
+	IOPS      float64   `json:"iops"`      // IOPS
+	ReadIOPS  float64   `json:"readIops"`  // 读IOPS
+	WriteIOPS float64   `json:"writeIops"` // 写IOPS
+	Latency   float64   `json:"latency"`   // 平均延迟 (μs)
+	ReadLat   float64   `json:"readLat"`   // 读延迟
+	WriteLat  float64   `json:"writeLat"`  // 写延迟
+	Bandwidth float64   `json:"bandwidth"` // 带宽 (MB/s)
+	ReadBW    float64   `json:"readBw"`    // 读带宽
+	WriteBW   float64   `json:"writeBw"`   // 写带宽
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // PoolPerformance 存储池性能
 type PoolPerformance struct {
-	PoolID    string             `json:"poolId"`
-	PoolName  string             `json:"poolName"`
+	PoolID    string              `json:"poolId"`
+	PoolName  string              `json:"poolName"`
 	Metrics   *PerformanceMetrics `json:"metrics"`
-	Timestamp time.Time          `json:"timestamp"`
+	Timestamp time.Time           `json:"timestamp"`
 }
 
 // FailoverEvent 故障切换事件
 type FailoverEvent struct {
-	ID          string    `json:"id"`          // 事件ID
-	SourceID    string    `json:"sourceId"`    // 源设备ID
-	TargetID    string    `json:"targetId"`    // 目标设备ID
-	Reason      string    `json:"reason"`      // 切换原因
-	Timestamp   time.Time `json:"timestamp"`   // 发生时间
-	Recovered   bool      `json:"recovered"`   // 是否已恢复
+	ID        string    `json:"id"`        // 事件ID
+	SourceID  string    `json:"sourceId"`  // 源设备ID
+	TargetID  string    `json:"targetId"`  // 目标设备ID
+	Reason    string    `json:"reason"`    // 切换原因
+	Timestamp time.Time `json:"timestamp"` // 发生时间
+	Recovered bool      `json:"recovered"` // 是否已恢复
 }
 
 // ========== Manager ==========
 
 // Manager NVMe-oF 存储池管理器
 type Manager struct {
-	mu          sync.RWMutex
-	targets     map[string]*NvmeTarget
-	devices     map[string]*NvmeDevice
-	pools       map[string]*NvmePool
-	metrics     map[string]*PerformanceMetrics
-	failovers   []FailoverEvent
+	mu           sync.RWMutex
+	targets      map[string]*NvmeTarget
+	devices      map[string]*NvmeDevice
+	pools        map[string]*NvmePool
+	metrics      map[string]*PerformanceMetrics
+	failovers    []FailoverEvent
 	maxFailovers int
-	stopCh      chan struct{}
-	running     bool
+	stopCh       chan struct{}
+	running      bool
 }
 
 // NewManager 创建管理器

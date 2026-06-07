@@ -7,7 +7,7 @@ import (
 
 func TestDefaultCacheConfig(t *testing.T) {
 	tests := []struct {
-		name string
+		name  string
 		check func(*CacheConfig)
 	}{
 		{

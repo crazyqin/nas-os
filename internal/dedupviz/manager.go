@@ -20,12 +20,12 @@ import (
 
 // Manager 去重可视化管理器
 type Manager struct {
-	mu        sync.RWMutex
-	logger    *zap.Logger
-	config    *DedupvizConfig
+	mu          sync.RWMutex
+	logger      *zap.Logger
+	config      *DedupvizConfig
 	scanResults map[string]*ScanResult
-	lastScan  *ScanResult
-	stopChan  chan struct{}
+	lastScan    *ScanResult
+	stopChan    chan struct{}
 }
 
 // NewManager 创建去重可视化管理器
@@ -336,9 +336,9 @@ func (m *Manager) GetLastVisualizationData() (*VisualizationData, error) {
 // buildVisualizationData 构建可视化数据
 func (m *Manager) buildVisualizationData(result *ScanResult) *VisualizationData {
 	data := &VisualizationData{
-		BySize:      make([]SizeDistribution, 0),
-		ByType:      make([]TypeDistribution, 0),
-		ByDirectory: make([]DirDistribution, 0),
+		BySize:        make([]SizeDistribution, 0),
+		ByType:        make([]TypeDistribution, 0),
+		ByDirectory:   make([]DirDistribution, 0),
 		TopDuplicates: make([]DuplicateGroup, 0),
 	}
 

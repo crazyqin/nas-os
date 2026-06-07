@@ -19,16 +19,16 @@ import (
 
 // IndexEntry 索引条目
 type IndexEntry struct {
-	Path       string    `json:"path"`
-	Name       string    `json:"name"`
-	Size       int64     `json:"size"`
-	IsDir      bool      `json:"isDir"`
-	ModTime    time.Time `json:"modTime"`
-	Extension  string    `json:"extension"`
-	Checksum   string    `json:"checksum,omitempty"`
-	LineCount  int       `json:"lineCount,omitempty"`
-	Tags       []string  `json:"tags,omitempty"`
-	Summary    string    `json:"summary,omitempty"`
+	Path      string    `json:"path"`
+	Name      string    `json:"name"`
+	Size      int64     `json:"size"`
+	IsDir     bool      `json:"isDir"`
+	ModTime   time.Time `json:"modTime"`
+	Extension string    `json:"extension"`
+	Checksum  string    `json:"checksum,omitempty"`
+	LineCount int       `json:"lineCount,omitempty"`
+	Tags      []string  `json:"tags,omitempty"`
+	Summary   string    `json:"summary,omitempty"`
 }
 
 // SearchResult 搜索结果
@@ -55,13 +55,13 @@ type SearchQuery struct {
 
 // IndexStats 索引统计
 type IndexStats struct {
-	TotalFiles   int       `json:"totalFiles"`
-	TotalDirs    int       `json:"totalDirs"`
-	TotalSize    int64     `json:"totalSize"`
-	IndexedAt    time.Time `json:"indexedAt"`
-	Duration     string    `json:"duration"`
-	IndexSize    int64     `json:"indexSize"`
-	Extensions   map[string]int `json:"extensions"`
+	TotalFiles int            `json:"totalFiles"`
+	TotalDirs  int            `json:"totalDirs"`
+	TotalSize  int64          `json:"totalSize"`
+	IndexedAt  time.Time      `json:"indexedAt"`
+	Duration   string         `json:"duration"`
+	IndexSize  int64          `json:"indexSize"`
+	Extensions map[string]int `json:"extensions"`
 }
 
 // Indexer 文件索引器
@@ -87,11 +87,11 @@ func NewIndexer(logger *zap.Logger, basePath string) *Indexer {
 		basePath: basePath,
 		maxSize:  100 * 1024 * 1024, // 100MB
 		excludes: map[string]bool{
-			".git":       true,
+			".git":         true,
 			"node_modules": true,
-			".DS_Store":  true,
-			"Thumbs.db":  true,
-			".Trash":     true,
+			".DS_Store":    true,
+			"Thumbs.db":    true,
+			".Trash":       true,
 		},
 	}
 }

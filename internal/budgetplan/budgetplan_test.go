@@ -710,7 +710,7 @@ func TestQueryExpenses(t *testing.T) {
 	// 查询金额大于1500的支出
 	minAmount := 1500.0
 	query = ExpenseQuery{
-		BudgetID: budget.ID,
+		BudgetID:  budget.ID,
 		MinAmount: &minAmount,
 	}
 

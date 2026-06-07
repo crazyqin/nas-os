@@ -71,52 +71,52 @@ func NewManager(logger *zap.Logger, config *StorageTieringConfig) *Manager {
 func (m *Manager) initDefaultPools() {
 	defaultPools := []*StoragePool{
 		{
-			ID:            "pool-ssd",
-			Name:          "SSD热存储池",
-			Type:          StoragePoolSSD,
-			Tier:          TierLevelHot,
-			CapacityBytes: 2 * 1024 * 1024 * 1024 * 1024,  // 2TB
-			UsedBytes:     500 * 1024 * 1024 * 1024,        // 500GB
-			AvailableBytes: 1500 * 1024 * 1024 * 1024,       // 1.5TB
-			IsActive:      true,
-			ReadSpeedMBs:  3500,
-			WriteSpeedMBs: 3000,
-			IOPS:          500000,
-			LatencyMs:     0.1,
-			CreatedAt:     time.Now(),
-			UpdatedAt:     time.Now(),
+			ID:             "pool-ssd",
+			Name:           "SSD热存储池",
+			Type:           StoragePoolSSD,
+			Tier:           TierLevelHot,
+			CapacityBytes:  2 * 1024 * 1024 * 1024 * 1024, // 2TB
+			UsedBytes:      500 * 1024 * 1024 * 1024,      // 500GB
+			AvailableBytes: 1500 * 1024 * 1024 * 1024,     // 1.5TB
+			IsActive:       true,
+			ReadSpeedMBs:   3500,
+			WriteSpeedMBs:  3000,
+			IOPS:           500000,
+			LatencyMs:      0.1,
+			CreatedAt:      time.Now(),
+			UpdatedAt:      time.Now(),
 		},
 		{
-			ID:            "pool-hdd",
-			Name:          "HDD温存储池",
-			Type:          StoragePoolHDD,
-			Tier:          TierLevelWarm,
-			CapacityBytes: 10 * 1024 * 1024 * 1024 * 1024, // 10TB
-			UsedBytes:     3 * 1024 * 1024 * 1024 * 1024,   // 3TB
-			AvailableBytes: 7 * 1024 * 1024 * 1024 * 1024,   // 7TB
-			IsActive:      true,
-			ReadSpeedMBs:  200,
-			WriteSpeedMBs: 180,
-			IOPS:          150,
-			LatencyMs:     5,
-			CreatedAt:     time.Now(),
-			UpdatedAt:     time.Now(),
+			ID:             "pool-hdd",
+			Name:           "HDD温存储池",
+			Type:           StoragePoolHDD,
+			Tier:           TierLevelWarm,
+			CapacityBytes:  10 * 1024 * 1024 * 1024 * 1024, // 10TB
+			UsedBytes:      3 * 1024 * 1024 * 1024 * 1024,  // 3TB
+			AvailableBytes: 7 * 1024 * 1024 * 1024 * 1024,  // 7TB
+			IsActive:       true,
+			ReadSpeedMBs:   200,
+			WriteSpeedMBs:  180,
+			IOPS:           150,
+			LatencyMs:      5,
+			CreatedAt:      time.Now(),
+			UpdatedAt:      time.Now(),
 		},
 		{
-			ID:            "pool-cloud",
-			Name:          "云冷存储池",
-			Type:          StoragePoolCloud,
-			Tier:          TierLevelCold,
-			CapacityBytes: 50 * 1024 * 1024 * 1024 * 1024, // 50TB
-			UsedBytes:     5 * 1024 * 1024 * 1024 * 1024,   // 5TB
-			AvailableBytes: 45 * 1024 * 1024 * 1024 * 1024,  // 45TB
-			IsActive:      true,
-			ReadSpeedMBs:  100,
-			WriteSpeedMBs: 80,
-			IOPS:          100,
-			LatencyMs:     50,
-			CreatedAt:     time.Now(),
-			UpdatedAt:     time.Now(),
+			ID:             "pool-cloud",
+			Name:           "云冷存储池",
+			Type:           StoragePoolCloud,
+			Tier:           TierLevelCold,
+			CapacityBytes:  50 * 1024 * 1024 * 1024 * 1024, // 50TB
+			UsedBytes:      5 * 1024 * 1024 * 1024 * 1024,  // 5TB
+			AvailableBytes: 45 * 1024 * 1024 * 1024 * 1024, // 45TB
+			IsActive:       true,
+			ReadSpeedMBs:   100,
+			WriteSpeedMBs:  80,
+			IOPS:           100,
+			LatencyMs:      50,
+			CreatedAt:      time.Now(),
+			UpdatedAt:      time.Now(),
 		},
 	}
 
@@ -129,55 +129,55 @@ func (m *Manager) initDefaultPools() {
 func (m *Manager) initDefaultRules() {
 	defaultRules := []*TieringRule{
 		{
-			ID:          "rule-hot-access",
-			Name:        "高频访问热数据规则",
-			Description: "最近7天内访问超过10次的文件升级到热存储",
-			IsActive:    true,
-			Priority:    1,
-			MinAgeDays:  0,
-			MaxAgeDays:  36500,
+			ID:             "rule-hot-access",
+			Name:           "高频访问热数据规则",
+			Description:    "最近7天内访问超过10次的文件升级到热存储",
+			IsActive:       true,
+			Priority:       1,
+			MinAgeDays:     0,
+			MaxAgeDays:     36500,
 			MinAccessCount: 10,
-			TargetTier:  TierLevelHot,
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			TargetTier:     TierLevelHot,
+			CreatedAt:      time.Now(),
+			UpdatedAt:      time.Now(),
 		},
 		{
-			ID:          "rule-warm-age",
-			Name:        "中等年龄温数据规则",
-			Description: "7-30天未访问的文件迁移到温存储",
-			IsActive:    true,
-			Priority:    2,
-			MinAgeDays:  7,
-			MaxAgeDays:  30,
+			ID:             "rule-warm-age",
+			Name:           "中等年龄温数据规则",
+			Description:    "7-30天未访问的文件迁移到温存储",
+			IsActive:       true,
+			Priority:       2,
+			MinAgeDays:     7,
+			MaxAgeDays:     30,
 			MaxAccessCount: 5,
-			TargetTier:  TierLevelWarm,
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			TargetTier:     TierLevelWarm,
+			CreatedAt:      time.Now(),
+			UpdatedAt:      time.Now(),
 		},
 		{
-			ID:          "rule-cold-age",
-			Name:        "长期未访问冷数据规则",
-			Description: "30天以上未访问的文件归档到冷存储",
-			IsActive:    true,
-			Priority:    3,
-			MinAgeDays:  30,
-			MaxAgeDays:  36500,
+			ID:             "rule-cold-age",
+			Name:           "长期未访问冷数据规则",
+			Description:    "30天以上未访问的文件归档到冷存储",
+			IsActive:       true,
+			Priority:       3,
+			MinAgeDays:     30,
+			MaxAgeDays:     36500,
 			MaxAccessCount: 2,
-			TargetTier:  TierLevelCold,
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			TargetTier:     TierLevelCold,
+			CreatedAt:      time.Now(),
+			UpdatedAt:      time.Now(),
 		},
 		{
-			ID:          "rule-large-file",
-			Name:        "大文件归档规则",
-			Description: "超过1GB的大文件优先考虑冷存储",
-			IsActive:    true,
-			Priority:    4,
+			ID:           "rule-large-file",
+			Name:         "大文件归档规则",
+			Description:  "超过1GB的大文件优先考虑冷存储",
+			IsActive:     true,
+			Priority:     4,
 			MinSizeBytes: 1024 * 1024 * 1024, // 1GB
 			MaxHeatScore: 50,
-			TargetTier:  TierLevelCold,
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			TargetTier:   TierLevelCold,
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 		},
 	}
 
@@ -658,14 +658,14 @@ func (m *Manager) GetAnalysisReport() *AnalysisReport {
 	recommendations := m.generateRecommendations(files, tierStats)
 
 	return &AnalysisReport{
-		ID:                 generateID(),
-		GeneratedAt:        now,
-		TierStats:          tierStats,
-		MigrationStats:     migrationStats,
-		TotalFiles:         int64(len(files)),
-		TotalBytes:         totalBytes,
-		HeatDistribution:   heatDistribution,
-		Recommendations:    recommendations,
+		ID:               generateID(),
+		GeneratedAt:      now,
+		TierStats:        tierStats,
+		MigrationStats:   migrationStats,
+		TotalFiles:       int64(len(files)),
+		TotalBytes:       totalBytes,
+		HeatDistribution: heatDistribution,
+		Recommendations:  recommendations,
 	}
 }
 

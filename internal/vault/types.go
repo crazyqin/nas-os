@@ -9,7 +9,7 @@ import (
 
 // 支持的加密算法常量
 const (
-	AlgorithmAES256GCM       = "aes-256-gcm"
+	AlgorithmAES256GCM        = "aes-256-gcm"
 	AlgorithmChaCha20Poly1305 = "chacha20-poly1305"
 )
 

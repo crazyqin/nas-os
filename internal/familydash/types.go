@@ -27,10 +27,10 @@ const (
 type PermissionLevel string
 
 const (
-	PermissionFull    PermissionLevel = "full"
-	PermissionLimited PermissionLevel = "limited"
+	PermissionFull     PermissionLevel = "full"
+	PermissionLimited  PermissionLevel = "limited"
 	PermissionReadOnly PermissionLevel = "readonly"
-	PermissionCustom  PermissionLevel = "custom"
+	PermissionCustom   PermissionLevel = "custom"
 )
 
 // ActivityType 活动类型
@@ -65,63 +65,63 @@ const (
 
 // FamilyMember 家庭成员
 type FamilyMember struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name" binding:"required"`
-	Email       string        `json:"email,omitempty"`
-	Avatar      string        `json:"avatar,omitempty"`
-	Role        MemberRole    `json:"role"`
-	Status      MemberStatus  `json:"status"`
-	IsChild     bool          `json:"is_child"`
-	BirthYear   int           `json:"birth_year,omitempty"`
-	LastActive  *time.Time    `json:"last_active,omitempty"`
-	CreatedAt   time.Time     `json:"created_at"`
-	UpdatedAt   time.Time     `json:"updated_at"`
+	ID         string       `json:"id"`
+	Name       string       `json:"name" binding:"required"`
+	Email      string       `json:"email,omitempty"`
+	Avatar     string       `json:"avatar,omitempty"`
+	Role       MemberRole   `json:"role"`
+	Status     MemberStatus `json:"status"`
+	IsChild    bool         `json:"is_child"`
+	BirthYear  int          `json:"birth_year,omitempty"`
+	LastActive *time.Time   `json:"last_active,omitempty"`
+	CreatedAt  time.Time    `json:"created_at"`
+	UpdatedAt  time.Time    `json:"updated_at"`
 }
 
 // MemberProfile 成员个人资料
 type MemberProfile struct {
-	MemberID        string          `json:"member_id"`
-	DisplayName     string          `json:"display_name"`
-	Bio             string          `json:"bio,omitempty"`
-	Theme           string          `json:"theme,omitempty"`
-	Language        string          `json:"language,omitempty"`
-	Timezone        string          `json:"timezone,omitempty"`
-	Notifications   bool            `json:"notifications"`
+	MemberID        string            `json:"member_id"`
+	DisplayName     string            `json:"display_name"`
+	Bio             string            `json:"bio,omitempty"`
+	Theme           string            `json:"theme,omitempty"`
+	Language        string            `json:"language,omitempty"`
+	Timezone        string            `json:"timezone,omitempty"`
+	Notifications   bool              `json:"notifications"`
 	DashboardLayout []DashboardWidget `json:"dashboard_layout"`
-	Favorites       []FavoriteItem   `json:"favorites"`
-	RecentFiles     []RecentFile     `json:"recent_files"`
-	StorageUsed     int64            `json:"storage_used"`
-	StorageQuota    int64            `json:"storage_quota"`
-	CreatedAt       time.Time        `json:"created_at"`
-	UpdatedAt       time.Time        `json:"updated_at"`
+	Favorites       []FavoriteItem    `json:"favorites"`
+	RecentFiles     []RecentFile      `json:"recent_files"`
+	StorageUsed     int64             `json:"storage_used"`
+	StorageQuota    int64             `json:"storage_quota"`
+	CreatedAt       time.Time         `json:"created_at"`
+	UpdatedAt       time.Time         `json:"updated_at"`
 }
 
 // DashboardWidget 仪表板组件
 type DashboardWidget struct {
-	ID       string     `json:"id"`
-	Type     WidgetType `json:"type" binding:"required"`
-	Title    string     `json:"title"`
-	Position int        `json:"position"`
-	Size     string     `json:"size"` // small, medium, large
+	ID       string                 `json:"id"`
+	Type     WidgetType             `json:"type" binding:"required"`
+	Title    string                 `json:"title"`
+	Position int                    `json:"position"`
+	Size     string                 `json:"size"` // small, medium, large
 	Config   map[string]interface{} `json:"config,omitempty"`
-	Visible  bool       `json:"visible"`
+	Visible  bool                   `json:"visible"`
 }
 
 // FavoriteItem 收藏项目
 type FavoriteItem struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Type     string `json:"type"` // file, folder, app
-	Path     string `json:"path"`
-	Icon     string `json:"icon,omitempty"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Type string `json:"type"` // file, folder, app
+	Path string `json:"path"`
+	Icon string `json:"icon,omitempty"`
 }
 
 // RecentFile 最近文件
 type RecentFile struct {
-	Path      string    `json:"path"`
-	Name      string    `json:"name"`
-	Size      int64     `json:"size"`
-	Type      string    `json:"type"`
+	Path       string    `json:"path"`
+	Name       string    `json:"name"`
+	Size       int64     `json:"size"`
+	Type       string    `json:"type"`
 	AccessedAt time.Time `json:"accessed_at"`
 }
 
@@ -164,14 +164,14 @@ type ActivityEntry struct {
 
 // ActivitySummary 活动摘要
 type ActivitySummary struct {
-	MemberID       string        `json:"member_id"`
-	Period         string        `json:"period"`
-	TotalActions   int           `json:"total_actions"`
-	Uploads        int           `json:"uploads"`
-	Downloads      int           `json:"downloads"`
-	Streams        int           `json:"streams"`
-	StorageUsed    int64         `json:"storage_used"`
-	MostActiveHour int           `json:"most_active_hour"`
+	MemberID       string          `json:"member_id"`
+	Period         string          `json:"period"`
+	TotalActions   int             `json:"total_actions"`
+	Uploads        int             `json:"uploads"`
+	Downloads      int             `json:"downloads"`
+	Streams        int             `json:"streams"`
+	StorageUsed    int64           `json:"storage_used"`
+	MostActiveHour int             `json:"most_active_hour"`
 	TopActivities  []ActivityCount `json:"top_activities"`
 }
 
@@ -183,24 +183,24 @@ type ActivityCount struct {
 
 // FamilyStats 家庭统计
 type FamilyStats struct {
-	FamilyID       string        `json:"family_id"`
-	TotalMembers   int           `json:"total_members"`
-	OnlineMembers  int           `json:"online_members"`
-	TotalStorage   int64         `json:"total_storage"`
-	UsedStorage    int64         `json:"used_storage"`
-	TotalFiles     int           `json:"total_files"`
-	TotalStreams   int           `json:"total_streams"`
-	MemberStats    []MemberStats `json:"member_stats"`
-	GeneratedAt    time.Time     `json:"generated_at"`
+	FamilyID      string        `json:"family_id"`
+	TotalMembers  int           `json:"total_members"`
+	OnlineMembers int           `json:"online_members"`
+	TotalStorage  int64         `json:"total_storage"`
+	UsedStorage   int64         `json:"used_storage"`
+	TotalFiles    int           `json:"total_files"`
+	TotalStreams  int           `json:"total_streams"`
+	MemberStats   []MemberStats `json:"member_stats"`
+	GeneratedAt   time.Time     `json:"generated_at"`
 }
 
 // MemberStats 成员统计
 type MemberStats struct {
-	MemberID      string `json:"member_id"`
-	Name          string `json:"name"`
-	StorageUsed   int64  `json:"storage_used"`
-	FileCount     int    `json:"file_count"`
-	ActivityCount int    `json:"activity_count"`
+	MemberID      string     `json:"member_id"`
+	Name          string     `json:"name"`
+	StorageUsed   int64      `json:"storage_used"`
+	FileCount     int        `json:"file_count"`
+	ActivityCount int        `json:"activity_count"`
 	LastActive    *time.Time `json:"last_active"`
 }
 
@@ -225,12 +225,12 @@ type UpdateMemberRequest struct {
 
 // UpdateProfileRequest 更新个人资料请求
 type UpdateProfileRequest struct {
-	DisplayName     string          `json:"display_name,omitempty"`
-	Bio             string          `json:"bio,omitempty"`
-	Theme           string          `json:"theme,omitempty"`
-	Language        string          `json:"language,omitempty"`
-	Timezone        string          `json:"timezone,omitempty"`
-	Notifications   *bool           `json:"notifications,omitempty"`
+	DisplayName     string            `json:"display_name,omitempty"`
+	Bio             string            `json:"bio,omitempty"`
+	Theme           string            `json:"theme,omitempty"`
+	Language        string            `json:"language,omitempty"`
+	Timezone        string            `json:"timezone,omitempty"`
+	Notifications   *bool             `json:"notifications,omitempty"`
 	DashboardLayout []DashboardWidget `json:"dashboard_layout,omitempty"`
 }
 
@@ -261,11 +261,11 @@ type AddFavoriteRequest struct {
 
 // ActivityQuery 活动查询
 type ActivityQuery struct {
-	MemberID  string       `json:"member_id"`
-	Type      ActivityType `json:"type,omitempty"`
-	FromDate  string       `json:"from_date,omitempty"`
-	ToDate    string       `json:"to_date,omitempty"`
-	Limit     int          `json:"limit,omitempty"`
+	MemberID string       `json:"member_id"`
+	Type     ActivityType `json:"type,omitempty"`
+	FromDate string       `json:"from_date,omitempty"`
+	ToDate   string       `json:"to_date,omitempty"`
+	Limit    int          `json:"limit,omitempty"`
 }
 
 // DefaultDashboardLayout 默认仪表板布局
@@ -307,7 +307,7 @@ func DefaultPermissions(role MemberRole) *Permissions {
 	case RoleChild:
 		base.Level = PermissionLimited
 		base.StorageQuota = 5 * 1024 * 1024 * 1024 // 5GB
-		base.TimeLimit = 120 // 2小时
+		base.TimeLimit = 120                       // 2小时
 		base.AllowedHours = &TimeRange{Start: "08:00", End: "21:00"}
 	case RoleGuest:
 		base.Level = PermissionReadOnly

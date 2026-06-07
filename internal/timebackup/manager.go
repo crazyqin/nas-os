@@ -22,7 +22,7 @@ import (
 type Manager struct {
 	tasks     map[string]*BackupTask
 	snapshots map[string]*Snapshot
-	baseDir   string           // 快照存储根目录
+	baseDir   string // 快照存储根目录
 	cron      *cron.Cron
 	logger    *zap.Logger
 	mu        sync.RWMutex
@@ -107,7 +107,7 @@ func (m *Manager) CreateTask(req *CreateTaskRequest) (*BackupTask, error) {
 	}
 
 	retention := RetentionPolicy{
-		Mode: RetentionByCount,
+		Mode:     RetentionByCount,
 		MaxCount: 10,
 	}
 	if req.Retention != nil {
@@ -116,16 +116,16 @@ func (m *Manager) CreateTask(req *CreateTaskRequest) (*BackupTask, error) {
 
 	now := time.Now()
 	task := &BackupTask{
-		ID:        uuid.New().String(),
-		Name:      req.Name,
+		ID:         uuid.New().String(),
+		Name:       req.Name,
 		SourcePath: req.SourcePath,
-		Strategy:  strategy,
-		Schedule:  req.Schedule,
-		Retention: retention,
-		Status:    TaskStatusIdle,
-		Enabled:   true,
-		CreatedAt: now,
-		UpdatedAt: now,
+		Strategy:   strategy,
+		Schedule:   req.Schedule,
+		Retention:  retention,
+		Status:     TaskStatusIdle,
+		Enabled:    true,
+		CreatedAt:  now,
+		UpdatedAt:  now,
 	}
 
 	m.mu.Lock()
@@ -419,17 +419,17 @@ func (m *Manager) DiffSnapshots(snapshotOld, snapshotNew string) (*DiffResult, e
 		oldInfo, exists := oldFiles[path]
 		if !exists {
 			entries = append(entries, &DiffEntry{
-				Path:   path,
-				Change: "added",
-				SizeNew: newInfo.size,
+				Path:       path,
+				Change:     "added",
+				SizeNew:    newInfo.size,
 				ModTimeNew: newInfo.modTime.Format(time.RFC3339),
 			})
 		} else if oldInfo.size != newInfo.size || oldInfo.modTime != newInfo.modTime {
 			entries = append(entries, &DiffEntry{
-				Path:   path,
-				Change: "modified",
-				SizeOld: oldInfo.size,
-				SizeNew: newInfo.size,
+				Path:       path,
+				Change:     "modified",
+				SizeOld:    oldInfo.size,
+				SizeNew:    newInfo.size,
 				ModTimeOld: oldInfo.modTime.Format(time.RFC3339),
 				ModTimeNew: newInfo.modTime.Format(time.RFC3339),
 			})
@@ -440,9 +440,9 @@ func (m *Manager) DiffSnapshots(snapshotOld, snapshotNew string) (*DiffResult, e
 	for path, oldInfo := range oldFiles {
 		if _, exists := newFiles[path]; !exists {
 			entries = append(entries, &DiffEntry{
-				Path:   path,
-				Change: "removed",
-				SizeOld: oldInfo.size,
+				Path:       path,
+				Change:     "removed",
+				SizeOld:    oldInfo.size,
 				ModTimeOld: oldInfo.modTime.Format(time.RFC3339),
 			})
 		}

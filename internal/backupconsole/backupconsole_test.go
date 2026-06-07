@@ -70,12 +70,12 @@ func TestBackupConsole_RunAndCompleteBackup(t *testing.T) {
 
 	bc.RegisterSource(&BackupSource{ID: "src-001", Name: "Server", Platform: PlatformLinux})
 	bc.CreateJob(&BackupJob{
-		ID:       "job-001",
-		Name:     "Test Backup",
-		SourceID: "src-001",
+		ID:         "job-001",
+		Name:       "Test Backup",
+		SourceID:   "src-001",
 		BackupType: BackupTypeFull,
-		Retention: 7,
-		Enabled:   true,
+		Retention:  7,
+		Enabled:    true,
 	})
 
 	record, err := bc.RunBackup("job-001")

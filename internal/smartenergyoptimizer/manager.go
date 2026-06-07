@@ -10,17 +10,17 @@ import (
 
 // Manager manages the smart energy optimizer
 type Manager struct {
-	mu             sync.RWMutex
-	readings       []EnergyReading
-	forecasts      []PowerForecast
-	carbonData     []CarbonIntensity
-	deviceStates   map[string]*DeviceState
-	sleepPolicies  map[string]*SleepPolicy
-	tariffPlans    map[string]*TariffPlan
-	powerBudgets   map[string]*PowerBudget
-	reports        []EnergyReport
-	mlModel        *MLModel
-	carbonRegion   string
+	mu            sync.RWMutex
+	readings      []EnergyReading
+	forecasts     []PowerForecast
+	carbonData    []CarbonIntensity
+	deviceStates  map[string]*DeviceState
+	sleepPolicies map[string]*SleepPolicy
+	tariffPlans   map[string]*TariffPlan
+	powerBudgets  map[string]*PowerBudget
+	reports       []EnergyReport
+	mlModel       *MLModel
+	carbonRegion  string
 }
 
 // NewManager creates a new energy optimizer manager

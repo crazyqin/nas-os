@@ -41,10 +41,10 @@ type TrafficStats struct {
 
 // AppTraffic 应用流量
 type AppTraffic struct {
-	App      string `json:"app"`
-	BytesIn  int64  `json:"bytes_in"`
-	BytesOut int64  `json:"bytes_out"`
-	Total    int64  `json:"total"`
+	App      string  `json:"app"`
+	BytesIn  int64   `json:"bytes_in"`
+	BytesOut int64   `json:"bytes_out"`
+	Total    int64   `json:"total"`
 	Pct      float64 `json:"pct"`
 }
 
@@ -58,25 +58,25 @@ type ConnTraffic struct {
 
 // Anomaly 异常
 type Anomaly struct {
-	Timestamp  time.Time `json:"timestamp"`
-	Type       string    `json:"type"`       // spike/ddos/portscan/exfiltration
-	Severity   string    `json:"severity"`   // low/medium/high/critical
-	Source     string    `json:"source"`
-	Target     string    `json:"target"`
-	Score      float64  `json:"score"`       // 异常分数 0-1
-	Details    string   `json:"details"`
-	BytesAffected int64 `json:"bytes_affected"`
+	Timestamp     time.Time `json:"timestamp"`
+	Type          string    `json:"type"`     // spike/ddos/portscan/exfiltration
+	Severity      string    `json:"severity"` // low/medium/high/critical
+	Source        string    `json:"source"`
+	Target        string    `json:"target"`
+	Score         float64   `json:"score"` // 异常分数 0-1
+	Details       string    `json:"details"`
+	BytesAffected int64     `json:"bytes_affected"`
 }
 
 // AnalyzerConfig 分析器配置
 type AnalyzerConfig struct {
-	WindowSize      time.Duration `json:"window_size"`
-	BaselineWindow  time.Duration `json:"baseline_window"`
-	SpikeThreshold  float64       `json:"spike_threshold"`   // 标准差倍数
-	DDoSThreshold   int64         `json:"ddos_threshold"`    // 连接数/秒
-	PortScanThresh  int           `json:"portscan_thresh"`   // 不同端口数
-	ExfilThreshold  int64         `json:"exfil_threshold"`   // 异常出站字节数
-	MaxFlows        int           `json:"max_flows"`
+	WindowSize     time.Duration `json:"window_size"`
+	BaselineWindow time.Duration `json:"baseline_window"`
+	SpikeThreshold float64       `json:"spike_threshold"` // 标准差倍数
+	DDoSThreshold  int64         `json:"ddos_threshold"`  // 连接数/秒
+	PortScanThresh int           `json:"portscan_thresh"` // 不同端口数
+	ExfilThreshold int64         `json:"exfil_threshold"` // 异常出站字节数
+	MaxFlows       int           `json:"max_flows"`
 }
 
 // DefaultAnalyzerConfig 默认配置
@@ -94,13 +94,13 @@ func DefaultAnalyzerConfig() *AnalyzerConfig {
 
 // Analyzer 分析器
 type Analyzer struct {
-	config     *AnalyzerConfig
-	flows      []FlowRecord
-	baseline   *TrafficStats
-	mu         sync.RWMutex
-	ctx        context.Context
-	cancel     context.CancelFunc
-	anomalyCh  chan Anomaly
+	config    *AnalyzerConfig
+	flows     []FlowRecord
+	baseline  *TrafficStats
+	mu        sync.RWMutex
+	ctx       context.Context
+	cancel    context.CancelFunc
+	anomalyCh chan Anomaly
 }
 
 // NewAnalyzer 创建分析器
@@ -133,12 +133,12 @@ func (a *Analyzer) Stop() {
 func (a *Analyzer) IngestFlow(record FlowRecord) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	
+
 	if len(a.flows) >= a.config.MaxFlows {
 		a.flows = a.flows[1:]
 	}
 	a.flows = append(a.flows, record)
-	
+
 	// 实时检测
 	a.detectAnomaly(record)
 }
@@ -147,20 +147,20 @@ func (a *Analyzer) IngestFlow(record FlowRecord) {
 func (a *Analyzer) GetStats() *TrafficStats {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
-	
+
 	stats := &TrafficStats{
 		ProtocolDist: make(map[string]int64),
 	}
-	
+
 	appMap := make(map[string]*AppTraffic)
 	connMap := make(map[string]*ConnTraffic)
-	
+
 	for _, f := range a.flows {
 		stats.TotalBytesIn += f.BytesIn
 		stats.TotalBytesOut += f.BytesOut
-		
+
 		stats.ProtocolDist[f.Protocol] += f.BytesIn + f.BytesOut
-		
+
 		key := f.Application
 		if key == "" {
 			key = "unknown"
@@ -171,7 +171,7 @@ func (a *Analyzer) GetStats() *TrafficStats {
 		appMap[key].BytesIn += f.BytesIn
 		appMap[key].BytesOut += f.BytesOut
 		appMap[key].Total += f.BytesIn + f.BytesOut
-		
+
 		connKey := f.SrcIP + "->" + f.DstIP
 		if _, ok := connMap[connKey]; !ok {
 			connMap[connKey] = &ConnTraffic{SrcIP: f.SrcIP, DstIP: f.DstIP}
@@ -179,7 +179,7 @@ func (a *Analyzer) GetStats() *TrafficStats {
 		connMap[connKey].Total += f.BytesIn + f.BytesOut
 		connMap[connKey].Duration += f.Duration
 	}
-	
+
 	// 计算带宽
 	if len(a.flows) > 0 {
 		duration := a.flows[len(a.flows)-1].Timestamp.Sub(a.flows[0].Timestamp)
@@ -187,7 +187,7 @@ func (a *Analyzer) GetStats() *TrafficStats {
 			stats.AvgBandwidth = float64(stats.TotalBytesIn+stats.TotalBytesOut) / duration.Seconds() / 1024 / 1024 * 8
 		}
 	}
-	
+
 	// Top apps
 	totalAll := stats.TotalBytesIn + stats.TotalBytesOut
 	for _, app := range appMap {
@@ -196,15 +196,15 @@ func (a *Analyzer) GetStats() *TrafficStats {
 		}
 		stats.TopApps = append(stats.TopApps, *app)
 	}
-	
+
 	// Top connections
 	for _, conn := range connMap {
 		stats.TopConnections = append(stats.TopConnections, *conn)
 	}
-	
+
 	// 趋势分析
 	stats.TrendDirection, stats.TrendPct = a.calculateTrend()
-	
+
 	return stats
 }
 
@@ -212,7 +212,7 @@ func (a *Analyzer) GetStats() *TrafficStats {
 func (a *Analyzer) GetAnomalies() []Anomaly {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
-	
+
 	// 从 channel 收集
 	var anomalies []Anomaly
 	for {
@@ -240,7 +240,7 @@ func (a *Analyzer) detectAnomaly(f FlowRecord) {
 			BytesAffected: f.BytesIn,
 		}
 	}
-	
+
 	// 异常出站检测
 	if f.BytesOut > a.config.ExfilThreshold {
 		a.anomalyCh <- Anomaly{
@@ -254,7 +254,7 @@ func (a *Analyzer) detectAnomaly(f FlowRecord) {
 			BytesAffected: f.BytesOut,
 		}
 	}
-	
+
 	// 流量突增检测
 	if a.baseline != nil && a.baseline.AvgBandwidth > 0 {
 		currentBW := float64(f.BytesIn+f.BytesOut) / 1024 / 1024 * 8
@@ -278,10 +278,10 @@ func (a *Analyzer) calculateTrend() (string, float64) {
 	if len(a.flows) < 2 {
 		return "stable", 0
 	}
-	
+
 	mid := len(a.flows) / 2
 	var firstHalf, secondHalf int64
-	
+
 	for i, f := range a.flows {
 		total := f.BytesIn + f.BytesOut
 		if i < mid {
@@ -290,14 +290,14 @@ func (a *Analyzer) calculateTrend() (string, float64) {
 			secondHalf += total
 		}
 	}
-	
+
 	if firstHalf == 0 {
 		return "up", 100
 	}
-	
+
 	change := float64(secondHalf-firstHalf) / float64(firstHalf) * 100
 	change = math.Round(change*10) / 10
-	
+
 	if change > 10 {
 		return "up", change
 	} else if change < -10 {
@@ -310,7 +310,7 @@ func (a *Analyzer) calculateTrend() (string, float64) {
 func (a *Analyzer) analysisLoop() {
 	ticker := time.NewTicker(a.config.WindowSize)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-a.ctx.Done():
@@ -325,22 +325,22 @@ func (a *Analyzer) analysisLoop() {
 func (a *Analyzer) updateBaseline() {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	
+
 	stats := &TrafficStats{
 		ProtocolDist: make(map[string]int64),
 	}
-	
+
 	for _, f := range a.flows {
 		stats.TotalBytesIn += f.BytesIn
 		stats.TotalBytesOut += f.BytesOut
 	}
-	
+
 	if len(a.flows) > 0 {
 		duration := a.flows[len(a.flows)-1].Timestamp.Sub(a.flows[0].Timestamp)
 		if duration > 0 {
 			stats.AvgBandwidth = float64(stats.TotalBytesIn+stats.TotalBytesOut) / duration.Seconds() / 1024 / 1024 * 8
 		}
 	}
-	
+
 	a.baseline = stats
 }

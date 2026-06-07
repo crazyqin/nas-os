@@ -157,9 +157,9 @@ func (h *Handlers) handlePlayVideo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		VideoID  string       `json:"video_id"`
-		UserID   string       `json:"user_id"`
-		PlayReq  PlayRequest  `json:"play"`
+		VideoID string      `json:"video_id"`
+		UserID  string      `json:"user_id"`
+		PlayReq PlayRequest `json:"play"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

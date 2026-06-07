@@ -77,13 +77,13 @@ const (
 
 // BackupInfo 备份信息.
 type BackupInfo struct {
-	ID         string    `json:"id"`          // 备份 ID
-	TaskID     string    `json:"task_id"`     // 任务 ID
-	Source     string    `json:"source"`      // 来源路径
-	DestPath   string    `json:"dest_path"`   // 目标路径
-	Size       int64     `json:"size"`        // 大小（字节）
-	Checksum   string    `json:"checksum"`    // 校验和
-	CreatedAt  time.Time `json:"created_at"`  // 创建时间
+	ID        string    `json:"id"`         // 备份 ID
+	TaskID    string    `json:"task_id"`    // 任务 ID
+	Source    string    `json:"source"`     // 来源路径
+	DestPath  string    `json:"dest_path"`  // 目标路径
+	Size      int64     `json:"size"`       // 大小（字节）
+	Checksum  string    `json:"checksum"`   // 校验和
+	CreatedAt time.Time `json:"created_at"` // 创建时间
 }
 
 // VerifyTask 验证任务.
@@ -100,10 +100,10 @@ type VerifyTask struct {
 
 // CheckItem 检查项.
 type CheckItem struct {
-	Name    string       `json:"name"`    // 检查项名称
-	Status  VerifyStatus `json:"status"`  // 状态
-	Detail  string       `json:"detail"`  // 详情
-	Duration float64     `json:"duration"` // 耗时（秒）
+	Name     string       `json:"name"`     // 检查项名称
+	Status   VerifyStatus `json:"status"`   // 状态
+	Detail   string       `json:"detail"`   // 详情
+	Duration float64      `json:"duration"` // 耗时（秒）
 }
 
 // RestoreTestResult 恢复测试结果.
@@ -121,31 +121,31 @@ type RestoreTestResult struct {
 
 // HealthScore 健康度评分.
 type HealthScore struct {
-	BackupID    string      `json:"backup_id"`    // 备份 ID
-	Score       int         `json:"score"`        // 评分 (0-100)
-	Level       HealthLevel `json:"level"`        // 健康度等级
-	Factors     []Factor    `json:"factors"`      // 评分因素
-	UpdatedAt   time.Time   `json:"updated_at"`   // 更新时间
+	BackupID  string      `json:"backup_id"`  // 备份 ID
+	Score     int         `json:"score"`      // 评分 (0-100)
+	Level     HealthLevel `json:"level"`      // 健康度等级
+	Factors   []Factor    `json:"factors"`    // 评分因素
+	UpdatedAt time.Time   `json:"updated_at"` // 更新时间
 }
 
 // Factor 评分因素.
 type Factor struct {
-	Name    string `json:"name"`    // 因素名称
-	Score   int    `json:"score"`    // 因素得分
-	Weight  int    `json:"weight"`   // 权重
-	Detail  string `json:"detail"`   // 详情
+	Name   string `json:"name"`   // 因素名称
+	Score  int    `json:"score"`  // 因素得分
+	Weight int    `json:"weight"` // 权重
+	Detail string `json:"detail"` // 详情
 }
 
 // VerifyReport 验证报告.
 type VerifyReport struct {
-	ID            string           `json:"id"`             // 报告 ID
-	BackupID      string           `json:"backup_id"`      // 备份 ID
-	GeneratedAt   time.Time        `json:"generated_at"`   // 生成时间
-	Summary       ReportSummary    `json:"summary"`        // 摘要
-	VerifyTask    *VerifyTask      `json:"verify_task"`    // 验证任务
-	RestoreTest   *RestoreTestResult `json:"restore_test"` // 恢复测试
-	HealthScore   *HealthScore     `json:"health_score"`   // 健康度评分
-	Alerts        []Alert          `json:"alerts"`         // 告警列表
+	ID          string             `json:"id"`           // 报告 ID
+	BackupID    string             `json:"backup_id"`    // 备份 ID
+	GeneratedAt time.Time          `json:"generated_at"` // 生成时间
+	Summary     ReportSummary      `json:"summary"`      // 摘要
+	VerifyTask  *VerifyTask        `json:"verify_task"`  // 验证任务
+	RestoreTest *RestoreTestResult `json:"restore_test"` // 恢复测试
+	HealthScore *HealthScore       `json:"health_score"` // 健康度评分
+	Alerts      []Alert            `json:"alerts"`       // 告警列表
 }
 
 // ReportSummary 报告摘要.
@@ -179,11 +179,11 @@ type VerifyRequest struct {
 
 // BackupRegisterRequest 注册备份请求.
 type BackupRegisterRequest struct {
-	TaskID   string `json:"task_id" binding:"required"` // 任务 ID
-	Source   string `json:"source" binding:"required"`  // 来源路径
+	TaskID   string `json:"task_id" binding:"required"`   // 任务 ID
+	Source   string `json:"source" binding:"required"`    // 来源路径
 	DestPath string `json:"dest_path" binding:"required"` // 目标路径
-	Size     int64  `json:"size"`                       // 大小
-	Checksum string `json:"checksum"`                   // 校验和
+	Size     int64  `json:"size"`                         // 大小
+	Checksum string `json:"checksum"`                     // 校验和
 }
 
 // AlertResolveRequest 解决告警请求.

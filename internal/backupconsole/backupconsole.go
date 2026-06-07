@@ -12,8 +12,8 @@ import (
 type BackupType string
 
 const (
-	BackupTypeFull        BackupType = "full"
-	BackupTypeIncremental BackupType = "incremental"
+	BackupTypeFull         BackupType = "full"
+	BackupTypeIncremental  BackupType = "incremental"
 	BackupTypeDifferential BackupType = "differential"
 )
 
@@ -32,78 +32,78 @@ const (
 type Platform string
 
 const (
-	PlatformWindows  Platform = "windows"
-	PlatformLinux    Platform = "linux"
-	PlatformMacOS    Platform = "macos"
-	PlatformVMware   Platform = "vmware"
-	PlatformHyperV   Platform = "hyperv"
-	PlatformK8s      Platform = "kubernetes"
+	PlatformWindows Platform = "windows"
+	PlatformLinux   Platform = "linux"
+	PlatformMacOS   Platform = "macos"
+	PlatformVMware  Platform = "vmware"
+	PlatformHyperV  Platform = "hyperv"
+	PlatformK8s     Platform = "kubernetes"
 )
 
 // BackupSource 备份源
 type BackupSource struct {
-	ID        string   `json:"id"`
-	Name      string   `json:"name"`
-	Platform  Platform `json:"platform"`
-	IP        string   `json:"ip"`
-	Hostname  string   `json:"hostname"`
-	Agent     string   `json:"agent_version"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Platform  Platform  `json:"platform"`
+	IP        string    `json:"ip"`
+	Hostname  string    `json:"hostname"`
+	Agent     string    `json:"agent_version"`
 	LastSeen  time.Time `json:"last_seen"`
-	Protected bool     `json:"protected"`
+	Protected bool      `json:"protected"`
 }
 
 // BackupJob 备份任务
 type BackupJob struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	SourceID    string       `json:"source_id"`
-	SourceType  Platform     `json:"source_type"`
-	TargetPool  string       `json:"target_pool"`
-	BackupType  BackupType   `json:"backup_type"`
-	Schedule    string       `json:"schedule"` // cron expression
-	Retention   int          `json:"retention_days"`
-	Enabled     bool         `json:"enabled"`
-	LastRun     *time.Time   `json:"last_run,omitempty"`
-	NextRun     *time.Time   `json:"next_run,omitempty"`
+	ID         string     `json:"id"`
+	Name       string     `json:"name"`
+	SourceID   string     `json:"source_id"`
+	SourceType Platform   `json:"source_type"`
+	TargetPool string     `json:"target_pool"`
+	BackupType BackupType `json:"backup_type"`
+	Schedule   string     `json:"schedule"` // cron expression
+	Retention  int        `json:"retention_days"`
+	Enabled    bool       `json:"enabled"`
+	LastRun    *time.Time `json:"last_run,omitempty"`
+	NextRun    *time.Time `json:"next_run,omitempty"`
 }
 
 // BackupRecord 备份记录
 type BackupRecord struct {
-	ID           string        `json:"id"`
-	JobID        string        `json:"job_id"`
-	JobName      string        `json:"job_name"`
-	SourceID     string        `json:"source_id"`
-	BackupType   BackupType    `json:"backup_type"`
-	Status       BackupStatus  `json:"status"`
-	StartedAt    time.Time     `json:"started_at"`
-	CompletedAt  *time.Time    `json:"completed_at,omitempty"`
-	Duration     time.Duration `json:"duration"`
-	BytesTotal   int64         `json:"bytes_total"`
-	BytesWritten int64         `json:"bytes_written"`
-	DedupRatio   float64       `json:"dedup_ratio"`
-	CompressRatio float64      `json:"compress_ratio"`
-	ErrorMessage string        `json:"error_message,omitempty"`
+	ID            string        `json:"id"`
+	JobID         string        `json:"job_id"`
+	JobName       string        `json:"job_name"`
+	SourceID      string        `json:"source_id"`
+	BackupType    BackupType    `json:"backup_type"`
+	Status        BackupStatus  `json:"status"`
+	StartedAt     time.Time     `json:"started_at"`
+	CompletedAt   *time.Time    `json:"completed_at,omitempty"`
+	Duration      time.Duration `json:"duration"`
+	BytesTotal    int64         `json:"bytes_total"`
+	BytesWritten  int64         `json:"bytes_written"`
+	DedupRatio    float64       `json:"dedup_ratio"`
+	CompressRatio float64       `json:"compress_ratio"`
+	ErrorMessage  string        `json:"error_message,omitempty"`
 }
 
 // RestorePoint 恢复点
 type RestorePoint struct {
-	ID          string    `json:"id"`
-	RecordID    string    `json:"record_id"`
-	JobID       string    `json:"job_id"`
-	SourceName  string    `json:"source_name"`
-	Timestamp   time.Time `json:"timestamp"`
-	SizeBytes   int64     `json:"size_bytes"`
-	Type        BackupType `json:"type"`
+	ID              string     `json:"id"`
+	RecordID        string     `json:"record_id"`
+	JobID           string     `json:"job_id"`
+	SourceName      string     `json:"source_name"`
+	Timestamp       time.Time  `json:"timestamp"`
+	SizeBytes       int64      `json:"size_bytes"`
+	Type            BackupType `json:"type"`
 	RetentionExpire *time.Time `json:"retention_expire,omitempty"`
 }
 
 // BackupConsole 集中备份管理器
 type BackupConsole struct {
-	mu          sync.RWMutex
-	sources     map[string]*BackupSource
-	jobs        map[string]*BackupJob
-	records     []*BackupRecord
-	restores    []*RestorePoint
+	mu       sync.RWMutex
+	sources  map[string]*BackupSource
+	jobs     map[string]*BackupJob
+	records  []*BackupRecord
+	restores []*RestorePoint
 }
 
 // NewBackupConsole 创建备份管理器

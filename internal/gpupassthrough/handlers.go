@@ -190,7 +190,7 @@ func (h *Handlers) listAssignments(c *gin.Context) {
 	vmAssigns, containerAssigns := h.manager.GetAllAssignments()
 
 	data := map[string]interface{}{
-		"vmAssignments":       vmAssigns,
+		"vmAssignments":        vmAssigns,
 		"containerAssignments": containerAssigns,
 	}
 

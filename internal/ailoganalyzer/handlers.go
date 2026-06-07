@@ -399,7 +399,7 @@ func (h *Handlers) listAnalyses(c *gin.Context) {
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
-			"total":     len(analyses),
+			"total":    len(analyses),
 			"analyses": analyses,
 		},
 	})

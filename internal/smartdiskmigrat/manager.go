@@ -15,22 +15,22 @@ import (
 type MigrationType string
 
 const (
-	MigrationTypeDiskSwap   MigrationType = "disk_swap"   // 同机换盘
+	MigrationTypeDiskSwap    MigrationType = "disk_swap"    // 同机换盘
 	MigrationTypePoolMigrate MigrationType = "pool_migrate" // 存储池迁移
 	MigrationTypeRAIDMigrate MigrationType = "raid_migrate" // RAID 级别迁移
-	MigrationTypeNasToNas   MigrationType = "nas_to_nas"   // NAS 到 NAS
+	MigrationTypeNasToNas    MigrationType = "nas_to_nas"   // NAS 到 NAS
 )
 
 // MigrationStatus 迁移状态
 type MigrationStatus string
 
 const (
-	StatusPending   MigrationStatus = "pending"   // 待执行
-	StatusRunning   MigrationStatus = "running"   // 运行中
-	StatusPaused    MigrationStatus = "paused"    // 已暂停
-	StatusCompleted MigrationStatus = "completed" // 已完成
-	StatusFailed    MigrationStatus = "failed"    // 失败
-	StatusCancelled MigrationStatus = "cancelled" // 已取消
+	StatusPending    MigrationStatus = "pending"     // 待执行
+	StatusRunning    MigrationStatus = "running"     // 运行中
+	StatusPaused     MigrationStatus = "paused"      // 已暂停
+	StatusCompleted  MigrationStatus = "completed"   // 已完成
+	StatusFailed     MigrationStatus = "failed"      // 失败
+	StatusCancelled  MigrationStatus = "cancelled"   // 已取消
 	StatusRolledBack MigrationStatus = "rolled_back" // 已回滚
 )
 
@@ -66,16 +66,16 @@ type DiskInfo struct {
 
 // MigrationPlan 迁移计划
 type MigrationPlan struct {
-	ID           string        `json:"id"`
-	Name         string        `json:"name"`
-	SourceDevice string        `json:"sourceDevice"`
-	TargetDevice string        `json:"targetDevice"`
-	Type         MigrationType `json:"type"`
+	ID           string          `json:"id"`
+	Name         string          `json:"name"`
+	SourceDevice string          `json:"sourceDevice"`
+	TargetDevice string          `json:"targetDevice"`
+	Type         MigrationType   `json:"type"`
 	Status       MigrationStatus `json:"status"`
 	Steps        []MigrationStep `json:"steps"`
-	Warnings     []string      `json:"warnings,omitempty"`
-	CreatedAt    time.Time     `json:"createdAt"`
-	UpdatedAt    time.Time     `json:"updatedAt"`
+	Warnings     []string        `json:"warnings,omitempty"`
+	CreatedAt    time.Time       `json:"createdAt"`
+	UpdatedAt    time.Time       `json:"updatedAt"`
 }
 
 // MigrationStep 迁移步骤
@@ -139,21 +139,21 @@ type TimeEstimate struct {
 
 // Manager 智能磁盘迁移管理器
 type Manager struct {
-	mu          sync.RWMutex
-	plans       map[string]*MigrationPlan
-	jobs        map[string]*MigrationJob
-	hotSpares   map[string]*HotSpare
-	disks       []DiskInfo
-	nextPlanID  int
-	nextJobID   int
+	mu         sync.RWMutex
+	plans      map[string]*MigrationPlan
+	jobs       map[string]*MigrationJob
+	hotSpares  map[string]*HotSpare
+	disks      []DiskInfo
+	nextPlanID int
+	nextJobID  int
 }
 
 // NewManager 创建管理器
 func NewManager() *Manager {
 	m := &Manager{
-		plans:     make(map[string]*MigrationPlan),
-		jobs:      make(map[string]*MigrationJob),
-		hotSpares: make(map[string]*HotSpare),
+		plans:      make(map[string]*MigrationPlan),
+		jobs:       make(map[string]*MigrationJob),
+		hotSpares:  make(map[string]*HotSpare),
 		nextPlanID: 1,
 		nextJobID:  1,
 	}

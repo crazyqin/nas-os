@@ -185,7 +185,7 @@ func (m *Manager) scanSubnet(ctx context.Context, ipNet *net.IPNet, localMAC net
 	}
 
 	// 生成子网内所有 IP
-	for i := 1; i < (1 << uint(32-ones))-1; i++ {
+	for i := 1; i < (1<<uint(32-ones))-1; i++ {
 		select {
 		case <-ctx.Done():
 			return devices

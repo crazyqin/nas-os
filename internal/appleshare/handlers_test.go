@@ -15,7 +15,7 @@ import (
 
 func setupTestRouter() (*gin.Engine, *Handlers) {
 	gin.SetMode(gin.TestMode)
-	
+
 	config := DefaultAppleShareConfig()
 	manager := NewManager(config)
 	handlers := NewHandlers(manager)

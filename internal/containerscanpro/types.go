@@ -43,8 +43,8 @@ const (
 type AnomalyType = string
 
 const (
-	AnomalyAbnormalProcess  AnomalyType = "abnormal_process"
-	AnomalyAbnormalNetwork  AnomalyType = "abnormal_network"
+	AnomalyAbnormalProcess     AnomalyType = "abnormal_process"
+	AnomalyAbnormalNetwork     AnomalyType = "abnormal_network"
 	AnomalyPrivilegedContainer AnomalyType = "privileged_container"
 )
 
@@ -184,27 +184,27 @@ type AutoFixAction struct {
 
 // ScanResult 扫描结果
 type ScanResult struct {
-	ID                string              `json:"id"`
-	ScanID            string              `json:"scan_id,omitempty"`
-	ContainerID       string              `json:"container_id,omitempty"`
-	ContainerName     string              `json:"container_name,omitempty"`
-	ImageName         string              `json:"image_name"`
-	ImageID           string              `json:"image_id"`
-	Status            ScanStatus          `json:"status"`
-	ScanTime          time.Time           `json:"scan_time"`
-	StartTime         time.Time           `json:"start_time,omitempty"`
-	EndTime           *time.Time          `json:"end_time,omitempty"`
-	Duration          time.Duration       `json:"duration,omitempty"`
-	PolicyID          string              `json:"policy_id,omitempty"`
-	Vulnerabilities   []VulnerabilityCVE  `json:"vulnerabilities,omitempty"`
-	VulnSummary       VulnSummary         `json:"vuln_summary"`
-	Anomalies         []RuntimeAnomaly    `json:"anomalies,omitempty"`
-	Score             *SecurityScore      `json:"score,omitempty"`
-	Recommendations   []string            `json:"recommendations,omitempty"`
-	ComplianceStatus  []ComplianceResult  `json:"compliance_status,omitempty"`
-	Compliant         bool                `json:"compliant"`
-	FixSuggestions    []AutoFixAction     `json:"fix_suggestions,omitempty"`
-	Error             string              `json:"error,omitempty"`
+	ID               string             `json:"id"`
+	ScanID           string             `json:"scan_id,omitempty"`
+	ContainerID      string             `json:"container_id,omitempty"`
+	ContainerName    string             `json:"container_name,omitempty"`
+	ImageName        string             `json:"image_name"`
+	ImageID          string             `json:"image_id"`
+	Status           ScanStatus         `json:"status"`
+	ScanTime         time.Time          `json:"scan_time"`
+	StartTime        time.Time          `json:"start_time,omitempty"`
+	EndTime          *time.Time         `json:"end_time,omitempty"`
+	Duration         time.Duration      `json:"duration,omitempty"`
+	PolicyID         string             `json:"policy_id,omitempty"`
+	Vulnerabilities  []VulnerabilityCVE `json:"vulnerabilities,omitempty"`
+	VulnSummary      VulnSummary        `json:"vuln_summary"`
+	Anomalies        []RuntimeAnomaly   `json:"anomalies,omitempty"`
+	Score            *SecurityScore     `json:"score,omitempty"`
+	Recommendations  []string           `json:"recommendations,omitempty"`
+	ComplianceStatus []ComplianceResult `json:"compliance_status,omitempty"`
+	Compliant        bool               `json:"compliant"`
+	FixSuggestions   []AutoFixAction    `json:"fix_suggestions,omitempty"`
+	Error            string             `json:"error,omitempty"`
 }
 
 // ScanConfig 扫描配置
@@ -241,28 +241,28 @@ type Alert struct {
 
 // ScanPolicy 扫描策略
 type ScanPolicy struct {
-	ID                  string   `json:"id"`
-	Name                string   `json:"name"`
-	Description         string   `json:"description,omitempty"`
-	SeverityThreshold   Severity `json:"severity_threshold"`
-	AutoFixEnabled      bool     `json:"auto_fix_enabled"`
-	ComplianceStandards []string `json:"compliance_standards,omitempty"`
-	ExcludePackages     []string `json:"exclude_packages,omitempty"`
-	ScheduleCron        string   `json:"schedule_cron,omitempty"`
-	Enabled             bool     `json:"enabled"`
+	ID                  string    `json:"id"`
+	Name                string    `json:"name"`
+	Description         string    `json:"description,omitempty"`
+	SeverityThreshold   Severity  `json:"severity_threshold"`
+	AutoFixEnabled      bool      `json:"auto_fix_enabled"`
+	ComplianceStandards []string  `json:"compliance_standards,omitempty"`
+	ExcludePackages     []string  `json:"exclude_packages,omitempty"`
+	ScheduleCron        string    `json:"schedule_cron,omitempty"`
+	Enabled             bool      `json:"enabled"`
 	CreatedAt           time.Time `json:"created_at"`
 	UpdatedAt           time.Time `json:"updated_at"`
 }
 
 // ComplianceRule 合规规则
 type ComplianceRule struct {
-	ID          string              `json:"id"`
-	Name        string              `json:"name"`
-	Description string              `json:"description,omitempty"`
-	Standard    ComplianceStandard  `json:"standard"`
-	CheckLogic  string              `json:"check_logic"`
-	Severity    Severity            `json:"severity"`
-	Enabled     bool                `json:"enabled"`
+	ID          string             `json:"id"`
+	Name        string             `json:"name"`
+	Description string             `json:"description,omitempty"`
+	Standard    ComplianceStandard `json:"standard"`
+	CheckLogic  string             `json:"check_logic"`
+	Severity    Severity           `json:"severity"`
+	Enabled     bool               `json:"enabled"`
 }
 
 // ListEntry 黑白名单条目
@@ -275,13 +275,13 @@ type ListEntry struct {
 
 // RuntimeMonitor 运行时监控状态
 type RuntimeMonitor struct {
-	ContainerID   string     `json:"container_id"`
-	ContainerName string     `json:"container_name"`
-	ImageName     string     `json:"image_name"`
-	IsPrivileged  bool       `json:"is_privileged"`
-	LastCheckTime time.Time  `json:"last_check_time"`
-	Status        string     `json:"status"`
-	Anomalies     []Anomaly  `json:"anomalies,omitempty"`
+	ContainerID   string    `json:"container_id"`
+	ContainerName string    `json:"container_name"`
+	ImageName     string    `json:"image_name"`
+	IsPrivileged  bool      `json:"is_privileged"`
+	LastCheckTime time.Time `json:"last_check_time"`
+	Status        string    `json:"status"`
+	Anomalies     []Anomaly `json:"anomalies,omitempty"`
 }
 
 // ScanRequest API 扫描请求
@@ -304,9 +304,9 @@ type PolicyRequest struct {
 
 // AutoFixRequest API 自动修复请求
 type AutoFixRequest struct {
-	ScanID     string     `json:"scan_id" binding:"required"`
-	VulnIDs    []string   `json:"vuln_ids,omitempty"`
-	FixAction  FixAction  `json:"fix_action,omitempty"`
+	ScanID    string    `json:"scan_id" binding:"required"`
+	VulnIDs   []string  `json:"vuln_ids,omitempty"`
+	FixAction FixAction `json:"fix_action,omitempty"`
 }
 
 // APIResponse API 响应格式

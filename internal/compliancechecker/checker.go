@@ -27,11 +27,11 @@ const (
 type IssueType string
 
 const (
-	IssueGDPR            IssueType = "gdpr"
-	IssueGB20            IssueType = "gb20"
-	IssueFilePermission  IssueType = "file_permission"
-	IssueSensitiveData   IssueType = "sensitive_data"
-	IssueEncryption      IssueType = "encryption"
+	IssueGDPR           IssueType = "gdpr"
+	IssueGB20           IssueType = "gb20"
+	IssueFilePermission IssueType = "file_permission"
+	IssueSensitiveData  IssueType = "sensitive_data"
+	IssueEncryption     IssueType = "encryption"
 )
 
 // Issue represents a compliance violation
@@ -49,14 +49,14 @@ type Issue struct {
 
 // ComplianceScore represents overall compliance status
 type ComplianceScore struct {
-	Overall    float64           `json:"overall"`
-	Level      string            `json:"level"`
-	GDPR       float64           `json:"gdpr"`
-	GB20       float64           `json:"gb20"`
-	Security   float64           `json:"security"`
-	Breakdown  map[string]float64 `json:"breakdown"`
-	Issues     int               `json:"issues"`
-	Timestamp  time.Time         `json:"timestamp"`
+	Overall   float64            `json:"overall"`
+	Level     string             `json:"level"`
+	GDPR      float64            `json:"gdpr"`
+	GB20      float64            `json:"gb20"`
+	Security  float64            `json:"security"`
+	Breakdown map[string]float64 `json:"breakdown"`
+	Issues    int                `json:"issues"`
+	Timestamp time.Time          `json:"timestamp"`
 }
 
 // ComplianceReport is the full scan result

@@ -23,10 +23,10 @@ type NetworkManager struct {
 
 // IPPool IP 地址池
 type IPPool struct {
-	Subnet     *net.IPNet
-	Gateway    net.IP
-	Allocated  map[string]bool // IP -> 是否已分配
-	NextIP     net.IP
+	Subnet    *net.IPNet
+	Gateway   net.IP
+	Allocated map[string]bool // IP -> 是否已分配
+	NextIP    net.IP
 }
 
 // NewNetworkManager 创建网络管理器

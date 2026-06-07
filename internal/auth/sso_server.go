@@ -52,17 +52,17 @@ const (
 
 // OAuthClient OAuth2客户端
 type OAuthClient struct {
-	ID           string   `json:"id"`
-	Secret       string   `json:"secret"`
-	Name         string   `json:"name"`
-	Description  string   `json:"description"`
-	RedirectURIs []string `json:"redirect_uris"`
-	Scopes       []string `json:"scopes"`
+	ID           string      `json:"id"`
+	Secret       string      `json:"secret"`
+	Name         string      `json:"name"`
+	Description  string      `json:"description"`
+	RedirectURIs []string    `json:"redirect_uris"`
+	Scopes       []string    `json:"scopes"`
 	GrantTypes   []GrantType `json:"grant_types"`
-	Enabled      bool     `json:"enabled"`
-	IsInternal   bool     `json:"is_internal"` // 内部应用
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	Enabled      bool        `json:"enabled"`
+	IsInternal   bool        `json:"is_internal"` // 内部应用
+	CreatedAt    time.Time   `json:"created_at"`
+	UpdatedAt    time.Time   `json:"updated_at"`
 }
 
 // AuthorizationCode 授权码
@@ -109,18 +109,18 @@ type RefreshToken struct {
 
 // OIDCDiscovery OIDC发现文档
 type OIDCDiscovery struct {
-	Issuer                string   `json:"issuer"`
-	AuthorizationEndpoint string   `json:"authorization_endpoint"`
-	TokenEndpoint         string   `json:"token_endpoint"`
-	UserinfoEndpoint      string   `json:"userinfo_endpoint"`
-	JwksURI               string   `json:"jwks_uri"`
-	ScopesSupported       []string `json:"scopes_supported"`
-	ResponseTypesSupported []string `json:"response_types_supported"`
-	GrantTypesSupported   []string `json:"grant_types_supported"`
-	SubjectTypesSupported []string `json:"subject_types_supported"`
-	IDTokenSigningAlgValuesSupported []string `json:"id_token_signing_alg_values_supported"`
+	Issuer                            string   `json:"issuer"`
+	AuthorizationEndpoint             string   `json:"authorization_endpoint"`
+	TokenEndpoint                     string   `json:"token_endpoint"`
+	UserinfoEndpoint                  string   `json:"userinfo_endpoint"`
+	JwksURI                           string   `json:"jwks_uri"`
+	ScopesSupported                   []string `json:"scopes_supported"`
+	ResponseTypesSupported            []string `json:"response_types_supported"`
+	GrantTypesSupported               []string `json:"grant_types_supported"`
+	SubjectTypesSupported             []string `json:"subject_types_supported"`
+	IDTokenSigningAlgValuesSupported  []string `json:"id_token_signing_alg_values_supported"`
 	TokenEndpointAuthMethodsSupported []string `json:"token_endpoint_auth_methods_supported"`
-	ClaimsSupported       []string `json:"claims_supported"`
+	ClaimsSupported                   []string `json:"claims_supported"`
 }
 
 // IDToken ID Token (OIDC)
@@ -149,39 +149,39 @@ type SAMLRequest struct {
 
 // SAMLResponse SAML认证响应
 type SAMLResponse struct {
-	ID            string    `json:"id"`
-	InResponseTo  string    `json:"in_response_to"`
-	Issuer        string    `json:"issuer"`
-	Status        string    `json:"status"`
-	NameID        string    `json:"name_id"`
-	SessionIndex  string    `json:"session_index"`
-	Attributes    map[string][]string `json:"attributes"`
-	AssertionXML  string    `json:"assertion_xml"`
-	SignedAt      time.Time `json:"signed_at"`
+	ID           string              `json:"id"`
+	InResponseTo string              `json:"in_response_to"`
+	Issuer       string              `json:"issuer"`
+	Status       string              `json:"status"`
+	NameID       string              `json:"name_id"`
+	SessionIndex string              `json:"session_index"`
+	Attributes   map[string][]string `json:"attributes"`
+	AssertionXML string              `json:"assertion_xml"`
+	SignedAt     time.Time           `json:"signed_at"`
 }
 
 // SSOUser SSO用户信息 (OIDC UserInfo)
 type SSOUser struct {
-	Sub       string `json:"sub"`
-	Name      string `json:"name"`
-	Email     string `json:"email"`
-	Picture   string `json:"picture,omitempty"`
+	Sub       string   `json:"sub"`
+	Name      string   `json:"name"`
+	Email     string   `json:"email"`
+	Picture   string   `json:"picture,omitempty"`
 	Groups    []string `json:"groups,omitempty"`
-	UpdatedAt int64  `json:"updated_at,omitempty"`
+	UpdatedAt int64    `json:"updated_at,omitempty"`
 }
 
 // SSOServer SSO服务器
 type SSOServer struct {
-	mu             sync.RWMutex
-	clients        map[string]*OAuthClient
-	codes          map[string]*AuthorizationCode
-	tokens         map[string]*AccessTokenClaims
-	refreshTokens  map[string]*RefreshToken
-	users          map[string]*SSOUser
-	privateKey     *rsa.PrivateKey
-	publicKey      *rsa.PublicKey
-	baseURL        string
-	issuer         string
+	mu            sync.RWMutex
+	clients       map[string]*OAuthClient
+	codes         map[string]*AuthorizationCode
+	tokens        map[string]*AccessTokenClaims
+	refreshTokens map[string]*RefreshToken
+	users         map[string]*SSOUser
+	privateKey    *rsa.PrivateKey
+	publicKey     *rsa.PublicKey
+	baseURL       string
+	issuer        string
 }
 
 // NewSSOServer 创建SSO服务器
@@ -516,18 +516,18 @@ func (s *SSOServer) GetUserInfo(accessToken string) (*SSOUser, error) {
 // GetOIDCDiscovery 获取OIDC发现文档
 func (s *SSOServer) GetOIDCDiscovery() *OIDCDiscovery {
 	return &OIDCDiscovery{
-		Issuer:                s.issuer,
-		AuthorizationEndpoint: s.baseURL + "/oauth/authorize",
-		TokenEndpoint:         s.baseURL + "/oauth/token",
-		UserinfoEndpoint:      s.baseURL + "/oauth/userinfo",
-		JwksURI:               s.baseURL + "/.well-known/jwks.json",
-		ScopesSupported:       []string{"openid", "profile", "email", "groups"},
-		ResponseTypesSupported: []string{"code", "token"},
-		GrantTypesSupported:   []string{"authorization_code", "client_credentials", "refresh_token"},
-		SubjectTypesSupported: []string{"public"},
-		IDTokenSigningAlgValuesSupported: []string{"RS256"},
+		Issuer:                            s.issuer,
+		AuthorizationEndpoint:             s.baseURL + "/oauth/authorize",
+		TokenEndpoint:                     s.baseURL + "/oauth/token",
+		UserinfoEndpoint:                  s.baseURL + "/oauth/userinfo",
+		JwksURI:                           s.baseURL + "/.well-known/jwks.json",
+		ScopesSupported:                   []string{"openid", "profile", "email", "groups"},
+		ResponseTypesSupported:            []string{"code", "token"},
+		GrantTypesSupported:               []string{"authorization_code", "client_credentials", "refresh_token"},
+		SubjectTypesSupported:             []string{"public"},
+		IDTokenSigningAlgValuesSupported:  []string{"RS256"},
 		TokenEndpointAuthMethodsSupported: []string{"client_secret_post", "client_secret_basic"},
-		ClaimsSupported:       []string{"sub", "name", "email", "iss", "aud", "exp", "iat", "nonce"},
+		ClaimsSupported:                   []string{"sub", "name", "email", "iss", "aud", "exp", "iat", "nonce"},
 	}
 }
 

@@ -11,9 +11,9 @@ import (
 type ModelFormat string
 
 const (
-	ModelFormatONNX    ModelFormat = "onnx"    // ONNX 格式
-	ModelFormatTFLite  ModelFormat = "tflite"  // TensorFlow Lite 格式
-	ModelFormatPyTorch ModelFormat = "pytorch" // PyTorch 格式
+	ModelFormatONNX     ModelFormat = "onnx"     // ONNX 格式
+	ModelFormatTFLite   ModelFormat = "tflite"   // TensorFlow Lite 格式
+	ModelFormatPyTorch  ModelFormat = "pytorch"  // PyTorch 格式
 	ModelFormatTensorRT ModelFormat = "tensorrt" // TensorRT 格式
 )
 
@@ -54,10 +54,10 @@ const (
 type TaskPriority int
 
 const (
-	TaskPriorityLow    TaskPriority = 0  // 低优先级
-	TaskPriorityNormal TaskPriority = 1  // 普通优先级
-	TaskPriorityHigh   TaskPriority = 2  // 高优先级
-	TaskPriorityUrgent TaskPriority = 3  // 紧急优先级
+	TaskPriorityLow    TaskPriority = 0 // 低优先级
+	TaskPriorityNormal TaskPriority = 1 // 普通优先级
+	TaskPriorityHigh   TaskPriority = 2 // 高优先级
+	TaskPriorityUrgent TaskPriority = 3 // 紧急优先级
 )
 
 // TaskStatus 任务状态
@@ -74,35 +74,35 @@ const (
 
 // Model 模型定义
 type Model struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Version     string        `json:"version"`
-	Description string        `json:"description"`
-	Format      ModelFormat   `json:"format"`
-	TaskType    TaskType      `json:"taskType"`
-	Device      ComputeDevice `json:"device"`
-	Status      ModelStatus   `json:"status"`
-	FilePath    string        `json:"filePath"`
-	InputShape  []int         `json:"inputShape"`
-	OutputShape []int         `json:"outputShape"`
-	Labels      []string      `json:"labels,omitempty"`
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Version     string            `json:"version"`
+	Description string            `json:"description"`
+	Format      ModelFormat       `json:"format"`
+	TaskType    TaskType          `json:"taskType"`
+	Device      ComputeDevice     `json:"device"`
+	Status      ModelStatus       `json:"status"`
+	FilePath    string            `json:"filePath"`
+	InputShape  []int             `json:"inputShape"`
+	OutputShape []int             `json:"outputShape"`
+	Labels      []string          `json:"labels,omitempty"`
 	Metadata    map[string]string `json:"metadata,omitempty"`
-	Config      *ModelConfig  `json:"config,omitempty"`
-	CreatedAt   time.Time     `json:"createdAt"`
-	UpdatedAt   time.Time     `json:"updatedAt"`
-	LoadedAt    *time.Time    `json:"loadedAt,omitempty"`
-	MemoryUsage int64         `json:"memoryUsage"` // bytes
-	InferCount  int64         `json:"inferCount"`
-	AvgLatency  float64       `json:"avgLatency"` // ms
+	Config      *ModelConfig      `json:"config,omitempty"`
+	CreatedAt   time.Time         `json:"createdAt"`
+	UpdatedAt   time.Time         `json:"updatedAt"`
+	LoadedAt    *time.Time        `json:"loadedAt,omitempty"`
+	MemoryUsage int64             `json:"memoryUsage"` // bytes
+	InferCount  int64             `json:"inferCount"`
+	AvgLatency  float64           `json:"avgLatency"` // ms
 }
 
 // ModelConfig 模型配置
 type ModelConfig struct {
-	BatchSize    int    `json:"batchSize"`    // 批处理大小
-	NumThreads   int    `json:"numThreads"`   // 线程数
-	Precision    string `json:"precision"`    // 精度：fp32/fp16/int8
-	Quantized    bool   `json:"quantized"`    // 是否量化
-	OptimizeLevel int   `json:"optimizeLevel"` // 优化级别 0-3
+	BatchSize     int    `json:"batchSize"`     // 批处理大小
+	NumThreads    int    `json:"numThreads"`    // 线程数
+	Precision     string `json:"precision"`     // 精度：fp32/fp16/int8
+	Quantized     bool   `json:"quantized"`     // 是否量化
+	OptimizeLevel int    `json:"optimizeLevel"` // 优化级别 0-3
 }
 
 // InferenceRequest 推理请求
@@ -130,28 +130,28 @@ type InferenceInput struct {
 
 // InferenceResult 推理结果
 type InferenceResult struct {
-	ID           string                 `json:"id"`
-	RequestID    string                 `json:"requestId"`
-	ModelID      string                 `json:"modelId"`
-	TaskType     TaskType               `json:"taskType"`
-	Status       TaskStatus             `json:"status"`
-	Output       *InferenceOutput       `json:"output"`
-	Latency      time.Duration          `json:"latency"`
-	Device       ComputeDevice          `json:"device"`
-	Error        string                 `json:"error,omitempty"`
-	Metadata     map[string]interface{} `json:"metadata,omitempty"`
-	CompletedAt  time.Time              `json:"completedAt"`
+	ID          string                 `json:"id"`
+	RequestID   string                 `json:"requestId"`
+	ModelID     string                 `json:"modelId"`
+	TaskType    TaskType               `json:"taskType"`
+	Status      TaskStatus             `json:"status"`
+	Output      *InferenceOutput       `json:"output"`
+	Latency     time.Duration          `json:"latency"`
+	Device      ComputeDevice          `json:"device"`
+	Error       string                 `json:"error,omitempty"`
+	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	CompletedAt time.Time              `json:"completedAt"`
 }
 
 // InferenceOutput 推理输出
 type InferenceOutput struct {
-	Classes    []ClassificationResult `json:"classes,omitempty"`    // 分类结果
-	Objects    []DetectionResult      `json:"objects,omitempty"`    // 检测结果
-	Text       string                 `json:"text,omitempty"`       // 文本输出
-	Embedding  []float32              `json:"embedding,omitempty"`  // 向量输出
-	Tensor     []float32              `json:"tensor,omitempty"`     // 张量输出
-	Shape      []int                  `json:"shape,omitempty"`      // 输出形状
-	RawOutput  []byte                 `json:"rawOutput,omitempty"`  // 原始输出
+	Classes   []ClassificationResult `json:"classes,omitempty"`   // 分类结果
+	Objects   []DetectionResult      `json:"objects,omitempty"`   // 检测结果
+	Text      string                 `json:"text,omitempty"`      // 文本输出
+	Embedding []float32              `json:"embedding,omitempty"` // 向量输出
+	Tensor    []float32              `json:"tensor,omitempty"`    // 张量输出
+	Shape     []int                  `json:"shape,omitempty"`     // 输出形状
+	RawOutput []byte                 `json:"rawOutput,omitempty"` // 原始输出
 }
 
 // ClassificationResult 分类结果
@@ -163,9 +163,9 @@ type ClassificationResult struct {
 
 // DetectionResult 检测结果
 type DetectionResult struct {
-	Label      string    `json:"label"`
-	Confidence float64   `json:"confidence"`
-	BBox       BBox      `json:"bbox"`
+	Label      string  `json:"label"`
+	Confidence float64 `json:"confidence"`
+	BBox       BBox    `json:"bbox"`
 }
 
 // BBox 边界框
@@ -178,49 +178,49 @@ type BBox struct {
 
 // EngineConfig 引擎配置
 type EngineConfig struct {
-	ModelDir        string          `json:"modelDir"`        // 模型存储目录
-	MaxConcurrent   int             `json:"maxConcurrent"`   // 最大并发推理数
-	MaxQueueSize    int             `json:"maxQueueSize"`    // 最大排队数
-	DefaultDevice   ComputeDevice   `json:"defaultDevice"`   // 默认计算设备
-	EnableGPU       bool            `json:"enableGPU"`       // 启用 GPU
-	EnableNPU       bool            `json:"enableNPU"`       // 启用 NPU
-	GPUDeviceID     int             `json:"gpuDeviceId"`     // GPU 设备 ID
-	MemoryLimit     int64           `json:"memoryLimit"`     // 内存限制 (bytes)
-	CacheSize       int             `json:"cacheSize"`       // 结果缓存大小
-	CacheTTL        time.Duration   `json:"cacheTTL"`        // 缓存过期时间
-	Workers         int             `json:"workers"`         // 工作线程数
-	MonitorInterval time.Duration   `json:"monitorInterval"` // 监控间隔
-	EnableProfiling bool            `json:"enableProfiling"` // 启用性能分析
+	ModelDir        string        `json:"modelDir"`        // 模型存储目录
+	MaxConcurrent   int           `json:"maxConcurrent"`   // 最大并发推理数
+	MaxQueueSize    int           `json:"maxQueueSize"`    // 最大排队数
+	DefaultDevice   ComputeDevice `json:"defaultDevice"`   // 默认计算设备
+	EnableGPU       bool          `json:"enableGPU"`       // 启用 GPU
+	EnableNPU       bool          `json:"enableNPU"`       // 启用 NPU
+	GPUDeviceID     int           `json:"gpuDeviceId"`     // GPU 设备 ID
+	MemoryLimit     int64         `json:"memoryLimit"`     // 内存限制 (bytes)
+	CacheSize       int           `json:"cacheSize"`       // 结果缓存大小
+	CacheTTL        time.Duration `json:"cacheTTL"`        // 缓存过期时间
+	Workers         int           `json:"workers"`         // 工作线程数
+	MonitorInterval time.Duration `json:"monitorInterval"` // 监控间隔
+	EnableProfiling bool          `json:"enableProfiling"` // 启用性能分析
 }
 
 // InferStats 推理统计
 type InferStats struct {
-	TotalRequests    int64         `json:"totalRequests"`
-	SuccessRequests  int64         `json:"successRequests"`
-	FailedRequests   int64         `json:"failedRequests"`
-	QueuedRequests   int64         `json:"queuedRequests"`
-	AvgLatency       float64       `json:"avgLatency"`       // ms
-	P95Latency       float64       `json:"p95Latency"`       // ms
-	P99Latency       float64       `json:"p99Latency"`       // ms
-	TotalMemory      int64         `json:"totalMemory"`      // bytes
-	GPUUtilization   float64       `json:"gpuUtilization"`   // 0-100%
-	CPUUtilization   float64       `json:"cpuUtilization"`   // 0-100%
-	ModelsLoaded     int           `json:"modelsLoaded"`
-	Uptime           time.Duration `json:"uptime"`
-	LastInferTime    time.Time     `json:"lastInferTime"`
+	TotalRequests   int64         `json:"totalRequests"`
+	SuccessRequests int64         `json:"successRequests"`
+	FailedRequests  int64         `json:"failedRequests"`
+	QueuedRequests  int64         `json:"queuedRequests"`
+	AvgLatency      float64       `json:"avgLatency"`     // ms
+	P95Latency      float64       `json:"p95Latency"`     // ms
+	P99Latency      float64       `json:"p99Latency"`     // ms
+	TotalMemory     int64         `json:"totalMemory"`    // bytes
+	GPUUtilization  float64       `json:"gpuUtilization"` // 0-100%
+	CPUUtilization  float64       `json:"cpuUtilization"` // 0-100%
+	ModelsLoaded    int           `json:"modelsLoaded"`
+	Uptime          time.Duration `json:"uptime"`
+	LastInferTime   time.Time     `json:"lastInferTime"`
 }
 
 // ResourceUsage 资源使用情况
 type ResourceUsage struct {
-	CPU     CPUUsage     `json:"cpu"`
-	GPU     GPUUsage     `json:"gpu"`
-	Memory  MemoryUsage  `json:"memory"`
-	Disk    DiskUsage    `json:"disk"`
+	CPU    CPUUsage    `json:"cpu"`
+	GPU    GPUUsage    `json:"gpu"`
+	Memory MemoryUsage `json:"memory"`
+	Disk   DiskUsage   `json:"disk"`
 }
 
 // CPUUsage CPU 使用情况
 type CPUUsage struct {
-	Usage     float64 `json:"usage"`     // 0-100%
+	Usage     float64 `json:"usage"` // 0-100%
 	Cores     int     `json:"cores"`
 	Threads   int     `json:"threads"`
 	Frequency float64 `json:"frequency"` // GHz
@@ -228,12 +228,12 @@ type CPUUsage struct {
 
 // GPUUsage GPU 使用情况
 type GPUUsage struct {
-	Available    bool    `json:"available"`
-	Usage        float64 `json:"usage"`        // 0-100%
-	MemoryUsed   int64   `json:"memoryUsed"`   // bytes
-	MemoryTotal  int64   `json:"memoryTotal"`  // bytes
-	Temperature  float64 `json:"temperature"`  // 摄氏度
-	PowerUsage   float64 `json:"powerUsage"`   // 瓦特
+	Available   bool    `json:"available"`
+	Usage       float64 `json:"usage"`       // 0-100%
+	MemoryUsed  int64   `json:"memoryUsed"`  // bytes
+	MemoryTotal int64   `json:"memoryTotal"` // bytes
+	Temperature float64 `json:"temperature"` // 摄氏度
+	PowerUsage  float64 `json:"powerUsage"`  // 瓦特
 }
 
 // MemoryUsage 内存使用情况
@@ -385,21 +385,21 @@ type ResourceMonitor interface {
 
 // TaskScheduler 任务调度器
 type TaskScheduler struct {
-	mu          sync.RWMutex
-	queue       []*InferenceRequest
-	processing  map[string]*InferenceRequest
-	maxQueue    int
+	mu            sync.RWMutex
+	queue         []*InferenceRequest
+	processing    map[string]*InferenceRequest
+	maxQueue      int
 	maxConcurrent int
-	priorities  map[TaskPriority]int
-	stats       *SchedulerStats
+	priorities    map[TaskPriority]int
+	stats         *SchedulerStats
 }
 
 // SchedulerStats 调度器统计
 type SchedulerStats struct {
-	TotalQueued    int64     `json:"totalQueued"`
-	TotalProcessed int64     `json:"totalProcessed"`
-	AvgWaitTime    float64   `json:"avgWaitTime"` // ms
-	MaxWaitTime    float64   `json:"maxWaitTime"` // ms
-	QueueLength    int       `json:"queueLength"`
-	Processing     int       `json:"processing"`
+	TotalQueued    int64   `json:"totalQueued"`
+	TotalProcessed int64   `json:"totalProcessed"`
+	AvgWaitTime    float64 `json:"avgWaitTime"` // ms
+	MaxWaitTime    float64 `json:"maxWaitTime"` // ms
+	QueueLength    int     `json:"queueLength"`
+	Processing     int     `json:"processing"`
 }

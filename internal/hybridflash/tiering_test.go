@@ -199,8 +199,8 @@ func TestPoolRegistration(t *testing.T) {
 	engine := NewTieringEngine(config, heatConfig)
 
 	pool := &HybridPool{
-		ID:   "test-pool",
-		Name: "测试池",
+		ID:    "test-pool",
+		Name:  "测试池",
 		State: PoolStateOnline,
 	}
 
@@ -282,9 +282,9 @@ func TestHeatThresholds(t *testing.T) {
 	}{
 		{200, HeatLevelHot},
 		{50, HeatLevelHot},
-		{20, HeatLevelHot},  // >= 10 且最近访问，应为 hot
-		{5, HeatLevelWarm},  // < 10 且最近访问，应为 warm
-		{1, HeatLevelWarm},  // < 10 且最近访问，应为 warm
+		{20, HeatLevelHot}, // >= 10 且最近访问，应为 hot
+		{5, HeatLevelWarm}, // < 10 且最近访问，应为 warm
+		{1, HeatLevelWarm}, // < 10 且最近访问，应为 warm
 	}
 
 	for _, tc := range testCases {
@@ -303,11 +303,11 @@ func TestHeatThresholds(t *testing.T) {
 
 func TestMigrateTaskCreation(t *testing.T) {
 	task := &MigrateTask{
-		ID:         "test-task",
-		Status:     MigrateStatusPending,
-		SourceTier: FlashTypeHDD,
-		TargetTier: FlashTypeSSD,
-		BlockSize:  4096,
+		ID:          "test-task",
+		Status:      MigrateStatusPending,
+		SourceTier:  FlashTypeHDD,
+		TargetTier:  FlashTypeSSD,
+		BlockSize:   4096,
 		TotalBlocks: 100,
 		TotalBytes:  409600,
 	}
@@ -350,8 +350,8 @@ func TestCachePolicyCreation(t *testing.T) {
 
 func TestHybridPoolCreation(t *testing.T) {
 	pool := &HybridPool{
-		ID:   "test-pool",
-		Name: "测试混合池",
+		ID:    "test-pool",
+		Name:  "测试混合池",
 		State: PoolStateOnline,
 		FlashDevices: []*FlashDevice{
 			{

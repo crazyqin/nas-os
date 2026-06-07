@@ -11,10 +11,10 @@ import (
 type ThreatType string
 
 const (
-	ThreatTypeSYNFlood  ThreatType = "syn_flood"
-	ThreatTypeUDPFlood  ThreatType = "udp_flood"
-	ThreatTypeICMPFlood ThreatType = "icmp_flood"
-	ThreatTypePortScan  ThreatType = "port_scan"
+	ThreatTypeSYNFlood   ThreatType = "syn_flood"
+	ThreatTypeUDPFlood   ThreatType = "udp_flood"
+	ThreatTypeICMPFlood  ThreatType = "icmp_flood"
+	ThreatTypePortScan   ThreatType = "port_scan"
 	ThreatTypeBruteForce ThreatType = "brute_force"
 )
 
@@ -31,19 +31,19 @@ const (
 // Config 配置
 type Config struct {
 	// 检测阈值
-	SYNFloodThreshold  int `json:"syn_flood_threshold"`  // SYN包阈值/秒
-	UDPFloodThreshold  int `json:"udp_flood_threshold"`  // UDP包阈值/秒
-	ICMPFloodThreshold int `json:"icmp_flood_threshold"` // ICMP包阈值/秒
+	SYNFloodThreshold   int `json:"syn_flood_threshold"`  // SYN包阈值/秒
+	UDPFloodThreshold   int `json:"udp_flood_threshold"`  // UDP包阈值/秒
+	ICMPFloodThreshold  int `json:"icmp_flood_threshold"` // ICMP包阈值/秒
 	ConnectionThreshold int `json:"connection_threshold"` // 连接数阈值
 
 	// 自动封禁配置
-	AutoBanEnabled   bool          `json:"auto_ban_enabled"`
-	BanDuration      time.Duration `json:"ban_duration"`
-	MaxThreatScore   int           `json:"max_threat_score"` // 自动封禁阈值
+	AutoBanEnabled bool          `json:"auto_ban_enabled"`
+	BanDuration    time.Duration `json:"ban_duration"`
+	MaxThreatScore int           `json:"max_threat_score"` // 自动封禁阈值
 
 	// 速率限制
-	RateLimitEnabled  bool `json:"rate_limit_enabled"`
-	MaxConnectionsPerIP int `json:"max_connections_per_ip"`
+	RateLimitEnabled    bool `json:"rate_limit_enabled"`
+	MaxConnectionsPerIP int  `json:"max_connections_per_ip"`
 
 	// 窗口大小
 	WindowSize time.Duration `json:"window_size"`
@@ -67,13 +67,13 @@ func DefaultConfig() Config {
 
 // IPEntry IP条目
 type IPEntry struct {
-	IP        net.IP     `json:"ip"`
-	Status    IPStatus   `json:"status"`
-	Reason    string     `json:"reason,omitempty"`
-	BannedAt  *time.Time `json:"banned_at,omitempty"`
-	BanUntil  *time.Time `json:"ban_until,omitempty"`
-	HitCount  int64      `json:"hit_count"`
-	LastSeen  time.Time  `json:"last_seen"`
+	IP       net.IP     `json:"ip"`
+	Status   IPStatus   `json:"status"`
+	Reason   string     `json:"reason,omitempty"`
+	BannedAt *time.Time `json:"banned_at,omitempty"`
+	BanUntil *time.Time `json:"ban_until,omitempty"`
+	HitCount int64      `json:"hit_count"`
+	LastSeen time.Time  `json:"last_seen"`
 }
 
 // ThreatRecord 威胁记录
@@ -104,12 +104,12 @@ type TrafficStats struct {
 
 // RateLimitRule 速率限制规则
 type RateLimitRule struct {
-	Name         string        `json:"name"`
-	Protocol     string        `json:"protocol"`
-	MaxPackets   int           `json:"max_packets"`
-	MaxBytes     int64         `json:"max_bytes"`
-	Window       time.Duration `json:"window"`
-	Enabled      bool          `json:"enabled"`
+	Name       string        `json:"name"`
+	Protocol   string        `json:"protocol"`
+	MaxPackets int           `json:"max_packets"`
+	MaxBytes   int64         `json:"max_bytes"`
+	Window     time.Duration `json:"window"`
+	Enabled    bool          `json:"enabled"`
 }
 
 // PacketInfo 数据包信息
@@ -128,27 +128,27 @@ type PacketInfo struct {
 
 // Manager 防护管理器
 type Manager struct {
-	mu             sync.RWMutex
-	config         Config
-	blacklist      map[string]*IPEntry
-	whitelist      map[string]*IPEntry
-	threatRecords  map[string][]*ThreatRecord
-	trafficStats   *TrafficStats
-	packetWindow   map[string][]time.Time // IP -> 时间戳列表
-	connectionCount map[string]int        // IP -> 当前连接数
-	bannedIPs      map[string]*IPEntry
-	startTime      time.Time
-	stopChan       chan struct{}
+	mu              sync.RWMutex
+	config          Config
+	blacklist       map[string]*IPEntry
+	whitelist       map[string]*IPEntry
+	threatRecords   map[string][]*ThreatRecord
+	trafficStats    *TrafficStats
+	packetWindow    map[string][]time.Time // IP -> 时间戳列表
+	connectionCount map[string]int         // IP -> 当前连接数
+	bannedIPs       map[string]*IPEntry
+	startTime       time.Time
+	stopChan        chan struct{}
 }
 
 // NewManager 创建防护管理器
 func NewManager(config Config) *Manager {
 	m := &Manager{
-		config:          config,
-		blacklist:       make(map[string]*IPEntry),
-		whitelist:       make(map[string]*IPEntry),
-		threatRecords:   make(map[string][]*ThreatRecord),
-		trafficStats:    &TrafficStats{
+		config:        config,
+		blacklist:     make(map[string]*IPEntry),
+		whitelist:     make(map[string]*IPEntry),
+		threatRecords: make(map[string][]*ThreatRecord),
+		trafficStats: &TrafficStats{
 			TopSources:  make(map[string]int64),
 			WindowStart: time.Now(),
 		},
@@ -216,7 +216,7 @@ func (m *Manager) CheckPacket(pkt PacketInfo) (allowed bool, reason string) {
 	threat := m.detectThreat(pkt)
 	if threat != nil {
 		m.addThreatRecord(pkt.SrcIP, threat.Type, threat.Score, threat.Details)
-		
+
 		// 自动封禁
 		if m.config.AutoBanEnabled {
 			m.autoBanIfNeeded(srcIP, now)
@@ -228,7 +228,7 @@ func (m *Manager) CheckPacket(pkt PacketInfo) (allowed bool, reason string) {
 
 	// 更新连接计数
 	m.connectionCount[srcIP]++
-	
+
 	return true, "allowed"
 }
 
@@ -236,7 +236,7 @@ func (m *Manager) CheckPacket(pkt PacketInfo) (allowed bool, reason string) {
 func (m *Manager) updateStats(pkt PacketInfo) {
 	m.trafficStats.TotalPackets++
 	m.trafficStats.TotalBytes += int64(pkt.Size)
-	
+
 	srcIP := pkt.SrcIP.String()
 	m.trafficStats.TopSources[srcIP]++
 
@@ -259,7 +259,7 @@ func (m *Manager) updateStats(pkt PacketInfo) {
 // checkRateLimit 检查速率限制
 func (m *Manager) checkRateLimit(ip string, now time.Time) bool {
 	windowStart := now.Add(-m.config.WindowSize)
-	
+
 	// 清理过期记录
 	timestamps := m.packetWindow[ip]
 	validTimestamps := make([]time.Time, 0, len(timestamps))
@@ -268,12 +268,12 @@ func (m *Manager) checkRateLimit(ip string, now time.Time) bool {
 			validTimestamps = append(validTimestamps, ts)
 		}
 	}
-	
+
 	// 检查限制
 	if len(validTimestamps) >= m.config.MaxConnectionsPerIP {
 		return false
 	}
-	
+
 	// 添加当前时间戳
 	m.packetWindow[ip] = append(validTimestamps, now)
 	return true
@@ -401,7 +401,7 @@ func (m *Manager) addThreatRecord(ip net.IP, threatType ThreatType, score int, d
 func (m *Manager) autoBanIfNeeded(ip string, now time.Time) {
 	// 计算总威胁分数
 	totalScore := m.getTotalThreatScore(ip)
-	
+
 	if totalScore >= m.config.MaxThreatScore {
 		banUntil := now.Add(m.config.BanDuration)
 		m.bannedIPs[ip] = &IPEntry{
@@ -592,7 +592,7 @@ func (m *Manager) AutoBan() []string {
 
 	// 检查所有IP的威胁分数
 	checkedIPs := make(map[string]bool)
-	
+
 	for key, records := range m.threatRecords {
 		// 提取IP地址
 		parts := splitKey(key)
@@ -600,7 +600,7 @@ func (m *Manager) AutoBan() []string {
 			continue
 		}
 		ip := parts[0]
-		
+
 		if checkedIPs[ip] {
 			continue
 		}

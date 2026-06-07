@@ -12,11 +12,11 @@ import (
 
 // DefaultScanner 实现BLE扫描器
 type DefaultScanner struct {
-	mu        sync.RWMutex
-	scanning  bool
-	devices   map[string]*BLEDevice
-	cancel    context.CancelFunc
-	onDevice  func(BLEDevice) // 设备发现回调
+	mu       sync.RWMutex
+	scanning bool
+	devices  map[string]*BLEDevice
+	cancel   context.CancelFunc
+	onDevice func(BLEDevice) // 设备发现回调
 }
 
 // NewDefaultScanner 创建默认BLE扫描器

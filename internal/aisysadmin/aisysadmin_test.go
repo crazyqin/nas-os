@@ -209,13 +209,13 @@ func TestAutoRepair(t *testing.T) {
 	ctx := context.Background()
 
 	issue := &DiagnosisResult{
-		ID:         "test_issue_1",
-		Category:   "cpu",
-		Component:  "处理器",
-		Status:     DiagnosisStatusWarning,
-		Message:    "CPU 使用率过高",
-		Severity:   SeverityHigh,
-		Timestamp:  time.Now(),
+		ID:        "test_issue_1",
+		Category:  "cpu",
+		Component: "处理器",
+		Status:    DiagnosisStatusWarning,
+		Message:   "CPU 使用率过高",
+		Severity:  SeverityHigh,
+		Timestamp: time.Now(),
 	}
 
 	log, err := admin.AutoRepair(ctx, issue)
@@ -247,13 +247,13 @@ func TestAutoRepairDisabled(t *testing.T) {
 	ctx := context.Background()
 
 	issue := &DiagnosisResult{
-		ID:         "test_issue_1",
-		Category:   "cpu",
-		Component:  "处理器",
-		Status:     DiagnosisStatusWarning,
-		Message:    "CPU 使用率过高",
-		Severity:   SeverityHigh,
-		Timestamp:  time.Now(),
+		ID:        "test_issue_1",
+		Category:  "cpu",
+		Component: "处理器",
+		Status:    DiagnosisStatusWarning,
+		Message:   "CPU 使用率过高",
+		Severity:  SeverityHigh,
+		Timestamp: time.Now(),
 	}
 
 	_, err := admin.AutoRepair(ctx, issue)
@@ -449,11 +449,11 @@ func TestEvaluateRules(t *testing.T) {
 
 	// 添加规则
 	rule := &AutomationRule{
-		ID:       "rule_1",
-		Name:     "CPU高负载告警",
+		ID:        "rule_1",
+		Name:      "CPU高负载告警",
 		Condition: "cpu > 90",
-		Action:   "notify",
-		Enabled:  true,
+		Action:    "notify",
+		Enabled:   true,
 	}
 	admin.AddRule(rule)
 

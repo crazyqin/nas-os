@@ -28,13 +28,13 @@ var SeverityWeight = map[Severity]int{
 type Category string
 
 const (
-	CategoryDisk       Category = "disk"       // 磁盘故障
-	CategorySpace      Category = "space"       // 空间不足
-	CategoryPerf       Category = "performance" // 性能异常
-	CategoryNetwork    Category = "network"     // 网络问题
-	CategorySecurity   Category = "security"    // 安全威胁
-	CategoryService    Category = "service"     // 服务故障
-	CategorySystem     Category = "system"      // 系统异常
+	CategoryDisk     Category = "disk"        // 磁盘故障
+	CategorySpace    Category = "space"       // 空间不足
+	CategoryPerf     Category = "performance" // 性能异常
+	CategoryNetwork  Category = "network"     // 网络问题
+	CategorySecurity Category = "security"    // 安全威胁
+	CategoryService  Category = "service"     // 服务故障
+	CategorySystem   Category = "system"      // 系统异常
 )
 
 // AlertState 告警状态.
@@ -51,30 +51,30 @@ const (
 // SmartAlert 智能告警条目.
 // 每条告警附带排查步骤、修复命令和参考文档链接.
 type SmartAlert struct {
-	ID              string            `json:"id"`
-	Title           string            `json:"title"`
-	Description     string            `json:"description"`
-	Severity        Severity          `json:"severity"`
-	OriginalSeverity Severity         `json:"original_severity"` // 原始严重等级
-	Category        Category          `json:"category"`
-	State           AlertState        `json:"state"`
-	Source          string            `json:"source"`           // 告警来源模块
-	Resource        string            `json:"resource"`         // 关联资源（如 /dev/sda, pool tank）
-	Labels          map[string]string `json:"labels,omitempty"` // 附加标签
+	ID               string            `json:"id"`
+	Title            string            `json:"title"`
+	Description      string            `json:"description"`
+	Severity         Severity          `json:"severity"`
+	OriginalSeverity Severity          `json:"original_severity"` // 原始严重等级
+	Category         Category          `json:"category"`
+	State            AlertState        `json:"state"`
+	Source           string            `json:"source"`           // 告警来源模块
+	Resource         string            `json:"resource"`         // 关联资源（如 /dev/sda, pool tank）
+	Labels           map[string]string `json:"labels,omitempty"` // 附加标签
 
 	// 引导信息
-	TroubleshootSteps []TroubleshootStep `json:"troubleshoot_steps"` // 排查步骤
-	FixCommands       []FixCommand       `json:"fix_commands"`       // 修复命令
-	References        []string           `json:"references"`         // 参考文档链接
+	TroubleshootSteps []TroubleshootStep `json:"troubleshoot_steps"`      // 排查步骤
+	FixCommands       []FixCommand       `json:"fix_commands"`            // 修复命令
+	References        []string           `json:"references"`              // 参考文档链接
 	RootCauseID       string             `json:"root_cause_id,omitempty"` // 关联的根因ID
 
 	// 生命周期
-	FirstSeen    time.Time  `json:"first_seen"`
-	LastSeen     time.Time  `json:"last_seen"`
-	EscalatedAt  *time.Time `json:"escalated_at,omitempty"`  // 升级时间
+	FirstSeen      time.Time  `json:"first_seen"`
+	LastSeen       time.Time  `json:"last_seen"`
+	EscalatedAt    *time.Time `json:"escalated_at,omitempty"`    // 升级时间
 	AcknowledgedAt *time.Time `json:"acknowledged_at,omitempty"` // 确认时间
-	AcknowledgedBy string   `json:"acknowledged_by,omitempty"` // 确认人
-	ResolvedAt   *time.Time `json:"resolved_at,omitempty"`
+	AcknowledgedBy string     `json:"acknowledged_by,omitempty"` // 确认人
+	ResolvedAt     *time.Time `json:"resolved_at,omitempty"`
 }
 
 // TroubleshootStep 排查步骤.
@@ -82,7 +82,7 @@ type TroubleshootStep struct {
 	Order       int    `json:"order"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
-	Command     string `json:"command,omitempty"` // 检查命令
+	Command     string `json:"command,omitempty"`  // 检查命令
 	Expected    string `json:"expected,omitempty"` // 期望输出
 }
 
@@ -93,20 +93,20 @@ type FixCommand struct {
 	Description     string `json:"description"`
 	Command         string `json:"command"`
 	Destructive     bool   `json:"destructive"`      // 是否为破坏性操作
-	RequiresConfirm bool   `json:"requires_confirm"`  // 是否需要确认
+	RequiresConfirm bool   `json:"requires_confirm"` // 是否需要确认
 }
 
 // Guide 告警处置引导（API 返回给前端的完整引导信息）.
 type Guide struct {
-	Alert       *SmartAlert       `json:"alert"`
-	Summary     string            `json:"summary"`           // 根因概述
-	Correlation *CorrelationInfo   `json:"correlation,omitempty"` // 关联信息
+	Alert       *SmartAlert      `json:"alert"`
+	Summary     string           `json:"summary"`               // 根因概述
+	Correlation *CorrelationInfo `json:"correlation,omitempty"` // 关联信息
 }
 
 // CorrelationInfo 告警关联信息.
 type CorrelationInfo struct {
-	RootCauseID    string   `json:"root_cause_id"`
-	Description    string   `json:"description"`
+	RootCauseID     string   `json:"root_cause_id"`
+	Description     string   `json:"description"`
 	RelatedAlertIDs []string `json:"related_alert_ids"` // 关联的其他告警
 }
 
@@ -126,8 +126,8 @@ type SilenceRule struct {
 
 // EscalationPolicy 告警升级策略.
 type EscalationPolicy struct {
-	UpgradeAfter   time.Duration `json:"upgrade_after"`   // 未处理多久后升级
-	MaxSeverity    Severity      `json:"max_severity"`    // 最高升到什么级别
+	UpgradeAfter time.Duration `json:"upgrade_after"` // 未处理多久后升级
+	MaxSeverity  Severity      `json:"max_severity"`  // 最高升到什么级别
 }
 
 // RootCause 根因条目.

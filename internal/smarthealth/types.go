@@ -61,11 +61,11 @@ type DiskHealth struct {
 	SMARTAttributes []SMARTAttribute `json:"smartAttributes"`
 
 	// 关键指标
-	Temperature     int   `json:"temperature"`     // 温度 (°C)
-	PowerOnHours    int64 `json:"powerOnHours"`    // 通电时间 (小时)
-	PowerCycleCount int64 `json:"powerCycleCount"` // 通电次数
-	ReallocatedSectors int64 `json:"reallocatedSectors"` // 重分配扇区数
-	PendingSectors  int64 `json:"pendingSectors"`  // 待映射扇区数
+	Temperature         int   `json:"temperature"`         // 温度 (°C)
+	PowerOnHours        int64 `json:"powerOnHours"`        // 通电时间 (小时)
+	PowerCycleCount     int64 `json:"powerCycleCount"`     // 通电次数
+	ReallocatedSectors  int64 `json:"reallocatedSectors"`  // 重分配扇区数
+	PendingSectors      int64 `json:"pendingSectors"`      // 待映射扇区数
 	UncorrectableErrors int64 `json:"uncorrectableErrors"` // 不可纠正错误数
 
 	// 统计信息
@@ -94,27 +94,27 @@ type SMARTAttribute struct {
 
 // HealthScore 健康评分.
 type HealthScore struct {
-	DiskID      string     `json:"diskId"`
-	Device      string     `json:"device"`
-	Score       int        `json:"score"`       // 0-100
-	Status      DiskStatus `json:"status"`
-	Factors     []ScoreFactor `json:"factors"` // 评分因素
-	UpdatedAt   time.Time  `json:"updatedAt"`
+	DiskID    string        `json:"diskId"`
+	Device    string        `json:"device"`
+	Score     int           `json:"score"` // 0-100
+	Status    DiskStatus    `json:"status"`
+	Factors   []ScoreFactor `json:"factors"` // 评分因素
+	UpdatedAt time.Time     `json:"updatedAt"`
 }
 
 // ScoreFactor 评分因素.
 type ScoreFactor struct {
-	Name    string  `json:"name"`
-	Weight  float64 `json:"weight"`  // 权重 (0-1)
-	Impact  float64 `json:"impact"`  // 影响分
-	Detail  string  `json:"detail"`  // 详细说明
+	Name   string  `json:"name"`
+	Weight float64 `json:"weight"` // 权重 (0-1)
+	Impact float64 `json:"impact"` // 影响分
+	Detail string  `json:"detail"` // 详细说明
 }
 
 // FailurePrediction 故障预测.
 type FailurePrediction struct {
-	DiskID          string    `json:"diskId"`
-	Device          string    `json:"device"`
-	PredictedAt     time.Time `json:"predictedAt"`
+	DiskID      string    `json:"diskId"`
+	Device      string    `json:"device"`
+	PredictedAt time.Time `json:"predictedAt"`
 
 	// 预测结果
 	FailureProbability float64 `json:"failureProbability"` // 故障概率 (0-1)
@@ -122,10 +122,10 @@ type FailurePrediction struct {
 	RiskLevel          string  `json:"riskLevel"`          // 风险等级 (low/medium/high/critical)
 
 	// 趋势分析
-	TemperatureTrend   TrendData `json:"temperatureTrend"`
-	ReallocatedTrend   TrendData `json:"reallocatedTrend"`
-	PendingTrend       TrendData `json:"pendingTrend"`
-	PerformanceTrend   TrendData `json:"performanceTrend"`
+	TemperatureTrend TrendData `json:"temperatureTrend"`
+	ReallocatedTrend TrendData `json:"reallocatedTrend"`
+	PendingTrend     TrendData `json:"pendingTrend"`
+	PerformanceTrend TrendData `json:"performanceTrend"`
 
 	// 建议
 	Recommendations []string `json:"recommendations,omitempty"`
@@ -143,62 +143,62 @@ type TrendData struct {
 
 // HealthAlert 健康告警.
 type HealthAlert struct {
-	ID        string     `json:"id"`
-	DiskID    string     `json:"diskId"`
-	Device    string     `json:"device"`
-	Level     AlertLevel `json:"level"`
-	Type      string     `json:"type"`      // 告警类型
-	Title     string     `json:"title"`
-	Message   string     `json:"message"`
+	ID        string      `json:"id"`
+	DiskID    string      `json:"diskId"`
+	Device    string      `json:"device"`
+	Level     AlertLevel  `json:"level"`
+	Type      string      `json:"type"` // 告警类型
+	Title     string      `json:"title"`
+	Message   string      `json:"message"`
 	Value     interface{} `json:"value,omitempty"`
 	Threshold interface{} `json:"threshold,omitempty"`
 
-	CreatedAt time.Time `json:"createdAt"`
-	AckedAt   time.Time `json:"ackedAt,omitempty"`
-	Resolved  bool      `json:"resolved"`
+	CreatedAt  time.Time `json:"createdAt"`
+	AckedAt    time.Time `json:"ackedAt,omitempty"`
+	Resolved   bool      `json:"resolved"`
 	ResolvedAt time.Time `json:"resolvedAt,omitempty"`
 }
 
 // DiskInfo 磁盘基本信息.
 type DiskInfo struct {
-	Device   string   `json:"device"`
-	Model    string   `json:"model"`
-	Serial   string   `json:"serial"`
-	Type     DiskType `json:"type"`
-	Capacity int64    `json:"capacity"`
-	WWN      string   `json:"wwn,omitempty"`
-	Firmware string   `json:"firmware,omitempty"`
-	Transport string  `json:"transport,omitempty"` // SATA/SAS/NVMe
+	Device    string   `json:"device"`
+	Model     string   `json:"model"`
+	Serial    string   `json:"serial"`
+	Type      DiskType `json:"type"`
+	Capacity  int64    `json:"capacity"`
+	WWN       string   `json:"wwn,omitempty"`
+	Firmware  string   `json:"firmware,omitempty"`
+	Transport string   `json:"transport,omitempty"` // SATA/SAS/NVMe
 }
 
 // HealthReport 健康报告.
 type HealthReport struct {
-	GeneratedAt time.Time    `json:"generatedAt"`
+	GeneratedAt time.Time     `json:"generatedAt"`
 	Summary     ReportSummary `json:"summary"`
-	Disks       []DiskHealth `json:"disks"`
+	Disks       []DiskHealth  `json:"disks"`
 	Alerts      []HealthAlert `json:"alerts"`
-	Trends      []DiskTrend  `json:"trends"`
+	Trends      []DiskTrend   `json:"trends"`
 }
 
 // ReportSummary 报告摘要.
 type ReportSummary struct {
-	TotalDisks    int `json:"totalDisks"`
-	HealthyDisks  int `json:"healthyDisks"`
-	WarningDisks  int `json:"warningDisks"`
-	CriticalDisks int `json:"criticalDisks"`
-	FailedDisks   int `json:"failedDisks"`
-	TotalAlerts   int `json:"totalAlerts"`
+	TotalDisks     int     `json:"totalDisks"`
+	HealthyDisks   int     `json:"healthyDisks"`
+	WarningDisks   int     `json:"warningDisks"`
+	CriticalDisks  int     `json:"criticalDisks"`
+	FailedDisks    int     `json:"failedDisks"`
+	TotalAlerts    int     `json:"totalAlerts"`
 	AvgHealthScore float64 `json:"avgHealthScore"`
 }
 
 // DiskTrend 磁盘趋势.
 type DiskTrend struct {
-	DiskID    string    `json:"diskId"`
-	Device    string    `json:"device"`
-	Timestamp time.Time `json:"timestamp"`
-	Score     int       `json:"score"`
-	Temperature int     `json:"temperature"`
-	ReallocatedSectors int64 `json:"reallocatedSectors"`
+	DiskID             string    `json:"diskId"`
+	Device             string    `json:"device"`
+	Timestamp          time.Time `json:"timestamp"`
+	Score              int       `json:"score"`
+	Temperature        int       `json:"temperature"`
+	ReallocatedSectors int64     `json:"reallocatedSectors"`
 }
 
 // ScanRequest 扫描请求.

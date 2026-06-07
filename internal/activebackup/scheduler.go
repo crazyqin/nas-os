@@ -127,10 +127,10 @@ func (s *Scheduler) UpdateNextRun(taskID string) {
 
 // ScheduleStats 调度器统计.
 type ScheduleStats struct {
-	Running        bool `json:"running"`          // 调度器是否运行中
-	ScheduledTasks int  `json:"scheduled_tasks"`  // 定时任务数量
-	ManualTasks    int  `json:"manual_tasks"`     // 手动任务数量
-	EventTasks     int  `json:"event_tasks"`      // 事件任务数量
+	Running        bool       `json:"running"`               // 调度器是否运行中
+	ScheduledTasks int        `json:"scheduled_tasks"`       // 定时任务数量
+	ManualTasks    int        `json:"manual_tasks"`          // 手动任务数量
+	EventTasks     int        `json:"event_tasks"`           // 事件任务数量
 	NextRunAt      *time.Time `json:"next_run_at,omitempty"` // 最近一次执行时间
 }
 

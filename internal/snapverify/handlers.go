@@ -201,7 +201,7 @@ func (h *Handler) HandleUpdatePolicy(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "策略更新成功",
+		"message":   "策略更新成功",
 		"policy_id": id,
 	})
 }
@@ -230,8 +230,8 @@ func (h *Handler) HandleDeletePolicy(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":    "策略删除成功",
-		"policy_id":  id,
+		"message":   "策略删除成功",
+		"policy_id": id,
 	})
 }
 

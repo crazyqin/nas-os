@@ -20,16 +20,16 @@ import (
 
 // Center 通知中心
 type Center struct {
-	mu              sync.RWMutex
-	logger          *zap.Logger
-	notifications   map[string]*Notification
-	templates       map[string]*NotificationTemplate
-	rules           map[string]*NotificationRule
-	silentPeriods   map[string]*SilentPeriod
-	preferences     map[string]*UserPreference
-	aggregations    map[string]*AggregationEntry
-	aggWindow       time.Duration // 聚合窗口，默认 5 分钟
-	handlers        map[Channel][]NotificationHandler
+	mu            sync.RWMutex
+	logger        *zap.Logger
+	notifications map[string]*Notification
+	templates     map[string]*NotificationTemplate
+	rules         map[string]*NotificationRule
+	silentPeriods map[string]*SilentPeriod
+	preferences   map[string]*UserPreference
+	aggregations  map[string]*AggregationEntry
+	aggWindow     time.Duration // 聚合窗口，默认 5 分钟
+	handlers      map[Channel][]NotificationHandler
 }
 
 // NotificationHandler 通知投递处理函数
@@ -82,17 +82,17 @@ func (c *Center) RegisterHandler(ch Channel, h NotificationHandler) {
 
 // SendRequest 发送通知请求
 type SendRequest struct {
-	Title    string                 `json:"title"`
-	Content  string                 `json:"content"`
-	Priority Priority               `json:"priority"`
-	Category string                 `json:"category"`
-	Channels []Channel              `json:"channels"`
-	Source   string                 `json:"source,omitempty"`
-	Labels   map[string]string      `json:"labels,omitempty"`
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
-	AggKey   string                 `json:"agg_key,omitempty"`
-	TemplateID string              `json:"template_id,omitempty"`
-	TmplVars map[string]interface{} `json:"template_vars,omitempty"`
+	Title      string                 `json:"title"`
+	Content    string                 `json:"content"`
+	Priority   Priority               `json:"priority"`
+	Category   string                 `json:"category"`
+	Channels   []Channel              `json:"channels"`
+	Source     string                 `json:"source,omitempty"`
+	Labels     map[string]string      `json:"labels,omitempty"`
+	Metadata   map[string]interface{} `json:"metadata,omitempty"`
+	AggKey     string                 `json:"agg_key,omitempty"`
+	TemplateID string                 `json:"template_id,omitempty"`
+	TmplVars   map[string]interface{} `json:"template_vars,omitempty"`
 }
 
 // Send 发送通知

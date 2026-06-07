@@ -15,30 +15,30 @@ import (
 type DeviceType string
 
 const (
-	DeviceNAS      DeviceType = "nas"
-	DeviceRouter   DeviceType = "router"
-	DeviceSwitch   DeviceType = "switch"
-	DeviceAP       DeviceType = "access_point"
-	DeviceServer   DeviceType = "server"
-	DevicePC       DeviceType = "pc"
-	DevicePhone    DeviceType = "phone"
-	DeviceTablet   DeviceType = "tablet"
-	DeviceTV       DeviceType = "tv"
-	DevicePrinter  DeviceType = "printer"
-	DeviceCamera   DeviceType = "camera"
-	DeviceIoT      DeviceType = "iot"
-	DeviceUnknown  DeviceType = "unknown"
+	DeviceNAS     DeviceType = "nas"
+	DeviceRouter  DeviceType = "router"
+	DeviceSwitch  DeviceType = "switch"
+	DeviceAP      DeviceType = "access_point"
+	DeviceServer  DeviceType = "server"
+	DevicePC      DeviceType = "pc"
+	DevicePhone   DeviceType = "phone"
+	DeviceTablet  DeviceType = "tablet"
+	DeviceTV      DeviceType = "tv"
+	DevicePrinter DeviceType = "printer"
+	DeviceCamera  DeviceType = "camera"
+	DeviceIoT     DeviceType = "iot"
+	DeviceUnknown DeviceType = "unknown"
 )
 
 // ConnectionType represents connection type
 type ConnectionType string
 
 const (
-	ConnEthernet ConnectionType = "ethernet"
-	ConnWiFi     ConnectionType = "wifi"
-	ConnUSB      ConnectionType = "usb"
+	ConnEthernet  ConnectionType = "ethernet"
+	ConnWiFi      ConnectionType = "wifi"
+	ConnUSB       ConnectionType = "usb"
 	ConnBluetooth ConnectionType = "bluetooth"
-	ConnVPN      ConnectionType = "vpn"
+	ConnVPN       ConnectionType = "vpn"
 )
 
 // DeviceStatus represents device status
@@ -89,42 +89,42 @@ type BandwidthInfo struct {
 
 // NetworkLink represents a connection between devices
 type NetworkLink struct {
-	ID         string         `json:"id"`
-	SourceID   string         `json:"source_id"`
-	TargetID   string         `json:"target_id"`
-	Type       ConnectionType `json:"type"`
-	Speed      string         `json:"speed"` // 1Gbps, 100Mbps, etc.
-	Latency    int64          `json:"latency_ms"`
-	Bandwidth  *BandwidthInfo `json:"bandwidth"`
-	IsActive   bool           `json:"is_active"`
+	ID        string         `json:"id"`
+	SourceID  string         `json:"source_id"`
+	TargetID  string         `json:"target_id"`
+	Type      ConnectionType `json:"type"`
+	Speed     string         `json:"speed"` // 1Gbps, 100Mbps, etc.
+	Latency   int64          `json:"latency_ms"`
+	Bandwidth *BandwidthInfo `json:"bandwidth"`
+	IsActive  bool           `json:"is_active"`
 }
 
 // NetworkTopology represents the full network topology
 type NetworkTopology struct {
-	Devices    []*NetworkDevice `json:"devices"`
-	Links      []*NetworkLink   `json:"links"`
-	Subnets    []*SubnetInfo    `json:"subnets"`
-	UpdatedAt  time.Time        `json:"updated_at"`
+	Devices   []*NetworkDevice `json:"devices"`
+	Links     []*NetworkLink   `json:"links"`
+	Subnets   []*SubnetInfo    `json:"subnets"`
+	UpdatedAt time.Time        `json:"updated_at"`
 }
 
 // SubnetInfo represents network subnet information
 type SubnetInfo struct {
-	CIDR      string `json:"cidr"`
-	Gateway   string `json:"gateway"`
-	DHCPRange string `json:"dhcp_range"`
-	VLAN      int    `json:"vlan"`
-	DeviceCount int  `json:"device_count"`
+	CIDR        string `json:"cidr"`
+	Gateway     string `json:"gateway"`
+	DHCPRange   string `json:"dhcp_range"`
+	VLAN        int    `json:"vlan"`
+	DeviceCount int    `json:"device_count"`
 }
 
 // ScanResult represents a network scan result
 type ScanResult struct {
-	ScanID      string           `json:"scan_id"`
-	StartTime   time.Time        `json:"start_time"`
-	EndTime     time.Time        `json:"end_time"`
-	Subnet      string           `json:"subnet"`
-	DevicesFound int             `json:"devices_found"`
-	NewDevices  int              `json:"new_devices"`
-	Devices     []*NetworkDevice `json:"devices"`
+	ScanID       string           `json:"scan_id"`
+	StartTime    time.Time        `json:"start_time"`
+	EndTime      time.Time        `json:"end_time"`
+	Subnet       string           `json:"subnet"`
+	DevicesFound int              `json:"devices_found"`
+	NewDevices   int              `json:"new_devices"`
+	Devices      []*NetworkDevice `json:"devices"`
 }
 
 // NetworkStats represents network statistics
@@ -143,10 +143,10 @@ type NetworkStats struct {
 type AlertType string
 
 const (
-	AlertNewDevice    AlertType = "new_device"
-	AlertDeviceLeft   AlertType = "device_left"
-	AlertHighBandwidth AlertType = "high_bandwidth"
-	AlertPortScan     AlertType = "port_scan"
+	AlertNewDevice      AlertType = "new_device"
+	AlertDeviceLeft     AlertType = "device_left"
+	AlertHighBandwidth  AlertType = "high_bandwidth"
+	AlertPortScan       AlertType = "port_scan"
 	AlertUnusualTraffic AlertType = "unusual_traffic"
 )
 
@@ -176,15 +176,15 @@ type Config struct {
 
 // Manager manages network topology
 type Manager struct {
-	config    *Config
-	devices   map[string]*NetworkDevice
-	links     map[string]*NetworkLink
-	topology  *NetworkTopology
-	stats     *NetworkStats
-	alerts    []*NetworkAlert
-	mu        sync.RWMutex
-	ctx       context.Context
-	cancel    context.CancelFunc
+	config   *Config
+	devices  map[string]*NetworkDevice
+	links    map[string]*NetworkLink
+	topology *NetworkTopology
+	stats    *NetworkStats
+	alerts   []*NetworkAlert
+	mu       sync.RWMutex
+	ctx      context.Context
+	cancel   context.CancelFunc
 }
 
 // NewManager creates a new network map manager

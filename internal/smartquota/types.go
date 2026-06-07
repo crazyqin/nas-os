@@ -14,9 +14,9 @@ import (
 type QuotaType string
 
 const (
-	QuotaTypeUser   QuotaType = "user"   // 用户配额
-	QuotaTypeTeam   QuotaType = "team"   // 团队配额
-	QuotaTypeShare  QuotaType = "share"  // 共享文件夹配额
+	QuotaTypeUser  QuotaType = "user"  // 用户配额
+	QuotaTypeTeam  QuotaType = "team"  // 团队配额
+	QuotaTypeShare QuotaType = "share" // 共享文件夹配额
 )
 
 // QuotaStatus 配额状态
@@ -43,12 +43,12 @@ type Quota struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
 	Type        QuotaType   `json:"type"`
-	TargetID    string      `json:"target_id"`    // 用户ID/团队ID/共享文件夹ID
+	TargetID    string      `json:"target_id"` // 用户ID/团队ID/共享文件夹ID
 	TargetName  string      `json:"target_name"`
-	MaxBytes    int64       `json:"max_bytes"`    // 最大容量（字节）
-	UsedBytes   int64       `json:"used_bytes"`   // 已使用（字节）
-	MaxFiles    int64       `json:"max_files"`    // 最大文件数
-	UsedFiles   int64       `json:"used_files"`   // 已使用文件数
+	MaxBytes    int64       `json:"max_bytes"`  // 最大容量（字节）
+	UsedBytes   int64       `json:"used_bytes"` // 已使用（字节）
+	MaxFiles    int64       `json:"max_files"`  // 最大文件数
+	UsedFiles   int64       `json:"used_files"` // 已使用文件数
 	Status      QuotaStatus `json:"status"`
 	WarnPercent int         `json:"warn_percent"` // 告警阈值百分比
 	CritPercent int         `json:"crit_percent"` // 严重阈值百分比
@@ -74,14 +74,14 @@ type QuotaAlert struct {
 
 // QuotaStats 配额统计
 type QuotaStats struct {
-	TotalQuotas    int            `json:"total_quotas"`
-	ActiveQuotas   int            `json:"active_quotas"`
-	TotalCapacity  int64          `json:"total_capacity"`
-	TotalUsed      int64          `json:"total_used"`
-	UsagePercent   float64        `json:"usage_percent"`
-	AlertsCount    int            `json:"alerts_count"`
-	ByType         map[string]int `json:"by_type"`
-	ByStatus       map[string]int `json:"by_status"`
+	TotalQuotas   int            `json:"total_quotas"`
+	ActiveQuotas  int            `json:"active_quotas"`
+	TotalCapacity int64          `json:"total_capacity"`
+	TotalUsed     int64          `json:"total_used"`
+	UsagePercent  float64        `json:"usage_percent"`
+	AlertsCount   int            `json:"alerts_count"`
+	ByType        map[string]int `json:"by_type"`
+	ByStatus      map[string]int `json:"by_status"`
 }
 
 // Manager 智能配额管理器

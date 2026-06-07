@@ -16,7 +16,7 @@ func TestNewManager(t *testing.T) {
 func TestManagerStartStop(t *testing.T) {
 	cfg := &Config{Enabled: true, PollInterval: 60 * time.Second}
 	m := NewManager(cfg)
-	
+
 	err := m.Start()
 	if err != nil {
 		t.Fatalf("Start failed: %v", err)
@@ -24,7 +24,7 @@ func TestManagerStartStop(t *testing.T) {
 	if !m.IsRunning() {
 		t.Fatal("Manager should be running")
 	}
-	
+
 	err = m.Stop()
 	if err != nil {
 		t.Fatalf("Stop failed: %v", err)

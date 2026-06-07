@@ -15,19 +15,19 @@ type ConfigManager struct {
 
 // GlobalConfig represents global NAT tunnel configuration
 type GlobalConfig struct {
-	DefaultType   TunnelType           `json:"default_type"`
-	ServerAddr    string               `json:"server_addr"`
-	ServerPort    int                  `json:"server_port"`
-	Token         string               `json:"token"`
-	EnableHTTPS   bool                 `json:"enable_https"`
-	FreeQuota     int                  `json:"free_quota"`    // Free bandwidth quota (MB/month)
-	Tunnels       map[string]TunnelConfig `json:"tunnels"`
+	DefaultType TunnelType              `json:"default_type"`
+	ServerAddr  string                  `json:"server_addr"`
+	ServerPort  int                     `json:"server_port"`
+	Token       string                  `json:"token"`
+	EnableHTTPS bool                    `json:"enable_https"`
+	FreeQuota   int                     `json:"free_quota"` // Free bandwidth quota (MB/month)
+	Tunnels     map[string]TunnelConfig `json:"tunnels"`
 }
 
 // NewConfigManager creates a new config manager
 func NewConfigManager(configDir string) (*ConfigManager, error) {
 	configPath := filepath.Join(configDir, "nat_tunnel.json")
-	
+
 	cm := &ConfigManager{
 		configPath: configPath,
 		config: &GlobalConfig{
@@ -36,14 +36,14 @@ func NewConfigManager(configDir string) (*ConfigManager, error) {
 			Tunnels:     make(map[string]TunnelConfig),
 		},
 	}
-	
+
 	// Load existing config if exists
 	if _, err := os.Stat(configPath); err == nil {
 		if err := cm.Load(); err != nil {
 			return nil, err
 		}
 	}
-	
+
 	return cm, nil
 }
 
@@ -53,7 +53,7 @@ func (cm *ConfigManager) Load() error {
 	if err != nil {
 		return err
 	}
-	
+
 	return json.Unmarshal(data, cm.config)
 }
 
@@ -63,7 +63,7 @@ func (cm *ConfigManager) Save() error {
 	if err != nil {
 		return err
 	}
-	
+
 	return os.WriteFile(cm.configPath, data, 0600)
 }
 

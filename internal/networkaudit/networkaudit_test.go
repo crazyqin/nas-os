@@ -73,11 +73,11 @@ func TestAuditAlert(t *testing.T) {
 	})
 
 	logger.AddAlertRule(&AlertRule{
-		ID:        "test-rule",
-		Name:      "Test Rule",
-		Action:    ActionLogin,
-		Severity:  SeverityHigh,
-		Enabled:   true,
+		ID:       "test-rule",
+		Name:     "Test Rule",
+		Action:   ActionLogin,
+		Severity: SeverityHigh,
+		Enabled:  true,
 	})
 
 	logger.Log(&AuditEntry{

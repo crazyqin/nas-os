@@ -48,45 +48,45 @@ type GPSInfo struct {
 
 // Face 人脸信息
 type Face struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name,omitempty"`
-	PhotoIDs  []string  `json:"photoIds"`
-	Embedding []float64 `json:"embedding,omitempty"` // 人脸特征向量
-	CoverID   string    `json:"coverId"`             // 封面照片ID
-	PhotoCount int      `json:"photoCount"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID         string    `json:"id"`
+	Name       string    `json:"name,omitempty"`
+	PhotoIDs   []string  `json:"photoIds"`
+	Embedding  []float64 `json:"embedding,omitempty"` // 人脸特征向量
+	CoverID    string    `json:"coverId"`             // 封面照片ID
+	PhotoCount int       `json:"photoCount"`
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
 }
 
 // SceneCategory 场景分类
 type SceneCategory string
 
 const (
-	ScenePortrait   SceneCategory = "portrait"   // 人像
-	SceneLandscape  SceneCategory = "landscape"   // 风景
-	SceneFood       SceneCategory = "food"        // 美食
-	SceneAnimal     SceneCategory = "animal"      // 动物
-	SceneDocument   SceneCategory = "document"    // 文档
+	ScenePortrait     SceneCategory = "portrait"     // 人像
+	SceneLandscape    SceneCategory = "landscape"    // 风景
+	SceneFood         SceneCategory = "food"         // 美食
+	SceneAnimal       SceneCategory = "animal"       // 动物
+	SceneDocument     SceneCategory = "document"     // 文档
 	SceneArchitecture SceneCategory = "architecture" // 建筑
-	SceneNight      SceneCategory = "night"       // 夜景
-	SceneMacro      SceneCategory = "macro"       // 微距
-	SceneSport      SceneCategory = "sport"       // 运动
-	SceneOther      SceneCategory = "other"       // 其他
+	SceneNight        SceneCategory = "night"        // 夜景
+	SceneMacro        SceneCategory = "macro"        // 微距
+	SceneSport        SceneCategory = "sport"        // 运动
+	SceneOther        SceneCategory = "other"        // 其他
 )
 
 // Album 相册
 type Album struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Description string        `json:"description,omitempty"`
-	Type        AlbumType     `json:"type"`
-	CoverID     string        `json:"coverId,omitempty"`
-	PhotoIDs    []string      `json:"photoIds"`
-	PhotoCount  int           `json:"photoCount"`
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description,omitempty"`
+	Type        AlbumType      `json:"type"`
+	CoverID     string         `json:"coverId,omitempty"`
+	PhotoIDs    []string       `json:"photoIds"`
+	PhotoCount  int            `json:"photoCount"`
 	Criteria    *AlbumCriteria `json:"criteria,omitempty"` // 智能相册条件
-	CreatedAt   time.Time     `json:"createdAt"`
-	UpdatedAt   time.Time     `json:"updatedAt"`
-	IsShared    bool          `json:"isShared"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
+	IsShared    bool           `json:"isShared"`
 }
 
 // AlbumType 相册类型
@@ -103,14 +103,14 @@ const (
 
 // AlbumCriteria 智能相册条件
 type AlbumCriteria struct {
-	Tags       []string      `json:"tags,omitempty"`
-	Scenes     []SceneCategory `json:"scenes,omitempty"`
-	FaceIDs    []string      `json:"faceIds,omitempty"`
-	DateFrom   *time.Time    `json:"dateFrom,omitempty"`
-	DateTo     *time.Time    `json:"dateTo,omitempty"`
-	Camera     string        `json:"camera,omitempty"`
-	MinScore   float64       `json:"minScore,omitempty"`
-	Favorites  bool          `json:"favorites,omitempty"`
+	Tags      []string        `json:"tags,omitempty"`
+	Scenes    []SceneCategory `json:"scenes,omitempty"`
+	FaceIDs   []string        `json:"faceIds,omitempty"`
+	DateFrom  *time.Time      `json:"dateFrom,omitempty"`
+	DateTo    *time.Time      `json:"dateTo,omitempty"`
+	Camera    string          `json:"camera,omitempty"`
+	MinScore  float64         `json:"minScore,omitempty"`
+	Favorites bool            `json:"favorites,omitempty"`
 }
 
 // TimelineEntry 时间线条目
@@ -737,12 +737,12 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"totalPhotos":  len(m.photos),
-		"totalFaces":   len(m.faces),
-		"totalAlbums":  len(m.albums),
-		"totalSize":    totalSize,
-		"favorites":    favorites,
-		"sceneCount":   sceneCount,
+		"totalPhotos": len(m.photos),
+		"totalFaces":  len(m.faces),
+		"totalAlbums": len(m.albums),
+		"totalSize":   totalSize,
+		"favorites":   favorites,
+		"sceneCount":  sceneCount,
 	}
 }
 

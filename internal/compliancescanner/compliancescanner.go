@@ -14,18 +14,18 @@ import (
 
 // Engine 合规扫描引擎.
 type Engine struct {
-	mu             sync.RWMutex
-	logger         *zap.Logger
-	config         *ScanConfig
-	ruleManager    *RuleManager
-	scanner        *Scanner
-	remediation    *RemediationEngine
-	cron           *cron.Cron
-	schedules      map[string]*ScanSchedule
-	reports        map[string]*ComplianceReport
-	stats          *ScanStats
-	isRunning      bool
-	cancelFunc     context.CancelFunc
+	mu          sync.RWMutex
+	logger      *zap.Logger
+	config      *ScanConfig
+	ruleManager *RuleManager
+	scanner     *Scanner
+	remediation *RemediationEngine
+	cron        *cron.Cron
+	schedules   map[string]*ScanSchedule
+	reports     map[string]*ComplianceReport
+	stats       *ScanStats
+	isRunning   bool
+	cancelFunc  context.CancelFunc
 }
 
 // NewEngine 创建引擎.

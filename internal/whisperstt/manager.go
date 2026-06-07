@@ -37,14 +37,14 @@ func NewManager(logger *zap.Logger) *Manager {
 	}
 
 	m := &Manager{
-		logger:         logger,
-		models:         make(map[string]*WhisperModel),
-		jobs:           make(map[string]*TranscriptionJob),
-		results:        make(map[string]*TranscriptionResult),
-		preprocess:     DefaultPreprocessConfig(),
-		startTime:      time.Now(),
-		languageStats:  make(map[string]int),
-		dailyStats:     make(map[string]*DailyStat),
+		logger:        logger,
+		models:        make(map[string]*WhisperModel),
+		jobs:          make(map[string]*TranscriptionJob),
+		results:       make(map[string]*TranscriptionResult),
+		preprocess:    DefaultPreprocessConfig(),
+		startTime:     time.Now(),
+		languageStats: make(map[string]int),
+		dailyStats:    make(map[string]*DailyStat),
 	}
 
 	// 初始化默认模型
@@ -56,10 +56,10 @@ func NewManager(logger *zap.Logger) *Manager {
 // initDefaultModels 初始化默认模型
 func (m *Manager) initDefaultModels() {
 	models := []struct {
-		id       string
-		name     string
-		size     int64
-		gpu      bool
+		id        string
+		name      string
+		size      int64
+		gpu       bool
 		languages []string
 	}{
 		{"tiny", "tiny", 39 * 1024 * 1024, true, []string{"en", "zh", "ja", "ko", "fr", "de", "es", "ru"}},

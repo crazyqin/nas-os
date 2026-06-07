@@ -13,11 +13,11 @@ import (
 type Protocol string
 
 const (
-	ProtocolSMB  Protocol = "SMB"
-	ProtocolNFS  Protocol = "NFS"
-	ProtocolFTP  Protocol = "FTP"
-	ProtocolWeb  Protocol = "WEB"
-	ProtocolAPI  Protocol = "API"
+	ProtocolSMB Protocol = "SMB"
+	ProtocolNFS Protocol = "NFS"
+	ProtocolFTP Protocol = "FTP"
+	ProtocolWeb Protocol = "WEB"
+	ProtocolAPI Protocol = "API"
 )
 
 // AuditAction 审计动作
@@ -79,14 +79,14 @@ type AuditFilter struct {
 
 // AuditStats 审计统计
 type AuditStats struct {
-	TotalEntries   int                    `json:"total_entries"`
-	ByProtocol     map[Protocol]int       `json:"by_protocol"`
-	ByAction       map[AuditAction]int    `json:"by_action"`
-	BySeverity     map[Severity]int       `json:"by_severity"`
-	TopUsers       []UserCount            `json:"top_users"`
-	TopIPs         []IPCount              `json:"top_ips"`
-	FailedLogins   int                    `json:"failed_logins"`
-	AlertCount     int                    `json:"alert_count"`
+	TotalEntries int                 `json:"total_entries"`
+	ByProtocol   map[Protocol]int    `json:"by_protocol"`
+	ByAction     map[AuditAction]int `json:"by_action"`
+	BySeverity   map[Severity]int    `json:"by_severity"`
+	TopUsers     []UserCount         `json:"top_users"`
+	TopIPs       []IPCount           `json:"top_ips"`
+	FailedLogins int                 `json:"failed_logins"`
+	AlertCount   int                 `json:"alert_count"`
 }
 
 type UserCount struct {
@@ -101,22 +101,22 @@ type IPCount struct {
 
 // AlertRule 告警规则
 type AlertRule struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	Action      AuditAction `json:"action"`
-	Threshold   int         `json:"threshold"`
-	TimeWindow  int         `json:"time_window_minutes"`
-	Severity    Severity    `json:"severity"`
-	Enabled     bool        `json:"enabled"`
+	ID         string      `json:"id"`
+	Name       string      `json:"name"`
+	Action     AuditAction `json:"action"`
+	Threshold  int         `json:"threshold"`
+	TimeWindow int         `json:"time_window_minutes"`
+	Severity   Severity    `json:"severity"`
+	Enabled    bool        `json:"enabled"`
 }
 
 // AuditLogger 审计日志系统
 type AuditLogger struct {
-	logPath   string
-	entries   []*AuditEntry
-	alerts    []*AlertRule
-	mu        sync.RWMutex
-	maxEntries int
+	logPath        string
+	entries        []*AuditEntry
+	alerts         []*AlertRule
+	mu             sync.RWMutex
+	maxEntries     int
 	alertCallbacks []func(*AuditEntry)
 }
 

@@ -152,11 +152,11 @@ func TestAddTransaction(t *testing.T) {
 		engine, _, _, _, _ := setupTestEnvironment(t)
 
 		tx := &Transaction{
-			AccountID:    "acc-test",
-			Type:         TransactionTypeIncome,
-			Amount:       5000,
-			CategoryID:   "cat-salary",
-			Description:  "工资",
+			AccountID:   "acc-test",
+			Type:        TransactionTypeIncome,
+			Amount:      5000,
+			CategoryID:  "cat-salary",
+			Description: "工资",
 		}
 
 		err := engine.AddTransaction(tx)
@@ -227,9 +227,9 @@ func TestQueryTransactions(t *testing.T) {
 	// 添加多条交易
 	for i := 0; i < 5; i++ {
 		_ = engine.AddTransaction(&Transaction{
-			AccountID: "acc-test",
-			Type:      TransactionTypeExpense,
-			Amount:    float64((i + 1) * 100),
+			AccountID:  "acc-test",
+			Type:       TransactionTypeExpense,
+			Amount:     float64((i + 1) * 100),
 			CategoryID: "cat-food",
 		})
 	}
@@ -389,11 +389,11 @@ func TestCreateBill(t *testing.T) {
 	_, _, _, billMgr, _ := setupTestEnvironment(t)
 
 	bill := &Bill{
-		Name:     "房租",
-		Amount:   3000,
+		Name:       "房租",
+		Amount:     3000,
 		CategoryID: "cat-housing",
-		Cycle:    BillCycleMonthly,
-		DueDay:   1,
+		Cycle:      BillCycleMonthly,
+		DueDay:     1,
 	}
 
 	err := billMgr.CreateBill(bill)
@@ -406,10 +406,10 @@ func TestPayBill(t *testing.T) {
 	engine, _, _, billMgr, _ := setupTestEnvironment(t)
 
 	bill := &Bill{
-		Name:     "水电费",
-		Amount:   200,
-		Cycle:    BillCycleMonthly,
-		DueDay:   15,
+		Name:   "水电费",
+		Amount: 200,
+		Cycle:  BillCycleMonthly,
+		DueDay: 15,
 	}
 	_ = billMgr.CreateBill(bill)
 

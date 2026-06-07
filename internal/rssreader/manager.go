@@ -17,15 +17,15 @@ import (
 
 // Manager RSS阅读器管理器.
 type Manager struct {
-	feeds     map[string]*Feed
-	articles  map[string]*Article
-	categories map[string]*Category
-	feedsByURL map[string]string   // feed_url -> feed_id
+	feeds          map[string]*Feed
+	articles       map[string]*Article
+	categories     map[string]*Category
+	feedsByURL     map[string]string // feed_url -> feed_id
 	articlesByGUID map[string]string // feed_id:guid -> article_id
 	articlesByLink map[string]string // link -> article_id
-	health    map[string]*FeedHealth
-	mu        sync.RWMutex
-	stopChan  chan struct{}
+	health         map[string]*FeedHealth
+	mu             sync.RWMutex
+	stopChan       chan struct{}
 }
 
 // NewManager 创建RSS阅读器管理器.
@@ -567,8 +567,8 @@ func (m *Manager) importOPMLOutline(outline OPMLOutline, parentCategoryID string
 	// 如果有XMLURL，说明是订阅源
 	if outline.XMLURL != "" {
 		req := CreateFeedRequest{
-			Title:   outline.Text,
-			FeedURL: outline.XMLURL,
+			Title:      outline.Text,
+			FeedURL:    outline.XMLURL,
 			CategoryID: parentCategoryID,
 		}
 		if req.Title == "" {

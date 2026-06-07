@@ -15,16 +15,16 @@ type FileTransfer struct {
 
 // TransferJob 文件传输任务.
 type TransferJob struct {
-	ID          string    `json:"id"`
-	SessionID   string    `json:"session_id"`
-	Filename    string    `json:"filename"`
-	Size        int64     `json:"size"`
-	Transferred int64     `json:"transferred"`
-	Direction   string    `json:"direction"` // upload, download
-	Status      string    `json:"status"`    // pending, transferring, completed, failed
-	Checksum    string    `json:"checksum,omitempty"`
-	Error       string    `json:"error,omitempty"`
-	StartedAt   time.Time `json:"started_at"`
+	ID          string     `json:"id"`
+	SessionID   string     `json:"session_id"`
+	Filename    string     `json:"filename"`
+	Size        int64      `json:"size"`
+	Transferred int64      `json:"transferred"`
+	Direction   string     `json:"direction"` // upload, download
+	Status      string     `json:"status"`    // pending, transferring, completed, failed
+	Checksum    string     `json:"checksum,omitempty"`
+	Error       string     `json:"error,omitempty"`
+	StartedAt   time.Time  `json:"started_at"`
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
 }
 

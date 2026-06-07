@@ -26,8 +26,8 @@ func setupTestEnv(t *testing.T) (*Handlers, string, func()) {
 
 	// 创建测试文件
 	testFiles := map[string]string{
-		"file1.txt":      "Hello World\nLine 2\nLine 3",
-		"file2.txt":      "Test content",
+		"file1.txt":       "Hello World\nLine 2\nLine 3",
+		"file2.txt":       "Test content",
 		"subdir/file3.go": "package main\n\nfunc main() {}",
 	}
 	for name, content := range testFiles {

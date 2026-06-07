@@ -10,44 +10,44 @@ import (
 
 // ActiveInsight 活动洞察
 type ActiveInsight struct {
-	mu           sync.RWMutex
-	devices      map[string]*Device
-	metrics      map[string][]*Metric
-	alerts       []*Alert
-	config       *Config
-	collectors   map[string]Collector
-	running      bool
-	ctx          context.Context
-	cancel       context.CancelFunc
+	mu         sync.RWMutex
+	devices    map[string]*Device
+	metrics    map[string][]*Metric
+	alerts     []*Alert
+	config     *Config
+	collectors map[string]Collector
+	running    bool
+	ctx        context.Context
+	cancel     context.CancelFunc
 }
 
 // Config 活动洞察配置
 type Config struct {
-	CollectInterval time.Duration `json:"collect_interval"`
-	RetentionDays   int           `json:"retention_days"`
-	MaxMetrics      int           `json:"max_metrics"`
+	CollectInterval time.Duration      `json:"collect_interval"`
+	RetentionDays   int                `json:"retention_days"`
+	MaxMetrics      int                `json:"max_metrics"`
 	AlertThresholds map[string]float64 `json:"alert_thresholds"`
-	EnableAlerts    bool          `json:"enable_alerts"`
-	WebhookURL      string        `json:"webhook_url"`
-	EmailAlerts     []string      `json:"email_alerts"`
+	EnableAlerts    bool               `json:"enable_alerts"`
+	WebhookURL      string             `json:"webhook_url"`
+	EmailAlerts     []string           `json:"email_alerts"`
 }
 
 // Device 设备信息
 type Device struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Type        string            `json:"type"`
-	IP          string            `json:"ip"`
-	Hostname    string            `json:"hostname"`
-	OS          string            `json:"os"`
-	Version     string            `json:"version"`
-	Status      DeviceStatus      `json:"status"`
-	LastSeen    time.Time         `json:"last_seen"`
-	Uptime      time.Duration     `json:"uptime"`
-	Hardware    *HardwareInfo     `json:"hardware"`
-	Network     *NetworkInfo      `json:"network"`
-	Storage     *StorageInfo      `json:"storage"`
-	Tags        map[string]string `json:"tags"`
+	ID       string            `json:"id"`
+	Name     string            `json:"name"`
+	Type     string            `json:"type"`
+	IP       string            `json:"ip"`
+	Hostname string            `json:"hostname"`
+	OS       string            `json:"os"`
+	Version  string            `json:"version"`
+	Status   DeviceStatus      `json:"status"`
+	LastSeen time.Time         `json:"last_seen"`
+	Uptime   time.Duration     `json:"uptime"`
+	Hardware *HardwareInfo     `json:"hardware"`
+	Network  *NetworkInfo      `json:"network"`
+	Storage  *StorageInfo      `json:"storage"`
+	Tags     map[string]string `json:"tags"`
 }
 
 // DeviceStatus 设备状态
@@ -125,30 +125,30 @@ type Metric struct {
 
 // Alert 告警
 type Alert struct {
-	ID          string       `json:"id"`
-	DeviceID    string       `json:"device_id"`
-	DeviceName  string       `json:"device_name"`
-	Type        AlertType    `json:"type"`
-	Severity    AlertSeverity `json:"severity"`
-	Title       string       `json:"title"`
-	Message     string       `json:"message"`
-	Value       float64      `json:"value"`
-	Threshold   float64      `json:"threshold"`
-	CreatedAt   time.Time    `json:"created_at"`
-	ResolvedAt  *time.Time   `json:"resolved_at,omitempty"`
-	Notified    bool         `json:"notified"`
+	ID         string        `json:"id"`
+	DeviceID   string        `json:"device_id"`
+	DeviceName string        `json:"device_name"`
+	Type       AlertType     `json:"type"`
+	Severity   AlertSeverity `json:"severity"`
+	Title      string        `json:"title"`
+	Message    string        `json:"message"`
+	Value      float64       `json:"value"`
+	Threshold  float64       `json:"threshold"`
+	CreatedAt  time.Time     `json:"created_at"`
+	ResolvedAt *time.Time    `json:"resolved_at,omitempty"`
+	Notified   bool          `json:"notified"`
 }
 
 // AlertType 告警类型
 type AlertType string
 
 const (
-	AlertTypeCPU      AlertType = "cpu"
-	AlertTypeMemory   AlertType = "memory"
-	AlertTypeDisk     AlertType = "disk"
-	AlertTypeNetwork  AlertType = "network"
-	AlertTypeTemp     AlertType = "temperature"
-	AlertTypeHealth   AlertType = "health"
+	AlertTypeCPU     AlertType = "cpu"
+	AlertTypeMemory  AlertType = "memory"
+	AlertTypeDisk    AlertType = "disk"
+	AlertTypeNetwork AlertType = "network"
+	AlertTypeTemp    AlertType = "temperature"
+	AlertTypeHealth  AlertType = "health"
 )
 
 // AlertSeverity 告警级别

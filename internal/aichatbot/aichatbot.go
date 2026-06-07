@@ -34,50 +34,50 @@ const (
 type Language string
 
 const (
-	LangChinese Language = "zh"
-	LangEnglish Language = "en"
+	LangChinese  Language = "zh"
+	LangEnglish  Language = "en"
 	LangJapanese Language = "ja"
 )
 
 // Message 对话消息
 type Message struct {
-	ID        string      `json:"id"`
-	SessionID string      `json:"session_id"`
-	Type      MessageType `json:"type"`
-	Content   string      `json:"content"`
-	Language  Language    `json:"language"`
+	ID        string                 `json:"id"`
+	SessionID string                 `json:"session_id"`
+	Type      MessageType            `json:"type"`
+	Content   string                 `json:"content"`
+	Language  Language               `json:"language"`
 	Metadata  map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt time.Time   `json:"created_at"`
+	CreatedAt time.Time              `json:"created_at"`
 }
 
 // Session 对话会话
 type Session struct {
-	ID          string    `json:"id"`
-	UserID      string    `json:"user_id"`
-	Language    Language  `json:"language"`
-	Messages    []*Message `json:"messages"`
-	Context     map[string]interface{} `json:"context,omitempty"`
-	IsActive    bool      `json:"is_active"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID        string                 `json:"id"`
+	UserID    string                 `json:"user_id"`
+	Language  Language               `json:"language"`
+	Messages  []*Message             `json:"messages"`
+	Context   map[string]interface{} `json:"context,omitempty"`
+	IsActive  bool                   `json:"is_active"`
+	CreatedAt time.Time              `json:"created_at"`
+	UpdatedAt time.Time              `json:"updated_at"`
 }
 
 // Intent 意图识别结果
 type Intent struct {
-	Type       IntentType            `json:"type"`
-	Confidence float64               `json:"confidence"`
+	Type       IntentType             `json:"type"`
+	Confidence float64                `json:"confidence"`
 	Parameters map[string]interface{} `json:"parameters,omitempty"`
 }
 
 // Plugin 插件定义
 type Plugin struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Intents     []IntentType `json:"intents"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Intents     []IntentType  `json:"intents"`
 	Handler     PluginHandler `json:"-"`
-	IsEnabled   bool      `json:"is_enabled"`
-	CreatedAt   time.Time `json:"created_at"`
+	IsEnabled   bool          `json:"is_enabled"`
+	CreatedAt   time.Time     `json:"created_at"`
 }
 
 // PluginHandler 插件处理函数
@@ -85,17 +85,17 @@ type PluginHandler func(ctx *PluginContext) (*PluginResponse, error)
 
 // PluginContext 插件上下文
 type PluginContext struct {
-	Session   *Session  `json:"session"`
-	Intent    *Intent   `json:"intent"`
-	Message   *Message  `json:"message"`
-	Language  Language  `json:"language"`
+	Session  *Session `json:"session"`
+	Intent   *Intent  `json:"intent"`
+	Message  *Message `json:"message"`
+	Language Language `json:"language"`
 }
 
 // PluginResponse 插件响应
 type PluginResponse struct {
-	Content   string                 `json:"content"`
-	Actions   []*Action              `json:"actions,omitempty"`
-	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	Content  string                 `json:"content"`
+	Actions  []*Action              `json:"actions,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // Action 执行动作
@@ -108,16 +108,16 @@ type Action struct {
 
 // ScheduledTask 定时任务
 type ScheduledTask struct {
-	ID          string    `json:"id"`
-	UserID      string    `json:"user_id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Schedule    string    `json:"schedule"`
-	Action      *Action   `json:"action"`
-	IsActive    bool      `json:"is_active"`
+	ID          string     `json:"id"`
+	UserID      string     `json:"user_id"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Schedule    string     `json:"schedule"`
+	Action      *Action    `json:"action"`
+	IsActive    bool       `json:"is_active"`
 	LastRun     *time.Time `json:"last_run,omitempty"`
 	NextRun     *time.Time `json:"next_run,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
+	CreatedAt   time.Time  `json:"created_at"`
 }
 
 // ChatStats 聊天统计
@@ -132,10 +132,10 @@ type ChatStats struct {
 
 // AIChatbot 智能助手
 type AIChatbot struct {
-	mu            sync.RWMutex
-	sessions      map[string]*Session
-	messages      map[string][]*Message
-	plugins       map[string]*Plugin
+	mu             sync.RWMutex
+	sessions       map[string]*Session
+	messages       map[string][]*Message
+	plugins        map[string]*Plugin
 	scheduledTasks map[string]*ScheduledTask
 	langTemplates  map[Language]map[string]string
 }
@@ -143,9 +143,9 @@ type AIChatbot struct {
 // NewAIChatbot 创建智能助手
 func NewAIChatbot() *AIChatbot {
 	bot := &AIChatbot{
-		sessions:      make(map[string]*Session),
-		messages:      make(map[string][]*Message),
-		plugins:       make(map[string]*Plugin),
+		sessions:       make(map[string]*Session),
+		messages:       make(map[string][]*Message),
+		plugins:        make(map[string]*Plugin),
 		scheduledTasks: make(map[string]*ScheduledTask),
 		langTemplates:  make(map[Language]map[string]string),
 	}

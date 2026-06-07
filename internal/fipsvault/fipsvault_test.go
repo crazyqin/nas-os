@@ -172,9 +172,9 @@ func TestComplianceCheckWithIssues(t *testing.T) {
 
 func TestAuditLog(t *testing.T) {
 	m := NewManager(&Config{
-		Enabled:       true,
-		FIPSLevel:     FIPSLevel140_3,
-		AuditEnabled:  true,
+		Enabled:         true,
+		FIPSLevel:       FIPSLevel140_3,
+		AuditEnabled:    true,
 		MaxAuditEntries: 1000,
 	})
 

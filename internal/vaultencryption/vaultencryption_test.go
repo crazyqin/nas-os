@@ -288,8 +288,8 @@ func TestUnregisterVolume(t *testing.T) {
 	key, _ := manager.CreateKey(keyReq)
 
 	vol := &EncryptedVolume{
-		Name:   "To Delete",
-		KeyID:  key.ID,
+		Name:  "To Delete",
+		KeyID: key.ID,
 	}
 	manager.RegisterVolume(vol)
 
@@ -323,8 +323,8 @@ func TestGetVolume(t *testing.T) {
 	key, _ := manager.CreateKey(keyReq)
 
 	vol := &EncryptedVolume{
-		Name:   "Test Volume",
-		KeyID:  key.ID,
+		Name:  "Test Volume",
+		KeyID: key.ID,
 	}
 	manager.RegisterVolume(vol)
 
@@ -384,8 +384,8 @@ func TestUnlockVolume(t *testing.T) {
 
 	// 注册卷
 	vol := &EncryptedVolume{
-		Name:   "Test Volume",
-		KeyID:  key.ID,
+		Name:       "Test Volume",
+		KeyID:      key.ID,
 		MountPoint: "/mnt/test",
 	}
 	manager.RegisterVolume(vol)
@@ -509,8 +509,8 @@ func TestLockVolume(t *testing.T) {
 
 	// 注册卷
 	vol := &EncryptedVolume{
-		Name:   "Test Volume",
-		KeyID:  key.ID,
+		Name:  "Test Volume",
+		KeyID: key.ID,
 	}
 	manager.RegisterVolume(vol)
 
@@ -758,8 +758,8 @@ func TestAutoLockTimeout(t *testing.T) {
 
 	// 注册卷
 	vol := &EncryptedVolume{
-		Name:   "Test Volume",
-		KeyID:  key.ID,
+		Name:  "Test Volume",
+		KeyID: key.ID,
 	}
 	manager.RegisterVolume(vol)
 

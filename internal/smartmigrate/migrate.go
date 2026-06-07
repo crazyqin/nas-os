@@ -16,46 +16,46 @@ import (
 // 对标群晖 Data Migration 和 TrueNAS 数据迁移功能
 // 支持跨存储池、跨设备、跨节点的数据迁移
 type SmartMigrateManager struct {
-	mu       sync.RWMutex
-	config   *MigrateConfig
-	tasks    map[string]*MigrateTask
-	history  []MigrateRecord
-	ctx      context.Context
-	cancel   context.CancelFunc
-	wg       sync.WaitGroup
+	mu      sync.RWMutex
+	config  *MigrateConfig
+	tasks   map[string]*MigrateTask
+	history []MigrateRecord
+	ctx     context.Context
+	cancel  context.CancelFunc
+	wg      sync.WaitGroup
 }
 
 // MigrateConfig 迁移配置
 type MigrateConfig struct {
-	Enabled          bool  `json:"enabled"`
-	MaxConcurrent    int   `json:"max_concurrent"`
-	ChunkSizeMB      int   `json:"chunk_size_mb"`
-	VerifyChecksum   bool  `json:"verify_checksum"`
-	PreservePerms    bool  `json:"preserve_permissions"`
-	BandwidthLimitMB int   `json:"bandwidth_limit_mb"` // 0=无限
-	RetryCount       int   `json:"retry_count"`
-	RetryDelaySec    int   `json:"retry_delay_sec"`
+	Enabled          bool `json:"enabled"`
+	MaxConcurrent    int  `json:"max_concurrent"`
+	ChunkSizeMB      int  `json:"chunk_size_mb"`
+	VerifyChecksum   bool `json:"verify_checksum"`
+	PreservePerms    bool `json:"preserve_permissions"`
+	BandwidthLimitMB int  `json:"bandwidth_limit_mb"` // 0=无限
+	RetryCount       int  `json:"retry_count"`
+	RetryDelaySec    int  `json:"retry_delay_sec"`
 }
 
 // MigrateTask 迁移任务
 type MigrateTask struct {
-	ID            string           `json:"id"`
-	Name          string           `json:"name"`
-	SourcePath    string           `json:"source_path"`
-	DestPath      string           `json:"dest_path"`
-	Type          MigrateType      `json:"type"`
-	Status        MigrateStatus    `json:"status"`
-	TotalBytes    int64            `json:"total_bytes"`
-	TransferedBytes int64          `json:"transferred_bytes"`
-	TotalFiles    int              `json:"total_files"`
-	TransferedFiles int            `json:"transferred_files"`
-	SpeedMBps     float64          `json:"speed_mbps"`
-	ETA           time.Duration    `json:"eta"`
-	StartTime     time.Time        `json:"start_time"`
-	EndTime       *time.Time       `json:"end_time,omitempty"`
-	ErrorMsg      string           `json:"error_msg,omitempty"`
-	Options       *MigrateOptions  `json:"options,omitempty"`
-	ChecksumOK    bool             `json:"checksum_ok"`
+	ID              string          `json:"id"`
+	Name            string          `json:"name"`
+	SourcePath      string          `json:"source_path"`
+	DestPath        string          `json:"dest_path"`
+	Type            MigrateType     `json:"type"`
+	Status          MigrateStatus   `json:"status"`
+	TotalBytes      int64           `json:"total_bytes"`
+	TransferedBytes int64           `json:"transferred_bytes"`
+	TotalFiles      int             `json:"total_files"`
+	TransferedFiles int             `json:"transferred_files"`
+	SpeedMBps       float64         `json:"speed_mbps"`
+	ETA             time.Duration   `json:"eta"`
+	StartTime       time.Time       `json:"start_time"`
+	EndTime         *time.Time      `json:"end_time,omitempty"`
+	ErrorMsg        string          `json:"error_msg,omitempty"`
+	Options         *MigrateOptions `json:"options,omitempty"`
+	ChecksumOK      bool            `json:"checksum_ok"`
 }
 
 // MigrateType 迁移类型
@@ -85,7 +85,7 @@ type MigrateOptions struct {
 	ExcludePatterns []string `json:"exclude_patterns"`
 	IncludePatterns []string `json:"include_patterns"`
 	DryRun          bool     `json:"dry_run"`
-	SyncDelete      bool     `json:"sync_delete"`    // 同步删除目标端多余文件
+	SyncDelete      bool     `json:"sync_delete"` // 同步删除目标端多余文件
 	Compress        bool     `json:"compress"`
 	Encrypt         bool     `json:"encrypt"`
 }
@@ -162,16 +162,16 @@ func (m *SmartMigrateManager) CreateTask(name, src, dst string, mtype MigrateTyp
 	}
 
 	task := &MigrateTask{
-		ID:           fmt.Sprintf("mig-%d", time.Now().UnixNano()),
-		Name:         name,
-		SourcePath:   src,
-		DestPath:     dst,
-		Type:         mtype,
-		Status:       MigrateStatusPending,
-		TotalBytes:   totalBytes,
-		TotalFiles:   totalFiles,
-		StartTime:    time.Now(),
-		Options:      opts,
+		ID:         fmt.Sprintf("mig-%d", time.Now().UnixNano()),
+		Name:       name,
+		SourcePath: src,
+		DestPath:   dst,
+		Type:       mtype,
+		Status:     MigrateStatusPending,
+		TotalBytes: totalBytes,
+		TotalFiles: totalFiles,
+		StartTime:  time.Now(),
+		Options:    opts,
 	}
 
 	m.tasks[task.ID] = task

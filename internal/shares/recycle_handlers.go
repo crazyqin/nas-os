@@ -9,7 +9,7 @@ import (
 
 // RecycleHandlers 回收站 API 处理器。
 type RecycleHandlers struct {
-	smbManager SMBManager
+	smbManager  SMBManager
 	recycleBins map[string]*RecycleBin
 }
 
@@ -296,4 +296,3 @@ func (h *RecycleHandlers) updateRecycleConfig(c *gin.Context) {
 
 	c.JSON(http.StatusOK, Success(rb.GetConfig()))
 }
-

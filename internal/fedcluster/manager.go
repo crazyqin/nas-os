@@ -42,75 +42,75 @@ const (
 
 // ClusterNode 集群节点
 type ClusterNode struct {
-	ID           string       `json:"id"`
-	Name         string       `json:"name"`
-	Hostname     string       `json:"hostname"`
-	Port         int          `json:"port"`
-	Role         ClusterRole  `json:"role"`
-	Status       NodeStatus   `json:"status"`
-	IPAddress    string       `json:"ip_address"`
-	APIEndpoint  string       `json:"api_endpoint"`
-	CPUCores     int          `json:"cpu_cores"`
-	MemoryGB     int          `json:"memory_gb"`
-	StorageTB     float64     `json:"storage_tb"`
-	UsedStorageTB float64    `json:"used_storage_tb"`
-	LastSeen     time.Time    `json:"last_seen"`
-	JoinedAt     time.Time    `json:"joined_at"`
-	Tags         []string     `json:"tags"`
-	Metadata     map[string]string `json:"metadata"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Hostname      string            `json:"hostname"`
+	Port          int               `json:"port"`
+	Role          ClusterRole       `json:"role"`
+	Status        NodeStatus        `json:"status"`
+	IPAddress     string            `json:"ip_address"`
+	APIEndpoint   string            `json:"api_endpoint"`
+	CPUCores      int               `json:"cpu_cores"`
+	MemoryGB      int               `json:"memory_gb"`
+	StorageTB     float64           `json:"storage_tb"`
+	UsedStorageTB float64           `json:"used_storage_tb"`
+	LastSeen      time.Time         `json:"last_seen"`
+	JoinedAt      time.Time         `json:"joined_at"`
+	Tags          []string          `json:"tags"`
+	Metadata      map[string]string `json:"metadata"`
 }
 
 // Cluster 集群配置
 type Cluster struct {
-	ID            string            `json:"id"`
-	Name          string            `json:"name"`
-	Description   string            `json:"description"`
-	SyncPolicy    SyncPolicy        `json:"sync_policy"`
-	AutoHeal      bool              `json:"auto_heal"`
-	LoadBalance   bool              `json:"load_balance"`
-	EncryptionKey string            `json:"encryption_key,omitempty"`
-	CreatedAt     time.Time         `json:"created_at"`
-	UpdatedAt     time.Time         `json:"updated_at"`
+	ID            string                  `json:"id"`
+	Name          string                  `json:"name"`
+	Description   string                  `json:"description"`
+	SyncPolicy    SyncPolicy              `json:"sync_policy"`
+	AutoHeal      bool                    `json:"auto_heal"`
+	LoadBalance   bool                    `json:"load_balance"`
+	EncryptionKey string                  `json:"encryption_key,omitempty"`
+	CreatedAt     time.Time               `json:"created_at"`
+	UpdatedAt     time.Time               `json:"updated_at"`
 	Nodes         map[string]*ClusterNode `json:"nodes"`
-	VirtualIP     string            `json:"virtual_ip,omitempty"`
-	Domain        string            `json:"domain,omitempty"`
+	VirtualIP     string                  `json:"virtual_ip,omitempty"`
+	Domain        string                  `json:"domain,omitempty"`
 }
 
 // SyncJob 同步任务
 type SyncJob struct {
-	ID            string    `json:"id"`
-	SourceNode    string    `json:"source_node"`
-	TargetNode    string    `json:"target_node"`
-	SourcePath    string    `json:"source_path"`
-	TargetPath    string    `json:"target_path"`
-	Status        string    `json:"status"`
-	Progress      float64   `json:"progress"`
-	BytesTotal    int64     `json:"bytes_total"`
-	BytesSynced   int64     `json:"bytes_synced"`
-	StartedAt     time.Time `json:"started_at"`
-	CompletedAt   *time.Time `json:"completed_at,omitempty"`
-	Error         string    `json:"error,omitempty"`
+	ID          string     `json:"id"`
+	SourceNode  string     `json:"source_node"`
+	TargetNode  string     `json:"target_node"`
+	SourcePath  string     `json:"source_path"`
+	TargetPath  string     `json:"target_path"`
+	Status      string     `json:"status"`
+	Progress    float64    `json:"progress"`
+	BytesTotal  int64      `json:"bytes_total"`
+	BytesSynced int64      `json:"bytes_synced"`
+	StartedAt   time.Time  `json:"started_at"`
+	CompletedAt *time.Time `json:"completed_at,omitempty"`
+	Error       string     `json:"error,omitempty"`
 }
 
 // LoadBalancerConfig 负载均衡配置
 type LoadBalancerConfig struct {
-	Strategy       string  `json:"strategy"` // round_robin, least_connections, weighted, latency_based
-	HealthCheck    bool    `json:"health_check"`
-	CheckInterval  int     `json:"check_interval_seconds"`
-	FailoverDelay  int     `json:"failover_delay_seconds"`
-	MaxRetries     int     `json:"max_retries"`
-	StickySession  bool    `json:"sticky_session"`
-	Weights        map[string]int `json:"weights,omitempty"`
+	Strategy      string         `json:"strategy"` // round_robin, least_connections, weighted, latency_based
+	HealthCheck   bool           `json:"health_check"`
+	CheckInterval int            `json:"check_interval_seconds"`
+	FailoverDelay int            `json:"failover_delay_seconds"`
+	MaxRetries    int            `json:"max_retries"`
+	StickySession bool           `json:"sticky_session"`
+	Weights       map[string]int `json:"weights,omitempty"`
 }
 
 // Manager 集群管理器
 type Manager struct {
-	mu           sync.RWMutex
-	clusters     map[string]*Cluster
-	syncJobs     map[string]*SyncJob
-	lbConfig     *LoadBalancerConfig
-	eventLog     []*ClusterEvent
-	nodeMetrics  map[string]*NodeMetrics
+	mu          sync.RWMutex
+	clusters    map[string]*Cluster
+	syncJobs    map[string]*SyncJob
+	lbConfig    *LoadBalancerConfig
+	eventLog    []*ClusterEvent
+	nodeMetrics map[string]*NodeMetrics
 }
 
 // ClusterEvent 集群事件

@@ -215,8 +215,8 @@ func TestSearchQueryValidation(t *testing.T) {
 	t.Run("InvalidDateRange", func(t *testing.T) {
 		now := time.Now()
 		query := &SearchQuery{
-			Keyword: "test",
-			Mode:    SearchModeFullText,
+			Keyword:  "test",
+			Mode:     SearchModeFullText,
 			DateFrom: &now,
 			DateTo:   &[]time.Time{now.Add(-24 * time.Hour)}[0],
 		}
@@ -377,11 +377,11 @@ func TestSuggester(t *testing.T) {
 	// 测试添加历史
 	t.Run("AddHistory", func(t *testing.T) {
 		history := SearchHistory{
-			ID:        "history-1",
-			Keyword:   "测试搜索",
-			Mode:      SearchModeFullText,
+			ID:          "history-1",
+			Keyword:     "测试搜索",
+			Mode:        SearchModeFullText,
 			ResultCount: 10,
-			SearchedAt: time.Now(),
+			SearchedAt:  time.Now(),
 		}
 
 		suggester.AddHistory(history)

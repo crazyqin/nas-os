@@ -10,12 +10,12 @@ import (
 type StackStatus string
 
 const (
-	StackStatusCreating  StackStatus = "creating"
-	StackStatusActive    StackStatus = "active"
-	StackStatusUpdating  StackStatus = "updating"
-	StackStatusDeleting  StackStatus = "deleting"
-	StackStatusFailed    StackStatus = "failed"
-	StackStatusDrifted   StackStatus = "drifted"
+	StackStatusCreating StackStatus = "creating"
+	StackStatusActive   StackStatus = "active"
+	StackStatusUpdating StackStatus = "updating"
+	StackStatusDeleting StackStatus = "deleting"
+	StackStatusFailed   StackStatus = "failed"
+	StackStatusDrifted  StackStatus = "drifted"
 )
 
 // ResourceStatus represents the state of a resource
@@ -58,7 +58,7 @@ type IaCTemplate struct {
 type Resource struct {
 	ID         string            `json:"id"`
 	StackID    string            `json:"stack_id"`
-	Kind       string            `json:"kind"`       // volume, share, container, network, etc.
+	Kind       string            `json:"kind"` // volume, share, container, network, etc.
 	Name       string            `json:"name"`
 	Status     ResourceStatus    `json:"status"`
 	Config     map[string]string `json:"config"`
@@ -87,32 +87,32 @@ type Stack struct {
 
 // DriftReport represents a drift detection report
 type DriftReport struct {
-	ID         string         `json:"id"`
-	StackID    string         `json:"stack_id"`
-	StackName  string         `json:"stack_name"`
-	CheckedAt  time.Time      `json:"checked_at"`
-	HasDrift   bool           `json:"has_drift"`
-	Drifts     []ResourceDrift `json:"drifts"`
-	Summary    DriftSummary   `json:"summary"`
+	ID        string          `json:"id"`
+	StackID   string          `json:"stack_id"`
+	StackName string          `json:"stack_name"`
+	CheckedAt time.Time       `json:"checked_at"`
+	HasDrift  bool            `json:"has_drift"`
+	Drifts    []ResourceDrift `json:"drifts"`
+	Summary   DriftSummary    `json:"summary"`
 }
 
 // ResourceDrift represents drift in a single resource
 type ResourceDrift struct {
-	ResourceID   string     `json:"resource_id"`
-	ResourceName string     `json:"resource_name"`
-	ResourceKind string     `json:"resource_kind"`
+	ResourceID   string      `json:"resource_id"`
+	ResourceName string      `json:"resource_name"`
+	ResourceKind string      `json:"resource_kind"`
 	Status       DriftStatus `json:"status"`
-	Expected     string     `json:"expected"`
-	Actual       string     `json:"actual,omitempty"`
-	Diff         string     `json:"diff,omitempty"`
+	Expected     string      `json:"expected"`
+	Actual       string      `json:"actual,omitempty"`
+	Diff         string      `json:"diff,omitempty"`
 }
 
 // DriftSummary provides a summary of drift detection
 type DriftSummary struct {
-	TotalResources    int `json:"total_resources"`
-	DriftedResources  int `json:"drifted_resources"`
-	DeletedResources  int `json:"deleted_resources"`
-	ModifiedResources int `json:"modified_resources"`
+	TotalResources     int `json:"total_resources"`
+	DriftedResources   int `json:"drifted_resources"`
+	DeletedResources   int `json:"deleted_resources"`
+	ModifiedResources  int `json:"modified_resources"`
 	UnchangedResources int `json:"unchanged_resources"`
 }
 

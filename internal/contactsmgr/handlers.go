@@ -138,8 +138,8 @@ func (h *Handlers) listGroups(c *gin.Context) {
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
-			"total":   len(groups),
-			"groups":  groups,
+			"total":  len(groups),
+			"groups": groups,
 		},
 	})
 }

@@ -24,12 +24,12 @@ type Manager struct {
 	deduplicator *Deduplicator
 
 	// 存储
-	dataItems      map[string]*DataItem            // id -> item
-	policies       map[string]*RetentionPolicy     // id -> policy
-	archivePolicies map[string]*ArchivePolicy      // id -> policy
-	cleanupRules   map[string]*CleanupRule         // id -> rule
-	events         []*LifecycleEvent
-	migrationTasks map[string]*MigrationTask       // id -> task
+	dataItems       map[string]*DataItem        // id -> item
+	policies        map[string]*RetentionPolicy // id -> policy
+	archivePolicies map[string]*ArchivePolicy   // id -> policy
+	cleanupRules    map[string]*CleanupRule     // id -> rule
+	events          []*LifecycleEvent
+	migrationTasks  map[string]*MigrationTask // id -> task
 
 	// 状态
 	running bool

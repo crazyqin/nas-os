@@ -226,16 +226,16 @@ func TestIsMainDisk(t *testing.T) {
 
 func TestScrubResultFields(t *testing.T) {
 	result := ScrubResult{
-		ID:          "scrub-123",
-		PoolName:    "tank",
-		Status:      ScrubStatusCompleted,
-		StartTime:   time.Now().Add(-5 * time.Minute),
-		EndTime:     time.Now(),
-		Duration:    "5m0s",
+		ID:           "scrub-123",
+		PoolName:     "tank",
+		Status:       ScrubStatusCompleted,
+		StartTime:    time.Now().Add(-5 * time.Minute),
+		EndTime:      time.Now(),
+		Duration:     "5m0s",
 		BytesScanned: 1024 * 1024 * 1024,
 		BytesIssued:  512 * 1024 * 1024,
-		Errors:      0,
-		Repairs:     0,
+		Errors:       0,
+		Repairs:      0,
 		ScanPercent:  100,
 	}
 

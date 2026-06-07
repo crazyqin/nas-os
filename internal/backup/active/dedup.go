@@ -18,16 +18,16 @@ import (
 
 // CDC 默认参数
 const (
-	DefaultCDCMinSize = 64 * 1024      // 64KB 最小块
+	DefaultCDCMinSize = 64 * 1024       // 64KB 最小块
 	DefaultCDCMaxSize = 8 * 1024 * 1024 // 8MB 最大块
 	CDCAverageBits    = 13              // 平均块大小约 2^13 = 8KB（目标值由 min/max 约束）
 )
 
 // Rabin 滑动窗口参数
 const (
-	RabinWindowSize = 48          // 滑动窗口大小
-	RabinPrime      = 3          // Rabin 多项式质数
-	RabinMod        = 1 << 63 - 1 // 大质数取模
+	RabinWindowSize = 48        // 滑动窗口大小
+	RabinPrime      = 3         // Rabin 多项式质数
+	RabinMod        = 1<<63 - 1 // 大质数取模
 )
 
 // CDCEngine 内容定义分块去重引擎
@@ -57,11 +57,11 @@ type CDCChunk struct {
 
 // CDCStats CDC 统计信息
 type CDCStats struct {
-	TotalChunks  int64 `json:"total_chunks"`
-	UniqueChunks int64 `json:"unique_chunks"`
-	DupChunks    int64 `json:"dup_chunks"`
-	TotalBytes   int64 `json:"total_bytes"`
-	SavedBytes   int64 `json:"saved_bytes"`
+	TotalChunks  int64   `json:"total_chunks"`
+	UniqueChunks int64   `json:"unique_chunks"`
+	DupChunks    int64   `json:"dup_chunks"`
+	TotalBytes   int64   `json:"total_bytes"`
+	SavedBytes   int64   `json:"saved_bytes"`
 	DedupRatio   float64 `json:"dedup_ratio"`
 }
 
@@ -341,9 +341,9 @@ func (e *CDCEngine) SaveIndex(path string) error {
 	defer e.mu.RUnlock()
 
 	index := struct {
-		Chunks     map[string]*CDCChunk `json:"chunks"`
-		Stats      CDCStats             `json:"stats"`
-		UpdatedAt  time.Time            `json:"updated_at"`
+		Chunks    map[string]*CDCChunk `json:"chunks"`
+		Stats     CDCStats             `json:"stats"`
+		UpdatedAt time.Time            `json:"updated_at"`
 	}{
 		Chunks:    e.chunkIndex,
 		Stats:     e.GetStats(),

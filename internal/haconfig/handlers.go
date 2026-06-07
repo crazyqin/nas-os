@@ -56,15 +56,15 @@ func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := HAStatusResponse{
-		State:          h.determineHAState(status),
-		PrimaryNode:    status.PrimaryNode,
-		SecondaryNode:  h.findSecondaryNode(nodes),
-		LastHeartbeat:  status.LastHealthCheck,
-		FailoverCount:  status.FailoverCount,
-		Uptime:         status.Uptime,
-		HealthyNodes:   status.HealthyNodes,
-		TotalNodes:     status.TotalNodes,
-		NodeStates:     haNodes,
+		State:         h.determineHAState(status),
+		PrimaryNode:   status.PrimaryNode,
+		SecondaryNode: h.findSecondaryNode(nodes),
+		LastHeartbeat: status.LastHealthCheck,
+		FailoverCount: status.FailoverCount,
+		Uptime:        status.Uptime,
+		HealthyNodes:  status.HealthyNodes,
+		TotalNodes:    status.TotalNodes,
+		NodeStates:    haNodes,
 	}
 
 	h.writeJSON(w, http.StatusOK, response)
@@ -87,12 +87,12 @@ func (h *Handler) getConfig(w http.ResponseWriter, r *http.Request) {
 	config := h.manager.GetConfig()
 
 	response := HAConfigResponse{
-		VirtualIP:        config.BindAddress,
+		VirtualIP:         config.BindAddress,
 		HeartbeatInterval: config.HeartbeatInterval,
-		FailoverTimeout:  config.FailoverTimeout,
-		AutoFailback:     config.FailbackEnabled,
-		Preempt:          false,
-		PeerNodes:        config.PeerNodes,
+		FailoverTimeout:   config.FailoverTimeout,
+		AutoFailback:      config.FailbackEnabled,
+		Preempt:           false,
+		PeerNodes:         config.PeerNodes,
 	}
 
 	h.writeJSON(w, http.StatusOK, response)

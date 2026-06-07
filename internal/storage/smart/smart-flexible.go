@@ -14,27 +14,27 @@ import (
 type TestType string
 
 const (
-	TestShort    TestType = "short"
-	TestLong     TestType = "long"
-	TestConvey   TestType = "conveyance"
-	TestOffline  TestType = "offline"
+	TestShort   TestType = "short"
+	TestLong    TestType = "long"
+	TestConvey  TestType = "conveyance"
+	TestOffline TestType = "offline"
 )
 
 // ScheduleConfig defines SMART test schedule
 type ScheduleConfig struct {
-	TestType   TestType
-	Schedule   string // cron expression
-	Devices    []string
-	Enabled    bool
+	TestType TestType
+	Schedule string // cron expression
+	Devices  []string
+	Enabled  bool
 }
 
 // HealthStatus defines disk health status
 type HealthStatus struct {
-	Device      string
-	Model       string
-	Serial      string
-	Health      string // PASSED, FAILED, WARNING
-	Temperature int
+	Device       string
+	Model        string
+	Serial       string
+	Health       string // PASSED, FAILED, WARNING
+	Temperature  int
 	PowerOnHours uint64
 	ReadErrors   uint64
 	WriteErrors  uint64

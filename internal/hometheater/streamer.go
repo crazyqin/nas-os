@@ -26,7 +26,7 @@ type Streamer struct {
 type HLSSession struct {
 	SessionID  string        `json:"session_id"`
 	MediaID    string        `json:"media_id"`
-	Playlist   string        `json:"playlist"`   // m3u8内容
+	Playlist   string        `json:"playlist"` // m3u8内容
 	Segments   []*HLSSegment `json:"segments"`
 	CurrentSeq int           `json:"current_seq"`
 	EndList    bool          `json:"end_list"`
@@ -45,20 +45,20 @@ type HLSSegment struct {
 
 // DASHSession DASH会话.
 type DASHSession struct {
-	SessionID    string        `json:"session_id"`
-	MediaID      string        `json:"media_id"`
-	MPD          string        `json:"mpd"`          // MPD内容
-	Adaptations  []*AdaptationSet `json:"adaptations"`
-	CurrentSeg   int           `json:"current_seg"`
-	CreatedAt    time.Time     `json:"created_at"`
+	SessionID   string           `json:"session_id"`
+	MediaID     string           `json:"media_id"`
+	MPD         string           `json:"mpd"` // MPD内容
+	Adaptations []*AdaptationSet `json:"adaptations"`
+	CurrentSeg  int              `json:"current_seg"`
+	CreatedAt   time.Time        `json:"created_at"`
 }
 
 // AdaptationSet DASH自适应集.
 type AdaptationSet struct {
-	ID          int        `json:"id"`
-	Type        string     `json:"type"` // video/audio
-	ContentType string     `json:"content_type"`
-	Lang        string     `json:"lang"`
+	ID              int               `json:"id"`
+	Type            string            `json:"type"` // video/audio
+	ContentType     string            `json:"content_type"`
+	Lang            string            `json:"lang"`
 	Representations []*Representation `json:"representations"`
 }
 
@@ -93,12 +93,12 @@ const (
 
 // StreamRequest 流媒体请求.
 type StreamRequest struct {
-	MediaID   string        `json:"media_id"`
-	UserID    string        `json:"user_id"`
-	Protocol  StreamProtocol `json:"protocol"`
-	Quality   StreamQuality  `json:"quality"`
-	DeviceID  string        `json:"device_id"`
-	Position  float64       `json:"position"` // 开始位置（秒）
+	MediaID  string         `json:"media_id"`
+	UserID   string         `json:"user_id"`
+	Protocol StreamProtocol `json:"protocol"`
+	Quality  StreamQuality  `json:"quality"`
+	DeviceID string         `json:"device_id"`
+	Position float64        `json:"position"` // 开始位置（秒）
 }
 
 // NewStreamer 创建流媒体服务.

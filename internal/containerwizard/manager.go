@@ -50,18 +50,18 @@ type Template struct {
 type TemplateCategory string
 
 const (
-	CategoryMedia      TemplateCategory = "media"
-	CategoryDatabase   TemplateCategory = "database"
-	CategoryWeb        TemplateCategory = "web"
-	CategoryDevOps     TemplateCategory = "devops"
-	CategoryNetwork    TemplateCategory = "network"
-	CategoryStorage    TemplateCategory = "storage"
-	CategoryAI         TemplateCategory = "ai"
-	CategoryMonitoring TemplateCategory = "monitoring"
-	CategorySecurity   TemplateCategory = "security"
+	CategoryMedia        TemplateCategory = "media"
+	CategoryDatabase     TemplateCategory = "database"
+	CategoryWeb          TemplateCategory = "web"
+	CategoryDevOps       TemplateCategory = "devops"
+	CategoryNetwork      TemplateCategory = "network"
+	CategoryStorage      TemplateCategory = "storage"
+	CategoryAI           TemplateCategory = "ai"
+	CategoryMonitoring   TemplateCategory = "monitoring"
+	CategorySecurity     TemplateCategory = "security"
 	CategoryProductivity TemplateCategory = "productivity"
-	CategoryGame       TemplateCategory = "game"
-	CategoryOther      TemplateCategory = "other"
+	CategoryGame         TemplateCategory = "game"
+	CategoryOther        TemplateCategory = "other"
 )
 
 // PortDef 端口定义
@@ -116,32 +116,32 @@ type DeployTask struct {
 type DeployStatus string
 
 const (
-	DeployStatusPending   DeployStatus = "pending"
-	DeployStatusPulling   DeployStatus = "pulling"
+	DeployStatusPending     DeployStatus = "pending"
+	DeployStatusPulling     DeployStatus = "pulling"
 	DeployStatusConfiguring DeployStatus = "configuring"
-	DeployStatusStarting  DeployStatus = "starting"
-	DeployStatusRunning   DeployStatus = "running"
-	DeployStatusFailed    DeployStatus = "failed"
-	DeployStatusStopped   DeployStatus = "stopped"
+	DeployStatusStarting    DeployStatus = "starting"
+	DeployStatusRunning     DeployStatus = "running"
+	DeployStatusFailed      DeployStatus = "failed"
+	DeployStatusStopped     DeployStatus = "stopped"
 )
 
 // ResourceRecommend 资源推荐
 type ResourceRecommend struct {
-	CPU       float64 `json:"cpu"`
-	Memory    int64   `json:"memory"` // bytes
-	Disk      int64   `json:"disk"`   // bytes
-	Reason    string  `json:"reason"`
+	CPU    float64 `json:"cpu"`
+	Memory int64   `json:"memory"` // bytes
+	Disk   int64   `json:"disk"`   // bytes
+	Reason string  `json:"reason"`
 }
 
 // StackTemplate 组合模板（多容器一键部署）
 type StackTemplate struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Category    TemplateCategory  `json:"category"`
-	Templates   []StackItem       `json:"templates"` // 包含的模板
-	Tags        []string          `json:"tags,omitempty"`
-	Featured    bool              `json:"featured"`
+	ID          string           `json:"id"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	Category    TemplateCategory `json:"category"`
+	Templates   []StackItem      `json:"templates"` // 包含的模板
+	Tags        []string         `json:"tags,omitempty"`
+	Featured    bool             `json:"featured"`
 }
 
 // StackItem 组合模板中的单个服务
@@ -156,11 +156,11 @@ type StackItem struct {
 
 // Manager 容器向导管理器
 type Manager struct {
-	mu         sync.RWMutex
-	templates  map[string]*Template
-	stacks     map[string]*StackTemplate
-	tasks      map[string]*DeployTask
-	installed  map[string]*DeployTask // templateSlug -> task
+	mu        sync.RWMutex
+	templates map[string]*Template
+	stacks    map[string]*StackTemplate
+	tasks     map[string]*DeployTask
+	installed map[string]*DeployTask // templateSlug -> task
 }
 
 // NewManager 创建管理器
@@ -181,7 +181,7 @@ func (m *Manager) initDefaultTemplates() {
 		{
 			Name: "Jellyfin", Slug: "jellyfin", Category: CategoryMedia,
 			Description: "免费开源媒体服务器，支持视频/音乐/图片流媒体播放",
-			Image: "jellyfin/jellyfin", Tag: "latest",
+			Image:       "jellyfin/jellyfin", Tag: "latest",
 			Ports: []PortDef{{Host: 8096, Container: 8096, Desc: "Web UI"}},
 			Volumes: []VolumeDef{
 				{Host: "/data/jellyfin/config", Container: "/config", Desc: "配置"},
@@ -193,7 +193,7 @@ func (m *Manager) initDefaultTemplates() {
 		{
 			Name: "Nextcloud", Slug: "nextcloud", Category: CategoryStorage,
 			Description: "私有云盘，文件同步、日历、联系人、协作办公",
-			Image: "nextcloud", Tag: "latest",
+			Image:       "nextcloud", Tag: "latest",
 			Ports: []PortDef{{Host: 8080, Container: 80, Desc: "Web UI"}},
 			Volumes: []VolumeDef{
 				{Host: "/data/nextcloud/html", Container: "/var/www/html", Desc: "应用"},
@@ -205,7 +205,7 @@ func (m *Manager) initDefaultTemplates() {
 		{
 			Name: "PostgreSQL", Slug: "postgres", Category: CategoryDatabase,
 			Description: "高级开源关系型数据库",
-			Image: "postgres", Tag: "16-alpine",
+			Image:       "postgres", Tag: "16-alpine",
 			Ports: []PortDef{{Host: 5432, Container: 5432, Desc: "数据库端口"}},
 			Volumes: []VolumeDef{
 				{Host: "/data/postgres", Container: "/var/lib/postgresql/data", Desc: "数据"},
@@ -220,15 +220,15 @@ func (m *Manager) initDefaultTemplates() {
 		{
 			Name: "Redis", Slug: "redis", Category: CategoryDatabase,
 			Description: "高性能内存缓存数据库",
-			Image: "redis", Tag: "alpine",
-			Ports: []PortDef{{Host: 6379, Container: 6379, Desc: "Redis 端口"}},
+			Image:       "redis", Tag: "alpine",
+			Ports:  []PortDef{{Host: 6379, Container: 6379, Desc: "Redis 端口"}},
 			MinCPU: 0.5, MinMemory: 128 * 1024 * 1024, Rating: 4.9,
 			Tags: []string{"缓存", "数据库", "内存"},
 		},
 		{
 			Name: "Home Assistant", Slug: "homeassistant", Category: CategoryProductivity,
 			Description: "开源智能家居平台，支持 3000+ 设备集成",
-			Image: "homeassistant/home-assistant", Tag: "stable",
+			Image:       "homeassistant/home-assistant", Tag: "stable",
 			Ports: []PortDef{{Host: 8123, Container: 8123, Desc: "Web UI"}},
 			Volumes: []VolumeDef{
 				{Host: "/data/homeassistant", Container: "/config", Desc: "配置"},
@@ -239,7 +239,7 @@ func (m *Manager) initDefaultTemplates() {
 		{
 			Name: "Uptime Kuma", Slug: "uptimekuma", Category: CategoryMonitoring,
 			Description: "美观的自托管监控工具",
-			Image: "louislam/uptime-kuma", Tag: "1",
+			Image:       "louislam/uptime-kuma", Tag: "1",
 			Ports: []PortDef{{Host: 3001, Container: 3001, Desc: "Web UI"}},
 			Volumes: []VolumeDef{
 				{Host: "/data/uptimekuma", Container: "/app/data", Desc: "数据"},
@@ -250,7 +250,7 @@ func (m *Manager) initDefaultTemplates() {
 		{
 			Name: "Grafana", Slug: "grafana", Category: CategoryMonitoring,
 			Description: "数据可视化和监控仪表盘",
-			Image: "grafana/grafana", Tag: "latest",
+			Image:       "grafana/grafana", Tag: "latest",
 			Ports: []PortDef{{Host: 3000, Container: 3000, Desc: "Web UI"}},
 			Volumes: []VolumeDef{
 				{Host: "/data/grafana", Container: "/var/lib/grafana", Desc: "数据"},
@@ -261,7 +261,7 @@ func (m *Manager) initDefaultTemplates() {
 		{
 			Name: "Vaultwarden", Slug: "vaultwarden", Category: CategorySecurity,
 			Description: "Bitwarden 兼容密码管理器",
-			Image: "vaultwarden/server", Tag: "latest",
+			Image:       "vaultwarden/server", Tag: "latest",
 			Ports: []PortDef{{Host: 8222, Container: 80, Desc: "Web UI"}},
 			Volumes: []VolumeDef{
 				{Host: "/data/vaultwarden", Container: "/data", Desc: "数据"},
@@ -272,7 +272,7 @@ func (m *Manager) initDefaultTemplates() {
 		{
 			Name: "Gitea", Slug: "gitea", Category: CategoryDevOps,
 			Description: "轻量级自托管 Git 服务",
-			Image: "gitea/gitea", Tag: "latest",
+			Image:       "gitea/gitea", Tag: "latest",
 			Ports: []PortDef{{Host: 3000, Container: 3000, Desc: "Web UI"}, {Host: 2222, Container: 22, Desc: "SSH"}},
 			Volumes: []VolumeDef{
 				{Host: "/data/gitea", Container: "/data", Desc: "数据"},
@@ -283,7 +283,7 @@ func (m *Manager) initDefaultTemplates() {
 		{
 			Name: "Nginx Proxy Manager", Slug: "nginx-proxy", Category: CategoryNetwork,
 			Description: "反向代理管理，自动 HTTPS 证书",
-			Image: "jc21/nginx-proxy-manager", Tag: "latest",
+			Image:       "jc21/nginx-proxy-manager", Tag: "latest",
 			Ports: []PortDef{
 				{Host: 80, Container: 80, Desc: "HTTP"},
 				{Host: 443, Container: 443, Desc: "HTTPS"},

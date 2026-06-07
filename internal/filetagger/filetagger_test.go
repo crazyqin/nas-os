@@ -605,9 +605,9 @@ func TestDeleteRule(t *testing.T) {
 	engine := NewEngine(DefaultConfig())
 
 	rule, _ := engine.CreateRule(AutoRule{
-		Name:     "要删",
-		Enabled:  true,
-		TagIDs:   []string{"tag1"},
+		Name:       "要删",
+		Enabled:    true,
+		TagIDs:     []string{"tag1"},
 		Conditions: Condition{Extensions: []string{".txt"}},
 	})
 
@@ -691,9 +691,9 @@ func TestSearchByTags(t *testing.T) {
 
 	// 排除搜索
 	result = engine.Search(SearchQuery{
-		AnyTags:      []string{tagA.ID, tagB.ID},
-		ExcludeTags:  []string{tagA.ID},
-		PageSize:     10,
+		AnyTags:     []string{tagA.ID, tagB.ID},
+		ExcludeTags: []string{tagA.ID},
+		PageSize:    10,
 	})
 	if result.Total != 1 {
 		t.Errorf("expected 1 result for exclude search, got %d", result.Total)

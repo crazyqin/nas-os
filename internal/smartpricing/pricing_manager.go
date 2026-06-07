@@ -175,13 +175,13 @@ func (pm *PricingManager) initDefaultPriceRules() {
 	}
 
 	pm.priceRules["rule-compute"] = &PriceRule{
-		ID:           "rule-compute",
-		Name:         "计算资源价格规则",
-		ResourceType: "compute",
-		PricingModel: "pay_as_you_go",
-		BaseRate:     0.5,
-		Unit:         "hour",
-		Tiers:        []PriceTierRule{},
+		ID:            "rule-compute",
+		Name:          "计算资源价格规则",
+		ResourceType:  "compute",
+		PricingModel:  "pay_as_you_go",
+		BaseRate:      0.5,
+		Unit:          "hour",
+		Tiers:         []PriceTierRule{},
 		EffectiveFrom: time.Now().AddDate(-1, 0, 0),
 		EffectiveTo:   time.Now().AddDate(1, 0, 0),
 		Priority:      1,
@@ -190,13 +190,13 @@ func (pm *PricingManager) initDefaultPriceRules() {
 	}
 
 	pm.priceRules["rule-network"] = &PriceRule{
-		ID:           "rule-network",
-		Name:         "网络流量价格规则",
-		ResourceType: "network",
-		PricingModel: "flat",
-		BaseRate:     0.8,
-		Unit:         "GB",
-		Tiers:        []PriceTierRule{},
+		ID:            "rule-network",
+		Name:          "网络流量价格规则",
+		ResourceType:  "network",
+		PricingModel:  "flat",
+		BaseRate:      0.8,
+		Unit:          "GB",
+		Tiers:         []PriceTierRule{},
 		EffectiveFrom: time.Now().AddDate(-1, 0, 0),
 		EffectiveTo:   time.Now().AddDate(1, 0, 0),
 		Priority:      1,

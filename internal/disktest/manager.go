@@ -14,26 +14,26 @@ import (
 // TestResult 测试结果
 type TestResult struct {
 	Device    string        `json:"device"`
-	TestType  string        `json:"testType"`  // seq_read, seq_write, rand_read, rand_write, latency
-	Speed     float64       `json:"speed"`     // MB/s 或 IOPS
-	IOPS      float64       `json:"iops"`      // IOPS
-	Latency   time.Duration `json:"latency"`   // 平均延迟
-	Duration  time.Duration `json:"duration"`  // 耗时
-	Status    string        `json:"status"`    // completed, failed, cancelled
+	TestType  string        `json:"testType"` // seq_read, seq_write, rand_read, rand_write, latency
+	Speed     float64       `json:"speed"`    // MB/s 或 IOPS
+	IOPS      float64       `json:"iops"`     // IOPS
+	Latency   time.Duration `json:"latency"`  // 平均延迟
+	Duration  time.Duration `json:"duration"` // 耗时
+	Status    string        `json:"status"`   // completed, failed, cancelled
 	Timestamp time.Time     `json:"timestamp"`
 }
 
 // TestTask 测试任务
 type TestTask struct {
-	ID        string       `json:"id"`
-	Device    string       `json:"device"`
-	TestType  string       `json:"testType"`
-	Progress  float64      `json:"progress"` // 0-100
-	Status    string       `json:"status"`   // pending, running, completed, failed, cancelled
-	Result    *TestResult  `json:"result,omitempty"`
-	Error     string       `json:"error,omitempty"`
-	StartTime time.Time    `json:"startTime"`
-	EndTime   time.Time    `json:"endTime,omitempty"`
+	ID        string      `json:"id"`
+	Device    string      `json:"device"`
+	TestType  string      `json:"testType"`
+	Progress  float64     `json:"progress"` // 0-100
+	Status    string      `json:"status"`   // pending, running, completed, failed, cancelled
+	Result    *TestResult `json:"result,omitempty"`
+	Error     string      `json:"error,omitempty"`
+	StartTime time.Time   `json:"startTime"`
+	EndTime   time.Time   `json:"endTime,omitempty"`
 }
 
 // SMARTData SMART 数据
@@ -51,14 +51,14 @@ type SMARTData struct {
 
 // DiskBenchResult 磁盘基准测试结果
 type DiskBenchResult struct {
-	Device       string        `json:"device"`
-	SeqRead      float64       `json:"seqRead"`      // MB/s
-	SeqWrite     float64       `json:"seqWrite"`     // MB/s
-	RandReadIOPS float64       `json:"randReadIOPS"`
-	RandWriteIOPS float64      `json:"randWriteIOPS"`
-	AvgLatency   time.Duration `json:"avgLatency"`
-	MaxLatency   time.Duration `json:"maxLatency"`
-	Timestamp    time.Time     `json:"timestamp"`
+	Device        string        `json:"device"`
+	SeqRead       float64       `json:"seqRead"`  // MB/s
+	SeqWrite      float64       `json:"seqWrite"` // MB/s
+	RandReadIOPS  float64       `json:"randReadIOPS"`
+	RandWriteIOPS float64       `json:"randWriteIOPS"`
+	AvgLatency    time.Duration `json:"avgLatency"`
+	MaxLatency    time.Duration `json:"maxLatency"`
+	Timestamp     time.Time     `json:"timestamp"`
 }
 
 // TestConfig 测试配置

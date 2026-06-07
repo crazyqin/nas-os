@@ -23,12 +23,12 @@ type BackupCodeStatus struct {
 
 // EnhancedBackupCodeConfig 增强版备份码配置.
 type EnhancedBackupCodeConfig struct {
-	Count          int           `json:"count"`           // 生成数量
-	Format         string        `json:"format"`          // 格式：simple (XXXX-XXXX) 或 enhanced (XXXX-XXXX-XXXX)
-	ExpiryDays     int           `json:"expiry_days"`     // 过期天数（0表示永不过期）
-	MaxUsage       int           `json:"max_usage"`       // 单码最大使用次数（默认1）
-	StoragePath    string        `json:"storage_path"`    // 存储路径
-	EncryptionKey  string        `json:"encryption_key"`  // 加密密钥（可选）
+	Count         int    `json:"count"`          // 生成数量
+	Format        string `json:"format"`         // 格式：simple (XXXX-XXXX) 或 enhanced (XXXX-XXXX-XXXX)
+	ExpiryDays    int    `json:"expiry_days"`    // 过期天数（0表示永不过期）
+	MaxUsage      int    `json:"max_usage"`      // 单码最大使用次数（默认1）
+	StoragePath   string `json:"storage_path"`   // 存储路径
+	EncryptionKey string `json:"encryption_key"` // 加密密钥（可选）
 }
 
 // DefaultEnhancedBackupCodeConfig 默认配置.
@@ -122,8 +122,8 @@ func (m *EnhancedBackupCodeManager) GenerateBackupCodesEnhanced(userID, ip strin
 			IP:       ip,
 			Status:   "success",
 			Details: map[string]interface{}{
-				"count":      m.config.Count,
-				"format":     m.config.Format,
+				"count":       m.config.Count,
+				"format":      m.config.Format,
 				"expiry_days": m.config.ExpiryDays,
 			},
 		})
@@ -184,7 +184,7 @@ func (m *EnhancedBackupCodeManager) VerifyBackupCodeEnhanced(userID, code, ip, r
 					Status:   "failure",
 					Reason:   "备份码已过期",
 					Details: map[string]interface{}{
-						"created_at": backupCode.CreatedAt,
+						"created_at":  backupCode.CreatedAt,
 						"expiry_date": expiryDate,
 					},
 				})

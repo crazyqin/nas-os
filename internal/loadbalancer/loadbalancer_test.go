@@ -405,10 +405,10 @@ func (e *testError) Error() string {
 
 func TestTokenBucketLimiter_Allow(t *testing.T) {
 	config := RateLimitConfig{
-		Enabled: true,
+		Enabled:   true,
 		Algorithm: RateLimitTokenBucket,
-		Rate:    10,
-		Burst:   20,
+		Rate:      10,
+		Burst:     20,
 	}
 
 	limiter := NewTokenBucketLimiter(config)
@@ -428,10 +428,10 @@ func TestTokenBucketLimiter_Allow(t *testing.T) {
 
 func TestTokenBucketLimiter_Refill(t *testing.T) {
 	config := RateLimitConfig{
-		Enabled: true,
+		Enabled:   true,
 		Algorithm: RateLimitTokenBucket,
-		Rate:    100,
-		Burst:   10,
+		Rate:      100,
+		Burst:     10,
 	}
 
 	limiter := NewTokenBucketLimiter(config)
@@ -459,10 +459,10 @@ func TestTokenBucketLimiter_Refill(t *testing.T) {
 
 func TestSlidingWindowLimiter_Allow(t *testing.T) {
 	config := RateLimitConfig{
-		Enabled: true,
+		Enabled:   true,
 		Algorithm: RateLimitSlidingWindow,
-		Rate:    10,
-		Burst:   10,
+		Rate:      10,
+		Burst:     10,
 	}
 
 	limiter := NewSlidingWindowLimiter(config)
@@ -482,10 +482,10 @@ func TestSlidingWindowLimiter_Allow(t *testing.T) {
 
 func TestIPRateLimiter_Ban(t *testing.T) {
 	config := RateLimitConfig{
-		Enabled: true,
+		Enabled:   true,
 		Algorithm: RateLimitTokenBucket,
-		Rate:    100,
-		Burst:   100,
+		Rate:      100,
+		Burst:     100,
 	}
 
 	limiter := NewIPRateLimiter(config)
@@ -760,10 +760,10 @@ func TestCircuitBreaker_Concurrent(t *testing.T) {
 
 func TestRateLimiter_Concurrent(t *testing.T) {
 	config := RateLimitConfig{
-		Enabled: true,
+		Enabled:   true,
 		Algorithm: RateLimitTokenBucket,
-		Rate:    1000,
-		Burst:   1000,
+		Rate:      1000,
+		Burst:     1000,
 	}
 
 	limiter := NewTokenBucketLimiter(config)
@@ -929,10 +929,10 @@ func BenchmarkCircuitBreaker_Execute(b *testing.B) {
 
 func BenchmarkTokenBucketLimiter_Allow(b *testing.B) {
 	config := RateLimitConfig{
-		Enabled: true,
+		Enabled:   true,
 		Algorithm: RateLimitTokenBucket,
-		Rate:    1000000,
-		Burst:   1000000,
+		Rate:      1000000,
+		Burst:     1000000,
 	}
 
 	limiter := NewTokenBucketLimiter(config)

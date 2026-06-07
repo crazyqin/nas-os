@@ -13,22 +13,22 @@ import (
 
 // OptimizationEngine 优化引擎核心
 type OptimizationEngine struct {
-	mu              sync.RWMutex
-	logger          *zap.Logger
-	config          *AutoTuneConfig
-	history         *OptimizationHistory
-	metrics         *MetricsCollector
-	autoTuner       *AutoTuner
-	predictor       *ResourcePredictor
-	detector        *BottleneckDetector
-	advisor         *OptimizationAdvisor
-	scheduler       *ScheduledOptimizer
-	stats           *EngineStats
-	running         bool
-	cancel          context.CancelFunc
-	startTime       time.Time
-	metricsHistory  []*ResourceMetrics
-	maxHistorySize  int
+	mu             sync.RWMutex
+	logger         *zap.Logger
+	config         *AutoTuneConfig
+	history        *OptimizationHistory
+	metrics        *MetricsCollector
+	autoTuner      *AutoTuner
+	predictor      *ResourcePredictor
+	detector       *BottleneckDetector
+	advisor        *OptimizationAdvisor
+	scheduler      *ScheduledOptimizer
+	stats          *EngineStats
+	running        bool
+	cancel         context.CancelFunc
+	startTime      time.Time
+	metricsHistory []*ResourceMetrics
+	maxHistorySize int
 }
 
 // MetricsCollector 指标收集器
@@ -51,10 +51,10 @@ func (mc *MetricsCollector) Collect() *ResourceMetrics {
 	runtime.ReadMemStats(&memStats)
 
 	metrics := &ResourceMetrics{
-		Timestamp:   time.Now(),
-		MemUsedMB:   float64(memStats.Alloc) / 1024 / 1024,
-		MemTotalMB:  float64(memStats.Sys) / 1024 / 1024,
-		MemPercent:  float64(memStats.Alloc) / float64(memStats.Sys) * 100,
+		Timestamp:  time.Now(),
+		MemUsedMB:  float64(memStats.Alloc) / 1024 / 1024,
+		MemTotalMB: float64(memStats.Sys) / 1024 / 1024,
+		MemPercent: float64(memStats.Alloc) / float64(memStats.Sys) * 100,
 	}
 
 	// 注意：实际的 CPU 和 IO 指标需要通过系统调用获取
@@ -83,10 +83,10 @@ func (mc *MetricsCollector) collectLoadAvg() (float64, float64, float64) {
 
 // AutoTuner 自动性能调优器
 type AutoTuner struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	config   *AutoTuneConfig
-	engine   *OptimizationEngine
+	mu     sync.RWMutex
+	logger *zap.Logger
+	config *AutoTuneConfig
+	engine *OptimizationEngine
 }
 
 // NewAutoTuner 创建自动调优器
@@ -241,10 +241,10 @@ func (at *AutoTuner) tuneIO(ctx context.Context, metrics *ResourceMetrics) *Opti
 
 // ResourcePredictor 资源预测器
 type ResourcePredictor struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	history  []*ResourceMetrics
-	maxSize  int
+	mu      sync.RWMutex
+	logger  *zap.Logger
+	history []*ResourceMetrics
+	maxSize int
 }
 
 // NewResourcePredictor 创建资源预测器
@@ -384,9 +384,9 @@ func (rp *ResourcePredictor) predictResource(resource string, history []*Resourc
 
 // BottleneckDetector 瓶颈检测器
 type BottleneckDetector struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	config   *AutoTuneConfig
+	mu     sync.RWMutex
+	logger *zap.Logger
+	config *AutoTuneConfig
 }
 
 // NewBottleneckDetector 创建瓶颈检测器
@@ -480,8 +480,8 @@ func (bd *BottleneckDetector) Detect(metrics *ResourceMetrics) []*Bottleneck {
 
 // OptimizationAdvisor 优化建议器
 type OptimizationAdvisor struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
+	mu     sync.RWMutex
+	logger *zap.Logger
 }
 
 // NewOptimizationAdvisor 创建优化建议器
@@ -630,12 +630,12 @@ func (oa *OptimizationAdvisor) generateGeneralSuggestions(metrics *ResourceMetri
 
 // ScheduledOptimizer 定时优化器
 type ScheduledOptimizer struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	engine   *OptimizationEngine
-	tasks    map[string]*ScheduledTask
-	running  bool
-	cancel   context.CancelFunc
+	mu      sync.RWMutex
+	logger  *zap.Logger
+	engine  *OptimizationEngine
+	tasks   map[string]*ScheduledTask
+	running bool
+	cancel  context.CancelFunc
 }
 
 // NewScheduledOptimizer 创建定时优化器

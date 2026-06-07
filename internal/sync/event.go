@@ -165,11 +165,11 @@ func (n *Notifier) EmitProgress(taskID string, p *Progress) {
 // EmitConflict 发送冲突检测事件.
 func (n *Notifier) EmitConflict(conflict *Conflict) {
 	n.Emit(&Event{
-		Type:     EventConflictDetected,
-		TaskID:   conflict.TaskID,
+		Type:      EventConflictDetected,
+		TaskID:    conflict.TaskID,
 		Timestamp: time.Now(),
-		Conflict: conflict,
-		Message:  fmt.Sprintf("检测到冲突: %s", conflict.RelPath),
+		Conflict:  conflict,
+		Message:   fmt.Sprintf("检测到冲突: %s", conflict.RelPath),
 	})
 }
 
@@ -227,8 +227,8 @@ func NewBufferedEventHandler(inner EventHandler, bufferSize int, flushInt time.D
 		inner:      inner,
 		buffer:     make([]*Event, 0, bufferSize),
 		bufferSize: bufferSize,
-		flushInt:  flushInt,
-		stop:      make(chan struct{}),
+		flushInt:   flushInt,
+		stop:       make(chan struct{}),
 	}
 }
 

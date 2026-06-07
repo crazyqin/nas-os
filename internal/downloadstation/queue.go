@@ -8,14 +8,14 @@ import (
 
 // DownloadQueue 下载队列.
 type DownloadQueue struct {
-	mu          sync.RWMutex
-	items       *priorityQueue
-	active      map[string]*DownloadTask
-	config      QueueConfig
-	speedStats  []SpeedStats
-	maxStats    int
-	totalSpeed  int64
-	stopCh      chan struct{}
+	mu         sync.RWMutex
+	items      *priorityQueue
+	active     map[string]*DownloadTask
+	config     QueueConfig
+	speedStats []SpeedStats
+	maxStats   int
+	totalSpeed int64
+	stopCh     chan struct{}
 }
 
 // NewDownloadQueue 创建下载队列.

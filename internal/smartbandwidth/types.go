@@ -10,72 +10,72 @@ import (
 type TrafficClass string
 
 const (
-	TrafficClassVideo       TrafficClass = "video"       // 视频流
+	TrafficClassVideo        TrafficClass = "video"         // 视频流
 	TrafficClassFileTransfer TrafficClass = "file_transfer" // 文件传输
-	TrafficClassBackup      TrafficClass = "backup"      // 备份
-	TrafficClassAIInference TrafficClass = "ai_inference" // AI推理
-	TrafficClassWeb         TrafficClass = "web"         // 网页浏览
-	TrafficClassVoIP        TrafficClass = "voip"        // 语音通话
-	TrafficClassGaming      TrafficClass = "gaming"      // 游戏
-	TrafficClassStreaming   TrafficClass = "streaming"   // 流媒体
-	TrafficClassDownload    TrafficClass = "download"    // 下载
-	TrafficClassOther       TrafficClass = "other"       // 其他
+	TrafficClassBackup       TrafficClass = "backup"        // 备份
+	TrafficClassAIInference  TrafficClass = "ai_inference"  // AI推理
+	TrafficClassWeb          TrafficClass = "web"           // 网页浏览
+	TrafficClassVoIP         TrafficClass = "voip"          // 语音通话
+	TrafficClassGaming       TrafficClass = "gaming"        // 游戏
+	TrafficClassStreaming    TrafficClass = "streaming"     // 流媒体
+	TrafficClassDownload     TrafficClass = "download"      // 下载
+	TrafficClassOther        TrafficClass = "other"         // 其他
 )
 
 // QoSPolicy QoS策略
 type QoSPolicy struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Priority    int          `json:"priority"`     // 优先级 1-10，10最高
-	MinMbps     int64        `json:"min_mbps"`     // 最小带宽保证
-	MaxMbps     int64        `json:"max_mbps"`     // 最大带宽限制
-	Enabled     bool         `json:"enabled"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Priority  int       `json:"priority"` // 优先级 1-10，10最高
+	MinMbps   int64     `json:"min_mbps"` // 最小带宽保证
+	MaxMbps   int64     `json:"max_mbps"` // 最大带宽限制
+	Enabled   bool      `json:"enabled"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // TrafficProfile 流量配置文件
 type TrafficProfile struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
+	ID           string       `json:"id"`
+	Name         string       `json:"name"`
 	TrafficClass TrafficClass `json:"traffic_class"`
-	Priority    int          `json:"priority"`      // 优先级 1-10
-	MinMbps     int64        `json:"min_mbps"`      // 最小带宽保证
-	MaxMbps     int64        `json:"max_mbps"`      // 最大带宽限制
-	Description string       `json:"description"`
-	Enabled     bool         `json:"enabled"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	Priority     int          `json:"priority"` // 优先级 1-10
+	MinMbps      int64        `json:"min_mbps"` // 最小带宽保证
+	MaxMbps      int64        `json:"max_mbps"` // 最大带宽限制
+	Description  string       `json:"description"`
+	Enabled      bool         `json:"enabled"`
+	CreatedAt    time.Time    `json:"created_at"`
+	UpdatedAt    time.Time    `json:"updated_at"`
 }
 
 // BandwidthRule 带宽规则
 type BandwidthRule struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
+	ID           string       `json:"id"`
+	Name         string       `json:"name"`
 	TrafficClass TrafficClass `json:"traffic_class"`
-	SourceIP    string       `json:"source_ip,omitempty"`
-	DestIP      string       `json:"dest_ip,omitempty"`
-	SourcePort  int          `json:"source_port,omitempty"`
-	DestPort    int          `json:"dest_port,omitempty"`
-	Protocol    string       `json:"protocol,omitempty"`
-	Priority    int          `json:"priority"`      // 优先级 1-10
-	MinMbps     int64        `json:"min_mbps"`      // 最小带宽保证
-	MaxMbps     int64        `json:"max_mbps"`      // 最大带宽限制
-	Enabled     bool         `json:"enabled"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	SourceIP     string       `json:"source_ip,omitempty"`
+	DestIP       string       `json:"dest_ip,omitempty"`
+	SourcePort   int          `json:"source_port,omitempty"`
+	DestPort     int          `json:"dest_port,omitempty"`
+	Protocol     string       `json:"protocol,omitempty"`
+	Priority     int          `json:"priority"` // 优先级 1-10
+	MinMbps      int64        `json:"min_mbps"` // 最小带宽保证
+	MaxMbps      int64        `json:"max_mbps"` // 最大带宽限制
+	Enabled      bool         `json:"enabled"`
+	CreatedAt    time.Time    `json:"created_at"`
+	UpdatedAt    time.Time    `json:"updated_at"`
 }
 
 // BandwidthStats 带宽统计
 type BandwidthStats struct {
-	RuleID      string       `json:"rule_id"`
+	RuleID       string       `json:"rule_id"`
 	TrafficClass TrafficClass `json:"traffic_class"`
-	CurrentMbps float64      `json:"current_mbps"`  // 当前带宽
-	TotalBytes  int64        `json:"total_bytes"`   // 总流量
-	Packets     int64        `json:"packets"`       // 包数
-	Priority    int          `json:"priority"`
-	Utilization float64      `json:"utilization"`   // 带宽利用率
-	LastUpdated time.Time    `json:"last_updated"`
+	CurrentMbps  float64      `json:"current_mbps"` // 当前带宽
+	TotalBytes   int64        `json:"total_bytes"`  // 总流量
+	Packets      int64        `json:"packets"`      // 包数
+	Priority     int          `json:"priority"`
+	Utilization  float64      `json:"utilization"` // 带宽利用率
+	LastUpdated  time.Time    `json:"last_updated"`
 }
 
 // SmartBandwidthManager 智能带宽管理器
@@ -93,8 +93,8 @@ type SmartBandwidthManager struct {
 type SmartBandwidthConfig struct {
 	TotalBandwidthMbps int64  `json:"total_bandwidth_mbps"` // 总带宽
 	Enabled            bool   `json:"enabled"`
-	Interface          string `json:"interface"`            // 网络接口
-	AdjustInterval     int    `json:"adjust_interval_sec"`  // 动态调整间隔（秒）
+	Interface          string `json:"interface"`           // 网络接口
+	AdjustInterval     int    `json:"adjust_interval_sec"` // 动态调整间隔（秒）
 }
 
 // NewSmartBandwidthManager 创建智能带宽管理器
@@ -158,10 +158,10 @@ func (m *SmartBandwidthManager) SetBandwidthLimit(rule *BandwidthRule) (*Bandwid
 
 	// 初始化统计
 	m.stats[rule.ID] = &BandwidthStats{
-		RuleID:      rule.ID,
+		RuleID:       rule.ID,
 		TrafficClass: rule.TrafficClass,
-		Priority:    rule.Priority,
-		LastUpdated: time.Now(),
+		Priority:     rule.Priority,
+		LastUpdated:  time.Now(),
 	}
 
 	return rule, nil

@@ -13,24 +13,24 @@ import (
 
 // Container 容器信息
 type Container struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Image       string            `json:"image"`
-	Tag         string            `json:"tag"`
-	Status      string            `json:"status"` // running, stopped, paused, created
-	State       string            `json:"state"`
-	CreatedAt   time.Time         `json:"created_at"`
-	StartedAt   time.Time         `json:"started_at,omitempty"`
-	FinishedAt  time.Time         `json:"finished_at,omitempty"`
-	Ports       []PortMapping     `json:"ports"`
-	Volumes     []VolumeMount     `json:"volumes"`
-	Env         map[string]string `json:"env"`
-	Labels      map[string]string `json:"labels"`
-	Networks    []string          `json:"networks"`
-	Resources   ResourceLimits    `json:"resources"`
-	RestartPolicy string          `json:"restart_policy"`
-	HealthCheck *HealthCheck       `json:"health_check,omitempty"`
-	Logs        []LogEntry        `json:"logs,omitempty"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Image         string            `json:"image"`
+	Tag           string            `json:"tag"`
+	Status        string            `json:"status"` // running, stopped, paused, created
+	State         string            `json:"state"`
+	CreatedAt     time.Time         `json:"created_at"`
+	StartedAt     time.Time         `json:"started_at,omitempty"`
+	FinishedAt    time.Time         `json:"finished_at,omitempty"`
+	Ports         []PortMapping     `json:"ports"`
+	Volumes       []VolumeMount     `json:"volumes"`
+	Env           map[string]string `json:"env"`
+	Labels        map[string]string `json:"labels"`
+	Networks      []string          `json:"networks"`
+	Resources     ResourceLimits    `json:"resources"`
+	RestartPolicy string            `json:"restart_policy"`
+	HealthCheck   *HealthCheck      `json:"health_check,omitempty"`
+	Logs          []LogEntry        `json:"logs,omitempty"`
 }
 
 // PortMapping 端口映射
@@ -51,12 +51,12 @@ type VolumeMount struct {
 
 // ResourceLimits 资源限制
 type ResourceLimits struct {
-	CPUShares    int64   `json:"cpu_shares"`
-	MemoryLimit  int64   `json:"memory_limit"`  // bytes
-	MemorySwap   int64   `json:"memory_swap"`
-	CPUQuota     int64   `json:"cpu_quota"`
-	CPUPeriod    int64   `json:"cpu_period"`
-	BlkioWeight  int     `json:"blkio_weight"`
+	CPUShares   int64 `json:"cpu_shares"`
+	MemoryLimit int64 `json:"memory_limit"` // bytes
+	MemorySwap  int64 `json:"memory_swap"`
+	CPUQuota    int64 `json:"cpu_quota"`
+	CPUPeriod   int64 `json:"cpu_period"`
+	BlkioWeight int   `json:"blkio_weight"`
 }
 
 // HealthCheck 健康检查
@@ -77,30 +77,30 @@ type LogEntry struct {
 
 // Stack Compose 栈
 type Stack struct {
-	ID         string                `json:"id"`
-	Name       string                `json:"name"`
-	Services   map[string]Service    `json:"services"`
-	Networks   map[string]Network    `json:"networks"`
-	Volumes    map[string]Volume     `json:"volumes"`
-	Status     string                `json:"status"`
-	ComposeFile string               `json:"compose_file"`
-	CreatedAt  time.Time             `json:"created_at"`
-	UpdatedAt  time.Time             `json:"updated_at"`
+	ID          string             `json:"id"`
+	Name        string             `json:"name"`
+	Services    map[string]Service `json:"services"`
+	Networks    map[string]Network `json:"networks"`
+	Volumes     map[string]Volume  `json:"volumes"`
+	Status      string             `json:"status"`
+	ComposeFile string             `json:"compose_file"`
+	CreatedAt   time.Time          `json:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
 // Service 服务定义
 type Service struct {
-	Name         string            `json:"name"`
-	Image        string            `json:"image"`
-	Ports        []PortMapping     `json:"ports"`
-	Volumes      []VolumeMount     `json:"volumes"`
-	Env          map[string]string `json:"env"`
-	Labels       map[string]string `json:"labels"`
-	DependsOn    []string          `json:"depends_on"`
-	Networks     []string          `json:"networks"`
-	Resources    ResourceLimits    `json:"resources"`
-	Replicas     int               `json:"replicas"`
-	RestartPolicy string           `json:"restart_policy"`
+	Name          string            `json:"name"`
+	Image         string            `json:"image"`
+	Ports         []PortMapping     `json:"ports"`
+	Volumes       []VolumeMount     `json:"volumes"`
+	Env           map[string]string `json:"env"`
+	Labels        map[string]string `json:"labels"`
+	DependsOn     []string          `json:"depends_on"`
+	Networks      []string          `json:"networks"`
+	Resources     ResourceLimits    `json:"resources"`
+	Replicas      int               `json:"replicas"`
+	RestartPolicy string            `json:"restart_policy"`
 }
 
 // Network 网络定义
@@ -114,7 +114,7 @@ type Network struct {
 
 // IPAM IP 地址管理
 type IPAM struct {
-	Driver string      `json:"driver"`
+	Driver string       `json:"driver"`
 	Config []IPAMConfig `json:"config"`
 }
 
@@ -442,15 +442,15 @@ func (m *Manager) InstallTemplate(ctx context.Context, templateID string, envVar
 
 	// 创建栈
 	stack := &Stack{
-		ID:       generateID(),
-		Name:     template.Name,
+		ID:   generateID(),
+		Name: template.Name,
 		Services: map[string]Service{
 			template.Name: {
-				Name:  template.Name,
-				Image: template.Image,
-				Ports: template.Ports,
+				Name:    template.Name,
+				Image:   template.Image,
+				Ports:   template.Ports,
 				Volumes: template.Volumes,
-				Env:   env,
+				Env:     env,
 			},
 		},
 		Status:    "running",
@@ -519,10 +519,10 @@ func (m *Manager) GetStats(ctx context.Context) (map[string]interface{}, error) 
 	return map[string]interface{}{
 		"containers_running": runningCount,
 		"containers_stopped": stoppedCount,
-		"stacks":            len(m.stacks),
-		"networks":          len(m.networks),
-		"volumes":           len(m.volumes),
-		"templates":         len(m.templates),
+		"stacks":             len(m.stacks),
+		"networks":           len(m.networks),
+		"volumes":            len(m.volumes),
+		"templates":          len(m.templates),
 	}, nil
 }
 

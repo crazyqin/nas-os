@@ -40,15 +40,15 @@ type UpdateInfo struct {
 
 // MarketSearchParams 市场搜索参数
 type MarketSearchParams struct {
-	Query      string `json:"query"`
-	Category   string `json:"category"`
-	Type       string `json:"type"`
-	Official   bool   `json:"official"`
-	Featured   bool   `json:"featured"`
-	SortBy     string `json:"sort_by"` // name, downloads, rating, updated
-	SortDesc   bool   `json:"sort_desc"`
-	Limit      int    `json:"limit"`
-	Offset     int    `json:"offset"`
+	Query    string `json:"query"`
+	Category string `json:"category"`
+	Type     string `json:"type"`
+	Official bool   `json:"official"`
+	Featured bool   `json:"featured"`
+	SortBy   string `json:"sort_by"` // name, downloads, rating, updated
+	SortDesc bool   `json:"sort_desc"`
+	Limit    int    `json:"limit"`
+	Offset   int    `json:"offset"`
 }
 
 // NewMarketplace 创建应用市场

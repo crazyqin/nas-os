@@ -16,7 +16,7 @@ type Webhook struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
 	URL         string            `json:"url"`
-	Events      []string          `json:"events"`    // e.g., "backup.complete", "alert.critical"
+	Events      []string          `json:"events"` // e.g., "backup.complete", "alert.critical"
 	Headers     map[string]string `json:"headers"`
 	Enabled     bool              `json:"enabled"`
 	Secret      string            `json:"secret,omitempty"`
@@ -33,11 +33,11 @@ type Event struct {
 
 // Manager manages webhooks.
 type Manager struct {
-	mu        sync.RWMutex
-	webhooks  map[string]*Webhook
-	client    *http.Client
-	queue     chan eventJob
-	stopCh    chan struct{}
+	mu       sync.RWMutex
+	webhooks map[string]*Webhook
+	client   *http.Client
+	queue    chan eventJob
+	stopCh   chan struct{}
 }
 
 type eventJob struct {

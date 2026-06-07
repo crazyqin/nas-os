@@ -583,12 +583,12 @@ func TestCreateTrafficProfile(t *testing.T) {
 	manager := NewSmartBandwidthManager(nil)
 
 	profile := &TrafficProfile{
-		Name:          "Video Streaming",
-		TrafficClass:  TrafficClassStreaming,
-		Priority:      7,
-		MinMbps:       20,
-		MaxMbps:       200,
-		Description:   "Video streaming profile",
+		Name:         "Video Streaming",
+		TrafficClass: TrafficClassStreaming,
+		Priority:     7,
+		MinMbps:      20,
+		MaxMbps:      200,
+		Description:  "Video streaming profile",
 	}
 
 	created, err := manager.CreateTrafficProfile(profile)

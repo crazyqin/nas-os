@@ -13,13 +13,13 @@ import (
 type FileType string
 
 const (
-	FileTypeDoc    FileType = "document"
-	FileTypeImage  FileType = "image"
-	FileTypeVideo  FileType = "video"
-	FileTypeAudio  FileType = "audio"
+	FileTypeDoc     FileType = "document"
+	FileTypeImage   FileType = "image"
+	FileTypeVideo   FileType = "video"
+	FileTypeAudio   FileType = "audio"
 	FileTypeArchive FileType = "archive"
-	FileTypeCode   FileType = "code"
-	FileTypeOther  FileType = "other"
+	FileTypeCode    FileType = "code"
+	FileTypeOther   FileType = "other"
 )
 
 // ScanStatus 扫描状态
@@ -34,37 +34,37 @@ const (
 
 // ScanResult 扫描结果
 type ScanResult struct {
-	ID            string           `json:"id"`
-	ScanPath      string           `json:"scan_path"`
-	Status        ScanStatus       `json:"status"`
-	TotalSize     int64            `json:"total_size"`
-	TotalFiles    int              `json:"total_files"`
-	TotalDirs     int              `json:"total_dirs"`
-	ByType        map[FileType]int64 `json:"by_type"`
-	TopFiles      []FileInfo       `json:"top_files"`
-	Duplicates    []DuplicateGroup `json:"duplicates"`
-	TrendData     []CapacityPoint  `json:"trend_data"`
-	Suggestions   []Suggestion     `json:"suggestions"`
-	StartedAt     time.Time        `json:"started_at"`
-	CompletedAt   *time.Time       `json:"completed_at"`
+	ID          string             `json:"id"`
+	ScanPath    string             `json:"scan_path"`
+	Status      ScanStatus         `json:"status"`
+	TotalSize   int64              `json:"total_size"`
+	TotalFiles  int                `json:"total_files"`
+	TotalDirs   int                `json:"total_dirs"`
+	ByType      map[FileType]int64 `json:"by_type"`
+	TopFiles    []FileInfo         `json:"top_files"`
+	Duplicates  []DuplicateGroup   `json:"duplicates"`
+	TrendData   []CapacityPoint    `json:"trend_data"`
+	Suggestions []Suggestion       `json:"suggestions"`
+	StartedAt   time.Time          `json:"started_at"`
+	CompletedAt *time.Time         `json:"completed_at"`
 }
 
 // FileInfo 文件信息
 type FileInfo struct {
-	Path      string    `json:"path"`
-	Size      int64     `json:"size"`
-	FileType  FileType  `json:"file_type"`
-	ModTime   time.Time `json:"mod_time"`
-	Checksum  string    `json:"checksum,omitempty"`
+	Path     string    `json:"path"`
+	Size     int64     `json:"size"`
+	FileType FileType  `json:"file_type"`
+	ModTime  time.Time `json:"mod_time"`
+	Checksum string    `json:"checksum,omitempty"`
 }
 
 // DuplicateGroup 重复文件组
 type DuplicateGroup struct {
-	Hash  string     `json:"hash"`
-	Size  int64      `json:"size"`
-	Count int        `json:"count"`
-	Files []FileInfo `json:"files"`
-	WastedSpace int64 `json:"wasted_space"`
+	Hash        string     `json:"hash"`
+	Size        int64      `json:"size"`
+	Count       int        `json:"count"`
+	Files       []FileInfo `json:"files"`
+	WastedSpace int64      `json:"wasted_space"`
 }
 
 // CapacityPoint 容量数据点

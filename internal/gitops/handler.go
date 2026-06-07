@@ -168,8 +168,8 @@ func (h *Handler) GetDriftDetails(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"repo_id":       repoID,
-		"env":           env,
+		"repo_id":        repoID,
+		"env":            env,
 		"drift_detected": status.DriftDetected,
 		"drift_details":  status.DriftDetails,
 		"last_sync_at":   status.LastSyncAt,

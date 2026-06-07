@@ -11,17 +11,17 @@ import (
 
 // Manager NVR 管理器
 type Manager struct {
-	mu            sync.RWMutex
-	cameras       map[string]*Camera
-	recordings    []*Recording
-	motionRules   map[string][]*MotionRule
-	motionEvents  []*MotionEvent
-	alerts        []*Alert
-	storagePlans  map[string]*StoragePlan
-	recordingID   int64
-	motionID      int64
-	alertID       int64
-	planID        int64
+	mu           sync.RWMutex
+	cameras      map[string]*Camera
+	recordings   []*Recording
+	motionRules  map[string][]*MotionRule
+	motionEvents []*MotionEvent
+	alerts       []*Alert
+	storagePlans map[string]*StoragePlan
+	recordingID  int64
+	motionID     int64
+	alertID      int64
+	planID       int64
 }
 
 // NewManager 创建管理器

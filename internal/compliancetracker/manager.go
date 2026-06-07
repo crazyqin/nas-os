@@ -573,13 +573,13 @@ func (m *Manager) GetComplianceStats(startTime, endTime time.Time) (map[string]i
 	}
 
 	stats := map[string]interface{}{
-		"total_checks":       totalChecks,
-		"compliant_count":    compliantCount,
+		"total_checks":        totalChecks,
+		"compliant_count":     compliantCount,
 		"non_compliant_count": nonCompliantCount,
-		"compliance_rate":    complianceRate,
-		"rule_count":         ruleCount,
-		"enabled_rule_count": enabledRuleCount,
-		"audit_log_count":    len(m.auditLog),
+		"compliance_rate":     complianceRate,
+		"rule_count":          ruleCount,
+		"enabled_rule_count":  enabledRuleCount,
+		"audit_log_count":     len(m.auditLog),
 	}
 
 	return stats, nil

@@ -55,9 +55,9 @@ const (
 type SharePermission string
 
 const (
-	ShareView    SharePermission = "view"
+	ShareView     SharePermission = "view"
 	ShareDownload SharePermission = "download"
-	ShareEdit    SharePermission = "edit"
+	ShareEdit     SharePermission = "edit"
 )
 
 // ============================================================

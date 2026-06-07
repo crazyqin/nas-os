@@ -16,12 +16,12 @@ import (
 type Algorithm string
 
 const (
-	AlgorithmKyber512  Algorithm = "kyber512"
-	AlgorithmKyber768  Algorithm = "kyber768"
-	AlgorithmKyber1024 Algorithm = "kyber1024"
-	AlgorithmDilithium2 Algorithm = "dilithium2"
-	AlgorithmDilithium3 Algorithm = "dilithium3"
-	AlgorithmDilithium5 Algorithm = "dilithium5"
+	AlgorithmKyber512    Algorithm = "kyber512"
+	AlgorithmKyber768    Algorithm = "kyber768"
+	AlgorithmKyber1024   Algorithm = "kyber1024"
+	AlgorithmDilithium2  Algorithm = "dilithium2"
+	AlgorithmDilithium3  Algorithm = "dilithium3"
+	AlgorithmDilithium5  Algorithm = "dilithium5"
 	AlgorithmSPHINCSPlus Algorithm = "sphincs+"
 )
 
@@ -29,9 +29,9 @@ const (
 type EncryptionMode string
 
 const (
-	ModePostQuantum   EncryptionMode = "post_quantum"
-	ModeHybrid        EncryptionMode = "hybrid"
-	ModeClassical     EncryptionMode = "classical"
+	ModePostQuantum EncryptionMode = "post_quantum"
+	ModeHybrid      EncryptionMode = "hybrid"
+	ModeClassical   EncryptionMode = "classical"
 )
 
 // KeyType 密钥类型
@@ -46,59 +46,59 @@ const (
 type KeyStatus string
 
 const (
-	KeyStatusActive    KeyStatus = "active"
-	KeyStatusRotating  KeyStatus = "rotating"
+	KeyStatusActive     KeyStatus = "active"
+	KeyStatusRotating   KeyStatus = "rotating"
 	KeyStatusDeprecated KeyStatus = "deprecated"
-	KeyStatusRevoked   KeyStatus = "revoked"
+	KeyStatusRevoked    KeyStatus = "revoked"
 )
 
 // Key 密钥
 type Key struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Algorithm   Algorithm `json:"algorithm"`
-	KeyType     KeyType   `json:"key_type"`
-	PublicKey   string    `json:"public_key"`
-	PrivateKey  string    `json:"private_key"`
-	Status      KeyStatus `json:"status"`
-	ExpiresAt   time.Time `json:"expires_at"`
-	CreatedAt   time.Time `json:"created_at"`
-	RotatedAt   *time.Time `json:"rotated_at,omitempty"`
-	Metadata    map[string]string `json:"metadata"`
+	ID         string            `json:"id"`
+	Name       string            `json:"name"`
+	Algorithm  Algorithm         `json:"algorithm"`
+	KeyType    KeyType           `json:"key_type"`
+	PublicKey  string            `json:"public_key"`
+	PrivateKey string            `json:"private_key"`
+	Status     KeyStatus         `json:"status"`
+	ExpiresAt  time.Time         `json:"expires_at"`
+	CreatedAt  time.Time         `json:"created_at"`
+	RotatedAt  *time.Time        `json:"rotated_at,omitempty"`
+	Metadata   map[string]string `json:"metadata"`
 }
 
 // EncryptedData 加密数据
 type EncryptedData struct {
-	ID          string        `json:"id"`
-	KeyID       string        `json:"key_id"`
-	Algorithm   Algorithm     `json:"algorithm"`
-	Mode        EncryptionMode `json:"mode"`
-	Ciphertext  string        `json:"ciphertext"`
-	Nonce       string        `json:"nonce"`
-	Tag         string        `json:"tag"`
-	CreatedAt   time.Time     `json:"created_at"`
+	ID         string         `json:"id"`
+	KeyID      string         `json:"key_id"`
+	Algorithm  Algorithm      `json:"algorithm"`
+	Mode       EncryptionMode `json:"mode"`
+	Ciphertext string         `json:"ciphertext"`
+	Nonce      string         `json:"nonce"`
+	Tag        string         `json:"tag"`
+	CreatedAt  time.Time      `json:"created_at"`
 }
 
 // Signature 数字签名
 type Signature struct {
-	ID          string    `json:"id"`
-	KeyID       string    `json:"key_id"`
-	Algorithm   Algorithm `json:"algorithm"`
-	Message     string    `json:"message"`
-	Signature   string    `json:"signature"`
-	Verified    bool      `json:"verified"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID        string    `json:"id"`
+	KeyID     string    `json:"key_id"`
+	Algorithm Algorithm `json:"algorithm"`
+	Message   string    `json:"message"`
+	Signature string    `json:"signature"`
+	Verified  bool      `json:"verified"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // KeyRotationPolicy 密钥轮换策略
 type KeyRotationPolicy struct {
-	ID              string        `json:"id"`
-	Name            string        `json:"name"`
-	Algorithm       Algorithm     `json:"algorithm"`
+	ID               string        `json:"id"`
+	Name             string        `json:"name"`
+	Algorithm        Algorithm     `json:"algorithm"`
 	RotationInterval time.Duration `json:"rotation_interval"`
-	MaxKeyAge       time.Duration `json:"max_key_age"`
-	AutoRotate      bool          `json:"auto_rotate"`
-	NotifyBefore    time.Duration `json:"notify_before"`
+	MaxKeyAge        time.Duration `json:"max_key_age"`
+	AutoRotate       bool          `json:"auto_rotate"`
+	NotifyBefore     time.Duration `json:"notify_before"`
 }
 
 // AuditLog 审计日志
@@ -115,37 +115,37 @@ type AuditLog struct {
 
 // PerformanceBenchmark 性能基准
 type PerformanceBenchmark struct {
-	Algorithm     Algorithm `json:"algorithm"`
-	Operation     string    `json:"operation"` // keygen, encrypt, decrypt, sign, verify
-	Duration      time.Duration `json:"duration"`
-	Iterations    int       `json:"iterations"`
-	AvgDuration   time.Duration `json:"avg_duration"`
-	MinDuration   time.Duration `json:"min_duration"`
-	MaxDuration   time.Duration `json:"max_duration"`
-	Timestamp     time.Time `json:"timestamp"`
+	Algorithm   Algorithm     `json:"algorithm"`
+	Operation   string        `json:"operation"` // keygen, encrypt, decrypt, sign, verify
+	Duration    time.Duration `json:"duration"`
+	Iterations  int           `json:"iterations"`
+	AvgDuration time.Duration `json:"avg_duration"`
+	MinDuration time.Duration `json:"min_duration"`
+	MaxDuration time.Duration `json:"max_duration"`
+	Timestamp   time.Time     `json:"timestamp"`
 }
 
 // QuantumCryptoConfig 后量子加密配置
 type QuantumCryptoConfig struct {
-	Enabled           bool              `json:"enabled"`
-	DefaultAlgorithm  Algorithm         `json:"default_algorithm"`
-	Mode              EncryptionMode    `json:"mode"`
-	KeyRotationEnabled bool             `json:"key_rotation_enabled"`
-	DefaultKeyExpiry  time.Duration     `json:"default_key_expiry"`
-	MaxKeys           int               `json:"max_keys"`
-	AuditEnabled      bool              `json:"audit_enabled"`
-	BenchmarkEnabled  bool              `json:"benchmark_enabled"`
+	Enabled            bool           `json:"enabled"`
+	DefaultAlgorithm   Algorithm      `json:"default_algorithm"`
+	Mode               EncryptionMode `json:"mode"`
+	KeyRotationEnabled bool           `json:"key_rotation_enabled"`
+	DefaultKeyExpiry   time.Duration  `json:"default_key_expiry"`
+	MaxKeys            int            `json:"max_keys"`
+	AuditEnabled       bool           `json:"audit_enabled"`
+	BenchmarkEnabled   bool           `json:"benchmark_enabled"`
 }
 
 // Manager 后量子加密管理器
 type Manager struct {
-	config      *QuantumCryptoConfig
-	keys        map[string]*Key
-	policies    map[string]*KeyRotationPolicy
-	auditLogs   []AuditLog
-	benchmarks  []*PerformanceBenchmark
-	mu          sync.RWMutex
-	stopCh      chan struct{}
+	config     *QuantumCryptoConfig
+	keys       map[string]*Key
+	policies   map[string]*KeyRotationPolicy
+	auditLogs  []AuditLog
+	benchmarks []*PerformanceBenchmark
+	mu         sync.RWMutex
+	stopCh     chan struct{}
 }
 
 // NewManager 创建后量子加密管理器
@@ -163,11 +163,11 @@ func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return nil
 	}
-	
+
 	if m.config.KeyRotationEnabled {
 		go m.runKeyRotation()
 	}
-	
+
 	return nil
 }
 
@@ -180,7 +180,7 @@ func (m *Manager) Stop() {
 func (m *Manager) runKeyRotation() {
 	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-m.stopCh:
@@ -195,7 +195,7 @@ func (m *Manager) runKeyRotation() {
 func (m *Manager) checkAndRotateKeys() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	for _, key := range m.keys {
 		if key.Status == KeyStatusActive && time.Now().After(key.ExpiresAt) {
 			m.rotateKey(key)
@@ -208,7 +208,7 @@ func (m *Manager) rotateKey(key *Key) {
 	key.Status = KeyStatusDeprecated
 	now := time.Now()
 	key.RotatedAt = &now
-	
+
 	// 创建新密钥
 	newKey := &Key{
 		ID:        fmt.Sprintf("key_%d", time.Now().UnixNano()),
@@ -220,12 +220,12 @@ func (m *Manager) rotateKey(key *Key) {
 		CreatedAt: time.Now(),
 		Metadata:  key.Metadata,
 	}
-	
+
 	// 生成密钥对
 	m.generateKeyPair(newKey)
-	
+
 	m.keys[newKey.ID] = newKey
-	
+
 	m.addAuditLog("key_rotation", newKey.ID, newKey.Algorithm, "Key rotated successfully", true)
 }
 
@@ -233,11 +233,11 @@ func (m *Manager) rotateKey(key *Key) {
 func (m *Manager) GenerateKey(name string, algorithm Algorithm, keyType KeyType) (*Key, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if len(m.keys) >= m.config.MaxKeys {
 		return nil, fmt.Errorf("maximum keys reached: %d", m.config.MaxKeys)
 	}
-	
+
 	key := &Key{
 		ID:        fmt.Sprintf("key_%d", time.Now().UnixNano()),
 		Name:      name,
@@ -248,14 +248,14 @@ func (m *Manager) GenerateKey(name string, algorithm Algorithm, keyType KeyType)
 		CreatedAt: time.Now(),
 		Metadata:  make(map[string]string),
 	}
-	
+
 	// 生成密钥对
 	m.generateKeyPair(key)
-	
+
 	m.keys[key.ID] = key
-	
+
 	m.addAuditLog("key_generation", key.ID, algorithm, "Key generated", true)
-	
+
 	return key, nil
 }
 
@@ -266,7 +266,7 @@ func (m *Manager) generateKeyPair(key *Key) {
 	privateKey := make([]byte, 64)
 	rand.Read(publicKey)
 	rand.Read(privateKey)
-	
+
 	key.PublicKey = hex.EncodeToString(publicKey)
 	key.PrivateKey = hex.EncodeToString(privateKey)
 }
@@ -275,12 +275,12 @@ func (m *Manager) generateKeyPair(key *Key) {
 func (m *Manager) GetKey(keyID string) (*Key, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	key, ok := m.keys[keyID]
 	if !ok {
 		return nil, fmt.Errorf("key not found: %s", keyID)
 	}
-	
+
 	return key, nil
 }
 
@@ -288,14 +288,14 @@ func (m *Manager) GetKey(keyID string) (*Key, error) {
 func (m *Manager) ListKeys(status KeyStatus) []*Key {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	keys := make([]*Key, 0, len(m.keys))
 	for _, key := range m.keys {
 		if status == "" || key.Status == status {
 			keys = append(keys, key)
 		}
 	}
-	
+
 	return keys
 }
 
@@ -303,15 +303,15 @@ func (m *Manager) ListKeys(status KeyStatus) []*Key {
 func (m *Manager) RevokeKey(keyID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	key, ok := m.keys[keyID]
 	if !ok {
 		return fmt.Errorf("key not found: %s", keyID)
 	}
-	
+
 	key.Status = KeyStatusRevoked
 	m.addAuditLog("key_revocation", keyID, key.Algorithm, "Key revoked", true)
-	
+
 	return nil
 }
 
@@ -320,22 +320,22 @@ func (m *Manager) Encrypt(keyID string, plaintext []byte) (*EncryptedData, error
 	m.mu.RLock()
 	key, ok := m.keys[keyID]
 	m.mu.RUnlock()
-	
+
 	if !ok {
 		return nil, fmt.Errorf("key not found: %s", keyID)
 	}
-	
+
 	if key.Status != KeyStatusActive {
 		return nil, fmt.Errorf("key is not active: %s", key.Status)
 	}
-	
+
 	// 模拟加密
 	nonce := make([]byte, 12)
 	rand.Read(nonce)
-	
+
 	hash := sha256.Sum256(plaintext)
 	ciphertext := hex.EncodeToString(hash[:])
-	
+
 	encrypted := &EncryptedData{
 		ID:         fmt.Sprintf("enc_%d", time.Now().UnixNano()),
 		KeyID:      keyID,
@@ -346,9 +346,9 @@ func (m *Manager) Encrypt(keyID string, plaintext []byte) (*EncryptedData, error
 		Tag:        hex.EncodeToString(hash[:16]),
 		CreatedAt:  time.Now(),
 	}
-	
+
 	m.addAuditLog("encryption", keyID, key.Algorithm, "Data encrypted", true)
-	
+
 	return encrypted, nil
 }
 
@@ -357,20 +357,20 @@ func (m *Manager) Decrypt(keyID string, encrypted *EncryptedData) ([]byte, error
 	m.mu.RLock()
 	key, ok := m.keys[keyID]
 	m.mu.RUnlock()
-	
+
 	if !ok {
 		return nil, fmt.Errorf("key not found: %s", keyID)
 	}
-	
+
 	if key.Status != KeyStatusActive {
 		return nil, fmt.Errorf("key is not active: %s", key.Status)
 	}
-	
+
 	// 模拟解密
 	plaintext := []byte("decrypted_data")
-	
+
 	m.addAuditLog("decryption", keyID, key.Algorithm, "Data decrypted", true)
-	
+
 	return plaintext, nil
 }
 
@@ -379,19 +379,19 @@ func (m *Manager) Sign(keyID string, message []byte) (*Signature, error) {
 	m.mu.RLock()
 	key, ok := m.keys[keyID]
 	m.mu.RUnlock()
-	
+
 	if !ok {
 		return nil, fmt.Errorf("key not found: %s", keyID)
 	}
-	
+
 	if key.KeyType != KeyTypeSigning {
 		return nil, fmt.Errorf("key is not for signing")
 	}
-	
+
 	// 模拟签名
 	hash := sha256.Sum256(message)
 	sig := hex.EncodeToString(hash[:])
-	
+
 	signature := &Signature{
 		ID:        fmt.Sprintf("sig_%d", time.Now().UnixNano()),
 		KeyID:     keyID,
@@ -401,9 +401,9 @@ func (m *Manager) Sign(keyID string, message []byte) (*Signature, error) {
 		Verified:  true,
 		CreatedAt: time.Now(),
 	}
-	
+
 	m.addAuditLog("signing", keyID, key.Algorithm, "Message signed", true)
-	
+
 	return signature, nil
 }
 
@@ -412,14 +412,14 @@ func (m *Manager) Verify(keyID string, signature *Signature) (bool, error) {
 	m.mu.RLock()
 	key, ok := m.keys[keyID]
 	m.mu.RUnlock()
-	
+
 	if !ok {
 		return false, fmt.Errorf("key not found: %s", keyID)
 	}
-	
+
 	// 模拟验证
 	m.addAuditLog("verification", keyID, key.Algorithm, "Signature verified", true)
-	
+
 	return true, nil
 }
 
@@ -427,7 +427,7 @@ func (m *Manager) Verify(keyID string, signature *Signature) (bool, error) {
 func (m *Manager) CreateRotationPolicy(name string, algorithm Algorithm, interval, maxAge time.Duration) *KeyRotationPolicy {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	policy := &KeyRotationPolicy{
 		ID:               fmt.Sprintf("policy_%d", time.Now().UnixNano()),
 		Name:             name,
@@ -437,7 +437,7 @@ func (m *Manager) CreateRotationPolicy(name string, algorithm Algorithm, interva
 		AutoRotate:       true,
 		NotifyBefore:     24 * time.Hour,
 	}
-	
+
 	m.policies[policy.ID] = policy
 	return policy
 }
@@ -446,9 +446,9 @@ func (m *Manager) CreateRotationPolicy(name string, algorithm Algorithm, interva
 func (m *Manager) RunBenchmark(algorithm Algorithm, iterations int) *PerformanceBenchmark {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	start := time.Now()
-	
+
 	// 模拟基准测试
 	for i := 0; i < iterations; i++ {
 		key := &Key{
@@ -456,9 +456,9 @@ func (m *Manager) RunBenchmark(algorithm Algorithm, iterations int) *Performance
 		}
 		m.generateKeyPair(key)
 	}
-	
+
 	duration := time.Since(start)
-	
+
 	benchmark := &PerformanceBenchmark{
 		Algorithm:   algorithm,
 		Operation:   "keygen",
@@ -469,7 +469,7 @@ func (m *Manager) RunBenchmark(algorithm Algorithm, iterations int) *Performance
 		MaxDuration: duration / time.Duration(iterations) * 2,
 		Timestamp:   time.Now(),
 	}
-	
+
 	m.benchmarks = append(m.benchmarks, benchmark)
 	return benchmark
 }
@@ -478,7 +478,7 @@ func (m *Manager) RunBenchmark(algorithm Algorithm, iterations int) *Performance
 func (m *Manager) GetAuditLogs() []AuditLog {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	return m.auditLogs
 }
 
@@ -486,7 +486,7 @@ func (m *Manager) GetAuditLogs() []AuditLog {
 func (m *Manager) GetBenchmarks() []*PerformanceBenchmark {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	return m.benchmarks
 }
 
@@ -495,7 +495,7 @@ func (m *Manager) addAuditLog(action, keyID string, algorithm Algorithm, details
 	if !m.config.AuditEnabled {
 		return
 	}
-	
+
 	log := AuditLog{
 		ID:        fmt.Sprintf("audit_%d", time.Now().UnixNano()),
 		Action:    action,
@@ -505,7 +505,7 @@ func (m *Manager) addAuditLog(action, keyID string, algorithm Algorithm, details
 		Success:   success,
 		Timestamp: time.Now(),
 	}
-	
+
 	m.auditLogs = append(m.auditLogs, log)
 }
 
@@ -513,23 +513,23 @@ func (m *Manager) addAuditLog(action, keyID string, algorithm Algorithm, details
 func (m *Manager) GetDashboard() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	activeKeys := 0
 	for _, key := range m.keys {
 		if key.Status == KeyStatusActive {
 			activeKeys++
 		}
 	}
-	
+
 	return map[string]interface{}{
-		"total_keys":         len(m.keys),
-		"active_keys":        activeKeys,
-		"policies":           len(m.policies),
-		"audit_logs":         len(m.auditLogs),
-		"benchmarks":         len(m.benchmarks),
-		"default_algorithm":  m.config.DefaultAlgorithm,
-		"mode":               m.config.Mode,
-		"key_rotation":       m.config.KeyRotationEnabled,
+		"total_keys":        len(m.keys),
+		"active_keys":       activeKeys,
+		"policies":          len(m.policies),
+		"audit_logs":        len(m.auditLogs),
+		"benchmarks":        len(m.benchmarks),
+		"default_algorithm": m.config.DefaultAlgorithm,
+		"mode":              m.config.Mode,
+		"key_rotation":      m.config.KeyRotationEnabled,
 	}
 }
 
@@ -537,7 +537,7 @@ func (m *Manager) GetDashboard() map[string]interface{} {
 func (m *Manager) MarshalJSON() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	return json.Marshal(struct {
 		Config     *QuantumCryptoConfig `json:"config"`
 		Keys       int                  `json:"keys_count"`

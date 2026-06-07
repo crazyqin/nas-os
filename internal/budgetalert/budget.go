@@ -32,32 +32,32 @@ type BudgetConfig struct {
 
 // Budget 预算
 type Budget struct {
-	ID           string         `json:"id"`
-	Name         string         `json:"name"`
-	Category     BudgetCategory `json:"category"`
-	LimitBytes   int64          `json:"limit_bytes"`    // 预算上限
-	UsedBytes    int64          `json:"used_bytes"`     // 已使用
-	CostPerGB    float64        `json:"cost_per_gb"`    // 每GB成本
-	Currency     string         `json:"currency"`
-	Period       BudgetPeriod   `json:"period"`
-	AlertAt      int            `json:"alert_at"`       // 告警阈值百分比
-	CriticalAt   int            `json:"critical_at"`    // 严重告警阈值
-	Owner        string         `json:"owner"`          // 用户/组
-	IsActive     bool           `json:"is_active"`
-	CreatedAt    time.Time      `json:"created_at"`
-	UpdatedAt    time.Time      `json:"updated_at"`
+	ID         string         `json:"id"`
+	Name       string         `json:"name"`
+	Category   BudgetCategory `json:"category"`
+	LimitBytes int64          `json:"limit_bytes"` // 预算上限
+	UsedBytes  int64          `json:"used_bytes"`  // 已使用
+	CostPerGB  float64        `json:"cost_per_gb"` // 每GB成本
+	Currency   string         `json:"currency"`
+	Period     BudgetPeriod   `json:"period"`
+	AlertAt    int            `json:"alert_at"`    // 告警阈值百分比
+	CriticalAt int            `json:"critical_at"` // 严重告警阈值
+	Owner      string         `json:"owner"`       // 用户/组
+	IsActive   bool           `json:"is_active"`
+	CreatedAt  time.Time      `json:"created_at"`
+	UpdatedAt  time.Time      `json:"updated_at"`
 }
 
 // BudgetCategory 预算类别
 type BudgetCategory string
 
 const (
-	CategoryTotal     BudgetCategory = "total"
-	CategoryUser      BudgetCategory = "user"
-	CategoryShare     BudgetCategory = "share"
-	CategoryApp       BudgetCategory = "app"
-	CategoryBackup    BudgetCategory = "backup"
-	CategoryCloud     BudgetCategory = "cloud"
+	CategoryTotal  BudgetCategory = "total"
+	CategoryUser   BudgetCategory = "user"
+	CategoryShare  BudgetCategory = "share"
+	CategoryApp    BudgetCategory = "app"
+	CategoryBackup BudgetCategory = "backup"
+	CategoryCloud  BudgetCategory = "cloud"
 )
 
 // BudgetPeriod 预算周期
@@ -72,16 +72,16 @@ const (
 
 // Alert 告警
 type Alert struct {
-	ID        string       `json:"id"`
-	BudgetID  string       `json:"budget_id"`
-	Level     AlertLevel   `json:"level"`
-	Message   string       `json:"message"`
-	Usage     int          `json:"usage_percent"`
-	Limit     int64        `json:"limit_bytes"`
-	Used      int64        `json:"used_bytes"`
-	Cost      float64      `json:"estimated_cost"`
-	CreatedAt time.Time    `json:"created_at"`
-	Acked     bool         `json:"acked"`
+	ID        string     `json:"id"`
+	BudgetID  string     `json:"budget_id"`
+	Level     AlertLevel `json:"level"`
+	Message   string     `json:"message"`
+	Usage     int        `json:"usage_percent"`
+	Limit     int64      `json:"limit_bytes"`
+	Used      int64      `json:"used_bytes"`
+	Cost      float64    `json:"estimated_cost"`
+	CreatedAt time.Time  `json:"created_at"`
+	Acked     bool       `json:"acked"`
 }
 
 // AlertLevel 告警级别
@@ -95,16 +95,16 @@ const (
 
 // UsageReport 使用报告
 type UsageReport struct {
-	BudgetID     string        `json:"budget_id"`
-	BudgetName   string        `json:"budget_name"`
+	BudgetID     string         `json:"budget_id"`
+	BudgetName   string         `json:"budget_name"`
 	Category     BudgetCategory `json:"category"`
-	LimitBytes   int64         `json:"limit_bytes"`
-	UsedBytes    int64         `json:"used_bytes"`
-	UsagePercent float64       `json:"usage_percent"`
-	EstCost      float64       `json:"estimated_cost"`
-	Currency     string        `json:"currency"`
-	ProjectDays  int           `json:"projected_days"` // 预计几天用完
-	GrowthRate   float64       `json:"growth_rate_gb_per_day"`
+	LimitBytes   int64          `json:"limit_bytes"`
+	UsedBytes    int64          `json:"used_bytes"`
+	UsagePercent float64        `json:"usage_percent"`
+	EstCost      float64        `json:"estimated_cost"`
+	Currency     string         `json:"currency"`
+	ProjectDays  int            `json:"projected_days"` // 预计几天用完
+	GrowthRate   float64        `json:"growth_rate_gb_per_day"`
 	Trend        TrendDirection `json:"trend"`
 }
 
@@ -119,12 +119,12 @@ const (
 
 // CostSummary 成本汇总
 type CostSummary struct {
-	TotalBudget   float64                   `json:"total_budget"`
-	TotalUsed     float64                   `json:"total_used"`
-	TotalEst      float64                   `json:"total_estimated_monthly"`
-	ByCategory    map[BudgetCategory]float64 `json:"by_category"`
-	Currency      string                    `json:"currency"`
-	GeneratedAt   time.Time                 `json:"generated_at"`
+	TotalBudget float64                    `json:"total_budget"`
+	TotalUsed   float64                    `json:"total_used"`
+	TotalEst    float64                    `json:"total_estimated_monthly"`
+	ByCategory  map[BudgetCategory]float64 `json:"by_category"`
+	Currency    string                     `json:"currency"`
+	GeneratedAt time.Time                  `json:"generated_at"`
 }
 
 // NewBudgetAlertManager 创建预算告警管理器
@@ -291,12 +291,12 @@ func (m *BudgetAlertManager) CreateBudget(name string, category BudgetCategory, 
 
 // BudgetOptions 预算选项
 type BudgetOptions struct {
-	CostPerGB float64
-	Currency  string
-	Period    BudgetPeriod
-	AlertAt   int
+	CostPerGB  float64
+	Currency   string
+	Period     BudgetPeriod
+	AlertAt    int
 	CriticalAt int
-	Owner     string
+	Owner      string
 }
 
 // UpdateUsage 更新使用量

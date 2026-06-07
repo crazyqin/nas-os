@@ -14,62 +14,62 @@ import (
 
 // ISCSITarget iSCSI 目标
 type ISCSITarget struct {
-	ID              string            `json:"id"`
-	Name            string            `json:"name"`
-	Alias           string            `json:"alias"`
-	IQN             string            `json:"iqn"` // iSCSI Qualified Name
-	PortalGroupTag  int               `json:"portal_group_tag"`
-	InitiatorGroupIDs []int           `json:"initiator_group_ids"`
-	AuthMethod      AuthMethod        `json:"auth_method"`
-	AuthGroup       int               `json:"auth_group"`
-	MaxSessions     int               `json:"max_sessions"`
-	MaxRecvDataSegment int            `json:"max_recv_data_segment_length"`
-	MaxXmitDataSegment int            `json:"max_xmit_data_segment_length"`
-	MaxBurstLength  int               `json:"max_burst_length"`
-	FirstBurstLength int              `json:"first_burst_length"`
-	DefaultTime2Wait int              `json:"default_time_2_wait"`
-	DefaultTime2Retain int            `json:"default_time_2_retain"`
-	Enabled         bool              `json:"enabled"`
-	Stats           TargetStats       `json:"stats"`
-	Metadata        map[string]string `json:"metadata,omitempty"`
-	CreatedAt       time.Time         `json:"created_at"`
-	UpdatedAt       time.Time         `json:"updated_at"`
+	ID                 string            `json:"id"`
+	Name               string            `json:"name"`
+	Alias              string            `json:"alias"`
+	IQN                string            `json:"iqn"` // iSCSI Qualified Name
+	PortalGroupTag     int               `json:"portal_group_tag"`
+	InitiatorGroupIDs  []int             `json:"initiator_group_ids"`
+	AuthMethod         AuthMethod        `json:"auth_method"`
+	AuthGroup          int               `json:"auth_group"`
+	MaxSessions        int               `json:"max_sessions"`
+	MaxRecvDataSegment int               `json:"max_recv_data_segment_length"`
+	MaxXmitDataSegment int               `json:"max_xmit_data_segment_length"`
+	MaxBurstLength     int               `json:"max_burst_length"`
+	FirstBurstLength   int               `json:"first_burst_length"`
+	DefaultTime2Wait   int               `json:"default_time_2_wait"`
+	DefaultTime2Retain int               `json:"default_time_2_retain"`
+	Enabled            bool              `json:"enabled"`
+	Stats              TargetStats       `json:"stats"`
+	Metadata           map[string]string `json:"metadata,omitempty"`
+	CreatedAt          time.Time         `json:"created_at"`
+	UpdatedAt          time.Time         `json:"updated_at"`
 }
 
 // AuthMethod 认证方法
 type AuthMethod string
 
 const (
-	AuthMethodNone     AuthMethod = "none"
-	AuthMethodCHAP     AuthMethod = "chap"
+	AuthMethodNone       AuthMethod = "none"
+	AuthMethodCHAP       AuthMethod = "chap"
 	AuthMethodCHAPMutual AuthMethod = "chap_mutual"
 )
 
 // TargetStats 目标统计
 type TargetStats struct {
-	ActiveSessions   int       `json:"active_sessions"`
-	TotalSessions    int64     `json:"total_sessions"`
-	BytesRead        int64     `json:"bytes_read"`
-	BytesWritten     int64     `json:"bytes_written"`
-	CommandsProcessed int64    `json:"commands_processed"`
-	Errors           int64     `json:"errors"`
-	LastActivity     time.Time `json:"last_activity"`
+	ActiveSessions    int       `json:"active_sessions"`
+	TotalSessions     int64     `json:"total_sessions"`
+	BytesRead         int64     `json:"bytes_read"`
+	BytesWritten      int64     `json:"bytes_written"`
+	CommandsProcessed int64     `json:"commands_processed"`
+	Errors            int64     `json:"errors"`
+	LastActivity      time.Time `json:"last_activity"`
 }
 
 // ========== iSCSI 门户管理 ==========
 
 // ISCSIPortal iSCSI 门户
 type ISCSIPortal struct {
-	ID              string            `json:"id"`
-	Tag             int               `json:"tag"`
-	IP              string            `json:"ip"`
-	Port            int               `json:"port"`
-	Protocol        PortalProtocol    `json:"protocol"`
-	DiscoveryAuth   AuthMethod        `json:"discovery_auth"`
-	MaxConnections  int               `json:"max_connections"`
-	Enabled         bool              `json:"enabled"`
-	Metadata        map[string]string `json:"metadata,omitempty"`
-	CreatedAt       time.Time         `json:"created_at"`
+	ID             string            `json:"id"`
+	Tag            int               `json:"tag"`
+	IP             string            `json:"ip"`
+	Port           int               `json:"port"`
+	Protocol       PortalProtocol    `json:"protocol"`
+	DiscoveryAuth  AuthMethod        `json:"discovery_auth"`
+	MaxConnections int               `json:"max_connections"`
+	Enabled        bool              `json:"enabled"`
+	Metadata       map[string]string `json:"metadata,omitempty"`
+	CreatedAt      time.Time         `json:"created_at"`
 }
 
 // PortalProtocol 门户协议
@@ -108,54 +108,54 @@ type ISCSILun struct {
 type LUNType string
 
 const (
-	LUNTypeDisk      LUNType = "disk"
-	LUNTypeFile      LUNType = "file"
-	LUNTypeZvol      LUNType = "zvol"
+	LUNTypeDisk        LUNType = "disk"
+	LUNTypeFile        LUNType = "file"
+	LUNTypeZvol        LUNType = "zvol"
 	LUNTypePassthrough LUNType = "passthrough"
 )
 
 // LUNStats LUN 统计
 type LUNStats struct {
-	ReadOps       int64     `json:"read_ops"`
-	WriteOps      int64     `json:"write_ops"`
-	ReadBytes     int64     `json:"read_bytes"`
-	WriteBytes    int64     `json:"write_bytes"`
-	ReadLatencyNs int64     `json:"read_latency_ns"`
-	WriteLatencyNs int64    `json:"write_latency_ns"`
-	QueueDepth    int       `json:"queue_depth"`
-	LastActivity  time.Time `json:"last_activity"`
+	ReadOps        int64     `json:"read_ops"`
+	WriteOps       int64     `json:"write_ops"`
+	ReadBytes      int64     `json:"read_bytes"`
+	WriteBytes     int64     `json:"write_bytes"`
+	ReadLatencyNs  int64     `json:"read_latency_ns"`
+	WriteLatencyNs int64     `json:"write_latency_ns"`
+	QueueDepth     int       `json:"queue_depth"`
+	LastActivity   time.Time `json:"last_activity"`
 }
 
 // ========== 光纤通道管理 ==========
 
 // FCPort 光纤通道端口
 type FCPort struct {
-	ID              string            `json:"id"`
-	Name            string            `json:"name"`
-	WorldWideName   string            `json:"wwn"` // WWN
-	PortID          string            `json:"port_id"`
-	Type            FCPortType        `json:"type"`
-	Speed           int               `json:"speed"` // Gbps
-	State           FCPortState       `json:"state"`
-	Topology        FCTopology        `json:"topology"`
-	FabricName      string            `json:"fabric_name"`
-	NodeName        string            `json:"node_name"`
-	MaxFrameSize    int               `json:"max_frame_size"`
-	Stats           FCPortStats       `json:"stats"`
-	Metadata        map[string]string `json:"metadata,omitempty"`
-	LastChange      time.Time         `json:"last_change"`
-	CreatedAt       time.Time         `json:"created_at"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	WorldWideName string            `json:"wwn"` // WWN
+	PortID        string            `json:"port_id"`
+	Type          FCPortType        `json:"type"`
+	Speed         int               `json:"speed"` // Gbps
+	State         FCPortState       `json:"state"`
+	Topology      FCTopology        `json:"topology"`
+	FabricName    string            `json:"fabric_name"`
+	NodeName      string            `json:"node_name"`
+	MaxFrameSize  int               `json:"max_frame_size"`
+	Stats         FCPortStats       `json:"stats"`
+	Metadata      map[string]string `json:"metadata,omitempty"`
+	LastChange    time.Time         `json:"last_change"`
+	CreatedAt     time.Time         `json:"created_at"`
 }
 
 // FCPortType FC 端口类型
 type FCPortType string
 
 const (
-	FCPortTypeNPort   FCPortType = "n_port"   // 点对点
-	FCPortTypeNLPort  FCPortType = "nl_port"  // 仲裁环路
-	FCPortTypeEPort  FCPortType = "e_port"   // 扩展端口
-	FCPortTypeFPort  FCPortType = "f_port"   // 交换端口
-	FCPortTypeFLPort FCPortType = "fl_port"  // 交换环路
+	FCPortTypeNPort  FCPortType = "n_port"  // 点对点
+	FCPortTypeNLPort FCPortType = "nl_port" // 仲裁环路
+	FCPortTypeEPort  FCPortType = "e_port"  // 扩展端口
+	FCPortTypeFPort  FCPortType = "f_port"  // 交换端口
+	FCPortTypeFLPort FCPortType = "fl_port" // 交换环路
 )
 
 // FCPortState FC 端口状态
@@ -173,7 +173,7 @@ const (
 type FCTopology string
 
 const (
-	FCTopologyPointToPoint FCTopology = "point_to_point"
+	FCTopologyPointToPoint   FCTopology = "point_to_point"
 	FCTopologyArbitratedLoop FCTopology = "arbitrated_loop"
 	FCTopologySwitchedFabric FCTopology = "switched_fabric"
 )
@@ -205,34 +205,34 @@ type ISCSIFCManager struct {
 
 // ManagerConfig 管理器配置
 type ManagerConfig struct {
-	ISCSIEnabled     bool   `json:"iscsi_enabled"`
-	FCEnabled        bool   `json:"fc_enabled"`
-	DefaultPortalIP  string `json:"default_portal_ip"`
-	DefaultPortalPort int   `json:"default_portal_port"`
-	MaxTargets       int    `json:"max_targets"`
-	MaxLUNsPerTarget int    `json:"max_luns_per_target"`
-	DefaultBlockSize int    `json:"default_block_size"`
-	AuthRequired     bool   `json:"auth_required"`
-	DiscoveryAuth    AuthMethod `json:"discovery_auth"`
-	MaxSessions      int    `json:"max_sessions"`
-	MaxRecvDataSegment int  `json:"max_recv_data_segment"`
-	MaxXmitDataSegment int  `json:"max_xmit_data_segment"`
-	MaxBurstLength   int    `json:"max_burst_length"`
-	FirstBurstLength int    `json:"first_burst_length"`
+	ISCSIEnabled       bool       `json:"iscsi_enabled"`
+	FCEnabled          bool       `json:"fc_enabled"`
+	DefaultPortalIP    string     `json:"default_portal_ip"`
+	DefaultPortalPort  int        `json:"default_portal_port"`
+	MaxTargets         int        `json:"max_targets"`
+	MaxLUNsPerTarget   int        `json:"max_luns_per_target"`
+	DefaultBlockSize   int        `json:"default_block_size"`
+	AuthRequired       bool       `json:"auth_required"`
+	DiscoveryAuth      AuthMethod `json:"discovery_auth"`
+	MaxSessions        int        `json:"max_sessions"`
+	MaxRecvDataSegment int        `json:"max_recv_data_segment"`
+	MaxXmitDataSegment int        `json:"max_xmit_data_segment"`
+	MaxBurstLength     int        `json:"max_burst_length"`
+	FirstBurstLength   int        `json:"first_burst_length"`
 }
 
 // ManagerStats 管理器统计
 type ManagerStats struct {
-	TotalTargets    int       `json:"total_targets"`
-	EnabledTargets  int       `json:"enabled_targets"`
-	TotalPortals    int       `json:"total_portals"`
-	TotalLUNs       int       `json:"total_luns"`
-	TotalFCPorts    int       `json:"total_fc_ports"`
-	OnlineFCPorts   int       `json:"online_fc_ports"`
-	ActiveSessions  int       `json:"active_sessions"`
-	TotalBytesRead  int64     `json:"total_bytes_read"`
-	TotalBytesWritten int64   `json:"total_bytes_written"`
-	LastActivity    time.Time `json:"last_activity"`
+	TotalTargets      int       `json:"total_targets"`
+	EnabledTargets    int       `json:"enabled_targets"`
+	TotalPortals      int       `json:"total_portals"`
+	TotalLUNs         int       `json:"total_luns"`
+	TotalFCPorts      int       `json:"total_fc_ports"`
+	OnlineFCPorts     int       `json:"online_fc_ports"`
+	ActiveSessions    int       `json:"active_sessions"`
+	TotalBytesRead    int64     `json:"total_bytes_read"`
+	TotalBytesWritten int64     `json:"total_bytes_written"`
+	LastActivity      time.Time `json:"last_activity"`
 }
 
 // NewISCSIFCManager 创建 iSCSI/FC 管理器

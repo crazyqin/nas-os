@@ -97,7 +97,7 @@ type ProtectionWhitelist struct {
 
 // AlertChannelConfig 告警通道配置
 type AlertChannelConfig struct {
-	Type     string            `json:"type"`     // email, webhook, push, sms
+	Type     string            `json:"type"` // email, webhook, push, sms
 	Enabled  bool              `json:"enabled"`
 	Config   map[string]string `json:"config"`
 	Severity string            `json:"severity"` // low, medium, high, critical
@@ -188,9 +188,9 @@ func NewRealtimeProtection(config RealtimeProtectionConfig) (*RealtimeProtection
 
 	// 创建告警管理器
 	alertConfig := AlertConfig{
-		Enabled:      true,
-		MinSeverity:  ThreatLevelMedium,
-		MaxAlerts:    100,
+		Enabled:     true,
+		MinSeverity: ThreatLevelMedium,
+		MaxAlerts:   100,
 	}
 	alertManager := NewAlertManager(alertConfig)
 
@@ -666,12 +666,12 @@ func (api *ProtectionAPI) QuickScan(path string) (map[string]interface{}, error)
 	}
 
 	return map[string]interface{}{
-		"path":            result.Path,
-		"infected_files":  result.InfectedFiles,
+		"path":             result.Path,
+		"infected_files":   result.InfectedFiles,
 		"suspicious_files": result.SuspiciousFiles,
-		"risk_score":      result.RiskScore,
-		"scanned_at":      result.ScannedAt,
-		"duration":        result.Duration.String(),
+		"risk_score":       result.RiskScore,
+		"scanned_at":       result.ScannedAt,
+		"duration":         result.Duration.String(),
 	}, nil
 }
 

@@ -9,13 +9,13 @@ import (
 
 // Manager Rsync 备份管理器.
 type Manager struct {
-	mu       sync.RWMutex
-	config   RsyncConfig
-	jobs     map[string]*RsyncJob
-	targets  map[string]*RsyncTarget
-	history  []*RsyncHistory
-	running  bool
-	stopCh   chan struct{}
+	mu      sync.RWMutex
+	config  RsyncConfig
+	jobs    map[string]*RsyncJob
+	targets map[string]*RsyncTarget
+	history []*RsyncHistory
+	running bool
+	stopCh  chan struct{}
 }
 
 // NewManager 创建管理器.
@@ -157,13 +157,13 @@ func (m *Manager) RunJob(jobID string) (*RsyncResult, error) {
 
 	// 模拟同步过程
 	result := &RsyncResult{
-		JobID:       jobID,
-		Source:      target.Source,
-		Destination: target.Destination,
-		StartTime:   time.Now(),
+		JobID:            jobID,
+		Source:           target.Source,
+		Destination:      target.Destination,
+		StartTime:        time.Now(),
 		FilesTransferred: 150,
-		TotalSize:   1024 * 1024 * 500, // 500MB
-		AverageSpeed: 10 * 1024 * 1024,  // 10MB/s
+		TotalSize:        1024 * 1024 * 500, // 500MB
+		AverageSpeed:     10 * 1024 * 1024,  // 10MB/s
 	}
 
 	m.mu.Lock()

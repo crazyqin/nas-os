@@ -82,7 +82,7 @@ func (s *Server) Start(ctx context.Context) error {
 		KeepAlivePeriod:       30 * time.Second,
 		MaxIncomingStreams:    100,
 		MaxIncomingUniStreams: 100,
-		EnableDatagrams:      true,
+		EnableDatagrams:       true,
 	}
 
 	// 创建监听器
@@ -253,10 +253,10 @@ func (s *Server) handleHandshake(stream *quic.Stream, msg *Message, cc *ClientCo
 
 	// 发送握手响应
 	response := HandshakePayload{
-		Version:   "1.0",
-		ClientID:  "server",
-		Compress:  s.config.EnableCompression,
-		Encrypt:   s.config.EnableEncryption,
+		Version:  "1.0",
+		ClientID: "server",
+		Compress: s.config.EnableCompression,
+		Encrypt:  s.config.EnableEncryption,
 	}
 
 	s.sendMessage(stream, MsgTypeHandshake, response)

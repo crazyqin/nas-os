@@ -195,11 +195,11 @@ func TestTemperature_ThresholdTrigger(t *testing.T) {
 	// 记录很久以前的访问（确保不是"近期"）
 	mgr.patternMu.Lock()
 	mgr.patterns["sda"] = &AccessPattern{
-		DiskID:            "sda",
-		LastAccess:        time.Now().Add(-1 * time.Hour),
-		TotalAccessCount:  100,
-		MaxRecords:        1000,
-		QuietHours:        []int{time.Now().Hour()},
+		DiskID:           "sda",
+		LastAccess:       time.Now().Add(-1 * time.Hour),
+		TotalAccessCount: 100,
+		MaxRecords:       1000,
+		QuietHours:       []int{time.Now().Hour()},
 	}
 	mgr.patternMu.Unlock()
 
@@ -430,13 +430,13 @@ func TestShouldSleep_PeakHours(t *testing.T) {
 	currentHour := time.Now().Hour()
 	mgr.patternMu.Lock()
 	mgr.patterns["sda"] = &AccessPattern{
-		DiskID:            "sda",
-		LastAccess:        time.Now().Add(-30 * time.Minute),
-		TotalAccessCount:  100,
-		MaxRecords:        1000,
-		HourlyFrequency:   [24]int{},
-		PeakHours:         []int{currentHour},
-		QuietHours:        []int{},
+		DiskID:           "sda",
+		LastAccess:       time.Now().Add(-30 * time.Minute),
+		TotalAccessCount: 100,
+		MaxRecords:       1000,
+		HourlyFrequency:  [24]int{},
+		PeakHours:        []int{currentHour},
+		QuietHours:       []int{},
 	}
 	// 设置当前小时为高频访问
 	mgr.patterns["sda"].HourlyFrequency[currentHour] = 100
@@ -612,8 +612,8 @@ func TestGetNextWakeTime_WithAvgInterval(t *testing.T) {
 		DiskID:            "sda",
 		TotalAccessCount:  50,
 		AvgAccessInterval: 20 * time.Minute,
-		PeakHours:        []int{}, // 无高峰时段
-		MaxRecords:       1000,
+		PeakHours:         []int{}, // 无高峰时段
+		MaxRecords:        1000,
 	}
 	mgr.patternMu.Unlock()
 

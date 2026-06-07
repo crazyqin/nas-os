@@ -12,12 +12,12 @@ import (
 
 // Reconciler compares desired state (Git) with actual state (cluster)
 type Reconciler struct {
-	logger    *zap.Logger
-	engine    *Engine
-	interval  time.Duration
-	mu        sync.RWMutex
+	logger     *zap.Logger
+	engine     *Engine
+	interval   time.Duration
+	mu         sync.RWMutex
 	driftItems []DriftItem
-	stopCh    chan struct{}
+	stopCh     chan struct{}
 }
 
 // NewReconciler creates a new reconciler

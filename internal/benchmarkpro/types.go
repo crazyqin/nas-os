@@ -8,10 +8,10 @@ import (
 type BenchTestType string
 
 const (
-	TestTypeCPU        BenchTestType = "cpu"
-	TestTypeMemory     BenchTestType = "memory"
-	TestTypeDiskIO     BenchTestType = "disk_io"
-	TestTypeNetwork    BenchTestType = "network"
+	TestTypeCPU           BenchTestType = "cpu"
+	TestTypeMemory        BenchTestType = "memory"
+	TestTypeDiskIO        BenchTestType = "disk_io"
+	TestTypeNetwork       BenchTestType = "network"
 	TestTypeComprehensive BenchTestType = "comprehensive"
 )
 
@@ -36,9 +36,9 @@ const (
 
 // Config 基准测试配置
 type Config struct {
-	Enabled      bool   `json:"enabled"`
-	TmpDir       string `json:"tmp_dir"`
-	MaxFileSizeMB int   `json:"max_file_size_mb"`
+	Enabled       bool   `json:"enabled"`
+	TmpDir        string `json:"tmp_dir"`
+	MaxFileSizeMB int    `json:"max_file_size_mb"`
 	NetworkTarget string `json:"network_target"`
 }
 
@@ -54,24 +54,24 @@ func DefaultConfig() *Config {
 
 // BenchRequest 基准测试请求
 type BenchRequest struct {
-	TestType     BenchTestType `json:"test_type" binding:"required"`
-	TargetPath   string        `json:"target_path,omitempty"`
-	FileSizeMB   int           `json:"file_size_mb,omitempty"`
-	DurationSec  int           `json:"duration_sec,omitempty"`
-	Concurrency  int           `json:"concurrency,omitempty"`
-	BlockSizeKB  int           `json:"block_size_kb,omitempty"`
-	NetworkTarget string       `json:"network_target,omitempty"`
+	TestType      BenchTestType `json:"test_type" binding:"required"`
+	TargetPath    string        `json:"target_path,omitempty"`
+	FileSizeMB    int           `json:"file_size_mb,omitempty"`
+	DurationSec   int           `json:"duration_sec,omitempty"`
+	Concurrency   int           `json:"concurrency,omitempty"`
+	BlockSizeKB   int           `json:"block_size_kb,omitempty"`
+	NetworkTarget string        `json:"network_target,omitempty"`
 }
 
 // BenchResult 测试结果
 type BenchResult struct {
-	ID           string        `json:"id"`
-	TestType     BenchTestType `json:"test_type"`
-	Status       BenchStatus   `json:"status"`
-	StartedAt    time.Time     `json:"started_at"`
-	CompletedAt  *time.Time    `json:"completed_at,omitempty"`
-	Duration     time.Duration `json:"duration_ms"`
-	ErrorMsg     string        `json:"error_msg,omitempty"`
+	ID          string        `json:"id"`
+	TestType    BenchTestType `json:"test_type"`
+	Status      BenchStatus   `json:"status"`
+	StartedAt   time.Time     `json:"started_at"`
+	CompletedAt *time.Time    `json:"completed_at,omitempty"`
+	Duration    time.Duration `json:"duration_ms"`
+	ErrorMsg    string        `json:"error_msg,omitempty"`
 
 	// CPU 测试结果
 	CPUScore      float64 `json:"cpu_score,omitempty"`
@@ -115,13 +115,13 @@ type TrendPoint struct {
 
 // TrendAnalysis 趋势分析结果
 type TrendAnalysis struct {
-	TestType  string        `json:"test_type"`
-	Points    []TrendPoint  `json:"points"`
-	Trend     string        `json:"trend"` // "improving", "stable", "degrading"
-	ChangePct float64       `json:"change_pct"`
-	AvgScore  float64       `json:"avg_score"`
-	MinScore  float64       `json:"min_score"`
-	MaxScore  float64       `json:"max_score"`
+	TestType  string       `json:"test_type"`
+	Points    []TrendPoint `json:"points"`
+	Trend     string       `json:"trend"` // "improving", "stable", "degrading"
+	ChangePct float64      `json:"change_pct"`
+	AvgScore  float64      `json:"avg_score"`
+	MinScore  float64      `json:"min_score"`
+	MaxScore  float64      `json:"max_score"`
 }
 
 // Bottleneck 性能瓶颈
@@ -155,9 +155,9 @@ type CompetitorEntry struct {
 
 // CompetitorComparison 竞品对比结果
 type CompetitorComparison struct {
-	Local      *BenchResult        `json:"local"`
-	Competitor *CompetitorEntry    `json:"competitor"`
-	Diff       *CompetitorDiff     `json:"diff"`
+	Local      *BenchResult     `json:"local"`
+	Competitor *CompetitorEntry `json:"competitor"`
+	Diff       *CompetitorDiff  `json:"diff"`
 }
 
 // CompetitorDiff 竞品差异
@@ -171,11 +171,11 @@ type CompetitorDiff struct {
 
 // BenchmarkReport 基准测试报告
 type BenchmarkReport struct {
-	GeneratedAt      time.Time                `json:"generated_at"`
-	LatestResult     *BenchResult             `json:"latest_result"`
-	TrendAnalysis    *TrendAnalysis           `json:"trend_analysis,omitempty"`
-	Bottlenecks      []*Bottleneck            `json:"bottlenecks,omitempty"`
-	Suggestions      []*OptimizationSuggestion `json:"suggestions,omitempty"`
-	CompetitorData   []*CompetitorEntry       `json:"competitor_data,omitempty"`
-	History          []*BenchResult           `json:"history,omitempty"`
+	GeneratedAt    time.Time                 `json:"generated_at"`
+	LatestResult   *BenchResult              `json:"latest_result"`
+	TrendAnalysis  *TrendAnalysis            `json:"trend_analysis,omitempty"`
+	Bottlenecks    []*Bottleneck             `json:"bottlenecks,omitempty"`
+	Suggestions    []*OptimizationSuggestion `json:"suggestions,omitempty"`
+	CompetitorData []*CompetitorEntry        `json:"competitor_data,omitempty"`
+	History        []*BenchResult            `json:"history,omitempty"`
 }

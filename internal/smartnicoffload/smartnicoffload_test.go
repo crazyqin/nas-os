@@ -27,16 +27,16 @@ func TestRegisterDevice(t *testing.T) {
 	defer mgr.Close()
 
 	dev := &SmartNICDevice{
-		ID:      "nic-001",
-		Name:    "BlueField-3",
-		Type:    DeviceTypeDPU,
-		PCIeAddr: "0000:03:00.0",
-		NumCores: 16,
-		Memory:  16 * 1024 * 1024 * 1024,
-		NumPorts: 2,
+		ID:          "nic-001",
+		Name:        "BlueField-3",
+		Type:        DeviceTypeDPU,
+		PCIeAddr:    "0000:03:00.0",
+		NumCores:    16,
+		Memory:      16 * 1024 * 1024 * 1024,
+		NumPorts:    2,
 		MaxOffloads: 8,
-		Offloads: []OffloadType{OffloadOVS, OffloadIPsec, OffloadTLS, OffloadRDMA},
-		Speed:   400,
+		Offloads:    []OffloadType{OffloadOVS, OffloadIPsec, OffloadTLS, OffloadRDMA},
+		Speed:       400,
 	}
 
 	err := mgr.RegisterDevice(dev)

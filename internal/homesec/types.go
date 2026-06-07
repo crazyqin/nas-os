@@ -21,21 +21,21 @@ const (
 type DeviceStatus string
 
 const (
-	StatusArmed       DeviceStatus = "armed"        // 已布防
-	StatusDisarmed    DeviceStatus = "disarmed"      // 已撤防
-	StatusTriggered   DeviceStatus = "triggered"     // 已触发
-	StatusTampered    DeviceStatus = "tampered"      // 被篡改
-	StatusLowBattery  DeviceStatus = "low_battery"   // 低电量
+	StatusArmed      DeviceStatus = "armed"       // 已布防
+	StatusDisarmed   DeviceStatus = "disarmed"    // 已撤防
+	StatusTriggered  DeviceStatus = "triggered"   // 已触发
+	StatusTampered   DeviceStatus = "tampered"    // 被篡改
+	StatusLowBattery DeviceStatus = "low_battery" // 低电量
 )
 
 // ZoneType 区域类型
 type ZoneType string
 
 const (
-	ZoneEntryExit    ZoneType = "entry_exit"    // 进出区域
-	ZonePerimeter    ZoneType = "perimeter"     // 周界区域
-	ZoneInterior     ZoneType = "interior"      // 内部区域
-	Zone24H          ZoneType = "24h"           // 24小时区域
+	ZoneEntryExit ZoneType = "entry_exit" // 进出区域
+	ZonePerimeter ZoneType = "perimeter"  // 周界区域
+	ZoneInterior  ZoneType = "interior"   // 内部区域
+	Zone24H       ZoneType = "24h"        // 24小时区域
 )
 
 // EventType 事件类型
@@ -63,12 +63,12 @@ const (
 type ActionType string
 
 const (
-	ActionNotify    ActionType = "notify"    // 发送通知
-	ActionSiren     ActionType = "siren"     // 触发警报
-	ActionLight     ActionType = "light"     // 控制灯光
-	ActionCamera    ActionType = "camera"    // 控制摄像头
-	ActionSnapshot  ActionType = "snapshot"  // 拍照快照
-	ActionWebhook   ActionType = "webhook"   // 调用 Webhook
+	ActionNotify   ActionType = "notify"   // 发送通知
+	ActionSiren    ActionType = "siren"    // 触发警报
+	ActionLight    ActionType = "light"    // 控制灯光
+	ActionCamera   ActionType = "camera"   // 控制摄像头
+	ActionSnapshot ActionType = "snapshot" // 拍照快照
+	ActionWebhook  ActionType = "webhook"  // 调用 Webhook
 )
 
 // ArmMode 布防模式
@@ -95,7 +95,7 @@ type Device struct {
 	Type      DeviceType   `json:"type"`
 	Location  string       `json:"location"`
 	Status    DeviceStatus `json:"status"`
-	Battery   int          `json:"battery"`    // 电量百分比 0-100
+	Battery   int          `json:"battery"` // 电量百分比 0-100
 	LastSeen  time.Time    `json:"last_seen"`
 	Enabled   bool         `json:"enabled"`
 	CreatedAt time.Time    `json:"created_at"`
@@ -104,14 +104,14 @@ type Device struct {
 
 // Zone 安防区域
 type Zone struct {
-	ID        string     `json:"id"`
-	Name      string     `json:"name"`
-	DeviceIDs []string   `json:"device_ids"`
-	Type      ZoneType   `json:"type"`
-	Armed     bool       `json:"armed"`
-	Bypass    bool       `json:"bypass"` // 是否绕过
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	DeviceIDs []string  `json:"device_ids"`
+	Type      ZoneType  `json:"type"`
+	Armed     bool      `json:"armed"`
+	Bypass    bool      `json:"bypass"` // 是否绕过
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // Event 安防事件
@@ -128,9 +128,9 @@ type Event struct {
 
 // Condition 报警条件
 type Condition struct {
-	DeviceType DeviceType `json:"device_type"`
+	DeviceType DeviceType   `json:"device_type"`
 	Status     DeviceStatus `json:"status"`
-	Threshold  int        `json:"threshold,omitempty"` // 阈值（如电量）
+	Threshold  int          `json:"threshold,omitempty"` // 阈值（如电量）
 }
 
 // Action 报警动作
@@ -168,16 +168,16 @@ type Schedule struct {
 
 // Panel 安防面板
 type Panel struct {
-	ID           string       `json:"id"`
-	Name         string       `json:"name"`
-	Status       PanelStatus  `json:"status"`
-	ZoneIDs      []string     `json:"zone_ids"`
-	LastArmEvent *Event       `json:"last_arm_event,omitempty"`
-	UpdatedAt    time.Time    `json:"updated_at"`
+	ID           string      `json:"id"`
+	Name         string      `json:"name"`
+	Status       PanelStatus `json:"status"`
+	ZoneIDs      []string    `json:"zone_ids"`
+	LastArmEvent *Event      `json:"last_arm_event,omitempty"`
+	UpdatedAt    time.Time   `json:"updated_at"`
 }
 
 // SecurityScore 安防评分
 type SecurityScore struct {
-	Score    int                    `json:"score"` // 0-100
-	Details  map[string]interface{} `json:"details"`
+	Score   int                    `json:"score"` // 0-100
+	Details map[string]interface{} `json:"details"`
 }

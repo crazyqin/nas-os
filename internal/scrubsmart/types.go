@@ -149,10 +149,10 @@ func DefaultConfig() *Config {
 				EndMinute:   0,
 			},
 		},
-		IOWriteThresholdMBps:  50.0,
-		IOReadThresholdMBps:   100.0,
+		IOWriteThresholdMBps:   50.0,
+		IOReadThresholdMBps:    100.0,
 		IOCheckIntervalSeconds: 30,
-		TargetPool:            "",
+		TargetPool:             "",
 	}
 }
 

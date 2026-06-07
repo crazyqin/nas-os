@@ -108,7 +108,7 @@ func TestBuildGPUDeviceConfig(t *testing.T) {
 		Vendor:   "amd",
 		Mode:     GPUModeShared,
 		AMDConfig: &AMDGPUConfig{
-			EnableROCm: true,
+			EnableROCm:  true,
 			ROCmVersion: "5.6",
 		},
 	}
@@ -172,7 +172,7 @@ func TestGetDeviceName(t *testing.T) {
 			expected: "gpu-0000-01-00.0", // 替换冒号后保留点号
 		},
 		{
-			name: "empty config (defaults to GPUIndex 0)",
+			name:     "empty config (defaults to GPUIndex 0)",
 			config:   &GPUPassthroughConfig{},
 			expected: "gpu0",
 		},
@@ -218,7 +218,7 @@ func TestGetNVIDIAVisibleDevices(t *testing.T) {
 			expected: "0000:01:00.0",
 		},
 		{
-			name: "empty config (defaults to GPUIndex 0)",
+			name:     "empty config (defaults to GPUIndex 0)",
 			config:   &GPUPassthroughConfig{},
 			expected: "0", // GPUIndex=0 默认返回 "0"
 		},

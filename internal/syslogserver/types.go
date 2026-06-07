@@ -92,22 +92,22 @@ var FacilityNames = map[SyslogFacility]string{
 
 // SyslogEntry syslog 日志条目.
 type SyslogEntry struct {
-	ID        string         `json:"id"`
-	Priority  int            `json:"priority"`           // priority = facility * 8 + severity
-	Facility  SyslogFacility `json:"facility"`
-	Severity  SyslogSeverity `json:"severity"`
-	Timestamp time.Time      `json:"timestamp"`
-	Hostname  string         `json:"hostname"`
-	AppName   string         `json:"app_name"`
-	ProcID   string         `json:"proc_id,omitempty"`
-	MsgID     string         `json:"msg_id,omitempty"`
-	Message   string         `json:"message"`
-	StructuredData string    `json:"structured_data,omitempty"`
-	Raw       string         `json:"raw"`                // 原始日志行
-	SourceIP  string         `json:"source_ip"`          // 来源 IP
-	Protocol  string         `json:"protocol"`           // tcp/udp
-	Tags      []string       `json:"tags,omitempty"`     // 自定义标签
-	ReceivedAt time.Time     `json:"received_at"`        // 接收时间
+	ID             string         `json:"id"`
+	Priority       int            `json:"priority"` // priority = facility * 8 + severity
+	Facility       SyslogFacility `json:"facility"`
+	Severity       SyslogSeverity `json:"severity"`
+	Timestamp      time.Time      `json:"timestamp"`
+	Hostname       string         `json:"hostname"`
+	AppName        string         `json:"app_name"`
+	ProcID         string         `json:"proc_id,omitempty"`
+	MsgID          string         `json:"msg_id,omitempty"`
+	Message        string         `json:"message"`
+	StructuredData string         `json:"structured_data,omitempty"`
+	Raw            string         `json:"raw"`            // 原始日志行
+	SourceIP       string         `json:"source_ip"`      // 来源 IP
+	Protocol       string         `json:"protocol"`       // tcp/udp
+	Tags           []string       `json:"tags,omitempty"` // 自定义标签
+	ReceivedAt     time.Time      `json:"received_at"`    // 接收时间
 }
 
 // ForwardTarget 日志转发目标.
@@ -118,63 +118,63 @@ type ForwardTarget struct {
 	Port      int       `json:"port"`
 	Protocol  string    `json:"protocol"` // tcp/udp
 	Enabled   bool      `json:"enabled"`
-	Filter    string    `json:"filter,omitempty"`    // 过滤条件（facility:severity）
+	Filter    string    `json:"filter,omitempty"` // 过滤条件（facility:severity）
 	CreatedAt time.Time `json:"created_at"`
 }
 
 // AlertRule 告警规则.
 type AlertRule struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Enabled     bool      `json:"enabled"`
-	Type        string    `json:"type"`        // keyword / frequency
-	Keyword     string    `json:"keyword"`     // 关键词（keyword 类型）
-	Facility    string    `json:"facility"`    // 设施过滤
-	Severity    string    `json:"severity"`    // 最低严重级别
-	Frequency   int       `json:"frequency"`   // 频率阈值（次/分钟）
-	WindowSec   int       `json:"window_sec"`  // 时间窗口（秒）
-	NotifyType  string    `json:"notify_type"` // log / webhook
-	WebhookURL  string    `json:"webhook_url,omitempty"`
-	LastTrigger *time.Time `json:"last_trigger,omitempty"`
-	TriggerCount int64     `json:"trigger_count"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID           string     `json:"id"`
+	Name         string     `json:"name"`
+	Enabled      bool       `json:"enabled"`
+	Type         string     `json:"type"`        // keyword / frequency
+	Keyword      string     `json:"keyword"`     // 关键词（keyword 类型）
+	Facility     string     `json:"facility"`    // 设施过滤
+	Severity     string     `json:"severity"`    // 最低严重级别
+	Frequency    int        `json:"frequency"`   // 频率阈值（次/分钟）
+	WindowSec    int        `json:"window_sec"`  // 时间窗口（秒）
+	NotifyType   string     `json:"notify_type"` // log / webhook
+	WebhookURL   string     `json:"webhook_url,omitempty"`
+	LastTrigger  *time.Time `json:"last_trigger,omitempty"`
+	TriggerCount int64      `json:"trigger_count"`
+	CreatedAt    time.Time  `json:"created_at"`
 }
 
 // ArchivePolicy 日志归档策略.
 type ArchivePolicy struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	Enabled      bool      `json:"enabled"`
-	MaxAgeDays   int       `json:"max_age_days"`   // 最大保留天数
-	MaxSizeMB    int       `json:"max_size_mb"`    // 最大存储大小（MB）
-	CompressOld  bool      `json:"compress_old"`   // 是否压缩旧日志
-	CreatedAt    time.Time `json:"created_at"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Enabled     bool      `json:"enabled"`
+	MaxAgeDays  int       `json:"max_age_days"` // 最大保留天数
+	MaxSizeMB   int       `json:"max_size_mb"`  // 最大存储大小（MB）
+	CompressOld bool      `json:"compress_old"` // 是否压缩旧日志
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 // ========== 请求/响应结构 ==========
 
 // SearchRequest 日志搜索请求.
 type SearchRequest struct {
-	Query     string    `form:"q"`
-	Hostname  string    `form:"hostname"`
-	AppName   string    `form:"app_name"`
-	Facility  string    `form:"facility"`
-	Severity  string    `form:"severity"`
-	SourceIP  string    `form:"source_ip"`
+	Query     string     `form:"q"`
+	Hostname  string     `form:"hostname"`
+	AppName   string     `form:"app_name"`
+	Facility  string     `form:"facility"`
+	Severity  string     `form:"severity"`
+	SourceIP  string     `form:"source_ip"`
 	StartTime *time.Time `form:"start_time"`
 	EndTime   *time.Time `form:"end_time"`
-	Tags      []string  `form:"tags"`
-	Page      int       `form:"page,default=1"`
-	PageSize  int       `form:"page_size,default=100"`
-	SortBy    string    `form:"sort_by,default=timestamp"`
-	SortOrder string    `form:"sort_order,default=desc"`
+	Tags      []string   `form:"tags"`
+	Page      int        `form:"page,default=1"`
+	PageSize  int        `form:"page_size,default=100"`
+	SortBy    string     `form:"sort_by,default=timestamp"`
+	SortOrder string     `form:"sort_order,default=desc"`
 }
 
 // SearchResponse 日志搜索响应.
 type SearchResponse struct {
-	Total   int           `json:"total"`
-	Page    int           `json:"page"`
-	Size    int           `json:"page_size"`
+	Total   int            `json:"total"`
+	Page    int            `json:"page"`
+	Size    int            `json:"page_size"`
 	Entries []*SyslogEntry `json:"entries"`
 }
 
@@ -227,27 +227,27 @@ type UpdateAlertRuleRequest struct {
 
 // ExportRequest 日志导出请求.
 type ExportRequest struct {
-	Format    string    `json:"format" binding:"required,oneof=csv json"`
-	Query     string    `json:"query,omitempty"`
-	Hostname  string    `json:"hostname,omitempty"`
-	Facility  string    `json:"facility,omitempty"`
-	Severity  string    `json:"severity,omitempty"`
+	Format    string     `json:"format" binding:"required,oneof=csv json"`
+	Query     string     `json:"query,omitempty"`
+	Hostname  string     `json:"hostname,omitempty"`
+	Facility  string     `json:"facility,omitempty"`
+	Severity  string     `json:"severity,omitempty"`
 	StartTime *time.Time `json:"start_time,omitempty"`
 	EndTime   *time.Time `json:"end_time,omitempty"`
-	Limit     int       `json:"limit,omitempty"`
+	Limit     int        `json:"limit,omitempty"`
 }
 
 // DashboardStats 仪表板统计数据.
 type DashboardStats struct {
-	TotalEntries   int64                  `json:"total_entries"`
-	EntriesToday   int64                  `json:"entries_today"`
-	EntriesPerHour []HourlyCount          `json:"entries_per_hour"`
-	BySeverity     map[string]int64       `json:"by_severity"`
-	ByFacility     map[string]int64       `json:"by_facility"`
-	ByHost         map[string]int64       `json:"by_host"`
-	ByApp          map[string]int64       `json:"by_app"`
-	TopSources     []SourceCount          `json:"top_sources"`
-	RecentAlerts   []*AlertEvent          `json:"recent_alerts"`
+	TotalEntries   int64            `json:"total_entries"`
+	EntriesToday   int64            `json:"entries_today"`
+	EntriesPerHour []HourlyCount    `json:"entries_per_hour"`
+	BySeverity     map[string]int64 `json:"by_severity"`
+	ByFacility     map[string]int64 `json:"by_facility"`
+	ByHost         map[string]int64 `json:"by_host"`
+	ByApp          map[string]int64 `json:"by_app"`
+	TopSources     []SourceCount    `json:"top_sources"`
+	RecentAlerts   []*AlertEvent    `json:"recent_alerts"`
 }
 
 // HourlyCount 每小时计数.
@@ -264,18 +264,18 @@ type SourceCount struct {
 
 // AlertEvent 告警事件.
 type AlertEvent struct {
-	ID        string    `json:"id"`
-	RuleID    string    `json:"rule_id"`
-	RuleName  string    `json:"rule_name"`
-	Message   string    `json:"message"`
-	Entry     *SyslogEntry `json:"entry,omitempty"`
-	TriggeredAt time.Time `json:"triggered_at"`
+	ID          string       `json:"id"`
+	RuleID      string       `json:"rule_id"`
+	RuleName    string       `json:"rule_name"`
+	Message     string       `json:"message"`
+	Entry       *SyslogEntry `json:"entry,omitempty"`
+	TriggeredAt time.Time    `json:"triggered_at"`
 }
 
 // WSClient WebSocket 客户端.
 type WSClient struct {
-	ID      string
-	Conn    net.Conn
-	Filter  *SearchRequest
-	Send    chan []byte
+	ID     string
+	Conn   net.Conn
+	Filter *SearchRequest
+	Send   chan []byte
 }

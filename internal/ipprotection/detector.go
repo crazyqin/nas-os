@@ -12,12 +12,12 @@ import (
 
 // Detector 异常行为检测器
 type Detector struct {
-	mu               sync.RWMutex
-	logger           *zap.Logger
-	config           *IPProtectionConfig
-	loginAttempts    map[string][]*LoginAttempt   // IP -> 登录记录
-	accessRecords    map[string][]*AccessRecord   // IP -> 访问记录
-	portAccess       map[string]map[int]time.Time // IP -> port -> 首次访问时间
+	mu            sync.RWMutex
+	logger        *zap.Logger
+	config        *IPProtectionConfig
+	loginAttempts map[string][]*LoginAttempt   // IP -> 登录记录
+	accessRecords map[string][]*AccessRecord   // IP -> 访问记录
+	portAccess    map[string]map[int]time.Time // IP -> port -> 首次访问时间
 }
 
 // NewDetector 创建异常行为检测器
@@ -123,10 +123,10 @@ func (d *Detector) DetectPortScan(ip string) *DetectionResult {
 
 	detected := count >= threshold
 	result := &DetectionResult{
-		Detected:   detected,
-		Type:       DetectionPortScan,
-		IP:         ip,
-		Timestamp:  now,
+		Detected:  detected,
+		Type:      DetectionPortScan,
+		IP:        ip,
+		Timestamp: now,
 	}
 
 	if detected {
@@ -172,10 +172,10 @@ func (d *Detector) DetectBruteForce(ip string) *DetectionResult {
 
 	detected := failCount >= threshold
 	result := &DetectionResult{
-		Detected:   detected,
-		Type:       DetectionBruteForce,
-		IP:         ip,
-		Timestamp:  now,
+		Detected:  detected,
+		Type:      DetectionBruteForce,
+		IP:        ip,
+		Timestamp: now,
 	}
 
 	if detected {

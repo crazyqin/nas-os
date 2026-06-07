@@ -48,10 +48,10 @@ const (
 type LoadBalanceStrategy string
 
 const (
-	LBStrategyRoundRobin        LoadBalanceStrategy = "round_robin"
-	LBStrategyLeastConnections  LoadBalanceStrategy = "least_connections"
-	LBStrategyRandom            LoadBalanceStrategy = "random"
-	LBStrategyHash              LoadBalanceStrategy = "hash"
+	LBStrategyRoundRobin       LoadBalanceStrategy = "round_robin"
+	LBStrategyLeastConnections LoadBalanceStrategy = "least_connections"
+	LBStrategyRandom           LoadBalanceStrategy = "random"
+	LBStrategyHash             LoadBalanceStrategy = "hash"
 )
 
 type ResourceAllocationStrategy string
@@ -88,17 +88,17 @@ type ResourcePool struct {
 }
 
 type Service struct {
-	ID           string           `json:"id"`
-	Name         string           `json:"name"`
-	NodeID       string           `json:"node_id"`
-	State        ServiceState     `json:"state"`
-	Ports        []int            `json:"ports"`
-	HealthCheck  *HealthCheck     `json:"health_check"`
-	Resources    *ResourceRequest `json:"resources"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	NodeID       string            `json:"node_id"`
+	State        ServiceState      `json:"state"`
+	Ports        []int             `json:"ports"`
+	HealthCheck  *HealthCheck      `json:"health_check"`
+	Resources    *ResourceRequest  `json:"resources"`
 	Metadata     map[string]string `json:"metadata,omitempty"`
-	CreatedAt    time.Time        `json:"created_at"`
-	UpdatedAt    time.Time        `json:"updated_at"`
-	FailoverNode string           `json:"failover_node"`
+	CreatedAt    time.Time         `json:"created_at"`
+	UpdatedAt    time.Time         `json:"updated_at"`
+	FailoverNode string            `json:"failover_node"`
 }
 
 type ResourceRequest struct {
@@ -205,7 +205,7 @@ func New(cfg ClusterOrchConfig) *ClusterOrch {
 		services: make(map[string]*Service), resourceStrategy: cfg.ResourceStrategy,
 		lbStrategy: cfg.LBStrategy, configs: make(map[string]*ClusterConfig),
 		configHistory: make(map[string][]*ClusterConfig),
-		logs: make([]*ClusterLog, 0, cfg.MaxLogSize), maxLogSize: cfg.MaxLogSize,
+		logs:          make([]*ClusterLog, 0, cfg.MaxLogSize), maxLogSize: cfg.MaxLogSize,
 		autoScale: cfg.AutoScale, scaleUpThreshold: cfg.ScaleUpThreshold,
 		scaleDownThreshold: cfg.ScaleDownThreshold, minNodes: cfg.MinNodes, maxNodes: cfg.MaxNodes,
 	}
@@ -560,8 +560,8 @@ func (co *ClusterOrch) GetNodeResourceUsage(nodeID string) (map[string]float64, 
 		return map[string]float64{"cpu": 0, "memory": 0, "storage": 0}, nil
 	}
 	return map[string]float64{
-		"cpu": safeDivide(node.Resources.CPU.Used, node.Resources.CPU.Total),
-		"memory": safeDivide(node.Resources.Memory.Used, node.Resources.Memory.Total),
+		"cpu":     safeDivide(node.Resources.CPU.Used, node.Resources.CPU.Total),
+		"memory":  safeDivide(node.Resources.Memory.Used, node.Resources.Memory.Total),
 		"storage": safeDivide(node.Resources.Storage.Used, node.Resources.Storage.Total),
 	}, nil
 }

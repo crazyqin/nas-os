@@ -168,11 +168,11 @@ func TestSendMessage(t *testing.T) {
 
 func TestGetStats(t *testing.T) {
 	config := &Config{
-		SMTPHost:   "localhost",
-		SMTPPort:   25,
-		IMAPHost:   "localhost",
-		IMAPPort:   143,
-		EnableTLS:  true,
+		SMTPHost:  "localhost",
+		SMTPPort:  25,
+		IMAPHost:  "localhost",
+		IMAPPort:  143,
+		EnableTLS: true,
 	}
 
 	ms := NewMailServer(config)

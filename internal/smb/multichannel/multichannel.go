@@ -24,15 +24,15 @@ type SMBMultichannelManager struct {
 
 // MultichannelConfig 多通道配置
 type MultichannelConfig struct {
-	Enabled            bool          `json:"enabled"`
-	MaxChannelsPerClient int         `json:"max_channels_per_client"`
-	MinChannels        int           `json:"min_channels"`
-	HealthCheckInterval time.Duration `json:"health_check_interval"`
-	FailoverTimeout    time.Duration `json:"failover_timeout"`
-	BalanceMode        BalanceMode   `json:"balance_mode"`
-	Interfaces         []string      `json:"interfaces"`
-	MTU                int           `json:"mtu"`
-	RSSEnabled         bool          `json:"rss_enabled"` // Receive Side Scaling
+	Enabled              bool          `json:"enabled"`
+	MaxChannelsPerClient int           `json:"max_channels_per_client"`
+	MinChannels          int           `json:"min_channels"`
+	HealthCheckInterval  time.Duration `json:"health_check_interval"`
+	FailoverTimeout      time.Duration `json:"failover_timeout"`
+	BalanceMode          BalanceMode   `json:"balance_mode"`
+	Interfaces           []string      `json:"interfaces"`
+	MTU                  int           `json:"mtu"`
+	RSSEnabled           bool          `json:"rss_enabled"` // Receive Side Scaling
 }
 
 // BalanceMode 负载均衡模式
@@ -41,19 +41,19 @@ type BalanceMode string
 const (
 	BalanceRoundRobin BalanceMode = "round_robin"
 	BalanceLeastLoad  BalanceMode = "least_load"
-	BalanceHash       BalanceMode = "hash"       // 基于源/目标IP哈希
-	BalanceAdaptive   BalanceMode = "adaptive"   // 自适应，根据延迟和带宽动态调整
+	BalanceHash       BalanceMode = "hash"     // 基于源/目标IP哈希
+	BalanceAdaptive   BalanceMode = "adaptive" // 自适应，根据延迟和带宽动态调整
 )
 
 // ChannelGroup 客户端通道组
 type ChannelGroup struct {
-	ClientIP   string              `json:"client_ip"`
-	Channels   []*NetworkChannel   `json:"channels"`
-	TotalBW    int64               `json:"total_bandwidth_mbps"`
-	ActiveBW   int64               `json:"active_bandwidth_mbps"`
-	CreatedAt  time.Time           `json:"created_at"`
-	LastActive time.Time           `json:"last_active"`
-	State      ChannelGroupState   `json:"state"`
+	ClientIP   string            `json:"client_ip"`
+	Channels   []*NetworkChannel `json:"channels"`
+	TotalBW    int64             `json:"total_bandwidth_mbps"`
+	ActiveBW   int64             `json:"active_bandwidth_mbps"`
+	CreatedAt  time.Time         `json:"created_at"`
+	LastActive time.Time         `json:"last_active"`
+	State      ChannelGroupState `json:"state"`
 }
 
 // ChannelGroupState 通道组状态
@@ -84,14 +84,14 @@ type NetworkChannel struct {
 type ChannelState string
 
 const (
-	ChannelStateUp      ChannelState = "up"
-	ChannelStateDown    ChannelState = "down"
+	ChannelStateUp       ChannelState = "up"
+	ChannelStateDown     ChannelState = "down"
 	ChannelStateDegraded ChannelState = "degraded"
 )
 
 // MultichannelStats 多通道统计
 type MultichannelStats struct {
-	mu               sync.Mutex
+	mu                sync.Mutex
 	TotalConnections  int64   `json:"total_connections"`
 	ActiveGroups      int     `json:"active_groups"`
 	TotalBandwidth    int64   `json:"total_bandwidth_mbps"`
@@ -109,11 +109,11 @@ type ChannelHealthMonitor struct {
 
 // HealthResult 健康检查结果
 type HealthResult struct {
-	ChannelID  string        `json:"channel_id"`
-	Healthy    bool          `json:"healthy"`
-	Latency    time.Duration `json:"latency"`
-	CheckedAt  time.Time     `json:"checked_at"`
-	ErrorMsg   string        `json:"error_msg,omitempty"`
+	ChannelID string        `json:"channel_id"`
+	Healthy   bool          `json:"healthy"`
+	Latency   time.Duration `json:"latency"`
+	CheckedAt time.Time     `json:"checked_at"`
+	ErrorMsg  string        `json:"error_msg,omitempty"`
 }
 
 // NewSMBMultichannelManager 创建多通道管理器
@@ -196,12 +196,12 @@ func (m *SMBMultichannelManager) EstablishChannels(clientIP string) (*ChannelGro
 		}
 
 		ch := &NetworkChannel{
-			ID:         fmt.Sprintf("%s-%s-%d", clientIP, iface.Name, i),
-			LocalAddr:  getInterfaceAddr(iface),
-			RemoteAddr: clientIP,
-			Interface:  iface.Name,
-			Bandwidth:  estimateBandwidth(iface),
-			State:      ChannelStateUp,
+			ID:           fmt.Sprintf("%s-%s-%d", clientIP, iface.Name, i),
+			LocalAddr:    getInterfaceAddr(iface),
+			RemoteAddr:   clientIP,
+			Interface:    iface.Name,
+			Bandwidth:    estimateBandwidth(iface),
+			State:        ChannelStateUp,
 			LastHealthAt: time.Now(),
 		}
 		channels = append(channels, ch)

@@ -328,7 +328,7 @@ func TestUpdateResourceUsage(t *testing.T) {
 
 	reqBody := ResourceUsage{
 		CPUPercent:    95.0,
-		MemoryUsed:    1024 * 1024 * 512, // 512MB
+		MemoryUsed:    1024 * 1024 * 512,  // 512MB
 		MemoryTotal:   1024 * 1024 * 1024, // 1GB
 		MemoryPercent: 50.0,
 	}

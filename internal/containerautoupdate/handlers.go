@@ -61,18 +61,18 @@ func (h *Handlers) SetPolicy(c *gin.Context) {
 	}
 
 	policy := UpdatePolicy{
-		ContainerID:       req.ContainerID,
-		ContainerName:     req.ContainerName,
-		Enabled:           req.Enabled,
-		Schedule:          req.Schedule,
-		MaxRetries:        req.MaxRetries,
-		RollbackOnFailure: req.RollbackOnFailure,
-		HealthCheckURL:    req.HealthCheckURL,
+		ContainerID:        req.ContainerID,
+		ContainerName:      req.ContainerName,
+		Enabled:            req.Enabled,
+		Schedule:           req.Schedule,
+		MaxRetries:         req.MaxRetries,
+		RollbackOnFailure:  req.RollbackOnFailure,
+		HealthCheckURL:     req.HealthCheckURL,
 		HealthCheckTimeout: req.HealthCheckTimeout,
-		PreUpdateHook:     req.PreUpdateHook,
-		PostUpdateHook:    req.PostUpdateHook,
-		NotifyOnUpdate:    req.NotifyOnUpdate,
-		NotifyOnFailure:   req.NotifyOnFailure,
+		PreUpdateHook:      req.PreUpdateHook,
+		PostUpdateHook:     req.PostUpdateHook,
+		NotifyOnUpdate:     req.NotifyOnUpdate,
+		NotifyOnFailure:    req.NotifyOnFailure,
 	}
 
 	result, err := h.manager.SetPolicy(context.Background(), policy)

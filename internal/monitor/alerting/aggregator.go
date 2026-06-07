@@ -10,15 +10,15 @@ import (
 
 // AggregatedAlert 聚合后的告警
 type AggregatedAlert struct {
-	Key         string       `json:"key"`
-	AlertName   string       `json:"alertName"`
-	Level       AlertLevel   `json:"level"`
-	ServiceType string       `json:"serviceType"`
-	Count       int          `json:"count"`
-	FirstSeen   time.Time    `json:"firstSeen"`
-	LastSeen    time.Time    `json:"lastSeen"`
-	Children    []AlertItem  `json:"children"`
-	Summary     string       `json:"summary"`
+	Key         string      `json:"key"`
+	AlertName   string      `json:"alertName"`
+	Level       AlertLevel  `json:"level"`
+	ServiceType string      `json:"serviceType"`
+	Count       int         `json:"count"`
+	FirstSeen   time.Time   `json:"firstSeen"`
+	LastSeen    time.Time   `json:"lastSeen"`
+	Children    []AlertItem `json:"children"`
+	Summary     string      `json:"summary"`
 }
 
 // AlertItem 单条告警项
@@ -33,10 +33,10 @@ type AlertItem struct {
 
 // AggregationConfig 聚合配置
 type AggregationConfig struct {
-	Window         time.Duration `json:"window"`         // 聚合窗口，默认5分钟
-	GroupBy        []string      `json:"groupBy"`        // 聚合维度：level, serviceType, name
-	MaxGroupSize   int           `json:"maxGroupSize"`   // 每组最大数量，超过则裁剪
-	FlushInterval  time.Duration `json:"flushInterval"`  // 刷新间隔
+	Window        time.Duration `json:"window"`        // 聚合窗口，默认5分钟
+	GroupBy       []string      `json:"groupBy"`       // 聚合维度：level, serviceType, name
+	MaxGroupSize  int           `json:"maxGroupSize"`  // 每组最大数量，超过则裁剪
+	FlushInterval time.Duration `json:"flushInterval"` // 刷新间隔
 }
 
 // DefaultAggregationConfig 默认聚合配置
@@ -51,13 +51,13 @@ func DefaultAggregationConfig() AggregationConfig {
 
 // aggregationGroup 聚合组
 type aggregationGroup struct {
-	key       string
-	alertName string
-	level     AlertLevel
+	key         string
+	alertName   string
+	level       AlertLevel
 	serviceType string
-	items     []AlertItem
-	firstSeen time.Time
-	lastSeen  time.Time
+	items       []AlertItem
+	firstSeen   time.Time
+	lastSeen    time.Time
 }
 
 // Aggregator 告警聚合器

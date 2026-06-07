@@ -15,38 +15,38 @@ import (
 
 // APIVersion API 版本结构
 type APIVersion struct {
-	Version      string    `json:"version"`       // 版本号，如 "v1", "v2"
-	Status       string    `json:"status"`        // 状态: stable, deprecated, beta, alpha
-	Deprecated   bool      `json:"deprecated"`    // 是否已废弃
-	SunsetDate   *time.Time `json:"sunsetDate,omitempty"` // 废弃截止日期
-	ReleaseDate  time.Time `json:"releaseDate"`  // 发布日期
-	Description  string    `json:"description"`  // 版本描述
-	MigrationURL string    `json:"migrationUrl,omitempty"` // 迁移指南 URL
+	Version      string     `json:"version"`                // 版本号，如 "v1", "v2"
+	Status       string     `json:"status"`                 // 状态: stable, deprecated, beta, alpha
+	Deprecated   bool       `json:"deprecated"`             // 是否已废弃
+	SunsetDate   *time.Time `json:"sunsetDate,omitempty"`   // 废弃截止日期
+	ReleaseDate  time.Time  `json:"releaseDate"`            // 发布日期
+	Description  string     `json:"description"`            // 版本描述
+	MigrationURL string     `json:"migrationUrl,omitempty"` // 迁移指南 URL
 }
 
 // VersionStatus 版本状态常量
 const (
-	VersionStatusStable    = "stable"
+	VersionStatusStable     = "stable"
 	VersionStatusDeprecated = "deprecated"
-	VersionStatusBeta      = "beta"
-	VersionStatusAlpha     = "alpha"
+	VersionStatusBeta       = "beta"
+	VersionStatusAlpha      = "alpha"
 )
 
 // ========== 版本管理器 ==========
 
 // VersionManager API 版本管理器
 type VersionManager struct {
-	mu         sync.RWMutex
-	versions   map[string]*APIVersion
-	current    string
-	minSupported string
+	mu                sync.RWMutex
+	versions          map[string]*APIVersion
+	current           string
+	minSupported      string
 	deprecatedHeaders map[string]string // 废弃版本响应头模板
 }
 
 // NewVersionManager 创建版本管理器
 func NewVersionManager() *VersionManager {
 	vm := &VersionManager{
-		versions: make(map[string]*APIVersion),
+		versions:          make(map[string]*APIVersion),
 		deprecatedHeaders: make(map[string]string),
 	}
 
@@ -182,11 +182,11 @@ func (vm *VersionManager) GetDeprecationHeaders(version string) map[string]strin
 	headers := make(map[string]string)
 	headers["X-API-Deprecated"] = "true"
 	headers["X-API-Deprecation-Reason"] = fmt.Sprintf("API %s 已废弃，请迁移到 %s", version, vm.current)
-	
+
 	if v.SunsetDate != nil {
 		headers["X-API-Removal-Date"] = v.SunsetDate.Format("2006-01-02")
 	}
-	
+
 	if v.MigrationURL != "" {
 		headers["X-API-Migration-Url"] = v.MigrationURL
 	}
@@ -200,9 +200,9 @@ func (vm *VersionManager) GetDeprecationHeaders(version string) map[string]strin
 
 // VersionDiscovery 版本发现响应结构
 type VersionDiscovery struct {
-	Current      string        `json:"current"`
-	MinSupported string        `json:"minSupported"`
-	Versions     []APIVersion  `json:"versions"`
+	Current      string       `json:"current"`
+	MinSupported string       `json:"minSupported"`
+	Versions     []APIVersion `json:"versions"`
 }
 
 // GetVersionDiscovery 获取版本发现信息
@@ -245,15 +245,15 @@ func NormalizeVersion(version string) string {
 	if version == "" {
 		return ""
 	}
-	
+
 	// 移除前导斜杠
 	version = strings.TrimPrefix(version, "/")
-	
+
 	// 如果没有 v 前缀，添加它
 	if !strings.HasPrefix(strings.ToLower(version), "v") {
 		return "v" + version
 	}
-	
+
 	return strings.ToLower(version)
 }
 
@@ -268,7 +268,7 @@ type VersionedRoute struct {
 
 // VersionedRoutes 版本化路由集合
 type VersionedRoutes struct {
-	mu    sync.RWMutex
+	mu     sync.RWMutex
 	routes map[string][]VersionedRoute // version -> routes
 }
 
@@ -300,7 +300,7 @@ func (vr *VersionedRoutes) GetRoutes(version string) []VersionedRoute {
 // ========== 全局版本管理器实例 ==========
 
 var (
-	globalVersionManager *VersionManager
+	globalVersionManager     *VersionManager
 	globalVersionManagerOnce sync.Once
 )
 
@@ -316,11 +316,11 @@ func GetGlobalVersionManager() *VersionManager {
 
 // VersionError 版本相关错误
 type VersionError struct {
-	Code       int
-	Message    string
-	Requested  string
-	Supported  []string
-	Current    string
+	Code      int
+	Message   string
+	Requested string
+	Supported []string
+	Current   string
 }
 
 func (e *VersionError) Error() string {
@@ -351,13 +351,13 @@ func NewVersionNotFoundError(requested string) *VersionError {
 func NewVersionDeprecatedError(requested string) *VersionError {
 	vm := GetGlobalVersionManager()
 	v, _ := vm.GetVersion(requested)
-	
+
 	msg := fmt.Sprintf("API %s 已废弃", requested)
 	if v != nil && v.SunsetDate != nil {
 		msg += fmt.Sprintf("，将于 %s 移除", v.SunsetDate.Format("2006-01-02"))
 	}
 	msg += fmt.Sprintf("，请迁移到 %s", vm.GetCurrent())
-	
+
 	return &VersionError{
 		Code:      410, // Gone
 		Message:   msg,

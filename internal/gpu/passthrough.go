@@ -43,47 +43,47 @@ const (
 // PassthroughConfig 透传配置
 type PassthroughConfig struct {
 	// 目标配置
-	Type         PassthroughType `json:"type"`         // 透传类型
-	TargetID     string          `json:"targetId"`     // 目标ID (容器名或VM名)
-	TargetName   string          `json:"targetName"`   // 目标名称
+	Type       PassthroughType `json:"type"`       // 透传类型
+	TargetID   string          `json:"targetId"`   // 目标ID (容器名或VM名)
+	TargetName string          `json:"targetName"` // 目标名称
 
 	// GPU配置
-	GPUID        string `json:"gpuId"`        // GPU设备ID (如 nvidia0)
-	GPUIndex     int    `json:"gpuIndex"`     // GPU索引
-	GPUUUID      string `json:"gpuUuid"`      // GPU UUID
-	PCIAddress   string `json:"pciAddress"`   // PCI地址
+	GPUID      string `json:"gpuId"`      // GPU设备ID (如 nvidia0)
+	GPUIndex   int    `json:"gpuIndex"`   // GPU索引
+	GPUUUID    string `json:"gpuUuid"`    // GPU UUID
+	PCIAddress string `json:"pciAddress"` // PCI地址
 
 	// 模式和权限
-	Mode         PassthroughMode `json:"mode"`         // 透传模式
-	Exclusive    bool            `json:"exclusive"`    // 独占模式
-	EnableMIG    bool            `json:"enableMig"`    // 启用MIG
-	MIGGI        int             `json:"migGi"`        // MIG GPU实例
-	MIGCI        int             `json:"migCi"`        // MIG计算实例
+	Mode      PassthroughMode `json:"mode"`      // 透传模式
+	Exclusive bool            `json:"exclusive"` // 独占模式
+	EnableMIG bool            `json:"enableMig"` // 启用MIG
+	MIGGI     int             `json:"migGi"`     // MIG GPU实例
+	MIGCI     int             `json:"migCi"`     // MIG计算实例
 
 	// 资源限制
-	MemoryLimitMB    uint64 `json:"memoryLimitMb"`    // 显存限制(MB)
-	ComputeLimitPct  uint64 `json:"computeLimitPct"`  // 计算限制(%)
-	MaxProcesses     int    `json:"maxProcesses"`     // 最大进程数
+	MemoryLimitMB   uint64 `json:"memoryLimitMb"`   // 显存限制(MB)
+	ComputeLimitPct uint64 `json:"computeLimitPct"` // 计算限制(%)
+	MaxProcesses    int    `json:"maxProcesses"`    // 最大进程数
 
 	// 功能开关
-	EnableCompute    bool `json:"enableCompute"`    // 启用计算
-	EnableGraphics   bool `json:"enableGraphics"`   // 启用图形
-	EnableVideo      bool `json:"enableVideo"`      // 启用视频编码解码
-	EnableDisplay    bool `json:"enableDisplay"`    // 启用显示
+	EnableCompute  bool `json:"enableCompute"`  // 启用计算
+	EnableGraphics bool `json:"enableGraphics"` // 启用图形
+	EnableVideo    bool `json:"enableVideo"`    // 启用视频编码解码
+	EnableDisplay  bool `json:"enableDisplay"`  // 启用显示
 
 	// MPS配置
-	EnableMPS       bool   `json:"enableMps"`       // 启用MPS
-	MPSThreadPool   int    `json:"mpsThreadPool"`   // MPS线程池大小
+	EnableMPS     bool `json:"enableMps"`     // 启用MPS
+	MPSThreadPool int  `json:"mpsThreadPool"` // MPS线程池大小
 
 	// 挂载配置
-	MountDriver     bool   `json:"mountDriver"`     // 挂载驱动
-	MountLibraries  bool   `json:"mountLibraries"`  // 挂载库文件
-	DriverVersion   string `json:"driverVersion"`   // 驱动版本
-	CUDAVersion     string `json:"cudaVersion"`     // CUDA版本
+	MountDriver    bool   `json:"mountDriver"`    // 挂载驱动
+	MountLibraries bool   `json:"mountLibraries"` // 挂载库文件
+	DriverVersion  string `json:"driverVersion"`  // 驱动版本
+	CUDAVersion    string `json:"cudaVersion"`    // CUDA版本
 
 	// 时间戳
-	CreatedAt       time.Time `json:"createdAt"`
-	UpdatedAt       time.Time `json:"updatedAt"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // PassthroughManager GPU透传管理器
@@ -580,23 +580,23 @@ func (h *VMPassthroughHandler) GetStatus(ctx context.Context, targetID string) (
 
 // GPUResourceManager GPU资源管理器
 type GPUResourceManager struct {
-	manager          *Manager
-	passthroughMgr   *PassthroughManager
-	logger           *zap.Logger
-	resourceQuotas   map[string]*GPUResourceQuota // key: targetID
-	mu               sync.RWMutex
+	manager        *Manager
+	passthroughMgr *PassthroughManager
+	logger         *zap.Logger
+	resourceQuotas map[string]*GPUResourceQuota // key: targetID
+	mu             sync.RWMutex
 }
 
 // GPUResourceQuota GPU资源配额
 type GPUResourceQuota struct {
-	TargetID          string    `json:"targetId"`
-	MaxGPUs           int       `json:"maxGpus"`           // 最大GPU数
-	MaxMemoryMB       uint64    `json:"maxMemoryMb"`       // 最大显存(MB)
-	MaxComputePct     uint64    `json:"maxComputePct"`     // 最大计算百分比
-	ReservedGPUs      []string  `json:"reservedGpus"`      // 保留GPU列表
-	Priority          AllocationPriority `json:"priority"`  // 优先级
-	CreatedAt         time.Time `json:"createdAt"`
-	UpdatedAt         time.Time `json:"updatedAt"`
+	TargetID      string             `json:"targetId"`
+	MaxGPUs       int                `json:"maxGpus"`       // 最大GPU数
+	MaxMemoryMB   uint64             `json:"maxMemoryMb"`   // 最大显存(MB)
+	MaxComputePct uint64             `json:"maxComputePct"` // 最大计算百分比
+	ReservedGPUs  []string           `json:"reservedGpus"`  // 保留GPU列表
+	Priority      AllocationPriority `json:"priority"`      // 优先级
+	CreatedAt     time.Time          `json:"createdAt"`
+	UpdatedAt     time.Time          `json:"updatedAt"`
 }
 
 // NewGPUResourceManager 创建GPU资源管理器

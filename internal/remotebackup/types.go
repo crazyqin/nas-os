@@ -265,10 +265,10 @@ type RestoreResult struct {
 
 // Manager 远程备份管理器
 type Manager struct {
-	mu           sync.RWMutex
-	targets      map[string]*BackupTarget
-	jobs         map[string]*BackupJob
-	versions     map[string][]*BackupVersion
-	configPath   string
-	cancelFuncs  map[string]context.CancelFunc
+	mu          sync.RWMutex
+	targets     map[string]*BackupTarget
+	jobs        map[string]*BackupJob
+	versions    map[string][]*BackupVersion
+	configPath  string
+	cancelFuncs map[string]context.CancelFunc
 }

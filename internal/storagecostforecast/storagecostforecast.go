@@ -76,13 +76,13 @@ type CloudCostComparison struct {
 
 // TCOResult 总拥有成本计算结果
 type TCOResult struct {
-	HardwareCost   float64 `json:"hardware_cost"`   // 硬件成本(元)
+	HardwareCost    float64 `json:"hardware_cost"`    // 硬件成本(元)
 	ElectricityCost float64 `json:"electricity_cost"` // 电力成本(元)
 	MaintenanceCost float64 `json:"maintenance_cost"` // 运维成本(元)
-	BandwidthCost  float64 `json:"bandwidth_cost"`  // 带宽成本(元)
-	TotalCost      float64 `json:"total_cost"`      // 总成本(元)
-	MonthlyCost    float64 `json:"monthly_cost"`    // 月均成本(元)
-	DurationMonths int     `json:"duration_months"` // 预测周期(月)
+	BandwidthCost   float64 `json:"bandwidth_cost"`   // 带宽成本(元)
+	TotalCost       float64 `json:"total_cost"`       // 总成本(元)
+	MonthlyCost     float64 `json:"monthly_cost"`     // 月均成本(元)
+	DurationMonths  int     `json:"duration_months"`  // 预测周期(月)
 }
 
 // OptimizationAdvice 成本优化建议
@@ -105,41 +105,41 @@ type BudgetAlert struct {
 
 // TrendDataPoint 趋势图表数据点
 type TrendDataPoint struct {
-	Timestamp  time.Time `json:"timestamp"`  // 时间点
-	Actual     float64   `json:"actual"`     // 实际成本(元)
-	Predicted  float64   `json:"predicted"`  // 预测成本(元)
-	StorageGB  float64   `json:"storage_gb"` // 存储容量(GB)
+	Timestamp time.Time `json:"timestamp"`  // 时间点
+	Actual    float64   `json:"actual"`     // 实际成本(元)
+	Predicted float64   `json:"predicted"`  // 预测成本(元)
+	StorageGB float64   `json:"storage_gb"` // 存储容量(GB)
 }
 
 // ROIResult 投资回报率分析结果
 type ROIResult struct {
-	InvestmentCost float64 `json:"investment_cost"` // 投资成本(元)
-	AnnualSavings  float64 `json:"annual_savings"`  // 年度节省(元)
-	ROI            float64 `json:"roi"`             // 投资回报率(%)
-	PaybackMonths  float64 `json:"payback_months"`  // 回本周期(月)
+	InvestmentCost   float64 `json:"investment_cost"`    // 投资成本(元)
+	AnnualSavings    float64 `json:"annual_savings"`     // 年度节省(元)
+	ROI              float64 `json:"roi"`                // 投资回报率(%)
+	PaybackMonths    float64 `json:"payback_months"`     // 回本周期(月)
 	ThreeYearSavings float64 `json:"three_year_savings"` // 三年累计节省(元)
 }
 
 // PriceConfig 云服务价格配置
 type PriceConfig struct {
-	StoragePerGB    float64 // 每GB存储月费(元)
-	BandwidthPerGB  float64 // 每GB带宽费(元)
-	RequestPer10K   float64 // 每万次请求费(元)
-	Tier            StorageTier
+	StoragePerGB   float64 // 每GB存储月费(元)
+	BandwidthPerGB float64 // 每GB带宽费(元)
+	RequestPer10K  float64 // 每万次请求费(元)
+	Tier           StorageTier
 }
 
 // CostForecastEngine 存储成本预测引擎
 // 提供存储成本预测、多云对比、TCO计算、优化建议等核心功能
 type CostForecastEngine struct {
-	mu              sync.Mutex          // 并发保护锁
-	records         []CostRecord        // 历史成本记录
-	budgetLimit     float64             // 月度预算上限(元)
-	budgetAlerts    []BudgetAlert       // 预算告警历史
-	priceConfigs    map[CloudProvider]map[StorageTier]PriceConfig // 云服务价格配置
-	running         bool                // 引擎运行状态
-	cancel          context.CancelFunc  // 取消函数
-	predictionMonths int               // 预测月数
-	alertCallback   func(BudgetAlert)   // 告警回调函数
+	mu               sync.Mutex                                    // 并发保护锁
+	records          []CostRecord                                  // 历史成本记录
+	budgetLimit      float64                                       // 月度预算上限(元)
+	budgetAlerts     []BudgetAlert                                 // 预算告警历史
+	priceConfigs     map[CloudProvider]map[StorageTier]PriceConfig // 云服务价格配置
+	running          bool                                          // 引擎运行状态
+	cancel           context.CancelFunc                            // 取消函数
+	predictionMonths int                                           // 预测月数
+	alertCallback    func(BudgetAlert)                             // 告警回调函数
 }
 
 // init 模块初始化，注册存储成本预测引擎

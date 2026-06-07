@@ -12,13 +12,13 @@ import (
 
 // DesktopManager 桌面图标管理器
 type DesktopManager struct {
-	mu          sync.RWMutex
-	icons       map[string]*DesktopIcon
-	groups      map[string]*IconGroup
-	layouts     map[string]*DesktopLayout
+	mu            sync.RWMutex
+	icons         map[string]*DesktopIcon
+	groups        map[string]*IconGroup
+	layouts       map[string]*DesktopLayout
 	currentLayout string
-	storagePath string
-	gridSize    GridSize
+	storagePath   string
+	gridSize      GridSize
 }
 
 // DesktopConfig 桌面配置
@@ -76,10 +76,10 @@ func (m *DesktopManager) createDefaultLayout() {
 		IsDefault: true,
 		Screens: []ScreenLayout{
 			{
-				ScreenID: "screen-0",
-				Name:     "主屏幕",
+				ScreenID:   "screen-0",
+				Name:       "主屏幕",
 				Resolution: Size{Width: 1920, Height: 1080},
-				Primary:  true,
+				Primary:    true,
 			},
 		},
 		GridSize: m.gridSize,
@@ -728,10 +728,10 @@ func (m *DesktopManager) loadFromDisk() error {
 	}
 
 	var persisted struct {
-		Icons       map[string]*DesktopIcon   `json:"icons"`
-		Groups      map[string]*IconGroup     `json:"groups"`
-		Layouts     map[string]*DesktopLayout `json:"layouts"`
-		CurrentLayout string                  `json:"current_layout"`
+		Icons         map[string]*DesktopIcon   `json:"icons"`
+		Groups        map[string]*IconGroup     `json:"groups"`
+		Layouts       map[string]*DesktopLayout `json:"layouts"`
+		CurrentLayout string                    `json:"current_layout"`
 	}
 
 	if err := json.Unmarshal(data, &persisted); err != nil {

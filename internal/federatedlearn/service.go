@@ -12,9 +12,9 @@ import (
 type NodeStatus string
 
 const (
-	NodeOnline    NodeStatus = "online"
-	NodeOffline   NodeStatus = "offline"
-	NodeTraining  NodeStatus = "training"
+	NodeOnline      NodeStatus = "online"
+	NodeOffline     NodeStatus = "offline"
+	NodeTraining    NodeStatus = "training"
 	NodeAggregating NodeStatus = "aggregating"
 )
 
@@ -32,96 +32,96 @@ const (
 type AggregationStrategy string
 
 const (
-	StrategyFedAvg  AggregationStrategy = "fedavg"   // 联邦平均
-	StrategyFedProx AggregationStrategy = "fedprox"  // 近端联邦
-	StrategyFedNova AggregationStrategy = "fednova"  // 新星联邦
+	StrategyFedAvg  AggregationStrategy = "fedavg"  // 联邦平均
+	StrategyFedProx AggregationStrategy = "fedprox" // 近端联邦
+	StrategyFedNova AggregationStrategy = "fednova" // 新星联邦
 )
 
 // FederatedNode 联邦学习节点
 type FederatedNode struct {
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-	Address     string     `json:"address"`
-	Status      NodeStatus `json:"status"`
-	DataSize    int        `json:"data_size"`
-	ComputePower float64   `json:"compute_power"` // FLOPS
-	LastSeen    time.Time  `json:"last_seen"`
-	CreatedAt   time.Time  `json:"created_at"`
-	Tags        []string   `json:"tags"`
+	ID           string     `json:"id"`
+	Name         string     `json:"name"`
+	Address      string     `json:"address"`
+	Status       NodeStatus `json:"status"`
+	DataSize     int        `json:"data_size"`
+	ComputePower float64    `json:"compute_power"` // FLOPS
+	LastSeen     time.Time  `json:"last_seen"`
+	CreatedAt    time.Time  `json:"created_at"`
+	Tags         []string   `json:"tags"`
 }
 
 // GlobalModel 全局模型
 type GlobalModel struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Type        ModelType `json:"type"`
-	Version     int       `json:"version"`
-	Weights     []float64 `json:"weights"`
-	Metrics     *ModelMetrics `json:"metrics"`
-	Strategy    AggregationStrategy `json:"strategy"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID        string              `json:"id"`
+	Name      string              `json:"name"`
+	Type      ModelType           `json:"type"`
+	Version   int                 `json:"version"`
+	Weights   []float64           `json:"weights"`
+	Metrics   *ModelMetrics       `json:"metrics"`
+	Strategy  AggregationStrategy `json:"strategy"`
+	CreatedAt time.Time           `json:"created_at"`
+	UpdatedAt time.Time           `json:"updated_at"`
 }
 
 // LocalModel 本地模型
 type LocalModel struct {
-	ID          string    `json:"id"`
-	NodeID      string    `json:"node_id"`
-	GlobalID    string    `json:"global_id"`
-	Version     int       `json:"version"`
-	Weights     []float64 `json:"weights"`
-	Metrics     *ModelMetrics `json:"metrics"`
-	DataSize    int       `json:"data_size"`
-	Epochs      int       `json:"epochs"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID        string        `json:"id"`
+	NodeID    string        `json:"node_id"`
+	GlobalID  string        `json:"global_id"`
+	Version   int           `json:"version"`
+	Weights   []float64     `json:"weights"`
+	Metrics   *ModelMetrics `json:"metrics"`
+	DataSize  int           `json:"data_size"`
+	Epochs    int           `json:"epochs"`
+	CreatedAt time.Time     `json:"created_at"`
 }
 
 // ModelMetrics 模型指标
 type ModelMetrics struct {
-	Loss        float64 `json:"loss"`
-	Accuracy    float64 `json:"accuracy"`
-	Precision   float64 `json:"precision"`
-	Recall      float64 `json:"recall"`
-	F1Score     float64 `json:"f1_score"`
-	RMSE        float64 `json:"rmse,omitempty"`
-	R2          float64 `json:"r2,omitempty"`
+	Loss      float64 `json:"loss"`
+	Accuracy  float64 `json:"accuracy"`
+	Precision float64 `json:"precision"`
+	Recall    float64 `json:"recall"`
+	F1Score   float64 `json:"f1_score"`
+	RMSE      float64 `json:"rmse,omitempty"`
+	R2        float64 `json:"r2,omitempty"`
 }
 
 // TrainingTask 训练任务
 type TrainingTask struct {
-	ID          string    `json:"id"`
-	GlobalID    string    `json:"global_id"`
-	NodeID      string    `json:"node_id"`
-	Status      string    `json:"status"` // pending, running, completed, failed
-	Epochs      int       `json:"epochs"`
-	BatchSize   int       `json:"batch_size"`
-	LearningRate float64  `json:"learning_rate"`
-	StartedAt   time.Time `json:"started_at"`
-	CompletedAt time.Time `json:"completed_at"`
-	Error       string    `json:"error,omitempty"`
+	ID           string    `json:"id"`
+	GlobalID     string    `json:"global_id"`
+	NodeID       string    `json:"node_id"`
+	Status       string    `json:"status"` // pending, running, completed, failed
+	Epochs       int       `json:"epochs"`
+	BatchSize    int       `json:"batch_size"`
+	LearningRate float64   `json:"learning_rate"`
+	StartedAt    time.Time `json:"started_at"`
+	CompletedAt  time.Time `json:"completed_at"`
+	Error        string    `json:"error,omitempty"`
 }
 
 // TrainingRound 训练轮次
 type TrainingRound struct {
-	ID          string    `json:"id"`
-	GlobalID    string    `json:"global_id"`
-	Round       int       `json:"round"`
-	Status      string    `json:"status"` // collecting, aggregating, completed
-	ParticipatingNodes []string `json:"participating_nodes"`
-	LocalModels []LocalModel `json:"local_models"`
-	GlobalMetrics *ModelMetrics `json:"global_metrics"`
-	StartedAt   time.Time `json:"started_at"`
-	CompletedAt time.Time `json:"completed_at"`
+	ID                 string        `json:"id"`
+	GlobalID           string        `json:"global_id"`
+	Round              int           `json:"round"`
+	Status             string        `json:"status"` // collecting, aggregating, completed
+	ParticipatingNodes []string      `json:"participating_nodes"`
+	LocalModels        []LocalModel  `json:"local_models"`
+	GlobalMetrics      *ModelMetrics `json:"global_metrics"`
+	StartedAt          time.Time     `json:"started_at"`
+	CompletedAt        time.Time     `json:"completed_at"`
 }
 
 // Service 联邦学习服务
 type Service struct {
-	nodes    map[string]*FederatedNode
-	models   map[string]*GlobalModel
-	locals   map[string]*LocalModel
-	tasks    map[string]*TrainingTask
-	rounds   map[string]*TrainingRound
-	mu       sync.RWMutex
+	nodes  map[string]*FederatedNode
+	models map[string]*GlobalModel
+	locals map[string]*LocalModel
+	tasks  map[string]*TrainingTask
+	rounds map[string]*TrainingRound
+	mu     sync.RWMutex
 }
 
 // NewService 创建服务
@@ -448,8 +448,8 @@ func (s *Service) Predict(ctx context.Context, modelID string, input []float64) 
 	confidence := 0.5 + model.Metrics.Accuracy*0.5
 
 	return map[string]interface{}{
-		"output":     output,
-		"confidence": confidence,
+		"output":        output,
+		"confidence":    confidence,
 		"model_version": model.Version,
 	}, nil
 }
@@ -469,10 +469,10 @@ func (s *Service) GetStatistics() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_nodes":    len(s.nodes),
-		"online_nodes":   onlineNodes,
-		"total_models":   len(s.models),
-		"total_rounds":   len(s.rounds),
+		"total_nodes":     len(s.nodes),
+		"online_nodes":    onlineNodes,
+		"total_models":    len(s.models),
+		"total_rounds":    len(s.rounds),
 		"total_data_size": totalDataSize,
 	}
 }

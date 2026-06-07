@@ -42,14 +42,14 @@ type TCOInput struct {
 // DefaultTCOInput 默认 TCO 输入.
 func DefaultTCOInput(tier StorageTier, months int) TCOInput {
 	return TCOInput{
-		Tier:                 tier,
-		AnalysisMonths:       months,
-		ElectricityPrice:     0.8,   // 0.8元/kWh
-		PowerPerTBW:          8.0,   // 每TB 8W
-		CoolingPUE:           1.3,   // PUE 1.3
-		LaborCostMonthly:     500.0, // 月人力成本500元
-		IncludeBandwidth:     true,
-		BandwidthCostPerTB:   10.0,  // 每TB带宽10元
+		Tier:               tier,
+		AnalysisMonths:     months,
+		ElectricityPrice:   0.8,   // 0.8元/kWh
+		PowerPerTBW:        8.0,   // 每TB 8W
+		CoolingPUE:         1.3,   // PUE 1.3
+		LaborCostMonthly:   500.0, // 月人力成本500元
+		IncludeBandwidth:   true,
+		BandwidthCostPerTB: 10.0, // 每TB带宽10元
 	}
 }
 
@@ -239,13 +239,13 @@ func (e *TCOEngine) CompareTCO(tier1, tier2 StorageTier, months int) (*TCOCompar
 	}
 
 	return &TCOComparison{
-		GeneratedAt:      e.manager.nowFunc(),
-		TCO1:             tco1,
-		TCO2:             tco2,
-		Savings:          savings,
-		SavingsPercent:   savingsPercent,
-		Recommendation:   recommendation,
-		AnalysisPeriod:   months,
+		GeneratedAt:    e.manager.nowFunc(),
+		TCO1:           tco1,
+		TCO2:           tco2,
+		Savings:        savings,
+		SavingsPercent: savingsPercent,
+		Recommendation: recommendation,
+		AnalysisPeriod: months,
 	}, nil
 }
 
@@ -287,14 +287,14 @@ func (e *TCOEngine) CalculateBreakEven(tier StorageTier, investmentCost float64,
 	}
 
 	return &BreakEvenAnalysis{
-		GeneratedAt:      e.manager.nowFunc(),
-		Tier:             tier,
-		InvestmentCost:   investmentCost,
-		MonthlySavings:   monthlySavings,
-		BreakEvenMonths:  breakEvenMonths,
-		BreakEvenDate:    breakEvenDate,
-		FiveYearSavings:  fiveYearSavings,
-		FiveYearROI:      fiveYearROI,
+		GeneratedAt:     e.manager.nowFunc(),
+		Tier:            tier,
+		InvestmentCost:  investmentCost,
+		MonthlySavings:  monthlySavings,
+		BreakEvenMonths: breakEvenMonths,
+		BreakEvenDate:   breakEvenDate,
+		FiveYearSavings: fiveYearSavings,
+		FiveYearROI:     fiveYearROI,
 	}, nil
 }
 
@@ -350,8 +350,8 @@ func (e *TCOEngine) ProjectTCO(tier StorageTier, months int, growthRatePercent f
 		totalProjectedCost += monthlyCost
 
 		projectedPoints = append(projectedPoints, TCOProjectionPoint{
-			Month:          i,
-			Date:           e.manager.nowFunc().AddDate(0, i, 0),
+			Month:           i,
+			Date:            e.manager.nowFunc().AddDate(0, i, 0),
 			ProjectedUsedTB: projectedUsed,
 			ProjectedCost:   monthlyCost,
 			CumulativeCost:  totalProjectedCost,
@@ -359,13 +359,13 @@ func (e *TCOEngine) ProjectTCO(tier StorageTier, months int, growthRatePercent f
 	}
 
 	return &TCOProjection{
-		GeneratedAt:       e.manager.nowFunc(),
-		Tier:              tier,
-		TierName:          cfg.Name,
-		CurrentUsedTB:     currentUsedTB,
-		GrowthRatePercent: growthRatePercent,
-		ProjectMonths:     months,
-		ProjectedPoints:   projectedPoints,
+		GeneratedAt:        e.manager.nowFunc(),
+		Tier:               tier,
+		TierName:           cfg.Name,
+		CurrentUsedTB:      currentUsedTB,
+		GrowthRatePercent:  growthRatePercent,
+		ProjectMonths:      months,
+		ProjectedPoints:    projectedPoints,
 		TotalProjectedCost: totalProjectedCost,
 	}, nil
 }

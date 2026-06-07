@@ -323,12 +323,12 @@ func (m *Manager) quarantineFiles(threat ThreatEvent) {
 
 	for _, filePath := range threat.AffectedFiles {
 		record := QuarantineRecord{
-			ID:            fmt.Sprintf("q-%d", time.Now().UnixNano()),
-			OriginalPath:  filePath,
+			ID:             fmt.Sprintf("q-%d", time.Now().UnixNano()),
+			OriginalPath:   filePath,
 			QuarantinePath: filepath.Join(quarantineDir, filepath.Base(filePath)),
-			Reason:        fmt.Sprintf("行为勒索检测: %s", threat.Pattern),
-			ThreatEventID: threat.ID,
-			Timestamp:     time.Now(),
+			Reason:         fmt.Sprintf("行为勒索检测: %s", threat.Pattern),
+			ThreatEventID:  threat.ID,
+			Timestamp:      time.Now(),
 		}
 
 		// 计算文件哈希

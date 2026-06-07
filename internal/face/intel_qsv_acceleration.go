@@ -11,11 +11,11 @@ import (
 // QSVAccelerator Intel Quick Sync Video 加速器
 // 用于人脸检测推理加速，对标飞牛fnOS Intel核显加速方案
 type QSVAccelerator struct {
-	enabled    bool
-	deviceID   string
-	modelPath  string
-	mu         sync.RWMutex
-	ctx        context.Context
+	enabled   bool
+	deviceID  string
+	modelPath string
+	mu        sync.RWMutex
+	ctx       context.Context
 }
 
 // QSVConfig 加速器配置
@@ -76,12 +76,12 @@ func (q *QSVAccelerator) AccelerateFaceDetection(imageData []byte) ([]FaceResult
 
 // FaceResult 人脸检测结果
 type FaceResult struct {
-	BoundingBox   BoundingBox `json:"bounding_box"`
-	Confidence    float64     `json:"confidence"`
-	Features      []float64   `json:"features"`     // 人脸特征向量
-	PersonID      string      `json:"person_id"`    // 人物ID（聚类后）
-	AgeEstimate   int         `json:"age_estimate"` // 年龄估计
-	GenderEstimate string     `json:"gender_estimate"` // 性别估计
+	BoundingBox    BoundingBox `json:"bounding_box"`
+	Confidence     float64     `json:"confidence"`
+	Features       []float64   `json:"features"`        // 人脸特征向量
+	PersonID       string      `json:"person_id"`       // 人物ID（聚类后）
+	AgeEstimate    int         `json:"age_estimate"`    // 年龄估计
+	GenderEstimate string      `json:"gender_estimate"` // 性别估计
 }
 
 // BoundingBox 人脸边界框

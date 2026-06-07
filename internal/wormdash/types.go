@@ -41,15 +41,15 @@ const (
 type AuditAction string
 
 const (
-	ActionLock       AuditAction = "lock"
-	ActionUnlock     AuditAction = "unlock"
-	ActionVerify     AuditAction = "verify"
-	ActionExpire     AuditAction = "expire"
-	ActionPolicyAdd  AuditAction = "policy_add"
-	ActionPolicyDel  AuditAction = "policy_del"
-	ActionReport     AuditAction = "report_gen"
-	ActionBypass     AuditAction = "bypass_attempt"
-	ActionRetention  AuditAction = "retention_change"
+	ActionLock      AuditAction = "lock"
+	ActionUnlock    AuditAction = "unlock"
+	ActionVerify    AuditAction = "verify"
+	ActionExpire    AuditAction = "expire"
+	ActionPolicyAdd AuditAction = "policy_add"
+	ActionPolicyDel AuditAction = "policy_del"
+	ActionReport    AuditAction = "report_gen"
+	ActionBypass    AuditAction = "bypass_attempt"
+	ActionRetention AuditAction = "retention_change"
 )
 
 // Overview 仪表盘概览
@@ -70,8 +70,8 @@ type WORMPolicy struct {
 	ID            string       `json:"id"`
 	Name          string       `json:"name"`
 	Scope         PolicyScope  `json:"scope"`
-	Target        string       `json:"target"`            // 目录路径或文件扩展名
-	RetentionDays int          `json:"retentionDays"`     // 0 = 永不过期
+	Target        string       `json:"target"`        // 目录路径或文件扩展名
+	RetentionDays int          `json:"retentionDays"` // 0 = 永不过期
 	Status        PolicyStatus `json:"status"`
 	Description   string       `json:"description,omitempty"`
 	CreatedBy     string       `json:"createdBy"`
@@ -81,19 +81,19 @@ type WORMPolicy struct {
 
 // ComplianceReport 合规报告
 type ComplianceReport struct {
-	ID              string            `json:"id"`
-	ReportType      string            `json:"reportType"` // monthly|quarterly
-	PeriodStart     time.Time         `json:"periodStart"`
-	PeriodEnd       time.Time         `json:"periodEnd"`
-	GeneratedAt     time.Time         `json:"generatedAt"`
-	GeneratedBy     string            `json:"generatedBy"`
-	TotalFiles      int               `json:"totalFiles"`
-	ProtectedFiles  int               `json:"protectedFiles"`
-	ComplianceRate  float64           `json:"complianceRate"`
-	Violations      int               `json:"violations"`
-	RetentionStats  map[string]int    `json:"retentionStats,omitempty"`
-	PolicyStats     map[string]int    `json:"policyStats,omitempty"`
-	Summary         string            `json:"summary"`
+	ID             string         `json:"id"`
+	ReportType     string         `json:"reportType"` // monthly|quarterly
+	PeriodStart    time.Time      `json:"periodStart"`
+	PeriodEnd      time.Time      `json:"periodEnd"`
+	GeneratedAt    time.Time      `json:"generatedAt"`
+	GeneratedBy    string         `json:"generatedBy"`
+	TotalFiles     int            `json:"totalFiles"`
+	ProtectedFiles int            `json:"protectedFiles"`
+	ComplianceRate float64        `json:"complianceRate"`
+	Violations     int            `json:"violations"`
+	RetentionStats map[string]int `json:"retentionStats,omitempty"`
+	PolicyStats    map[string]int `json:"policyStats,omitempty"`
+	Summary        string         `json:"summary"`
 }
 
 // AnomalyAlert 异常告警
@@ -136,21 +136,21 @@ type AuditEntry struct {
 type ReportRequest struct {
 	ReportType  string `json:"reportType" binding:"required"` // monthly|quarterly
 	Year        int    `json:"year" binding:"required"`
-	Quarter     int    `json:"quarter,omitempty"`  // 1-4, quarterly时必需
-	Month       int    `json:"month,omitempty"`    // 1-12, monthly时必需
+	Quarter     int    `json:"quarter,omitempty"` // 1-4, quarterly时必需
+	Month       int    `json:"month,omitempty"`   // 1-12, monthly时必需
 	GeneratedBy string `json:"generatedBy"`
 }
 
 // Dashboard 合规仪表盘引擎
 type Dashboard struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	policies map[string]*WORMPolicy
-	alerts   map[string]*AnomalyAlert
+	mu        sync.RWMutex
+	logger    *zap.Logger
+	policies  map[string]*WORMPolicy
+	alerts    map[string]*AnomalyAlert
 	retention map[string]*RetentionEntry
-	reports  []*ComplianceReport
-	auditLog []*AuditEntry
-	nextID   int64
+	reports   []*ComplianceReport
+	auditLog  []*AuditEntry
+	nextID    int64
 }
 
 // NewDashboard 创建仪表盘引擎

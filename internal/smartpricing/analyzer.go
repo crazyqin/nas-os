@@ -211,21 +211,21 @@ func (a *Analyzer) Analyze(capacityGB int64, tier StorageTier, replica ReplicaPo
 	}
 
 	analysis := &CostAnalysis{
-		TotalCapacityGB:    capacityGB,
-		Tier:               tier,
-		Replica:            replica,
-		Workload:           workload,
-		MonthlyCost:        monthlyCost,
-		AnnualCost:         annualCost,
-		ThreeYearCost:      threeYearCost,
-		EffectiveIOPS:      plan.IOPSLimit,
+		TotalCapacityGB:     capacityGB,
+		Tier:                tier,
+		Replica:             replica,
+		Workload:            workload,
+		MonthlyCost:         monthlyCost,
+		AnnualCost:          annualCost,
+		ThreeYearCost:       threeYearCost,
+		EffectiveIOPS:       plan.IOPSLimit,
 		EffectiveThroughput: plan.ThroughputMB,
-		ReadLatencyMs:      plan.ReadLatencyMs,
-		WriteLatencyMs:     plan.WriteLatencyMs,
-		ReplicaOverhead:    replicaOverhead,
-		UsableRatio:        usableRatio,
-		AnalyzedAt:         time.Now(),
-		PlanUsed:           plan.Name,
+		ReadLatencyMs:       plan.ReadLatencyMs,
+		WriteLatencyMs:      plan.WriteLatencyMs,
+		ReplicaOverhead:     replicaOverhead,
+		UsableRatio:         usableRatio,
+		AnalyzedAt:          time.Now(),
+		PlanUsed:            plan.Name,
 	}
 
 	return analysis, nil
@@ -352,14 +352,14 @@ func (a *Analyzer) ComparePlans(capacityGB int64, planIDs []string) ([]*CostAnal
 				TotalCost:      cost.TotalCost * 12,
 				EffectivePerGB: cost.EffectivePerGB,
 			},
-			EffectiveIOPS:      plan.IOPSLimit,
+			EffectiveIOPS:       plan.IOPSLimit,
 			EffectiveThroughput: plan.ThroughputMB,
-			ReadLatencyMs:      plan.ReadLatencyMs,
-			WriteLatencyMs:     plan.WriteLatencyMs,
-			ReplicaOverhead:    replicaOverhead,
-			UsableRatio:        GetUsableRatio(plan.Replica),
-			AnalyzedAt:         time.Now(),
-			PlanUsed:           plan.Name,
+			ReadLatencyMs:       plan.ReadLatencyMs,
+			WriteLatencyMs:      plan.WriteLatencyMs,
+			ReplicaOverhead:     replicaOverhead,
+			UsableRatio:         GetUsableRatio(plan.Replica),
+			AnalyzedAt:          time.Now(),
+			PlanUsed:            plan.Name,
 		}
 		results = append(results, analysis)
 	}

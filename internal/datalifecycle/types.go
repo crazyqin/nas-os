@@ -146,17 +146,17 @@ const (
 
 // LifecyclePolicy 生命周期策略定义.
 type LifecyclePolicy struct {
-	ID              string           `json:"id"`
-	Name            string           `json:"name"`
-	Description     string           `json:"description,omitempty"`
-	Enabled         bool             `json:"enabled"`
-	Priority        int              `json:"priority"`        // 越大优先级越高
-	Type            PolicyType       `json:"type"`            // 策略类型
+	ID              string               `json:"id"`
+	Name            string               `json:"name"`
+	Description     string               `json:"description,omitempty"`
+	Enabled         bool                 `json:"enabled"`
+	Priority        int                  `json:"priority"`        // 越大优先级越高
+	Type            PolicyType           `json:"type"`            // 策略类型
 	Classifications []DataClassification `json:"classifications"` // 适用的数据分类
-	Tags            []string         `json:"tags,omitempty"`  // 策略标签
-	CreatedAt       time.Time        `json:"createdAt"`
-	UpdatedAt       time.Time        `json:"updatedAt"`
-	CreatedBy       string           `json:"createdBy,omitempty"`
+	Tags            []string             `json:"tags,omitempty"`  // 策略标签
+	CreatedAt       time.Time            `json:"createdAt"`
+	UpdatedAt       time.Time            `json:"updatedAt"`
+	CreatedBy       string               `json:"createdBy,omitempty"`
 
 	// 生命周期阶段定义
 	Phases []PhaseDefinition `json:"phases"` // 生命周期各阶段定义
@@ -248,36 +248,36 @@ const (
 
 // ComplianceRequirement 合规要求.
 type ComplianceRequirement struct {
-	Name        string        `json:"name"`        // 要求名称
-	Regulation  string        `json:"regulation"`  // 法规名称（如 GDPR, HIPAA, SOX）
-	MinRetention time.Duration `json:"minRetention"` // 最短保留期
-	MaxRetention time.Duration `json:"maxRetention"` // 最长保留期
-	Immutable   bool          `json:"immutable"`   // 不可变（禁止删除/修改）
-	AuditRequired bool        `json:"auditRequired"` // 需要审计日志
+	Name          string        `json:"name"`          // 要求名称
+	Regulation    string        `json:"regulation"`    // 法规名称（如 GDPR, HIPAA, SOX）
+	MinRetention  time.Duration `json:"minRetention"`  // 最短保留期
+	MaxRetention  time.Duration `json:"maxRetention"`  // 最长保留期
+	Immutable     bool          `json:"immutable"`     // 不可变（禁止删除/修改）
+	AuditRequired bool          `json:"auditRequired"` // 需要审计日志
 }
 
 // ==================== 数据记录 ====================
 
 // DataRecord 数据记录，跟踪数据的完整生命周期.
 type DataRecord struct {
-	ID              string              `json:"id"`
-	Path            string              `json:"path"`
-	Name            string              `json:"name"`
-	Size            int64               `json:"size"`
-	CreatedAt       time.Time           `json:"createdAt"`
-	ModifiedAt      time.Time           `json:"modifiedAt"`
-	LastAccessedAt  time.Time           `json:"lastAccessedAt"`
-	AccessCount     int64               `json:"accessCount"`
-	CurrentPhase    LifecyclePhase      `json:"currentPhase"`
-	CurrentTier     StorageTier         `json:"currentTier"`
-	Classification  DataClassification  `json:"classification"`
-	Tags            []string            `json:"tags,omitempty"`
-	PolicyID        string              `json:"policyId"`        // 关联的策略ID
-	HoldIDs         []string            `json:"holdIds,omitempty"` // 关联的保留ID
-	Version         int                 `json:"version"`
-	TotalVersions   int                 `json:"totalVersions"`
-	IsEncrypted     bool                `json:"isEncrypted"`
-	PhaseHistory    []PhaseTransition   `json:"phaseHistory,omitempty"` // 阶段变更历史
+	ID             string             `json:"id"`
+	Path           string             `json:"path"`
+	Name           string             `json:"name"`
+	Size           int64              `json:"size"`
+	CreatedAt      time.Time          `json:"createdAt"`
+	ModifiedAt     time.Time          `json:"modifiedAt"`
+	LastAccessedAt time.Time          `json:"lastAccessedAt"`
+	AccessCount    int64              `json:"accessCount"`
+	CurrentPhase   LifecyclePhase     `json:"currentPhase"`
+	CurrentTier    StorageTier        `json:"currentTier"`
+	Classification DataClassification `json:"classification"`
+	Tags           []string           `json:"tags,omitempty"`
+	PolicyID       string             `json:"policyId"`          // 关联的策略ID
+	HoldIDs        []string           `json:"holdIds,omitempty"` // 关联的保留ID
+	Version        int                `json:"version"`
+	TotalVersions  int                `json:"totalVersions"`
+	IsEncrypted    bool               `json:"isEncrypted"`
+	PhaseHistory   []PhaseTransition  `json:"phaseHistory,omitempty"` // 阶段变更历史
 }
 
 // PhaseTransition 阶段转换记录.
@@ -293,19 +293,19 @@ type PhaseTransition struct {
 
 // ComplianceHold 合规保留（法律保留/审计保留）.
 type ComplianceHold struct {
-	ID          string         `json:"id"`
-	Type        RetentionType  `json:"type"`     // legal 或 audit
-	Name        string         `json:"name"`
-	Description string         `json:"description,omitempty"`
-	FilePaths   []string       `json:"filePaths"`   // 被保留的文件路径（支持通配符）
-	CaseNumber  string         `json:"caseNumber"`  // 案件/审计编号
-	IssuedBy    string         `json:"issuedBy"`    // 发起人
-	Regulation  string         `json:"regulation"`  // 关联法规
-	ExpiresAt   *time.Time     `json:"expiresAt"`   // 过期时间，nil表示手动解除
-	Active      bool           `json:"active"`
-	CreatedAt   time.Time      `json:"createdAt"`
-	ReleasedAt  *time.Time     `json:"releasedAt"` // 解除时间
-	ReleasedBy  string         `json:"releasedBy,omitempty"`
+	ID          string        `json:"id"`
+	Type        RetentionType `json:"type"` // legal 或 audit
+	Name        string        `json:"name"`
+	Description string        `json:"description,omitempty"`
+	FilePaths   []string      `json:"filePaths"`  // 被保留的文件路径（支持通配符）
+	CaseNumber  string        `json:"caseNumber"` // 案件/审计编号
+	IssuedBy    string        `json:"issuedBy"`   // 发起人
+	Regulation  string        `json:"regulation"` // 关联法规
+	ExpiresAt   *time.Time    `json:"expiresAt"`  // 过期时间，nil表示手动解除
+	Active      bool          `json:"active"`
+	CreatedAt   time.Time     `json:"createdAt"`
+	ReleasedAt  *time.Time    `json:"releasedAt"` // 解除时间
+	ReleasedBy  string        `json:"releasedBy,omitempty"`
 }
 
 // ==================== 迁移 ====================
@@ -321,10 +321,10 @@ type DataMigration struct {
 	CompletedAt time.Time       `json:"completedAt,omitempty"`
 
 	// 迁移配置
-	SourceTier  StorageTier `json:"sourceTier"`
-	TargetTier  StorageTier `json:"targetTier"`
-	SourcePath  string      `json:"sourcePath"`
-	TargetPath  string      `json:"targetPath"`
+	SourceTier StorageTier `json:"sourceTier"`
+	TargetTier StorageTier `json:"targetTier"`
+	SourcePath string      `json:"sourcePath"`
+	TargetPath string      `json:"targetPath"`
 
 	// 文件列表
 	Files []MigrationFile `json:"files,omitempty"`
@@ -363,100 +363,100 @@ type MigrationError struct {
 
 // DestructionRecord 数据销毁记录.
 type DestructionRecord struct {
-	ID              string            `json:"id"`
-	Status          DestructionStatus `json:"status"`
-	CreatedAt       time.Time         `json:"createdAt"`
-	ApprovedAt      *time.Time        `json:"approvedAt,omitempty"`
-	CompletedAt     *time.Time        `json:"completedAt,omitempty"`
-	ApprovedBy      string            `json:"approvedBy,omitempty"`
+	ID          string            `json:"id"`
+	Status      DestructionStatus `json:"status"`
+	CreatedAt   time.Time         `json:"createdAt"`
+	ApprovedAt  *time.Time        `json:"approvedAt,omitempty"`
+	CompletedAt *time.Time        `json:"completedAt,omitempty"`
+	ApprovedBy  string            `json:"approvedBy,omitempty"`
 
 	// 销毁详情
-	FilePaths       []string          `json:"filePaths"`       // 待销毁文件
-	Method          DestructionMethod `json:"method"`          // 销毁方法
-	TotalSize       int64             `json:"totalSize"`       // 总大小
-	DestroyedSize   int64             `json:"destroyedSize"`   // 已销毁大小
+	FilePaths     []string          `json:"filePaths"`     // 待销毁文件
+	Method        DestructionMethod `json:"method"`        // 销毁方法
+	TotalSize     int64             `json:"totalSize"`     // 总大小
+	DestroyedSize int64             `json:"destroyedSize"` // 已销毁大小
 
 	// 合规保留
-	HoldID          string            `json:"holdId,omitempty"` // 关联的合规保留ID
+	HoldID string `json:"holdId,omitempty"` // 关联的合规保留ID
 
 	// 审批
-	RequiresApproval bool     `json:"requiresApproval"`
-	Approvers        []string `json:"approvers,omitempty"`
+	RequiresApproval bool          `json:"requiresApproval"`
+	Approvers        []string      `json:"approvers,omitempty"`
 	ApprovalTimeout  time.Duration `json:"approvalTimeout"`
 
 	// 销毁证书
-	Certification   *DestructionCertification `json:"certification,omitempty"`
+	Certification *DestructionCertification `json:"certification,omitempty"`
 }
 
 // DestructionCertification 销毁证书.
 type DestructionCertification struct {
-	ID              string    `json:"id"`
-	DestructionID   string    `json:"destructionId"`
-	IssuedAt        time.Time `json:"issuedAt"`
-	Method          DestructionMethod `json:"method"`
-	FileCount       int       `json:"fileCount"`
-	TotalSize       int64     `json:"totalSize"`
-	VerifiedBy      string    `json:"verifiedBy"`
-	Signature       string    `json:"signature"` // 数字签名
-	HashBefore      string    `json:"hashBefore"` // 销毁前哈希
-	HashAfter       string    `json:"hashAfter"`  // 销毁后验证哈希
+	ID            string            `json:"id"`
+	DestructionID string            `json:"destructionId"`
+	IssuedAt      time.Time         `json:"issuedAt"`
+	Method        DestructionMethod `json:"method"`
+	FileCount     int               `json:"fileCount"`
+	TotalSize     int64             `json:"totalSize"`
+	VerifiedBy    string            `json:"verifiedBy"`
+	Signature     string            `json:"signature"`  // 数字签名
+	HashBefore    string            `json:"hashBefore"` // 销毁前哈希
+	HashAfter     string            `json:"hashAfter"`  // 销毁后验证哈希
 }
 
 // ==================== 访问分析 ====================
 
 // AccessPattern 访问模式分析.
 type AccessPattern struct {
-	Path           string          `json:"path"`
-	AccessCount    int64           `json:"accessCount"`
-	LastAccess     time.Time       `json:"lastAccess"`
-	AvgAccessInterval time.Duration `json:"avgAccessInterval"` // 平均访问间隔
-	CurrentTier    StorageTier     `json:"currentTier"`
-	RecommendedTier StorageTier    `json:"recommendedTier"` // 建议的存储层
-	Phase          LifecyclePhase  `json:"phase"`
-	Score          float64         `json:"score"` // 活跃度评分 (0-100)
+	Path              string         `json:"path"`
+	AccessCount       int64          `json:"accessCount"`
+	LastAccess        time.Time      `json:"lastAccess"`
+	AvgAccessInterval time.Duration  `json:"avgAccessInterval"` // 平均访问间隔
+	CurrentTier       StorageTier    `json:"currentTier"`
+	RecommendedTier   StorageTier    `json:"recommendedTier"` // 建议的存储层
+	Phase             LifecyclePhase `json:"phase"`
+	Score             float64        `json:"score"` // 活跃度评分 (0-100)
 }
 
 // TierSuggestion 分层建议.
 type TierSuggestion struct {
-	Path           string      `json:"path"`
-	CurrentTier    StorageTier `json:"currentTier"`
+	Path            string      `json:"path"`
+	CurrentTier     StorageTier `json:"currentTier"`
 	RecommendedTier StorageTier `json:"recommendedTier"`
-	Reason         string      `json:"reason"`
+	Reason          string      `json:"reason"`
 	EstimatedSaving int64       `json:"estimatedSaving"` // 预估节省空间/成本
-	Priority       int         `json:"priority"`        // 建议优先级
+	Priority        int         `json:"priority"`        // 建议优先级
 }
 
 // AccessAnalysisReport 访问分析报告.
 type AccessAnalysisReport struct {
-	GeneratedAt    time.Time          `json:"generatedAt"`
-	TotalFiles     int                `json:"totalFiles"`
-	TotalSize      int64              `json:"totalSize"`
-	Analysis       []AccessPattern    `json:"analysis"`
-	Suggestions    []TierSuggestion   `json:"suggestions"`
-	TierStats      map[StorageTier]*TierStatistics `json:"tierStats"`
-	PhaseStats     map[LifecyclePhase]int `json:"phaseStats"`
+	GeneratedAt time.Time                       `json:"generatedAt"`
+	TotalFiles  int                             `json:"totalFiles"`
+	TotalSize   int64                           `json:"totalSize"`
+	Analysis    []AccessPattern                 `json:"analysis"`
+	Suggestions []TierSuggestion                `json:"suggestions"`
+	TierStats   map[StorageTier]*TierStatistics `json:"tierStats"`
+	PhaseStats  map[LifecyclePhase]int          `json:"phaseStats"`
 }
 
 // TierStatistics 存储层统计.
 type TierStatistics struct {
-	Tier      StorageTier `json:"tier"`
-	FileCount int         `json:"fileCount"`
-	TotalSize int64       `json:"totalSize"`
+	Tier      StorageTier   `json:"tier"`
+	FileCount int           `json:"fileCount"`
+	TotalSize int64         `json:"totalSize"`
 	AvgAge    time.Duration `json:"avgAge"`
-	AvgAccess float64     `json:"avgAccess"`
+	AvgAccess float64       `json:"avgAccess"`
 }
 
 // ==================== 模板和批量操作 ====================
 
 // PolicyTemplate 策略模板.
 type PolicyTemplate struct {
-	ID          string           `json:"id"`
-	Name        string           `json:"name"`
-	Description string           `json:"description"`
-	Category    string           `json:"category"` // general, healthcare, finance, legal, govt
-	Policy      LifecyclePolicy  `json:"policy"`   // 模板中的策略定义
-	IsSystem    bool             `json:"isSystem"` // 系统预置模板
-	CreatedAt   time.Time        `json:"createdAt"`
+	ID          string          `json:"id"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	Category    string          `json:"category"` // general, healthcare, finance, legal, govt
+	Policy      LifecyclePolicy `json:"policy"`   // 模板中的策略定义
+	IsSystem    bool            `json:"isSystem"` // 系统预置模板
+	CreatedAt   time.Time       `json:"createdAt"`
 }
 
 // BatchApplyRequest 批量应用请求.
@@ -480,28 +480,28 @@ type BatchApplyResult struct {
 
 // LifecycleAuditEntry 生命周期审计日志条目.
 type LifecycleAuditEntry struct {
-	ID        string    `json:"id"`
-	Timestamp time.Time `json:"timestamp"`
-	Action    string    `json:"action"` // create_policy, update_policy, apply_policy, phase_change, migrate, destroy, hold_create, hold_release
-	Target    string    `json:"target"` // 受影响的文件或策略ID
-	Details   string    `json:"details"`
-	Operator  string    `json:"operator"` // 操作人
-	Success   bool      `json:"success"`
-	PolicyID  string    `json:"policyId,omitempty"`
+	ID        string         `json:"id"`
+	Timestamp time.Time      `json:"timestamp"`
+	Action    string         `json:"action"` // create_policy, update_policy, apply_policy, phase_change, migrate, destroy, hold_create, hold_release
+	Target    string         `json:"target"` // 受影响的文件或策略ID
+	Details   string         `json:"details"`
+	Operator  string         `json:"operator"` // 操作人
+	Success   bool           `json:"success"`
+	PolicyID  string         `json:"policyId,omitempty"`
 	Phase     LifecyclePhase `json:"phase,omitempty"`
 }
 
 // LifecycleStatus 生命周期模块状态.
 type LifecycleStatus struct {
-	Enabled        bool                         `json:"enabled"`
-	TotalPolicies  int                          `json:"totalPolicies"`
-	ActivePolicies int                          `json:"activePolicies"`
-	TotalRecords   int                          `json:"totalRecords"`
-	ActiveHolds    int                          `json:"activeHolds"`
-	RunningMigrations int                       `json:"runningMigrations"`
-	PendingDestructions int                     `json:"pendingDestructions"`
-	PhaseDistribution map[LifecyclePhase]int    `json:"phaseDistribution"`
-	TierDistribution  map[StorageTier]int       `json:"tierDistribution"`
+	Enabled             bool                   `json:"enabled"`
+	TotalPolicies       int                    `json:"totalPolicies"`
+	ActivePolicies      int                    `json:"activePolicies"`
+	TotalRecords        int                    `json:"totalRecords"`
+	ActiveHolds         int                    `json:"activeHolds"`
+	RunningMigrations   int                    `json:"runningMigrations"`
+	PendingDestructions int                    `json:"pendingDestructions"`
+	PhaseDistribution   map[LifecyclePhase]int `json:"phaseDistribution"`
+	TierDistribution    map[StorageTier]int    `json:"tierDistribution"`
 }
 
 // ==================== 通用响应 ====================

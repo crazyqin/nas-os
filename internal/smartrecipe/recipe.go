@@ -13,15 +13,15 @@ import (
 
 // Manager 智能菜谱管理器
 type Manager struct {
-	mu           sync.RWMutex
-	recipes      map[string]*Recipe
-	ingredients  map[string]*Ingredient
-	inventory    map[string]*InventoryItem
-	mealPlans    map[string]*MealPlan
+	mu            sync.RWMutex
+	recipes       map[string]*Recipe
+	ingredients   map[string]*Ingredient
+	inventory     map[string]*InventoryItem
+	mealPlans     map[string]*MealPlan
 	shoppingLists map[string]*ShoppingList
-	logger       Logger
-	ctx          context.Context
-	cancel       context.CancelFunc
+	logger        Logger
+	ctx           context.Context
+	cancel        context.CancelFunc
 }
 
 // Logger 日志接口

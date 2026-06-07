@@ -13,9 +13,9 @@ import (
 
 // PerformanceMonitor 性能监控器
 type PerformanceMonitor struct {
-	poolManager *PoolManager
-	metricsHistory map[string][]PerformanceMetrics
-	bottlenecks   []IOBottleneck
+	poolManager     *PoolManager
+	metricsHistory  map[string][]PerformanceMetrics
+	bottlenecks     []IOBottleneck
 	recommendations []PerformanceTuningRecommendation
 }
 

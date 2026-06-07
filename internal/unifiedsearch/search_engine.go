@@ -40,32 +40,32 @@ type EngineSearchItem struct {
 
 // EngineSearchResult 搜索结果
 type EngineSearchResult struct {
-	Item      *EngineSearchItem `json:"item"`
-	Score     float64     `json:"score"`
-	Highlights []string   `json:"highlights,omitempty"`
+	Item       *EngineSearchItem `json:"item"`
+	Score      float64           `json:"score"`
+	Highlights []string          `json:"highlights,omitempty"`
 }
 
 // EngineSearchQuery 搜索查询
 type EngineSearchQuery struct {
-	Keyword   string            `json:"keyword"`
-	Types     []EngineSearchType `json:"types,omitempty"`
-	Tags      []string          `json:"tags,omitempty"`
-	Owner     string            `json:"owner,omitempty"`
-	DateFrom  *time.Time        `json:"date_from,omitempty"`
-	DateTo    *time.Time        `json:"date_to,omitempty"`
-	SizeMin   int64             `json:"size_min,omitempty"`
-	SizeMax   int64             `json:"size_max,omitempty"`
-	SortBy    string            `json:"sort_by,omitempty"` // relevance, date, name, size
-	Limit     int               `json:"limit,omitempty"`
-	Offset    int               `json:"offset,omitempty"`
+	Keyword  string             `json:"keyword"`
+	Types    []EngineSearchType `json:"types,omitempty"`
+	Tags     []string           `json:"tags,omitempty"`
+	Owner    string             `json:"owner,omitempty"`
+	DateFrom *time.Time         `json:"date_from,omitempty"`
+	DateTo   *time.Time         `json:"date_to,omitempty"`
+	SizeMin  int64              `json:"size_min,omitempty"`
+	SizeMax  int64              `json:"size_max,omitempty"`
+	SortBy   string             `json:"sort_by,omitempty"` // relevance, date, name, size
+	Limit    int                `json:"limit,omitempty"`
+	Offset   int                `json:"offset,omitempty"`
 }
 
 // EngineSearchStats 搜索统计
 type EngineSearchStats struct {
-	TotalItems   int            `json:"total_items"`
-	ItemsByType  map[string]int `json:"items_by_type"`
-	LastIndexed  *time.Time     `json:"last_indexed,omitempty"`
-	IndexSizeMB  float64        `json:"index_size_mb"`
+	TotalItems  int            `json:"total_items"`
+	ItemsByType map[string]int `json:"items_by_type"`
+	LastIndexed *time.Time     `json:"last_indexed,omitempty"`
+	IndexSizeMB float64        `json:"index_size_mb"`
 }
 
 // Engine 统一搜索引擎

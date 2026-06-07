@@ -16,29 +16,29 @@ type PrivacyEngine struct {
 
 // FederatedTask 联邦学习任务
 type FederatedTask struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Status      string                 `json:"status"` // pending, training, aggregating, completed, failed
-	ModelType   string                 `json:"model_type"`
-	Round       int                    `json:"round"`
-	MaxRounds   int                    `json:"max_rounds"`
-	Participants []Participant         `json:"participants"`
-	GlobalModel map[string][]float64   `json:"global_model"`
-	Metrics     map[string]float64     `json:"metrics"`
-	CreatedAt   time.Time              `json:"created_at"`
-	UpdatedAt   time.Time              `json:"updated_at"`
-	Config      FederatedConfig        `json:"config"`
+	ID           string               `json:"id"`
+	Name         string               `json:"name"`
+	Status       string               `json:"status"` // pending, training, aggregating, completed, failed
+	ModelType    string               `json:"model_type"`
+	Round        int                  `json:"round"`
+	MaxRounds    int                  `json:"max_rounds"`
+	Participants []Participant        `json:"participants"`
+	GlobalModel  map[string][]float64 `json:"global_model"`
+	Metrics      map[string]float64   `json:"metrics"`
+	CreatedAt    time.Time            `json:"created_at"`
+	UpdatedAt    time.Time            `json:"updated_at"`
+	Config       FederatedConfig      `json:"config"`
 }
 
 // Participant 联邦学习参与方
 type Participant struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	Status       string    `json:"status"` // idle, training, submitting, completed
-	DataSize     int       `json:"data_size"`
-	LocalLoss    float64   `json:"local_loss"`
-	LocalAccuracy float64  `json:"local_accuracy"`
-	LastUpdate   time.Time `json:"last_update"`
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	Status        string    `json:"status"` // idle, training, submitting, completed
+	DataSize      int       `json:"data_size"`
+	LocalLoss     float64   `json:"local_loss"`
+	LocalAccuracy float64   `json:"local_accuracy"`
+	LastUpdate    time.Time `json:"last_update"`
 }
 
 // FederatedConfig 联邦学习配置
@@ -54,10 +54,10 @@ type FederatedConfig struct {
 
 // MPCProtocol 安全多方计算协议
 type MPCProtocol struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Type        string            `json:"type"` // secret_sharing, garbled_circuit, homomorphic
-	Status      string            `json:"status"` // idle, computing, completed, failed
+	ID           string           `json:"id"`
+	Name         string           `json:"name"`
+	Type         string           `json:"type"`   // secret_sharing, garbled_circuit, homomorphic
+	Status       string           `json:"status"` // idle, computing, completed, failed
 	Participants []MPCParticipant `json:"participants"`
 	Computation  string           `json:"computation"`
 	Result       interface{}      `json:"result,omitempty"`
@@ -76,10 +76,10 @@ type MPCParticipant struct {
 
 // SecretShare 秘密份额
 type SecretShare struct {
-	Index  int       `json:"index"`
-	Value  []byte    `json:"value"`
-	Proof  []byte    `json:"proof,omitempty"`
-	Party  string    `json:"party"`
+	Index int    `json:"index"`
+	Value []byte `json:"value"`
+	Proof []byte `json:"proof,omitempty"`
+	Party string `json:"party"`
 }
 
 // DifferentialPrivacyConfig 差分隐私配置
@@ -94,13 +94,13 @@ type DifferentialPrivacyConfig struct {
 
 // PrivacyBudget 隐私预算
 type PrivacyBudget struct {
-	TotalEpsilon    float64   `json:"total_epsilon"`
-	UsedEpsilon     float64   `json:"used_epsilon"`
-	RemainingEpsilon float64  `json:"remaining_epsilon"`
-	TotalDelta      float64   `json:"total_delta"`
-	UsedDelta       float64   `json:"used_delta"`
-	Queries         []QueryLog `json:"queries"`
-	LastUpdated     time.Time  `json:"last_updated"`
+	TotalEpsilon     float64    `json:"total_epsilon"`
+	UsedEpsilon      float64    `json:"used_epsilon"`
+	RemainingEpsilon float64    `json:"remaining_epsilon"`
+	TotalDelta       float64    `json:"total_delta"`
+	UsedDelta        float64    `json:"used_delta"`
+	Queries          []QueryLog `json:"queries"`
+	LastUpdated      time.Time  `json:"last_updated"`
 }
 
 // QueryLog 查询日志
@@ -114,23 +114,23 @@ type QueryLog struct {
 
 // DataMaskRule 数据脱敏规则
 type DataMaskRule struct {
-	ID         string            `json:"id"`
-	Name       string            `json:"name"`
-	Type       string            `json:"type"` // regex, column, row, cell
-	Pattern    string            `json:"pattern,omitempty"`
-	Strategy   string            `json:"strategy"` // mask, partial, hash, tokenize, pseudonymize
-	Config     map[string]interface{} `json:"config"`
-	Enabled    bool              `json:"enabled"`
-	CreatedAt  time.Time         `json:"created_at"`
+	ID        string                 `json:"id"`
+	Name      string                 `json:"name"`
+	Type      string                 `json:"type"` // regex, column, row, cell
+	Pattern   string                 `json:"pattern,omitempty"`
+	Strategy  string                 `json:"strategy"` // mask, partial, hash, tokenize, pseudonymize
+	Config    map[string]interface{} `json:"config"`
+	Enabled   bool                   `json:"enabled"`
+	CreatedAt time.Time              `json:"created_at"`
 }
 
 // MaskResult 脱敏结果
 type MaskResult struct {
-	OriginalCount  int               `json:"original_count"`
-	MaskedCount    int               `json:"masked_count"`
-	RulesApplied   []string          `json:"rules_applied"`
-	Details        []MaskDetail      `json:"details"`
-	ProcessedAt    time.Time         `json:"processed_at"`
+	OriginalCount int          `json:"original_count"`
+	MaskedCount   int          `json:"masked_count"`
+	RulesApplied  []string     `json:"rules_applied"`
+	Details       []MaskDetail `json:"details"`
+	ProcessedAt   time.Time    `json:"processed_at"`
 }
 
 // MaskDetail 脱敏详情
@@ -185,10 +185,10 @@ type ParticipantRequest struct {
 
 // CreateMPCProtocolRequest 创建MPC协议请求
 type CreateMPCProtocolRequest struct {
-	Name         string               `json:"name"`
-	Type         string               `json:"type"`
-	Participants []MPCParticipantReq  `json:"participants"`
-	Computation  string               `json:"computation"`
+	Name         string              `json:"name"`
+	Type         string              `json:"type"`
+	Participants []MPCParticipantReq `json:"participants"`
+	Computation  string              `json:"computation"`
 }
 
 // MPCParticipantReq MPC参与方请求
@@ -200,17 +200,17 @@ type MPCParticipantReq struct {
 
 // AddNoiseRequest 添加噪声请求
 type AddNoiseRequest struct {
-	Data      []float64              `json:"data"`
+	Data      []float64                 `json:"data"`
 	Config    DifferentialPrivacyConfig `json:"config"`
-	QueryType string                 `json:"query_type"`
+	QueryType string                    `json:"query_type"`
 }
 
 // AddNoiseResponse 添加噪声响应
 type AddNoiseResponse struct {
-	NoisyData      []float64 `json:"noisy_data"`
-	NoiseScale     float64   `json:"noise_scale"`
-	EpsilonUsed    float64   `json:"epsilon_used"`
-	PrivacyLoss    float64   `json:"privacy_loss"`
+	NoisyData   []float64 `json:"noisy_data"`
+	NoiseScale  float64   `json:"noise_scale"`
+	EpsilonUsed float64   `json:"epsilon_used"`
+	PrivacyLoss float64   `json:"privacy_loss"`
 }
 
 // CreateMaskRuleRequest 创建脱敏规则请求
@@ -230,7 +230,7 @@ type ApplyMaskRequest struct {
 
 // ApplyTableMaskRequest 表格脱敏请求
 type ApplyTableMaskRequest struct {
-	Table  string                 `json:"table"`
-	Data   []map[string]interface{} `json:"data"`
-	Rules  map[string]string      `json:"rules"` // column -> rule_id
+	Table string                   `json:"table"`
+	Data  []map[string]interface{} `json:"data"`
+	Rules map[string]string        `json:"rules"` // column -> rule_id
 }

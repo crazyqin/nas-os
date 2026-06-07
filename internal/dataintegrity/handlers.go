@@ -507,5 +507,3 @@ func (h *Handlers) getFileHistory(c *gin.Context) {
 		},
 	})
 }
-
-

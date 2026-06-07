@@ -312,9 +312,9 @@ func TestListPendingRequests(t *testing.T) {
 func TestCreateTemplate(t *testing.T) {
 	m := NewManager()
 	tmpl := &BudgetTemplate{
-		ID:       "t1",
-		Name:     "月度模板",
-		Period:   PeriodMonthly,
+		ID:            "t1",
+		Name:          "月度模板",
+		Period:        PeriodMonthly,
 		DefaultAmount: 50000,
 	}
 	err := m.CreateTemplate(tmpl)
@@ -335,11 +335,11 @@ func TestCreateTemplate_InvalidParams(t *testing.T) {
 func TestCreateBudgetFromTemplate(t *testing.T) {
 	m := NewManager()
 	_ = m.CreateTemplate(&BudgetTemplate{
-		ID:              "t1",
-		Name:            "月度模板",
-		Period:          PeriodMonthly,
-		DefaultAmount:   50000,
-		AlertThreshold:  0.9,
+		ID:             "t1",
+		Name:           "月度模板",
+		Period:         PeriodMonthly,
+		DefaultAmount:  50000,
+		AlertThreshold: 0.9,
 	})
 
 	b, err := m.CreateBudgetFromTemplate("t1", "b1", "6月预算", "技术部", time.Date(2026, 6, 1, 0, 0, 0, 0, time.Local))

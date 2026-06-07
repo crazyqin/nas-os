@@ -9,18 +9,18 @@ import (
 
 // ColorScheme represents a complete color configuration for a theme.
 type ColorScheme struct {
-	Primary     string `json:"primary"`
-	Secondary   string `json:"secondary"`
-	Accent      string `json:"accent"`
-	Background  string `json:"background"`
-	Surface     string `json:"surface"`
-	Error       string `json:"error"`
-	Warning     string `json:"warning"`
-	Success     string `json:"success"`
-	Info        string `json:"info"`
-	TextPrimary string `json:"text_primary"`
+	Primary       string `json:"primary"`
+	Secondary     string `json:"secondary"`
+	Accent        string `json:"accent"`
+	Background    string `json:"background"`
+	Surface       string `json:"surface"`
+	Error         string `json:"error"`
+	Warning       string `json:"warning"`
+	Success       string `json:"success"`
+	Info          string `json:"info"`
+	TextPrimary   string `json:"text_primary"`
 	TextSecondary string `json:"text_secondary"`
-	Border      string `json:"border"`
+	Border        string `json:"border"`
 }
 
 // ColorSchemeManager manages custom color schemes.
@@ -173,18 +173,18 @@ func (c *ColorSchemeManager) Apply(schemeName string, theme *Theme) error {
 // validateColorScheme validates all color values in a scheme.
 func validateColorScheme(scheme *ColorScheme) error {
 	colors := map[string]string{
-		"primary":       scheme.Primary,
-		"secondary":     scheme.Secondary,
-		"accent":        scheme.Accent,
-		"background":    scheme.Background,
-		"surface":       scheme.Surface,
-		"error":         scheme.Error,
-		"warning":       scheme.Warning,
-		"success":       scheme.Success,
-		"info":          scheme.Info,
-		"text_primary":  scheme.TextPrimary,
+		"primary":        scheme.Primary,
+		"secondary":      scheme.Secondary,
+		"accent":         scheme.Accent,
+		"background":     scheme.Background,
+		"surface":        scheme.Surface,
+		"error":          scheme.Error,
+		"warning":        scheme.Warning,
+		"success":        scheme.Success,
+		"info":           scheme.Info,
+		"text_primary":   scheme.TextPrimary,
 		"text_secondary": scheme.TextSecondary,
-		"border":        scheme.Border,
+		"border":         scheme.Border,
 	}
 
 	hexPattern := regexp.MustCompile(`^#[0-9A-Fa-f]{6}$`)

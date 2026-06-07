@@ -49,8 +49,8 @@ func createTestPolicy(t *testing.T, mgr *Manager, name string, reviewers []Revie
 	t.Helper()
 	enabled := true
 	p, err := mgr.CreatePolicy(PolicyInput{
-		Name:    name,
-		Enabled: &enabled,
+		Name:      name,
+		Enabled:   &enabled,
 		Reviewers: reviewers,
 		MatchType: MatchExact,
 	})
@@ -66,7 +66,7 @@ func TestStore_PolicyCRUD(t *testing.T) {
 
 	t.Run("CreatePolicy", func(t *testing.T) {
 		p, err := mgr.CreatePolicy(PolicyInput{
-			Name:     "测试策略",
+			Name:      "测试策略",
 			Reviewers: []Reviewer{{UserID: "u1", Username: "审核员1", Level: 1}},
 			MatchType: MatchExact,
 		})
@@ -93,11 +93,11 @@ func TestStore_PolicyCRUD(t *testing.T) {
 
 	t.Run("ListPolicies", func(t *testing.T) {
 		_, _ = mgr.CreatePolicy(PolicyInput{
-			Name: "策略A",
+			Name:      "策略A",
 			Reviewers: []Reviewer{{UserID: "u1", Username: "审核员", Level: 1}},
 		})
 		_, _ = mgr.CreatePolicy(PolicyInput{
-			Name: "策略B",
+			Name:      "策略B",
 			Reviewers: []Reviewer{{UserID: "u2", Username: "审核员2", Level: 1}},
 		})
 
@@ -110,8 +110,8 @@ func TestStore_PolicyCRUD(t *testing.T) {
 		p := createTestPolicy(t, mgr, "待更新", []Reviewer{{UserID: "u1", Username: "审核员", Level: 1}})
 		enabled := false
 		updated, err := mgr.UpdatePolicy(p.ID, PolicyInput{
-			Name:     "已更新",
-			Enabled:  &enabled,
+			Name:      "已更新",
+			Enabled:   &enabled,
 			Reviewers: []Reviewer{{UserID: "u1", Username: "审核员", Level: 1}},
 			Priority:  10,
 		})
@@ -159,8 +159,8 @@ func TestStore_QueueCRUD(t *testing.T) {
 		// 启用策略的发件人匹配
 		enabled := true
 		_, err := mgr.UpdatePolicy(policy.ID, PolicyInput{
-			Name:     "队列测试策略",
-			Enabled:  &enabled,
+			Name:    "队列测试策略",
+			Enabled: &enabled,
 			Reviewers: []Reviewer{
 				{UserID: "r1", Username: "审核员1", Level: 1},
 				{UserID: "r2", Username: "审核员2", Level: 2},
@@ -203,8 +203,8 @@ func TestStore_QueueCRUD(t *testing.T) {
 		// 提交一封匹配的邮件
 		enabled := true
 		_, _ = mgr.UpdatePolicy(policy.ID, PolicyInput{
-			Name:     "队列测试策略",
-			Enabled:  &enabled,
+			Name:    "队列测试策略",
+			Enabled: &enabled,
 			Reviewers: []Reviewer{
 				{UserID: "r1", Username: "审核员1", Level: 1},
 				{UserID: "r2", Username: "审核员2", Level: 2},
@@ -250,8 +250,8 @@ func TestStore_ReviewFlow(t *testing.T) {
 	// 创建两级审核策略
 	enabled := true
 	_, err := mgr.CreatePolicy(PolicyInput{
-		Name:     "两级审核",
-		Enabled:  &enabled,
+		Name:    "两级审核",
+		Enabled: &enabled,
 		Reviewers: []Reviewer{
 			{UserID: "r1", Username: "一级审核员", Level: 1},
 			{UserID: "r2", Username: "二级审核员", Level: 2},
@@ -304,8 +304,8 @@ func TestStore_RejectFlow(t *testing.T) {
 
 	enabled := true
 	_, err := mgr.CreatePolicy(PolicyInput{
-		Name:     "拒绝测试",
-		Enabled:  &enabled,
+		Name:    "拒绝测试",
+		Enabled: &enabled,
 		Reviewers: []Reviewer{
 			{UserID: "r1", Username: "审核员", Level: 1},
 		},
@@ -340,9 +340,9 @@ func TestStore_Audit(t *testing.T) {
 
 	enabled := true
 	_, _ = mgr.CreatePolicy(PolicyInput{
-		Name:     "审计测试",
-		Enabled:  &enabled,
-		Reviewers: []Reviewer{{UserID: "r1", Username: "审核员", Level: 1}},
+		Name:           "审计测试",
+		Enabled:        &enabled,
+		Reviewers:      []Reviewer{{UserID: "r1", Username: "审核员", Level: 1}},
 		SenderPatterns: []string{"audit@test.com"},
 		MatchType:      MatchExact,
 	})

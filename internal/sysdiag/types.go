@@ -9,11 +9,11 @@ import (
 type DiagStatus string
 
 const (
-	DiagStatusPass     DiagStatus = "pass"     // 通过
-	DiagStatusWarn     DiagStatus = "warn"     // 警告
-	DiagStatusFail     DiagStatus = "fail"     // 失败
-	DiagStatusRunning  DiagStatus = "running"  // 运行中
-	DiagStatusPending  DiagStatus = "pending"  // 等待中
+	DiagStatusPass    DiagStatus = "pass"    // 通过
+	DiagStatusWarn    DiagStatus = "warn"    // 警告
+	DiagStatusFail    DiagStatus = "fail"    // 失败
+	DiagStatusRunning DiagStatus = "running" // 运行中
+	DiagStatusPending DiagStatus = "pending" // 等待中
 )
 
 // DiagCategory 诊断类别.
@@ -40,23 +40,23 @@ const (
 
 // DiagTask 诊断任务.
 type DiagTask struct {
-	ID        string       `json:"id"`
-	Name      string       `json:"name"`
-	Category  DiagCategory `json:"category"`
-	Status    DiagStatus   `json:"status"`
-	StartTime time.Time    `json:"start_time"`
-	EndTime   time.Time    `json:"end_time,omitempty"`
+	ID        string        `json:"id"`
+	Name      string        `json:"name"`
+	Category  DiagCategory  `json:"category"`
+	Status    DiagStatus    `json:"status"`
+	StartTime time.Time     `json:"start_time"`
+	EndTime   time.Time     `json:"end_time,omitempty"`
 	Results   []*DiagResult `json:"results,omitempty"`
 }
 
 // DiagResult 单项诊断结果.
 type DiagResult struct {
-	Name     string            `json:"name"`
-	Category DiagCategory      `json:"category"`
-	Status   DiagStatus        `json:"status"`
-	Message  string            `json:"message"`
+	Name     string                 `json:"name"`
+	Category DiagCategory           `json:"category"`
+	Status   DiagStatus             `json:"status"`
+	Message  string                 `json:"message"`
 	Details  map[string]interface{} `json:"details,omitempty"`
-	Duration time.Duration     `json:"duration"`
+	Duration time.Duration          `json:"duration"`
 }
 
 // HealthCheckItem 健康检查项.
@@ -93,10 +93,10 @@ type DiagReport struct {
 
 // DiagSummary 诊断摘要.
 type DiagSummary struct {
-	TotalChecks int `json:"total_checks"`
-	Passed      int `json:"passed"`
-	Warnings    int `json:"warnings"`
-	Failures    int `json:"failures"`
+	TotalChecks int           `json:"total_checks"`
+	Passed      int           `json:"passed"`
+	Warnings    int           `json:"warnings"`
+	Failures    int           `json:"failures"`
 	Duration    time.Duration `json:"duration"`
 }
 
@@ -115,16 +115,16 @@ type HardwareInfo struct {
 
 // StorageArrayStatus 存储阵列状态.
 type StorageArrayStatus struct {
-	Name       string   `json:"name"`
-	Level      string   `json:"level"`       // RAID 级别
-	State      string   `json:"state"`       // 状态
-	Devices    []string `json:"devices"`     // 设备列表
-	Active     int      `json:"active"`      // 活跃设备数
-	Degraded   int      `json:"degraded"`    // 降级设备数
-	Failed     int      `json:"failed"`      // 失败设备数
-	Spare      int      `json:"spare"`       // 备用设备数
-	TotalSize  string   `json:"total_size"`
-	UsedSize   string   `json:"used_size"`
+	Name      string   `json:"name"`
+	Level     string   `json:"level"`    // RAID 级别
+	State     string   `json:"state"`    // 状态
+	Devices   []string `json:"devices"`  // 设备列表
+	Active    int      `json:"active"`   // 活跃设备数
+	Degraded  int      `json:"degraded"` // 降级设备数
+	Failed    int      `json:"failed"`   // 失败设备数
+	Spare     int      `json:"spare"`    // 备用设备数
+	TotalSize string   `json:"total_size"`
+	UsedSize  string   `json:"used_size"`
 }
 
 // NetworkTestResult 网络测试结果.
@@ -139,7 +139,7 @@ type NetworkTestResult struct {
 // ServiceStatus 服务状态.
 type ServiceStatus struct {
 	Name      string    `json:"name"`
-	Status    string    `json:"status"`    // active, inactive, failed
+	Status    string    `json:"status"` // active, inactive, failed
 	SubStatus string    `json:"sub_status"`
 	PID       int       `json:"pid"`
 	Memory    int64     `json:"memory"`
@@ -151,37 +151,37 @@ type ServiceStatus struct {
 
 // NetworkDiag 网络诊断结果
 type NetworkDiag struct {
-	Interfaces     []NetworkInterface `json:"interfaces"`
-	Connectivity   ConnectivityTest   `json:"connectivity"`
-	DNSResolution  DNSDiagResult      `json:"dns_resolution"`
-	Bandwidth      BandwidthTest      `json:"bandwidth"`
-	Latency        []LatencyTest      `json:"latency"`
-	Issues         []DiagIssue        `json:"issues,omitempty"`
+	Interfaces    []NetworkInterface `json:"interfaces"`
+	Connectivity  ConnectivityTest   `json:"connectivity"`
+	DNSResolution DNSDiagResult      `json:"dns_resolution"`
+	Bandwidth     BandwidthTest      `json:"bandwidth"`
+	Latency       []LatencyTest      `json:"latency"`
+	Issues        []DiagIssue        `json:"issues,omitempty"`
 }
 
 // NetworkInterface 网络接口信息
 type NetworkInterface struct {
-	Name      string `json:"name"`
-	Status    string `json:"status"` // up, down
-	IP        string `json:"ip"`
-	MAC       string `json:"mac"`
-	Speed     string `json:"speed"`
-	MTU       int    `json:"mtu"`
+	Name   string `json:"name"`
+	Status string `json:"status"` // up, down
+	IP     string `json:"ip"`
+	MAC    string `json:"mac"`
+	Speed  string `json:"speed"`
+	MTU    int    `json:"mtu"`
 }
 
 // ConnectivityTest 连通性测试
 type ConnectivityTest struct {
-	GatewayReachable bool          `json:"gateway_reachable"`
-	InternetReachable bool         `json:"internet_reachable"`
-	GatewayLatency   time.Duration `json:"gateway_latency"`
-	InternetLatency  time.Duration `json:"internet_latency"`
+	GatewayReachable  bool          `json:"gateway_reachable"`
+	InternetReachable bool          `json:"internet_reachable"`
+	GatewayLatency    time.Duration `json:"gateway_latency"`
+	InternetLatency   time.Duration `json:"internet_latency"`
 }
 
 // DNSDiagResult DNS 诊断结果
 type DNSDiagResult struct {
-	Resolver   string        `json:"resolver"`
-	Working    bool          `json:"working"`
-	Latency    time.Duration `json:"latency"`
+	Resolver string        `json:"resolver"`
+	Working  bool          `json:"working"`
+	Latency  time.Duration `json:"latency"`
 }
 
 // BandwidthTest 带宽测试
@@ -192,20 +192,20 @@ type BandwidthTest struct {
 
 // LatencyTest 延迟测试
 type LatencyTest struct {
-	Target  string        `json:"target"`
-	Avg     time.Duration `json:"avg"`
-	Min     time.Duration `json:"min"`
-	Max     time.Duration `json:"max"`
-	Loss    float64       `json:"loss_percent"`
+	Target string        `json:"target"`
+	Avg    time.Duration `json:"avg"`
+	Min    time.Duration `json:"min"`
+	Max    time.Duration `json:"max"`
+	Loss   float64       `json:"loss_percent"`
 }
 
 // StorageDiag 存储诊断结果
 type StorageDiag struct {
-	Arrays      []StorageArrayDiag  `json:"arrays"`
-	Disks       []DiskDiag          `json:"disks"`
-	Filesystems []FilesystemDiag    `json:"filesystems"`
-	SMART       []SMARTDiag         `json:"smart"`
-	Issues      []DiagIssue         `json:"issues,omitempty"`
+	Arrays      []StorageArrayDiag `json:"arrays"`
+	Disks       []DiskDiag         `json:"disks"`
+	Filesystems []FilesystemDiag   `json:"filesystems"`
+	SMART       []SMARTDiag        `json:"smart"`
+	Issues      []DiagIssue        `json:"issues,omitempty"`
 }
 
 // StorageArrayDiag 存储阵列诊断
@@ -219,11 +219,11 @@ type StorageArrayDiag struct {
 
 // DiskDiag 磁盘诊断
 type DiskDiag struct {
-	Device   string  `json:"device"`
-	Model    string  `json:"model"`
-	SizeGB   float64 `json:"size_gb"`
-	Temp     float64 `json:"temp_celsius"`
-	Healthy  bool    `json:"healthy"`
+	Device   string   `json:"device"`
+	Model    string   `json:"model"`
+	SizeGB   float64  `json:"size_gb"`
+	Temp     float64  `json:"temp_celsius"`
+	Healthy  bool     `json:"healthy"`
 	Warnings []string `json:"warnings,omitempty"`
 }
 
@@ -239,34 +239,34 @@ type FilesystemDiag struct {
 
 // SMARTDiag SMART 诊断
 type SMARTDiag struct {
-	Device    string `json:"device"`
-	Health    string `json:"health"`
-	Temp      int    `json:"temp"`
-	PowerOn   int    `json:"power_on_hours"`
-	Reallocated int  `json:"reallocated_sectors"`
+	Device      string `json:"device"`
+	Health      string `json:"health"`
+	Temp        int    `json:"temp"`
+	PowerOn     int    `json:"power_on_hours"`
+	Reallocated int    `json:"reallocated_sectors"`
 }
 
 // PerfBottleneck 性能瓶颈分析
 type PerfBottleneck struct {
-	Component   string  `json:"component"` // cpu, memory, disk, network
-	Severity    string  `json:"severity"`  // low, medium, high, critical
-	Current     float64 `json:"current_value"`
-	Threshold   float64 `json:"threshold"`
-	Unit        string  `json:"unit"`
-	Description string  `json:"description"`
-	Recommendation string `json:"recommendation"`
+	Component      string  `json:"component"` // cpu, memory, disk, network
+	Severity       string  `json:"severity"`  // low, medium, high, critical
+	Current        float64 `json:"current_value"`
+	Threshold      float64 `json:"threshold"`
+	Unit           string  `json:"unit"`
+	Description    string  `json:"description"`
+	Recommendation string  `json:"recommendation"`
 }
 
 // AutoFix 自动修复
 type AutoFix struct {
-	ID          string    `json:"id"`
-	IssueType   string    `json:"issue_type"`
-	Component   string    `json:"component"`
-	Action      string    `json:"action"`
-	Status      string    `json:"status"` // pending, running, success, failed
-	StartedAt   time.Time `json:"started_at"`
+	ID          string     `json:"id"`
+	IssueType   string     `json:"issue_type"`
+	Component   string     `json:"component"`
+	Action      string     `json:"action"`
+	Status      string     `json:"status"` // pending, running, success, failed
+	StartedAt   time.Time  `json:"started_at"`
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
-	Result      string    `json:"result,omitempty"`
+	Result      string     `json:"result,omitempty"`
 }
 
 // DiagIssue 诊断问题

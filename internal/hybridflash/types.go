@@ -135,12 +135,12 @@ type FlashDevice struct {
 	Path        string    `json:"path"`
 	Type        FlashType `json:"type"`
 	CacheRole   CacheRole `json:"cacheRole"`
-	Capacity    int64     `json:"capacity"`    // 容量（字节）
-	Used        int64     `json:"used"`        // 已使用（字节）
-	Available   int64     `json:"available"`   // 可用空间（字节）
-	ReadSpeed   int64     `json:"readSpeed"`   // 读取速度（MB/s）
-	WriteSpeed  int64     `json:"writeSpeed"`  // 写入速度（MB/s）
-	IOPS        int64     `json:"iops"`        // IOPS
+	Capacity    int64     `json:"capacity"`   // 容量（字节）
+	Used        int64     `json:"used"`       // 已使用（字节）
+	Available   int64     `json:"available"`  // 可用空间（字节）
+	ReadSpeed   int64     `json:"readSpeed"`  // 读取速度（MB/s）
+	WriteSpeed  int64     `json:"writeSpeed"` // 写入速度（MB/s）
+	IOPS        int64     `json:"iops"`       // IOPS
 	Enabled     bool      `json:"enabled"`
 	Health      float64   `json:"health"`      // 健康度 (0-100)
 	Temperature int       `json:"temperature"` // 温度（摄氏度）
@@ -233,10 +233,10 @@ type IOMetric struct {
 
 // TierIOPSStats 分层 IOPS 统计.
 type TierIOPSStats struct {
-	FlashType  FlashType `json:"flashType"`
-	ReadIOPS   int64     `json:"readIops"`
-	WriteIOPS  int64     `json:"writeIops"`
-	TotalIOPS  int64     `json:"totalIops"`
+	FlashType FlashType `json:"flashType"`
+	ReadIOPS  int64     `json:"readIops"`
+	WriteIOPS int64     `json:"writeIops"`
+	TotalIOPS int64     `json:"totalIops"`
 }
 
 // TierLatencyStats 分层延迟统计.
@@ -302,7 +302,7 @@ type TieringConfig struct {
 	HeatCheckInterval     string  `json:"heatCheckInterval"`     // 热度检查间隔
 	AutoMigrateEnabled    bool    `json:"autoMigrateEnabled"`    // 自动迁移开关
 	MaxConcurrentMigrates int     `json:"maxConcurrentMigrates"` // 最大并发迁移数
-	SSDCapacityThreshold  float64 `json:"ssdCapacityThreshold"` // SSD 容量阈值
+	SSDCapacityThreshold  float64 `json:"ssdCapacityThreshold"`  // SSD 容量阈值
 	HotThreshold          int64   `json:"hotThreshold"`          // 热数据阈值
 	WarmThreshold         int64   `json:"warmThreshold"`         // 温数据阈值
 	ColdAgeHours          int     `json:"coldAgeHours"`          // 冷数据判断时长
@@ -322,8 +322,8 @@ func DefaultTieringConfig() TieringConfig {
 		SSDCapacityThreshold:  0.85,
 		HotThreshold:          100,
 		WarmThreshold:         10,
-		ColdAgeHours:          720,         // 30 天
-		BlockSize:             128 * 1024,  // 128KB
+		ColdAgeHours:          720,        // 30 天
+		BlockSize:             128 * 1024, // 128KB
 		MigrationWindowStart:  "02:00",
 		MigrationWindowEnd:    "06:00",
 	}
@@ -370,11 +370,11 @@ type TieringStatus struct {
 
 // EfficiencyReport 效率报告.
 type EfficiencyReport struct {
-	GeneratedAt      time.Time                   `json:"generatedAt"`
-	Period           string                      `json:"period"`
-	OverallHitRate   float64                     `json:"overallHitRate"`
-	HitRateByTier    map[FlashType]float64       `json:"hitRateByTier"`
-	PerformanceBoost float64                     `json:"performanceBoost"` // 性能提升百分比
+	GeneratedAt      time.Time                    `json:"generatedAt"`
+	Period           string                       `json:"period"`
+	OverallHitRate   float64                      `json:"overallHitRate"`
+	HitRateByTier    map[FlashType]float64        `json:"hitRateByTier"`
+	PerformanceBoost float64                      `json:"performanceBoost"` // 性能提升百分比
 	SpaceUtilization *SpaceUtilization            `json:"spaceUtilization"`
 	TierDistribution map[FlashType]*TierDistStats `json:"tierDistribution"`
 	TopHotBlocks     []*BlockAccessRecord         `json:"topHotBlocks"`
@@ -489,10 +489,10 @@ type RebalanceResult struct {
 
 // CapacitySuggestion 容量规划建议.
 type CapacitySuggestion struct {
-	FlashCapacity int64   `json:"flashCapacity"` // 建议 Flash 容量（字节）
-	HDDCapacity   int64   `json:"hddCapacity"`   // 建议 HDD 容量（字节）
-	FlashRatio    float64 `json:"flashRatio"`    // Flash 占比建议
-	Reason        string  `json:"reason"`        // 建议理由
+	FlashCapacity    int64   `json:"flashCapacity"`    // 建议 Flash 容量（字节）
+	HDDCapacity      int64   `json:"hddCapacity"`      // 建议 HDD 容量（字节）
+	FlashRatio       float64 `json:"flashRatio"`       // Flash 占比建议
+	Reason           string  `json:"reason"`           // 建议理由
 	EstimatedHitRate float64 `json:"estimatedHitRate"` // 预估命中率
 }
 

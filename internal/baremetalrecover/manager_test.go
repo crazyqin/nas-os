@@ -16,7 +16,7 @@ func TestCreateImage(t *testing.T) {
 
 	// 创建全量备份
 	img, err := m.CreateImage("/dev/sda", "系统备份-1", &BackupOptions{
-		Type:    BackupTypeFull,
+		Type:     BackupTypeFull,
 		Compress: true,
 	})
 	if err != nil {

@@ -679,11 +679,11 @@ func (e *Engine) GetMetrics(functionID string) (*FunctionMetrics, error) {
 	}
 
 	metrics := &FunctionMetrics{
-		FunctionID:      functionID,
+		FunctionID:       functionID,
 		TotalInvocations: fn.InvokeCount,
-		ErrorCount:      fn.ErrorCount,
-		SuccessCount:    fn.InvokeCount - fn.ErrorCount,
-		Period:          "all",
+		ErrorCount:       fn.ErrorCount,
+		SuccessCount:     fn.InvokeCount - fn.ErrorCount,
+		Period:           "all",
 	}
 
 	// 计算调用统计

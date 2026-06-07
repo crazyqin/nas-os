@@ -313,11 +313,11 @@ func (p *CapacityPlanner) ForecastCapacity(input CapacityPlanningInput) (*Capaci
 		upperBound := math.Min(projectedUsed*1.1, currentCapacityTB)
 
 		projectedPoints = append(projectedPoints, ProjectedPoint{
-			Date:               p.manager.nowFunc().AddDate(0, i, 0),
-			ProjectedUsedTB:    projectedUsed,
+			Date:                 p.manager.nowFunc().AddDate(0, i, 0),
+			ProjectedUsedTB:      projectedUsed,
 			ProjectedUtilization: utilization,
-			LowerBound:         lowerBound,
-			UpperBound:         upperBound,
+			LowerBound:           lowerBound,
+			UpperBound:           upperBound,
 		})
 	}
 

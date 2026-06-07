@@ -24,17 +24,17 @@ type MapConfig struct {
 
 // StorageTree 存储树
 type StorageTree struct {
-	ID        string       `json:"id"`
-	Path      string       `json:"path"`
-	Name      string       `json:"name"`
-	Size      int64         `json:"size"`
-	FileCount int64         `json:"file_count"`
-	DirCount  int64         `json:"dir_count"`
+	ID        string         `json:"id"`
+	Path      string         `json:"path"`
+	Name      string         `json:"name"`
+	Size      int64          `json:"size"`
+	FileCount int64          `json:"file_count"`
+	DirCount  int64          `json:"dir_count"`
 	Children  []*StorageTree `json:"children,omitempty"`
-	Parent    string       `json:"parent,omitempty"`
-	ModTime   time.Time    `json:"mod_time"`
-	FileType  string       `json:"file_type"`
-	Usage     float64      `json:"usage_percent"`
+	Parent    string         `json:"parent,omitempty"`
+	ModTime   time.Time      `json:"mod_time"`
+	FileType  string         `json:"file_type"`
+	Usage     float64        `json:"usage_percent"`
 }
 
 // ScanJob 扫描任务

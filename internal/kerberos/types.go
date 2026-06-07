@@ -4,20 +4,20 @@ import "time"
 
 // KerberosConfig Kerberos 配置.
 type KerberosConfig struct {
-	Realm           string        `json:"realm"`
-	KDCHost         string        `json:"kdc_host"`
-	KDCPort         int           `json:"kdc_port"`
-	AdminHost       string        `json:"admin_host"`
-	AdminPort       int           `json:"admin_port"`
-	DefaultDomain   string        `json:"default_domain"`
-	TicketLifetime  time.Duration `json:"ticket_lifetime"`
-	RenewLifetime   time.Duration `json:"renew_lifetime"`
-	MaxRetries      int           `json:"max_retries"`
-	CacheSize       int           `json:"cache_size"`
-	KeytabPath      string        `json:"keytab_path"`
-	EnableUDP       bool          `json:"enable_udp"`
-	EnableTCP       bool          `json:"enable_tcp"`
-	PreauthType     string        `json:"preauth_type"`
+	Realm          string        `json:"realm"`
+	KDCHost        string        `json:"kdc_host"`
+	KDCPort        int           `json:"kdc_port"`
+	AdminHost      string        `json:"admin_host"`
+	AdminPort      int           `json:"admin_port"`
+	DefaultDomain  string        `json:"default_domain"`
+	TicketLifetime time.Duration `json:"ticket_lifetime"`
+	RenewLifetime  time.Duration `json:"renew_lifetime"`
+	MaxRetries     int           `json:"max_retries"`
+	CacheSize      int           `json:"cache_size"`
+	KeytabPath     string        `json:"keytab_path"`
+	EnableUDP      bool          `json:"enable_udp"`
+	EnableTCP      bool          `json:"enable_tcp"`
+	PreauthType    string        `json:"preauth_type"`
 }
 
 // Realm Kerberos Realm.
@@ -35,20 +35,20 @@ type Realm struct {
 
 // Principal Kerberos Principal.
 type Principal struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Realm       string            `json:"realm"`
-	Type        PrincipalType     `json:"type"`
-	Attributes  map[string]string `json:"attributes"`
-	MaxLife     time.Duration     `json:"max_life"`
-	MaxRenew    time.Duration     `json:"max_renew"`
-	ExpiresAt   time.Time         `json:"expires_at"`
-	Disabled    bool              `json:"disabled"`
-	LockedOut   bool              `json:"locked_out"`
-	FailedLogins int              `json:"failed_logins"`
-	LastLogin   time.Time         `json:"last_login"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	Realm        string            `json:"realm"`
+	Type         PrincipalType     `json:"type"`
+	Attributes   map[string]string `json:"attributes"`
+	MaxLife      time.Duration     `json:"max_life"`
+	MaxRenew     time.Duration     `json:"max_renew"`
+	ExpiresAt    time.Time         `json:"expires_at"`
+	Disabled     bool              `json:"disabled"`
+	LockedOut    bool              `json:"locked_out"`
+	FailedLogins int               `json:"failed_logins"`
+	LastLogin    time.Time         `json:"last_login"`
+	CreatedAt    time.Time         `json:"created_at"`
+	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
 // PrincipalType Principal 类型.
@@ -98,18 +98,18 @@ type KerberosStats struct {
 
 // AuthRequest 认证请求.
 type AuthRequest struct {
-	Principal  string `json:"principal"`
-	Password   string `json:"password"`
-	KeytabID   string `json:"keytab_id"`
-	Service    string `json:"service"`
-	Renewable  bool   `json:"renewable"`
-	Forwardable bool  `json:"forwardable"`
+	Principal   string `json:"principal"`
+	Password    string `json:"password"`
+	KeytabID    string `json:"keytab_id"`
+	Service     string `json:"service"`
+	Renewable   bool   `json:"renewable"`
+	Forwardable bool   `json:"forwardable"`
 }
 
 // AuthResponse 认证响应.
 type AuthResponse struct {
-	Success    bool      `json:"success"`
-	TicketID   string    `json:"ticket_id"`
-	ExpiresAt  time.Time `json:"expires_at"`
-	ErrorMsg   string    `json:"error_msg,omitempty"`
+	Success   bool      `json:"success"`
+	TicketID  string    `json:"ticket_id"`
+	ExpiresAt time.Time `json:"expires_at"`
+	ErrorMsg  string    `json:"error_msg,omitempty"`
 }

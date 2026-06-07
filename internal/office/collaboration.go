@@ -27,21 +27,21 @@ const (
 
 // Operation OT操作.
 type Operation struct {
-	Type     OpType `json:"type"`               // 操作类型
-	Position int    `json:"position"`           // 操作位置
-	Text     string `json:"text,omitempty"`     // 插入的文本
-	Length   int    `json:"length,omitempty"`   // 删除/保留的长度
-	UserID   string `json:"user_id"`            // 操作用户ID
-	Seq      int64  `json:"seq"`                // 操作序列号
-	Parent   int64  `json:"parent"`             // 父操作序列号（用于冲突解决）
+	Type     OpType `json:"type"`             // 操作类型
+	Position int    `json:"position"`         // 操作位置
+	Text     string `json:"text,omitempty"`   // 插入的文本
+	Length   int    `json:"length,omitempty"` // 删除/保留的长度
+	UserID   string `json:"user_id"`          // 操作用户ID
+	Seq      int64  `json:"seq"`              // 操作序列号
+	Parent   int64  `json:"parent"`           // 父操作序列号（用于冲突解决）
 }
 
 // OperationResult 操作结果.
 type OperationResult struct {
-	Applied  bool        `json:"applied"`            // 是否成功应用
-	Op       *Operation  `json:"op"`                 // 原始操作
+	Applied     bool       `json:"applied"`               // 是否成功应用
+	Op          *Operation `json:"op"`                    // 原始操作
 	Transformed *Operation `json:"transformed,omitempty"` // 变换后的操作
-	Error    string      `json:"error,omitempty"`    // 错误信息
+	Error       string     `json:"error,omitempty"`       // 错误信息
 }
 
 // ========== 协作引擎 ==========
@@ -80,16 +80,16 @@ func DefaultCollabEngineConfig() CollabEngineConfig {
 
 // CollabDocument 协作文档.
 type CollabDocument struct {
-	DocID      string                `json:"doc_id"`
-	Content    string                `json:"content"`
-	Version    int64                 `json:"version"`    // 当前文档版本号
-	Seq        int64                 `json:"seq"`        // 全局操作序列号
-	OpLog      []*Operation          `json:"-"`          // 操作日志
-	Versions   []*DocVersionSnapshot `json:"-"`          // 版本快照列表
-	Comments   []*DocComment         `json:"comments"`   // 评论列表
-	CreatedAt  time.Time             `json:"created_at"`
-	UpdatedAt  time.Time             `json:"updated_at"`
-	mu         sync.RWMutex          `json:"-"`
+	DocID     string                `json:"doc_id"`
+	Content   string                `json:"content"`
+	Version   int64                 `json:"version"`  // 当前文档版本号
+	Seq       int64                 `json:"seq"`      // 全局操作序列号
+	OpLog     []*Operation          `json:"-"`        // 操作日志
+	Versions  []*DocVersionSnapshot `json:"-"`        // 版本快照列表
+	Comments  []*DocComment         `json:"comments"` // 评论列表
+	CreatedAt time.Time             `json:"created_at"`
+	UpdatedAt time.Time             `json:"updated_at"`
+	mu        sync.RWMutex          `json:"-"`
 }
 
 // DocVersionSnapshot 文档版本快照.
@@ -156,18 +156,18 @@ type WSMessage struct {
 
 // WSMessageType WebSocket消息类型.
 const (
-	WSTypeOp          = "operation"       // OT操作
-	WSTypeCursor      = "cursor"          // 光标移动
-	WSTypeJoin        = "join"            // 加入文档
-	WSTypeLeave       = "leave"           // 离开文档
-	WSTypeSync        = "sync"            // 同步文档内容
-	WSTypeAck         = "ack"             // 操作确认
-	WSTypeError       = "error"           // 错误
-	WSTypeUserList    = "user_list"       // 用户列表
-	WSTypeComment     = "comment"         // 评论
-	WSTypeVersionSave = "version_save"    // 保存版本
-	WSTypePing        = "ping"            // 心跳
-	WSTypePong        = "pong"            // 心跳响应
+	WSTypeOp          = "operation"    // OT操作
+	WSTypeCursor      = "cursor"       // 光标移动
+	WSTypeJoin        = "join"         // 加入文档
+	WSTypeLeave       = "leave"        // 离开文档
+	WSTypeSync        = "sync"         // 同步文档内容
+	WSTypeAck         = "ack"          // 操作确认
+	WSTypeError       = "error"        // 错误
+	WSTypeUserList    = "user_list"    // 用户列表
+	WSTypeComment     = "comment"      // 评论
+	WSTypeVersionSave = "version_save" // 保存版本
+	WSTypePing        = "ping"         // 心跳
+	WSTypePong        = "pong"         // 心跳响应
 )
 
 // ========== 协作引擎方法 ==========
@@ -815,11 +815,11 @@ func (e *CollabEngine) GetOnlineUsers(docID string) []map[string]interface{} {
 	for _, c := range e.clients {
 		if c.DocID == docID {
 			users = append(users, map[string]interface{}{
-				"user_id":    c.UserID,
-				"user_name":  c.UserName,
-				"client_id":  c.ID,
-				"joined_at":  c.JoinedAt,
-				"last_ping":  c.LastPing,
+				"user_id":   c.UserID,
+				"user_name": c.UserName,
+				"client_id": c.ID,
+				"joined_at": c.JoinedAt,
+				"last_ping": c.LastPing,
 			})
 		}
 	}
@@ -831,9 +831,9 @@ func (e *CollabEngine) GetOnlineUsers(docID string) []map[string]interface{} {
 // broadcastOperation 广播操作到其他客户端.
 func (e *CollabEngine) broadcastOperation(docID string, op *Operation, excludeUserID string) {
 	msg := WSMessage{
-		Type:    WSTypeOp,
-		DocID:   docID,
-		From:    op.UserID,
+		Type:  WSTypeOp,
+		DocID: docID,
+		From:  op.UserID,
 	}
 
 	payload, _ := json.Marshal(op)
@@ -965,13 +965,13 @@ func (c *WSClient) SendError(errMsg string) {
 
 // CollabStats 协作统计.
 type CollabStats struct {
-	DocID         int    `json:"doc_id"`
-	OnlineUsers   int    `json:"online_users"`
-	Version       int64  `json:"version"`
-	OpCount       int    `json:"op_count"`
-	CommentCount  int    `json:"comment_count"`
-	UnresolvedCount int  `json:"unresolved_comments"`
-	ContentLength int    `json:"content_length"`
+	DocID           int   `json:"doc_id"`
+	OnlineUsers     int   `json:"online_users"`
+	Version         int64 `json:"version"`
+	OpCount         int   `json:"op_count"`
+	CommentCount    int   `json:"comment_count"`
+	UnresolvedCount int   `json:"unresolved_comments"`
+	ContentLength   int   `json:"content_length"`
 }
 
 // GetStats 获取协作文档统计.

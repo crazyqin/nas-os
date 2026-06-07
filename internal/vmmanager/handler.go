@@ -29,24 +29,24 @@ const (
 
 // VM 虚拟机
 type VM struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	OSType      VMOSType  `json:"osType"`
-	State       VMState   `json:"state"`
-	CPUCores    int       `json:"cpuCores"`
-	MemMB       int       `json:"memMb"`
-	DiskGB      int       `json:"diskGb"`
-	DiskPath    string    `json:"diskPath"`
-	ISOPath     string    `json:"isoPath"`
-	MACAddress  string    `json:"macAddress"`
-	VNCPort     int       `json:"vncPort"`
-	BootOrder   []string  `json:"bootOrder"`
-	UEFI        bool      `json:"uefi"`
-	TPM         bool      `json:"tpm"`
-	GPUPassthrough bool  `json:"gpuPassthrough"`
-	USBDevices  []string  `json:"usbDevices"`
-	CreatedAt   time.Time `json:"createdAt"`
-	StartedAt   time.Time `json:"startedAt"`
+	ID             string    `json:"id"`
+	Name           string    `json:"name"`
+	OSType         VMOSType  `json:"osType"`
+	State          VMState   `json:"state"`
+	CPUCores       int       `json:"cpuCores"`
+	MemMB          int       `json:"memMb"`
+	DiskGB         int       `json:"diskGb"`
+	DiskPath       string    `json:"diskPath"`
+	ISOPath        string    `json:"isoPath"`
+	MACAddress     string    `json:"macAddress"`
+	VNCPort        int       `json:"vncPort"`
+	BootOrder      []string  `json:"bootOrder"`
+	UEFI           bool      `json:"uefi"`
+	TPM            bool      `json:"tpm"`
+	GPUPassthrough bool      `json:"gpuPassthrough"`
+	USBDevices     []string  `json:"usbDevices"`
+	CreatedAt      time.Time `json:"createdAt"`
+	StartedAt      time.Time `json:"startedAt"`
 }
 
 // VMSnapshot 虚拟机快照

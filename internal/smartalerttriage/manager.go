@@ -15,15 +15,15 @@ import (
 // Manager 智能告警分类管理器.
 // 负责告警的分类、去重、聚合、根因分析、升级、抑制和通知.
 type Manager struct {
-	alerts      map[string]*Alert         // id -> alert
-	groups      map[string]*AlertGroup    // 聚合组
-	rootCauses  map[string]*RootCause     // 根因索引
-	suppressions map[string]*SuppressionRule // 抑制规则
-	policies    []*EscalationPolicy       // 升级策略
-	knowledge   map[Category][]KnowledgeEntry // 知识库
-	notifiers   map[NotificationChannel]Notifier // 通知器
-	logger      *zap.Logger
-	mu          sync.RWMutex
+	alerts       map[string]*Alert                // id -> alert
+	groups       map[string]*AlertGroup           // 聚合组
+	rootCauses   map[string]*RootCause            // 根因索引
+	suppressions map[string]*SuppressionRule      // 抑制规则
+	policies     []*EscalationPolicy              // 升级策略
+	knowledge    map[Category][]KnowledgeEntry    // 知识库
+	notifiers    map[NotificationChannel]Notifier // 通知器
+	logger       *zap.Logger
+	mu           sync.RWMutex
 }
 
 // Notifier 通知器接口.

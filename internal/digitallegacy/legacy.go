@@ -132,16 +132,16 @@ func (m *Manager) CreatePlan(req *LegacyPlanRequest, ownerID string) (*LegacyPla
 	}
 
 	plan := &LegacyPlan{
-		ID:               generateID(),
-		Name:             req.Name,
-		Description:      req.Description,
-		OwnerID:          ownerID,
-		Status:           LegacyStatusDraft,
-		TriggerType:      req.TriggerType,
+		ID:                generateID(),
+		Name:              req.Name,
+		Description:       req.Description,
+		OwnerID:           ownerID,
+		Status:            LegacyStatusDraft,
+		TriggerType:       req.TriggerType,
 		TriggerConditions: req.TriggerConditions,
-		IsEncrypted:      req.IsEncrypted,
-		CreatedAt:        time.Now(),
-		UpdatedAt:        time.Now(),
+		IsEncrypted:       req.IsEncrypted,
+		CreatedAt:         time.Now(),
+		UpdatedAt:         time.Now(),
 	}
 
 	// 设置默认触发条件

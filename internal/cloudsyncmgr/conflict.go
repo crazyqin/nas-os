@@ -74,10 +74,10 @@ func (cr *ConflictResolver) ResolveBatch(conflicts []*ConflictInfo) []ResolvedCo
 	for _, c := range conflicts {
 		useLocal, rename, err := cr.Resolve(c)
 		results = append(results, ResolvedConflict{
-			Conflict:  c,
-			UseLocal:  useLocal,
-			RenameTo:  rename,
-			Error:     err,
+			Conflict: c,
+			UseLocal: useLocal,
+			RenameTo: rename,
+			Error:    err,
 		})
 	}
 	return results

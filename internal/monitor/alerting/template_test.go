@@ -32,19 +32,19 @@ func TestTemplateEngine_Render(t *testing.T) {
 	engine := NewTemplateEngine()
 
 	vars := &AlertVars{
-		AlertID:    "test-001",
-		AlertName:  "磁盘空间告警",
-		HostName:   "nas-server",
-		HostIP:     "192.168.1.100",
-		Metric:     "disk_usage",
-		Value:      95.5,
-		Threshold:  90.0,
-		Unit:       "%",
-		Level:      AlertLevelWarning,
-		Message:    "磁盘使用率超过90%",
-		Source:     "monitor",
+		AlertID:     "test-001",
+		AlertName:   "磁盘空间告警",
+		HostName:    "nas-server",
+		HostIP:      "192.168.1.100",
+		Metric:      "disk_usage",
+		Value:       95.5,
+		Threshold:   90.0,
+		Unit:        "%",
+		Level:       AlertLevelWarning,
+		Message:     "磁盘使用率超过90%",
+		Source:      "monitor",
 		ServiceType: "storage",
-		Timestamp:  time.Now(),
+		Timestamp:   time.Now(),
 		Tags: map[string]string{
 			"env":     "production",
 			"cluster": "storage-01",
@@ -52,7 +52,7 @@ func TestTemplateEngine_Render(t *testing.T) {
 	}
 
 	tests := []struct {
-		name      string
+		name       string
 		templateID string
 		wantSubstr string
 	}{
@@ -169,12 +169,12 @@ func TestTemplateEngine_CRUD(t *testing.T) {
 
 	// Add
 	custom := &AlertTemplate{
-		ID:          "custom-test",
-		Name:        "自定义测试模板",
-		Type:        TemplateTypeEmail,
-		Subject:     "自定义告警",
-		Body:        "主机: {{.HostName}}",
-		Enabled:     true,
+		ID:      "custom-test",
+		Name:    "自定义测试模板",
+		Type:    TemplateTypeEmail,
+		Subject: "自定义告警",
+		Body:    "主机: {{.HostName}}",
+		Enabled: true,
 	}
 	err := engine.AddTemplate(custom)
 	require.NoError(t, err)
@@ -257,12 +257,12 @@ func TestTemplateEngine_HTMLTemplate(t *testing.T) {
 	engine := NewTemplateEngine()
 
 	vars := &AlertVars{
-		AlertID:    "html-001",
-		AlertName:  "HTML测试",
-		HostName:   "test-server",
-		HostIP:     "192.168.1.1",
-		Level:      AlertLevelCritical,
-		Timestamp:  time.Now(),
+		AlertID:   "html-001",
+		AlertName: "HTML测试",
+		HostName:  "test-server",
+		HostIP:    "192.168.1.1",
+		Level:     AlertLevelCritical,
+		Timestamp: time.Now(),
 	}
 
 	subject, body, err := engine.Render("email_html_default", vars)
@@ -275,17 +275,17 @@ func TestTemplateEngine_HTMLTemplate(t *testing.T) {
 
 func TestAlertVars_Extra(t *testing.T) {
 	vars := &AlertVars{
-		AlertID:    "extra-001",
-		AlertName:  "extra-test",
-		HostName:   "server",
-		HostIP:     "10.0.0.1",
-		Level:      AlertLevelWarning,
-		Metric:     "cpu",
-		Value:      85.0,
-		Threshold:  80.0,
-		Unit:       "%",
-		Timestamp:  time.Now(),
-		Tags:       map[string]string{"env": "prod"},
+		AlertID:   "extra-001",
+		AlertName: "extra-test",
+		HostName:  "server",
+		HostIP:    "10.0.0.1",
+		Level:     AlertLevelWarning,
+		Metric:    "cpu",
+		Value:     85.0,
+		Threshold: 80.0,
+		Unit:      "%",
+		Timestamp: time.Now(),
+		Tags:      map[string]string{"env": "prod"},
 		Extra: map[string]interface{}{
 			"customField": "customValue",
 			"count":       5,
@@ -328,18 +328,18 @@ func TestTemplateEngine_EmptyTemplateID(t *testing.T) {
 func BenchmarkTemplateRender(b *testing.B) {
 	engine := NewTemplateEngine()
 	vars := &AlertVars{
-		AlertID:    "bench-001",
-		AlertName:  "磁盘空间告警",
-		HostName:   "nas-server",
-		HostIP:     "192.168.1.100",
-		Metric:     "disk_usage",
-		Value:      95.5,
-		Threshold:  90.0,
-		Unit:       "%",
-		Level:      AlertLevelWarning,
-		Message:    "磁盘使用率超过90%",
-		Source:     "monitor",
-		Timestamp:  time.Now(),
+		AlertID:   "bench-001",
+		AlertName: "磁盘空间告警",
+		HostName:  "nas-server",
+		HostIP:    "192.168.1.100",
+		Metric:    "disk_usage",
+		Value:     95.5,
+		Threshold: 90.0,
+		Unit:      "%",
+		Level:     AlertLevelWarning,
+		Message:   "磁盘使用率超过90%",
+		Source:    "monitor",
+		Timestamp: time.Now(),
 		Tags: map[string]string{
 			"env": "production",
 		},
@@ -354,22 +354,22 @@ func BenchmarkTemplateRender(b *testing.B) {
 func TestTemplateEngine_GenerateAlertID(t *testing.T) {
 	// 测试 AlertVars 能正确携带 AlertID
 	vars := &AlertVars{
-		AlertID:    "auto-test-id",
-		AlertName:  "auto-test",
-		HostName:   "server",
-		Level:      AlertLevelInfo,
-		Timestamp:  time.Now(),
+		AlertID:   "auto-test-id",
+		AlertName: "auto-test",
+		HostName:  "server",
+		Level:     AlertLevelInfo,
+		Timestamp: time.Now(),
 	}
 
 	assert.Equal(t, "auto-test-id", vars.AlertID)
 
 	// 测试不同的告警有不同的ID
 	vars2 := &AlertVars{
-		AlertID:    "auto-test-id-2",
-		AlertName:  "auto-test-2",
-		HostName:   "server",
-		Level:      AlertLevelInfo,
-		Timestamp:  time.Now(),
+		AlertID:   "auto-test-id-2",
+		AlertName: "auto-test-2",
+		HostName:  "server",
+		Level:     AlertLevelInfo,
+		Timestamp: time.Now(),
 	}
 
 	assert.NotEqual(t, vars.AlertID, vars2.AlertID)
@@ -403,17 +403,17 @@ func TestTemplate_ComplexTemplate(t *testing.T) {
 	require.NoError(t, err)
 
 	vars := &AlertVars{
-		AlertID:    "complex-001",
-		AlertName:  "CPU使用率过高",
-		HostName:   "compute-node-01",
-		HostIP:     "10.10.10.50",
-		Metric:     "cpu_usage",
-		Value:      98.5,
-		Threshold:  90.0,
-		Unit:       "%",
-		Level:      AlertLevelCritical,
-		Message:    "CPU使用率持续超过90%",
-		Timestamp:  time.Date(2025, 6, 15, 14, 30, 0, 0, time.UTC),
+		AlertID:   "complex-001",
+		AlertName: "CPU使用率过高",
+		HostName:  "compute-node-01",
+		HostIP:    "10.10.10.50",
+		Metric:    "cpu_usage",
+		Value:     98.5,
+		Threshold: 90.0,
+		Unit:      "%",
+		Level:     AlertLevelCritical,
+		Message:   "CPU使用率持续超过90%",
+		Timestamp: time.Date(2025, 6, 15, 14, 30, 0, 0, time.UTC),
 		Tags: map[string]string{
 			"env":     "production",
 			"cluster": "compute",
@@ -457,15 +457,15 @@ func TestTemplate_ChineseChars(t *testing.T) {
 	engine := NewTemplateEngine()
 
 	vars := &AlertVars{
-		AlertID:    "chinese-001",
-		AlertName:  "磁盘空间不足",
-		HostName:   "存储服务器",
-		HostIP:     "192.168.1.200",
-		Level:      AlertLevelCritical,
-		Message:    "数据盘使用率已达95%，请及时清理",
-		Timestamp:  time.Now(),
+		AlertID:   "chinese-001",
+		AlertName: "磁盘空间不足",
+		HostName:  "存储服务器",
+		HostIP:    "192.168.1.200",
+		Level:     AlertLevelCritical,
+		Message:   "数据盘使用率已达95%，请及时清理",
+		Timestamp: time.Now(),
 		Tags: map[string]string{
-			"环境":  "生产环境",
+			"环境": "生产环境",
 			"部门": "运维部",
 		},
 	}
@@ -539,19 +539,19 @@ func TestTemplate_RenderAllBuiltinTemplates(t *testing.T) {
 	engine := NewTemplateEngine()
 
 	vars := &AlertVars{
-		AlertID:    "all-001",
-		AlertName:  "综合测试告警",
-		HostName:   "test-server",
-		HostIP:     "192.168.1.1",
-		Metric:     "test_metric",
-		Value:      75.0,
-		Threshold:  70.0,
-		Unit:       "%",
-		Level:      AlertLevelWarning,
-		Message:    "测试告警消息",
-		Source:     "test",
+		AlertID:     "all-001",
+		AlertName:   "综合测试告警",
+		HostName:    "test-server",
+		HostIP:      "192.168.1.1",
+		Metric:      "test_metric",
+		Value:       75.0,
+		Threshold:   70.0,
+		Unit:        "%",
+		Level:       AlertLevelWarning,
+		Message:     "测试告警消息",
+		Source:      "test",
 		ServiceType: "test",
-		Timestamp:  time.Now(),
+		Timestamp:   time.Now(),
 		Tags: map[string]string{
 			"test": "true",
 		},
@@ -579,12 +579,12 @@ func TestTemplate_MarkdownInBody(t *testing.T) {
 
 	// 测试包含markdown特殊字符的内容
 	vars := &AlertVars{
-		AlertID:    "md-001",
-		AlertName:  "special chars test",
-		HostName:   "server",
-		Level:      AlertLevelWarning,
-		Message:    "字符串含 `代码` 和 *星号* 和 _下划线_",
-		Timestamp:  time.Now(),
+		AlertID:   "md-001",
+		AlertName: "special chars test",
+		HostName:  "server",
+		Level:     AlertLevelWarning,
+		Message:   "字符串含 `代码` 和 *星号* 和 _下划线_",
+		Timestamp: time.Now(),
 	}
 
 	_, body, err := engine.Render("email_default", vars)

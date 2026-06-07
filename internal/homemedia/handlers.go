@@ -53,11 +53,11 @@ func (h *Handler) listMedia(w http.ResponseWriter, r *http.Request) {
 	}
 
 	req := &MediaSearchRequest{
-		Page:     page,
-		PageSize: pageSize,
-		SortBy:   r.URL.Query().Get("sort_by"),
+		Page:      page,
+		PageSize:  pageSize,
+		SortBy:    r.URL.Query().Get("sort_by"),
 		SortOrder: r.URL.Query().Get("sort_order"),
-		Type:     r.URL.Query().Get("type"),
+		Type:      r.URL.Query().Get("type"),
 	}
 
 	if rating := r.URL.Query().Get("rating"); rating != "" {

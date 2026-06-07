@@ -35,14 +35,14 @@ func NewPreviewEngine(logger *zap.Logger, config *PreviewConfig) *PreviewEngine 
 
 // PreviewRequest 预览请求
 type PreviewRequest struct {
-	FilePath    string `json:"file_path"`
-	ShareID     string `json:"share_id"`
-	UserID      string `json:"user_id,omitempty"`
-	IP          string `json:"ip"`
-	Page        int    `json:"page,omitempty"`      // 页码（PDF等）
-	Quality     int    `json:"quality,omitempty"`    // 预览质量 1-100
-	Format      string `json:"format,omitempty"`     // 输出格式
-	Watermark   bool   `json:"watermark"`            // 是否添加水印
+	FilePath  string `json:"file_path"`
+	ShareID   string `json:"share_id"`
+	UserID    string `json:"user_id,omitempty"`
+	IP        string `json:"ip"`
+	Page      int    `json:"page,omitempty"`    // 页码（PDF等）
+	Quality   int    `json:"quality,omitempty"` // 预览质量 1-100
+	Format    string `json:"format,omitempty"`  // 输出格式
+	Watermark bool   `json:"watermark"`         // 是否添加水印
 }
 
 // PreviewResponse 预览响应
@@ -63,15 +63,15 @@ type PreviewResponse struct {
 type FileType string
 
 const (
-	FileTypeImage    FileType = "image"
-	FileTypeVideo    FileType = "video"
-	FileTypeAudio    FileType = "audio"
-	FileTypePDF      FileType = "pdf"
-	FileTypeOffice   FileType = "office"
-	FileTypeText     FileType = "text"
-	FileTypeCode     FileType = "code"
-	FileTypeArchive  FileType = "archive"
-	FileTypeUnknown  FileType = "unknown"
+	FileTypeImage   FileType = "image"
+	FileTypeVideo   FileType = "video"
+	FileTypeAudio   FileType = "audio"
+	FileTypePDF     FileType = "pdf"
+	FileTypeOffice  FileType = "office"
+	FileTypeText    FileType = "text"
+	FileTypeCode    FileType = "code"
+	FileTypeArchive FileType = "archive"
+	FileTypeUnknown FileType = "unknown"
 )
 
 // SecurityInfo 安全信息

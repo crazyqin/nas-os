@@ -24,14 +24,14 @@ type Category string
 
 // 事件分类常量.
 const (
-	CategoryUserOp     Category = "user_operation"   // 用户操作
-	CategorySysOp      Category = "system_operation" // 系统操作
-	CategorySecEvent   Category = "security_event"   // 安全事件
-	CategoryAuthEvent  Category = "auth_event"       // 认证事件
-	CategoryConfigChange Category = "config_change"  // 配置变更
-	CategoryAccessCtrl Category = "access_control"   // 访问控制
-	CategoryDataOp     Category = "data_operation"   // 数据操作
-	CategoryNetEvent   Category = "network_event"    // 网络事件
+	CategoryUserOp       Category = "user_operation"   // 用户操作
+	CategorySysOp        Category = "system_operation" // 系统操作
+	CategorySecEvent     Category = "security_event"   // 安全事件
+	CategoryAuthEvent    Category = "auth_event"       // 认证事件
+	CategoryConfigChange Category = "config_change"    // 配置变更
+	CategoryAccessCtrl   Category = "access_control"   // 访问控制
+	CategoryDataOp       Category = "data_operation"   // 数据操作
+	CategoryNetEvent     Category = "network_event"    // 网络事件
 )
 
 // ========== 操作状态 ==========
@@ -64,45 +64,45 @@ const (
 
 // Entry 系统审计日志条目.
 type Entry struct {
-	ID         string                 `json:"id"`                    // 唯一标识
-	Timestamp  time.Time              `json:"timestamp"`             // 时间戳
-	Level      Level                  `json:"level"`                 // 日志级别
-	Category   Category               `json:"category"`              // 事件分类
-	Event      string                 `json:"event"`                 // 事件类型
-	UserID     string                 `json:"user_id,omitempty"`     // 用户ID
-	Username   string                 `json:"username,omitempty"`    // 用户名
-	IP         string                 `json:"ip,omitempty"`          // 客户端IP
-	UserAgent  string                 `json:"user_agent,omitempty"`  // 用户代理
-	Resource   string                 `json:"resource,omitempty"`    // 操作资源
-	Action     string                 `json:"action,omitempty"`      // 操作类型
-	Status     Status                 `json:"status"`                // 操作状态
-	Message    string                 `json:"message,omitempty"`     // 日志消息
-	Details    map[string]interface{} `json:"details,omitempty"`     // 详细信息
-	SessionID  string                 `json:"session_id,omitempty"`  // 会话ID
-	Hostname   string                 `json:"hostname,omitempty"`    // 主机名
-	ProcessName string              `json:"process_name,omitempty"` // 进程名
-	Signature  string                 `json:"signature,omitempty"`   // 数字签名（防篡改）
+	ID          string                 `json:"id"`                     // 唯一标识
+	Timestamp   time.Time              `json:"timestamp"`              // 时间戳
+	Level       Level                  `json:"level"`                  // 日志级别
+	Category    Category               `json:"category"`               // 事件分类
+	Event       string                 `json:"event"`                  // 事件类型
+	UserID      string                 `json:"user_id,omitempty"`      // 用户ID
+	Username    string                 `json:"username,omitempty"`     // 用户名
+	IP          string                 `json:"ip,omitempty"`           // 客户端IP
+	UserAgent   string                 `json:"user_agent,omitempty"`   // 用户代理
+	Resource    string                 `json:"resource,omitempty"`     // 操作资源
+	Action      string                 `json:"action,omitempty"`       // 操作类型
+	Status      Status                 `json:"status"`                 // 操作状态
+	Message     string                 `json:"message,omitempty"`      // 日志消息
+	Details     map[string]interface{} `json:"details,omitempty"`      // 详细信息
+	SessionID   string                 `json:"session_id,omitempty"`   // 会话ID
+	Hostname    string                 `json:"hostname,omitempty"`     // 主机名
+	ProcessName string                 `json:"process_name,omitempty"` // 进程名
+	Signature   string                 `json:"signature,omitempty"`    // 数字签名（防篡改）
 }
 
 // ========== 查询和筛选 ==========
 
 // QueryOptions 审计日志查询选项.
 type QueryOptions struct {
-	Limit      int        `json:"limit"`                // 返回数量限制
-	Offset     int        `json:"offset"`               // 偏移量
-	StartTime  *time.Time `json:"start_time,omitempty"` // 开始时间
-	EndTime    *time.Time `json:"end_time,omitempty"`   // 结束时间
-	Level      Level      `json:"level,omitempty"`      // 日志级别
-	Category   Category   `json:"category,omitempty"`   // 事件分类
-	UserID     string     `json:"user_id,omitempty"`    // 用户ID
-	Username   string     `json:"username,omitempty"`   // 用户名
-	IP         string     `json:"ip,omitempty"`         // IP地址
-	Status     Status     `json:"status,omitempty"`     // 操作状态
-	Event      string     `json:"event,omitempty"`      // 事件类型
-	Resource   string     `json:"resource,omitempty"`   // 资源
-	Keyword    string     `json:"keyword,omitempty"`    // 关键词搜索
-	SessionID  string     `json:"session_id,omitempty"` // 会话ID
-	Hostname   string     `json:"hostname,omitempty"`   // 主机名
+	Limit     int        `json:"limit"`                // 返回数量限制
+	Offset    int        `json:"offset"`               // 偏移量
+	StartTime *time.Time `json:"start_time,omitempty"` // 开始时间
+	EndTime   *time.Time `json:"end_time,omitempty"`   // 结束时间
+	Level     Level      `json:"level,omitempty"`      // 日志级别
+	Category  Category   `json:"category,omitempty"`   // 事件分类
+	UserID    string     `json:"user_id,omitempty"`    // 用户ID
+	Username  string     `json:"username,omitempty"`   // 用户名
+	IP        string     `json:"ip,omitempty"`         // IP地址
+	Status    Status     `json:"status,omitempty"`     // 操作状态
+	Event     string     `json:"event,omitempty"`      // 事件类型
+	Resource  string     `json:"resource,omitempty"`   // 资源
+	Keyword   string     `json:"keyword,omitempty"`    // 关键词搜索
+	SessionID string     `json:"session_id,omitempty"` // 会话ID
+	Hostname  string     `json:"hostname,omitempty"`   // 主机名
 }
 
 // QueryResult 查询结果.
@@ -156,16 +156,16 @@ type ArchiveResult struct {
 
 // Statistics 审计统计.
 type Statistics struct {
-	TotalEntries     int            `json:"total_entries"`         // 总日志数
-	TodayEntries     int            `json:"today_entries"`         // 今日日志数
-	FailedAuthToday  int            `json:"failed_auth_today"`     // 今日失败认证
-	SecurityAlerts   int            `json:"security_alerts"`       // 安全告警数
-	TopUsers         []UserActivity `json:"top_users"`             // 活跃用户
-	TopIPs           []IPActivity   `json:"top_ips"`               // 活跃IP
-	EventsByCategory map[string]int `json:"events_by_category"`    // 分类统计
-	EventsByLevel    map[string]int `json:"events_by_level"`       // 级别统计
-	EventsByStatus   map[string]int `json:"events_by_status"`      // 状态统计
-	StorageUsed      int64          `json:"storage_used"`          // 存储使用量(字节)
+	TotalEntries     int            `json:"total_entries"`          // 总日志数
+	TodayEntries     int            `json:"today_entries"`          // 今日日志数
+	FailedAuthToday  int            `json:"failed_auth_today"`      // 今日失败认证
+	SecurityAlerts   int            `json:"security_alerts"`        // 安全告警数
+	TopUsers         []UserActivity `json:"top_users"`              // 活跃用户
+	TopIPs           []IPActivity   `json:"top_ips"`                // 活跃IP
+	EventsByCategory map[string]int `json:"events_by_category"`     // 分类统计
+	EventsByLevel    map[string]int `json:"events_by_level"`        // 级别统计
+	EventsByStatus   map[string]int `json:"events_by_status"`       // 状态统计
+	StorageUsed      int64          `json:"storage_used"`           // 存储使用量(字节)
 	OldestEntry      *time.Time     `json:"oldest_entry,omitempty"` // 最早日志时间
 	NewestEntry      *time.Time     `json:"newest_entry,omitempty"` // 最新日志时间
 }
@@ -265,18 +265,18 @@ type ComplianceFinding struct {
 
 // AuditRule 审计规则.
 type AuditRule struct {
-	ID          string        `json:"id"`           // 规则ID
-	Name        string        `json:"name"`         // 规则名称
-	Description string        `json:"description"`  // 规则描述
-	Enabled     bool          `json:"enabled"`      // 是否启用
-	Priority    int           `json:"priority"`     // 优先级（数值越小优先级越高）
-	Severity    Severity      `json:"severity"`     // 触发严重级别
-	Category    Category      `json:"category"`     // 适用分类
-	Conditions  []Condition   `json:"conditions"`   // 触发条件（AND 逻辑）
-	Actions     []RuleAction  `json:"actions"`      // 触发动作
-	Cooldown    time.Duration `json:"cooldown"`     // 冷却时间（防止重复触发）
-	CreatedAt   time.Time     `json:"created_at"`   // 创建时间
-	UpdatedAt   time.Time     `json:"updated_at"`   // 更新时间
+	ID          string        `json:"id"`          // 规则ID
+	Name        string        `json:"name"`        // 规则名称
+	Description string        `json:"description"` // 规则描述
+	Enabled     bool          `json:"enabled"`     // 是否启用
+	Priority    int           `json:"priority"`    // 优先级（数值越小优先级越高）
+	Severity    Severity      `json:"severity"`    // 触发严重级别
+	Category    Category      `json:"category"`    // 适用分类
+	Conditions  []Condition   `json:"conditions"`  // 触发条件（AND 逻辑）
+	Actions     []RuleAction  `json:"actions"`     // 触发动作
+	Cooldown    time.Duration `json:"cooldown"`    // 冷却时间（防止重复触发）
+	CreatedAt   time.Time     `json:"created_at"`  // 创建时间
+	UpdatedAt   time.Time     `json:"updated_at"`  // 更新时间
 }
 
 // Condition 规则条件.
@@ -294,13 +294,13 @@ type RuleAction struct {
 
 // RuleMatchResult 规则匹配结果.
 type RuleMatchResult struct {
-	Matched    bool         `json:"matched"`     // 是否匹配
-	RuleID     string       `json:"rule_id"`     // 匹配的规则ID
-	RuleName   string       `json:"rule_name"`   // 匹配的规则名称
-	Severity   Severity     `json:"severity"`    // 触发严重级别
-	Actions    []RuleAction `json:"actions"`     // 需执行的动作
-	Entry      *Entry       `json:"entry"`       // 触发的审计日志
-	MatchedAt  time.Time    `json:"matched_at"`  // 匹配时间
+	Matched   bool         `json:"matched"`    // 是否匹配
+	RuleID    string       `json:"rule_id"`    // 匹配的规则ID
+	RuleName  string       `json:"rule_name"`  // 匹配的规则名称
+	Severity  Severity     `json:"severity"`   // 触发严重级别
+	Actions   []RuleAction `json:"actions"`    // 需执行的动作
+	Entry     *Entry       `json:"entry"`      // 触发的审计日志
+	MatchedAt time.Time    `json:"matched_at"` // 匹配时间
 }
 
 // ========== 配置 ==========

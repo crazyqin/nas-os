@@ -279,9 +279,9 @@ func (rl *RateLimiter) allowLeakyBucket(key string) bool {
 
 // GlobalRateLimiterManager 全局限流器管理器.
 type GlobalRateLimiterManager struct {
-	mu        sync.RWMutex
-	limiters  map[string]*RateLimiter
-	metrics   *RateLimitMetrics
+	mu       sync.RWMutex
+	limiters map[string]*RateLimiter
+	metrics  *RateLimitMetrics
 }
 
 // RateLimitMetrics 限流指标.

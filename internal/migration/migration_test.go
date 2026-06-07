@@ -56,7 +56,7 @@ func TestPlanner_GeneratePlan(t *testing.T) {
 		Version:      "7.0",
 		Hostname:     "synology-nas",
 		TotalStorage: 1024 * 1024 * 1024 * 500, // 500GB
-		UsedStorage:  1024 * 1024 * 1024 * 200,  // 200GB
+		UsedStorage:  1024 * 1024 * 1024 * 200, // 200GB
 		TotalUsers:   10,
 		TotalShares:  20,
 		TotalApps:    5,

@@ -51,35 +51,35 @@ type SMBConnector struct {
 
 // S3Connector S3 连接器（模拟实现）
 type S3Connector struct {
-	config      DataSource
-	endpoint    string
-	bucket      string
-	accessKey   string
-	secretKey   string
-	region      string
-	prefix      string
-	connected   bool
-	mu          sync.RWMutex
+	config    DataSource
+	endpoint  string
+	bucket    string
+	accessKey string
+	secretKey string
+	region    string
+	prefix    string
+	connected bool
+	mu        sync.RWMutex
 }
 
 // DatabaseConnector 数据库连接器（模拟实现）
 type DatabaseConnector struct {
-	config      DataSource
-	driver      string
-	dsn         string
-	query       string
-	connected   bool
-	mu          sync.RWMutex
+	config    DataSource
+	driver    string
+	dsn       string
+	query     string
+	connected bool
+	mu        sync.RWMutex
 }
 
 // HTTPConnector HTTP API 连接器
 type HTTPConnector struct {
-	config      DataSource
-	url         string
-	method      string
-	headers     map[string]string
-	connected   bool
-	mu          sync.RWMutex
+	config    DataSource
+	url       string
+	method    string
+	headers   map[string]string
+	connected bool
+	mu        sync.RWMutex
 }
 
 // OutputConnector 输出连接器接口

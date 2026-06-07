@@ -8,11 +8,11 @@ import "time"
 type NZBStatus string
 
 const (
-	NZBStatusPending    NZBStatus = "pending"
+	NZBStatusPending     NZBStatus = "pending"
 	NZBStatusDownloading NZBStatus = "downloading"
-	NZBStatusCompleted  NZBStatus = "completed"
-	NZBStatusFailed     NZBStatus = "failed"
-	NZBStatusPaused     NZBStatus = "paused"
+	NZBStatusCompleted   NZBStatus = "completed"
+	NZBStatusFailed      NZBStatus = "failed"
+	NZBStatusPaused      NZBStatus = "paused"
 )
 
 // DownloadStatus 下载状态
@@ -29,17 +29,17 @@ const (
 
 // NZB NZB 文件信息
 type NZB struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Category  string    `json:"category,omitempty"`
-	Size      int64     `json:"size"`
-	Files     int       `json:"files"`
-	Poster    string    `json:"poster,omitempty"`
-	Groups    []string  `json:"groups,omitempty"`
-	PostedAt  time.Time `json:"posted_at,omitempty"`
-	AddedAt   time.Time `json:"added_at"`
-	Status    NZBStatus `json:"status"`
-	FilePath  string    `json:"file_path,omitempty"`
+	ID       string    `json:"id"`
+	Name     string    `json:"name"`
+	Category string    `json:"category,omitempty"`
+	Size     int64     `json:"size"`
+	Files    int       `json:"files"`
+	Poster   string    `json:"poster,omitempty"`
+	Groups   []string  `json:"groups,omitempty"`
+	PostedAt time.Time `json:"posted_at,omitempty"`
+	AddedAt  time.Time `json:"added_at"`
+	Status   NZBStatus `json:"status"`
+	FilePath string    `json:"file_path,omitempty"`
 }
 
 // Download 下载任务信息

@@ -20,13 +20,13 @@ const (
 
 // SMARTAttribute SMART 属性
 type SMARTAttribute struct {
-	ID         int     `json:"id"`
-	Name       string  `json:"name"`
-	Value      int     `json:"value"`
-	Worst      int     `json:"worst"`
-	Threshold  int     `json:"threshold"`
-	RawValue   int64   `json:"raw_value"`
-	Status     string  `json:"status"` // ok, warning, critical
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	Value     int    `json:"value"`
+	Worst     int    `json:"worst"`
+	Threshold int    `json:"threshold"`
+	RawValue  int64  `json:"raw_value"`
+	Status    string `json:"status"` // ok, warning, critical
 }
 
 // DiskInfo 磁盘信息
@@ -46,31 +46,31 @@ type DiskInfo struct {
 
 // AlertRule 告警规则
 type AlertRule struct {
-	ID          string  `json:"id"`
-	Name        string  `json:"name"`
-	Attribute   string  `json:"attribute"` // temperature, reallocated_sectors, etc.
-	Operator    string  `json:"operator"`  // gt, lt, eq, gte
-	Threshold   float64 `json:"threshold"`
-	Severity    string  `json:"severity"` // info, warning, critical
-	Enabled     bool    `json:"enabled"`
-	Guidance    string  `json:"guidance"` // 引导式解决建议
+	ID        string  `json:"id"`
+	Name      string  `json:"name"`
+	Attribute string  `json:"attribute"` // temperature, reallocated_sectors, etc.
+	Operator  string  `json:"operator"`  // gt, lt, eq, gte
+	Threshold float64 `json:"threshold"`
+	Severity  string  `json:"severity"` // info, warning, critical
+	Enabled   bool    `json:"enabled"`
+	Guidance  string  `json:"guidance"` // 引导式解决建议
 }
 
 // DiskMonitor 磁盘健康监控器
 type DiskMonitor struct {
-	mu          sync.RWMutex
-	disks       map[string]*DiskInfo
-	alerts      []AlertRule
-	history     map[string][]HealthSnapshot
-	maxHistory  int
+	mu         sync.RWMutex
+	disks      map[string]*DiskInfo
+	alerts     []AlertRule
+	history    map[string][]HealthSnapshot
+	maxHistory int
 }
 
 // HealthSnapshot 健康快照
 type HealthSnapshot struct {
-	Timestamp    time.Time  `json:"timestamp"`
-	Temperature  int        `json:"temperature"`
-	HealthScore  float64    `json:"health_score"`
-	Status       DiskStatus `json:"status"`
+	Timestamp   time.Time  `json:"timestamp"`
+	Temperature int        `json:"temperature"`
+	HealthScore float64    `json:"health_score"`
+	Status      DiskStatus `json:"status"`
 }
 
 // NewDiskMonitor 创建磁盘监控器
@@ -149,11 +149,11 @@ func (dm *DiskMonitor) GetDashboard() *Dashboard {
 
 	for device, disk := range dm.disks {
 		summary := &DiskSummary{
-			Device:      device,
-			Model:       disk.Model,
-			Status:      disk.Status,
-			Temperature: disk.Temperature,
-			HealthScore: disk.HealthScore,
+			Device:       device,
+			Model:        disk.Model,
+			Status:       disk.Status,
+			Temperature:  disk.Temperature,
+			HealthScore:  disk.HealthScore,
 			PowerOnHours: disk.PowerOnHours,
 		}
 		dash.TotalDisks++
@@ -220,12 +220,12 @@ func (dm *DiskMonitor) checkAlerts(disk *DiskInfo) error {
 
 // Dashboard 仪表盘
 type Dashboard struct {
-	GeneratedAt  time.Time       `json:"generated_at"`
-	TotalDisks   int             `json:"total_disks"`
-	HealthyCount int             `json:"healthy_count"`
-	WarningCount int             `json:"warning_count"`
+	GeneratedAt   time.Time      `json:"generated_at"`
+	TotalDisks    int            `json:"total_disks"`
+	HealthyCount  int            `json:"healthy_count"`
+	WarningCount  int            `json:"warning_count"`
 	CriticalCount int            `json:"critical_count"`
-	Disks        []*DiskSummary  `json:"disks"`
+	Disks         []*DiskSummary `json:"disks"`
 }
 
 // DiskSummary 磁盘摘要

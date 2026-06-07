@@ -10,12 +10,12 @@ func TestCreateRule(t *testing.T) {
 	m.Initialize()
 
 	req := CreateRuleRequest{
-		Name:     "测试规则",
-		Category: "disk",
-		Metric:   "disk_usage",
+		Name:      "测试规则",
+		Category:  "disk",
+		Metric:    "disk_usage",
 		Condition: Condition{Operator: "gte", Value: 80},
-		Severity: 7,
-		Duration: 300,
+		Severity:  7,
+		Duration:  300,
 	}
 
 	rule, err := m.CreateRule(req)
@@ -33,11 +33,11 @@ func TestReportMetric(t *testing.T) {
 
 	// 创建规则
 	m.CreateRule(CreateRuleRequest{
-		Name:     "CPU警告",
-		Category: "cpu",
-		Metric:   "cpu_usage",
+		Name:      "CPU警告",
+		Category:  "cpu",
+		Metric:    "cpu_usage",
 		Condition: Condition{Operator: "gte", Value: 80},
-		Severity: 7,
+		Severity:  7,
 	})
 
 	// 上报指标触发告警
@@ -59,11 +59,11 @@ func TestAcknowledgeAlert(t *testing.T) {
 	m.Initialize()
 
 	m.CreateRule(CreateRuleRequest{
-		Name:     "测试",
-		Category: "cpu",
-		Metric:   "cpu_usage",
+		Name:      "测试",
+		Category:  "cpu",
+		Metric:    "cpu_usage",
 		Condition: Condition{Operator: "gte", Value: 50},
-		Severity: 5,
+		Severity:  5,
 	})
 
 	m.ReportMetric(Metric{Name: "cpu_usage", Value: 60, Timestamp: time.Now()})
@@ -92,11 +92,11 @@ func TestResolveAlert(t *testing.T) {
 	m.Initialize()
 
 	m.CreateRule(CreateRuleRequest{
-		Name:     "测试",
-		Category: "cpu",
-		Metric:   "cpu_usage",
+		Name:      "测试",
+		Category:  "cpu",
+		Metric:    "cpu_usage",
 		Condition: Condition{Operator: "gte", Value: 50},
-		Severity: 5,
+		Severity:  5,
 	})
 
 	m.ReportMetric(Metric{Name: "cpu_usage", Value: 60, Timestamp: time.Now()})
@@ -145,11 +145,11 @@ func TestGetAlertStats(t *testing.T) {
 	m.Initialize()
 
 	m.CreateRule(CreateRuleRequest{
-		Name:     "测试",
-		Category: "cpu",
-		Metric:   "cpu_usage",
+		Name:      "测试",
+		Category:  "cpu",
+		Metric:    "cpu_usage",
 		Condition: Condition{Operator: "gte", Value: 50},
-		Severity: 5,
+		Severity:  5,
 	})
 
 	m.ReportMetric(Metric{Name: "cpu_usage", Value: 60, Timestamp: time.Now()})

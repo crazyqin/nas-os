@@ -45,25 +45,25 @@ const (
 
 // Task 任务
 type Task struct {
-	ID           string       `json:"id"`
-	ProjectID    string       `json:"project_id"`
-	Title        string       `json:"title" binding:"required"`
-	Description  string       `json:"description"`
-	Status       TaskStatus   `json:"status"`
-	Priority     TaskPriority `json:"priority"`
-	AssigneeID   string       `json:"assignee_id,omitempty"`
-	ReporterID   string       `json:"reporter_id"`
-	Tags         []string     `json:"tags"`
-	ParentTaskID string       `json:"parent_task_id,omitempty"`
-	SubtaskIDs   []string     `json:"subtask_ids"`
-	Dependencies []string     `json:"dependencies"` // 依赖的任务ID
-	EstimateHours float64     `json:"estimate_hours"`
-	ActualHours   float64     `json:"actual_hours"`
-	StartDate     *time.Time  `json:"start_date,omitempty"`
-	DueDate       *time.Time  `json:"due_date,omitempty"`
-	CompletedAt   *time.Time  `json:"completed_at,omitempty"`
-	CreatedAt     time.Time   `json:"created_at"`
-	UpdatedAt     time.Time   `json:"updated_at"`
+	ID            string       `json:"id"`
+	ProjectID     string       `json:"project_id"`
+	Title         string       `json:"title" binding:"required"`
+	Description   string       `json:"description"`
+	Status        TaskStatus   `json:"status"`
+	Priority      TaskPriority `json:"priority"`
+	AssigneeID    string       `json:"assignee_id,omitempty"`
+	ReporterID    string       `json:"reporter_id"`
+	Tags          []string     `json:"tags"`
+	ParentTaskID  string       `json:"parent_task_id,omitempty"`
+	SubtaskIDs    []string     `json:"subtask_ids"`
+	Dependencies  []string     `json:"dependencies"` // 依赖的任务ID
+	EstimateHours float64      `json:"estimate_hours"`
+	ActualHours   float64      `json:"actual_hours"`
+	StartDate     *time.Time   `json:"start_date,omitempty"`
+	DueDate       *time.Time   `json:"due_date,omitempty"`
+	CompletedAt   *time.Time   `json:"completed_at,omitempty"`
+	CreatedAt     time.Time    `json:"created_at"`
+	UpdatedAt     time.Time    `json:"updated_at"`
 }
 
 // Comment 任务评论
@@ -72,7 +72,7 @@ type Comment struct {
 	TaskID    string    `json:"task_id"`
 	UserID    string    `json:"user_id"`
 	Content   string    `json:"content"`
-	Mentions  []string  `json:"mentions"` // @提及的用户ID列表
+	Mentions  []string  `json:"mentions"`            // @提及的用户ID列表
 	ParentID  string    `json:"parent_id,omitempty"` // 回复的评论ID
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -82,21 +82,21 @@ type Comment struct {
 
 // KanbanBoard 看板
 type KanbanBoard struct {
-	ID        string          `json:"id"`
-	ProjectID string          `json:"project_id"`
-	Name      string          `json:"name"`
-	Columns   []KanbanColumn  `json:"columns"`
-	Filters   KanbanFilters   `json:"filters"`
-	CreatedAt time.Time       `json:"created_at"`
+	ID        string         `json:"id"`
+	ProjectID string         `json:"project_id"`
+	Name      string         `json:"name"`
+	Columns   []KanbanColumn `json:"columns"`
+	Filters   KanbanFilters  `json:"filters"`
+	CreatedAt time.Time      `json:"created_at"`
 }
 
 // KanbanColumn 看板列
 type KanbanColumn struct {
-	ID        string   `json:"id"`
-	Name      string   `json:"name"`
-	Status    TaskStatus `json:"status"`
-	Order     int      `json:"order"`
-	WIPLimit  int      `json:"wip_limit"` // 在制品限制
+	ID       string     `json:"id"`
+	Name     string     `json:"name"`
+	Status   TaskStatus `json:"status"`
+	Order    int        `json:"order"`
+	WIPLimit int        `json:"wip_limit"` // 在制品限制
 }
 
 // KanbanFilters 看板过滤条件
@@ -127,38 +127,38 @@ type Milestone struct {
 
 // GanttTask 甘特图任务数据
 type GanttTask struct {
-	TaskID      string     `json:"task_id"`
-	Title       string     `json:"title"`
-	StartDate   time.Time  `json:"start_date"`
-	EndDate     time.Time  `json:"end_date"`
-	Progress    float64    `json:"progress"`
+	TaskID       string    `json:"task_id"`
+	Title        string    `json:"title"`
+	StartDate    time.Time `json:"start_date"`
+	EndDate      time.Time `json:"end_date"`
+	Progress     float64   `json:"progress"`
 	Dependencies []string  `json:"dependencies"`
-	AssigneeID  string     `json:"assignee_id"`
-	Level       int        `json:"level"` // 层级（用于子任务缩进）
+	AssigneeID   string    `json:"assignee_id"`
+	Level        int       `json:"level"` // 层级（用于子任务缩进）
 }
 
 // GanttData 甘特图数据
 type GanttData struct {
-	ProjectID  string      `json:"project_id"`
-	StartDate  time.Time   `json:"start_date"`
-	EndDate    time.Time   `json:"end_date"`
-	Tasks      []GanttTask `json:"tasks"`
+	ProjectID string      `json:"project_id"`
+	StartDate time.Time   `json:"start_date"`
+	EndDate   time.Time   `json:"end_date"`
+	Tasks     []GanttTask `json:"tasks"`
 }
 
 // ========== 项目模板类型 ==========
 
 // ProjectTemplate 项目模板
 type ProjectTemplate struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name" binding:"required"`
-	Description string         `json:"description"`
-	Category    string         `json:"category"` // software, marketing, research, general
+	ID          string           `json:"id"`
+	Name        string           `json:"name" binding:"required"`
+	Description string           `json:"description"`
+	Category    string           `json:"category"` // software, marketing, research, general
 	Columns     []TemplateColumn `json:"columns"`
 	Tasks       []TemplateTask   `json:"tasks"`
-	Tags        []string       `json:"tags"`
-	IsDefault   bool           `json:"is_default"`
-	UsageCount  int            `json:"usage_count"`
-	CreatedAt   time.Time      `json:"created_at"`
+	Tags        []string         `json:"tags"`
+	IsDefault   bool             `json:"is_default"`
+	UsageCount  int              `json:"usage_count"`
+	CreatedAt   time.Time        `json:"created_at"`
 }
 
 // TemplateColumn 模板列定义
@@ -170,13 +170,13 @@ type TemplateColumn struct {
 
 // TemplateTask 模板任务定义
 type TemplateTask struct {
-	Title        string       `json:"title"`
-	Description  string       `json:"description"`
-	Priority     TaskPriority `json:"priority"`
-	Tags         []string     `json:"tags"`
-	EstimateHours float64     `json:"estimate_hours"`
-	Phase        string       `json:"phase"` // 所属阶段
-	Order        int          `json:"order"`
+	Title         string       `json:"title"`
+	Description   string       `json:"description"`
+	Priority      TaskPriority `json:"priority"`
+	Tags          []string     `json:"tags"`
+	EstimateHours float64      `json:"estimate_hours"`
+	Phase         string       `json:"phase"` // 所属阶段
+	Order         int          `json:"order"`
 }
 
 // ========== 统计类型 ==========
@@ -198,30 +198,30 @@ type ProjectStats struct {
 
 // MilestoneStats 里程碑统计
 type MilestoneStats struct {
-	Total      int     `json:"total"`
-	Completed  int     `json:"completed"`
-	Overdue    int     `json:"overdue"`
+	Total          int     `json:"total"`
+	Completed      int     `json:"completed"`
+	Overdue        int     `json:"overdue"`
 	CompletionRate float64 `json:"completion_rate"`
 }
 
 // TimelineStats 时间线统计
 type TimelineStats struct {
-	StartDate      time.Time `json:"start_date"`
-	EndDate        time.Time `json:"end_date"`
-	ElapsedDays    int       `json:"elapsed_days"`
-	RemainingDays  int       `json:"remaining_days"`
-	TotalDuration  int       `json:"total_duration_days"`
-	Progress       float64   `json:"progress"` // 0-100
+	StartDate     time.Time `json:"start_date"`
+	EndDate       time.Time `json:"end_date"`
+	ElapsedDays   int       `json:"elapsed_days"`
+	RemainingDays int       `json:"remaining_days"`
+	TotalDuration int       `json:"total_duration_days"`
+	Progress      float64   `json:"progress"` // 0-100
 }
 
 // MemberWorkload 成员工作量
 type MemberWorkload struct {
-	UserID       string  `json:"user_id"`
-	TotalTasks   int     `json:"total_tasks"`
-	ActiveTasks  int     `json:"active_tasks"`
-	CompletedTasks int   `json:"completed_tasks"`
-	TotalHours   float64 `json:"total_hours"`
-	Utilization  float64 `json:"utilization"` // 0-100 利用率
+	UserID         string  `json:"user_id"`
+	TotalTasks     int     `json:"total_tasks"`
+	ActiveTasks    int     `json:"active_tasks"`
+	CompletedTasks int     `json:"completed_tasks"`
+	TotalHours     float64 `json:"total_hours"`
+	Utilization    float64 `json:"utilization"` // 0-100 利用率
 }
 
 // ========== 请求/响应类型 ==========
@@ -280,8 +280,8 @@ type CreateMilestoneRequest struct {
 
 // CreateCommentRequest 创建评论请求
 type CreateCommentRequest struct {
-	Content  string   `json:"content" binding:"required"`
-	ParentID string   `json:"parent_id"`
+	Content  string `json:"content" binding:"required"`
+	ParentID string `json:"parent_id"`
 }
 
 // ListOptions 列表查询选项

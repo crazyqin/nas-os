@@ -79,19 +79,19 @@ type Finding struct {
 
 // SecurityReport 安全审计报告.
 type SecurityReport struct {
-	ID              string             `json:"id"`
-	Timestamp       time.Time          `json:"timestamp"`
-	Score           int                `json:"score"`
-	Grade           string             `json:"grade"`
-	TotalChecks     int                `json:"total_checks"`
-	PassedChecks    int                `json:"passed_checks"`
-	FailedChecks    int                `json:"failed_checks"`
-	WarningChecks   int                `json:"warning_checks"`
-	Findings        []Finding          `json:"findings"`
-	Categories      []CategorySummary  `json:"categories"`
-	Summary         string             `json:"summary"`
-	Recommendations []string           `json:"recommendations"`
-	Duration        time.Duration      `json:"duration"`
+	ID              string            `json:"id"`
+	Timestamp       time.Time         `json:"timestamp"`
+	Score           int               `json:"score"`
+	Grade           string            `json:"grade"`
+	TotalChecks     int               `json:"total_checks"`
+	PassedChecks    int               `json:"passed_checks"`
+	FailedChecks    int               `json:"failed_checks"`
+	WarningChecks   int               `json:"warning_checks"`
+	Findings        []Finding         `json:"findings"`
+	Categories      []CategorySummary `json:"categories"`
+	Summary         string            `json:"summary"`
+	Recommendations []string          `json:"recommendations"`
+	Duration        time.Duration     `json:"duration"`
 }
 
 // CategorySummary 分类摘要.
@@ -107,10 +107,10 @@ type CategorySummary struct {
 
 // Auditor 审计器配置.
 type Auditor struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Version     string   `json:"version"`
-	Enabled     bool     `json:"enabled"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Version     string     `json:"version"`
+	Enabled     bool       `json:"enabled"`
 	Categories  []Category `json:"categories"`
 }
 
@@ -136,23 +136,23 @@ type CISControl struct {
 
 // SystemConfig 系统安全配置.
 type SystemConfig struct {
-	SSHConfig       SSHConfig       `json:"ssh_config"`
-	FirewallConfig  FirewallConfig  `json:"firewall_config"`
-	AuthConfig      AuthConfig      `json:"auth_config"`
-	NetworkConfig   NetworkConfig   `json:"network_config"`
-	StorageConfig   StorageConfig   `json:"storage_config"`
-	LoggingConfig   LoggingConfig   `json:"logging_config"`
+	SSHConfig      SSHConfig      `json:"ssh_config"`
+	FirewallConfig FirewallConfig `json:"firewall_config"`
+	AuthConfig     AuthConfig     `json:"auth_config"`
+	NetworkConfig  NetworkConfig  `json:"network_config"`
+	StorageConfig  StorageConfig  `json:"storage_config"`
+	LoggingConfig  LoggingConfig  `json:"logging_config"`
 }
 
 // SSHConfig SSH 配置.
 type SSHConfig struct {
-	RootLogin         bool   `json:"root_login"`
-	PasswordAuth      bool   `json:"password_auth"`
-	Port              int    `json:"port"`
-	MaxAuthTries      int    `json:"max_auth_tries"`
-	Protocol          int    `json:"protocol"`
+	RootLogin            bool `json:"root_login"`
+	PasswordAuth         bool `json:"password_auth"`
+	Port                 int  `json:"port"`
+	MaxAuthTries         int  `json:"max_auth_tries"`
+	Protocol             int  `json:"protocol"`
 	PermitEmptyPasswords bool `json:"permit_empty_passwords"`
-	X11Forwarding     bool   `json:"x11_forwarding"`
+	X11Forwarding        bool `json:"x11_forwarding"`
 }
 
 // FirewallConfig 防火墙配置.
@@ -194,32 +194,32 @@ type StorageConfig struct {
 
 // LoggingConfig 日志配置.
 type LoggingConfig struct {
-	AuditEnabled     bool `json:"audit_enabled"`
-	LogRetention     int  `json:"log_retention_days"`
-	RemoteLogging    bool `json:"remote_logging"`
-	LogRotation      bool `json:"log_rotation"`
-	AccessLogging    bool `json:"access_logging"`
+	AuditEnabled  bool `json:"audit_enabled"`
+	LogRetention  int  `json:"log_retention_days"`
+	RemoteLogging bool `json:"remote_logging"`
+	LogRotation   bool `json:"log_rotation"`
+	AccessLogging bool `json:"access_logging"`
 }
 
 // AuditHistory 审计历史记录.
 type AuditHistory struct {
-	ID        string          `json:"id"`
-	Timestamp time.Time       `json:"timestamp"`
-	ReportID  string          `json:"report_id"`
-	Score     int             `json:"score"`
-	Grade     string          `json:"grade"`
-	Findings  int             `json:"findings_count"`
-	Duration  time.Duration   `json:"duration"`
+	ID        string        `json:"id"`
+	Timestamp time.Time     `json:"timestamp"`
+	ReportID  string        `json:"report_id"`
+	Score     int           `json:"score"`
+	Grade     string        `json:"grade"`
+	Findings  int           `json:"findings_count"`
+	Duration  time.Duration `json:"duration"`
 }
 
 // ReportListResponse 报告列表响应.
 type ReportListResponse struct {
-	Total   int                `json:"total"`
-	Reports []SecurityReport   `json:"reports"`
+	Total   int              `json:"total"`
+	Reports []SecurityReport `json:"reports"`
 }
 
 // HistoryResponse 历史记录响应.
 type HistoryResponse struct {
-	Total   int              `json:"total"`
-	History []AuditHistory   `json:"history"`
+	Total   int            `json:"total"`
+	History []AuditHistory `json:"history"`
 }

@@ -13,22 +13,22 @@ import (
 type EdgeNodeType string
 
 const (
-	NodeTypeGateway   EdgeNodeType = "gateway"
-	NodeTypeCompute   EdgeNodeType = "compute"
-	NodeTypeStorage   EdgeNodeType = "storage"
-	NodeTypeSensor    EdgeNodeType = "sensor"
-	NodeTypeHybrid    EdgeNodeType = "hybrid"
+	NodeTypeGateway EdgeNodeType = "gateway"
+	NodeTypeCompute EdgeNodeType = "compute"
+	NodeTypeStorage EdgeNodeType = "storage"
+	NodeTypeSensor  EdgeNodeType = "sensor"
+	NodeTypeHybrid  EdgeNodeType = "hybrid"
 )
 
 // NodeStatus 节点状态
 type NodeStatus string
 
 const (
-	StatusOnline     NodeStatus = "online"
-	StatusOffline    NodeStatus = "offline"
-	StatusDegraded   NodeStatus = "degraded"
-	StatusSyncing    NodeStatus = "syncing"
-	StatusError      NodeStatus = "error"
+	StatusOnline   NodeStatus = "online"
+	StatusOffline  NodeStatus = "offline"
+	StatusDegraded NodeStatus = "degraded"
+	StatusSyncing  NodeStatus = "syncing"
+	StatusError    NodeStatus = "error"
 )
 
 // EdgePolicy 边缘策略
@@ -44,24 +44,24 @@ const (
 
 // EdgeNode 边缘节点
 type EdgeNode struct {
-	ID           string        `json:"id"`
-	Name         string        `json:"name"`
-	Type         EdgeNodeType  `json:"type"`
-	Status       NodeStatus    `json:"status"`
-	Location     Location      `json:"location"`
-	IPAddress    string        `json:"ip_address"`
-	MACAddress   string        `json:"mac_address"`
-	CPUUsage     float64       `json:"cpu_usage"`
-	MemoryUsage  float64       `json:"memory_usage"`
-	StorageUsage float64       `json:"storage_usage"`
-	Bandwidth    float64       `json:"bandwidth_mbps"`
-	Latency      int           `json:"latency_ms"`
-	LastSeen     time.Time     `json:"last_seen"`
-	Uptime       time.Duration `json:"uptime"`
-	Tags         []string      `json:"tags"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	Type         EdgeNodeType      `json:"type"`
+	Status       NodeStatus        `json:"status"`
+	Location     Location          `json:"location"`
+	IPAddress    string            `json:"ip_address"`
+	MACAddress   string            `json:"mac_address"`
+	CPUUsage     float64           `json:"cpu_usage"`
+	MemoryUsage  float64           `json:"memory_usage"`
+	StorageUsage float64           `json:"storage_usage"`
+	Bandwidth    float64           `json:"bandwidth_mbps"`
+	Latency      int               `json:"latency_ms"`
+	LastSeen     time.Time         `json:"last_seen"`
+	Uptime       time.Duration     `json:"uptime"`
+	Tags         []string          `json:"tags"`
 	Metadata     map[string]string `json:"metadata,omitempty"`
-	CreatedAt    time.Time     `json:"created_at"`
-	UpdatedAt    time.Time     `json:"updated_at"`
+	CreatedAt    time.Time         `json:"created_at"`
+	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
 // Location 位置信息
@@ -115,16 +115,16 @@ type CacheEntry struct {
 
 // EdgeSync 边缘同步
 type EdgeSync struct {
-	ID          string    `json:"id"`
-	SourceNode  string    `json:"source_node"`
-	TargetNode  string    `json:"target_node"`
-	Status      string    `json:"status"`
-	Progress    float64   `json:"progress"`
-	BytesTotal  int64     `json:"bytes_total"`
-	BytesSynced int64     `json:"bytes_synced"`
-	StartedAt   time.Time `json:"started_at"`
+	ID          string     `json:"id"`
+	SourceNode  string     `json:"source_node"`
+	TargetNode  string     `json:"target_node"`
+	Status      string     `json:"status"`
+	Progress    float64    `json:"progress"`
+	BytesTotal  int64      `json:"bytes_total"`
+	BytesSynced int64      `json:"bytes_synced"`
+	StartedAt   time.Time  `json:"started_at"`
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
-	Error       string    `json:"error,omitempty"`
+	Error       string     `json:"error,omitempty"`
 }
 
 // EdgeRoute 边缘路由
@@ -160,27 +160,27 @@ type EdgeGatewayStats struct {
 
 // EdgeGateway 边缘网关
 type EdgeGateway struct {
-	mu          sync.RWMutex
-	nodes       map[string]*EdgeNode
-	tasks       map[string]*EdgeTask
-	routes      map[string]*EdgeRoute
-	syncs       map[string]*EdgeSync
-	cache       *EdgeCache
-	config      *GatewayConfig
-	taskQueue   chan *EdgeTask
+	mu        sync.RWMutex
+	nodes     map[string]*EdgeNode
+	tasks     map[string]*EdgeTask
+	routes    map[string]*EdgeRoute
+	syncs     map[string]*EdgeSync
+	cache     *EdgeCache
+	config    *GatewayConfig
+	taskQueue chan *EdgeTask
 }
 
 // GatewayConfig 网关配置
 type GatewayConfig struct {
-	DefaultPolicy    EdgePolicy `json:"default_policy"`
-	SyncIntervalSec  int        `json:"sync_interval_sec"`
-	CacheSizeMB      int        `json:"cache_size_mb"`
-	CacheTTLMinutes  int        `json:"cache_ttl_minutes"`
-	MaxRetries       int        `json:"max_retries"`
-	HealthCheckSec   int        `json:"health_check_sec"`
-	AutoDiscover     bool       `json:"auto_discover"`
-	OfflineSupport   bool       `json:"offline_support"`
-	CompressionEnabled bool     `json:"compression_enabled"`
+	DefaultPolicy      EdgePolicy `json:"default_policy"`
+	SyncIntervalSec    int        `json:"sync_interval_sec"`
+	CacheSizeMB        int        `json:"cache_size_mb"`
+	CacheTTLMinutes    int        `json:"cache_ttl_minutes"`
+	MaxRetries         int        `json:"max_retries"`
+	HealthCheckSec     int        `json:"health_check_sec"`
+	AutoDiscover       bool       `json:"auto_discover"`
+	OfflineSupport     bool       `json:"offline_support"`
+	CompressionEnabled bool       `json:"compression_enabled"`
 }
 
 // NewEdgeGateway 创建边缘网关
@@ -512,10 +512,10 @@ func (eg *EdgeGateway) MarshalJSON() ([]byte, error) {
 	defer eg.mu.RUnlock()
 
 	return json.Marshal(struct {
-		Nodes   map[string]*EdgeNode  `json:"nodes"`
-		Tasks   map[string]*EdgeTask  `json:"tasks"`
-		Routes  map[string]*EdgeRoute `json:"routes"`
-		Config  *GatewayConfig        `json:"config"`
+		Nodes  map[string]*EdgeNode  `json:"nodes"`
+		Tasks  map[string]*EdgeTask  `json:"tasks"`
+		Routes map[string]*EdgeRoute `json:"routes"`
+		Config *GatewayConfig        `json:"config"`
 	}{
 		Nodes:  eg.nodes,
 		Tasks:  eg.tasks,

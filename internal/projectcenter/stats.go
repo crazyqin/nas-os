@@ -7,9 +7,9 @@ import (
 
 // StatsManager 统计管理器
 type StatsManager struct {
-	mu             sync.RWMutex
-	taskMgr        *TaskManager
-	milestoneMgr   *MilestoneManager
+	mu           sync.RWMutex
+	taskMgr      *TaskManager
+	milestoneMgr *MilestoneManager
 }
 
 // NewStatsManager 创建统计管理器

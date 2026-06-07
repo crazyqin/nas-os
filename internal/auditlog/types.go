@@ -13,11 +13,11 @@ import (
 type LogLevel string
 
 const (
-	LevelDebug   LogLevel = "debug"
-	LevelInfo    LogLevel = "info"
-	LevelNotice  LogLevel = "notice"
-	LevelWarning LogLevel = "warning"
-	LevelError   LogLevel = "error"
+	LevelDebug    LogLevel = "debug"
+	LevelInfo     LogLevel = "info"
+	LevelNotice   LogLevel = "notice"
+	LevelWarning  LogLevel = "warning"
+	LevelError    LogLevel = "error"
 	LevelCritical LogLevel = "critical"
 )
 
@@ -63,16 +63,16 @@ type Anomaly struct {
 
 // ComplianceReport 合规报告
 type ComplianceReport struct {
-	ID           string           `json:"id"`
-	Period       string           `json:"period"`
-	TotalEvents  int              `json:"total_events"`
-	ByLevel      map[LogLevel]int `json:"by_level"`
+	ID           string            `json:"id"`
+	Period       string            `json:"period"`
+	TotalEvents  int               `json:"total_events"`
+	ByLevel      map[LogLevel]int  `json:"by_level"`
 	BySource     map[LogSource]int `json:"by_source"`
-	TopActions   []ActionCount    `json:"top_actions"`
-	FailedLogins int              `json:"failed_logins"`
-	Anomalies    int              `json:"anomalies"`
-	Score        int              `json:"score"` // 0-100
-	GeneratedAt  time.Time        `json:"generated_at"`
+	TopActions   []ActionCount     `json:"top_actions"`
+	FailedLogins int               `json:"failed_logins"`
+	Anomalies    int               `json:"anomalies"`
+	Score        int               `json:"score"` // 0-100
+	GeneratedAt  time.Time         `json:"generated_at"`
 }
 
 // ActionCount 操作计数

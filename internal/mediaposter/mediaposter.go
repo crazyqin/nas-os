@@ -26,34 +26,34 @@ const (
 
 // MediaItem 媒体项目
 type MediaItem struct {
-	ID          string            `json:"id"`
-	Title       string            `json:"title"`
-	TitleCN     string            `json:"title_cn,omitempty"`
-	Year        int               `json:"year,omitempty"`
-	Type        MediaType         `json:"type"`
-	Poster      string            `json:"poster,omitempty"`
-	Backdrop    string            `json:"backdrop,omitempty"`
-	Rating      float64           `json:"rating,omitempty"`
-	Genres      []string          `json:"genres,omitempty"`
-	Overview    string            `json:"overview,omitempty"`
-	Duration    int               `json:"duration,omitempty"` // 分钟
-	Director    string            `json:"director,omitempty"`
-	Cast        []string          `json:"cast,omitempty"`
-	FilePath    string            `json:"file_path"`
-	FileSize    int64             `json:"file_size"`
-	Resolution  string            `json:"resolution,omitempty"`
-	Codec       string            `json:"codec,omitempty"`
-	AddedAt     time.Time         `json:"added_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
-	Tags        []string          `json:"tags,omitempty"`
-	Metadata    map[string]string `json:"metadata,omitempty"`
+	ID         string            `json:"id"`
+	Title      string            `json:"title"`
+	TitleCN    string            `json:"title_cn,omitempty"`
+	Year       int               `json:"year,omitempty"`
+	Type       MediaType         `json:"type"`
+	Poster     string            `json:"poster,omitempty"`
+	Backdrop   string            `json:"backdrop,omitempty"`
+	Rating     float64           `json:"rating,omitempty"`
+	Genres     []string          `json:"genres,omitempty"`
+	Overview   string            `json:"overview,omitempty"`
+	Duration   int               `json:"duration,omitempty"` // 分钟
+	Director   string            `json:"director,omitempty"`
+	Cast       []string          `json:"cast,omitempty"`
+	FilePath   string            `json:"file_path"`
+	FileSize   int64             `json:"file_size"`
+	Resolution string            `json:"resolution,omitempty"`
+	Codec      string            `json:"codec,omitempty"`
+	AddedAt    time.Time         `json:"added_at"`
+	UpdatedAt  time.Time         `json:"updated_at"`
+	Tags       []string          `json:"tags,omitempty"`
+	Metadata   map[string]string `json:"metadata,omitempty"`
 }
 
 // TVSeason 电视剧季
 type TVSeason struct {
-	SeasonNumber int          `json:"season_number"`
-	Episodes     []TVEpisode  `json:"episodes"`
-	Poster       string       `json:"poster,omitempty"`
+	SeasonNumber int         `json:"season_number"`
+	Episodes     []TVEpisode `json:"episodes"`
+	Poster       string      `json:"poster,omitempty"`
 }
 
 // TVEpisode 电视剧集
@@ -79,15 +79,15 @@ type Library struct {
 
 // SearchRequest 搜索请求
 type SearchRequest struct {
-	Query      string    `json:"query"`
-	Type       MediaType `json:"type,omitempty"`
-	Genre      string    `json:"genre,omitempty"`
-	Year       int       `json:"year,omitempty"`
-	MinRating  float64   `json:"min_rating,omitempty"`
-	SortBy     string    `json:"sort_by,omitempty"` // title, year, rating, added_at
-	SortOrder  string    `json:"sort_order,omitempty"` // asc, desc
-	Page       int       `json:"page,omitempty"`
-	PageSize   int       `json:"page_size,omitempty"`
+	Query     string    `json:"query"`
+	Type      MediaType `json:"type,omitempty"`
+	Genre     string    `json:"genre,omitempty"`
+	Year      int       `json:"year,omitempty"`
+	MinRating float64   `json:"min_rating,omitempty"`
+	SortBy    string    `json:"sort_by,omitempty"`    // title, year, rating, added_at
+	SortOrder string    `json:"sort_order,omitempty"` // asc, desc
+	Page      int       `json:"page,omitempty"`
+	PageSize  int       `json:"page_size,omitempty"`
 }
 
 // SearchResponse 搜索响应
@@ -103,7 +103,7 @@ type SearchResponse struct {
 type PosterWallConfig struct {
 	Libraries       []Library `json:"libraries"`
 	AutoScan        bool      `json:"auto_scan"`
-	ScanInterval    int       `json:"scan_interval"` // 分钟
+	ScanInterval    int       `json:"scan_interval"`   // 分钟
 	MetadataSource  string    `json:"metadata_source"` // tmdb, douban, imdb
 	APIKey          string    `json:"api_key,omitempty"`
 	EnableNFO       bool      `json:"enable_nfo"`
@@ -113,12 +113,12 @@ type PosterWallConfig struct {
 
 // Service 海报墙服务
 type Service struct {
-	mu          sync.RWMutex
-	config      *PosterWallConfig
-	items       map[string]*MediaItem
-	libraries   map[string]*Library
-	index       map[string][]string // 索引: genre -> item ids
-	httpClient  *http.Client
+	mu         sync.RWMutex
+	config     *PosterWallConfig
+	items      map[string]*MediaItem
+	libraries  map[string]*Library
+	index      map[string][]string // 索引: genre -> item ids
+	httpClient *http.Client
 }
 
 // NewService 创建海报墙服务
@@ -132,7 +132,7 @@ func NewService(config *PosterWallConfig) *Service {
 			ThumbnailSize:  "medium",
 		}
 	}
-	
+
 	return &Service{
 		config:     config,
 		items:      make(map[string]*MediaItem),
@@ -146,13 +146,13 @@ func NewService(config *PosterWallConfig) *Service {
 func (s *Service) AddLibrary(ctx context.Context, lib *Library) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	if lib.ID == "" {
 		lib.ID = generateID()
 	}
 	lib.CreatedAt = time.Now()
 	lib.UpdatedAt = time.Now()
-	
+
 	s.libraries[lib.ID] = lib
 	return nil
 }
@@ -161,11 +161,11 @@ func (s *Service) AddLibrary(ctx context.Context, lib *Library) error {
 func (s *Service) RemoveLibrary(ctx context.Context, id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	if _, exists := s.libraries[id]; !exists {
 		return fmt.Errorf("library not found: %s", id)
 	}
-	
+
 	delete(s.libraries, id)
 	return nil
 }
@@ -174,7 +174,7 @@ func (s *Service) RemoveLibrary(ctx context.Context, id string) error {
 func (s *Service) GetLibrary(ctx context.Context, id string) (*Library, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	lib, exists := s.libraries[id]
 	if !exists {
 		return nil, fmt.Errorf("library not found: %s", id)
@@ -186,7 +186,7 @@ func (s *Service) GetLibrary(ctx context.Context, id string) (*Library, error) {
 func (s *Service) ListLibraries(ctx context.Context) []*Library {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	libs := make([]*Library, 0, len(s.libraries))
 	for _, lib := range s.libraries {
 		libs = append(libs, lib)
@@ -203,17 +203,17 @@ func (s *Service) ScanLibrary(ctx context.Context, libraryID string) error {
 		return fmt.Errorf("library not found: %s", libraryID)
 	}
 	s.mu.Unlock()
-	
+
 	// 扫描目录
 	_ = filepath.Walk(lib.Path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
-		
+
 		if info.IsDir() {
 			return nil
 		}
-		
+
 		ext := strings.ToLower(filepath.Ext(path))
 		if isMediaFile(ext) {
 			item := &MediaItem{
@@ -225,26 +225,26 @@ func (s *Service) ScanLibrary(ctx context.Context, libraryID string) error {
 				AddedAt:   info.ModTime(),
 				UpdatedAt: time.Now(),
 			}
-			
+
 			// 尝试读取NFO文件获取元数据
 			if s.config.EnableNFO {
 				s.loadNFO(path, item)
 			}
-			
+
 			s.mu.Lock()
 			s.items[item.ID] = item
 			s.updateIndex(item)
 			lib.Count++
 			s.mu.Unlock()
 		}
-		
+
 		return nil
 	})
-	
+
 	s.mu.Lock()
 	lib.UpdatedAt = time.Now()
 	s.mu.Unlock()
-	
+
 	return nil
 }
 
@@ -252,9 +252,9 @@ func (s *Service) ScanLibrary(ctx context.Context, libraryID string) error {
 func (s *Service) Search(ctx context.Context, req *SearchRequest) (*SearchResponse, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	var results []*MediaItem
-	
+
 	// 获取候选集
 	if req.Genre != "" {
 		if ids, ok := s.index[req.Genre]; ok {
@@ -269,7 +269,7 @@ func (s *Service) Search(ctx context.Context, req *SearchRequest) (*SearchRespon
 			results = append(results, item)
 		}
 	}
-	
+
 	// 过滤
 	filtered := make([]*MediaItem, 0)
 	for _, item := range results {
@@ -287,10 +287,10 @@ func (s *Service) Search(ctx context.Context, req *SearchRequest) (*SearchRespon
 		}
 		filtered = append(filtered, item)
 	}
-	
+
 	// 排序
 	s.sortItems(filtered, req.SortBy, req.SortOrder)
-	
+
 	// 分页
 	total := len(filtered)
 	page := req.Page
@@ -301,7 +301,7 @@ func (s *Service) Search(ctx context.Context, req *SearchRequest) (*SearchRespon
 	if pageSize < 1 {
 		pageSize = 20
 	}
-	
+
 	start := (page - 1) * pageSize
 	end := start + pageSize
 	if start > total {
@@ -310,12 +310,12 @@ func (s *Service) Search(ctx context.Context, req *SearchRequest) (*SearchRespon
 	if end > total {
 		end = total
 	}
-	
+
 	items := make([]MediaItem, end-start)
 	for i, item := range filtered[start:end] {
 		items[i] = *item
 	}
-	
+
 	return &SearchResponse{
 		Items:      items,
 		Total:      total,
@@ -329,7 +329,7 @@ func (s *Service) Search(ctx context.Context, req *SearchRequest) (*SearchRespon
 func (s *Service) GetMediaItem(ctx context.Context, id string) (*MediaItem, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	item, exists := s.items[id]
 	if !exists {
 		return nil, fmt.Errorf("media item not found: %s", id)
@@ -341,21 +341,21 @@ func (s *Service) GetMediaItem(ctx context.Context, id string) (*MediaItem, erro
 func (s *Service) UpdateMetadata(ctx context.Context, id string, metadata map[string]string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	item, exists := s.items[id]
 	if !exists {
 		return fmt.Errorf("media item not found: %s", id)
 	}
-	
+
 	if item.Metadata == nil {
 		item.Metadata = make(map[string]string)
 	}
-	
+
 	for k, v := range metadata {
 		item.Metadata[k] = v
 	}
 	item.UpdatedAt = time.Now()
-	
+
 	return nil
 }
 
@@ -363,7 +363,7 @@ func (s *Service) UpdateMetadata(ctx context.Context, id string, metadata map[st
 func (s *Service) GetGenres(ctx context.Context) []string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	genres := make([]string, 0, len(s.index))
 	for genre := range s.index {
 		genres = append(genres, genre)
@@ -375,26 +375,26 @@ func (s *Service) GetGenres(ctx context.Context) []string {
 func (s *Service) GetRecentAdded(ctx context.Context, limit int) []MediaItem {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	items := make([]*MediaItem, 0, len(s.items))
 	for _, item := range s.items {
 		items = append(items, item)
 	}
-	
+
 	// 按添加时间排序
 	sort.Slice(items, func(i, j int) bool {
 		return items[i].AddedAt.After(items[j].AddedAt)
 	})
-	
+
 	if limit > len(items) {
 		limit = len(items)
 	}
-	
+
 	result := make([]MediaItem, limit)
 	for i := 0; i < limit; i++ {
 		result[i] = *items[i]
 	}
-	
+
 	return result
 }
 

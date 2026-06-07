@@ -56,8 +56,8 @@ func (h *Handlers) search(c *gin.Context) {
 
 	results := h.indexer.Search(query)
 	c.JSON(http.StatusOK, gin.H{
-		"code": 0,
-		"data": results,
+		"code":  0,
+		"data":  results,
 		"total": len(results),
 	})
 }

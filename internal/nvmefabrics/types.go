@@ -11,7 +11,7 @@ import (
 type TransportType string
 
 const (
-	TransportTCP   TransportType = "tcp"
+	TransportTCP    TransportType = "tcp"
 	TransportRoCEv2 TransportType = "rocev2"
 )
 
@@ -50,39 +50,39 @@ type NVMfTarget struct {
 
 // NVMfSubsystem NVMe 子系统
 type NVMfSubsystem struct {
-	NQN          string          `json:"nqn"`          // NVMe Qualified Name
-	TargetID     string          `json:"target_id"`
-	State        SubsystemState  `json:"state"`
-	AllowAnyHost bool            `json:"allow_any_host"`
-	Hosts        []string        `json:"hosts"`         // Allowed host NQNs
-	Namespaces   []NVMfNamespace `json:"namespaces"`
-	Controllers  []NVMfController `json:"controllers"`
-	MaxNamespaces int            `json:"max_namespaces"`
-	CreatedAt    time.Time       `json:"created_at"`
+	NQN           string           `json:"nqn"` // NVMe Qualified Name
+	TargetID      string           `json:"target_id"`
+	State         SubsystemState   `json:"state"`
+	AllowAnyHost  bool             `json:"allow_any_host"`
+	Hosts         []string         `json:"hosts"` // Allowed host NQNs
+	Namespaces    []NVMfNamespace  `json:"namespaces"`
+	Controllers   []NVMfController `json:"controllers"`
+	MaxNamespaces int              `json:"max_namespaces"`
+	CreatedAt     time.Time        `json:"created_at"`
 }
 
 // NVMfNamespace NVMe 命名空间
 type NVMfNamespace struct {
-	ID         int    `json:"id"`
+	ID           int    `json:"id"`
 	SubsystemNQN string `json:"subsystem_nqn"`
-	DevicePath string `json:"device_path"`
-	SizeBytes  int64  `json:"size_bytes"`
-	BlockSize  int    `json:"block_size"`
-	UUID       string `json:"uuid"`
-	NGUID      string `json:"nguid,omitempty"`
+	DevicePath   string `json:"device_path"`
+	SizeBytes    int64  `json:"size_bytes"`
+	BlockSize    int    `json:"block_size"`
+	UUID         string `json:"uuid"`
+	NGUID        string `json:"nguid,omitempty"`
 }
 
 // NVMfController NVMe 控制器
 type NVMfController struct {
-	ID            string    `json:"id"`
-	SubsystemNQN  string    `json:"subsystem_nqn"`
-	HostNQN       string    `json:"host_nqn"`
-	HostAddress   string    `json:"host_address"`
-	Transport     TransportType `json:"transport"`
-	State         string    `json:"state"`
-	ConnectedAt   time.Time `json:"connected_at"`
-	IOQueues      int       `json:"io_queues"`
-	QueueDepth    int       `json:"queue_depth"`
+	ID           string        `json:"id"`
+	SubsystemNQN string        `json:"subsystem_nqn"`
+	HostNQN      string        `json:"host_nqn"`
+	HostAddress  string        `json:"host_address"`
+	Transport    TransportType `json:"transport"`
+	State        string        `json:"state"`
+	ConnectedAt  time.Time     `json:"connected_at"`
+	IOQueues     int           `json:"io_queues"`
+	QueueDepth   int           `json:"queue_depth"`
 }
 
 // NVMfTransport NVMe 传输配置
@@ -90,24 +90,24 @@ type NVMfTransport struct {
 	Type      TransportType `json:"type"`
 	IP        net.IP        `json:"ip"`
 	Port      int           `json:"port"`
-	Adrfam    string        `json:"adrfam"`    // ipv4, ipv6
+	Adrfam    string        `json:"adrfam"` // ipv4, ipv6
 	TRSVCID   string        `json:"trsvcid"`
 	Interface string        `json:"interface"` // Network interface
 }
 
 // ControllerStats 控制器统计
 type ControllerStats struct {
-	ControllerID  string  `json:"controller_id"`
-	IOPS          int64   `json:"iops"`
-	ReadIOPS      int64   `json:"read_iops"`
-	WriteIOPS     int64   `json:"write_iops"`
-	Bandwidth     int64   `json:"bandwidth_mbps"`
-	ReadBandwidth int64   `json:"read_bandwidth_mbps"`
-	WriteBandwidth int64  `json:"write_bandwidth_mbps"`
-	AvgLatencyUs  float64 `json:"avg_latency_us"`
-	ReadLatencyUs float64 `json:"read_latency_us"`
+	ControllerID   string  `json:"controller_id"`
+	IOPS           int64   `json:"iops"`
+	ReadIOPS       int64   `json:"read_iops"`
+	WriteIOPS      int64   `json:"write_iops"`
+	Bandwidth      int64   `json:"bandwidth_mbps"`
+	ReadBandwidth  int64   `json:"read_bandwidth_mbps"`
+	WriteBandwidth int64   `json:"write_bandwidth_mbps"`
+	AvgLatencyUs   float64 `json:"avg_latency_us"`
+	ReadLatencyUs  float64 `json:"read_latency_us"`
 	WriteLatencyUs float64 `json:"write_latency_us"`
-	Commands      int64   `json:"commands"`
+	Commands       int64   `json:"commands"`
 }
 
 // TargetStats 目标统计

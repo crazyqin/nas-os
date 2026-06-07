@@ -11,33 +11,33 @@ import (
 
 // Device represents a network device
 type Device struct {
-	Name        string    `json:"name"`
-	MACAddress  string    `json:"mac_address"`
-	IPAddress   string    `json:"ip_address,omitempty"`
-	Hostname    string    `json:"hostname,omitempty"`
-	Status      string    `json:"status"` // online, offline, sleeping
-	LastSeen    time.Time `json:"last_seen"`
-	WakePort    int       `json:"wake_port"`
-	GroupName   string    `json:"group_name,omitempty"`
+	Name       string    `json:"name"`
+	MACAddress string    `json:"mac_address"`
+	IPAddress  string    `json:"ip_address,omitempty"`
+	Hostname   string    `json:"hostname,omitempty"`
+	Status     string    `json:"status"` // online, offline, sleeping
+	LastSeen   time.Time `json:"last_seen"`
+	WakePort   int       `json:"wake_port"`
+	GroupName  string    `json:"group_name,omitempty"`
 }
 
 // WakePolicy defines wake behavior
 type WakePolicy struct {
-	Name          string        `json:"name"`
-	Trigger       string        `json:"trigger"` // manual, schedule, demand
-	Schedule      string        `json:"schedule,omitempty"`
-	IdleTimeout   time.Duration `json:"idle_timeout,omitempty"`
-	PreWakeDelay  time.Duration `json:"pre_wake_delay,omitempty"`
+	Name         string        `json:"name"`
+	Trigger      string        `json:"trigger"` // manual, schedule, demand
+	Schedule     string        `json:"schedule,omitempty"`
+	IdleTimeout  time.Duration `json:"idle_timeout,omitempty"`
+	PreWakeDelay time.Duration `json:"pre_wake_delay,omitempty"`
 }
 
 // WakeOnLANPlus provides intelligent device wake management
 // Inspired by fnOS on-demand disk wake
 type WakeOnLANPlus struct {
-	mu        sync.RWMutex
-	devices   map[string]*Device
-	policies  map[string]*WakePolicy
-	running   bool
-	stopCh    chan struct{}
+	mu       sync.RWMutex
+	devices  map[string]*Device
+	policies map[string]*WakePolicy
+	running  bool
+	stopCh   chan struct{}
 }
 
 // NewWakeOnLANPlus creates a new WakeOnLANPlus instance
@@ -99,7 +99,7 @@ func (wol *WakeOnLANPlus) WakeDevice(ctx context.Context, macAddress string) err
 
 	// Build magic packet
 	packet := buildMagicPacket(mac)
-	
+
 	// Send broadcast
 	addr := fmt.Sprintf("255.255.255.255:%d", device.WakePort)
 	conn, err := net.Dial("udp4", addr)

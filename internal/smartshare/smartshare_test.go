@@ -641,15 +641,15 @@ func TestManager(t *testing.T) {
 
 	// Create share link
 	req := &CreateShareRequest{
-		FilePath:     "/data/test.txt",
-		FileName:     "test.txt",
-		FileSize:     1024,
-		FileType:     "text/plain",
-		Mode:         ShareModePublic,
-		CreatorID:    "user-1",
-		CreatorName:  "Test User",
-		Description:  "Test share",
-		Tags:         []string{"test", "share"},
+		FilePath:      "/data/test.txt",
+		FileName:      "test.txt",
+		FileSize:      1024,
+		FileType:      "text/plain",
+		Mode:          ShareModePublic,
+		CreatorID:     "user-1",
+		CreatorName:   "Test User",
+		Description:   "Test share",
+		Tags:          []string{"test", "share"},
 		EnablePreview: true,
 	}
 
@@ -748,13 +748,13 @@ func TestManagerPasswordProtected(t *testing.T) {
 	m := NewManager(nil, nil)
 
 	req := &CreateShareRequest{
-		FilePath:   "/data/secret.txt",
-		FileName:   "secret.txt",
-		FileSize:   512,
-		FileType:   "text/plain",
-		Mode:       ShareModePassword,
-		Password:   "mypassword",
-		CreatorID:  "user-1",
+		FilePath:    "/data/secret.txt",
+		FileName:    "secret.txt",
+		FileSize:    512,
+		FileType:    "text/plain",
+		Mode:        ShareModePassword,
+		Password:    "mypassword",
+		CreatorID:   "user-1",
 		CreatorName: "Test User",
 	}
 
@@ -776,13 +776,13 @@ func TestManagerExpiration(t *testing.T) {
 	m := NewManager(nil, nil)
 
 	req := &CreateShareRequest{
-		FilePath:   "/data/temp.txt",
-		FileName:   "temp.txt",
-		FileSize:   256,
-		FileType:   "text/plain",
-		Mode:       ShareModePublic,
-		ExpiresIn:  1 * time.Hour,
-		CreatorID:  "user-1",
+		FilePath:    "/data/temp.txt",
+		FileName:    "temp.txt",
+		FileSize:    256,
+		FileType:    "text/plain",
+		Mode:        ShareModePublic,
+		ExpiresIn:   1 * time.Hour,
+		CreatorID:   "user-1",
 		CreatorName: "Test User",
 	}
 

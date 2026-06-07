@@ -9,29 +9,29 @@ import (
 
 // PasswordPolicy defines password security requirements.
 type PasswordPolicy struct {
-	Enabled             bool   `json:"enabled"`
-	MinLength           int    `json:"min_length"`
-	MaxLength           int    `json:"max_length"`
-	RequireLowercase    bool   `json:"require_lowercase"`
-	RequireUppercase    bool   `json:"require_uppercase"`
-	RequireDigit        bool   `json:"require_digit"`
-	RequireSpecialChar  bool   `json:"require_special_char"`
-	MinSpecialChars     int    `json:"min_special_chars"`
+	Enabled                bool `json:"enabled"`
+	MinLength              int  `json:"min_length"`
+	MaxLength              int  `json:"max_length"`
+	RequireLowercase       bool `json:"require_lowercase"`
+	RequireUppercase       bool `json:"require_uppercase"`
+	RequireDigit           bool `json:"require_digit"`
+	RequireSpecialChar     bool `json:"require_special_char"`
+	MinSpecialChars        int  `json:"min_special_chars"`
 	PreventCommonPasswords bool `json:"prevent_common_passwords"`
-	PreventUserInfo     bool   `json:"prevent_user_info"`
-	MaxAge              int    `json:"max_age"`           // days
-	HistoryCount        int    `json:"history_count"`     // prevent reuse
-	MaxAttempts         int    `json:"max_attempts"`      // before lockout
-	LockoutDuration     int    `json:"lockout_duration"`  // minutes
+	PreventUserInfo        bool `json:"prevent_user_info"`
+	MaxAge                 int  `json:"max_age"`          // days
+	HistoryCount           int  `json:"history_count"`    // prevent reuse
+	MaxAttempts            int  `json:"max_attempts"`     // before lockout
+	LockoutDuration        int  `json:"lockout_duration"` // minutes
 }
 
 // PasswordValidator validates passwords against policy.
 type PasswordValidator struct {
-	policy           *PasswordPolicy
-	commonPasswords  map[string]bool
-	historyStore     *PasswordHistoryStore
-	attemptsTracker  *LoginAttemptsTracker
-	mu               sync.RWMutex
+	policy          *PasswordPolicy
+	commonPasswords map[string]bool
+	historyStore    *PasswordHistoryStore
+	attemptsTracker *LoginAttemptsTracker
+	mu              sync.RWMutex
 }
 
 // NewPasswordValidator creates a new password validator.
@@ -191,32 +191,32 @@ func (pv *PasswordValidator) SetPolicy(policy *PasswordPolicy) {
 // DefaultPasswordPolicy returns default password policy.
 func DefaultPasswordPolicy() *PasswordPolicy {
 	return &PasswordPolicy{
-		Enabled:              true,
-		MinLength:            8,
-		MaxLength:            128,
-		RequireLowercase:     true,
-		RequireUppercase:     true,
-		RequireDigit:         true,
-		RequireSpecialChar:   true,
-		MinSpecialChars:      1,
+		Enabled:                true,
+		MinLength:              8,
+		MaxLength:              128,
+		RequireLowercase:       true,
+		RequireUppercase:       true,
+		RequireDigit:           true,
+		RequireSpecialChar:     true,
+		MinSpecialChars:        1,
 		PreventCommonPasswords: true,
-		PreventUserInfo:      true,
-		MaxAge:              90,    // 90 days
-		HistoryCount:        5,     // remember 5 passwords
-		MaxAttempts:         5,     // 5 attempts
-		LockoutDuration:     15,    // 15 minutes
+		PreventUserInfo:        true,
+		MaxAge:                 90, // 90 days
+		HistoryCount:           5,  // remember 5 passwords
+		MaxAttempts:            5,  // 5 attempts
+		LockoutDuration:        15, // 15 minutes
 	}
 }
 
 // WeakPasswordPolicy returns a weaker policy for easier testing.
 func WeakPasswordPolicy() *PasswordPolicy {
 	return &PasswordPolicy{
-		Enabled:        true,
-		MinLength:      6,
-		MaxLength:      128,
-		MaxAge:         0,  // no expiration
-		HistoryCount:   0,  // no history
-		MaxAttempts:    10,
+		Enabled:         true,
+		MinLength:       6,
+		MaxLength:       128,
+		MaxAge:          0, // no expiration
+		HistoryCount:    0, // no history
+		MaxAttempts:     10,
 		LockoutDuration: 5,
 	}
 }

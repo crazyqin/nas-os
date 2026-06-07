@@ -9,12 +9,12 @@ import (
 
 // DAGWorkflow DAG 工作流定义.
 type DAGWorkflow struct {
-	mu       sync.RWMutex
-	ID       string              `json:"id"`
-	Name     string              `json:"name"`
-	Tasks    map[string]*DAGNode `json:"tasks"`
-	Entry    []string            `json:"entry"` // 入口节点（无依赖的任务）
-	manager  *Manager
+	mu      sync.RWMutex
+	ID      string              `json:"id"`
+	Name    string              `json:"name"`
+	Tasks   map[string]*DAGNode `json:"tasks"`
+	Entry   []string            `json:"entry"` // 入口节点（无依赖的任务）
+	manager *Manager
 }
 
 // DAGNode DAG 节点.

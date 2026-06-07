@@ -185,10 +185,10 @@ type PoolEfficiency struct {
 
 // CostBreakdown 成本明细
 type CostBreakdown struct {
-	Total        float64                `json:"total"`
-	ByType       map[StorageType]float64 `json:"by_type"`
-	ByPool       map[string]float64      `json:"by_pool"`
-	TypePercent  map[StorageType]float64 `json:"type_percent"`
+	Total       float64                 `json:"total"`
+	ByType      map[StorageType]float64 `json:"by_type"`
+	ByPool      map[string]float64      `json:"by_pool"`
+	TypePercent map[StorageType]float64 `json:"type_percent"`
 }
 
 // PeriodComparison 时期对比
@@ -204,11 +204,11 @@ type PeriodComparison struct {
 
 // SavingsEstimate 节省估算
 type SavingsEstimate struct {
-	DedupSavings     float64 `json:"dedup_savings"`
-	CompressSavings  float64 `json:"compress_savings"`
-	TieringSavings   float64 `json:"tiering_savings"`
-	TotalSavings     float64 `json:"total_savings"`
-	PercentSaved     float64 `json:"percent_saved"`
+	DedupSavings    float64 `json:"dedup_savings"`
+	CompressSavings float64 `json:"compress_savings"`
+	TieringSavings  float64 `json:"tiering_savings"`
+	TotalSavings    float64 `json:"total_savings"`
+	PercentSaved    float64 `json:"percent_saved"`
 }
 
 // 内部方法

@@ -18,57 +18,57 @@ import (
 type NodeState string
 
 const (
-	NodeStateActive    NodeState = "active"
-	NodeStateStandby   NodeState = "standby"
-	NodeStateFailed    NodeState = "failed"
-	NodeStateDraining  NodeState = "draining"
-	NodeStateRecovery  NodeState = "recovery"
+	NodeStateActive   NodeState = "active"
+	NodeStateStandby  NodeState = "standby"
+	NodeStateFailed   NodeState = "failed"
+	NodeStateDraining NodeState = "draining"
+	NodeStateRecovery NodeState = "recovery"
 )
 
 // FailoverState represents the failover process state
 type FailoverState string
 
 const (
-	FailoverStateIdle       FailoverState = "idle"
-	FailoverStateDetecting  FailoverState = "detecting"
-	FailoverStateFailing    FailoverState = "failing_over"
-	FailoverStateCompleted  FailoverState = "completed"
-	FailoverStateFailed     FailoverState = "failed"
+	FailoverStateIdle      FailoverState = "idle"
+	FailoverStateDetecting FailoverState = "detecting"
+	FailoverStateFailing   FailoverState = "failing_over"
+	FailoverStateCompleted FailoverState = "completed"
+	FailoverStateFailed    FailoverState = "failed"
 )
 
 // ClusterNode represents a node in the SMB cluster
 type ClusterNode struct {
-	ID           string    `json:"id"`
-	Hostname     string    `json:"hostname"`
-	IP           net.IP    `json:"ip"`
-	State        NodeState `json:"state"`
-	VIP          string    `json:"vip"`          // Virtual IP for SMB
-	Priority     int       `json:"priority"`     // Higher = preferred active
-	Sessions     int64     `json:"sessions"`
-	LastHeartbeat time.Time `json:"last_heartbeat"`
-	Uptime       time.Duration `json:"uptime"`
-	StartedAt    time.Time `json:"started_at"`
+	ID            string        `json:"id"`
+	Hostname      string        `json:"hostname"`
+	IP            net.IP        `json:"ip"`
+	State         NodeState     `json:"state"`
+	VIP           string        `json:"vip"`      // Virtual IP for SMB
+	Priority      int           `json:"priority"` // Higher = preferred active
+	Sessions      int64         `json:"sessions"`
+	LastHeartbeat time.Time     `json:"last_heartbeat"`
+	Uptime        time.Duration `json:"uptime"`
+	StartedAt     time.Time     `json:"started_at"`
 }
 
 // SMBSession represents a tracked SMB client session
 type SMBSession struct {
-	ID           string    `json:"id"`
-	ClientIP     string    `json:"client_ip"`
-	Username     string    `json:"username"`
+	ID           string     `json:"id"`
+	ClientIP     string     `json:"client_ip"`
+	Username     string     `json:"username"`
 	TreeConns    []TreeConn `json:"tree_connections"`
 	OpenFiles    []OpenFile `json:"open_files"`
 	Locks        []FileLock `json:"locks"`
-	CreatedAt    time.Time `json:"created_at"`
-	LastActivity time.Time `json:"last_activity"`
-	SequenceNum  uint64    `json:"sequence_num"`
+	CreatedAt    time.Time  `json:"created_at"`
+	LastActivity time.Time  `json:"last_activity"`
+	SequenceNum  uint64     `json:"sequence_num"`
 }
 
 // TreeConn represents an SMB tree connection
 type TreeConn struct {
-	ID       string `json:"id"`
-	Share    string `json:"share"`
-	Path     string `json:"path"`
-	Flags    uint32 `json:"flags"`
+	ID    string `json:"id"`
+	Share string `json:"share"`
+	Path  string `json:"path"`
+	Flags uint32 `json:"flags"`
 }
 
 // OpenFile represents an open file handle
@@ -114,34 +114,34 @@ func DefaultFailoverConfig() FailoverConfig {
 
 // FailoverEvent records a failover event
 type FailoverEvent struct {
-	ID           string        `json:"id"`
-	Timestamp    time.Time     `json:"timestamp"`
-	FromNode     string        `json:"from_node"`
-	ToNode       string        `json:"to_node"`
-	Reason       string        `json:"reason"`
-	State        FailoverState `json:"state"`
-	Sessions     int           `json:"sessions_transferred"`
-	Duration     time.Duration `json:"duration"`
-	Success      bool          `json:"success"`
+	ID        string        `json:"id"`
+	Timestamp time.Time     `json:"timestamp"`
+	FromNode  string        `json:"from_node"`
+	ToNode    string        `json:"to_node"`
+	Reason    string        `json:"reason"`
+	State     FailoverState `json:"state"`
+	Sessions  int           `json:"sessions_transferred"`
+	Duration  time.Duration `json:"duration"`
+	Success   bool          `json:"success"`
 }
 
 // FailoverManager manages SMB stateful failover
 type FailoverManager struct {
-	mu          sync.RWMutex
-	config      FailoverConfig
-	logger      *zap.Logger
-	nodes       map[string]*ClusterNode
-	localNode   *ClusterNode
-	sessions    map[string]*SMBSession
-	state       FailoverState
-	events      []FailoverEvent
-	activeNode  string // ID of current active node
-	vipOwner    string // ID of node owning VIP
-	running     int32  // atomic
-	ctx         context.Context
-	cancel      context.CancelFunc
-	wg          sync.WaitGroup
-	onFailover  func(event FailoverEvent) // Callback
+	mu         sync.RWMutex
+	config     FailoverConfig
+	logger     *zap.Logger
+	nodes      map[string]*ClusterNode
+	localNode  *ClusterNode
+	sessions   map[string]*SMBSession
+	state      FailoverState
+	events     []FailoverEvent
+	activeNode string // ID of current active node
+	vipOwner   string // ID of node owning VIP
+	running    int32  // atomic
+	ctx        context.Context
+	cancel     context.CancelFunc
+	wg         sync.WaitGroup
+	onFailover func(event FailoverEvent) // Callback
 }
 
 // NewFailoverManager creates a new failover manager

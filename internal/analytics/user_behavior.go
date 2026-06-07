@@ -309,8 +309,8 @@ func (uba *UserBehaviorAnalyzer) GetMostActiveHours(topN int) []HourActivity {
 
 // HourActivity 小时活动
 type HourActivity struct {
-	Hour   int   `json:"hour"`
-	Count  int64 `json:"count"`
+	Hour   int    `json:"hour"`
+	Count  int64  `json:"count"`
 	Format string `json:"format"`
 }
 
@@ -338,9 +338,9 @@ func (uba *UserBehaviorAnalyzer) GetStats() map[string]interface{} {
 	defer uba.mu.RUnlock()
 
 	return map[string]interface{}{
-		"totalLogs":     len(uba.accessLogs),
-		"uniqueFiles":   len(uba.hotFiles),
-		"uniqueUsers":   len(uba.userActivity),
+		"totalLogs":      len(uba.accessLogs),
+		"uniqueFiles":    len(uba.hotFiles),
+		"uniqueUsers":    len(uba.userActivity),
 		"maxLogCapacity": uba.maxLogs,
 	}
 }

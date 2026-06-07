@@ -14,39 +14,39 @@ import (
 type ThemeMode string
 
 const (
-	ThemeLight  ThemeMode = "light"   // 浅色模式
-	ThemeDark   ThemeMode = "dark"    // 深色模式
-	ThemeAuto   ThemeMode = "auto"    // 跟随系统
-	ThemeCustom ThemeMode = "custom"  // 自定义主题
+	ThemeLight  ThemeMode = "light"  // 浅色模式
+	ThemeDark   ThemeMode = "dark"   // 深色模式
+	ThemeAuto   ThemeMode = "auto"   // 跟随系统
+	ThemeCustom ThemeMode = "custom" // 自定义主题
 )
 
 // ColorScheme 配色方案
 type ColorScheme struct {
-	Primary     string `json:"primary"`      // 主色调
-	Secondary   string `json:"secondary"`    // 次要色
-	Accent      string `json:"accent"`       // 强调色
-	Background  string `json:"background"`   // 背景色
-	Surface     string `json:"surface"`      // 表面色
-	TextPrimary string `json:"text_primary"` // 主文本色
+	Primary       string `json:"primary"`        // 主色调
+	Secondary     string `json:"secondary"`      // 次要色
+	Accent        string `json:"accent"`         // 强调色
+	Background    string `json:"background"`     // 背景色
+	Surface       string `json:"surface"`        // 表面色
+	TextPrimary   string `json:"text_primary"`   // 主文本色
 	TextSecondary string `json:"text_secondary"` // 次文本色
-	Error       string `json:"error"`        // 错误色
-	Warning     string `json:"warning"`      // 警告色
-	Success     string `json:"success"`      // 成功色
+	Error         string `json:"error"`          // 错误色
+	Warning       string `json:"warning"`        // 警告色
+	Success       string `json:"success"`        // 成功色
 }
 
 // Theme 主题配置
 type Theme struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	Mode        ThemeMode   `json:"mode"`
-	Colors      ColorScheme `json:"colors"`
-	FontFamily  string      `json:"font_family"`
-	FontSize    int         `json:"font_size"`     // 基准字号（px）
-	BorderRadius int        `json:"border_radius"` // 圆角大小
-	Spacing     int         `json:"spacing"`       // 间距基准
-	Animations  bool        `json:"animations"`    // 启用动画
-	BuiltIn     bool        `json:"built_in"`      // 是否内置主题
-	CreatedAt   time.Time   `json:"created_at"`
+	ID           string      `json:"id"`
+	Name         string      `json:"name"`
+	Mode         ThemeMode   `json:"mode"`
+	Colors       ColorScheme `json:"colors"`
+	FontFamily   string      `json:"font_family"`
+	FontSize     int         `json:"font_size"`     // 基准字号（px）
+	BorderRadius int         `json:"border_radius"` // 圆角大小
+	Spacing      int         `json:"spacing"`       // 间距基准
+	Animations   bool        `json:"animations"`    // 启用动画
+	BuiltIn      bool        `json:"built_in"`      // 是否内置主题
+	CreatedAt    time.Time   `json:"created_at"`
 }
 
 // ========== 布局系统 ==========
@@ -94,13 +94,13 @@ type WidgetPosition struct {
 
 // Widget 组件实例
 type Widget struct {
-	ID       string         `json:"id"`
-	Type     WidgetType     `json:"type"`
-	Title    string         `json:"title"`
-	Position WidgetPosition `json:"position"`
-	Config   map[string]interface{} `json:"config,omitempty"`   // 组件特定配置
-	Visible  bool           `json:"visible"`
-	Locked   bool           `json:"locked"`    // 锁定位置
+	ID       string                 `json:"id"`
+	Type     WidgetType             `json:"type"`
+	Title    string                 `json:"title"`
+	Position WidgetPosition         `json:"position"`
+	Config   map[string]interface{} `json:"config,omitempty"` // 组件特定配置
+	Visible  bool                   `json:"visible"`
+	Locked   bool                   `json:"locked"` // 锁定位置
 }
 
 // Dashboard 仪表板
@@ -109,7 +109,7 @@ type Dashboard struct {
 	Name        string     `json:"name"`
 	Description string     `json:"description,omitempty"`
 	Layout      LayoutType `json:"layout"`
-	Columns     int        `json:"columns"`    // 网格列数（默认 12）
+	Columns     int        `json:"columns"` // 网格列数（默认 12）
 	Widgets     []Widget   `json:"widgets"`
 	IsDefault   bool       `json:"is_default"`
 	CreatedAt   time.Time  `json:"created_at"`
@@ -120,26 +120,26 @@ type Dashboard struct {
 
 // UIPreference 用户界面偏好
 type UIPreference struct {
-	UserID          string    `json:"user_id"`
-	ThemeID         string    `json:"theme_id"`
-	DashboardID     string    `json:"dashboard_id"`
-	Language        string    `json:"language"`         // 语言
-	SidebarCollapsed bool     `json:"sidebar_collapsed"` // 侧边栏是否折叠
-	CompactMode     bool      `json:"compact_mode"`     // 紧凑模式
-	FontSize        int       `json:"font_size"`        // 个人字号覆盖
-	Animations      *bool     `json:"animations"`       // 个人动画偏好
-	Accessibility   AccessibilityConfig `json:"accessibility"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	UserID           string              `json:"user_id"`
+	ThemeID          string              `json:"theme_id"`
+	DashboardID      string              `json:"dashboard_id"`
+	Language         string              `json:"language"`          // 语言
+	SidebarCollapsed bool                `json:"sidebar_collapsed"` // 侧边栏是否折叠
+	CompactMode      bool                `json:"compact_mode"`      // 紧凑模式
+	FontSize         int                 `json:"font_size"`         // 个人字号覆盖
+	Animations       *bool               `json:"animations"`        // 个人动画偏好
+	Accessibility    AccessibilityConfig `json:"accessibility"`
+	UpdatedAt        time.Time           `json:"updated_at"`
 }
 
 // AccessibilityConfig 无障碍配置
 type AccessibilityConfig struct {
-	HighContrast    bool `json:"high_contrast"`    // 高对比度
-	ReduceMotion    bool `json:"reduce_motion"`    // 减少动画
-	ScreenReader    bool `json:"screen_reader"`    // 屏幕阅读器优化
-	KeyboardNav     bool `json:"keyboard_nav"`     // 键盘导航
-	LargeText       bool `json:"large_text"`       // 大字体
-	ColorBlindMode  string `json:"color_blind_mode"` // 色盲模式
+	HighContrast   bool   `json:"high_contrast"`    // 高对比度
+	ReduceMotion   bool   `json:"reduce_motion"`    // 减少动画
+	ScreenReader   bool   `json:"screen_reader"`    // 屏幕阅读器优化
+	KeyboardNav    bool   `json:"keyboard_nav"`     // 键盘导航
+	LargeText      bool   `json:"large_text"`       // 大字体
+	ColorBlindMode string `json:"color_blind_mode"` // 色盲模式
 }
 
 // ========== 布局推荐 ==========
@@ -149,23 +149,23 @@ type LayoutRecommendation struct {
 	ID          string   `json:"id"`
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
-	Score       float64  `json:"score"`       // 推荐分数 0-1
+	Score       float64  `json:"score"` // 推荐分数 0-1
 	Widgets     []Widget `json:"widgets"`
-	Reason      string   `json:"reason"`      // 推荐理由
-	ForRole     string   `json:"for_role"`    // 适用角色
+	Reason      string   `json:"reason"`   // 推荐理由
+	ForRole     string   `json:"for_role"` // 适用角色
 }
 
 // ========== 智能UI引擎 ==========
 
 // SmartUIEngine 智能UI引擎
 type SmartUIEngine struct {
-	mu            sync.RWMutex
-	themes        map[string]*Theme
-	dashboards    map[string]*Dashboard
-	preferences   map[string]*UIPreference
+	mu              sync.RWMutex
+	themes          map[string]*Theme
+	dashboards      map[string]*Dashboard
+	preferences     map[string]*UIPreference
 	recommendations []LayoutRecommendation
-	defaultTheme  string
-	defaultDash   string
+	defaultTheme    string
+	defaultDash     string
 }
 
 // EngineOption 引擎配置选项
@@ -398,16 +398,16 @@ func (e *SmartUIEngine) initBuiltInThemes() {
 		Name: "浅色主题",
 		Mode: ThemeLight,
 		Colors: ColorScheme{
-			Primary:     "#1976D2",
-			Secondary:   "#424242",
-			Accent:      "#FF4081",
-			Background:  "#FAFAFA",
-			Surface:     "#FFFFFF",
-			TextPrimary: "#212121",
+			Primary:       "#1976D2",
+			Secondary:     "#424242",
+			Accent:        "#FF4081",
+			Background:    "#FAFAFA",
+			Surface:       "#FFFFFF",
+			TextPrimary:   "#212121",
 			TextSecondary: "#757575",
-			Error:       "#D32F2F",
-			Warning:     "#FFA000",
-			Success:     "#388E3C",
+			Error:         "#D32F2F",
+			Warning:       "#FFA000",
+			Success:       "#388E3C",
 		},
 		FontFamily:   "Inter, system-ui, sans-serif",
 		FontSize:     14,
@@ -423,16 +423,16 @@ func (e *SmartUIEngine) initBuiltInThemes() {
 		Name: "深色主题",
 		Mode: ThemeDark,
 		Colors: ColorScheme{
-			Primary:     "#90CAF9",
-			Secondary:   "#BDBDBD",
-			Accent:      "#FF80AB",
-			Background:  "#121212",
-			Surface:     "#1E1E1E",
-			TextPrimary: "#FFFFFF",
+			Primary:       "#90CAF9",
+			Secondary:     "#BDBDBD",
+			Accent:        "#FF80AB",
+			Background:    "#121212",
+			Surface:       "#1E1E1E",
+			TextPrimary:   "#FFFFFF",
 			TextSecondary: "#B0B0B0",
-			Error:       "#EF5350",
-			Warning:     "#FFB74D",
-			Success:     "#66BB6A",
+			Error:         "#EF5350",
+			Warning:       "#FFB74D",
+			Success:       "#66BB6A",
 		},
 		FontFamily:   "Inter, system-ui, sans-serif",
 		FontSize:     14,

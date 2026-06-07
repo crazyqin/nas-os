@@ -83,20 +83,20 @@ type AccessRecord struct {
 
 // PatternAnalysis 文件访问模式分析结果
 type PatternAnalysis struct {
-	FilePath       string          `json:"file_path"`       // 文件路径
-	FileSize       int64           `json:"file_size"`       // 文件大小
-	TotalAccesses  int             `json:"total_accesses"`  // 总访问次数
-	FirstAccess    time.Time       `json:"first_access"`    // 首次访问时间
-	LastAccess     time.Time       `json:"last_access"`     // 最后访问时间
-	AccessInterval time.Duration   `json:"access_interval"` // 平均访问间隔
-	Temperature    DataTemperature `json:"temperature"`     // 数据温度
-	HeatScore      float64         `json:"heat_score"`      // 热度评分 (0-100)
-	AccessPattern  string          `json:"access_pattern"`  // 访问模式: "sequential", "random", "burst"
-	AccessHours    []int           `json:"access_hours"`    // 访问时间分布（24小时）
-	AccessDays     []int           `json:"access_days"`     // 访问日期分布（7天）
+	FilePath       string          `json:"file_path"`        // 文件路径
+	FileSize       int64           `json:"file_size"`        // 文件大小
+	TotalAccesses  int             `json:"total_accesses"`   // 总访问次数
+	FirstAccess    time.Time       `json:"first_access"`     // 首次访问时间
+	LastAccess     time.Time       `json:"last_access"`      // 最后访问时间
+	AccessInterval time.Duration   `json:"access_interval"`  // 平均访问间隔
+	Temperature    DataTemperature `json:"temperature"`      // 数据温度
+	HeatScore      float64         `json:"heat_score"`       // 热度评分 (0-100)
+	AccessPattern  string          `json:"access_pattern"`   // 访问模式: "sequential", "random", "burst"
+	AccessHours    []int           `json:"access_hours"`     // 访问时间分布（24小时）
+	AccessDays     []int           `json:"access_days"`      // 访问日期分布（7天）
 	ReadWriteRatio float64         `json:"read_write_ratio"` // 读写比
-	SuggestedTier  string          `json:"suggested_tier"`  // 建议存储层级
-	AnalyzedAt     time.Time       `json:"analyzed_at"`     // 分析时间
+	SuggestedTier  string          `json:"suggested_tier"`   // 建议存储层级
+	AnalyzedAt     time.Time       `json:"analyzed_at"`      // 分析时间
 }
 
 // ============================================================
@@ -122,14 +122,14 @@ type HeatMapEntry struct {
 
 // HeatMapSummary 热力图汇总
 type HeatMapSummary struct {
-	TotalFiles  int     `json:"total_files"`  // 总文件数
-	HotFiles    int     `json:"hot_files"`    // 热文件数
-	WarmFiles   int     `json:"warm_files"`   // 温文件数
-	ColdFiles   int     `json:"cold_files"`   // 冷文件数
-	TotalSize   int64   `json:"total_size"`   // 总大小
-	HotSize     int64   `json:"hot_size"`     // 热数据大小
-	WarmSize    int64   `json:"warm_size"`    // 温数据大小
-	ColdSize    int64   `json:"cold_size"`    // 冷数据大小
+	TotalFiles   int     `json:"total_files"`    // 总文件数
+	HotFiles     int     `json:"hot_files"`      // 热文件数
+	WarmFiles    int     `json:"warm_files"`     // 温文件数
+	ColdFiles    int     `json:"cold_files"`     // 冷文件数
+	TotalSize    int64   `json:"total_size"`     // 总大小
+	HotSize      int64   `json:"hot_size"`       // 热数据大小
+	WarmSize     int64   `json:"warm_size"`      // 温数据大小
+	ColdSize     int64   `json:"cold_size"`      // 冷数据大小
 	AvgHeatScore float64 `json:"avg_heat_score"` // 平均热度
 }
 
@@ -145,21 +145,21 @@ type TimeRange struct {
 
 // AccessStats 访问统计
 type AccessStats struct {
-	TotalRecords   int            `json:"total_records"`   // 总记录数
-	UniqueFiles    int            `json:"unique_files"`    // 唯一文件数
-	TotalAccesses  int            `json:"total_accesses"`  // 总访问次数
-	ByTemperature  map[string]int `json:"by_temperature"`  // 按温度统计
-	ByAccessMode   map[string]int `json:"by_access_mode"`  // 按访问模式统计
-	TopFiles       []FileAccess   `json:"top_files"`       // 热门文件
+	TotalRecords   int            `json:"total_records"`    // 总记录数
+	UniqueFiles    int            `json:"unique_files"`     // 唯一文件数
+	TotalAccesses  int            `json:"total_accesses"`   // 总访问次数
+	ByTemperature  map[string]int `json:"by_temperature"`   // 按温度统计
+	ByAccessMode   map[string]int `json:"by_access_mode"`   // 按访问模式统计
+	TopFiles       []FileAccess   `json:"top_files"`        // 热门文件
 	LastAnalyzedAt *time.Time     `json:"last_analyzed_at"` // 最后分析时间
 }
 
 // FileAccess 文件访问统计
 type FileAccess struct {
-	FilePath      string `json:"file_path"`      // 文件路径
-	AccessCount   int    `json:"access_count"`   // 访问次数
-	TotalSize     int64  `json:"total_size"`     // 文件大小
-	LastAccessAt  time.Time `json:"last_access_at"` // 最后访问时间
+	FilePath     string    `json:"file_path"`      // 文件路径
+	AccessCount  int       `json:"access_count"`   // 访问次数
+	TotalSize    int64     `json:"total_size"`     // 文件大小
+	LastAccessAt time.Time `json:"last_access_at"` // 最后访问时间
 }
 
 // ============================================================
@@ -179,9 +179,9 @@ type TieringSuggestion struct {
 
 // TieringReport 分层报告
 type TieringReport struct {
-	GeneratedAt time.Time            `json:"generated_at"` // 生成时间
-	Suggestions []TieringSuggestion  `json:"suggestions"`  // 建议列表
-	Summary     TieringSummary       `json:"summary"`      // 汇总信息
+	GeneratedAt time.Time           `json:"generated_at"` // 生成时间
+	Suggestions []TieringSuggestion `json:"suggestions"`  // 建议列表
+	Summary     TieringSummary      `json:"summary"`      // 汇总信息
 }
 
 // TieringSummary 分层汇总
@@ -227,9 +227,9 @@ type AccessPatternResponse struct {
 
 // AnalysisListResponse 分析结果列表响应
 type AnalysisListResponse struct {
-	Code    int                `json:"code"`
-	Message string             `json:"message"`
-	Data    []PatternAnalysis  `json:"data,omitempty"`
+	Code    int               `json:"code"`
+	Message string            `json:"message"`
+	Data    []PatternAnalysis `json:"data,omitempty"`
 }
 
 // HeatMapResponse 热力图响应

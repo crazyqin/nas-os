@@ -302,17 +302,17 @@ func TestCompareFingerprints(t *testing.T) {
 	gen := NewFingerprintGenerator("test-salt")
 
 	fp1 := gen.Generate(&FingerprintComponents{
-		UserAgent:         "Mozilla/5.0",
-		IP:                "192.168.1.1",
-		ScreenResolution:  "1920x1080",
-		Timezone:          "Asia/Shanghai",
+		UserAgent:        "Mozilla/5.0",
+		IP:               "192.168.1.1",
+		ScreenResolution: "1920x1080",
+		Timezone:         "Asia/Shanghai",
 	})
 
 	fp2 := gen.Generate(&FingerprintComponents{
-		UserAgent:         "Mozilla/5.0",
-		IP:                "192.168.1.2",
-		ScreenResolution:  "1920x1080",
-		Timezone:          "Asia/Shanghai",
+		UserAgent:        "Mozilla/5.0",
+		IP:               "192.168.1.2",
+		ScreenResolution: "1920x1080",
+		Timezone:         "Asia/Shanghai",
 	})
 
 	similarity := CompareFingerprints(fp1, fp2)
@@ -341,7 +341,7 @@ func TestEvaluateLoginLowRisk(t *testing.T) {
 
 	// 使用简单的设备指纹
 	fingerprint := GenerateSimpleFingerprint("192.168.1.1", "Mozilla/5.0")
-	
+
 	// 先信任设备
 	mgr.TrustDevice("user1", fingerprint, "192.168.1.1", "Mozilla/5.0", nil)
 

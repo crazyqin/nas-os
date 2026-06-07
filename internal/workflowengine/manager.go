@@ -14,9 +14,9 @@ import (
 
 // Manager 工作流引擎管理器
 type Manager struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	workflows map[string]*Workflow
+	mu         sync.RWMutex
+	logger     *zap.Logger
+	workflows  map[string]*Workflow
 	executions map[string]*Execution
 	templates  map[string]*WorkflowTemplate
 	auditLogs  []AuditLog
@@ -541,7 +541,7 @@ func (m *Manager) GetStats() *WorkflowStats {
 	defer m.mu.RUnlock()
 
 	stats := &WorkflowStats{
-		TotalWorkflows: len(m.workflows),
+		TotalWorkflows:  len(m.workflows),
 		TotalExecutions: len(m.executions),
 	}
 

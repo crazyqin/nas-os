@@ -17,9 +17,9 @@ import (
 type PredictEngine struct {
 	mu sync.RWMutex
 
-	config      PredictConfig
-	manager     *DiskPredictManager
-	history     map[string][]*DiskHealth // device -> health records
+	config  PredictConfig
+	manager *DiskPredictManager
+	history map[string][]*DiskHealth // device -> health records
 }
 
 // NewPredictEngine 创建预测引擎
@@ -380,9 +380,9 @@ func (d *PredictEngine) SetThreshold(metric string, threshold int) error {
 	validMetrics := map[string]bool{
 		"reallocated_sectors": true,
 		"pending_sectors":     true,
-		"crc_error":          true,
-		"temperature":        true,
-		"power_on_hours":     true,
+		"crc_error":           true,
+		"temperature":         true,
+		"power_on_hours":      true,
 	}
 
 	if !validMetrics[metric] {

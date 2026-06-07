@@ -430,12 +430,12 @@ func (m *Manager) Warmup(req *WarmupRequest) (*WarmupResult, error) {
 
 			// 创建缓存条目
 			entry := &CacheEntry{
-				Key:       key,
-				Path:      filePath,
-				Size:      info.Size(),
-				Level:     targetLevel,
-				Checksum:  checksum,
-				CreatedAt: time.Now(),
+				Key:        key,
+				Path:       filePath,
+				Size:       info.Size(),
+				Level:      targetLevel,
+				Checksum:   checksum,
+				CreatedAt:  time.Now(),
 				LastAccess: time.Now(),
 			}
 

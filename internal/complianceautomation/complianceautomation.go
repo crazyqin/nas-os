@@ -13,12 +13,12 @@ import (
 
 // 合规标准
 const (
-	StandardGDPR     = "GDPR"       // 通用数据保护条例
-	StandardMLPS2    = "MLPS2"      // 等保2.0
-	StandardISO27001 = "ISO27001"   // ISO 27001
-	StandardSOC2     = "SOC2"       // SOC 2
-	StandardHIPAA    = "HIPAA"      // HIPAA
-	StandardPCI      = "PCI-DSS"    // PCI DSS
+	StandardGDPR     = "GDPR"     // 通用数据保护条例
+	StandardMLPS2    = "MLPS2"    // 等保2.0
+	StandardISO27001 = "ISO27001" // ISO 27001
+	StandardSOC2     = "SOC2"     // SOC 2
+	StandardHIPAA    = "HIPAA"    // HIPAA
+	StandardPCI      = "PCI-DSS"  // PCI DSS
 )
 
 // 检查状态
@@ -47,15 +47,15 @@ var (
 
 // ComplianceCheck 合规检查项
 type ComplianceCheck struct {
-	ID          string   `json:"id"`          // 检查ID
-	Standard    string   `json:"standard"`    // 合规标准
-	Category    string   `json:"category"`    // 分类
-	Name        string   `json:"name"`        // 检查名称
-	Description string   `json:"description"` // 描述
-	Severity    string   `json:"severity"`    // 严重级别
-	Status      string   `json:"status"`      // 检查状态
-	Remediation string   `json:"remediation"` // 修复建议
-	Evidence    string   `json:"evidence"`    // 证据
+	ID          string    `json:"id"`          // 检查ID
+	Standard    string    `json:"standard"`    // 合规标准
+	Category    string    `json:"category"`    // 分类
+	Name        string    `json:"name"`        // 检查名称
+	Description string    `json:"description"` // 描述
+	Severity    string    `json:"severity"`    // 严重级别
+	Status      string    `json:"status"`      // 检查状态
+	Remediation string    `json:"remediation"` // 修复建议
+	Evidence    string    `json:"evidence"`    // 证据
 	LastChecked time.Time `json:"last_checked"`
 }
 
@@ -77,15 +77,15 @@ type AuditTask struct {
 
 // ComplianceReport 合规报告
 type ComplianceReport struct {
-	ID           string           `json:"id"`
-	GeneratedAt  time.Time        `json:"generated_at"`
-	Standard     string           `json:"standard"`
-	Score        float64          `json:"score"`
-	Summary      *AuditTask       `json:"summary"`
-	Checks       []*ComplianceCheck `json:"checks"`
-	Gaps         []*ComplianceCheck `json:"gaps"`         // 不合规项
-	Trends       []*TrendPoint    `json:"trends"`       // 趋势
-	Recommendations []string      `json:"recommendations"`
+	ID              string             `json:"id"`
+	GeneratedAt     time.Time          `json:"generated_at"`
+	Standard        string             `json:"standard"`
+	Score           float64            `json:"score"`
+	Summary         *AuditTask         `json:"summary"`
+	Checks          []*ComplianceCheck `json:"checks"`
+	Gaps            []*ComplianceCheck `json:"gaps"`   // 不合规项
+	Trends          []*TrendPoint      `json:"trends"` // 趋势
+	Recommendations []string           `json:"recommendations"`
 }
 
 // TrendPoint 趋势点
@@ -96,12 +96,12 @@ type TrendPoint struct {
 
 // ComplianceEngine 合规引擎
 type ComplianceEngine struct {
-	mu          sync.RWMutex
-	checks      map[string]*ComplianceCheck
-	standards   map[string][]string // standard -> check IDs
-	audits      []*AuditTask
-	reports     []*ComplianceReport
-	history     map[string][]*TrendPoint // standard -> trends
+	mu           sync.RWMutex
+	checks       map[string]*ComplianceCheck
+	standards    map[string][]string // standard -> check IDs
+	audits       []*AuditTask
+	reports      []*ComplianceReport
+	history      map[string][]*TrendPoint // standard -> trends
 	auditCounter int64
 }
 

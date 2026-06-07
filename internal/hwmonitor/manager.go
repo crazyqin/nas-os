@@ -13,20 +13,20 @@ import (
 
 // MonitorReport 综合监控报告
 type MonitorReport struct {
-	Timestamp time.Time    `json:"timestamp"`
-	CPU       *CPUInfo     `json:"cpu"`
-	Memory    *MemoryInfo  `json:"memory"`
+	Timestamp time.Time      `json:"timestamp"`
+	CPU       *CPUInfo       `json:"cpu"`
+	Memory    *MemoryInfo    `json:"memory"`
 	Disks     []DiskTempInfo `json:"disks"`
-	Network   []NetIOInfo  `json:"network"`
-	Voltages  []VoltageInfo `json:"voltages"`
+	Network   []NetIOInfo    `json:"network"`
+	Voltages  []VoltageInfo  `json:"voltages"`
 }
 
 // CPUInfo CPU 信息
 type CPUInfo struct {
-	Model     string  `json:"model"`     // 型号
-	Cores     int     `json:"cores"`     // 核心数
-	Usage     float64 `json:"usage"`     // 使用率 (%)
-	Temp      float64 `json:"temp"`      // 温度 (°C)
+	Model     string    `json:"model"` // 型号
+	Cores     int       `json:"cores"` // 核心数
+	Usage     float64   `json:"usage"` // 使用率 (%)
+	Temp      float64   `json:"temp"`  // 温度 (°C)
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
@@ -43,10 +43,10 @@ type MemoryInfo struct {
 
 // DiskTempInfo 磁盘温度信息
 type DiskTempInfo struct {
-	Device    string  `json:"device"`    // 设备名 (/dev/sda)
-	Temp      float64 `json:"temp"`      // 温度 (°C)
-	Health    string  `json:"health"`    // 健康状态 (OK/PASSED/WARNING/FAIL)
-	Model     string  `json:"model"`     // 磁盘型号
+	Device    string    `json:"device"` // 设备名 (/dev/sda)
+	Temp      float64   `json:"temp"`   // 温度 (°C)
+	Health    string    `json:"health"` // 健康状态 (OK/PASSED/WARNING/FAIL)
+	Model     string    `json:"model"`  // 磁盘型号
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
@@ -63,10 +63,10 @@ type NetIOInfo struct {
 
 // VoltageInfo 主板电压信息
 type VoltageInfo struct {
-	Name   string  `json:"name"`   // 电压名 (vcore, +3.3V, +5V, +12V)
-	Value  float64 `json:"value"`  // 当前值 (V)
-	Min    float64 `json:"min"`    // 最小值
-	Max    float64 `json:"max"`    // 最大值
+	Name  string  `json:"name"`  // 电压名 (vcore, +3.3V, +5V, +12V)
+	Value float64 `json:"value"` // 当前值 (V)
+	Min   float64 `json:"min"`   // 最小值
+	Max   float64 `json:"max"`   // 最大值
 }
 
 // AlertThreshold 告警阈值
@@ -77,8 +77,8 @@ type AlertThreshold struct {
 
 // HistoryRecord 历史记录
 type HistoryRecord struct {
-	Timestamp time.Time       `json:"timestamp"`
-	Report    *MonitorReport  `json:"report"`
+	Timestamp time.Time      `json:"timestamp"`
+	Report    *MonitorReport `json:"report"`
 }
 
 // ========== Manager ==========

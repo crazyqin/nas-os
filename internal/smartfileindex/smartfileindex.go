@@ -36,12 +36,12 @@ type SearchQuery struct {
 // SmartFileIndex provides intelligent file indexing and full-text search
 // Inspired by TrueNAS SMB Spotlight
 type SmartFileIndex struct {
-	mu          sync.RWMutex
-	entries     map[string]*IndexEntry
-	indexPaths  []string
-	maxEntries  int
-	running     bool
-	stopCh      chan struct{}
+	mu         sync.RWMutex
+	entries    map[string]*IndexEntry
+	indexPaths []string
+	maxEntries int
+	running    bool
+	stopCh     chan struct{}
 }
 
 // NewSmartFileIndex creates a new SmartFileIndex instance

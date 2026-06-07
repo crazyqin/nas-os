@@ -31,40 +31,40 @@ const (
 
 // FamilyMember 家庭成员
 type FamilyMember struct {
-	ID        string       `json:"id"`
-	Name      string       `json:"name"`
-	Avatar    string       `json:"avatar,omitempty"`
-	Role      MemberRole   `json:"role"`
-	Status    MemberStatus `json:"status"`
-	Email     string       `json:"email,omitempty"`
-	Birthday  string       `json:"birthday,omitempty"`
-	StorageQuota int64     `json:"storage_quota"` // bytes
-	StorageUsed  int64     `json:"storage_used"`
-	CreatedAt time.Time    `json:"created_at"`
-	LastSeen  time.Time    `json:"last_seen"`
+	ID           string       `json:"id"`
+	Name         string       `json:"name"`
+	Avatar       string       `json:"avatar,omitempty"`
+	Role         MemberRole   `json:"role"`
+	Status       MemberStatus `json:"status"`
+	Email        string       `json:"email,omitempty"`
+	Birthday     string       `json:"birthday,omitempty"`
+	StorageQuota int64        `json:"storage_quota"` // bytes
+	StorageUsed  int64        `json:"storage_used"`
+	CreatedAt    time.Time    `json:"created_at"`
+	LastSeen     time.Time    `json:"last_seen"`
 }
 
 // Chore 家务任务
 type Chore struct {
-	ID          string    `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description,omitempty"`
-	AssigneeID  string    `json:"assignee_id"`
-	Points      int       `json:"points"`
-	DueDate     string    `json:"due_date,omitempty"`
-	Completed   bool      `json:"completed"`
+	ID          string     `json:"id"`
+	Title       string     `json:"title"`
+	Description string     `json:"description,omitempty"`
+	AssigneeID  string     `json:"assignee_id"`
+	Points      int        `json:"points"`
+	DueDate     string     `json:"due_date,omitempty"`
+	Completed   bool       `json:"completed"`
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
+	CreatedAt   time.Time  `json:"created_at"`
 }
 
 // Allowance 零花钱记录
 type Allowance struct {
-	ID        string    `json:"id"`
-	MemberID  string    `json:"member_id"`
-	Amount    float64   `json:"amount"`
-	Reason    string    `json:"reason"`
-	Type      string    `json:"type"` // "earn" or "spend"
-	Date      time.Time `json:"date"`
+	ID       string    `json:"id"`
+	MemberID string    `json:"member_id"`
+	Amount   float64   `json:"amount"`
+	Reason   string    `json:"reason"`
+	Type     string    `json:"type"` // "earn" or "spend"
+	Date     time.Time `json:"date"`
 }
 
 // FamilyNote 家庭便签
@@ -81,17 +81,17 @@ type FamilyNote struct {
 
 // ScreenTime 屏幕时间
 type ScreenTime struct {
-	MemberID  string `json:"member_id"`
-	Date      string `json:"date"`
-	Minutes   int    `json:"minutes"`
-	Limit     int    `json:"limit"` // 分钟
-	AppUsage  map[string]int `json:"app_usage,omitempty"`
+	MemberID string         `json:"member_id"`
+	Date     string         `json:"date"`
+	Minutes  int            `json:"minutes"`
+	Limit    int            `json:"limit"` // 分钟
+	AppUsage map[string]int `json:"app_usage,omitempty"`
 }
 
 // Config 配置
 type Config struct {
-	FamilyName      string `json:"family_name"`
-	MaxMembers      int    `json:"max_members"`
+	FamilyName        string `json:"family_name"`
+	MaxMembers        int    `json:"max_members"`
 	AllowanceCurrency string `json:"allowance_currency"`
 }
 
@@ -108,10 +108,10 @@ type Manager struct {
 }
 
 var (
-	ErrMemberNotFound = errors.New("member not found")
-	ErrChoreNotFound  = errors.New("chore not found")
-	ErrNoteNotFound   = errors.New("note not found")
-	ErrMaxMembers     = errors.New("max members reached")
+	ErrMemberNotFound  = errors.New("member not found")
+	ErrChoreNotFound   = errors.New("chore not found")
+	ErrNoteNotFound    = errors.New("note not found")
+	ErrMaxMembers      = errors.New("max members reached")
 	ErrDuplicateMember = errors.New("member already exists")
 )
 
@@ -348,10 +348,10 @@ func (m *Manager) GetStats() map[string]interface{} {
 		}
 	}
 	return map[string]interface{}{
-		"total_members":   len(m.members),
-		"pending_chores":  pending,
-		"total_chores":    len(m.chores),
-		"total_notes":     len(m.notes),
+		"total_members":    len(m.members),
+		"pending_chores":   pending,
+		"total_chores":     len(m.chores),
+		"total_notes":      len(m.notes),
 		"total_allowances": len(m.allowances),
 	}
 }

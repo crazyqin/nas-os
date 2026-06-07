@@ -205,22 +205,22 @@ func (r *ConflictResolver) SetOnResolveCallback(callback func(original, renamed 
 
 // ResolutionResult 冲突解决结果.
 type ResolutionResult struct {
-	OriginalPath  string      `json:"originalPath"`
-	RenamedPath   string      `json:"renamedPath,omitempty"`
-	Action        SyncOpType  `json:"action"`
-	Message       string      `json:"message"`
-	NeedUserInput bool        `json:"needUserInput"`
+	OriginalPath  string     `json:"originalPath"`
+	RenamedPath   string     `json:"renamedPath,omitempty"`
+	Action        SyncOpType `json:"action"`
+	Message       string     `json:"message"`
+	NeedUserInput bool       `json:"needUserInput"`
 }
 
 // ConflictHistory 冲突历史记录.
 type ConflictHistory struct {
-	TaskID       string         `json:"taskId"`
-	Conflicts    []ConflictInfo `json:"conflicts"`
-	Resolutions  []ResolutionResult `json:"resolutions"`
-	Timestamp    time.Time      `json:"timestamp"`
-	TotalFiles   int            `json:"totalFiles"`
-	Resolved     int            `json:"resolved"`
-	Skipped      int            `json:"skipped"`
+	TaskID      string             `json:"taskId"`
+	Conflicts   []ConflictInfo     `json:"conflicts"`
+	Resolutions []ResolutionResult `json:"resolutions"`
+	Timestamp   time.Time          `json:"timestamp"`
+	TotalFiles  int                `json:"totalFiles"`
+	Resolved    int                `json:"resolved"`
+	Skipped     int                `json:"skipped"`
 }
 
 // NewConflictHistory 创建冲突历史.

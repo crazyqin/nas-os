@@ -327,8 +327,8 @@ func TestParseCronExpr(t *testing.T) {
 		{"*/5 * * * *", false},
 		{"0 9 * * 1-5", false},
 		{"invalid", true},
-		{"* * * *", true},      // 只有4个字段
-		{"* * * * * *", true},  // 6个字段
+		{"* * * *", true},     // 只有4个字段
+		{"* * * * * *", true}, // 6个字段
 	}
 
 	for _, tt := range tests {
@@ -355,15 +355,15 @@ func TestMatchCron(t *testing.T) {
 		{"* * * * *", true},
 		{"30 14 * * *", true},
 		{"31 14 * * *", false},
-		{"*/5 * * * *", true},   // 30 % 5 == 0
-		{"*/7 * * * *", false},  // 30 % 7 != 0
-		{"0 14 * * *", false},   // 分钟不匹配
-		{"30 14 * * 1", true},   // 周一
-		{"30 14 * * 2", false},  // 不是周二
-		{"30 14 15 * *", true},  // 15号
-		{"30 14 16 * *", false}, // 不是16号
-		{"30 14 * 1 *", true},   // 1月
-		{"30 14 1-15 * *", true}, // 范围
+		{"*/5 * * * *", true},      // 30 % 5 == 0
+		{"*/7 * * * *", false},     // 30 % 7 != 0
+		{"0 14 * * *", false},      // 分钟不匹配
+		{"30 14 * * 1", true},      // 周一
+		{"30 14 * * 2", false},     // 不是周二
+		{"30 14 15 * *", true},     // 15号
+		{"30 14 16 * *", false},    // 不是16号
+		{"30 14 * 1 *", true},      // 1月
+		{"30 14 1-15 * *", true},   // 范围
 		{"30 14 16-31 * *", false}, // 范围外
 		{"invalid", false},
 	}
@@ -379,9 +379,9 @@ func TestMatchCron(t *testing.T) {
 func TestMatchCron_StepValues(t *testing.T) {
 	testTime := time.Date(2024, 1, 15, 14, 30, 0, 0, time.UTC)
 
-	assert.True(t, MatchCron("*/10 * * * *", testTime))  // 30 % 10 == 0
-	assert.True(t, MatchCron("*/15 * * * *", testTime))   // 30 % 15 == 0
-	assert.True(t, MatchCron("*/30 * * * *", testTime))   // 30 % 30 == 0
+	assert.True(t, MatchCron("*/10 * * * *", testTime)) // 30 % 10 == 0
+	assert.True(t, MatchCron("*/15 * * * *", testTime)) // 30 % 15 == 0
+	assert.True(t, MatchCron("*/30 * * * *", testTime)) // 30 % 30 == 0
 }
 
 func TestSplitFields(t *testing.T) {

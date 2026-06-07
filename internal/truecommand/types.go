@@ -16,59 +16,59 @@ type TrueCommandConfig struct {
 
 // NASSystem NAS 系统.
 type NASSystem struct {
-	ID            string            `json:"id"`
-	Name          string            `json:"name"`
-	Host          string            `json:"host"`
-	Port          int               `json:"port"`
-	APIKey        string            `json:"-"` // 不序列化
-	Version       string            `json:"version"`
-	Status        SystemStatus      `json:"status"`
-	ClusterID     string            `json:"cluster_id"`
-	CPUUsage      float64           `json:"cpu_usage"`
-	CPUCores      int               `json:"cpu_cores"`
-	MemoryUsed    int64             `json:"memory_used"`
-	MemoryTotal   int64             `json:"memory_total"`
-	StorageUsed   int64             `json:"storage_used"`
-	StorageTotal  int64             `json:"storage_total"`
-	NetworkIn     int64             `json:"network_in"`
-	NetworkOut    int64             `json:"network_out"`
-	Uptime        time.Duration     `json:"uptime"`
-	Hostname      string            `json:"hostname"`
-	OS            string            `json:"os"`
-	Platform      string            `json:"platform"`
-	Attributes    map[string]string `json:"attributes"`
-	LastSeen      time.Time         `json:"last_seen"`
-	RegisteredAt  time.Time         `json:"registered_at"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	Host         string            `json:"host"`
+	Port         int               `json:"port"`
+	APIKey       string            `json:"-"` // 不序列化
+	Version      string            `json:"version"`
+	Status       SystemStatus      `json:"status"`
+	ClusterID    string            `json:"cluster_id"`
+	CPUUsage     float64           `json:"cpu_usage"`
+	CPUCores     int               `json:"cpu_cores"`
+	MemoryUsed   int64             `json:"memory_used"`
+	MemoryTotal  int64             `json:"memory_total"`
+	StorageUsed  int64             `json:"storage_used"`
+	StorageTotal int64             `json:"storage_total"`
+	NetworkIn    int64             `json:"network_in"`
+	NetworkOut   int64             `json:"network_out"`
+	Uptime       time.Duration     `json:"uptime"`
+	Hostname     string            `json:"hostname"`
+	OS           string            `json:"os"`
+	Platform     string            `json:"platform"`
+	Attributes   map[string]string `json:"attributes"`
+	LastSeen     time.Time         `json:"last_seen"`
+	RegisteredAt time.Time         `json:"registered_at"`
 }
 
 // SystemStatus 系统状态.
 type SystemStatus string
 
 const (
-	SystemStatusOnline  SystemStatus = "online"
-	SystemStatusOffline SystemStatus = "offline"
-	SystemStatusDegraded SystemStatus = "degraded"
+	SystemStatusOnline      SystemStatus = "online"
+	SystemStatusOffline     SystemStatus = "offline"
+	SystemStatusDegraded    SystemStatus = "degraded"
 	SystemStatusMaintenance SystemStatus = "maintenance"
 )
 
 // Cluster 集群.
 type Cluster struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Type        ClusterType   `json:"type"`
-	Status      ClusterStatus `json:"status"`
-	Members     []string      `json:"members"`
-	VirtualIP   string        `json:"virtual_ip"`
-	SharedStorage string      `json:"shared_storage"`
-	CreatedAt   time.Time     `json:"created_at"`
+	ID            string        `json:"id"`
+	Name          string        `json:"name"`
+	Type          ClusterType   `json:"type"`
+	Status        ClusterStatus `json:"status"`
+	Members       []string      `json:"members"`
+	VirtualIP     string        `json:"virtual_ip"`
+	SharedStorage string        `json:"shared_storage"`
+	CreatedAt     time.Time     `json:"created_at"`
 }
 
 // ClusterType 集群类型.
 type ClusterType string
 
 const (
-	ClusterTypeHA      ClusterType = "ha"
-	ClusterTypeScale   ClusterType = "scale"
+	ClusterTypeHA        ClusterType = "ha"
+	ClusterTypeScale     ClusterType = "scale"
 	ClusterTypeFederated ClusterType = "federated"
 )
 
@@ -76,10 +76,10 @@ const (
 type ClusterStatus string
 
 const (
-	ClusterStatusActive    ClusterStatus = "active"
-	ClusterStatusInactive  ClusterStatus = "inactive"
-	ClusterStatusDegraded  ClusterStatus = "degraded"
-	ClusterStatusFailed    ClusterStatus = "failed"
+	ClusterStatusActive   ClusterStatus = "active"
+	ClusterStatusInactive ClusterStatus = "inactive"
+	ClusterStatusDegraded ClusterStatus = "degraded"
+	ClusterStatusFailed   ClusterStatus = "failed"
 )
 
 // Alert 告警.
@@ -96,13 +96,13 @@ type Alert struct {
 
 // Dashboard 仪表板.
 type Dashboard struct {
-	ID        string       `json:"id"`
-	Name      string       `json:"name"`
-	Widgets   []Widget     `json:"widgets"`
-	Layout    string       `json:"layout"`
-	Default   bool         `json:"default"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt time.Time    `json:"updated_at"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Widgets   []Widget  `json:"widgets"`
+	Layout    string    `json:"layout"`
+	Default   bool      `json:"default"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // Widget 仪表板组件.

@@ -244,10 +244,10 @@ func (a *Analyzer) AnalyzeTrend(months int) ([]TrendPoint, error) {
 
 	// 按月聚合
 	type monthAgg struct {
-		totalCost   float64
-		totalCap    float64
-		totalUsed   float64
-		count       int
+		totalCost float64
+		totalCap  float64
+		totalUsed float64
+		count     int
 	}
 	monthly := make(map[string]*monthAgg)
 	for _, r := range records {
@@ -346,15 +346,15 @@ func (a *Analyzer) GenerateOptimization() *Optimization {
 		}
 		if savings > 0 {
 			suggestions = append(suggestions, OptimizationSuggestion{
-				ID:       "opt-tiering-001",
-				Title:    "冷数据分层迁移",
-				Category: "tiering",
-				Priority: "high",
-				Impact:   "high",
-				Effort:   "medium",
-				SavingEst: savings,
+				ID:          "opt-tiering-001",
+				Title:       "冷数据分层迁移",
+				Category:    "tiering",
+				Priority:    "high",
+				Impact:      "high",
+				Effort:      "medium",
+				SavingEst:   savings,
 				Description: "将低频访问数据从 SSD 迁移到 HDD 存储层，降低存储成本",
-				Rationale:   fmt.Sprintf("SSD 每TB月成本 (%.0f元) 是 HDD (%.0f元) 的 %.1f 倍",
+				Rationale: fmt.Sprintf("SSD 每TB月成本 (%.0f元) 是 HDD (%.0f元) 的 %.1f 倍",
 					ssdTier.CostPerTBMonth, hddTier.CostPerTBMonth,
 					ssdTier.CostPerTBMonth/hddTier.CostPerTBMonth),
 				Steps: []string{
@@ -372,13 +372,13 @@ func (a *Analyzer) GenerateOptimization() *Optimization {
 	if hasCloud && hasHDD {
 		if cloudTier.CostPerTBMonth > hddTier.CostPerTBMonth*3 {
 			suggestions = append(suggestions, OptimizationSuggestion{
-				ID:       "opt-cloud-001",
-				Title:    "云存储成本审查",
-				Category: "cloud_migration",
-				Priority: "medium",
-				Impact:   "medium",
-				Effort:   "low",
-				SavingEst: totalCost * 0.05,
+				ID:          "opt-cloud-001",
+				Title:       "云存储成本审查",
+				Category:    "cloud_migration",
+				Priority:    "medium",
+				Impact:      "medium",
+				Effort:      "low",
+				SavingEst:   totalCost * 0.05,
 				Description: "审查云存储使用情况，考虑将稳定负载迁回本地",
 				Rationale:   "云存储长期使用成本高于本地存储",
 			})
@@ -388,13 +388,13 @@ func (a *Analyzer) GenerateOptimization() *Optimization {
 	// 闲置容量优化
 	if totalWaste > totalCost*0.2 {
 		suggestions = append(suggestions, OptimizationSuggestion{
-			ID:       "opt-waste-001",
-			Title:    "缩减闲置容量",
-			Category: "rightsizing",
-			Priority: "high",
-			Impact:   "high",
-			Effort:   "low",
-			SavingEst: totalWaste * 0.5,
+			ID:          "opt-waste-001",
+			Title:       "缩减闲置容量",
+			Category:    "rightsizing",
+			Priority:    "high",
+			Impact:      "high",
+			Effort:      "low",
+			SavingEst:   totalWaste * 0.5,
 			Description: fmt.Sprintf("检测到约 %.0f%% 的闲置容量，建议缩减分配", (totalWaste/totalCost)*100),
 			Rationale:   "高闲置率意味着为未使用的存储付费",
 			Steps: []string{
@@ -409,13 +409,13 @@ func (a *Analyzer) GenerateOptimization() *Optimization {
 	// 默认至少给出一条建议
 	if len(suggestions) == 0 {
 		suggestions = append(suggestions, OptimizationSuggestion{
-			ID:       "opt-general-001",
-			Title:    "定期成本审查",
-			Category: "tiering",
-			Priority: "low",
-			Impact:   "low",
-			Effort:   "low",
-			SavingEst: totalCost * 0.02,
+			ID:          "opt-general-001",
+			Title:       "定期成本审查",
+			Category:    "tiering",
+			Priority:    "low",
+			Impact:      "low",
+			Effort:      "low",
+			SavingEst:   totalCost * 0.02,
 			Description: "建议每季度审查存储成本，优化数据布局",
 			Rationale:   "定期审查有助于发现潜在优化机会",
 		})
@@ -771,19 +771,19 @@ func (a *Analyzer) CompareCloudVsLocal(capacityTB float64, periodMonths int) *Co
 		CapacityTB:   capacityTB,
 		Results: []ScenarioResult{
 			{
-				Name:      "本地存储",
-				TierType:  TierHDD,
-				TotalCost: localCost,
-				MonthlyCost: localCost / float64(periodMonths),
-				CostPerTB: localCost / float64(periodMonths) / capacityTB,
+				Name:          "本地存储",
+				TierType:      TierHDD,
+				TotalCost:     localCost,
+				MonthlyCost:   localCost / float64(periodMonths),
+				CostPerTB:     localCost / float64(periodMonths) / capacityTB,
 				FinalCapacity: capacityTB,
 			},
 			{
-				Name:      "云存储",
-				TierType:  TierCloud,
-				TotalCost: cloudCost,
-				MonthlyCost: cloudCost / float64(periodMonths),
-				CostPerTB: cloudCost / float64(periodMonths) / capacityTB,
+				Name:          "云存储",
+				TierType:      TierCloud,
+				TotalCost:     cloudCost,
+				MonthlyCost:   cloudCost / float64(periodMonths),
+				CostPerTB:     cloudCost / float64(periodMonths) / capacityTB,
 				FinalCapacity: capacityTB,
 			},
 		},

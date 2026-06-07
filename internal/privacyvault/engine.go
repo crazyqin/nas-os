@@ -11,19 +11,19 @@ import (
 
 // Engine 隐私保险箱引擎
 type Engine struct {
-	config      *PrivacyVaultConfig
-	crypto      *CryptoEngine
-	vaults      map[string]*Vault
-	secrets     map[string][]*Secret
-	policies    map[string][]*AccessPolicy
-	auditLog    []*AuditLog
-	shareLinks  map[string]*ShareLink
-	keyShares   map[string][]*KeyShare
-	failCounts  map[string]int // vaultID -> fail count
-	vaultKeys   map[string][]byte // vaultID -> derived key (memory only)
-	mu          sync.RWMutex
-	ctx         context.Context
-	cancel      context.CancelFunc
+	config     *PrivacyVaultConfig
+	crypto     *CryptoEngine
+	vaults     map[string]*Vault
+	secrets    map[string][]*Secret
+	policies   map[string][]*AccessPolicy
+	auditLog   []*AuditLog
+	shareLinks map[string]*ShareLink
+	keyShares  map[string][]*KeyShare
+	failCounts map[string]int    // vaultID -> fail count
+	vaultKeys  map[string][]byte // vaultID -> derived key (memory only)
+	mu         sync.RWMutex
+	ctx        context.Context
+	cancel     context.CancelFunc
 }
 
 // NewEngine 创建隐私保险箱引擎

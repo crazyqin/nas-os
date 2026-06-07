@@ -8,9 +8,9 @@ import (
 
 // LoginAttemptsTracker tracks login attempts for lockout.
 type LoginAttemptsTracker struct {
-	mu             sync.RWMutex
-	attempts       map[string]*attemptRecord
-	maxAttempts    int
+	mu              sync.RWMutex
+	attempts        map[string]*attemptRecord
+	maxAttempts     int
 	lockoutDuration time.Duration
 }
 

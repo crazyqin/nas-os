@@ -10,12 +10,12 @@ import (
 )
 
 var (
-	ErrNodeNotFound      = errors.New("node not found")
-	ErrNodeAlreadyExists = errors.New("node already exists")
-	ErrSyncInProgress    = errors.New("sync already in progress")
+	ErrNodeNotFound        = errors.New("node not found")
+	ErrNodeAlreadyExists   = errors.New("node already exists")
+	ErrSyncInProgress      = errors.New("sync already in progress")
 	ErrConflictNotResolved = errors.New("conflict not resolved")
-	ErrInvalidNodeID     = errors.New("invalid node ID")
-	ErrNodeOffline       = errors.New("node is offline")
+	ErrInvalidNodeID       = errors.New("invalid node ID")
+	ErrNodeOffline         = errors.New("node is offline")
 )
 
 // Federation manages multiple NAS devices in a federation.

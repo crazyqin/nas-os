@@ -650,9 +650,9 @@ func TestParseIntent(t *testing.T) {
 	m := setupTestManager(t)
 
 	tests := []struct {
-		query    string
-		lang     VoiceLanguage
-		wantType string
+		query      string
+		lang       VoiceLanguage
+		wantType   string
 		wantAction string
 	}{
 		{"激活观影模式", LangChinese, "scene", "activate"},

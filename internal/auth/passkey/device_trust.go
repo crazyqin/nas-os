@@ -35,10 +35,10 @@ const (
 
 // DeviceTrustManager manages trusted device state.
 type DeviceTrustManager struct {
-	mu        sync.RWMutex
-	devices   map[string][]*TrustedDevice // userID -> trusted devices
-	hmacKey   []byte                       // HMAC signing key for trust tokens
-	config    DeviceTrustConfig
+	mu      sync.RWMutex
+	devices map[string][]*TrustedDevice // userID -> trusted devices
+	hmacKey []byte                      // HMAC signing key for trust tokens
+	config  DeviceTrustConfig
 }
 
 // DeviceTrustConfig holds configuration for device trust.
@@ -51,29 +51,29 @@ type DeviceTrustConfig struct {
 
 // TrustedDevice represents a trusted device for a user.
 type TrustedDevice struct {
-	ID            string    `json:"id"`            // Unique device trust ID
-	UserID        string    `json:"userId"`        // Owner user ID
-	DeviceName    string    `json:"deviceName"`    // User-assigned or auto-detected name
-	DeviceType    string    `json:"deviceType"`    // desktop, mobile, tablet
-	BrowserName   string    `json:"browserName"`   // Chrome, Firefox, Safari, etc.
-	BrowserVer    string    `json:"browserVersion"` // Browser version
-	OSName        string    `json:"osName"`        // Windows, macOS, Linux, iOS, Android
-	OSVersion     string    `json:"osVersion"`     // OS version
-	Fingerprint   string    `json:"-"`             // Device fingerprint (not exposed via API)
-	TrustToken    string    `json:"-"`             // HMAC-signed trust token (not exposed)
-	IPAddress     string    `json:"ipAddress"`     // IP address at time of trust
-	TrustedAt     time.Time `json:"trustedAt"`     // When trust was established
-	ExpiresAt     time.Time `json:"expiresAt"`     // When trust expires
-	LastUsedAt    time.Time `json:"lastUsedAt"`    // Last time device was used
-	Revoked       bool      `json:"revoked"`       // Whether trust has been revoked
+	ID            string     `json:"id"`             // Unique device trust ID
+	UserID        string     `json:"userId"`         // Owner user ID
+	DeviceName    string     `json:"deviceName"`     // User-assigned or auto-detected name
+	DeviceType    string     `json:"deviceType"`     // desktop, mobile, tablet
+	BrowserName   string     `json:"browserName"`    // Chrome, Firefox, Safari, etc.
+	BrowserVer    string     `json:"browserVersion"` // Browser version
+	OSName        string     `json:"osName"`         // Windows, macOS, Linux, iOS, Android
+	OSVersion     string     `json:"osVersion"`      // OS version
+	Fingerprint   string     `json:"-"`              // Device fingerprint (not exposed via API)
+	TrustToken    string     `json:"-"`              // HMAC-signed trust token (not exposed)
+	IPAddress     string     `json:"ipAddress"`      // IP address at time of trust
+	TrustedAt     time.Time  `json:"trustedAt"`      // When trust was established
+	ExpiresAt     time.Time  `json:"expiresAt"`      // When trust expires
+	LastUsedAt    time.Time  `json:"lastUsedAt"`     // Last time device was used
+	Revoked       bool       `json:"revoked"`        // Whether trust has been revoked
 	RevokedAt     *time.Time `json:"revokedAt,omitempty"`
-	RevokedReason string    `json:"revokedReason,omitempty"`
+	RevokedReason string     `json:"revokedReason,omitempty"`
 }
 
 // DeviceInfo holds device information sent by the client.
 type DeviceInfo struct {
 	DeviceName  string `json:"deviceName"`
-	DeviceType  string `json:"deviceType"`  // desktop, mobile, tablet
+	DeviceType  string `json:"deviceType"` // desktop, mobile, tablet
 	BrowserName string `json:"browserName"`
 	BrowserVer  string `json:"browserVersion"`
 	OSName      string `json:"osName"`
@@ -84,9 +84,9 @@ type DeviceInfo struct {
 
 // TrustRequest represents a request to trust a device.
 type TrustRequest struct {
-	DeviceInfo   DeviceInfo `json:"deviceInfo"`
-	TrustDays    int        `json:"trustDays"`    // 1-90 days, 0 = default
-	TOTPCode     string     `json:"totpCode"`     // Required: must verify TOTP to trust device
+	DeviceInfo DeviceInfo `json:"deviceInfo"`
+	TrustDays  int        `json:"trustDays"` // 1-90 days, 0 = default
+	TOTPCode   string     `json:"totpCode"`  // Required: must verify TOTP to trust device
 }
 
 // TrustVerificationResult is the result of checking if a device is trusted.
@@ -396,12 +396,12 @@ func (m *DeviceTrustManager) Stats(userID string) map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total":           len(devices),
-		"active":          active,
-		"expired":         expired,
-		"revoked":         revoked,
-		"maxDevices":      m.config.MaxDevices,
-		"trustDurationH":  m.config.TrustDuration.Hours(),
+		"total":          len(devices),
+		"active":         active,
+		"expired":        expired,
+		"revoked":        revoked,
+		"maxDevices":     m.config.MaxDevices,
+		"trustDurationH": m.config.TrustDuration.Hours(),
 	}
 }
 

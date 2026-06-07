@@ -77,40 +77,40 @@ type Vulnerability struct {
 
 // ComplianceRule represents a compliance check rule
 type ComplianceRule struct {
-	ID          string          `json:"id"`
-	Name        string          `json:"name"`
-	Description string          `json:"description"`
-	Category    string          `json:"category"`
+	ID          string           `json:"id"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	Category    string           `json:"category"`
 	Status      ComplianceStatus `json:"status"`
-	Message     string          `json:"message,omitempty"`
-	Severity    string          `json:"severity"`
+	Message     string           `json:"message,omitempty"`
+	Severity    string           `json:"severity"`
 }
 
 // VulnSummary provides vulnerability count by severity
 type VulnSummary struct {
-	Total      int `json:"total"`
-	Critical   int `json:"critical"`
-	High       int `json:"high"`
-	Medium     int `json:"medium"`
-	Low        int `json:"low"`
-	Info       int `json:"info"`
-	Fixed      int `json:"fixed"`
-	Unfixed    int `json:"unfixed"`
+	Total          int `json:"total"`
+	Critical       int `json:"critical"`
+	High           int `json:"high"`
+	Medium         int `json:"medium"`
+	Low            int `json:"low"`
+	Info           int `json:"info"`
+	Fixed          int `json:"fixed"`
+	Unfixed        int `json:"unfixed"`
 	CompliancePass int `json:"compliance_pass"`
 	ComplianceFail int `json:"compliance_fail"`
 }
 
 // ScanPolicy defines scanning behavior
 type ScanPolicy struct {
-	ID             string        `json:"id"`
-	Name           string        `json:"name"`
-	MaxSeverity    string        `json:"max_severity"`    // fail if vuln above this
-	IgnoreCVEs     []string      `json:"ignore_cves"`
-	RequireFix     bool          `json:"require_fix"`     // only flag vulns with fixes
-	ScanLayers     bool          `json:"scan_layers"`
-	ComplianceChecks bool        `json:"compliance_checks"`
-	Timeout        time.Duration `json:"timeout"`
-	CreatedAt      time.Time     `json:"created_at"`
+	ID               string        `json:"id"`
+	Name             string        `json:"name"`
+	MaxSeverity      string        `json:"max_severity"` // fail if vuln above this
+	IgnoreCVEs       []string      `json:"ignore_cves"`
+	RequireFix       bool          `json:"require_fix"` // only flag vulns with fixes
+	ScanLayers       bool          `json:"scan_layers"`
+	ComplianceChecks bool          `json:"compliance_checks"`
+	Timeout          time.Duration `json:"timeout"`
+	CreatedAt        time.Time     `json:"created_at"`
 }
 
 // ScanSchedule defines a scheduled scan
@@ -135,9 +135,9 @@ type ScanRequest struct {
 
 // ScanResponse is the response for a scan request
 type ScanResponse struct {
-	ScanID  string     `json:"scan_id"`
-	Image   string     `json:"image"`
-	Status  ScanStatus `json:"status"`
+	ScanID string     `json:"scan_id"`
+	Image  string     `json:"image"`
+	Status ScanStatus `json:"status"`
 }
 
 // GenerateReportRequest is the request body for generating a report

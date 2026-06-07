@@ -50,37 +50,37 @@ func AllSources() []SourceSystem {
 
 // MigrationConfig 迁移配置。
 type MigrationConfig struct {
-	Source      SourceSystem `json:"source"`
-	SourceHost  string      `json:"source_host"`
-	SourcePort  int         `json:"source_port"`
-	SourceUser  string      `json:"source_user"`
-	SourcePath  string      `json:"source_path"`
-	DestPath    string      `json:"dest_path"`
-	Options     MigrateOptions `json:"options"`
+	Source     SourceSystem   `json:"source"`
+	SourceHost string         `json:"source_host"`
+	SourcePort int            `json:"source_port"`
+	SourceUser string         `json:"source_user"`
+	SourcePath string         `json:"source_path"`
+	DestPath   string         `json:"dest_path"`
+	Options    MigrateOptions `json:"options"`
 }
 
 // MigrateOptions 迁移选项。
 type MigrateOptions struct {
-	PreserveACL       bool `json:"preserve_acl"`
-	PreserveXattr     bool `json:"preserve_xattr"`
-	PreserveTimestamps bool `json:"preserve_timestamps"`
-	VerifyChecksum    bool `json:"verify_checksum"`
-	BandwidthLimit    int  `json:"bandwidth_limit_mbps"`
-	SyncMode          string `json:"sync_mode"` // "copy", "mirror", "incremental"
-	DryRun            bool   `json:"dry_run"`
-	ExcludePatterns   []string `json:"exclude_patterns,omitempty"`
+	PreserveACL        bool     `json:"preserve_acl"`
+	PreserveXattr      bool     `json:"preserve_xattr"`
+	PreserveTimestamps bool     `json:"preserve_timestamps"`
+	VerifyChecksum     bool     `json:"verify_checksum"`
+	BandwidthLimit     int      `json:"bandwidth_limit_mbps"`
+	SyncMode           string   `json:"sync_mode"` // "copy", "mirror", "incremental"
+	DryRun             bool     `json:"dry_run"`
+	ExcludePatterns    []string `json:"exclude_patterns,omitempty"`
 }
 
 // DefaultOptions 返回默认迁移选项。
 func DefaultOptions() MigrateOptions {
 	return MigrateOptions{
-		PreserveACL:       true,
-		PreserveXattr:     true,
+		PreserveACL:        true,
+		PreserveXattr:      true,
 		PreserveTimestamps: true,
-		VerifyChecksum:    true,
-		BandwidthLimit:    0, // 不限速
-		SyncMode:          "copy",
-		DryRun:            false,
+		VerifyChecksum:     true,
+		BandwidthLimit:     0, // 不限速
+		SyncMode:           "copy",
+		DryRun:             false,
 	}
 }
 
@@ -110,20 +110,20 @@ const (
 
 // MigrationTask 迁移任务。
 type MigrationTask struct {
-	ID          string          `json:"id"`
-	Config      MigrationConfig `json:"config"`
-	Status      MigrationStatus `json:"status"`
-	Progress    float64         `json:"progress"`
-	TotalFiles  int64           `json:"total_files"`
-	TotalBytes  int64           `json:"total_bytes"`
-	DoneFiles   int64           `json:"done_files"`
-	DoneBytes   int64           `json:"done_bytes"`
-	Speed       float64         `json:"speed_mbps"`
-	ETA         time.Duration   `json:"eta"`
-	ErrorMsg    string          `json:"error,omitempty"`
-	StartedAt   time.Time       `json:"started_at"`
-	EndedAt     *time.Time      `json:"ended_at,omitempty"`
-	Log         []string        `json:"log,omitempty"`
+	ID         string          `json:"id"`
+	Config     MigrationConfig `json:"config"`
+	Status     MigrationStatus `json:"status"`
+	Progress   float64         `json:"progress"`
+	TotalFiles int64           `json:"total_files"`
+	TotalBytes int64           `json:"total_bytes"`
+	DoneFiles  int64           `json:"done_files"`
+	DoneBytes  int64           `json:"done_bytes"`
+	Speed      float64         `json:"speed_mbps"`
+	ETA        time.Duration   `json:"eta"`
+	ErrorMsg   string          `json:"error,omitempty"`
+	StartedAt  time.Time       `json:"started_at"`
+	EndedAt    *time.Time      `json:"ended_at,omitempty"`
+	Log        []string        `json:"log,omitempty"`
 }
 
 // MigrationReport 迁移报告。

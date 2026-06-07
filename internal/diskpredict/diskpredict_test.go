@@ -125,11 +125,11 @@ func TestEstimateRemainingLifeDays(t *testing.T) {
 	scorer := NewScorer()
 
 	tests := []struct {
-		score        float64
-		status       DiskStatus
-		riskFactors  []string
-		expectedMin  int
-		expectedMax  int
+		score       float64
+		status      DiskStatus
+		riskFactors []string
+		expectedMin int
+		expectedMax int
 	}{
 		{90, StatusHealthy, nil, 1000, 1100},
 		{80, StatusHealthy, nil, 700, 800},
@@ -249,8 +249,8 @@ func TestUpdateSMARTData(t *testing.T) {
 
 	// 测试更新SMART数据
 	smartData := &SMARTData{
-		Device:      "sda",
-		Temperature: 40,
+		Device:       "sda",
+		Temperature:  40,
 		PowerOnHours: 10000,
 		Attributes: []SMARTAttribute{
 			{ID: 5, Name: "Reallocated_Sector_Ct", Value: 100, Threshold: 10, RawValue: 0},
@@ -286,8 +286,8 @@ func TestPredictFailure(t *testing.T) {
 
 	// 更新SMART数据（健康状态）
 	smartData := &SMARTData{
-		Device:      "sda",
-		Temperature: 35,
+		Device:       "sda",
+		Temperature:  35,
 		PowerOnHours: 10000,
 		Attributes: []SMARTAttribute{
 			{ID: 5, Name: "Reallocated_Sector_Ct", Value: 100, Threshold: 10, RawValue: 0},
@@ -338,8 +338,8 @@ func TestPredictAll(t *testing.T) {
 		manager.RegisterDisk(disk)
 
 		smartData := &SMARTData{
-			Device:      "sd" + string(rune('a'+i)),
-			Temperature: 35,
+			Device:       "sd" + string(rune('a'+i)),
+			Temperature:  35,
 			PowerOnHours: 10000,
 			Attributes: []SMARTAttribute{
 				{ID: 5, Name: "Reallocated_Sector_Ct", Value: 100, Threshold: 10, RawValue: 0},
@@ -482,8 +482,8 @@ func TestResolveAlert(t *testing.T) {
 	manager.RegisterDisk(disk)
 
 	smartData := &SMARTData{
-		Device:      "sda",
-		Temperature: 55,
+		Device:       "sda",
+		Temperature:  55,
 		PowerOnHours: 50000,
 		Attributes: []SMARTAttribute{
 			{ID: 5, Name: "Reallocated_Sector_Ct", Value: 50, Threshold: 10, RawValue: 100},

@@ -34,12 +34,12 @@ const (
 type ServiceStatus string
 
 const (
-	StatusRunning   ServiceStatus = "running"   // 运行中
-	StatusStopped   ServiceStatus = "stopped"   // 已停止
-	StatusDegraded  ServiceStatus = "degraded"  // 降级运行
-	StatusStarting  ServiceStatus = "starting"  // 启动中
-	StatusError     ServiceStatus = "error"     // 异常
-	StatusUnknown   ServiceStatus = "unknown"   // 未知
+	StatusRunning  ServiceStatus = "running"  // 运行中
+	StatusStopped  ServiceStatus = "stopped"  // 已停止
+	StatusDegraded ServiceStatus = "degraded" // 降级运行
+	StatusStarting ServiceStatus = "starting" // 启动中
+	StatusError    ServiceStatus = "error"    // 异常
+	StatusUnknown  ServiceStatus = "unknown"  // 未知
 )
 
 // ============================================================
@@ -76,14 +76,14 @@ type HealthCheck struct {
 
 // ResourceQuota 资源配额
 type ResourceQuota struct {
-	MaxCPU      float64 `json:"max_cpu"`      // CPU 上限（百分比）
-	MaxMemory   int64   `json:"max_memory"`   // 内存上限（字节）
-	MaxFDs      int     `json:"max_fds"`      // 文件描述符上限
-	MaxConns    int     `json:"max_conns"`    // 最大连接数
-	CurrentCPU  float64 `json:"current_cpu"`  // 当前 CPU 使用
-	CurrentMem  int64   `json:"current_mem"`  // 当前内存使用
-	CurrentFDs  int     `json:"current_fds"`  // 当前文件描述符
-	CurrentConns int    `json:"current_conns"` // 当前连接数
+	MaxCPU       float64 `json:"max_cpu"`       // CPU 上限（百分比）
+	MaxMemory    int64   `json:"max_memory"`    // 内存上限（字节）
+	MaxFDs       int     `json:"max_fds"`       // 文件描述符上限
+	MaxConns     int     `json:"max_conns"`     // 最大连接数
+	CurrentCPU   float64 `json:"current_cpu"`   // 当前 CPU 使用
+	CurrentMem   int64   `json:"current_mem"`   // 当前内存使用
+	CurrentFDs   int     `json:"current_fds"`   // 当前文件描述符
+	CurrentConns int     `json:"current_conns"` // 当前连接数
 }
 
 // ============================================================
@@ -106,9 +106,9 @@ type MetricPoint struct {
 type ServiceID string
 
 type ServiceMetrics struct {
-	ServiceID ServiceID      `json:"service_id"`
-	Current   *MetricPoint   `json:"current"`          // 当前指标
-	History   []MetricPoint  `json:"history,omitempty"` // 历史记录（最近 24h）
+	ServiceID ServiceID     `json:"service_id"`
+	Current   *MetricPoint  `json:"current"`           // 当前指标
+	History   []MetricPoint `json:"history,omitempty"` // 历史记录（最近 24h）
 }
 
 // ============================================================
@@ -117,23 +117,23 @@ type ServiceMetrics struct {
 
 // Service 服务定义
 type Service struct {
-	ID           ServiceID       `json:"id"`
-	Name         string          `json:"name"`
-	Type         ServiceType     `json:"type"`
-	Status       ServiceStatus   `json:"status"`
-	Port         int             `json:"port,omitempty"`
-	PID          int             `json:"pid,omitempty"`
-	Uptime       time.Duration   `json:"uptime"`
-	CPU          float64         `json:"cpu"`
-	Memory       int64           `json:"memory"`
-	HealthCheck  *HealthCheck    `json:"health_check,omitempty"`
-	Dependencies []ServiceID     `json:"dependencies,omitempty"` // 依赖的服务 ID
-	Group        string          `json:"group,omitempty"`        // 服务组
-	RestartPolicy RestartPolicy  `json:"restart_policy"`
-	Quota        *ResourceQuota  `json:"quota,omitempty"`
-	StartedAt    *time.Time      `json:"started_at,omitempty"`
-	StoppedAt    *time.Time      `json:"stopped_at,omitempty"`
-	Tags         map[string]string `json:"tags,omitempty"`
+	ID            ServiceID         `json:"id"`
+	Name          string            `json:"name"`
+	Type          ServiceType       `json:"type"`
+	Status        ServiceStatus     `json:"status"`
+	Port          int               `json:"port,omitempty"`
+	PID           int               `json:"pid,omitempty"`
+	Uptime        time.Duration     `json:"uptime"`
+	CPU           float64           `json:"cpu"`
+	Memory        int64             `json:"memory"`
+	HealthCheck   *HealthCheck      `json:"health_check,omitempty"`
+	Dependencies  []ServiceID       `json:"dependencies,omitempty"` // 依赖的服务 ID
+	Group         string            `json:"group,omitempty"`        // 服务组
+	RestartPolicy RestartPolicy     `json:"restart_policy"`
+	Quota         *ResourceQuota    `json:"quota,omitempty"`
+	StartedAt     *time.Time        `json:"started_at,omitempty"`
+	StoppedAt     *time.Time        `json:"stopped_at,omitempty"`
+	Tags          map[string]string `json:"tags,omitempty"`
 }
 
 // ============================================================
@@ -186,13 +186,13 @@ type DashboardOverview struct {
 
 // Alert 告警信息
 type Alert struct {
-	ID        string        `json:"id"`
-	ServiceID ServiceID     `json:"service_id"`
-	Level     string        `json:"level"` // info, warning, critical
-	Message   string        `json:"message"`
-	Timestamp time.Time     `json:"timestamp"`
-	Resolved  bool          `json:"resolved"`
-	ResolvedAt *time.Time   `json:"resolved_at,omitempty"`
+	ID         string     `json:"id"`
+	ServiceID  ServiceID  `json:"service_id"`
+	Level      string     `json:"level"` // info, warning, critical
+	Message    string     `json:"message"`
+	Timestamp  time.Time  `json:"timestamp"`
+	Resolved   bool       `json:"resolved"`
+	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
 }
 
 // ============================================================

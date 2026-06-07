@@ -137,7 +137,7 @@ func (h *Handlers) getRecommendations(c *gin.Context) {
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
-			"total":          len(recommendations),
+			"total":           len(recommendations),
 			"recommendations": recommendations,
 		},
 	})

@@ -11,7 +11,7 @@ import (
 type Manager struct {
 	mu       sync.RWMutex
 	tenants  map[string]*Tenant
-	usages   map[string][]*UsageRecord // tenantID -> records
+	usages   map[string][]*UsageRecord  // tenantID -> records
 	quotas   map[string][]*StorageQuota // tenantID -> quotas
 	bills    map[string]*StorageBill
 	rates    map[StorageTier]float64
@@ -656,8 +656,8 @@ func (m *Manager) AnalyzeCostOptimization(tenantID string) (*CostOptimization, e
 	currentCost := m.calculateCost(latestUsage)
 
 	optimization := &CostOptimization{
-		TenantID:   tenantID,
-		TenantName: t.Name,
+		TenantID:    tenantID,
+		TenantName:  t.Name,
 		CurrentCost: currentCost,
 	}
 

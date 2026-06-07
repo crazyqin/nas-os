@@ -9,12 +9,12 @@ import (
 
 // AdvancedModelRegistry 高级模型注册表
 type AdvancedModelRegistry struct {
-	mu          sync.RWMutex
-	models      map[string]*Model
-	versions    map[string][]*ModelVersion
-	tags        map[string][]string
-	categories  map[string][]string
-	metadata    map[string]map[string]string
+	mu         sync.RWMutex
+	models     map[string]*Model
+	versions   map[string][]*ModelVersion
+	tags       map[string][]string
+	categories map[string][]string
+	metadata   map[string]map[string]string
 }
 
 // NewAdvancedModelRegistry 创建高级模型注册表
@@ -376,10 +376,10 @@ func (r *AdvancedModelRegistry) GetStats() *RegistryStats {
 	defer r.mu.RUnlock()
 
 	stats := &RegistryStats{
-		TotalModels: len(r.models),
-		ByStatus:    make(map[ModelStatus]int),
-		ByTaskType:  make(map[TaskType]int),
-		ByFormat:    make(map[ModelFormat]int),
+		TotalModels:   len(r.models),
+		ByStatus:      make(map[ModelStatus]int),
+		ByTaskType:    make(map[TaskType]int),
+		ByFormat:      make(map[ModelFormat]int),
 		TotalVersions: 0,
 	}
 
@@ -398,18 +398,18 @@ func (r *AdvancedModelRegistry) GetStats() *RegistryStats {
 
 // RegistryStats 注册表统计
 type RegistryStats struct {
-	TotalModels   int              `json:"totalModels"`
+	TotalModels   int                 `json:"totalModels"`
 	ByStatus      map[ModelStatus]int `json:"byStatus"`
 	ByTaskType    map[TaskType]int    `json:"byTaskType"`
 	ByFormat      map[ModelFormat]int `json:"byFormat"`
-	TotalVersions int              `json:"totalVersions"`
+	TotalVersions int                 `json:"totalVersions"`
 }
 
 // ModelStore 模型存储
 type ModelStore struct {
-	mu       sync.RWMutex
-	models   map[string]*Model
-	indexes  map[string]map[string]bool
+	mu      sync.RWMutex
+	models  map[string]*Model
+	indexes map[string]map[string]bool
 }
 
 // NewModelStore 创建模型存储

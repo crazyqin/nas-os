@@ -16,18 +16,18 @@ func setupTestHandler(t *testing.T) *Handler {
 	logger, _ := zap.NewDevelopment()
 	tmpDir := t.TempDir()
 	config := &HAConfig{
-		ClusterName:       "test-cluster",
-		NodeID:            "node-1",
-		NodeRole:          RolePrimary,
-		Priority:          100,
-		HeartbeatEnabled:  false,
+		ClusterName:        "test-cluster",
+		NodeID:             "node-1",
+		NodeRole:           RolePrimary,
+		Priority:           100,
+		HeartbeatEnabled:   false,
 		HealthCheckEnabled: false,
-		SyncEnabled:       false,
-		FailoverEnabled:   true,
-		FailbackEnabled:   true,
-		PeerNodes:         []string{"node-2", "node-3"},
-		BindAddress:       "192.168.1.100",
-		DataDir:           tmpDir,
+		SyncEnabled:        false,
+		FailoverEnabled:    true,
+		FailbackEnabled:    true,
+		PeerNodes:          []string{"node-2", "node-3"},
+		BindAddress:        "192.168.1.100",
+		DataDir:            tmpDir,
 	}
 
 	manager, err := NewHAConfigManager(config, logger)

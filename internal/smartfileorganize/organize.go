@@ -31,28 +31,28 @@ const (
 type OrganizationStrategy string
 
 const (
-	StrategyByType     OrganizationStrategy = "by_type"
-	StrategyByDate     OrganizationStrategy = "by_date"
-	StrategyByProject  OrganizationStrategy = "by_project"
-	StrategyBySize     OrganizationStrategy = "by_size"
-	StrategySmart      OrganizationStrategy = "smart"
+	StrategyByType    OrganizationStrategy = "by_type"
+	StrategyByDate    OrganizationStrategy = "by_date"
+	StrategyByProject OrganizationStrategy = "by_project"
+	StrategyBySize    OrganizationStrategy = "by_size"
+	StrategySmart     OrganizationStrategy = "smart"
 )
 
 // FileInfo 文件信息
 type FileInfo struct {
-	Path         string            `json:"path"`
-	Name         string            `json:"name"`
-	Size         int64             `json:"size"`
-	ModTime      time.Time         `json:"mod_time"`
-	FileType     FileType          `json:"file_type"`
-	Extension    string            `json:"extension"`
-	Hash         string            `json:"hash"`
-	Tags         []string          `json:"tags"`
-	Category     string            `json:"category"`
-	Metadata     map[string]string `json:"metadata"`
-	IsDuplicate  bool              `json:"is_duplicate"`
-	DuplicateOf  string            `json:"duplicate_of,omitempty"`
-	Similarity   float64           `json:"similarity"`
+	Path        string            `json:"path"`
+	Name        string            `json:"name"`
+	Size        int64             `json:"size"`
+	ModTime     time.Time         `json:"mod_time"`
+	FileType    FileType          `json:"file_type"`
+	Extension   string            `json:"extension"`
+	Hash        string            `json:"hash"`
+	Tags        []string          `json:"tags"`
+	Category    string            `json:"category"`
+	Metadata    map[string]string `json:"metadata"`
+	IsDuplicate bool              `json:"is_duplicate"`
+	DuplicateOf string            `json:"duplicate_of,omitempty"`
+	Similarity  float64           `json:"similarity"`
 }
 
 // OrganizationTask 整理任务
@@ -125,29 +125,29 @@ type DuplicateGroup struct {
 
 // Manager 智能文件整理管理器
 type Manager struct {
-	mu             sync.RWMutex
-	tasks          map[string]*OrganizationTask
-	files          map[string]*FileInfo
-	duplicates     map[string]*DuplicateGroup
-	categories     map[FileType][]string
-	tags           map[string][]string
-	autoOrganize   bool
-	scanInterval   time.Duration
-	maxFileSize    int64
+	mu              sync.RWMutex
+	tasks           map[string]*OrganizationTask
+	files           map[string]*FileInfo
+	duplicates      map[string]*DuplicateGroup
+	categories      map[FileType][]string
+	tags            map[string][]string
+	autoOrganize    bool
+	scanInterval    time.Duration
+	maxFileSize     int64
 	excludePatterns []string
 }
 
 // NewManager 创建管理器
 func NewManager() *Manager {
 	return &Manager{
-		tasks:          make(map[string]*OrganizationTask),
-		files:          make(map[string]*FileInfo),
-		duplicates:     make(map[string]*DuplicateGroup),
-		categories:     make(map[FileType][]string),
-		tags:           make(map[string][]string),
-		autoOrganize:   false,
-		scanInterval:   1 * time.Hour,
-		maxFileSize:    10 * 1024 * 1024 * 1024, // 10GB
+		tasks:           make(map[string]*OrganizationTask),
+		files:           make(map[string]*FileInfo),
+		duplicates:      make(map[string]*DuplicateGroup),
+		categories:      make(map[FileType][]string),
+		tags:            make(map[string][]string),
+		autoOrganize:    false,
+		scanInterval:    1 * time.Hour,
+		maxFileSize:     10 * 1024 * 1024 * 1024, // 10GB
 		excludePatterns: []string{".git", ".svn", "node_modules", ".DS_Store"},
 	}
 }
@@ -292,10 +292,10 @@ func (m *Manager) GetStats() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"total_files":  len(m.files),
-		"categories":   make(map[string]int),
-		"total_size":   int64(0),
-		"duplicates":   len(m.duplicates),
+		"total_files": len(m.files),
+		"categories":  make(map[string]int),
+		"total_size":  int64(0),
+		"duplicates":  len(m.duplicates),
 	}
 
 	categories := stats["categories"].(map[string]int)

@@ -341,10 +341,10 @@ func (h *Handlers) GetPopularSearches(c *gin.Context) {
 // parseSearchRequest 解析搜索请求参数
 func (h *Handlers) parseSearchRequest(c *gin.Context) *SearchRequest {
 	req := &SearchRequest{
-		Path:       c.Query("path"),
-		FileType:   FileType(c.Query("file_type")),
-		SortBy:     c.DefaultQuery("sort_by", "relevance"),
-		SortOrder:  c.DefaultQuery("sort_order", "desc"),
+		Path:      c.Query("path"),
+		FileType:  FileType(c.Query("file_type")),
+		SortBy:    c.DefaultQuery("sort_by", "relevance"),
+		SortOrder: c.DefaultQuery("sort_order", "desc"),
 	}
 
 	// 扩展名

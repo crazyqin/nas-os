@@ -9,11 +9,11 @@ import (
 // UserCostStats represents cost statistics for a user.
 type UserCostStats struct {
 	UserID          string    `json:"user_id"`
-	StorageUsed     int64     `json:"storage_used"`      // bytes
-	StorageQuota    int64     `json:"storage_quota"`     // bytes
-	MonthlyCost     float64   `json:"monthly_cost"`      // CNY
-	CostPerGB       float64   `json:"cost_per_gb"`       // CNY/GB
-	EfficiencyScore float64   `json:"efficiency_score"`  // 0-100
+	StorageUsed     int64     `json:"storage_used"`     // bytes
+	StorageQuota    int64     `json:"storage_quota"`    // bytes
+	MonthlyCost     float64   `json:"monthly_cost"`     // CNY
+	CostPerGB       float64   `json:"cost_per_gb"`      // CNY/GB
+	EfficiencyScore float64   `json:"efficiency_score"` // 0-100
 	LastUpdated     time.Time `json:"last_updated"`
 	Trend           CostTrend `json:"trend"`
 }
@@ -38,34 +38,34 @@ type DirectoryCostStats struct {
 
 // StorageEfficiencyReport represents storage efficiency analysis.
 type StorageEfficiencyReport struct {
-	GeneratedAt       time.Time           `json:"generated_at"`
-	TotalStorage      int64               `json:"total_storage"`
-	UsedStorage       int64               `json:"used_storage"`
-	AvailableStorage  int64               `json:"available_storage"`
-	UtilizationPercent float64            `json:"utilization_percent"`
-	EfficiencyScore   float64             `json:"efficiency_score"`
-	UserStats         []UserCostStats     `json:"user_stats"`
-	DirectoryStats    []DirectoryCostStats `json:"directory_stats"`
-	SavingsPotential  float64             `json:"savings_potential"` // CNY
-	Suggestions       []SavingsSuggestion `json:"suggestions"`
+	GeneratedAt        time.Time            `json:"generated_at"`
+	TotalStorage       int64                `json:"total_storage"`
+	UsedStorage        int64                `json:"used_storage"`
+	AvailableStorage   int64                `json:"available_storage"`
+	UtilizationPercent float64              `json:"utilization_percent"`
+	EfficiencyScore    float64              `json:"efficiency_score"`
+	UserStats          []UserCostStats      `json:"user_stats"`
+	DirectoryStats     []DirectoryCostStats `json:"directory_stats"`
+	SavingsPotential   float64              `json:"savings_potential"` // CNY
+	Suggestions        []SavingsSuggestion  `json:"suggestions"`
 }
 
 // SavingsSuggestion represents cost saving suggestion.
 type SavingsSuggestion struct {
-	Type        string  `json:"type"`        // archive, dedup, tier, cleanup
-	Description string  `json:"description"`
+	Type            string  `json:"type"` // archive, dedup, tier, cleanup
+	Description     string  `json:"description"`
 	PotentialSaving float64 `json:"potential_saving"` // CNY
-	Priority    int     `json:"priority"`    // 1=high, 2=medium, 3=low
-	UserID      string  `json:"user_id"`
-	Path        string  `json:"path"`
+	Priority        int     `json:"priority"`         // 1=high, 2=medium, 3=low
+	UserID          string  `json:"user_id"`
+	Path            string  `json:"path"`
 }
 
 // CostAnalyzer analyzes storage costs.
 type CostAnalyzer struct {
-	mu            sync.RWMutex
-	userStats     map[string]*UserCostStats
+	mu             sync.RWMutex
+	userStats      map[string]*UserCostStats
 	directoryStats map[string]*DirectoryCostStats
-	config        *CostConfig
+	config         *CostConfig
 }
 
 // CostConfig holds cost analysis configuration.
@@ -92,10 +92,10 @@ func NewCostAnalyzer(cfg *CostConfig) *CostAnalyzer {
 // DefaultCostConfig returns default cost configuration.
 func DefaultCostConfig() *CostConfig {
 	return &CostConfig{
-		CostPerGBMonthly: 0.69,  // ¥69 per 100GB per month = ¥0.69/GB
-		SsdPremiumFactor: 3.0,   // SSD costs 3x more
-		HddArchiveFactor: 0.3,   // HDD archive costs 30%
-		DedupSavingRate:  0.15,  // 15% savings from dedup
+		CostPerGBMonthly: 0.69,                     // ¥69 per 100GB per month = ¥0.69/GB
+		SsdPremiumFactor: 3.0,                      // SSD costs 3x more
+		HddArchiveFactor: 0.3,                      // HDD archive costs 30%
+		DedupSavingRate:  0.15,                     // 15% savings from dedup
 		ArchiveThreshold: 100 * 1024 * 1024 * 1024, // 100GB
 	}
 }
@@ -213,11 +213,11 @@ func (a *CostAnalyzer) GenerateReport(totalStorage int64) *StorageEfficiencyRepo
 
 	now := time.Now()
 	report := &StorageEfficiencyReport{
-		GeneratedAt: now,
-		TotalStorage: totalStorage,
-		UserStats:   a.getAllUserStatsCopy(),
+		GeneratedAt:    now,
+		TotalStorage:   totalStorage,
+		UserStats:      a.getAllUserStatsCopy(),
 		DirectoryStats: a.getAllDirectoryStatsCopy(),
-		Suggestions: make([]SavingsSuggestion, 0),
+		Suggestions:    make([]SavingsSuggestion, 0),
 	}
 
 	// Calculate totals
@@ -254,11 +254,11 @@ func (a *CostAnalyzer) generateSuggestions() []SavingsSuggestion {
 			utilization := float64(stats.StorageUsed) / float64(stats.StorageQuota)
 			if utilization > 0.8 {
 				suggestions = append(suggestions, SavingsSuggestion{
-					Type:           "cleanup",
-					Description:    "用户存储使用率超过80%，建议清理旧文件或升级配额",
+					Type:            "cleanup",
+					Description:     "用户存储使用率超过80%，建议清理旧文件或升级配额",
 					PotentialSaving: stats.MonthlyCost * 0.2,
-					Priority:       1,
-					UserID:         userID,
+					Priority:        1,
+					UserID:          userID,
 				})
 			}
 		}
@@ -266,11 +266,11 @@ func (a *CostAnalyzer) generateSuggestions() []SavingsSuggestion {
 		// Check for high growth rate
 		if stats.Trend.GrowthRate > 0.5 {
 			suggestions = append(suggestions, SavingsSuggestion{
-				Type:           "tier",
-				Description:    "用户存储增长迅速，建议启用冷数据分层",
+				Type:            "tier",
+				Description:     "用户存储增长迅速，建议启用冷数据分层",
 				PotentialSaving: stats.MonthlyCost * a.config.HddArchiveFactor,
-				Priority:       2,
-				UserID:         userID,
+				Priority:        2,
+				UserID:          userID,
 			})
 		}
 	}
@@ -279,21 +279,21 @@ func (a *CostAnalyzer) generateSuggestions() []SavingsSuggestion {
 	for path, stats := range a.directoryStats {
 		if stats.StorageUsed > a.config.ArchiveThreshold {
 			suggestions = append(suggestions, SavingsSuggestion{
-				Type:           "archive",
-				Description:    "目录存储超过归档阈值，建议迁移至低成本存储",
+				Type:            "archive",
+				Description:     "目录存储超过归档阈值，建议迁移至低成本存储",
 				PotentialSaving: stats.MonthlyCost * (1 - a.config.HddArchiveFactor),
-				Priority:       2,
-				Path:           path,
+				Priority:        2,
+				Path:            path,
 			})
 		}
 	}
 
 	// Dedup suggestion
 	suggestions = append(suggestions, SavingsSuggestion{
-		Type:           "dedup",
-		Description:    "启用数据去重可节省约15%存储空间",
+		Type:            "dedup",
+		Description:     "启用数据去重可节省约15%存储空间",
 		PotentialSaving: a.calculateTotalCost() * a.config.DedupSavingRate,
-		Priority:       3,
+		Priority:        3,
 	})
 
 	return suggestions
@@ -325,11 +325,11 @@ func calculateEfficiencyScore(used int64, quota int64) float64 {
 	}
 	utilization := float64(used) / float64(quota)
 	if utilization < 0.5 {
-		return 30.0 + utilization * 20 // low utilization = lower score
+		return 30.0 + utilization*20 // low utilization = lower score
 	} else if utilization > 0.9 {
 		return 100.0 // high utilization = high score
 	}
-	return 50.0 + utilization * 50
+	return 50.0 + utilization*50
 }
 
 func calculateDirectoryEfficiency(storage int64, fileCount int, avgSize float64) float64 {

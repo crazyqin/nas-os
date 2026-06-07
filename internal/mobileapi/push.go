@@ -16,20 +16,20 @@ type PushConfig struct {
 
 // FCMConfig Firebase Cloud Messaging 配置.
 type FCMConfig struct {
-	ProjectID      string `json:"projectId"`      // Firebase项目ID
-	ServiceAccount string `json:"-"`              // 服务账号JSON（敏感信息）
-	Enabled        bool   `json:"enabled"`        // 启用FCM
+	ProjectID      string `json:"projectId"` // Firebase项目ID
+	ServiceAccount string `json:"-"`         // 服务账号JSON（敏感信息）
+	Enabled        bool   `json:"enabled"`   // 启用FCM
 }
 
 // APNsConfig Apple Push Notification Service 配置.
 type APNsConfig struct {
-	TeamID    string `json:"teamId"`    // Apple Team ID
-	KeyID     string `json:"keyId"`     // 密钥ID
-	BucketID  string `json:"bucketId"`  // 环境 (production/development)
-	CertPath  string `json:"certPath"`  // 证书路径
-	KeyPath   string `json:"keyPath"`   // 密钥路径
-	Enabled   bool   `json:"enabled"`   // 启用APNs
-	UseToken  bool   `json:"useToken"`  // 使用Token认证
+	TeamID   string `json:"teamId"`   // Apple Team ID
+	KeyID    string `json:"keyId"`    // 密钥ID
+	BucketID string `json:"bucketId"` // 环境 (production/development)
+	CertPath string `json:"certPath"` // 证书路径
+	KeyPath  string `json:"keyPath"`  // 密钥路径
+	Enabled  bool   `json:"enabled"`  // 启用APNs
+	UseToken bool   `json:"useToken"` // 使用Token认证
 }
 
 // DefaultPushConfig 返回默认推送配置.

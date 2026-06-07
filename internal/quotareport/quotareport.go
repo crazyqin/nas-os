@@ -32,63 +32,63 @@ const (
 type QuotaUnit string
 
 const (
-	UnitBytes     QuotaUnit = "bytes"
-	UnitKB        QuotaUnit = "KB"
-	UnitMB        QuotaUnit = "MB"
-	UnitGB        QuotaUnit = "GB"
-	UnitTB        QuotaUnit = "TB"
-	UnitFiles     QuotaUnit = "files"
+	UnitBytes QuotaUnit = "bytes"
+	UnitKB    QuotaUnit = "KB"
+	UnitMB    QuotaUnit = "MB"
+	UnitGB    QuotaUnit = "GB"
+	UnitTB    QuotaUnit = "TB"
+	UnitFiles QuotaUnit = "files"
 )
 
 // QuotaEntry 配额条目
 type QuotaEntry struct {
-	ID           string      `json:"id"`
-	Type         QuotaType   `json:"type"`
-	Name         string      `json:"name"`         // 用户名/组名/池名
-	TargetID     string      `json:"target_id"`    // UID/GID/Pool ID
-	
+	ID       string    `json:"id"`
+	Type     QuotaType `json:"type"`
+	Name     string    `json:"name"`      // 用户名/组名/池名
+	TargetID string    `json:"target_id"` // UID/GID/Pool ID
+
 	// 配额限制
-	HardLimit    int64       `json:"hard_limit"`   // 硬限制
-	SoftLimit    int64       `json:"soft_limit"`   // 软限制
-	GracePeriod  int         `json:"grace_period"` // 宽限期（天）
-	
+	HardLimit   int64 `json:"hard_limit"`   // 硬限制
+	SoftLimit   int64 `json:"soft_limit"`   // 软限制
+	GracePeriod int   `json:"grace_period"` // 宽限期（天）
+
 	// 当前使用
-	CurrentUsage int64       `json:"current_usage"`
-	FileCount    int64       `json:"file_count"`
-	
+	CurrentUsage int64 `json:"current_usage"`
+	FileCount    int64 `json:"file_count"`
+
 	// 状态
-	Status       QuotaStatus `json:"status"`
-	LastChecked  time.Time   `json:"last_checked"`
-	
+	Status      QuotaStatus `json:"status"`
+	LastChecked time.Time   `json:"last_checked"`
+
 	// 时间戳
-	CreatedAt    time.Time   `json:"created_at"`
-	UpdatedAt    time.Time   `json:"updated_at"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // QuotaReport 配额报告
 type QuotaReport struct {
-	ID          string        `json:"id"`
-	GeneratedAt time.Time     `json:"generated_at"`
-	Period      ReportPeriod  `json:"period"`
-	
+	ID          string       `json:"id"`
+	GeneratedAt time.Time    `json:"generated_at"`
+	Period      ReportPeriod `json:"period"`
+
 	// 统计摘要
-	TotalQuotas   int           `json:"total_quotas"`
-	ExceededCount int           `json:"exceeded_count"`
-	WarningCount  int           `json:"warning_count"`
-	NormalCount   int           `json:"normal_count"`
-	
+	TotalQuotas   int `json:"total_quotas"`
+	ExceededCount int `json:"exceeded_count"`
+	WarningCount  int `json:"warning_count"`
+	NormalCount   int `json:"normal_count"`
+
 	// 使用统计
-	TotalUsage    int64         `json:"total_usage"`
-	TotalLimit    int64         `json:"total_limit"`
-	UsagePercent  float64       `json:"usage_percent"`
-	
+	TotalUsage   int64   `json:"total_usage"`
+	TotalLimit   int64   `json:"total_limit"`
+	UsagePercent float64 `json:"usage_percent"`
+
 	// 详细数据
-	Entries       []*QuotaEntry `json:"entries"`
-	TopUsers      []*UsageRank  `json:"top_users"`
-	TopGroups     []*UsageRank  `json:"top_groups"`
-	
+	Entries   []*QuotaEntry `json:"entries"`
+	TopUsers  []*UsageRank  `json:"top_users"`
+	TopGroups []*UsageRank  `json:"top_groups"`
+
 	// 趋势数据
-	TrendData     []*TrendPoint `json:"trend_data"`
+	TrendData []*TrendPoint `json:"trend_data"`
 }
 
 // ReportPeriod 报告周期
@@ -100,32 +100,32 @@ type ReportPeriod struct {
 
 // UsageRank 使用排名
 type UsageRank struct {
-	Name         string  `json:"name"`
-	Usage        int64   `json:"usage"`
-	FileCount    int64   `json:"file_count"`
-	Percent      float64 `json:"percent"`
-	GrowthRate   float64 `json:"growth_rate"` // 增长率
+	Name       string  `json:"name"`
+	Usage      int64   `json:"usage"`
+	FileCount  int64   `json:"file_count"`
+	Percent    float64 `json:"percent"`
+	GrowthRate float64 `json:"growth_rate"` // 增长率
 }
 
 // TrendPoint 趋势点
 type TrendPoint struct {
-	Timestamp    time.Time `json:"timestamp"`
-	TotalUsage   int64     `json:"total_usage"`
-	FileCount    int64     `json:"file_count"`
-	UserCount    int       `json:"user_count"`
+	Timestamp  time.Time `json:"timestamp"`
+	TotalUsage int64     `json:"total_usage"`
+	FileCount  int64     `json:"file_count"`
+	UserCount  int       `json:"user_count"`
 }
 
 // QuotaAlert 配额告警
 type QuotaAlert struct {
-	ID          string      `json:"id"`
-	QuotaID     string      `json:"quota_id"`
-	Type        AlertType   `json:"type"`
-	Severity    AlertSeverity `json:"severity"`
-	Message     string      `json:"message"`
-	Threshold   float64     `json:"threshold"`
-	Current     float64     `json:"current"`
-	CreatedAt   time.Time   `json:"created_at"`
-	Acknowledged bool       `json:"acknowledged"`
+	ID           string        `json:"id"`
+	QuotaID      string        `json:"quota_id"`
+	Type         AlertType     `json:"type"`
+	Severity     AlertSeverity `json:"severity"`
+	Message      string        `json:"message"`
+	Threshold    float64       `json:"threshold"`
+	Current      float64       `json:"current"`
+	CreatedAt    time.Time     `json:"created_at"`
+	Acknowledged bool          `json:"acknowledged"`
 }
 
 // AlertType 告警类型
@@ -149,37 +149,37 @@ const (
 
 // QuotaManager 配额管理器
 type QuotaManager struct {
-	mu       sync.RWMutex
-	quotas   map[string]*QuotaEntry   // id -> entry
-	reports  map[string]*QuotaReport  // id -> report
-	alerts   []*QuotaAlert
-	config   *QuotaConfig
+	mu      sync.RWMutex
+	quotas  map[string]*QuotaEntry  // id -> entry
+	reports map[string]*QuotaReport // id -> report
+	alerts  []*QuotaAlert
+	config  *QuotaConfig
 }
 
 // QuotaConfig 配额配置
 type QuotaConfig struct {
-	Enabled         bool    `json:"enabled"`
-	WarningThreshold float64 `json:"warning_threshold"`  // 80%
-	ExceededThreshold float64 `json:"exceeded_threshold"` // 100%
-	CriticalThreshold float64 `json:"critical_threshold"` // 95%
-	DefaultGracePeriod int    `json:"default_grace_period"` // 7天
-	ReportInterval   int     `json:"report_interval"`     // 小时
-	MaxReports       int     `json:"max_reports"`
-	EnableAlerts     bool    `json:"enable_alerts"`
-	AlertEmails      []string `json:"alert_emails,omitempty"`
+	Enabled            bool     `json:"enabled"`
+	WarningThreshold   float64  `json:"warning_threshold"`    // 80%
+	ExceededThreshold  float64  `json:"exceeded_threshold"`   // 100%
+	CriticalThreshold  float64  `json:"critical_threshold"`   // 95%
+	DefaultGracePeriod int      `json:"default_grace_period"` // 7天
+	ReportInterval     int      `json:"report_interval"`      // 小时
+	MaxReports         int      `json:"max_reports"`
+	EnableAlerts       bool     `json:"enable_alerts"`
+	AlertEmails        []string `json:"alert_emails,omitempty"`
 }
 
 // DefaultQuotaConfig 默认配置
 func DefaultQuotaConfig() *QuotaConfig {
 	return &QuotaConfig{
-		Enabled:           true,
-		WarningThreshold:  80.0,
-		ExceededThreshold: 100.0,
-		CriticalThreshold: 95.0,
+		Enabled:            true,
+		WarningThreshold:   80.0,
+		ExceededThreshold:  100.0,
+		CriticalThreshold:  95.0,
 		DefaultGracePeriod: 7,
-		ReportInterval:    24,
-		MaxReports:        100,
-		EnableAlerts:      true,
+		ReportInterval:     24,
+		MaxReports:         100,
+		EnableAlerts:       true,
 	}
 }
 
@@ -508,11 +508,11 @@ func (m *QuotaManager) GetStats() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"total_quotas":   len(m.quotas),
-		"total_reports":  len(m.reports),
-		"total_alerts":   len(m.alerts),
-		"by_type":        make(map[QuotaType]int),
-		"by_status":      make(map[QuotaStatus]int),
+		"total_quotas":  len(m.quotas),
+		"total_reports": len(m.reports),
+		"total_alerts":  len(m.alerts),
+		"by_type":       make(map[QuotaType]int),
+		"by_status":     make(map[QuotaStatus]int),
 	}
 
 	byType := stats["by_type"].(map[QuotaType]int)

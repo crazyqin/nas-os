@@ -16,11 +16,11 @@ import (
 // Manager 整机备份管理器.
 type Manager struct {
 	mu            sync.RWMutex
-	agents        map[string]*AgentInfo      // agentID -> AgentInfo
-	tasks         map[string]*BackupTask     // taskID -> BackupTask
-	restorePoints map[string]*RestorePoint   // pointID -> RestorePoint
-	restoreJobs   map[string]*RestoreJob     // jobID -> RestoreJob
-	storagePools  map[string]*StoragePool    // poolID -> StoragePool
+	agents        map[string]*AgentInfo    // agentID -> AgentInfo
+	tasks         map[string]*BackupTask   // taskID -> BackupTask
+	restorePoints map[string]*RestorePoint // pointID -> RestorePoint
+	restoreJobs   map[string]*RestoreJob   // jobID -> RestoreJob
+	storagePools  map[string]*StoragePool  // poolID -> StoragePool
 	configPath    string
 }
 

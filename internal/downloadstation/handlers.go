@@ -700,10 +700,10 @@ func (h *Handlers) healthCheck(c *gin.Context) {
 	stats := h.manager.GetStats()
 
 	result := HealthCheckResult{
-		Status:    "healthy",
-		ActiveTasks: stats.ActiveTasks,
-		TotalTasks:  stats.TotalTasks,
-		QueueSize:   h.manager.queue.Len(),
+		Status:       "healthy",
+		ActiveTasks:  stats.ActiveTasks,
+		TotalTasks:   stats.TotalTasks,
+		QueueSize:    h.manager.queue.Len(),
 		CurrentSpeed: stats.CurrentSpeed,
 	}
 
@@ -717,9 +717,9 @@ func (h *Handlers) healthCheck(c *gin.Context) {
 
 // HealthCheckResult 健康检查结果.
 type HealthCheckResult struct {
-	Status       string `json:"status"`        // healthy, degraded, unhealthy
-	ActiveTasks  int    `json:"activeTasks"`   // 活跃任务数
-	TotalTasks   int    `json:"totalTasks"`    // 总任务数
-	QueueSize    int    `json:"queueSize"`     // 队列大小
-	CurrentSpeed int64  `json:"currentSpeed"`  // 当前速度
+	Status       string `json:"status"`       // healthy, degraded, unhealthy
+	ActiveTasks  int    `json:"activeTasks"`  // 活跃任务数
+	TotalTasks   int    `json:"totalTasks"`   // 总任务数
+	QueueSize    int    `json:"queueSize"`    // 队列大小
+	CurrentSpeed int64  `json:"currentSpeed"` // 当前速度
 }

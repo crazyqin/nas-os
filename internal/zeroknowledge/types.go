@@ -94,15 +94,15 @@ const (
 
 // EncryptedKey 加密后的密钥材料.
 type EncryptedKey struct {
-	ID            string                `json:"id"`
-	UserID        string                `json:"user_id"`
-	EncryptedData string                `json:"encrypted_data"` // Base64 编码的加密密钥
-	Salt          string                `json:"salt"`           // Base64 编码的盐值
+	ID            string                 `json:"id"`
+	UserID        string                 `json:"user_id"`
+	EncryptedData string                 `json:"encrypted_data"` // Base64 编码的加密密钥
+	Salt          string                 `json:"salt"`           // Base64 编码的盐值
 	KDF           KeyDerivationAlgorithm `json:"kdf"`
-	Algorithm     EncryptionAlgorithm   `json:"algorithm"`
-	KDFIterations int                   `json:"kdf_iterations"`
-	CreatedAt     time.Time             `json:"created_at"`
-	UpdatedAt     time.Time             `json:"updated_at"`
+	Algorithm     EncryptionAlgorithm    `json:"algorithm"`
+	KDFIterations int                    `json:"kdf_iterations"`
+	CreatedAt     time.Time              `json:"created_at"`
+	UpdatedAt     time.Time              `json:"updated_at"`
 }
 
 // EncryptedFile 加密文件元数据.
@@ -121,28 +121,28 @@ type EncryptedFile struct {
 
 // KeyShare 密钥分片.
 type KeyShare struct {
-	ID        string      `json:"id"`
-	KeyID     string      `json:"key_id"`
-	UserID    string      `json:"user_id"`
-	ShareData string      `json:"share_data"` // Base64 编码的分片数据
-	ShareIndex int        `json:"share_index"`
-	Threshold int         `json:"threshold"` // 恢复所需最小分片数
-	TotalShares int       `json:"total_shares"`
-	Status    ShareStatus `json:"status"`
-	CreatedAt time.Time   `json:"created_at"`
-	UsedAt    *time.Time  `json:"used_at,omitempty"`
+	ID          string      `json:"id"`
+	KeyID       string      `json:"key_id"`
+	UserID      string      `json:"user_id"`
+	ShareData   string      `json:"share_data"` // Base64 编码的分片数据
+	ShareIndex  int         `json:"share_index"`
+	Threshold   int         `json:"threshold"` // 恢复所需最小分片数
+	TotalShares int         `json:"total_shares"`
+	Status      ShareStatus `json:"status"`
+	CreatedAt   time.Time   `json:"created_at"`
+	UsedAt      *time.Time  `json:"used_at,omitempty"`
 }
 
 // SharedFile 零知识文件共享.
 type SharedFile struct {
-	ID            string    `json:"id"`
-	FileID        string    `json:"file_id"`
-	OwnerID       string    `json:"owner_id"`
-	RecipientID   string    `json:"recipient_id"`
-	EncryptedDEK  string    `json:"encrypted_dek"` // 用接收方公钥加密的数据加密密钥
-	Permission    string    `json:"permission"`     // read, write
-	ExpiresAt     *time.Time `json:"expires_at,omitempty"`
-	CreatedAt     time.Time `json:"created_at"`
+	ID           string     `json:"id"`
+	FileID       string     `json:"file_id"`
+	OwnerID      string     `json:"owner_id"`
+	RecipientID  string     `json:"recipient_id"`
+	EncryptedDEK string     `json:"encrypted_dek"` // 用接收方公钥加密的数据加密密钥
+	Permission   string     `json:"permission"`    // read, write
+	ExpiresAt    *time.Time `json:"expires_at,omitempty"`
+	CreatedAt    time.Time  `json:"created_at"`
 }
 
 // AuditLog 审计日志.
@@ -200,17 +200,17 @@ func DefaultZKConfig() *ZKConfig {
 
 // DeriveKeyRequest 密钥派生请求.
 type DeriveKeyRequest struct {
-	UserID   string                `json:"user_id" validate:"required"`
-	Password string                `json:"password" validate:"required,min=8"`
+	UserID   string                 `json:"user_id" validate:"required"`
+	Password string                 `json:"password" validate:"required,min=8"`
 	KDF      KeyDerivationAlgorithm `json:"kdf,omitempty"`
 }
 
 // DeriveKeyResponse 密钥派生响应.
 type DeriveKeyResponse struct {
-	KeyID     string                `json:"key_id"`
+	KeyID     string                 `json:"key_id"`
 	Algorithm KeyDerivationAlgorithm `json:"algorithm"`
-	Salt      string                `json:"salt"`
-	Message   string                `json:"message"`
+	Salt      string                 `json:"salt"`
+	Message   string                 `json:"message"`
 }
 
 // EncryptFileRequest 文件加密请求.
@@ -245,10 +245,10 @@ type DecryptFileResponse struct {
 
 // CreateSharesRequest 创建分片请求.
 type CreateSharesRequest struct {
-	UserID       string `json:"user_id" validate:"required"`
-	KeyID        string `json:"key_id" validate:"required"`
-	Threshold    int    `json:"threshold" validate:"required,min=2,max=10"`
-	TotalShares  int    `json:"total_shares" validate:"required,min=2,max=10"`
+	UserID      string `json:"user_id" validate:"required"`
+	KeyID       string `json:"key_id" validate:"required"`
+	Threshold   int    `json:"threshold" validate:"required,min=2,max=10"`
+	TotalShares int    `json:"total_shares" validate:"required,min=2,max=10"`
 }
 
 // CreateSharesResponse 创建分片响应.
@@ -272,18 +272,18 @@ type RecoverKeyRequest struct {
 
 // RecoverKeyResponse 密钥恢复响应.
 type RecoverKeyResponse struct {
-	KeyID          string `json:"key_id"`
-	RecoveredKey   string `json:"recovered_key"` // Base64 编码
-	SharesUsed     int    `json:"shares_used"`
+	KeyID        string `json:"key_id"`
+	RecoveredKey string `json:"recovered_key"` // Base64 编码
+	SharesUsed   int    `json:"shares_used"`
 }
 
 // ShareFileRequest 文件共享请求.
 type ShareFileRequest struct {
-	FileID      string  `json:"file_id" validate:"required"`
-	OwnerID     string  `json:"owner_id" validate:"required"`
-	RecipientID string  `json:"recipient_id" validate:"required"`
-	Permission  string  `json:"permission" validate:"required,oneof=read write"`
-	ExpiresIn   int     `json:"expires_in,omitempty"` // 小时数
+	FileID      string `json:"file_id" validate:"required"`
+	OwnerID     string `json:"owner_id" validate:"required"`
+	RecipientID string `json:"recipient_id" validate:"required"`
+	Permission  string `json:"permission" validate:"required,oneof=read write"`
+	ExpiresIn   int    `json:"expires_in,omitempty"` // 小时数
 }
 
 // ShareFileResponse 文件共享响应.

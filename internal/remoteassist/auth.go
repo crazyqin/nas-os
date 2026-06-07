@@ -24,9 +24,9 @@ type AuthManager struct {
 
 // LoginAttempt 登录尝试.
 type LoginAttempt struct {
-	IP        string    `json:"ip"`         // IP地址
-	Count     int       `json:"count"`      // 尝试次数
-	LastTry   time.Time `json:"last_try"`   // 最后尝试时间
+	IP          string     `json:"ip"`           // IP地址
+	Count       int        `json:"count"`        // 尝试次数
+	LastTry     time.Time  `json:"last_try"`     // 最后尝试时间
 	LockedUntil *time.Time `json:"locked_until"` // 锁定截止时间
 }
 

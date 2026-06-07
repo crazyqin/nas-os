@@ -287,9 +287,9 @@ func TestTemplateSearch(t *testing.T) {
 
 func TestStartOrderCalculation(t *testing.T) {
 	services := map[string]*ServiceNode{
-		"web": {Name: "web", DependsOn: []string{"app"}},
-		"app": {Name: "app", DependsOn: []string{"db", "redis"}},
-		"db":  {Name: "db"},
+		"web":   {Name: "web", DependsOn: []string{"app"}},
+		"app":   {Name: "app", DependsOn: []string{"db", "redis"}},
+		"db":    {Name: "db"},
 		"redis": {Name: "redis"},
 	}
 	order := CalculateStartOrder(services)
@@ -327,11 +327,11 @@ func TestNodePositionCalculation(t *testing.T) {
 	assert.Equal(t, 100, pos0.Y)
 
 	pos3 := CalculateNodePosition(3)
-	assert.Equal(t, 100, pos3.X)        // 第二行第一列
-	assert.Equal(t, 350, pos3.Y)        // 100 + 180 + 70
+	assert.Equal(t, 100, pos3.X) // 第二行第一列
+	assert.Equal(t, 350, pos3.Y) // 100 + 180 + 70
 
 	pos1 := CalculateNodePosition(1)
-	assert.Equal(t, 450, pos1.X)        // 100 + 280 + 70
+	assert.Equal(t, 450, pos1.X) // 100 + 280 + 70
 }
 
 func TestPortMappingParsing(t *testing.T) {

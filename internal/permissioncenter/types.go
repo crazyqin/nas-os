@@ -130,26 +130,26 @@ type Permission struct {
 	Resource    string         `json:"resource"`
 	Action      AccessAction   `json:"action"`
 	// DataScope 仅对数据权限有效.
-	DataScope   DataScope      `json:"data_scope,omitempty"`
+	DataScope DataScope `json:"data_scope,omitempty"`
 	// Conditions 额外条件（如IP白名单、时间范围等）.
-	Conditions  map[string]string `json:"conditions,omitempty"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
+	Conditions map[string]string `json:"conditions,omitempty"`
+	CreatedAt  time.Time         `json:"created_at"`
+	UpdatedAt  time.Time         `json:"updated_at"`
 }
 
 // Role 角色定义.
 type Role struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description,omitempty"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
 	// ParentID 父角色ID，用于权限继承.
-	ParentID    string   `json:"parent_id,omitempty"`
+	ParentID string `json:"parent_id,omitempty"`
 	// Permissions 该角色拥有的权限ID列表.
 	Permissions []string `json:"permissions"`
 	// IsSystem 是否系统内置角色（不可删除）.
-	IsSystem    bool     `json:"is_system"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	IsSystem  bool      `json:"is_system"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // UserRole 用户-角色关联.
@@ -162,34 +162,34 @@ type UserRole struct {
 
 // Delegation 权限委托.
 type Delegation struct {
-	ID          string    `json:"id"`
-	FromUserID  string    `json:"from_user_id"`
-	ToUserID    string    `json:"to_user_id"`
-	RoleID      string    `json:"role_id"`
+	ID         string `json:"id"`
+	FromUserID string `json:"from_user_id"`
+	ToUserID   string `json:"to_user_id"`
+	RoleID     string `json:"role_id"`
 	// DelegatedPermissions 委托的权限ID列表（为空表示委托角色的所有权限）.
-	DelegatedPermissions []string `json:"delegated_permissions,omitempty"`
-	Reason      string    `json:"reason,omitempty"`
-	StartTime   time.Time `json:"start_time"`
-	EndTime     time.Time `json:"end_time"`
-	IsActive    bool      `json:"is_active"`
-	CreatedAt   time.Time `json:"created_at"`
+	DelegatedPermissions []string  `json:"delegated_permissions,omitempty"`
+	Reason               string    `json:"reason,omitempty"`
+	StartTime            time.Time `json:"start_time"`
+	EndTime              time.Time `json:"end_time"`
+	IsActive             bool      `json:"is_active"`
+	CreatedAt            time.Time `json:"created_at"`
 }
 
 // TempGrant 临时授权.
 type TempGrant struct {
-	ID          string       `json:"id"`
-	UserID      string       `json:"user_id"`
-	PermissionID string      `json:"permission_id"`
+	ID           string `json:"id"`
+	UserID       string `json:"user_id"`
+	PermissionID string `json:"permission_id"`
 	// Resource 覆盖的资源（可选，为空使用权限定义的资源）.
-	Resource    string       `json:"resource,omitempty"`
+	Resource string `json:"resource,omitempty"`
 	// Conditions 覆盖的条件.
-	Conditions  map[string]string `json:"conditions,omitempty"`
-	Reason      string       `json:"reason,omitempty"`
-	GrantedBy   string       `json:"granted_by"`
-	StartTime   time.Time    `json:"start_time"`
-	EndTime     time.Time    `json:"end_time"`
-	IsActive    bool         `json:"is_active"`
-	CreatedAt   time.Time    `json:"created_at"`
+	Conditions map[string]string `json:"conditions,omitempty"`
+	Reason     string            `json:"reason,omitempty"`
+	GrantedBy  string            `json:"granted_by"`
+	StartTime  time.Time         `json:"start_time"`
+	EndTime    time.Time         `json:"end_time"`
+	IsActive   bool              `json:"is_active"`
+	CreatedAt  time.Time         `json:"created_at"`
 }
 
 // AuditLog 权限审计日志.
@@ -201,11 +201,11 @@ type AuditLog struct {
 	TargetID  string      `json:"target_id,omitempty"`
 	Details   string      `json:"details,omitempty"`
 	// Before 变更前状态.
-	Before    string      `json:"before,omitempty"`
+	Before string `json:"before,omitempty"`
 	// After 变更后状态.
-	After     string      `json:"after,omitempty"`
-	IPAddress string      `json:"ip_address,omitempty"`
-	UserAgent string      `json:"user_agent,omitempty"`
+	After     string `json:"after,omitempty"`
+	IPAddress string `json:"ip_address,omitempty"`
+	UserAgent string `json:"user_agent,omitempty"`
 }
 
 // AccessRequest 访问检查请求.
@@ -214,21 +214,21 @@ type AccessRequest struct {
 	Resource string       `json:"resource"`
 	Action   AccessAction `json:"action"`
 	// Context 额外上下文（如请求IP、时间等）.
-	Context    map[string]string `json:"context,omitempty"`
+	Context map[string]string `json:"context,omitempty"`
 }
 
 // AccessResult 访问检查结果.
 type AccessResult struct {
-	Allowed    bool     `json:"allowed"`
-	Reason     string   `json:"reason,omitempty"`
+	Allowed bool   `json:"allowed"`
+	Reason  string `json:"reason,omitempty"`
 	// MatchedPermissions 匹配到的权限ID列表.
 	MatchedPermissions []string `json:"matched_permissions,omitempty"`
 	// AppliedScopes 应用的数据范围.
 	AppliedScopes []DataScope `json:"applied_scopes,omitempty"`
 	// IsDelegated 是否通过委托授权.
-	IsDelegated bool   `json:"is_delegated"`
+	IsDelegated bool `json:"is_delegated"`
 	// IsTempGrant 是否通过临时授权.
-	IsTempGrant bool   `json:"is_temp_grant"`
+	IsTempGrant bool `json:"is_temp_grant"`
 }
 
 // QueryParams 通用查询参数.
@@ -263,18 +263,18 @@ type AuditLogListResult struct {
 
 // UserPermissionSummary 用户权限汇总.
 type UserPermissionSummary struct {
-	UserID          string        `json:"user_id"`
-	Roles           []*Role       `json:"roles"`
-	DirectPermissions []*Permission `json:"direct_permissions"`
+	UserID               string                 `json:"user_id"`
+	Roles                []*Role                `json:"roles"`
+	DirectPermissions    []*Permission          `json:"direct_permissions"`
 	DelegatedPermissions []*DelegatedPermission `json:"delegated_permissions"`
-	TempPermissions []*TempGrant  `json:"temp_permissions"`
-	AllPermissions  []*Permission `json:"all_permissions"`
+	TempPermissions      []*TempGrant           `json:"temp_permissions"`
+	AllPermissions       []*Permission          `json:"all_permissions"`
 }
 
 // DelegatedPermission 委托的权限信息.
 type DelegatedPermission struct {
-	Delegation *Delegation  `json:"delegation"`
-	Permission *Permission  `json:"permission"`
+	Delegation *Delegation `json:"delegation"`
+	Permission *Permission `json:"permission"`
 }
 
 // PermissionCheckResult 权限检查结果（批量检查用）.

@@ -30,53 +30,53 @@ const (
 type KMIPKeyState string
 
 const (
-	KMIPStatePreActive    KMIPKeyState = "pre_active"
-	KMIPStateActive       KMIPKeyState = "active"
-	KMIPStateDeactivated  KMIPKeyState = "deactivated"
-	KMIPStateCompromised  KMIPKeyState = "compromised"
-	KMIPStateDestroyed    KMIPKeyState = "destroyed"
+	KMIPStatePreActive            KMIPKeyState = "pre_active"
+	KMIPStateActive               KMIPKeyState = "active"
+	KMIPStateDeactivated          KMIPKeyState = "deactivated"
+	KMIPStateCompromised          KMIPKeyState = "compromised"
+	KMIPStateDestroyed            KMIPKeyState = "destroyed"
 	KMIPStateDestroyedCompromised KMIPKeyState = "destroyed_compromised"
 )
 
 // KMIPKey represents a managed key object.
 type KMIPKey struct {
-	ID           string         `json:"id"`
-	UniqueIdentifier string     `json:"unique_identifier"`
-	Name         string         `json:"name"`
-	ObjectType   KMIPObjectType `json:"object_type"`
-	KeyState     KMIPKeyState   `json:"key_state"`
-	KeyAlgorithm string         `json:"key_algorithm"`    // AES, RSA, etc.
-	KeyLength    int            `json:"key_length"`       // Bits
-	KeyUsage     []string       `json:"key_usage"`        // encrypt, decrypt, sign, verify
-	CreatedAt    time.Time      `json:"created_at"`
-	ActivatedAt  time.Time      `json:"activated_at,omitempty"`
-	DeactivatedAt time.Time     `json:"deactivated_at,omitempty"`
-	ExpiresAt    time.Time      `json:"expires_at,omitempty"`
-	CreatedBy    string         `json:"created_by"`       // User or service
-	KMSProvider  string         `json:"kms_provider"`     // External KMS name if applicable
-	Tags         []string       `json:"tags"`
+	ID               string         `json:"id"`
+	UniqueIdentifier string         `json:"unique_identifier"`
+	Name             string         `json:"name"`
+	ObjectType       KMIPObjectType `json:"object_type"`
+	KeyState         KMIPKeyState   `json:"key_state"`
+	KeyAlgorithm     string         `json:"key_algorithm"` // AES, RSA, etc.
+	KeyLength        int            `json:"key_length"`    // Bits
+	KeyUsage         []string       `json:"key_usage"`     // encrypt, decrypt, sign, verify
+	CreatedAt        time.Time      `json:"created_at"`
+	ActivatedAt      time.Time      `json:"activated_at,omitempty"`
+	DeactivatedAt    time.Time      `json:"deactivated_at,omitempty"`
+	ExpiresAt        time.Time      `json:"expires_at,omitempty"`
+	CreatedBy        string         `json:"created_by"`   // User or service
+	KMSProvider      string         `json:"kms_provider"` // External KMS name if applicable
+	Tags             []string       `json:"tags"`
 }
 
 // KMIPClientConfig represents KMIP client configuration.
 type KMIPClientConfig struct {
-	ServerAddress    string        `json:"server_address"`
-	ServerPort       int           `json:"server_port"`         // Default 5696
-	UseTLS           bool          `json:"use_tls"`
-	CertificatePath  string        `json:"certificate_path"`
-	KeyPath          string        `json:"key_path"`
-	TimeoutSeconds   int           `json:"timeout_seconds"`
-	ConnectionPoolSize int         `json:"connection_pool_size"`
-	KMSName          string        `json:"kms_name"`            // External KMS identifier
+	ServerAddress      string `json:"server_address"`
+	ServerPort         int    `json:"server_port"` // Default 5696
+	UseTLS             bool   `json:"use_tls"`
+	CertificatePath    string `json:"certificate_path"`
+	KeyPath            string `json:"key_path"`
+	TimeoutSeconds     int    `json:"timeout_seconds"`
+	ConnectionPoolSize int    `json:"connection_pool_size"`
+	KMSName            string `json:"kms_name"` // External KMS identifier
 }
 
 // KMIPManager manages KMIP 2.0 key lifecycle operations.
 type KMIPManager struct {
-	mu          sync.RWMutex
-	keys        map[string]*KMIPKey
+	mu           sync.RWMutex
+	keys         map[string]*KMIPKey
 	clientConfig *KMIPClientConfig
-	connections map[string]net.Conn // Connection pool
-	logger      *zap.Logger
-	configPath  string
+	connections  map[string]net.Conn // Connection pool
+	logger       *zap.Logger
+	configPath   string
 }
 
 // NewKMIPManager creates a new KMIP manager.
@@ -86,20 +86,20 @@ func NewKMIPManager(configPath string, logger *zap.Logger) (*KMIPManager, error)
 	}
 
 	config := &KMIPClientConfig{
-		ServerAddress:    "localhost",
-		ServerPort:       5696,
-		UseTLS:           true,
-		TimeoutSeconds:   30,
+		ServerAddress:      "localhost",
+		ServerPort:         5696,
+		UseTLS:             true,
+		TimeoutSeconds:     30,
 		ConnectionPoolSize: 10,
-		KMSName:          "default",
+		KMSName:            "default",
 	}
 
 	m := &KMIPManager{
-		keys:        make(map[string]*KMIPKey),
+		keys:         make(map[string]*KMIPKey),
 		clientConfig: config,
-		connections: make(map[string]net.Conn),
-		logger:      logger,
-		configPath:  configPath,
+		connections:  make(map[string]net.Conn),
+		logger:       logger,
+		configPath:   configPath,
 	}
 
 	if err := m.loadConfig(); err != nil && !os.IsNotExist(err) {
@@ -125,18 +125,18 @@ func (m *KMIPManager) CreateKey(ctx context.Context, name string, objectType KMI
 	uniqueID := uuid.New().String()
 
 	key := &KMIPKey{
-		ID:             keyID,
+		ID:               keyID,
 		UniqueIdentifier: uniqueID,
-		Name:           name,
-		ObjectType:     objectType,
-		KeyState:       KMIPStatePreActive,
-		KeyAlgorithm:   algorithm,
-		KeyLength:      length,
-		KeyUsage:       usage,
-		CreatedAt:      time.Now(),
-		CreatedBy:      createdBy,
-		KMSProvider:    m.clientConfig.KMSName,
-		Tags:           []string{},
+		Name:             name,
+		ObjectType:       objectType,
+		KeyState:         KMIPStatePreActive,
+		KeyAlgorithm:     algorithm,
+		KeyLength:        length,
+		KeyUsage:         usage,
+		CreatedAt:        time.Now(),
+		CreatedBy:        createdBy,
+		KMSProvider:      m.clientConfig.KMSName,
+		Tags:             []string{},
 	}
 
 	m.keys[keyID] = key
@@ -158,15 +158,15 @@ func (m *KMIPManager) RegisterKey(ctx context.Context, uniqueIdentifier string, 
 	keyID := uuid.New().String()
 
 	key := &KMIPKey{
-		ID:             keyID,
+		ID:               keyID,
 		UniqueIdentifier: uniqueIdentifier,
-		Name:           name,
-		ObjectType:     objectType,
-		KeyState:       KMIPStateActive,
-		CreatedAt:      time.Now(),
-		ActivatedAt:    time.Now(),
-		KMSProvider:    kmsProvider,
-		Tags:           []string{},
+		Name:             name,
+		ObjectType:       objectType,
+		KeyState:         KMIPStateActive,
+		CreatedAt:        time.Now(),
+		ActivatedAt:      time.Now(),
+		KMSProvider:      kmsProvider,
+		Tags:             []string{},
 	}
 
 	m.keys[keyID] = key
@@ -336,12 +336,12 @@ func (m *KMIPManager) GetKeyStats(ctx context.Context) map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	stats := map[string]int{
-		"total":      len(m.keys),
-		"pre_active": 0,
-		"active":     0,
+		"total":       len(m.keys),
+		"pre_active":  0,
+		"active":      0,
 		"deactivated": 0,
 		"compromised": 0,
-		"destroyed":  0,
+		"destroyed":   0,
 	}
 
 	byType := map[string]int{}
@@ -354,10 +354,10 @@ func (m *KMIPManager) GetKeyStats(ctx context.Context) map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"key_stats":     stats,
-		"by_type":       byType,
-		"by_algorithm":  byAlgorithm,
-		"external_kms":  m.clientConfig.KMSName,
+		"key_stats":      stats,
+		"by_type":        byType,
+		"by_algorithm":   byAlgorithm,
+		"external_kms":   m.clientConfig.KMSName,
 		"server_address": m.clientConfig.ServerAddress,
 	}
 }
@@ -370,7 +370,7 @@ func (m *KMIPManager) loadConfig() error {
 	}
 
 	var cfg struct {
-		ClientConfig *KMIPClientConfig `json:"client_config"`
+		ClientConfig *KMIPClientConfig   `json:"client_config"`
 		Keys         map[string]*KMIPKey `json:"keys"`
 	}
 
@@ -389,7 +389,7 @@ func (m *KMIPManager) loadConfig() error {
 // saveConfig saves KMIP configuration.
 func (m *KMIPManager) saveConfig() error {
 	cfg := struct {
-		ClientConfig *KMIPClientConfig `json:"client_config"`
+		ClientConfig *KMIPClientConfig   `json:"client_config"`
 		Keys         map[string]*KMIPKey `json:"keys"`
 	}{
 		ClientConfig: m.clientConfig,

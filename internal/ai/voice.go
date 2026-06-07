@@ -19,16 +19,16 @@ import (
 
 // VoiceCommand 语音命令
 type VoiceCommand struct {
-	ID        string            `json:"id"`
-	Text      string            `json:"text"`      // 识别后的文本
-	Intent    string            `json:"intent"`    // 识别的意图
-	Params    map[string]string `json:"params"`    // 提取的参数
-	Confidence float64          `json:"confidence"` // 识别置信度
-	Language  string            `json:"language"`  // 语言 (zh-CN, en-US等)
-	Status    string            `json:"status"`    // pending, processing, completed, failed
-	Result    *CommandResult    `json:"result,omitempty"`
-	Error     string            `json:"error,omitempty"`
-	CreatedAt time.Time         `json:"createdAt"`
+	ID         string            `json:"id"`
+	Text       string            `json:"text"`       // 识别后的文本
+	Intent     string            `json:"intent"`     // 识别的意图
+	Params     map[string]string `json:"params"`     // 提取的参数
+	Confidence float64           `json:"confidence"` // 识别置信度
+	Language   string            `json:"language"`   // 语言 (zh-CN, en-US等)
+	Status     string            `json:"status"`     // pending, processing, completed, failed
+	Result     *CommandResult    `json:"result,omitempty"`
+	Error      string            `json:"error,omitempty"`
+	CreatedAt  time.Time         `json:"createdAt"`
 }
 
 // CommandResult 命令执行结果
@@ -42,14 +42,14 @@ type CommandResult struct {
 
 // VoiceIntent 语音意图定义
 type VoiceIntent struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`        // 意图名称
-	Description string            `json:"description"` // 描述
-	Patterns    []string          `json:"patterns"`    // 匹配模式 (正则)
-	Params      []IntentParam      `json:"params"`      // 参数定义
-	Handler     string            `json:"handler"`     // 处理器名称
-	Enabled     bool              `json:"enabled"`     // 是否启用
-	Priority    int               `json:"priority"`    // 优先级
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`        // 意图名称
+	Description string        `json:"description"` // 描述
+	Patterns    []string      `json:"patterns"`    // 匹配模式 (正则)
+	Params      []IntentParam `json:"params"`      // 参数定义
+	Handler     string        `json:"handler"`     // 处理器名称
+	Enabled     bool          `json:"enabled"`     // 是否启用
+	Priority    int           `json:"priority"`    // 优先级
 }
 
 // IntentParam 意图参数
@@ -63,13 +63,13 @@ type IntentParam struct {
 
 // VoiceController 语音控制器
 type VoiceController struct {
-	mu          sync.RWMutex
-	intents     map[string]*VoiceIntent
-	handlers    map[string]CommandHandler
-	history     []*VoiceCommand
-	maxHistory  int
+	mu           sync.RWMutex
+	intents      map[string]*VoiceIntent
+	handlers     map[string]CommandHandler
+	history      []*VoiceCommand
+	maxHistory   int
 	speechToText SpeechToTextEngine
-	enabled     bool
+	enabled      bool
 }
 
 // CommandHandler 命令处理器接口
@@ -85,18 +85,18 @@ type SpeechToTextEngine interface {
 
 // VoiceConfig 语音控制配置
 type VoiceConfig struct {
-	Enabled      bool     `json:"enabled"`
-	Languages    []string `json:"languages"`    // 支持的语言
-	MaxHistory   int      `json:"maxHistory"`   // 历史记录最大数量
-	ConfidenceThreshold float64 `json:"confidenceThreshold"` // 置信度阈值
+	Enabled             bool     `json:"enabled"`
+	Languages           []string `json:"languages"`           // 支持的语言
+	MaxHistory          int      `json:"maxHistory"`          // 历史记录最大数量
+	ConfidenceThreshold float64  `json:"confidenceThreshold"` // 置信度阈值
 }
 
 // DefaultVoiceConfig 默认配置
 func DefaultVoiceConfig() VoiceConfig {
 	return VoiceConfig{
-		Enabled:      true,
-		Languages:    []string{"zh-CN", "en-US", "ja-JP"},
-		MaxHistory:   100,
+		Enabled:             true,
+		Languages:           []string{"zh-CN", "en-US", "ja-JP"},
+		MaxHistory:          100,
 		ConfidenceThreshold: 0.7,
 	}
 }
@@ -113,7 +113,7 @@ func NewVoiceController(config VoiceConfig) *VoiceController {
 
 	// 注册默认意图
 	vc.registerDefaultIntents()
-	
+
 	return vc
 }
 
@@ -221,7 +221,7 @@ func (vc *VoiceController) registerDefaultIntents() {
 				`(?i)system status`,
 				`(?i)check status`,
 			},
-			Params: []IntentParam{},
+			Params:   []IntentParam{},
 			Handler:  "system_status",
 			Enabled:  true,
 			Priority: 10,
@@ -237,7 +237,7 @@ func (vc *VoiceController) registerDefaultIntents() {
 				`(?i)storage info`,
 				`(?i)disk space`,
 			},
-			Params: []IntentParam{},
+			Params:   []IntentParam{},
 			Handler:  "storage_info",
 			Enabled:  true,
 			Priority: 10,
@@ -273,7 +273,7 @@ func (vc *VoiceController) registerDefaultIntents() {
 				`(?i)show albums`,
 				`(?i)my albums`,
 			},
-			Params: []IntentParam{},
+			Params:   []IntentParam{},
 			Handler:  "photo_album",
 			Enabled:  true,
 			Priority: 10,
@@ -307,7 +307,7 @@ func (vc *VoiceController) registerDefaultIntents() {
 				`(?i)查看备份`,
 				`(?i)backup status`,
 			},
-			Params: []IntentParam{},
+			Params:   []IntentParam{},
 			Handler:  "backup_status",
 			Enabled:  true,
 			Priority: 10,
@@ -344,7 +344,7 @@ func (vc *VoiceController) registerDefaultIntents() {
 				`(?i)我能做什么`,
 				`(?i)what can you do`,
 			},
-			Params: []IntentParam{},
+			Params:   []IntentParam{},
 			Handler:  "help",
 			Enabled:  true,
 			Priority: 10,
@@ -644,7 +644,7 @@ func (h *VoiceAPIHandler) HandleProcess(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	
+
 	// 处理文本命令
 	cmd, err := h.controller.ProcessText(ctx, req.Text, req.Language)
 	if err != nil {

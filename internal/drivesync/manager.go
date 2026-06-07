@@ -27,8 +27,8 @@ type Manager struct {
 	syncChan    chan *SyncTask
 	stopChan    chan struct{}
 	activities  []*Activity
-	locks       map[string]*FileLock   // filePath -> lock
-	comments    map[string][]*Comment  // filePath -> comments
+	locks       map[string]*FileLock               // filePath -> lock
+	comments    map[string][]*Comment              // filePath -> comments
 	wsListeners map[string][]chan WebSocketMessage // filePath -> listeners
 }
 

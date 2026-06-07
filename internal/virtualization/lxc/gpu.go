@@ -121,8 +121,8 @@ type GPUDeviceInfo struct {
 	Vendor       string  `json:"vendor"`
 	Model        string  `json:"model"`
 	Driver       string  `json:"driver"`
-	MemoryTotal  uint64  `json:"memoryTotal"`  // 总显存(MB)
-	MemoryUsed   uint64  `json:"memoryUsed"`   // 已用显存(MB)
+	MemoryTotal  uint64  `json:"memoryTotal"` // 总显存(MB)
+	MemoryUsed   uint64  `json:"memoryUsed"`  // 已用显存(MB)
 	Status       string  `json:"status"`
 	AttachedTo   string  `json:"attachedTo"`   // 已附加的容器
 	Mode         GPUMode `json:"mode"`         // 当前透传模式

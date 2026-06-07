@@ -149,10 +149,10 @@ func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"running":           h.manager.IsRunning(),
+		"running":            h.manager.IsRunning(),
 		"monitored_datasets": len(datasets),
-		"total_errors":      totalErrors,
-		"schedule":          h.manager.GetSchedule(),
+		"total_errors":       totalErrors,
+		"schedule":           h.manager.GetSchedule(),
 	})
 }
 

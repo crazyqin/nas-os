@@ -203,8 +203,8 @@ func (m *SnapVerifyManager) generateTestResult(test *SnapshotTest) *TestResult {
 			restore.DataMatch = false
 			result.Passed = false
 			result.Errors = append(result.Errors, TestError{
-				Code:    "RESTORE_MISMATCH",
-				Message: "恢复数据与原始快照不匹配",
+				Code:     "RESTORE_MISMATCH",
+				Message:  "恢复数据与原始快照不匹配",
 				Severity: SeverityCritical,
 			})
 		}
@@ -515,8 +515,8 @@ func (m *SnapVerifyManager) GenerateReport(testID string, format string) ([]byte
 	}
 
 	report := map[string]interface{}{
-		"test":   test,
-		"result": result,
+		"test":         test,
+		"result":       result,
 		"generated_at": time.Now(),
 	}
 

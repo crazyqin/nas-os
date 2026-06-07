@@ -19,17 +19,17 @@ import (
 // newTestSyncTask 创建一个测试用的 SyncTask
 func newTestSyncTask() *SyncTask {
 	return &SyncTask{
-		ID:              "test_task_" + randomString(8),
-		Name:            "Test Sync Task",
-		ProviderID:      "test_provider",
-		Enabled:         true,
-		LocalPath:       "/tmp/nas-sync-test/local",
-		RemotePath:      "/test/remote",
-		Direction:       SyncDirectionBidirect,
-		Mode:            SyncModeSync,
-		ScheduleType:    ScheduleTypeManual,
+		ID:               "test_task_" + randomString(8),
+		Name:             "Test Sync Task",
+		ProviderID:       "test_provider",
+		Enabled:          true,
+		LocalPath:        "/tmp/nas-sync-test/local",
+		RemotePath:       "/test/remote",
+		Direction:        SyncDirectionBidirect,
+		Mode:             SyncModeSync,
+		ScheduleType:     ScheduleTypeManual,
 		ConflictStrategy: ConflictStrategyNewer,
-		Status:          TaskStatusIdle,
+		Status:           TaskStatusIdle,
 	}
 }
 
@@ -77,7 +77,7 @@ func randomString(n int) string {
 // mockProviderForRename 用于 Rename 测试的 mock provider
 type mockProviderForRename struct{}
 
-func (m *mockProviderForRename) Upload(_ context.Context, _, _ string) error { return nil }
+func (m *mockProviderForRename) Upload(_ context.Context, _, _ string) error   { return nil }
 func (m *mockProviderForRename) Download(_ context.Context, _, _ string) error { return nil }
 func (m *mockProviderForRename) Delete(_ context.Context, _ string) error      { return nil }
 func (m *mockProviderForRename) List(_ context.Context, _ string, _ bool) ([]FileInfo, error) {
@@ -86,14 +86,14 @@ func (m *mockProviderForRename) List(_ context.Context, _ string, _ bool) ([]Fil
 func (m *mockProviderForRename) Stat(_ context.Context, _ string) (*FileInfo, error) {
 	return nil, fmt.Errorf("not found")
 }
-func (m *mockProviderForRename) CreateDir(_ context.Context, _ string) error        { return nil }
-func (m *mockProviderForRename) DeleteDir(_ context.Context, _ string) error        { return nil }
+func (m *mockProviderForRename) CreateDir(_ context.Context, _ string) error { return nil }
+func (m *mockProviderForRename) DeleteDir(_ context.Context, _ string) error { return nil }
 func (m *mockProviderForRename) TestConnection(_ context.Context) (*ConnectionTestResult, error) {
 	return &ConnectionTestResult{Success: true}, nil
 }
-func (m *mockProviderForRename) Close() error                                        { return nil }
-func (m *mockProviderForRename) GetType() ProviderType                               { return ProviderWebDAV }
-func (m *mockProviderForRename) GetCapabilities() []string                           { return nil }
+func (m *mockProviderForRename) Close() error              { return nil }
+func (m *mockProviderForRename) GetType() ProviderType     { return ProviderWebDAV }
+func (m *mockProviderForRename) GetCapabilities() []string { return nil }
 
 // =============================================================================
 // Delta Sync 算法测试
@@ -778,7 +778,7 @@ func TestTaskStatus_Transitions(t *testing.T) {
 	validTransitions := map[TaskStatus][]TaskStatus{
 		TaskStatusIdle:      {TaskStatusRunning},
 		TaskStatusRunning:   {TaskStatusPaused, TaskStatusCompleted, TaskStatusFailed, TaskStatusCancelled},
-		TaskStatusPaused:   {TaskStatusRunning, TaskStatusCancelled},
+		TaskStatusPaused:    {TaskStatusRunning, TaskStatusCancelled},
 		TaskStatusCompleted: {TaskStatusRunning},
 		TaskStatusFailed:    {TaskStatusRunning},
 	}
@@ -790,10 +790,10 @@ func TestTaskStatus_Transitions(t *testing.T) {
 
 func TestSyncStatus_Progress(t *testing.T) {
 	status := &SyncStatus{
-		TaskID:          "test",
-		TotalFiles:      100,
-		ProcessedFiles:  50,
-		Progress:        50.0,
+		TaskID:           "test",
+		TotalFiles:       100,
+		ProcessedFiles:   50,
+		Progress:         50.0,
 		TransferredBytes: 50 * 1024 * 1024,
 	}
 

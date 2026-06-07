@@ -298,7 +298,7 @@ type Volume struct {
 
 // Orchestrator 编排器
 type Orchestrator struct {
-	mu       sync.RWMutex
+	mu         sync.RWMutex
 	containers map[string]*Container
 	services   map[string]*Service
 	stacks     map[string]*Stack

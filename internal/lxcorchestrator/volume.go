@@ -21,14 +21,14 @@ type VolumeManager struct {
 
 // VolumeStats 存储卷统计信息
 type VolumeStats struct {
-	VolumeID    string `json:"volume_id"`
-	Name        string `json:"name"`
-	Driver      string `json:"driver"`
-	Size        int64  `json:"size"`
-	Used        int64  `json:"used"`
-	Available   int64  `json:"available"`
-	Containers  int    `json:"containers"`
-	MountPoint  string `json:"mount_point"`
+	VolumeID   string `json:"volume_id"`
+	Name       string `json:"name"`
+	Driver     string `json:"driver"`
+	Size       int64  `json:"size"`
+	Used       int64  `json:"used"`
+	Available  int64  `json:"available"`
+	Containers int    `json:"containers"`
+	MountPoint string `json:"mount_point"`
 }
 
 // NewVolumeManager 创建存储卷管理器
@@ -348,14 +348,14 @@ func (vm *VolumeManager) CloneVolume(ctx context.Context, sourceID, newName stri
 
 	// 创建新卷配置
 	newVolume := &VolumeConfig{
-		ID:         uuid.New().String(),
-		Name:       newName,
-		Driver:     source.Driver,
-		Size:       source.Size,
-		Options:    source.Options,
-		Labels:     source.Labels,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+		ID:        uuid.New().String(),
+		Name:      newName,
+		Driver:    source.Driver,
+		Size:      source.Size,
+		Options:   source.Options,
+		Labels:    source.Labels,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 
 	// 复制标签

@@ -106,11 +106,11 @@ const (
 
 // validStatuses 有效的状态集合.
 var validStatuses = map[BreachStatus]bool{
-	StatusReported:     true,
+	StatusReported:      true,
 	StatusInvestigating: true,
-	StatusContained:    true,
-	StatusResolved:     true,
-	StatusClosed:       true,
+	StatusContained:     true,
+	StatusResolved:      true,
+	StatusClosed:        true,
 }
 
 // ========== 通知方式 ==========
@@ -170,29 +170,29 @@ type BreachIncident struct {
 
 // NotificationRecord 通知记录.
 type NotificationRecord struct {
-	ID          string               `json:"id"`
-	BreachID    string               `json:"breach_id"`
-	NotifiedAt  time.Time            `json:"notified_at"`
-	Recipient   string               `json:"recipient"`
-	Method      NotificationMethod   `json:"method"`
-	Status      NotificationStatus   `json:"status"`
-	Content     string               `json:"content,omitempty"`
-	AckAt       *time.Time           `json:"ack_at,omitempty"`
+	ID         string             `json:"id"`
+	BreachID   string             `json:"breach_id"`
+	NotifiedAt time.Time          `json:"notified_at"`
+	Recipient  string             `json:"recipient"`
+	Method     NotificationMethod `json:"method"`
+	Status     NotificationStatus `json:"status"`
+	Content    string             `json:"content,omitempty"`
+	AckAt      *time.Time         `json:"ack_at,omitempty"`
 }
 
 // ComplianceReport 合规报告.
 type ComplianceReport struct {
-	ID            string    `json:"id"`
-	BreachID      string    `json:"breach_id"`
-	GeneratedAt   time.Time `json:"generated_at"`
-	Deadline      time.Time `json:"deadline"`
-	Completed     bool      `json:"completed"`
-	Summary       string    `json:"summary"`
-	GDPR33        bool      `json:"gdpr_article_33"`
-	GDPR34        bool      `json:"gdpr_article_34"`
-	Details       string    `json:"details,omitempty"`
-	SubmittedTo   string    `json:"submitted_to,omitempty"`
-	SubmittedAt   *time.Time `json:"submitted_at,omitempty"`
+	ID          string     `json:"id"`
+	BreachID    string     `json:"breach_id"`
+	GeneratedAt time.Time  `json:"generated_at"`
+	Deadline    time.Time  `json:"deadline"`
+	Completed   bool       `json:"completed"`
+	Summary     string     `json:"summary"`
+	GDPR33      bool       `json:"gdpr_article_33"`
+	GDPR34      bool       `json:"gdpr_article_34"`
+	Details     string     `json:"details,omitempty"`
+	SubmittedTo string     `json:"submitted_to,omitempty"`
+	SubmittedAt *time.Time `json:"submitted_at,omitempty"`
 }
 
 // notificationTimer 通知计时器.
@@ -203,12 +203,12 @@ type notificationTimer struct {
 
 // Manager 数据泄露事件管理器.
 type Manager struct {
-	mu              sync.RWMutex
-	incidents       map[string]*BreachIncident
-	notifications   map[string][]NotificationRecord
-	reports         map[string]*ComplianceReport
-	timers          map[string]*notificationTimer
-	nextID          int
+	mu            sync.RWMutex
+	incidents     map[string]*BreachIncident
+	notifications map[string][]NotificationRecord
+	reports       map[string]*ComplianceReport
+	timers        map[string]*notificationTimer
+	nextID        int
 }
 
 // NewManager 创建管理器.
@@ -520,21 +520,21 @@ func (m *Manager) ExportGDPRReport(id string) ([]byte, error) {
 
 	// 构建GDPR报告
 	type GDPRReport struct {
-		ReportType        string             `json:"report_type"`
-		IncidentID        string             `json:"incident_id"`
-		DiscoveredAt      time.Time          `json:"discovered_at"`
-		ReportedAt        time.Time          `json:"reported_at"`
-		BreachType        BreachType         `json:"breach_type"`
-		Classification    DataClassification `json:"classification"`
-		AffectedRecords   int                `json:"affected_records"`
-		ImpactScope       string             `json:"impact_scope"`
-		Description       string             `json:"description"`
-		ContainmentAction string             `json:"containment_action"`
-		RootCause         string             `json:"root_cause"`
-		Remediation       string             `json:"remediation"`
+		ReportType        string               `json:"report_type"`
+		IncidentID        string               `json:"incident_id"`
+		DiscoveredAt      time.Time            `json:"discovered_at"`
+		ReportedAt        time.Time            `json:"reported_at"`
+		BreachType        BreachType           `json:"breach_type"`
+		Classification    DataClassification   `json:"classification"`
+		AffectedRecords   int                  `json:"affected_records"`
+		ImpactScope       string               `json:"impact_scope"`
+		Description       string               `json:"description"`
+		ContainmentAction string               `json:"containment_action"`
+		RootCause         string               `json:"root_cause"`
+		Remediation       string               `json:"remediation"`
 		Notifications     []NotificationRecord `json:"notifications"`
-		Deadline          time.Time          `json:"notification_deadline"`
-		Status            BreachStatus       `json:"status"`
+		Deadline          time.Time            `json:"notification_deadline"`
+		Status            BreachStatus         `json:"status"`
 	}
 
 	needsGDPR34 := incident.Classification == ClassificationPII ||

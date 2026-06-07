@@ -21,27 +21,27 @@ type WriteStyle string
 
 const (
 	StyleFormal    WriteStyle = "formal"    // 正式
-	StyleCasual    WriteStyle = "casual"     // casual
-	StyleTechnical WriteStyle = "technical"  // 技术
+	StyleCasual    WriteStyle = "casual"    // casual
+	StyleTechnical WriteStyle = "technical" // 技术
 )
 
 // TaskType 任务类型
 type TaskType string
 
 const (
-	TaskSummary    TaskType = "summary"     // 摘要
-	TaskExpand     TaskType = "expand"      // 扩写
-	TaskRewrite    TaskType = "rewrite"     // 改写
-	TaskTemplate   TaskType = "template"    // 模板填充
+	TaskSummary  TaskType = "summary"  // 摘要
+	TaskExpand   TaskType = "expand"   // 扩写
+	TaskRewrite  TaskType = "rewrite"  // 改写
+	TaskTemplate TaskType = "template" // 模板填充
 )
 
 // TemplateType 模板类型
 type TemplateType string
 
 const (
-	TmplEmail    TemplateType = "email"     // 邮件
-	TmplReport   TemplateType = "report"    // 报告
-	TmplAnnounce TemplateType = "announce"  // 公告
+	TmplEmail    TemplateType = "email"    // 邮件
+	TmplReport   TemplateType = "report"   // 报告
+	TmplAnnounce TemplateType = "announce" // 公告
 )
 
 // WriteRequest 写作请求
@@ -56,14 +56,14 @@ type WriteRequest struct {
 
 // WriteResult 写作结果
 type WriteResult struct {
-	ID          string    `json:"id"`
-	TaskType    TaskType  `json:"task_type"`
-	Content     string    `json:"content"`
-	Result      string    `json:"result"`
-	Language    Language  `json:"language"`
-	Style       WriteStyle `json:"style"`
-	TokenCount  int       `json:"token_count"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID         string     `json:"id"`
+	TaskType   TaskType   `json:"task_type"`
+	Content    string     `json:"content"`
+	Result     string     `json:"result"`
+	Language   Language   `json:"language"`
+	Style      WriteStyle `json:"style"`
+	TokenCount int        `json:"token_count"`
+	CreatedAt  time.Time  `json:"created_at"`
 }
 
 // Template 模板定义
@@ -93,11 +93,11 @@ type Config struct {
 
 // Manager 管理器
 type Manager struct {
-	mu           sync.RWMutex
-	config       *Config
-	templates    []*Template
-	history      []*WriteResult
-	dataFile     string
+	mu        sync.RWMutex
+	config    *Config
+	templates []*Template
+	history   []*WriteResult
+	dataFile  string
 }
 
 var (

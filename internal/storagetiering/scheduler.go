@@ -174,13 +174,13 @@ func (s *Scheduler) ScheduleMigration(file *FileMetadata, targetTier TierLevel, 
 	toTier := tierLevelToTier(targetTier)
 
 	task := &MigrationTask{
-		ID:       generateID(),
-		FilePath: file.Path,
-		FileSize: file.SizeBytes,
-		FromTier: fromTier,
-		ToTier:   toTier,
-		State:    StatePending,
-		Reason:   ruleID,
+		ID:        generateID(),
+		FilePath:  file.Path,
+		FileSize:  file.SizeBytes,
+		FromTier:  fromTier,
+		ToTier:    toTier,
+		State:     StatePending,
+		Reason:    ruleID,
 		CreatedAt: time.Now(),
 	}
 

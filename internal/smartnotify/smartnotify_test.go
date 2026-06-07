@@ -33,8 +33,8 @@ func TestSendNotification(t *testing.T) {
 	m := setupTestManager(t)
 
 	notify := &Notification{
-		Title:   "测试通知",
-		Content: "这是一条测试通知",
+		Title:    "测试通知",
+		Content:  "这是一条测试通知",
 		Priority: PriorityNormal,
 		Channels: []NotifyChannel{ChannelEmail, ChannelPush},
 		Source:   "test",
@@ -144,9 +144,9 @@ func TestSilencePeriod(t *testing.T) {
 
 	// 发送普通优先级通知
 	notify := &Notification{
-		Title:    "普通通知",
-		Content:  "应该被静默",
-		Tags:     map[string]string{"type": "routine"},
+		Title:   "普通通知",
+		Content: "应该被静默",
+		Tags:    map[string]string{"type": "routine"},
 	}
 	m.SendNotification(notify)
 

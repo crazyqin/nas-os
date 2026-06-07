@@ -30,75 +30,75 @@ type AccessPattern struct {
 
 // PrefetchCandidate represents a file that could be prefetched.
 type PrefetchCandidate struct {
-	FilePath    string  `json:"file_path"`
-	Score       float64 `json:"score"`
-	Reason      string  `json:"reason"`
-	Size        int64   `json:"size"`
-	Priority    int     `json:"priority"`
-	AccessCount int     `json:"access_count"`
+	FilePath    string    `json:"file_path"`
+	Score       float64   `json:"score"`
+	Reason      string    `json:"reason"`
+	Size        int64     `json:"size"`
+	Priority    int       `json:"priority"`
+	AccessCount int       `json:"access_count"`
 	LastAccess  time.Time `json:"last_access"`
 }
 
 // CacheEntry represents a cached file.
 type CacheEntry struct {
-	FilePath   string    `json:"file_path"`
-	Size       int64     `json:"size"`
-	CachedAt   time.Time `json:"cached_at"`
-	AccessCount int      `json:"access_count"`
+	FilePath    string    `json:"file_path"`
+	Size        int64     `json:"size"`
+	CachedAt    time.Time `json:"cached_at"`
+	AccessCount int       `json:"access_count"`
 	LastAccess  time.Time `json:"last_access"`
-	HitRate     float64  `json:"hit_rate"`
+	HitRate     float64   `json:"hit_rate"`
 }
 
 // PrefetchStats represents prefetch statistics.
 type PrefetchStats struct {
-	TotalPredictions  int     `json:"total_predictions"`
-	CorrectPredictions int   `json:"correct_predictions"`
-	Accuracy          float64 `json:"accuracy"`
-	CacheHits         int     `json:"cache_hits"`
-	CacheMisses       int     `json:"cache_misses"`
-	HitRate           float64 `json:"hit_rate"`
-	PrefetchedBytes   int64   `json:"prefetched_bytes"`
-	SavedTimeMs       int64   `json:"saved_time_ms"`
+	TotalPredictions   int     `json:"total_predictions"`
+	CorrectPredictions int     `json:"correct_predictions"`
+	Accuracy           float64 `json:"accuracy"`
+	CacheHits          int     `json:"cache_hits"`
+	CacheMisses        int     `json:"cache_misses"`
+	HitRate            float64 `json:"hit_rate"`
+	PrefetchedBytes    int64   `json:"prefetched_bytes"`
+	SavedTimeMs        int64   `json:"saved_time_ms"`
 }
 
 // PrefetchConfig represents prefetch configuration.
 type PrefetchConfig struct {
-	MaxCacheSize    int64   `json:"max_cache_size"`    // bytes
-	MaxEntries      int     `json:"max_entries"`
-	PrefetchThreshold float64 `json:"prefetch_threshold"` // 0-1
-	LearningRate    float64 `json:"learning_rate"`
-	DecayFactor     float64 `json:"decay_factor"`
-	EnableSequential bool   `json:"enable_sequential"`
-	EnableTemporal   bool   `json:"enable_temporal"`
-	EnableCollaborative bool `json:"enable_collaborative"`
+	MaxCacheSize        int64   `json:"max_cache_size"` // bytes
+	MaxEntries          int     `json:"max_entries"`
+	PrefetchThreshold   float64 `json:"prefetch_threshold"` // 0-1
+	LearningRate        float64 `json:"learning_rate"`
+	DecayFactor         float64 `json:"decay_factor"`
+	EnableSequential    bool    `json:"enable_sequential"`
+	EnableTemporal      bool    `json:"enable_temporal"`
+	EnableCollaborative bool    `json:"enable_collaborative"`
 }
 
 // DefaultConfig returns default configuration.
 func DefaultConfig() PrefetchConfig {
 	return PrefetchConfig{
-		MaxCacheSize:     1024 * 1024 * 1024, // 1GB
-		MaxEntries:       1000,
-		PrefetchThreshold: 0.7,
-		LearningRate:     0.1,
-		DecayFactor:      0.95,
-		EnableSequential: true,
-		EnableTemporal:   true,
+		MaxCacheSize:        1024 * 1024 * 1024, // 1GB
+		MaxEntries:          1000,
+		PrefetchThreshold:   0.7,
+		LearningRate:        0.1,
+		DecayFactor:         0.95,
+		EnableSequential:    true,
+		EnableTemporal:      true,
 		EnableCollaborative: false,
 	}
 }
 
 // PredictivePrefetch manages predictive file prefetching.
 type PredictivePrefetch struct {
-	mu          sync.RWMutex
-	config      PrefetchConfig
-	patterns    map[string][]AccessPattern // user -> patterns
-	sequences   map[string][]string        // file -> next files
-	temporal    map[string]map[int]int     // file -> hour -> count
-	cache       *list.List                 // LRU cache
-	cacheIndex  map[string]*list.Element
-	cacheSize   int64
-	stats       PrefetchStats
-	enabled     bool
+	mu         sync.RWMutex
+	config     PrefetchConfig
+	patterns   map[string][]AccessPattern // user -> patterns
+	sequences  map[string][]string        // file -> next files
+	temporal   map[string]map[int]int     // file -> hour -> count
+	cache      *list.List                 // LRU cache
+	cacheIndex map[string]*list.Element
+	cacheSize  int64
+	stats      PrefetchStats
+	enabled    bool
 }
 
 // NewPredictivePrefetch creates a new predictive prefetch manager.
@@ -314,9 +314,9 @@ func (pp *PredictivePrefetch) Prefetch(ctx context.Context, candidates []Prefetc
 
 		// Add to cache
 		entry := &CacheEntry{
-			FilePath:   candidate.FilePath,
-			Size:       candidate.Size,
-			CachedAt:   time.Now(),
+			FilePath:    candidate.FilePath,
+			Size:        candidate.Size,
+			CachedAt:    time.Now(),
 			AccessCount: 0,
 			LastAccess:  time.Now(),
 		}

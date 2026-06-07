@@ -12,21 +12,21 @@ import (
 
 // Manager Time Machine 管理器
 type Manager struct {
-	mu             sync.RWMutex
-	shares         map[string]*TimeMachineShare
-	devices        map[string]*BackupDevice
-	jobs           map[string]*BackupJob
-	snapshots      map[string]*BackupSnapshot
-	quotas         map[string]*BackupQuota
-	retention      RetentionPolicy
-	traffic        TrafficLimit
-	broadcast      BroadcastConfig
-	stats          TimeMachineStats
-	logger         *zap.Logger
-	stopCh         chan struct{}
-	running        bool
-	startTime      time.Time
-	cleanupTicker  *time.Ticker
+	mu            sync.RWMutex
+	shares        map[string]*TimeMachineShare
+	devices       map[string]*BackupDevice
+	jobs          map[string]*BackupJob
+	snapshots     map[string]*BackupSnapshot
+	quotas        map[string]*BackupQuota
+	retention     RetentionPolicy
+	traffic       TrafficLimit
+	broadcast     BroadcastConfig
+	stats         TimeMachineStats
+	logger        *zap.Logger
+	stopCh        chan struct{}
+	running       bool
+	startTime     time.Time
+	cleanupTicker *time.Ticker
 }
 
 // NewManager 创建 Time Machine 管理器

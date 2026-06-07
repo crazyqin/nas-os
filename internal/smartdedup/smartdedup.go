@@ -313,19 +313,19 @@ func (e *Engine) GenerateReport() *DedupReport {
 
 	stats := e.stats.Snapshot()
 	report := &DedupReport{
-		GeneratedAt:    time.Now(),
-		TotalScans:     int(stats.TotalScans),
-		TotalFiles:     int(stats.TotalFilesScanned),
-		TotalSize:      stats.TotalSizeScanned,
-		DuplicateCount: int(stats.TotalDuplicates),
-		DuplicateSize:  stats.TotalSavedBytes,
-		SavedBytes:     stats.TotalSavedBytes,
-		TrashedCount:   int(stats.TotalTrashed),
-		DeletedCount:   int(stats.TotalDeleted),
+		GeneratedAt:     time.Now(),
+		TotalScans:      int(stats.TotalScans),
+		TotalFiles:      int(stats.TotalFilesScanned),
+		TotalSize:       stats.TotalSizeScanned,
+		DuplicateCount:  int(stats.TotalDuplicates),
+		DuplicateSize:   stats.TotalSavedBytes,
+		SavedBytes:      stats.TotalSavedBytes,
+		TrashedCount:    int(stats.TotalTrashed),
+		DeletedCount:    int(stats.TotalDeleted),
 		HardLinkedCount: int(stats.TotalHardLinked),
-		SpaceReclaimed: stats.TotalSavedBytes,
-		RecoveryRatio:  stats.RecoveryRatio,
-		GroupsByType:   make(map[string]int),
+		SpaceReclaimed:  stats.TotalSavedBytes,
+		RecoveryRatio:   stats.RecoveryRatio,
+		GroupsByType:    make(map[string]int),
 	}
 
 	// 获取最新扫描结果以填充详细信息

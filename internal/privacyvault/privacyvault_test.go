@@ -197,11 +197,11 @@ func TestAddAndGetSecret(t *testing.T) {
 
 	t.Run("adds secret successfully", func(t *testing.T) {
 		secret := &Secret{
-			ID:           "sec-1",
-			Name:         "My Password",
-			Type:         "credential",
+			ID:            "sec-1",
+			Name:          "My Password",
+			Type:          "credential",
 			EncryptedData: []byte("encrypted-data"),
-			DataSize:     100,
+			DataSize:      100,
 		}
 
 		err := engine.AddSecret("vault-sec", secret)
@@ -315,9 +315,9 @@ func TestAccessPolicies(t *testing.T) {
 
 	t.Run("sets access policy", func(t *testing.T) {
 		policy := &AccessPolicy{
-			ID:      "pol-1",
-			UserID:  "user-1",
-			Level:   AccessReadWrite,
+			ID:         "pol-1",
+			UserID:     "user-1",
+			Level:      AccessReadWrite,
 			AllowedIPs: []string{"192.168.1.100"},
 		}
 
@@ -360,11 +360,11 @@ func TestKeyShares(t *testing.T) {
 	t.Run("adds key shares", func(t *testing.T) {
 		for i := 1; i <= 3; i++ {
 			share := &KeyShare{
-				ID:         fmt.Sprintf("ks-%d", i),
-				ShareIndex: i,
-				Threshold:  2,
+				ID:          fmt.Sprintf("ks-%d", i),
+				ShareIndex:  i,
+				Threshold:   2,
 				TotalShares: 3,
-				HolderID:   fmt.Sprintf("holder-%d", i),
+				HolderID:    fmt.Sprintf("holder-%d", i),
 			}
 			err := engine.AddKeyShare("vault-ks", share)
 			if err != nil {

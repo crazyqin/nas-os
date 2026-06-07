@@ -110,17 +110,17 @@ func (m *Manager) CreatePool(req *CreatePoolRequest) (*HybridPool, error) {
 			Healthy:  true,
 		},
 		MigrationPolicy: &MigrationPolicy{
-			ID:                   uuid.New().String(),
-			Name:                 "默认迁移策略",
-			Enabled:              true,
-			Trigger:              MigrationTriggerAccess,
-			HotAccessCount:       100,
-			HotAccessWindow:      24 * time.Hour,
-			ColdAgeThreshold:     30 * 24 * time.Hour,
-			ColdAccessCount:      5,
+			ID:                      uuid.New().String(),
+			Name:                    "默认迁移策略",
+			Enabled:                 true,
+			Trigger:                 MigrationTriggerAccess,
+			HotAccessCount:          100,
+			HotAccessWindow:         24 * time.Hour,
+			ColdAgeThreshold:        30 * 24 * time.Hour,
+			ColdAccessCount:         5,
 			MaxConcurrentMigrations: 3,
-			ReserveFlashPct:      10,
-			VerifyAfterMove:      true,
+			ReserveFlashPct:         10,
+			VerifyAfterMove:         true,
 		},
 		TotalCapacity: req.FlashCapacity + req.HDDCapacity,
 	}
@@ -242,19 +242,19 @@ func (m *Manager) GetPoolStats(poolID string) (*PoolStats, error) {
 	}
 
 	stats := &PoolStats{
-		PoolID:          pool.ID,
-		PoolName:        pool.Name,
-		Timestamp:       time.Now(),
-		TotalCapacity:   pool.TotalCapacity,
-		UsedCapacity:    pool.UsedCapacity,
-		FreeCapacity:    pool.TotalCapacity - pool.UsedCapacity,
-		FlashCapacity:   pool.FlashTier.Capacity,
-		FlashUsed:       pool.FlashUsed,
-		FlashFree:       pool.FlashTier.Capacity - pool.FlashUsed,
-		HDDCapacity:     pool.HDDTier.Capacity,
-		HDDUsed:         pool.HDDUsed,
-		HDDFree:         pool.HDDTier.Capacity - pool.HDDUsed,
-		Performance:     m.performance.GetLatest(poolID),
+		PoolID:        pool.ID,
+		PoolName:      pool.Name,
+		Timestamp:     time.Now(),
+		TotalCapacity: pool.TotalCapacity,
+		UsedCapacity:  pool.UsedCapacity,
+		FreeCapacity:  pool.TotalCapacity - pool.UsedCapacity,
+		FlashCapacity: pool.FlashTier.Capacity,
+		FlashUsed:     pool.FlashUsed,
+		FlashFree:     pool.FlashTier.Capacity - pool.FlashUsed,
+		HDDCapacity:   pool.HDDTier.Capacity,
+		HDDUsed:       pool.HDDUsed,
+		HDDFree:       pool.HDDTier.Capacity - pool.HDDUsed,
+		Performance:   m.performance.GetLatest(poolID),
 	}
 
 	if pool.TotalCapacity > 0 {
@@ -397,8 +397,8 @@ func (m *Manager) collectPerformanceMetrics() {
 
 // CreatePoolRequest 创建池请求.
 type CreatePoolRequest struct {
-	Name          string `json:"name"`
-	Description   string `json:"description,omitempty"`
+	Name          string   `json:"name"`
+	Description   string   `json:"description,omitempty"`
 	FlashDevices  []string `json:"flashDevices"`
 	FlashPath     string   `json:"flashPath"`
 	FlashCapacity int64    `json:"flashCapacity"`

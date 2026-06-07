@@ -59,21 +59,21 @@ func (e *CategoryError) Error() string {
 
 // Feed 订阅源.
 type Feed struct {
-	ID          string    `json:"id"`
-	Title       string    `json:"title"`
-	FeedURL     string    `json:"feed_url"`
-	SiteURL     string    `json:"site_url,omitempty"`
-	Description string    `json:"description,omitempty"`
-	CategoryID  string    `json:"category_id,omitempty"`
-	Tags        []string  `json:"tags,omitempty"`
-	IsEnabled   bool      `json:"is_enabled"`
+	ID            string     `json:"id"`
+	Title         string     `json:"title"`
+	FeedURL       string     `json:"feed_url"`
+	SiteURL       string     `json:"site_url,omitempty"`
+	Description   string     `json:"description,omitempty"`
+	CategoryID    string     `json:"category_id,omitempty"`
+	Tags          []string   `json:"tags,omitempty"`
+	IsEnabled     bool       `json:"is_enabled"`
 	LastFetchedAt *time.Time `json:"last_fetched_at,omitempty"`
-	LastError     string    `json:"last_error,omitempty"`
-	FetchInterval int      `json:"fetch_interval"` // 抓取间隔（分钟）
-	ArticleCount  int      `json:"article_count"`
-	UnreadCount   int      `json:"unread_count"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	LastError     string     `json:"last_error,omitempty"`
+	FetchInterval int        `json:"fetch_interval"` // 抓取间隔（分钟）
+	ArticleCount  int        `json:"article_count"`
+	UnreadCount   int        `json:"unread_count"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
 }
 
 // Article 文章.
@@ -106,23 +106,23 @@ type Category struct {
 
 // FeedHealth 订阅源健康状态.
 type FeedHealth struct {
-	FeedID        string     `json:"feed_id"`
-	IsReachable   bool       `json:"is_reachable"`
-	LastCheckedAt time.Time  `json:"last_checked_at"`
-	ResponseTime  int64      `json:"response_time"` // 毫秒
-	ErrorMessage  string     `json:"error_message,omitempty"`
-	UpdateFrequency string   `json:"update_frequency,omitempty"` // 更新频率描述
+	FeedID          string    `json:"feed_id"`
+	IsReachable     bool      `json:"is_reachable"`
+	LastCheckedAt   time.Time `json:"last_checked_at"`
+	ResponseTime    int64     `json:"response_time"` // 毫秒
+	ErrorMessage    string    `json:"error_message,omitempty"`
+	UpdateFrequency string    `json:"update_frequency,omitempty"` // 更新频率描述
 }
 
 // Stats 统计信息.
 type Stats struct {
-	TotalFeeds     int `json:"total_feeds"`
-	TotalArticles  int `json:"total_articles"`
-	UnreadCount    int `json:"unread_count"`
-	ReadCount      int `json:"read_count"`
-	FavoriteCount  int `json:"favorite_count"`
-	MarkedCount    int `json:"marked_count"`
-	FeedStats      []FeedStat `json:"feed_stats,omitempty"`
+	TotalFeeds    int        `json:"total_feeds"`
+	TotalArticles int        `json:"total_articles"`
+	UnreadCount   int        `json:"unread_count"`
+	ReadCount     int        `json:"read_count"`
+	FavoriteCount int        `json:"favorite_count"`
+	MarkedCount   int        `json:"marked_count"`
+	FeedStats     []FeedStat `json:"feed_stats,omitempty"`
 }
 
 // FeedStat 单个订阅源统计.
@@ -211,7 +211,7 @@ type OPMLDocument struct {
 
 // OPMLHead OPML头部.
 type OPMLHead struct {
-	Title   string `xml:"title"`
+	Title       string `xml:"title"`
 	DateCreated string `xml:"dateCreated,omitempty"`
 }
 
@@ -222,11 +222,11 @@ type OPMLBody struct {
 
 // OPMLOutline OPML条目.
 type OPMLOutline struct {
-	Text        string          `xml:"text,attr"`
-	Title       string          `xml:"title,attr,omitempty"`
-	Type        string          `xml:"type,attr,omitempty"`
-	XMLURL      string          `xml:"xmlUrl,attr,omitempty"`
-	HTMLURL     string          `xml:"htmlUrl,attr,omitempty"`
-	Description string          `xml:"description,attr,omitempty"`
-	Outlines    []OPMLOutline   `xml:"outline,omitempty"`
+	Text        string        `xml:"text,attr"`
+	Title       string        `xml:"title,attr,omitempty"`
+	Type        string        `xml:"type,attr,omitempty"`
+	XMLURL      string        `xml:"xmlUrl,attr,omitempty"`
+	HTMLURL     string        `xml:"htmlUrl,attr,omitempty"`
+	Description string        `xml:"description,attr,omitempty"`
+	Outlines    []OPMLOutline `xml:"outline,omitempty"`
 }

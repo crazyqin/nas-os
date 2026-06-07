@@ -19,10 +19,10 @@ import (
 // ─────────────────────── Mock ───────────────────────
 
 type mockSnapshotter struct {
-	createErr    error
-	restoreErr   error
-	snapshotID   string
-	restored     bool
+	createErr  error
+	restoreErr error
+	snapshotID string
+	restored   bool
 }
 
 func (m *mockSnapshotter) CreateSnapshot(_ context.Context, _ string) (string, error) {
@@ -248,7 +248,7 @@ func TestExecutePlan_StepFailure(t *testing.T) {
 	drillExec, _ = mgr.GetExecution(drillExec.ID)
 	assert.Equal(t, ExecFailed, drillExec.Status)
 	assert.Equal(t, StepRolledBack, drillExec.StepResults[0].Status) // 回滚成功后状态变为 rolled_back
-	assert.Equal(t, StepPending, drillExec.StepResults[1].Status) // 第二步未执行
+	assert.Equal(t, StepPending, drillExec.StepResults[1].Status)    // 第二步未执行
 	assert.Contains(t, drillExec.StepResults[0].Error, "step failed")
 	assert.Contains(t, exec.rolledBack, "step1")
 }

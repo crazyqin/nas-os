@@ -9,10 +9,10 @@ import (
 type ComplianceStandard string
 
 const (
-	StandardGDPR    ComplianceStandard = "gdpr"     // 欧盟通用数据保护条例
-	StandardMLPS2   ComplianceStandard = "mlps2"    // 等保2.0
+	StandardGDPR     ComplianceStandard = "gdpr"     // 欧盟通用数据保护条例
+	StandardMLPS2    ComplianceStandard = "mlps2"    // 等保2.0
 	StandardISO27001 ComplianceStandard = "iso27001" // ISO/IEC 27001
-	StandardSOC2    ComplianceStandard = "soc2"     // SOC 2
+	StandardSOC2     ComplianceStandard = "soc2"     // SOC 2
 )
 
 // CheckStatus 检查状态
@@ -107,22 +107,22 @@ type Remediation struct {
 type AuditLog struct {
 	ID        int64                  `json:"id"`
 	Timestamp time.Time              `json:"timestamp"`
-	Actor     string                 `json:"actor"`     // 操作者
-	Action    string                 `json:"action"`    // 操作
-	Resource  string                 `json:"resource"`  // 资源
-	Result    string                 `json:"result"`    // 结果
-	Details   map[string]interface{} `json:"details"`   // 详情
+	Actor     string                 `json:"actor"`      // 操作者
+	Action    string                 `json:"action"`     // 操作
+	Resource  string                 `json:"resource"`   // 资源
+	Result    string                 `json:"result"`     // 结果
+	Details   map[string]interface{} `json:"details"`    // 详情
 	IPAddress string                 `json:"ip_address"` // IP地址
 	UserAgent string                 `json:"user_agent"` // 用户代理
 }
 
 // ComplianceScore 合规评分
 type ComplianceScore struct {
-	Overall     float64                      `json:"overall"`      // 总分 0-100
+	Overall     float64                        `json:"overall"`     // 总分 0-100
 	ByStandard  map[ComplianceStandard]float64 `json:"by_standard"` // 按标准评分
 	ByCategory  map[CheckCategory]float64      `json:"by_category"` // 按类别评分
-	Trend       []ScoreTrend                  `json:"trend"`       // 趋势
-	LastUpdated time.Time                     `json:"last_updated"`
+	Trend       []ScoreTrend                   `json:"trend"`       // 趋势
+	LastUpdated time.Time                      `json:"last_updated"`
 }
 
 // ScoreTrend 评分趋势
@@ -143,15 +143,15 @@ type ScanConfig struct {
 
 // ComplianceReport 合规报告
 type ComplianceReport struct {
-	ID          string              `json:"id"`
-	Title       string              `json:"title"`
-	GeneratedAt time.Time           `json:"generated_at"`
-	Period      ReportPeriod        `json:"period"`
-	Summary     *ReportSummary      `json:"summary"`
-	Standards   []*StandardReport   `json:"standards"`
-	Findings    []*Finding          `json:"findings"`
+	ID           string             `json:"id"`
+	Title        string             `json:"title"`
+	GeneratedAt  time.Time          `json:"generated_at"`
+	Period       ReportPeriod       `json:"period"`
+	Summary      *ReportSummary     `json:"summary"`
+	Standards    []*StandardReport  `json:"standards"`
+	Findings     []*Finding         `json:"findings"`
 	Remediations []*RemediationItem `json:"remediations"`
-	Format      ReportFormat        `json:"format"`
+	Format       ReportFormat       `json:"format"`
 }
 
 // Period 报告周期
@@ -162,11 +162,11 @@ type ReportPeriod struct {
 
 // ReportSummary 报告摘要
 type ReportSummary struct {
-	TotalChecks  int     `json:"total_checks"`
-	Passed       int     `json:"passed"`
-	Failed       int     `json:"failed"`
-	Warnings     int     `json:"warnings"`
-	OverallScore float64 `json:"overall_score"`
+	TotalChecks  int       `json:"total_checks"`
+	Passed       int       `json:"passed"`
+	Failed       int       `json:"failed"`
+	Warnings     int       `json:"warnings"`
+	OverallScore float64   `json:"overall_score"`
 	RiskLevel    RiskLevel `json:"risk_level"`
 }
 
@@ -179,35 +179,35 @@ type StandardReport struct {
 
 // Finding 发现问题
 type Finding struct {
-	ID          string      `json:"id"`
-	Title       string      `json:"title"`
-	Description string      `json:"description"`
-	RiskLevel   RiskLevel   `json:"risk_level"`
+	ID          string             `json:"id"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	RiskLevel   RiskLevel          `json:"risk_level"`
 	Standard    ComplianceStandard `json:"standard"`
-	Category    CheckCategory `json:"category"`
-	Status      CheckStatus `json:"status"`
+	Category    CheckCategory      `json:"category"`
+	Status      CheckStatus        `json:"status"`
 }
 
 // RemediationItem 整改项
 type RemediationItem struct {
-	FindingID   string      `json:"finding_id"`
-	Title       string      `json:"title"`
-	Description string      `json:"description"`
-	Steps       []string    `json:"steps"`
-	Priority    int         `json:"priority"`
-	Status      string      `json:"status"` // pending, in_progress, completed
-	AssignedTo  string      `json:"assigned_to"`
-	Deadline    time.Time   `json:"deadline"`
+	FindingID   string    `json:"finding_id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Steps       []string  `json:"steps"`
+	Priority    int       `json:"priority"`
+	Status      string    `json:"status"` // pending, in_progress, completed
+	AssignedTo  string    `json:"assigned_to"`
+	Deadline    time.Time `json:"deadline"`
 }
 
 // DashboardData 仪表盘数据
 type DashboardData struct {
-	Score           *ComplianceScore    `json:"score"`
-	RecentFindings  []*Finding          `json:"recent_findings"`
-	Trends          []ScoreTrend        `json:"trends"`
-	ActiveRemediations int              `json:"active_remediations"`
-	LastScanTime    time.Time           `json:"last_scan_time"`
-	StandardsStatus map[ComplianceStandard]StandardStatus `json:"standards_status"`
+	Score              *ComplianceScore                      `json:"score"`
+	RecentFindings     []*Finding                            `json:"recent_findings"`
+	Trends             []ScoreTrend                          `json:"trends"`
+	ActiveRemediations int                                   `json:"active_remediations"`
+	LastScanTime       time.Time                             `json:"last_scan_time"`
+	StandardsStatus    map[ComplianceStandard]StandardStatus `json:"standards_status"`
 }
 
 // StandardStatus 标准状态

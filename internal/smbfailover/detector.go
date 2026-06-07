@@ -11,16 +11,16 @@ import (
 
 // FailureDetector detects node failures using multiple detection methods
 type FailureDetector struct {
-	mu              sync.RWMutex
-	config          DetectorConfig
-	logger          *zap.Logger
-	nodes           map[string]*NodeHealth
-	localNodeID     string
-	quorumConfig    QuorumConfig
-	failureCallback func(nodeID string, reason string)
+	mu               sync.RWMutex
+	config           DetectorConfig
+	logger           *zap.Logger
+	nodes            map[string]*NodeHealth
+	localNodeID      string
+	quorumConfig     QuorumConfig
+	failureCallback  func(nodeID string, reason string)
 	recoveryCallback func(nodeID string)
-	running         bool
-	stopCh          chan struct{}
+	running          bool
+	stopCh           chan struct{}
 }
 
 // DetectorConfig configures failure detection
@@ -54,32 +54,32 @@ func DefaultDetectorConfig() DetectorConfig {
 // NodeHealth tracks the health of a cluster node
 type NodeHealth struct {
 	mu                sync.RWMutex
-	NodeID            string    `json:"node_id"`
-	Hostname          string    `json:"hostname"`
-	IP                net.IP    `json:"ip"`
-	State             NodeState `json:"state"`
-	LastHeartbeat     time.Time `json:"last_heartbeat"`
-	MissedHeartbeats  int       `json:"missed_heartbeats"`
-	LastTCPCheck      time.Time `json:"last_tcp_check"`
-	TCPCheckOK        bool      `json:"tcp_check_ok"`
-	LastQuorumCheck   time.Time `json:"last_quorum_check"`
-	QuorumMember      bool      `json:"quorum_member"`
-	NetworkReachable  bool      `json:"network_reachable"`
+	NodeID            string        `json:"node_id"`
+	Hostname          string        `json:"hostname"`
+	IP                net.IP        `json:"ip"`
+	State             NodeState     `json:"state"`
+	LastHeartbeat     time.Time     `json:"last_heartbeat"`
+	MissedHeartbeats  int           `json:"missed_heartbeats"`
+	LastTCPCheck      time.Time     `json:"last_tcp_check"`
+	TCPCheckOK        bool          `json:"tcp_check_ok"`
+	LastQuorumCheck   time.Time     `json:"last_quorum_check"`
+	QuorumMember      bool          `json:"quorum_member"`
+	NetworkReachable  bool          `json:"network_reachable"`
 	Latency           time.Duration `json:"latency"`
-	Failures          int       `json:"failures"`
-	LastFailure       time.Time `json:"last_failure,omitempty"`
-	LastFailureReason string    `json:"last_failure_reason,omitempty"`
-	RecoveryTime      time.Time `json:"recovery_time,omitempty"`
-	TotalFailures     int64     `json:"total_failures"`
-	TotalRecoveries   int64     `json:"total_recoveries"`
+	Failures          int           `json:"failures"`
+	LastFailure       time.Time     `json:"last_failure,omitempty"`
+	LastFailureReason string        `json:"last_failure_reason,omitempty"`
+	RecoveryTime      time.Time     `json:"recovery_time,omitempty"`
+	TotalFailures     int64         `json:"total_failures"`
+	TotalRecoveries   int64         `json:"total_recoveries"`
 }
 
 // QuorumConfig configures quorum behavior
 type QuorumConfig struct {
-	Enabled         bool    `json:"enabled"`
-	MinNodes        int     `json:"min_nodes"`         // Minimum nodes for quorum
-	QuorumPercent   float64 `json:"quorum_percent"`    // Percentage of nodes required
-	ForceQuorum     bool    `json:"force_quorum"`      // Force quorum even with single node
+	Enabled       bool    `json:"enabled"`
+	MinNodes      int     `json:"min_nodes"`      // Minimum nodes for quorum
+	QuorumPercent float64 `json:"quorum_percent"` // Percentage of nodes required
+	ForceQuorum   bool    `json:"force_quorum"`   // Force quorum even with single node
 }
 
 // DefaultQuorumConfig returns default quorum configuration
@@ -516,24 +516,24 @@ func (fd *FailureDetector) GetNodeHealth(nodeID string) (*NodeHealth, bool) {
 	// Create a copy
 	node.mu.RLock()
 	copy := &NodeHealth{
-		NodeID:           node.NodeID,
-		Hostname:         node.Hostname,
-		IP:               node.IP,
-		State:            node.State,
-		LastHeartbeat:    node.LastHeartbeat,
-		MissedHeartbeats: node.MissedHeartbeats,
-		LastTCPCheck:     node.LastTCPCheck,
-		TCPCheckOK:       node.TCPCheckOK,
-		LastQuorumCheck:  node.LastQuorumCheck,
-		QuorumMember:     node.QuorumMember,
-		NetworkReachable: node.NetworkReachable,
-		Latency:          node.Latency,
-		Failures:         node.Failures,
-		LastFailure:      node.LastFailure,
+		NodeID:            node.NodeID,
+		Hostname:          node.Hostname,
+		IP:                node.IP,
+		State:             node.State,
+		LastHeartbeat:     node.LastHeartbeat,
+		MissedHeartbeats:  node.MissedHeartbeats,
+		LastTCPCheck:      node.LastTCPCheck,
+		TCPCheckOK:        node.TCPCheckOK,
+		LastQuorumCheck:   node.LastQuorumCheck,
+		QuorumMember:      node.QuorumMember,
+		NetworkReachable:  node.NetworkReachable,
+		Latency:           node.Latency,
+		Failures:          node.Failures,
+		LastFailure:       node.LastFailure,
 		LastFailureReason: node.LastFailureReason,
-		RecoveryTime:     node.RecoveryTime,
-		TotalFailures:    node.TotalFailures,
-		TotalRecoveries:  node.TotalRecoveries,
+		RecoveryTime:      node.RecoveryTime,
+		TotalFailures:     node.TotalFailures,
+		TotalRecoveries:   node.TotalRecoveries,
 	}
 	node.mu.RUnlock()
 
@@ -549,24 +549,24 @@ func (fd *FailureDetector) GetAllNodeHealth() map[string]*NodeHealth {
 	for id, node := range fd.nodes {
 		node.mu.RLock()
 		copy := &NodeHealth{
-			NodeID:           node.NodeID,
-			Hostname:         node.Hostname,
-			IP:               node.IP,
-			State:            node.State,
-			LastHeartbeat:    node.LastHeartbeat,
-			MissedHeartbeats: node.MissedHeartbeats,
-			LastTCPCheck:     node.LastTCPCheck,
-			TCPCheckOK:       node.TCPCheckOK,
-			LastQuorumCheck:  node.LastQuorumCheck,
-			QuorumMember:     node.QuorumMember,
-			NetworkReachable: node.NetworkReachable,
-			Latency:          node.Latency,
-			Failures:         node.Failures,
-			LastFailure:      node.LastFailure,
+			NodeID:            node.NodeID,
+			Hostname:          node.Hostname,
+			IP:                node.IP,
+			State:             node.State,
+			LastHeartbeat:     node.LastHeartbeat,
+			MissedHeartbeats:  node.MissedHeartbeats,
+			LastTCPCheck:      node.LastTCPCheck,
+			TCPCheckOK:        node.TCPCheckOK,
+			LastQuorumCheck:   node.LastQuorumCheck,
+			QuorumMember:      node.QuorumMember,
+			NetworkReachable:  node.NetworkReachable,
+			Latency:           node.Latency,
+			Failures:          node.Failures,
+			LastFailure:       node.LastFailure,
 			LastFailureReason: node.LastFailureReason,
-			RecoveryTime:     node.RecoveryTime,
-			TotalFailures:    node.TotalFailures,
-			TotalRecoveries:  node.TotalRecoveries,
+			RecoveryTime:      node.RecoveryTime,
+			TotalFailures:     node.TotalFailures,
+			TotalRecoveries:   node.TotalRecoveries,
 		}
 		node.mu.RUnlock()
 		result[id] = copy

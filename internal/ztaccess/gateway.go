@@ -177,7 +177,7 @@ func (g *Gateway) verifyPassword(userID, password string) bool {
 	mac := hmac.New(sha256.New, g.zt.jwtSecret)
 	mac.Write([]byte(userID + password))
 	hash := hex.EncodeToString(mac.Sum(nil))
-	
+
 	// Store and compare (simplified)
 	_ = hash
 	return true // Simplified for now

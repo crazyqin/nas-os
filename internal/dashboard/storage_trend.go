@@ -17,33 +17,33 @@ import (
 
 // StorageTrendData 存储趋势数据
 type StorageTrendData struct {
-	Timestamp   time.Time `json:"timestamp"`
-	TotalSize   uint64    `json:"totalSize"`
-	UsedSize    uint64    `json:"usedSize"`
-	FreeSize    uint64    `json:"freeSize"`
-	UsagePercent float64  `json:"usagePercent"`
-	GrowthRate   float64  `json:"growthRate"` // 每日增长率 (GB/day)
+	Timestamp    time.Time `json:"timestamp"`
+	TotalSize    uint64    `json:"totalSize"`
+	UsedSize     uint64    `json:"usedSize"`
+	FreeSize     uint64    `json:"freeSize"`
+	UsagePercent float64   `json:"usagePercent"`
+	GrowthRate   float64   `json:"growthRate"` // 每日增长率 (GB/day)
 }
 
 // StoragePoolTrend 存储池趋势
 type StoragePoolTrend struct {
-	PoolID      string             `json:"poolId"`
-	PoolName    string             `json:"poolName"`
-	TrendData   []StorageTrendData `json:"trendData"`
-	Prediction  *StoragePrediction `json:"prediction,omitempty"`
+	PoolID     string             `json:"poolId"`
+	PoolName   string             `json:"poolName"`
+	TrendData  []StorageTrendData `json:"trendData"`
+	Prediction *StoragePrediction `json:"prediction,omitempty"`
 }
 
 // StoragePrediction 存储容量预测
 type StoragePrediction struct {
-	FullDate           time.Time `json:"fullDate"`           // 预测满盘日期
-	DaysUntilFull      int       `json:"daysUntilFull"`      // 距离满盘天数
-	GrowthRateDaily    float64   `json:"growthRateDaily"`    // 每日增长率 (GB)
-	GrowthRateWeekly   float64   `json:"growthRateWeekly"`   // 每周增长率 (GB)
-	GrowthRateMonthly  float64   `json:"growthRateMonthly"`  // 每月增长率 (GB)
-	Confidence         float64   `json:"confidence"`         // 预测置信度 (0-1)
-	PredictedUsage30d  float64   `json:"predictedUsage30d"`  // 30天后预测使用率
-	PredictedUsage60d  float64   `json:"predictedUsage60d"`  // 60天后预测使用率
-	PredictedUsage90d  float64   `json:"predictedUsage90d"`  // 90天后预测使用率
+	FullDate          time.Time `json:"fullDate"`          // 预测满盘日期
+	DaysUntilFull     int       `json:"daysUntilFull"`     // 距离满盘天数
+	GrowthRateDaily   float64   `json:"growthRateDaily"`   // 每日增长率 (GB)
+	GrowthRateWeekly  float64   `json:"growthRateWeekly"`  // 每周增长率 (GB)
+	GrowthRateMonthly float64   `json:"growthRateMonthly"` // 每月增长率 (GB)
+	Confidence        float64   `json:"confidence"`        // 预测置信度 (0-1)
+	PredictedUsage30d float64   `json:"predictedUsage30d"` // 30天后预测使用率
+	PredictedUsage60d float64   `json:"predictedUsage60d"` // 60天后预测使用率
+	PredictedUsage90d float64   `json:"predictedUsage90d"` // 90天后预测使用率
 }
 
 // TrendTimeRange 时间范围
@@ -77,16 +77,16 @@ type StorageTrendQuery struct {
 
 // StorageHistoryRecord 历史记录
 type StorageHistoryRecord struct {
-	ID          string    `json:"id"`
-	PoolID      string    `json:"poolId"`
-	PoolName    string    `json:"poolName"`
-	Timestamp   time.Time `json:"timestamp"`
-	TotalSize   uint64    `json:"totalSize"`
-	UsedSize    uint64    `json:"usedSize"`
-	FreeSize    uint64    `json:"freeSize"`
-	UsagePercent float64  `json:"usagePercent"`
-	ShareID     string    `json:"shareId,omitempty"`  // 共享文件夹ID
-	ShareName   string    `json:"shareName,omitempty"` // 共享文件夹名称
+	ID           string    `json:"id"`
+	PoolID       string    `json:"poolId"`
+	PoolName     string    `json:"poolName"`
+	Timestamp    time.Time `json:"timestamp"`
+	TotalSize    uint64    `json:"totalSize"`
+	UsedSize     uint64    `json:"usedSize"`
+	FreeSize     uint64    `json:"freeSize"`
+	UsagePercent float64   `json:"usagePercent"`
+	ShareID      string    `json:"shareId,omitempty"`   // 共享文件夹ID
+	ShareName    string    `json:"shareName,omitempty"` // 共享文件夹名称
 }
 
 // ShareTrendData 共享文件夹趋势
@@ -101,11 +101,11 @@ type ShareTrendData struct {
 
 // StorageTrendManager 存储趋势管理器
 type StorageTrendManager struct {
-	mu             sync.RWMutex
-	metricsDir     string                     // 指标存储目录
-	collectionInterval time.Duration          // 采集间隔
-	historyRecords map[string][]StorageHistoryRecord // 历史记录缓存
-	lastCollection time.Time                   // 上次采集时间
+	mu                 sync.RWMutex
+	metricsDir         string                            // 指标存储目录
+	collectionInterval time.Duration                     // 采集间隔
+	historyRecords     map[string][]StorageHistoryRecord // 历史记录缓存
+	lastCollection     time.Time                         // 上次采集时间
 }
 
 // StorageTrendConfig 配置
@@ -131,9 +131,9 @@ func NewStorageTrendManager(config *StorageTrendConfig) (*StorageTrendManager, e
 	}
 
 	manager := &StorageTrendManager{
-		metricsDir:     config.MetricsDir,
+		metricsDir:         config.MetricsDir,
 		collectionInterval: config.CollectionInterval,
-		historyRecords: make(map[string][]StorageHistoryRecord),
+		historyRecords:     make(map[string][]StorageHistoryRecord),
 	}
 
 	// 加载历史数据
@@ -156,13 +156,13 @@ func (m *StorageTrendManager) CollectSnapshot(pools []StoragePoolInfo) error {
 
 	for _, pool := range pools {
 		record := StorageHistoryRecord{
-			ID:          fmt.Sprintf("%s-%d", pool.PoolID, now.Unix()),
-			PoolID:      pool.PoolID,
-			PoolName:    pool.PoolName,
-			Timestamp:   now,
-			TotalSize:   pool.TotalSize,
-			UsedSize:    pool.UsedSize,
-			FreeSize:    pool.FreeSize,
+			ID:           fmt.Sprintf("%s-%d", pool.PoolID, now.Unix()),
+			PoolID:       pool.PoolID,
+			PoolName:     pool.PoolName,
+			Timestamp:    now,
+			TotalSize:    pool.TotalSize,
+			UsedSize:     pool.UsedSize,
+			FreeSize:     pool.FreeSize,
 			UsagePercent: pool.UsagePercent,
 		}
 
@@ -182,11 +182,11 @@ func (m *StorageTrendManager) CollectSnapshot(pools []StoragePoolInfo) error {
 
 // StoragePoolInfo 存储池信息
 type StoragePoolInfo struct {
-	PoolID       string `json:"poolId"`
-	PoolName     string `json:"poolName"`
-	TotalSize    uint64 `json:"totalSize"`
-	UsedSize     uint64 `json:"usedSize"`
-	FreeSize     uint64 `json:"freeSize"`
+	PoolID       string  `json:"poolId"`
+	PoolName     string  `json:"poolName"`
+	TotalSize    uint64  `json:"totalSize"`
+	UsedSize     uint64  `json:"usedSize"`
+	FreeSize     uint64  `json:"freeSize"`
 	UsagePercent float64 `json:"usagePercent"`
 }
 
@@ -223,7 +223,7 @@ func (m *StorageTrendManager) saveRecordToFile(record *StorageHistoryRecord) err
 // loadHistory 加载历史数据
 func (m *StorageTrendManager) loadHistory() error {
 	storageDir := filepath.Join(m.metricsDir, "storage")
-	
+
 	// 遍历日期目录
 	entries, err := os.ReadDir(storageDir)
 	if err != nil {
@@ -425,13 +425,13 @@ func (m *StorageTrendManager) aggregateByDay(records []StorageHistoryRecord) []S
 			// 使用最后一条记录的时间戳
 			lastRecord := dayRecords[len(dayRecords)-1]
 			aggRecord := StorageHistoryRecord{
-				ID:          fmt.Sprintf("agg-%s", dayKey),
-				PoolID:      lastRecord.PoolID,
-				PoolName:    lastRecord.PoolName,
-				Timestamp:   lastRecord.Timestamp,
-				TotalSize:   lastRecord.TotalSize,
-				UsedSize:    totalUsed / uint64(len(dayRecords)),
-				FreeSize:    totalFree / uint64(len(dayRecords)),
+				ID:           fmt.Sprintf("agg-%s", dayKey),
+				PoolID:       lastRecord.PoolID,
+				PoolName:     lastRecord.PoolName,
+				Timestamp:    lastRecord.Timestamp,
+				TotalSize:    lastRecord.TotalSize,
+				UsedSize:     totalUsed / uint64(len(dayRecords)),
+				FreeSize:     totalFree / uint64(len(dayRecords)),
 				UsagePercent: avgUsage,
 			}
 			aggregated = append(aggregated, aggRecord)
@@ -467,13 +467,13 @@ func (m *StorageTrendManager) aggregateByWeek(records []StorageHistoryRecord) []
 			n := float64(len(weekRecords))
 			_, weekNum := lastRecord.Timestamp.ISOWeek()
 			aggRecord := StorageHistoryRecord{
-				ID:          fmt.Sprintf("agg-week-%d", weekNum),
-				PoolID:      lastRecord.PoolID,
-				PoolName:    lastRecord.PoolName,
-				Timestamp:   lastRecord.Timestamp,
-				TotalSize:   lastRecord.TotalSize,
-				UsedSize:    uint64(float64(avgUsed) / n),
-				FreeSize:    uint64(float64(avgFree) / n),
+				ID:           fmt.Sprintf("agg-week-%d", weekNum),
+				PoolID:       lastRecord.PoolID,
+				PoolName:     lastRecord.PoolName,
+				Timestamp:    lastRecord.Timestamp,
+				TotalSize:    lastRecord.TotalSize,
+				UsedSize:     uint64(float64(avgUsed) / n),
+				FreeSize:     uint64(float64(avgFree) / n),
 				UsagePercent: avgUsage / n,
 			}
 			aggregated = append(aggregated, aggRecord)
@@ -506,13 +506,13 @@ func (m *StorageTrendManager) aggregateByMonth(records []StorageHistoryRecord) [
 			}
 			n := float64(len(monthRecords))
 			aggRecord := StorageHistoryRecord{
-				ID:          fmt.Sprintf("agg-%s", lastRecord.Timestamp.Format("2006-01")),
-				PoolID:      lastRecord.PoolID,
-				PoolName:    lastRecord.PoolName,
-				Timestamp:   lastRecord.Timestamp,
-				TotalSize:   lastRecord.TotalSize,
-				UsedSize:    uint64(float64(avgUsed) / n),
-				FreeSize:    uint64(float64(avgFree) / n),
+				ID:           fmt.Sprintf("agg-%s", lastRecord.Timestamp.Format("2006-01")),
+				PoolID:       lastRecord.PoolID,
+				PoolName:     lastRecord.PoolName,
+				Timestamp:    lastRecord.Timestamp,
+				TotalSize:    lastRecord.TotalSize,
+				UsedSize:     uint64(float64(avgUsed) / n),
+				FreeSize:     uint64(float64(avgFree) / n),
 				UsagePercent: avgUsage / n,
 			}
 			aggregated = append(aggregated, aggRecord)
@@ -544,7 +544,7 @@ func (m *StorageTrendManager) calculateGrowthRate(records []StorageHistoryRecord
 			prev := records[i-1]
 			timeDiff := r.Timestamp.Sub(prev.Timestamp).Hours()
 			if timeDiff > 0 {
-				usedDiff := float64(r.UsedSize - prev.UsedSize) / (1024 * 1024 * 1024) // GB
+				usedDiff := float64(r.UsedSize-prev.UsedSize) / (1024 * 1024 * 1024) // GB
 				days := timeDiff / 24
 				if days > 0 {
 					data.GrowthRate = usedDiff / days // GB/day
@@ -621,9 +621,9 @@ func (m *StorageTrendManager) calculatePrediction(trendData []StorageTrendData) 
 
 			// 计算未来使用率
 			currentUsage := currentData.UsagePercent
-			prediction.PredictedUsage30d = math.Min(100, currentUsage + (avgGrowth * 30 / totalSpaceGB * 100))
-			prediction.PredictedUsage60d = math.Min(100, currentUsage + (avgGrowth * 60 / totalSpaceGB * 100))
-			prediction.PredictedUsage90d = math.Min(100, currentUsage + (avgGrowth * 90 / totalSpaceGB * 100))
+			prediction.PredictedUsage30d = math.Min(100, currentUsage+(avgGrowth*30/totalSpaceGB*100))
+			prediction.PredictedUsage60d = math.Min(100, currentUsage+(avgGrowth*60/totalSpaceGB*100))
+			prediction.PredictedUsage90d = math.Min(100, currentUsage+(avgGrowth*90/totalSpaceGB*100))
 
 			// 计算置信度 (基于数据量和一致性)
 			prediction.Confidence = m.calculateConfidence(dataPoints, avgGrowth)
@@ -640,7 +640,7 @@ func (m *StorageTrendManager) calculateConfidence(dataPoints []StorageTrendData,
 	// 2. 增长一致性：增长越稳定置信度越高
 
 	// 数据量因素
-	dataFactor := math.Min(1.0, float64(len(dataPoints)) / 30.0)
+	dataFactor := math.Min(1.0, float64(len(dataPoints))/30.0)
 
 	// 增长一致性因素
 	var variance float64
@@ -656,7 +656,7 @@ func (m *StorageTrendManager) calculateConfidence(dataPoints []StorageTrendData,
 	if count > 0 {
 		stdDev := math.Sqrt(variance / float64(count))
 		// 标准差越小，一致性越高
-		consistencyFactor := math.Max(0, 1.0 - stdDev / (avgGrowth + 1))
+		consistencyFactor := math.Max(0, 1.0-stdDev/(avgGrowth+1))
 		return (dataFactor * 0.3) + (consistencyFactor * 0.7)
 	}
 
@@ -701,9 +701,9 @@ func (m *StorageTrendManager) GetShareHistory(poolID, shareID string, days int) 
 // ToChartData 转换为图表数据格式 (ECharts)
 func (t *StoragePoolTrend) ToChartData() *EChartsLineData {
 	chartData := &EChartsLineData{
-		Title:   fmt.Sprintf("%s 存储趋势", t.PoolName),
-		XAxis:   make([]string, 0),
-		Series:  make([]*EChartsSeries, 0),
+		Title:  fmt.Sprintf("%s 存储趋势", t.PoolName),
+		XAxis:  make([]string, 0),
+		Series: make([]*EChartsSeries, 0),
 	}
 
 	// X轴：时间
@@ -742,9 +742,9 @@ func (t *StoragePoolTrend) ToChartData() *EChartsLineData {
 
 // EChartsLineData ECharts折线图数据
 type EChartsLineData struct {
-	Title   string           `json:"title"`
-	XAxis   []string         `json:"xAxis"`
-	Series  []*EChartsSeries `json:"series"`
+	Title  string           `json:"title"`
+	XAxis  []string         `json:"xAxis"`
+	Series []*EChartsSeries `json:"series"`
 }
 
 // EChartsSeries ECharts系列
@@ -757,7 +757,7 @@ type EChartsSeries struct {
 // ToChartJSData 转换为Chart.js数据格式
 func (t *StoragePoolTrend) ToChartJSData() *ChartJSLineData {
 	chartData := &ChartJSLineData{
-		Labels: make([]string, 0),
+		Labels:   make([]string, 0),
 		Datasets: make([]*ChartJSDataset, 0),
 	}
 
@@ -768,18 +768,18 @@ func (t *StoragePoolTrend) ToChartJSData() *ChartJSLineData {
 
 	// 数据集
 	usageDataset := &ChartJSDataset{
-		Label: "使用量 (GB)",
-		Data:  make([]float64, 0),
-		BorderColor: "#4CAF50",
+		Label:           "使用量 (GB)",
+		Data:            make([]float64, 0),
+		BorderColor:     "#4CAF50",
 		BackgroundColor: "#4CAF50",
-		Fill: false,
+		Fill:            false,
 	}
 	usagePercentDataset := &ChartJSDataset{
-		Label: "使用率 (%)",
-		Data:  make([]float64, 0),
-		BorderColor: "#2196F3",
+		Label:           "使用率 (%)",
+		Data:            make([]float64, 0),
+		BorderColor:     "#2196F3",
 		BackgroundColor: "#2196F3",
-		Fill: false,
+		Fill:            false,
 	}
 
 	for _, d := range t.TrendData {
@@ -795,7 +795,7 @@ func (t *StoragePoolTrend) ToChartJSData() *ChartJSLineData {
 
 // ChartJSLineData Chart.js折线图数据
 type ChartJSLineData struct {
-	Labels   []string        `json:"labels"`
+	Labels   []string          `json:"labels"`
 	Datasets []*ChartJSDataset `json:"datasets"`
 }
 
@@ -879,24 +879,24 @@ func GenerateMockHistory(poolID, poolName string, days int) []StorageHistoryReco
 	var records []StorageHistoryRecord
 
 	now := time.Now()
-	startSize := uint64(100 * 1024 * 1024 * 1024) // 100GB
+	startSize := uint64(100 * 1024 * 1024 * 1024)  // 100GB
 	growthPerDay := uint64(2 * 1024 * 1024 * 1024) // 2GB/day
 
 	for i := days; i >= 0; i-- {
 		timestamp := now.AddDate(0, 0, -i)
-		used := startSize + uint64(days-i) * growthPerDay
+		used := startSize + uint64(days-i)*growthPerDay
 		total := uint64(500 * 1024 * 1024 * 1024) // 500GB total
 		free := total - used
 		usage := float64(used) / float64(total) * 100
 
 		record := StorageHistoryRecord{
-			ID:          fmt.Sprintf("%s-%d", poolID, timestamp.Unix()),
-			PoolID:      poolID,
-			PoolName:    poolName,
-			Timestamp:   timestamp,
-			TotalSize:   total,
-			UsedSize:    used,
-			FreeSize:    free,
+			ID:           fmt.Sprintf("%s-%d", poolID, timestamp.Unix()),
+			PoolID:       poolID,
+			PoolName:     poolName,
+			Timestamp:    timestamp,
+			TotalSize:    total,
+			UsedSize:     used,
+			FreeSize:     free,
 			UsagePercent: usage,
 		}
 

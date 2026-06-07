@@ -159,7 +159,7 @@ func (s *Scanner) ScanImage(ctx context.Context, imageName string) *ScanResult {
 
 	// 扫描镜像层
 	packages := s.scanImageLayers(ctx, imageName)
-	
+
 	// 匹配 CVE
 	vulns := s.cveDB.MatchPackages(packages)
 	for i := range vulns {
@@ -602,12 +602,12 @@ func (s *Scanner) sendAlerts(result *ScanResult) {
 				Message: fmt.Sprintf("Container %s has vulnerability %s (Score: %.1f)", result.ContainerID, vuln.CVEID, vuln.CVSS),
 				Source:  "cve-scanner",
 				Details: map[string]string{
-					"cve_id":        vuln.CVEID,
-					"severity":      vuln.Severity,
-					"score":         fmt.Sprintf("%.1f", vuln.CVSS),
-					"package":       vuln.Package,
-					"container_id":  result.ContainerID,
-					"image_name":    result.ImageName,
+					"cve_id":       vuln.CVEID,
+					"severity":     vuln.Severity,
+					"score":        fmt.Sprintf("%.1f", vuln.CVSS),
+					"package":      vuln.Package,
+					"container_id": result.ContainerID,
+					"image_name":   result.ImageName,
 				},
 			}
 			s.alerter.SendAlert(alert)

@@ -20,21 +20,21 @@ type RsyncConfig struct {
 
 // RsyncTarget 同步目标.
 type RsyncTarget struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	Source       string            `json:"source"`
-	Destination  string            `json:"destination"`
-	Type         TargetType        `json:"type"`
-	Host         string            `json:"host"`
-	Port         int               `json:"port"`
-	Username     string            `json:"username"`
-	SSHKey       string            `json:"ssh_key"`
-	Options      []string          `json:"options"`
-	Exclude      []string          `json:"exclude"`
-	Include      []string          `json:"include"`
-	Filter       []string          `json:"filter"`
-	Attributes   map[string]string `json:"attributes"`
-	CreatedAt    time.Time         `json:"created_at"`
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Source      string            `json:"source"`
+	Destination string            `json:"destination"`
+	Type        TargetType        `json:"type"`
+	Host        string            `json:"host"`
+	Port        int               `json:"port"`
+	Username    string            `json:"username"`
+	SSHKey      string            `json:"ssh_key"`
+	Options     []string          `json:"options"`
+	Exclude     []string          `json:"exclude"`
+	Include     []string          `json:"include"`
+	Filter      []string          `json:"filter"`
+	Attributes  map[string]string `json:"attributes"`
+	CreatedAt   time.Time         `json:"created_at"`
 }
 
 // TargetType 目标类型.
@@ -48,18 +48,18 @@ const (
 
 // RsyncJob 同步任务.
 type RsyncJob struct {
-	ID          string     `json:"id"`
-	TargetID    string     `json:"target_id"`
-	Name        string     `json:"name"`
-	Status      JobStatus  `json:"status"`
-	Schedule    string     `json:"schedule"`
-	NextRun     time.Time  `json:"next_run"`
-	StartedAt   time.Time  `json:"started_at"`
-	CompletedAt time.Time  `json:"completed_at"`
-	Duration    time.Duration `json:"duration"`
-	ErrorMessage string    `json:"error_message,omitempty"`
-	RetryCount  int        `json:"retry_count"`
-	CreatedAt   time.Time  `json:"created_at"`
+	ID           string        `json:"id"`
+	TargetID     string        `json:"target_id"`
+	Name         string        `json:"name"`
+	Status       JobStatus     `json:"status"`
+	Schedule     string        `json:"schedule"`
+	NextRun      time.Time     `json:"next_run"`
+	StartedAt    time.Time     `json:"started_at"`
+	CompletedAt  time.Time     `json:"completed_at"`
+	Duration     time.Duration `json:"duration"`
+	ErrorMessage string        `json:"error_message,omitempty"`
+	RetryCount   int           `json:"retry_count"`
+	CreatedAt    time.Time     `json:"created_at"`
 }
 
 // JobStatus 任务状态.

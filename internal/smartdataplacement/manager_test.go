@@ -7,11 +7,11 @@ import (
 
 func newTestManager() *Manager {
 	m := NewManager(&Config{
-		Enabled:            true,
-		AnalysisInterval:   time.Hour,
-		TemperatureWindow:  time.Hour * 24 * 30,
-		MinAccessForScore:  1,
-		AutoMigrate:        false,
+		Enabled:                 true,
+		AnalysisInterval:        time.Hour,
+		TemperatureWindow:       time.Hour * 24 * 30,
+		MinAccessForScore:       1,
+		AutoMigrate:             false,
 		MaxConcurrentMigrations: 5,
 	})
 	return m

@@ -28,102 +28,102 @@ const (
 type TagType string
 
 const (
-	TagAuto      TagType = "auto"
-	TagManual    TagType = "manual"
-	TagAI        TagType = "ai"
-	TagSystem    TagType = "system"
+	TagAuto   TagType = "auto"
+	TagManual TagType = "manual"
+	TagAI     TagType = "ai"
+	TagSystem TagType = "system"
 )
 
 // FileTag 文件标签
 type FileTag struct {
-	Name      string    `json:"name"`
-	Type      TagType   `json:"type"`
-	Confidence float64  `json:"confidence"`
+	Name       string    `json:"name"`
+	Type       TagType   `json:"type"`
+	Confidence float64   `json:"confidence"`
 	CreatedAt  time.Time `json:"created_at"`
 }
 
 // FileAnalysis 文件分析结果
 type FileAnalysis struct {
-	ID           string            `json:"id"`
-	FilePath     string            `json:"file_path"`
-	FileName     string            `json:"file_name"`
-	FileSize     int64             `json:"file_size"`
-	Category     FileCategory      `json:"category"`
-	Tags         []FileTag         `json:"tags"`
-	Summary      string            `json:"summary"`
-	Language     string            `json:"language"`
-	Sentiment    string            `json:"sentiment"`
-	Keywords     []string          `json:"keywords"`
-	Entities     []Entity          `json:"entities"`
-	ContentHash  string            `json:"content_hash"`
-	Similarity   float64           `json:"similarity"`
-	Duplicates   []string          `json:"duplicates,omitempty"`
-	Metadata     map[string]string `json:"metadata,omitempty"`
-	AnalyzedAt   time.Time         `json:"analyzed_at"`
-	AnalyzedBy   string            `json:"analyzed_by"`
+	ID          string            `json:"id"`
+	FilePath    string            `json:"file_path"`
+	FileName    string            `json:"file_name"`
+	FileSize    int64             `json:"file_size"`
+	Category    FileCategory      `json:"category"`
+	Tags        []FileTag         `json:"tags"`
+	Summary     string            `json:"summary"`
+	Language    string            `json:"language"`
+	Sentiment   string            `json:"sentiment"`
+	Keywords    []string          `json:"keywords"`
+	Entities    []Entity          `json:"entities"`
+	ContentHash string            `json:"content_hash"`
+	Similarity  float64           `json:"similarity"`
+	Duplicates  []string          `json:"duplicates,omitempty"`
+	Metadata    map[string]string `json:"metadata,omitempty"`
+	AnalyzedAt  time.Time         `json:"analyzed_at"`
+	AnalyzedBy  string            `json:"analyzed_by"`
 }
 
 // Entity 实体识别
 type Entity struct {
-	Name  string `json:"name"`
-	Type  string `json:"type"`
+	Name  string  `json:"name"`
+	Type  string  `json:"type"`
 	Score float64 `json:"score"`
 }
 
 // SearchQuery 搜索查询
 type SearchQuery struct {
-	Query      string        `json:"query"`
-	Category   FileCategory  `json:"category,omitempty"`
-	Tags       []string      `json:"tags,omitempty"`
-	DateFrom   *time.Time    `json:"date_from,omitempty"`
-	DateTo     *time.Time    `json:"date_to,omitempty"`
-	SizeMin    int64         `json:"size_min,omitempty"`
-	SizeMax    int64         `json:"size_max,omitempty"`
-	SortBy     string        `json:"sort_by,omitempty"`
-	Limit      int           `json:"limit,omitempty"`
+	Query    string       `json:"query"`
+	Category FileCategory `json:"category,omitempty"`
+	Tags     []string     `json:"tags,omitempty"`
+	DateFrom *time.Time   `json:"date_from,omitempty"`
+	DateTo   *time.Time   `json:"date_to,omitempty"`
+	SizeMin  int64        `json:"size_min,omitempty"`
+	SizeMax  int64        `json:"size_max,omitempty"`
+	SortBy   string       `json:"sort_by,omitempty"`
+	Limit    int          `json:"limit,omitempty"`
 }
 
 // SearchResult 搜索结果
 type SearchResult struct {
-	Files      []FileAnalysis `json:"files"`
-	Total      int            `json:"total"`
-	Query      string         `json:"query"`
-	Duration   time.Duration  `json:"duration"`
-	Suggestions []string      `json:"suggestions,omitempty"`
+	Files       []FileAnalysis `json:"files"`
+	Total       int            `json:"total"`
+	Query       string         `json:"query"`
+	Duration    time.Duration  `json:"duration"`
+	Suggestions []string       `json:"suggestions,omitempty"`
 }
 
 // DuplicateGroup 重复文件组
 type DuplicateGroup struct {
-	ID       string         `json:"id"`
-	Hash     string         `json:"hash"`
-	Files    []FileAnalysis `json:"files"`
-	TotalSize int64         `json:"total_size"`
-	Savings   int64         `json:"savings"`
+	ID        string         `json:"id"`
+	Hash      string         `json:"hash"`
+	Files     []FileAnalysis `json:"files"`
+	TotalSize int64          `json:"total_size"`
+	Savings   int64          `json:"savings"`
 }
 
 // OrganizeSuggestion 整理建议
 type OrganizeSuggestion struct {
-	ID          string       `json:"id"`
-	Type        string       `json:"type"`
-	Title       string       `json:"title"`
-	Description string       `json:"description"`
-	Files       []string     `json:"files"`
-	Action      string       `json:"action"`
-	Priority    int          `json:"priority"`
-	Savings     int64        `json:"savings"`
+	ID          string   `json:"id"`
+	Type        string   `json:"type"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Files       []string `json:"files"`
+	Action      string   `json:"action"`
+	Priority    int      `json:"priority"`
+	Savings     int64    `json:"savings"`
 }
 
 // FileAssistantStats 助手统计
 type FileAssistantStats struct {
-	TotalFiles      int                    `json:"total_files"`
-	AnalyzedFiles   int                    `json:"analyzed_files"`
-	TotalTags       int                    `json:"total_tags"`
-	AutoTags        int                    `json:"auto_tags"`
-	Duplicates      int                    `json:"duplicates"`
-	DuplicateSize   int64                  `json:"duplicate_size"`
-	CategoryCounts  map[FileCategory]int   `json:"category_counts"`
-	TopTags         []TagCount             `json:"top_tags"`
-	LastAnalysis    *time.Time             `json:"last_analysis,omitempty"`
+	TotalFiles     int                  `json:"total_files"`
+	AnalyzedFiles  int                  `json:"analyzed_files"`
+	TotalTags      int                  `json:"total_tags"`
+	AutoTags       int                  `json:"auto_tags"`
+	Duplicates     int                  `json:"duplicates"`
+	DuplicateSize  int64                `json:"duplicate_size"`
+	CategoryCounts map[FileCategory]int `json:"category_counts"`
+	TopTags        []TagCount           `json:"top_tags"`
+	LastAnalysis   *time.Time           `json:"last_analysis,omitempty"`
 }
 
 // TagCount 标签计数
@@ -134,22 +134,22 @@ type TagCount struct {
 
 // AIFileAssistant AI 文件助手
 type AIFileAssistant struct {
-	mu           sync.RWMutex
-	analyses     map[string]*FileAnalysis
-	tagIndex     map[string][]string // tag -> file IDs
+	mu            sync.RWMutex
+	analyses      map[string]*FileAnalysis
+	tagIndex      map[string][]string // tag -> file IDs
 	categoryIndex map[FileCategory][]string
-	config       *AssistantConfig
+	config        *AssistantConfig
 }
 
 // AssistantConfig 助手配置
 type AssistantConfig struct {
-	AutoTagEnabled    bool    `json:"auto_tag_enabled"`
-	AutoClassify      bool    `json:"auto_classify"`
-	DuplicateDetect   bool    `json:"duplicate_detect"`
-	SummaryEnabled    bool    `json:"summary_enabled"`
-	LanguageDetect    bool    `json:"language_detect"`
-	SentimentAnalyze  bool    `json:"sentiment_analyze"`
-	MaxFileSize       int64   `json:"max_file_size"`
+	AutoTagEnabled      bool    `json:"auto_tag_enabled"`
+	AutoClassify        bool    `json:"auto_classify"`
+	DuplicateDetect     bool    `json:"duplicate_detect"`
+	SummaryEnabled      bool    `json:"summary_enabled"`
+	LanguageDetect      bool    `json:"language_detect"`
+	SentimentAnalyze    bool    `json:"sentiment_analyze"`
+	MaxFileSize         int64   `json:"max_file_size"`
 	SimilarityThreshold float64 `json:"similarity_threshold"`
 }
 

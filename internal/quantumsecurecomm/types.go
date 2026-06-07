@@ -38,11 +38,11 @@ const (
 
 // KeyEncapsulation 密钥封装结果
 type KeyEncapsulation struct {
-	PublicKey    []byte    `json:"publicKey"`
-	SharedSecret []byte    `json:"sharedSecret"`
-	Ciphertext   []byte    `json:"ciphertext"`
+	PublicKey    []byte        `json:"publicKey"`
+	SharedSecret []byte        `json:"sharedSecret"`
+	Ciphertext   []byte        `json:"ciphertext"`
 	Algorithm    AlgorithmType `json:"algorithm"`
-	CreatedAt    time.Time `json:"createdAt"`
+	CreatedAt    time.Time     `json:"createdAt"`
 }
 
 // DigitalSignature 数字签名
@@ -56,12 +56,12 @@ type DigitalSignature struct {
 
 // KeyPair 密钥对
 type KeyPair struct {
-	PublicKey  []byte        `json:"publicKey"`
-	PrivateKey []byte        `json:"privateKey"`
-	Algorithm  AlgorithmType `json:"algorithm"`
+	PublicKey     []byte        `json:"publicKey"`
+	PrivateKey    []byte        `json:"privateKey"`
+	Algorithm     AlgorithmType `json:"algorithm"`
 	SecurityLevel SecurityLevel `json:"securityLevel"`
-	CreatedAt  time.Time     `json:"createdAt"`
-	ExpiresAt  time.Time     `json:"expiresAt"`
+	CreatedAt     time.Time     `json:"createdAt"`
+	ExpiresAt     time.Time     `json:"expiresAt"`
 }
 
 // HandshakeState 握手状态
@@ -82,16 +82,16 @@ const (
 
 // HandshakeSession 握手会话
 type HandshakeSession struct {
-	ID            string        `json:"id"`
+	ID            string         `json:"id"`
 	State         HandshakeState `json:"state"`
-	Algorithm     AlgorithmType `json:"algorithm"`
-	SecurityLevel SecurityLevel `json:"securityLevel"`
-	LocalKeyPair  *KeyPair      `json:"localKeyPair"`
-	RemotePubKey  []byte        `json:"remotePubKey,omitempty"`
-	SharedSecret  []byte        `json:"sharedSecret,omitempty"`
-	StartedAt     time.Time     `json:"startedAt"`
-	CompletedAt   *time.Time    `json:"completedAt,omitempty"`
-	Error         string        `json:"error,omitempty"`
+	Algorithm     AlgorithmType  `json:"algorithm"`
+	SecurityLevel SecurityLevel  `json:"securityLevel"`
+	LocalKeyPair  *KeyPair       `json:"localKeyPair"`
+	RemotePubKey  []byte         `json:"remotePubKey,omitempty"`
+	SharedSecret  []byte         `json:"sharedSecret,omitempty"`
+	StartedAt     time.Time      `json:"startedAt"`
+	CompletedAt   *time.Time     `json:"completedAt,omitempty"`
+	Error         string         `json:"error,omitempty"`
 }
 
 // ChannelState 通道状态
@@ -123,46 +123,46 @@ type SecureChannel struct {
 
 // EncryptedMessage 加密消息
 type EncryptedMessage struct {
-	ChannelID string    `json:"channelId"`
-	Sequence  uint64    `json:"sequence"`
-	Nonce     []byte    `json:"nonce"`
-	Ciphertext []byte   `json:"ciphertext"`
-	Tag       []byte    `json:"tag"`
-	Timestamp time.Time `json:"timestamp"`
+	ChannelID  string    `json:"channelId"`
+	Sequence   uint64    `json:"sequence"`
+	Nonce      []byte    `json:"nonce"`
+	Ciphertext []byte    `json:"ciphertext"`
+	Tag        []byte    `json:"tag"`
+	Timestamp  time.Time `json:"timestamp"`
 }
 
 // AlgorithmInfo 算法信息
 type AlgorithmInfo struct {
-	Type           AlgorithmType `json:"type"`
-	Name           string        `json:"name"`
-	Description    string        `json:"description"`
+	Type           AlgorithmType   `json:"type"`
+	Name           string          `json:"name"`
+	Description    string          `json:"description"`
 	SecurityLevels []SecurityLevel `json:"securityLevels"`
-	PublicKeySize  int           `json:"publicKeySize"`
-	PrivateKeySize int          `json:"privateKeySize"`
-	SignatureSize  int           `json:"signatureSize,omitempty"`
-	CiphertextSize int          `json:"ciphertextSize,omitempty"`
-	SharedKeySize  int           `json:"sharedKeySize"`
-	IsNISTStandard bool         `json:"isNISTStandard"`
+	PublicKeySize  int             `json:"publicKeySize"`
+	PrivateKeySize int             `json:"privateKeySize"`
+	SignatureSize  int             `json:"signatureSize,omitempty"`
+	CiphertextSize int             `json:"ciphertextSize,omitempty"`
+	SharedKeySize  int             `json:"sharedKeySize"`
+	IsNISTStandard bool            `json:"isNISTStandard"`
 }
 
 // SecurityAudit 安全审计记录
 type SecurityAudit struct {
-	ID         string    `json:"id"`
-	ChannelID  string    `json:"channelId"`
-	EventType  string    `json:"eventType"`
-	Algorithm  AlgorithmType `json:"algorithm"`
-	Details    string    `json:"details"`
-	Severity   string    `json:"severity"`
-	Timestamp  time.Time `json:"timestamp"`
+	ID        string        `json:"id"`
+	ChannelID string        `json:"channelId"`
+	EventType string        `json:"eventType"`
+	Algorithm AlgorithmType `json:"algorithm"`
+	Details   string        `json:"details"`
+	Severity  string        `json:"severity"`
+	Timestamp time.Time     `json:"timestamp"`
 }
 
 // ManagerState 管理器状态
 type ManagerState struct {
-	ActiveChannels    int        `json:"activeChannels"`
-	ActiveHandshakes  int        `json:"activeHandshakes"`
-	TotalKeyPairs     int        `json:"totalKeyPairs"`
-	DefaultAlgorithm  AlgorithmType `json:"defaultAlgorithm"`
-	DefaultSecurity   SecurityLevel `json:"defaultSecurity"`
-	Uptime            time.Duration `json:"uptime"`
-	StartedAt         time.Time `json:"startedAt"`
+	ActiveChannels   int           `json:"activeChannels"`
+	ActiveHandshakes int           `json:"activeHandshakes"`
+	TotalKeyPairs    int           `json:"totalKeyPairs"`
+	DefaultAlgorithm AlgorithmType `json:"defaultAlgorithm"`
+	DefaultSecurity  SecurityLevel `json:"defaultSecurity"`
+	Uptime           time.Duration `json:"uptime"`
+	StartedAt        time.Time     `json:"startedAt"`
 }

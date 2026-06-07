@@ -45,22 +45,22 @@ func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 
 // EvaluateLoginRequest 评估登录请求
 type EvaluateLoginRequest struct {
-	UserID            string      `json:"user_id" binding:"required"`
-	Username          string      `json:"username" binding:"required"`
-	IP                string      `json:"ip" binding:"required"`
-	UserAgent         string      `json:"user_agent"`
-	DeviceFingerprint string      `json:"device_fingerprint"`
-	GeoLocation       *GeoLocation `json:"geo_location,omitempty"`
+	UserID            string            `json:"user_id" binding:"required"`
+	Username          string            `json:"username" binding:"required"`
+	IP                string            `json:"ip" binding:"required"`
+	UserAgent         string            `json:"user_agent"`
+	DeviceFingerprint string            `json:"device_fingerprint"`
+	GeoLocation       *GeoLocation      `json:"geo_location,omitempty"`
 	FingerprintExtra  map[string]string `json:"fingerprint_extra,omitempty"`
 }
 
 // EvaluateLoginResponse 评估登录响应
 type EvaluateLoginResponse struct {
-	Allowed           bool          `json:"allowed"`
-	RiskScore         *RiskScore    `json:"risk_score"`
+	Allowed           bool            `json:"allowed"`
+	RiskScore         *RiskScore      `json:"risk_score"`
 	Challenges        []AuthChallenge `json:"challenges,omitempty"`
-	TrustDevicePrompt bool          `json:"trust_device_prompt"`
-	Message           string        `json:"message,omitempty"`
+	TrustDevicePrompt bool            `json:"trust_device_prompt"`
+	Message           string          `json:"message,omitempty"`
 }
 
 // TrustDeviceRequest 信任设备请求

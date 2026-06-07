@@ -28,8 +28,8 @@ func TestRegisterAndRecord(t *testing.T) {
 
 	rp.RegisterResource(ResourceDisk, "/dev/sda1", "bytes", 100*1024*1024*1024)
 
-	rp.RecordValue(ResourceDisk, 50*1024*1024*1024)  // 50%
-	rp.RecordValue(ResourceDisk, 55*1024*1024*1024)  // 55%
+	rp.RecordValue(ResourceDisk, 50*1024*1024*1024) // 50%
+	rp.RecordValue(ResourceDisk, 55*1024*1024*1024) // 55%
 
 	metrics := rp.GetMetrics()
 	disk, ok := metrics[ResourceDisk]

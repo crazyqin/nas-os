@@ -26,19 +26,19 @@ const (
 type MFAType string
 
 const (
-	MFATOTP   MFAType = "totp"
+	MFATOTP     MFAType = "totp"
 	MFAWebAuthn MFAType = "webauthn"
-	MFASMS    MFAType = "sms"
-	MFAEmail  MFAType = "email"
+	MFASMS      MFAType = "sms"
+	MFAEmail    MFAType = "email"
 )
 
 // SessionStatus represents session status
 type SessionStatus string
 
 const (
-	SessionActive    SessionStatus = "active"
-	SessionExpired   SessionStatus = "expired"
-	SessionRevoked   SessionStatus = "revoked"
+	SessionActive  SessionStatus = "active"
+	SessionExpired SessionStatus = "expired"
+	SessionRevoked SessionStatus = "revoked"
 )
 
 // IdentityProvider represents an SSO identity provider
@@ -120,14 +120,14 @@ type SSOStats struct {
 
 // Config holds SSO hub configuration
 type Config struct {
-	Enabled          bool   `json:"enabled"`
-	SessionTimeoutMin int   `json:"session_timeout_minutes"`
-	MaxSessions      int    `json:"max_sessions"`
-	RequireMFA       bool   `json:"require_mfa"`
-	AllowSelfReg     bool   `json:"allow_self_registration"`
-	DefaultRole      string `json:"default_role"`
-	Issuer           string `json:"issuer"`
-	TokenExpiryMin   int    `json:"token_expiry_minutes"`
+	Enabled           bool   `json:"enabled"`
+	SessionTimeoutMin int    `json:"session_timeout_minutes"`
+	MaxSessions       int    `json:"max_sessions"`
+	RequireMFA        bool   `json:"require_mfa"`
+	AllowSelfReg      bool   `json:"allow_self_registration"`
+	DefaultRole       string `json:"default_role"`
+	Issuer            string `json:"issuer"`
+	TokenExpiryMin    int    `json:"token_expiry_minutes"`
 }
 
 // Manager manages SSO hub

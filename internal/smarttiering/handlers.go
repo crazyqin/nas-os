@@ -136,8 +136,8 @@ func (h *Handler) GetFileHeat(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"path":  path,
-		"heat":  heat,
+		"path": path,
+		"heat": heat,
 	})
 }
 
@@ -385,10 +385,10 @@ func (h *Handler) GetMigrationRecommendations(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"recommendations":     report.Recommendations,
-		"total_savings":       report.SavingsPercent,
-		"current_cost":        report.TotalCostPerMonth,
-		"optimal_cost":        report.OptimalCostPerMonth,
+		"recommendations":      report.Recommendations,
+		"total_savings":        report.SavingsPercent,
+		"current_cost":         report.TotalCostPerMonth,
+		"optimal_cost":         report.OptimalCostPerMonth,
 		"recommendation_count": len(report.Recommendations),
 	})
 }
@@ -516,5 +516,3 @@ func (h *Handler) GetAccessPattern(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "ok", "data": pattern})
 }
-
-

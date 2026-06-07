@@ -241,12 +241,12 @@ func (h *Handlers) GetStats(c *gin.Context) {
 // CreatePolicy 创建策略
 func (h *Handlers) CreatePolicy(c *gin.Context) {
 	var req struct {
-		Name       string       `json:"name" binding:"required"`
-		Volume     string       `json:"volume" binding:"required"`
-		Type       SnapshotType `json:"type"`
-		Schedule   string       `json:"schedule" binding:"required"`
-		Retention  Retention    `json:"retention"`
-		Tags       []string     `json:"tags"`
+		Name      string       `json:"name" binding:"required"`
+		Volume    string       `json:"volume" binding:"required"`
+		Type      SnapshotType `json:"type"`
+		Schedule  string       `json:"schedule" binding:"required"`
+		Retention Retention    `json:"retention"`
+		Tags      []string     `json:"tags"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
@@ -290,8 +290,8 @@ func (h *Handlers) GetPolicy(c *gin.Context) {
 func (h *Handlers) UpdatePolicy(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
-		Enabled   *bool     `json:"enabled"`
-		Schedule  *string   `json:"schedule"`
+		Enabled   *bool      `json:"enabled"`
+		Schedule  *string    `json:"schedule"`
 		Retention *Retention `json:"retention"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {

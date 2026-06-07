@@ -129,7 +129,7 @@ func (m *Manager) RunScan(req *ScanRequest) (*ScanResult, error) {
 	result := &ScanResult{
 		ID: scanID, ScanType: scanType, Threats: threats,
 		TotalScanned: 1000 + rand.Intn(5000), ThreatCount: len(threats),
-		Duration: fmt.Sprintf("%.2fs", endTime.Sub(startTime).Seconds()),
+		Duration:  fmt.Sprintf("%.2fs", endTime.Sub(startTime).Seconds()),
 		StartedAt: startTime, CompletedAt: endTime,
 	}
 	m.scanResults = append(m.scanResults, result)
@@ -139,7 +139,12 @@ func (m *Manager) RunScan(req *ScanRequest) (*ScanResult, error) {
 func (m *Manager) scanSystemLogs(scanType string, categories []ThreatCategory) []*Threat {
 	threats := make([]*Threat, 0)
 	now := time.Now()
-	type pt struct{ name string; cat ThreatCategory; lvl ThreatLevel; prob float64 }
+	type pt struct {
+		name string
+		cat  ThreatCategory
+		lvl  ThreatLevel
+		prob float64
+	}
 	ps := []pt{
 		{"多次 SSH 认证失败", CategoryBruteForce, ThreatLevelHigh, 0.3},
 		{"可疑 sudo 操作", CategoryPrivEsc, ThreatLevelHigh, 0.15},
@@ -149,7 +154,9 @@ func (m *Manager) scanSystemLogs(scanType string, categories []ThreatCategory) [
 	}
 	for _, p := range ps {
 		if rand.Float64() < p.prob {
-			if len(categories) > 0 && !containsCategory(categories, p.cat) { continue }
+			if len(categories) > 0 && !containsCategory(categories, p.cat) {
+				continue
+			}
 			threats = append(threats, &Threat{
 				ID: generateID(), Name: p.name, Description: fmt.Sprintf("在系统日志中检测到: %s", p.name),
 				Level: p.lvl, Category: p.cat, Status: StatusDetected, Source: "system_log", Score: 40 + rand.Float64()*50,
@@ -164,7 +171,12 @@ func (m *Manager) scanSystemLogs(scanType string, categories []ThreatCategory) [
 func (m *Manager) scanNetworkTraffic(scanType string, categories []ThreatCategory) []*Threat {
 	threats := make([]*Threat, 0)
 	now := time.Now()
-	type pt struct{ name string; cat ThreatCategory; lvl ThreatLevel; prob float64 }
+	type pt struct {
+		name string
+		cat  ThreatCategory
+		lvl  ThreatLevel
+		prob float64
+	}
 	ps := []pt{
 		{"异常外联流量", CategoryDataLeak, ThreatLevelHigh, 0.2},
 		{"连接已知恶意 IP", CategoryIntrusion, ThreatLevelCritical, 0.08},
@@ -174,7 +186,9 @@ func (m *Manager) scanNetworkTraffic(scanType string, categories []ThreatCategor
 	}
 	for _, p := range ps {
 		if rand.Float64() < p.prob {
-			if len(categories) > 0 && !containsCategory(categories, p.cat) { continue }
+			if len(categories) > 0 && !containsCategory(categories, p.cat) {
+				continue
+			}
 			srcIP := fmt.Sprintf("192.168.1.%d", rand.Intn(254)+1)
 			dstIP := fmt.Sprintf("%d.%d.%d.%d", rand.Intn(223)+1, rand.Intn(256), rand.Intn(256), rand.Intn(256)+1)
 			threats = append(threats, &Threat{
@@ -191,7 +205,12 @@ func (m *Manager) scanNetworkTraffic(scanType string, categories []ThreatCategor
 func (m *Manager) scanFileChanges(categories []ThreatCategory) []*Threat {
 	threats := make([]*Threat, 0)
 	now := time.Now()
-	type pt struct{ name string; cat ThreatCategory; lvl ThreatLevel; prob float64 }
+	type pt struct {
+		name string
+		cat  ThreatCategory
+		lvl  ThreatLevel
+		prob float64
+	}
 	ps := []pt{
 		{"系统关键文件被修改", CategoryConfigDrift, ThreatLevelHigh, 0.12},
 		{"可疑可执行文件出现", CategoryMalware, ThreatLevelCritical, 0.06},
@@ -202,7 +221,9 @@ func (m *Manager) scanFileChanges(categories []ThreatCategory) []*Threat {
 	paths := []string{"passwd", "shadow", "ssh/authorized_keys", "crontab", "hosts"}
 	for _, p := range ps {
 		if rand.Float64() < p.prob {
-			if len(categories) > 0 && !containsCategory(categories, p.cat) { continue }
+			if len(categories) > 0 && !containsCategory(categories, p.cat) {
+				continue
+			}
 			filePath := fmt.Sprintf("/etc/%s", paths[rand.Intn(len(paths))])
 			threats = append(threats, &Threat{
 				ID: generateID(), Name: p.name, Description: fmt.Sprintf("文件系统监控发现: %s", p.name),
@@ -217,11 +238,15 @@ func (m *Manager) scanFileChanges(categories []ThreatCategory) []*Threat {
 
 func (m *Manager) matchIntel(threat *Threat) {
 	for _, entry := range m.intel {
-		if !entry.IsActive { continue }
+		if !entry.IsActive {
+			continue
+		}
 		for _, indicator := range threat.Indicators {
 			if matchIOC(entry, indicator) {
 				threat.Score = math.Min(100, threat.Score*1.3)
-				if entry.Severity > threat.Level { threat.Level = entry.Severity }
+				if entry.Severity > threat.Level {
+					threat.Level = entry.Severity
+				}
 				threat.Evidence = append(threat.Evidence, Evidence{Type: "intel_match", Value: fmt.Sprintf("匹配情报: %s (%s)", entry.IOCValue, entry.ThreatType), Source: entry.Source, Timestamp: time.Now(), Context: entry.Description})
 				threat.Tags = append(threat.Tags, "intel_matched", entry.ThreatType)
 			}
@@ -231,11 +256,16 @@ func (m *Manager) matchIntel(threat *Threat) {
 
 func matchIOC(entry *ThreatIntel, indicator string) bool {
 	switch entry.IOCType {
-	case "ip": return indicator == entry.IOCValue
-	case "domain": return strings.Contains(indicator, entry.IOCValue)
-	case "hash": return indicator == entry.IOCValue
-	case "url": return strings.Contains(indicator, entry.IOCValue)
-	default: return false
+	case "ip":
+		return indicator == entry.IOCValue
+	case "domain":
+		return strings.Contains(indicator, entry.IOCValue)
+	case "hash":
+		return indicator == entry.IOCValue
+	case "url":
+		return strings.Contains(indicator, entry.IOCValue)
+	default:
+		return false
 	}
 }
 
@@ -245,7 +275,9 @@ func (m *Manager) analyzeBehavior() *BehaviorAnalysisResult {
 	var matchedRules []MatchedRule
 	totalScore := 0.0
 	for _, pattern := range m.patterns {
-		if !pattern.IsActive { continue }
+		if !pattern.IsActive {
+			continue
+		}
 		for _, event := range events {
 			score := m.evaluatePattern(pattern, event)
 			if score >= pattern.Threshold*100 {
@@ -285,29 +317,42 @@ func (m *Manager) evaluatePattern(pattern *BehaviorPattern, event *BehaviorEvent
 	tw, mw := 0.0, 0.0
 	for _, rule := range pattern.Rules {
 		tw += rule.Weight
-		if evaluateRule(rule, getEventField(event, rule.Field)) { mw += rule.Weight }
+		if evaluateRule(rule, getEventField(event, rule.Field)) {
+			mw += rule.Weight
+		}
 	}
-	if tw == 0 { return 0 }
+	if tw == 0 {
+		return 0
+	}
 	return (mw / tw) * 100
 }
 
 func getEventField(event *BehaviorEvent, field string) string {
 	switch field {
-	case "action": return event.Action
-	case "resource": return event.Resource
-	case "user_id": return event.UserID
-	case "host_ip": return event.HostIP
+	case "action":
+		return event.Action
+	case "resource":
+		return event.Resource
+	case "user_id":
+		return event.UserID
+	case "host_ip":
+		return event.HostIP
 	default:
-		if val, ok := event.Metadata[field]; ok { return fmt.Sprintf("%v", val) }
+		if val, ok := event.Metadata[field]; ok {
+			return fmt.Sprintf("%v", val)
+		}
 		return ""
 	}
 }
 
 func evaluateRule(rule BehaviorRule, value string) bool {
 	switch rule.Operator {
-	case "eq": return value == rule.Value
-	case "ne": return value != rule.Value
-	case "contains": return strings.Contains(value, rule.Value)
+	case "eq":
+		return value == rule.Value
+	case "ne":
+		return value != rule.Value
+	case "contains":
+		return strings.Contains(value, rule.Value)
 	case "gt":
 		var nv, rv float64
 		fmt.Sscanf(value, "%f", &nv)
@@ -318,23 +363,35 @@ func evaluateRule(rule BehaviorRule, value string) bool {
 		fmt.Sscanf(value, "%f", &nv)
 		fmt.Sscanf(rule.Value, "%f", &rv)
 		return nv < rv
-	default: return false
+	default:
+		return false
 	}
 }
 
 func containsCategory(categories []ThreatCategory, target ThreatCategory) bool {
-	for _, c := range categories { if c == target { return true } }
+	for _, c := range categories {
+		if c == target {
+			return true
+		}
+	}
 	return false
 }
 
 // GetThreats 获取威胁列表
 func (m *Manager) GetThreats(level ThreatLevel, category ThreatCategory, status ThreatStatus) []*Threat {
-	m.mu.RLock(); defer m.mu.RUnlock()
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	result := make([]*Threat, 0)
 	for _, t := range m.threats {
-		if level != "" && t.Level != level { continue }
-		if category != "" && t.Category != category { continue }
-		if status != "" && t.Status != status { continue }
+		if level != "" && t.Level != level {
+			continue
+		}
+		if category != "" && t.Category != category {
+			continue
+		}
+		if status != "" && t.Status != status {
+			continue
+		}
 		result = append(result, t)
 	}
 	return result
@@ -342,15 +399,19 @@ func (m *Manager) GetThreats(level ThreatLevel, category ThreatCategory, status 
 
 // GetThreat 获取单个威胁
 func (m *Manager) GetThreat(id string) (*Threat, error) {
-	m.mu.RLock(); defer m.mu.RUnlock()
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	threat, ok := m.threats[id]
-	if !ok { return nil, fmt.Errorf("threat not found: %s", id) }
+	if !ok {
+		return nil, fmt.Errorf("threat not found: %s", id)
+	}
 	return threat, nil
 }
 
 // GetScore 获取安全评分
 func (m *Manager) GetScore() *SecurityScore {
-	m.mu.RLock(); defer m.mu.RUnlock()
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	ts := m.calcThreatScore()
 	bs := m.calcBehaviorScore()
 	is := m.calcIntelCoverageScore()
@@ -361,7 +422,7 @@ func (m *Manager) GetScore() *SecurityScore {
 	score := &SecurityScore{
 		Overall: overall, Grade: scoreToGrade(overall),
 		Breakdown: map[string]float64{"threat_count": ts, "threat_level": 100 - m.calcAvgThreatLevel(), "behavior_score": bs, "intel_coverage": is, "response_time": rs},
-		Trends: m.scoreHistory, Recommendations: m.generateRecommendations(ts, bs, is, rs), ScoredAt: time.Now(),
+		Trends:    m.scoreHistory, Recommendations: m.generateRecommendations(ts, bs, is, rs), ScoredAt: time.Now(),
 	}
 	m.scoreHistory = append(m.scoreHistory, ScoreTrend{Timestamp: time.Now(), Score: overall})
 	return score
@@ -369,14 +430,22 @@ func (m *Manager) GetScore() *SecurityScore {
 
 func (m *Manager) calcThreatScore() float64 {
 	c := 0
-	for _, t := range m.threats { if t.Status != StatusResolved && t.Status != StatusFalsePositive { c++ } }
+	for _, t := range m.threats {
+		if t.Status != StatusResolved && t.Status != StatusFalsePositive {
+			c++
+		}
+	}
 	return math.Max(0, 100-float64(c)*5)
 }
 
 func (m *Manager) calcAvgThreatLevel() float64 {
-	if len(m.threats) == 0 { return 0 }
+	if len(m.threats) == 0 {
+		return 0
+	}
 	total := 0.0
-	for _, t := range m.threats { total += levelToScore(t.Level) }
+	for _, t := range m.threats {
+		total += levelToScore(t.Level)
+	}
 	return total / float64(len(m.threats))
 }
 
@@ -384,8 +453,16 @@ func (m *Manager) calcBehaviorScore() float64 { return math.Max(0, 100-m.analyze
 
 func (m *Manager) calcIntelCoverageScore() float64 {
 	ac, fc := 0, 0
-	for _, e := range m.intel { if e.IsActive { ac++ } }
-	for _, f := range m.feeds { if f.Enabled { fc++ } }
+	for _, e := range m.intel {
+		if e.IsActive {
+			ac++
+		}
+	}
+	for _, f := range m.feeds {
+		if f.Enabled {
+			fc++
+		}
+	}
 	return math.Min(100, float64(ac)*2+float64(fc)*10)
 }
 
@@ -393,30 +470,49 @@ func (m *Manager) calcResponseTimeScore() float64 {
 	r, t := 0, 0
 	for _, inc := range m.incidents {
 		t++
-		if inc.Status == IncidentStatusClosed || inc.Status == IncidentStatusEradicated { r++ }
+		if inc.Status == IncidentStatusClosed || inc.Status == IncidentStatusEradicated {
+			r++
+		}
 	}
-	if t == 0 { return 85 }
+	if t == 0 {
+		return 85
+	}
 	return float64(r) / float64(t) * 100
 }
 
 func (m *Manager) generateRecommendations(ts, bs, is, rs float64) []Recommendation {
 	recs := make([]Recommendation, 0)
-	if ts < 70 { recs = append(recs, Recommendation{ID: generateID(), Category: "threat", Title: "减少活跃威胁", Description: "当前存在多个未解决威胁，建议优先处理高危威胁并及时响应。", Priority: ThreatLevelHigh, Impact: (100 - ts) * 0.3}) }
-	if bs < 60 { recs = append(recs, Recommendation{ID: generateID(), Category: "behavior", Title: "加强行为监控", Description: "行为分析发现异常模式，建议审查用户权限和访问模式。", Priority: ThreatLevelMedium, Impact: (100 - bs) * 0.25}) }
-	if is < 50 { recs = append(recs, Recommendation{ID: generateID(), Category: "intel", Title: "扩展情报覆盖", Description: "威胁情报覆盖率不足，建议启用更多情报源以提升检测能力。", Priority: ThreatLevelMedium, Impact: (100 - is) * 0.2}) }
-	if rs < 70 { recs = append(recs, Recommendation{ID: generateID(), Category: "response", Title: "提升响应效率", Description: "事件响应效率较低，建议配置自动响应规则并缩短响应时间。", Priority: ThreatLevelHigh, Impact: (100 - rs) * 0.25}) }
+	if ts < 70 {
+		recs = append(recs, Recommendation{ID: generateID(), Category: "threat", Title: "减少活跃威胁", Description: "当前存在多个未解决威胁，建议优先处理高危威胁并及时响应。", Priority: ThreatLevelHigh, Impact: (100 - ts) * 0.3})
+	}
+	if bs < 60 {
+		recs = append(recs, Recommendation{ID: generateID(), Category: "behavior", Title: "加强行为监控", Description: "行为分析发现异常模式，建议审查用户权限和访问模式。", Priority: ThreatLevelMedium, Impact: (100 - bs) * 0.25})
+	}
+	if is < 50 {
+		recs = append(recs, Recommendation{ID: generateID(), Category: "intel", Title: "扩展情报覆盖", Description: "威胁情报覆盖率不足，建议启用更多情报源以提升检测能力。", Priority: ThreatLevelMedium, Impact: (100 - is) * 0.2})
+	}
+	if rs < 70 {
+		recs = append(recs, Recommendation{ID: generateID(), Category: "response", Title: "提升响应效率", Description: "事件响应效率较低，建议配置自动响应规则并缩短响应时间。", Priority: ThreatLevelHigh, Impact: (100 - rs) * 0.25})
+	}
 	recs = append(recs, Recommendation{ID: generateID(), Category: "general", Title: "定期安全扫描", Description: "建议每日执行完整安全扫描，及时发现新威胁。", Priority: ThreatLevelLow, Impact: 5})
 	return recs
 }
 
 // GetTrends 获取威胁趋势
 func (m *Manager) GetTrends(days int) map[string]interface{} {
-	m.mu.RLock(); defer m.mu.RUnlock()
-	if days <= 0 { days = 7 }
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	if days <= 0 {
+		days = 7
+	}
 	cs := make(map[string]int)
 	ls := make(map[string]int)
 	ss := make(map[string]int)
-	for _, t := range m.threats { cs[string(t.Category)]++; ls[string(t.Level)]++; ss[string(t.Status)]++ }
+	for _, t := range m.threats {
+		cs[string(t.Category)]++
+		ls[string(t.Level)]++
+		ss[string(t.Status)]++
+	}
 	dt := make([]map[string]interface{}, 0)
 	for i := days - 1; i >= 0; i-- {
 		date := time.Now().AddDate(0, 0, -i)
@@ -427,11 +523,16 @@ func (m *Manager) GetTrends(days int) map[string]interface{} {
 
 // ListIncidents 列出安全事件
 func (m *Manager) ListIncidents(status IncidentStatus, severity IncidentSeverity) []*Incident {
-	m.mu.RLock(); defer m.mu.RUnlock()
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	result := make([]*Incident, 0)
 	for _, inc := range m.incidents {
-		if status != "" && inc.Status != status { continue }
-		if severity != "" && inc.Severity != severity { continue }
+		if status != "" && inc.Status != status {
+			continue
+		}
+		if severity != "" && inc.Severity != severity {
+			continue
+		}
 		result = append(result, inc)
 	}
 	return result
@@ -439,26 +540,32 @@ func (m *Manager) ListIncidents(status IncidentStatus, severity IncidentSeverity
 
 // GetIncident 获取单个事件
 func (m *Manager) GetIncident(id string) (*Incident, error) {
-	m.mu.RLock(); defer m.mu.RUnlock()
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	inc, ok := m.incidents[id]
-	if !ok { return nil, fmt.Errorf("incident not found: %s", id) }
+	if !ok {
+		return nil, fmt.Errorf("incident not found: %s", id)
+	}
 	return inc, nil
 }
 
 // CreateIncident 创建安全事件
 func (m *Manager) CreateIncident(req *IncidentRequest) *Incident {
-	m.mu.Lock(); defer m.mu.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	now := time.Now()
 	inc := &Incident{
 		ID: generateID(), Title: req.Title, Description: req.Description,
 		Severity: req.Severity, Status: IncidentStatusOpen,
 		Threats: req.Threats, Assignee: req.Assignee,
-		Timeline: []IncidentEvent{{Timestamp: now, Description: "事件创建", Actor: "system", EventType: "created"}},
+		Timeline:  []IncidentEvent{{Timestamp: now, Description: "事件创建", Actor: "system", EventType: "created"}},
 		CreatedAt: now, UpdatedAt: now,
 	}
 	m.incidents[inc.ID] = inc
 	m.totalIncidents++
-	if m.config.AutoResponse { m.autoRespond(inc) }
+	if m.config.AutoResponse {
+		m.autoRespond(inc)
+	}
 	return inc
 }
 
@@ -482,23 +589,31 @@ func (m *Manager) autoRespond(inc *Incident) {
 
 // UpdateIncidentStatus 更新事件状态
 func (m *Manager) UpdateIncidentStatus(id string, status IncidentStatus) error {
-	m.mu.Lock(); defer m.mu.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	inc, ok := m.incidents[id]
-	if !ok { return fmt.Errorf("incident not found: %s", id) }
+	if !ok {
+		return fmt.Errorf("incident not found: %s", id)
+	}
 	now := time.Now()
 	inc.Status = status
 	inc.UpdatedAt = now
 	inc.Timeline = append(inc.Timeline, IncidentEvent{Timestamp: now, Description: fmt.Sprintf("状态变更为: %s", status), Actor: "system", EventType: "status_change"})
-	if status == IncidentStatusClosed { inc.ResolvedAt = &now }
+	if status == IncidentStatusClosed {
+		inc.ResolvedAt = &now
+	}
 	return nil
 }
 
 // ListIntel 列出威胁情报
 func (m *Manager) ListIntel(activeOnly bool) []*ThreatIntel {
-	m.mu.RLock(); defer m.mu.RUnlock()
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	result := make([]*ThreatIntel, 0)
 	for _, entry := range m.intel {
-		if activeOnly && !entry.IsActive { continue }
+		if activeOnly && !entry.IsActive {
+			continue
+		}
 		result = append(result, entry)
 	}
 	return result
@@ -506,17 +621,25 @@ func (m *Manager) ListIntel(activeOnly bool) []*ThreatIntel {
 
 // ListFeeds 列出情报源
 func (m *Manager) ListFeeds() []*IntelFeed {
-	m.mu.RLock(); defer m.mu.RUnlock()
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	result := make([]*IntelFeed, 0)
-	for _, feed := range m.feeds { result = append(result, feed) }
+	for _, feed := range m.feeds {
+		result = append(result, feed)
+	}
 	return result
 }
 
 // GetStats 获取威胁猎手统计
 func (m *Manager) GetStats() map[string]interface{} {
-	m.mu.RLock(); defer m.mu.RUnlock()
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	at := 0
-	for _, t := range m.threats { if t.Status != StatusResolved && t.Status != StatusFalsePositive { at++ } }
+	for _, t := range m.threats {
+		if t.Status != StatusResolved && t.Status != StatusFalsePositive {
+			at++
+		}
+	}
 	return map[string]interface{}{
 		"total_scans": m.totalScans, "total_threats": m.totalThreats, "active_threats": at,
 		"total_incidents": m.totalIncidents, "active_incidents": len(m.incidents),
@@ -526,29 +649,43 @@ func (m *Manager) GetStats() map[string]interface{} {
 
 func levelToScore(level ThreatLevel) float64 {
 	switch level {
-	case ThreatLevelLow: return 25
-	case ThreatLevelMedium: return 50
-	case ThreatLevelHigh: return 75
-	case ThreatLevelCritical: return 100
-	default: return 0
+	case ThreatLevelLow:
+		return 25
+	case ThreatLevelMedium:
+		return 50
+	case ThreatLevelHigh:
+		return 75
+	case ThreatLevelCritical:
+		return 100
+	default:
+		return 0
 	}
 }
 
 func scoreToLevel(score float64) ThreatLevel {
 	switch {
-	case score >= 80: return ThreatLevelCritical
-	case score >= 60: return ThreatLevelHigh
-	case score >= 40: return ThreatLevelMedium
-	default: return ThreatLevelLow
+	case score >= 80:
+		return ThreatLevelCritical
+	case score >= 60:
+		return ThreatLevelHigh
+	case score >= 40:
+		return ThreatLevelMedium
+	default:
+		return ThreatLevelLow
 	}
 }
 
 func scoreToGrade(score float64) string {
 	switch {
-	case score >= 90: return "A"
-	case score >= 80: return "B"
-	case score >= 70: return "C"
-	case score >= 60: return "D"
-	default: return "F"
+	case score >= 90:
+		return "A"
+	case score >= 80:
+		return "B"
+	case score >= 70:
+		return "C"
+	case score >= 60:
+		return "D"
+	default:
+		return "F"
 	}
 }

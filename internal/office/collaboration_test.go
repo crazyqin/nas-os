@@ -431,7 +431,7 @@ func TestCollabEngine_GetStats(t *testing.T) {
 	assert.Equal(t, 1, stats.OpCount)
 	assert.Equal(t, 2, stats.CommentCount)
 	assert.Equal(t, 2, stats.UnresolvedCount) // 两个评论都没有标记为已解决
-	assert.Equal(t, 12, stats.ContentLength)   // "Hello World!"
+	assert.Equal(t, 12, stats.ContentLength)  // "Hello World!"
 }
 
 func TestCollabEngine_GetStats_NotFound(t *testing.T) {

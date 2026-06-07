@@ -41,8 +41,8 @@ type Action struct {
 
 // Condition 触发条件
 type Condition struct {
-	Type      string      `json:"type"`      // time, device, sensor, expression
-	Operator  string      `json:"operator"`  // eq, neq, gt, lt, gte, lte, between
+	Type      string      `json:"type"`     // time, device, sensor, expression
+	Operator  string      `json:"operator"` // eq, neq, gt, lt, gte, lte, between
 	Value     interface{} `json:"value"`
 	DeviceID  string      `json:"device_id,omitempty"`
 	SensorID  string      `json:"sensor_id,omitempty"`
@@ -61,29 +61,29 @@ type Trigger struct {
 
 // Scene 智能场景定义
 type Scene struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Type        SceneType `json:"type"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Type        SceneType   `json:"type"`
 	Status      SceneStatus `json:"status"`
-	Triggers    []Trigger `json:"triggers"`
-	Actions     []Action  `json:"actions"`
-	Enabled     bool      `json:"enabled"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	LastRun     *time.Time `json:"last_run,omitempty"`
-	RunCount    int64     `json:"run_count"`
-	Tags        []string  `json:"tags,omitempty"`
+	Triggers    []Trigger   `json:"triggers"`
+	Actions     []Action    `json:"actions"`
+	Enabled     bool        `json:"enabled"`
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
+	LastRun     *time.Time  `json:"last_run,omitempty"`
+	RunCount    int64       `json:"run_count"`
+	Tags        []string    `json:"tags,omitempty"`
 }
 
 // SceneExecution 场景执行记录
 type SceneExecution struct {
-	ID        string    `json:"id"`
-	SceneID   string    `json:"scene_id"`
-	Status    string    `json:"status"` // success, failed, partial
-	StartedAt time.Time `json:"started_at"`
-	EndedAt   time.Time `json:"ended_at,omitempty"`
-	Error     string    `json:"error,omitempty"`
+	ID        string            `json:"id"`
+	SceneID   string            `json:"scene_id"`
+	Status    string            `json:"status"` // success, failed, partial
+	StartedAt time.Time         `json:"started_at"`
+	EndedAt   time.Time         `json:"ended_at,omitempty"`
+	Error     string            `json:"error,omitempty"`
 	Actions   []ActionExecution `json:"actions"`
 }
 
@@ -99,15 +99,15 @@ type ActionExecution struct {
 
 // Manager 场景管理器
 type Manager struct {
-	mu          sync.RWMutex
-	scenes      map[string]*Scene
-	executions  map[string][]*SceneExecution
-	deviceMgr   DeviceManager
-	sensorMgr   SensorManager
-	logger      Logger
-	ctx         context.Context
-	cancel      context.CancelFunc
-	wg          sync.WaitGroup
+	mu         sync.RWMutex
+	scenes     map[string]*Scene
+	executions map[string][]*SceneExecution
+	deviceMgr  DeviceManager
+	sensorMgr  SensorManager
+	logger     Logger
+	ctx        context.Context
+	cancel     context.CancelFunc
+	wg         sync.WaitGroup
 }
 
 // DeviceManager 设备管理器接口

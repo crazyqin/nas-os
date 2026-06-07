@@ -8,10 +8,10 @@ import (
 
 // KanbanManager 看板管理器
 type KanbanManager struct {
-	mu        sync.RWMutex
-	boards    map[string]*KanbanBoard
-	taskMgr   *TaskManager
-	nextID    int
+	mu      sync.RWMutex
+	boards  map[string]*KanbanBoard
+	taskMgr *TaskManager
+	nextID  int
 }
 
 // NewKanbanManager 创建看板管理器

@@ -518,18 +518,18 @@ func TestRiskScoreCalculation(t *testing.T) {
 	defer m.Stop()
 
 	tests := []struct {
-		name       string
-		op         DataOperation
-		dataType   string
-		dataSize   int64
-		minScore   float64
-		maxScore   float64
-		wantLevel  RiskLevel
+		name      string
+		op        DataOperation
+		dataType  string
+		dataSize  int64
+		minScore  float64
+		maxScore  float64
+		wantLevel RiskLevel
 	}{
 		{"low risk delete", OpDelete, "普通文档", 500, 0, 25, RiskLow},
-		{"medium risk upload", OpUpload, "邮箱数据", 5*1024*1024, 30, 50, RiskMedium},
-		{"high risk share id_card", OpShare, "身份证信息", 50*1024*1024, 60, 80, RiskHigh},
-		{"critical risk transfer bank", OpTransfer, "银行账户数据", 200*1024*1024, 80, 100, RiskCritical},
+		{"medium risk upload", OpUpload, "邮箱数据", 5 * 1024 * 1024, 30, 50, RiskMedium},
+		{"high risk share id_card", OpShare, "身份证信息", 50 * 1024 * 1024, 60, 80, RiskHigh},
+		{"critical risk transfer bank", OpTransfer, "银行账户数据", 200 * 1024 * 1024, 80, 100, RiskCritical},
 	}
 
 	for _, tt := range tests {

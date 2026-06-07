@@ -765,11 +765,11 @@ func TestConcurrentInvoke(t *testing.T) {
 	require.NoError(t, engine.Start())
 
 	fn := &Function{
-		Name:           "test-func",
-		Runtime:        RuntimeGo,
-		Handler:        "main",
-		Code:           "code",
-		Config:         FunctionConfig{MaxConcurrency: 20},
+		Name:    "test-func",
+		Runtime: RuntimeGo,
+		Handler: "main",
+		Code:    "code",
+		Config:  FunctionConfig{MaxConcurrency: 20},
 	}
 	require.NoError(t, engine.CreateFunction(fn))
 	require.NoError(t, engine.DeployFunction(fn.ID))
@@ -1058,11 +1058,11 @@ func TestIntegration_ConcurrentAccess(t *testing.T) {
 
 	// 创建函数
 	fn := &Function{
-		Name:           "concurrent-func",
-		Runtime:        RuntimeGo,
-		Handler:        "main.Handle",
-		Code:           "code",
-		Config:         FunctionConfig{MaxConcurrency: 50},
+		Name:    "concurrent-func",
+		Runtime: RuntimeGo,
+		Handler: "main.Handle",
+		Code:    "code",
+		Config:  FunctionConfig{MaxConcurrency: 50},
 	}
 	require.NoError(t, engine.CreateFunction(fn))
 	require.NoError(t, engine.DeployFunction(fn.ID))

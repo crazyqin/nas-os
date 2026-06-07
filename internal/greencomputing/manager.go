@@ -9,11 +9,11 @@ import (
 
 // Manager manages green computing optimization
 type Manager struct {
-	mu             sync.RWMutex
-	readings       []*EnergyReading
-	strategies     map[string]*SleepStrategy
-	config         *Config
-	latestReading  *EnergyReading
+	mu            sync.RWMutex
+	readings      []*EnergyReading
+	strategies    map[string]*SleepStrategy
+	config        *Config
+	latestReading *EnergyReading
 }
 
 // Config represents green computing configuration
@@ -378,45 +378,45 @@ func (m *Manager) generateRecommendations(report *EfficiencyReport) []*Recommend
 
 	if report.AvgPowerWatts > 50 {
 		recs = append(recs, &Recommendation{
-			ID:          "rec-idle-power",
-			Title:       "降低空闲功耗",
-			Description: "当前平均功耗较高，建议启用磁盘休眠和CPU节能模式",
-			Category:    "power",
-			Priority:    1,
-			SavingsKWh:  report.TotalEnergyKWh * 0.2,
-			SavingsKg:   report.CarbonKg * 0.2,
-			SavingsCost: report.CostEstimate * 0.2,
+			ID:           "rec-idle-power",
+			Title:        "降低空闲功耗",
+			Description:  "当前平均功耗较高，建议启用磁盘休眠和CPU节能模式",
+			Category:     "power",
+			Priority:     1,
+			SavingsKWh:   report.TotalEnergyKWh * 0.2,
+			SavingsKg:    report.CarbonKg * 0.2,
+			SavingsCost:  report.CostEstimate * 0.2,
 			EstimatedROI: "立即",
-			CreatedAt:   time.Now(),
+			CreatedAt:    time.Now(),
 		})
 	}
 
 	if report.PeakPowerWatts > 150 {
 		recs = append(recs, &Recommendation{
-			ID:          "rec-peak-shaving",
-			Title:       "削峰填谷",
-			Description: "峰值功耗过高，建议将高负载任务调度到非高峰时段",
-			Category:    "scheduling",
-			Priority:    2,
-			SavingsKWh:  report.TotalEnergyKWh * 0.1,
-			SavingsKg:   report.CarbonKg * 0.1,
-			SavingsCost: report.CostEstimate * 0.1,
+			ID:           "rec-peak-shaving",
+			Title:        "削峰填谷",
+			Description:  "峰值功耗过高，建议将高负载任务调度到非高峰时段",
+			Category:     "scheduling",
+			Priority:     2,
+			SavingsKWh:   report.TotalEnergyKWh * 0.1,
+			SavingsKg:    report.CarbonKg * 0.1,
+			SavingsCost:  report.CostEstimate * 0.1,
 			EstimatedROI: "1周",
-			CreatedAt:   time.Now(),
+			CreatedAt:    time.Now(),
 		})
 	}
 
 	recs = append(recs, &Recommendation{
-		ID:          "rec-smart-sleep",
-		Title:       "启用智能休眠",
-		Description: "配置智能休眠策略，在空闲时自动降低功耗",
-		Category:    "sleep",
-		Priority:    3,
-		SavingsKWh:  report.TotalEnergyKWh * 0.15,
-		SavingsKg:   report.CarbonKg * 0.15,
-		SavingsCost: report.CostEstimate * 0.15,
+		ID:           "rec-smart-sleep",
+		Title:        "启用智能休眠",
+		Description:  "配置智能休眠策略，在空闲时自动降低功耗",
+		Category:     "sleep",
+		Priority:     3,
+		SavingsKWh:   report.TotalEnergyKWh * 0.15,
+		SavingsKg:    report.CarbonKg * 0.15,
+		SavingsCost:  report.CostEstimate * 0.15,
 		EstimatedROI: "2周",
-		CreatedAt:   time.Now(),
+		CreatedAt:    time.Now(),
 	})
 
 	return recs

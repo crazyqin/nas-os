@@ -9,14 +9,14 @@ import (
 type FilterType string
 
 const (
-	FilterVintage  FilterType = "vintage"   // 复古
-	FilterBnW      FilterType = "bw"        // 黑白
-	FilterVivid    FilterType = "vivid"     // 鲜艳
-	FilterSoft     FilterType = "soft"      // 柔和
-	FilterWarm     FilterType = "warm"      // 暖色
-	FilterCool     FilterType = "cool"      // 冷色
-	FilterDramatic FilterType = "dramatic"  // 戏剧
-	FilterSepia    FilterType = "sepia"     // 褐色
+	FilterVintage  FilterType = "vintage"  // 复古
+	FilterBnW      FilterType = "bw"       // 黑白
+	FilterVivid    FilterType = "vivid"    // 鲜艳
+	FilterSoft     FilterType = "soft"     // 柔和
+	FilterWarm     FilterType = "warm"     // 暖色
+	FilterCool     FilterType = "cool"     // 冷色
+	FilterDramatic FilterType = "dramatic" // 戏剧
+	FilterSepia    FilterType = "sepia"    // 褐色
 )
 
 // RotateType 旋转类型.
@@ -81,21 +81,21 @@ type EditRequest struct {
 
 // EditResult 编辑结果.
 type EditResult struct {
-	OriginalPath string `json:"original_path"`
-	OutputPath   string `json:"output_path"`
-	Width        int    `json:"width"`
-	Height       int    `json:"height"`
-	FileSize     int64  `json:"file_size"`
-	Format       string `json:"format"`
-	EditHistory  []string `json:"edit_history"`
+	OriginalPath string    `json:"original_path"`
+	OutputPath   string    `json:"output_path"`
+	Width        int       `json:"width"`
+	Height       int       `json:"height"`
+	FileSize     int64     `json:"file_size"`
+	Format       string    `json:"format"`
+	EditHistory  []string  `json:"edit_history"`
 	CreatedAt    time.Time `json:"created_at"`
 }
 
 // Preset 预设.
 type Preset struct {
-	ID       string        `json:"id"`
-	Name     string        `json:"name"`
-	Filter   FilterType    `json:"filter,omitempty"`
-	Adjust   AdjustParams  `json:"adjust"`
-	IsCustom bool          `json:"is_custom"`
+	ID       string       `json:"id"`
+	Name     string       `json:"name"`
+	Filter   FilterType   `json:"filter,omitempty"`
+	Adjust   AdjustParams `json:"adjust"`
+	IsCustom bool         `json:"is_custom"`
 }

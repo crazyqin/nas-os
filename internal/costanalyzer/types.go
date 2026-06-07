@@ -15,9 +15,9 @@ import (
 type StorageType string
 
 const (
-	StorageSSD StorageType = "ssd"
-	StorageHDD StorageType = "hdd"
-	StorageNVMe StorageType = "nvme"
+	StorageSSD    StorageType = "ssd"
+	StorageHDD    StorageType = "hdd"
+	StorageNVMe   StorageType = "nvme"
 	StorageHybrid StorageType = "hybrid"
 )
 
@@ -31,13 +31,13 @@ type CostUnit struct {
 
 // StoragePool 存储池
 type StoragePool struct {
-	ID         string      `json:"id"`
-	Name       string      `json:"name"`
-	Type       StorageType `json:"type"`
-	TotalTB    float64     `json:"total_tb"`
-	UsedTB     float64     `json:"used_tb"`
-	UnitCost   float64     `json:"unit_cost"` // 当前每TB月成本
-	IsHot      bool        `json:"is_hot"`    // 是否热数据层
+	ID       string      `json:"id"`
+	Name     string      `json:"name"`
+	Type     StorageType `json:"type"`
+	TotalTB  float64     `json:"total_tb"`
+	UsedTB   float64     `json:"used_tb"`
+	UnitCost float64     `json:"unit_cost"` // 当前每TB月成本
+	IsHot    bool        `json:"is_hot"`    // 是否热数据层
 }
 
 // CostRecord 成本记录
@@ -55,7 +55,7 @@ type CostRecord struct {
 // OptimizationSuggestion 优化建议
 type OptimizationSuggestion struct {
 	ID          string  `json:"id"`
-	Type        string  `json:"type"`    // "cold_migration", "dedup", "compress", "tiering"
+	Type        string  `json:"type"` // "cold_migration", "dedup", "compress", "tiering"
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
 	Savings     float64 `json:"estimated_savings"` // 预计节省金额（元/月）
@@ -65,20 +65,20 @@ type OptimizationSuggestion struct {
 
 // ROIReport 投资回报报告
 type ROIReport struct {
-	Investment    float64 `json:"investment"`      // 总投资
+	Investment     float64 `json:"investment"`      // 总投资
 	MonthlySavings float64 `json:"monthly_savings"` // 月节省
 	AnnualSavings  float64 `json:"annual_savings"`  // 年节省
-	PaybackMonths float64 `json:"payback_months"`  // 回本周期（月）
-	ThreeYearROI  float64 `json:"three_year_roi"`  // 3年ROI百分比
-	FiveYearROI   float64 `json:"five_year_roi"`   // 5年ROI百分比
+	PaybackMonths  float64 `json:"payback_months"`  // 回本周期（月）
+	ThreeYearROI   float64 `json:"three_year_roi"`  // 3年ROI百分比
+	FiveYearROI    float64 `json:"five_year_roi"`   // 5年ROI百分比
 }
 
 // CloudComparison 云存储对比
 type CloudComparison struct {
-	LocalCostTB   float64            `json:"local_cost_per_tb"`
-	CloudCosts    map[string]float64 `json:"cloud_costs"` // provider -> cost/tb/month
-	Savings       map[string]float64 `json:"savings"`     // provider -> savings/tb/month
-	Recommendation string           `json:"recommendation"`
+	LocalCostTB    float64            `json:"local_cost_per_tb"`
+	CloudCosts     map[string]float64 `json:"cloud_costs"` // provider -> cost/tb/month
+	Savings        map[string]float64 `json:"savings"`     // provider -> savings/tb/month
+	Recommendation string             `json:"recommendation"`
 }
 
 // CostReport 综合成本报告
@@ -99,7 +99,7 @@ type CostReport struct {
 
 // Config 分析器配置
 type Config struct {
-	MaintCostPerTB   float64            `json:"maint_cost_per_tb"`   // 每TB每月维护成本
+	MaintCostPerTB   float64            `json:"maint_cost_per_tb"`  // 每TB每月维护成本
 	PowerCostKWH     float64            `json:"power_cost_kwh"`     // 每度电成本
 	CloudPrices      map[string]float64 `json:"cloud_prices"`       // 云存储价格
 	HotColdThreshold int                `json:"hot_cold_threshold"` // 热/冷数据天数阈值
@@ -126,8 +126,8 @@ var (
 func NewManager(dataFile string) *Manager {
 	return &Manager{
 		config: &Config{
-			MaintCostPerTB:   5.0,
-			PowerCostKWH:     0.6,
+			MaintCostPerTB: 5.0,
+			PowerCostKWH:   0.6,
 			CloudPrices: map[string]float64{
 				"aliyun_oss":  0.12,
 				"tencent_cos": 0.119,
@@ -302,7 +302,7 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"pools":         len(m.pools),
+		"pools":          len(m.pools),
 		"total_capacity": m.totalCapacity(),
 		"used_capacity":  totalUsed,
 		"monthly_cost":   totalCost,

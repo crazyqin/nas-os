@@ -13,11 +13,11 @@ import (
 type AnomalyManager struct {
 	mu          sync.RWMutex
 	config      AnomalyConfig
-	rules       map[string]*AnomalyRule     // 规则
-	events      []*AnomalyEvent             // 事件列表
+	rules       map[string]*AnomalyRule      // 规则
+	events      []*AnomalyEvent              // 事件列表
 	metrics     map[string][]*StorageMetrics // 设备ID -> 指标历史
-	lastAlerts  map[string]time.Time        // 规则ID -> 上次告警时间
-	alertCounts map[string]int              // 规则ID -> 告警计数
+	lastAlerts  map[string]time.Time         // 规则ID -> 上次告警时间
+	alertCounts map[string]int               // 规则ID -> 告警计数
 }
 
 // NewAnomalyManager 创建异常检测管理器

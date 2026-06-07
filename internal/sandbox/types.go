@@ -92,15 +92,15 @@ type ResourceLimit struct {
 // DefaultResourceLimit 返回默认资源限制.
 func DefaultResourceLimit() *ResourceLimit {
 	return &ResourceLimit{
-		CPUCores:              1.0,
-		CPUShares:             1024,
-		MemoryMB:              512,
-		MemorySwapMB:          -1,
-		DiskIOMBps:            100,
-		DiskIOPS:              1000,
-		NetworkBandwidthMbps:  100,
-		PIDsLimit:             256,
-		OpenFilesLimit:        1024,
+		CPUCores:             1.0,
+		CPUShares:            1024,
+		MemoryMB:             512,
+		MemorySwapMB:         -1,
+		DiskIOMBps:           100,
+		DiskIOPS:             1000,
+		NetworkBandwidthMbps: 100,
+		PIDsLimit:            256,
+		OpenFilesLimit:       1024,
 	}
 }
 
@@ -221,8 +221,8 @@ func DefaultSandboxConfig(name string) *SandboxConfig {
 			AllowInbound:  false,
 		},
 		Filesystem: &FilesystemIsolation{
-			ReadOnly:     false,
-			TmpFSSizeMB:  100,
+			ReadOnly:    false,
+			TmpFSSizeMB: 100,
 		},
 		AutoStart:   false,
 		MaxLifetime: 0,

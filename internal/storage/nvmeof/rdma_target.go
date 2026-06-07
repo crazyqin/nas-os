@@ -223,15 +223,15 @@ func (m *RDMATargetSysManager) CreateRDMAPort(ctx context.Context, req *CreateRD
 
 	// 创建端口对象
 	port := &RDMAPort{
-		ID:           portID,
-		Address:      req.Address,
-		ServicePort:  req.ServicePort,
-		Device:       req.Device,
-		GIDIndex:     req.GIDIndex,
-		MTU:          req.MTU,
+		ID:            portID,
+		Address:       req.Address,
+		ServicePort:   req.ServicePort,
+		Device:        req.Device,
+		GIDIndex:      req.GIDIndex,
+		MTU:           req.MTU,
 		TransportType: pkgnvmeof.RDMATransportRoCEv2,
-		State:        RDMAPortStateUp,
-		CreatedAt:    time.Now(),
+		State:         RDMAPortStateUp,
+		CreatedAt:     time.Now(),
 	}
 
 	return port, nil
@@ -373,11 +373,11 @@ func (m *RDMATargetSysManager) ListRDMAPorts() ([]*RDMAPort, error) {
 		}
 
 		ports = append(ports, &RDMAPort{
-			ID:           portID,
-			Address:      address,
-			ServicePort:  svcid,
+			ID:            portID,
+			Address:       address,
+			ServicePort:   svcid,
 			TransportType: pkgnvmeof.RDMATransportRoCEv2,
-			State:        RDMAPortStateUp,
+			State:         RDMAPortStateUp,
 		})
 	}
 
@@ -420,11 +420,11 @@ func (m *RDMATargetSysManager) GetRDMAPort(portID int) (*RDMAPort, error) {
 	}
 
 	return &RDMAPort{
-		ID:           portID,
-		Address:      address,
-		ServicePort:  svcid,
+		ID:            portID,
+		Address:       address,
+		ServicePort:   svcid,
 		TransportType: pkgnvmeof.RDMATransportRoCEv2,
-		State:        RDMAPortStateUp,
+		State:         RDMAPortStateUp,
 	}, nil
 }
 
@@ -585,14 +585,14 @@ type RDMATargetStats struct {
 	PortCount int `json:"portCount"`
 
 	// 发送统计
-	TotalTxBytes    uint64 `json:"totalTxBytes"`
-	TotalTxPackets  uint64 `json:"totalTxPackets"`
-	TotalTxErrors   uint64 `json:"totalTxErrors"`
+	TotalTxBytes   uint64 `json:"totalTxBytes"`
+	TotalTxPackets uint64 `json:"totalTxPackets"`
+	TotalTxErrors  uint64 `json:"totalTxErrors"`
 
 	// 接收统计
-	TotalRxBytes    uint64 `json:"totalRxBytes"`
-	TotalRxPackets  uint64 `json:"totalRxPackets"`
-	TotalRxErrors   uint64 `json:"totalRxErrors"`
+	TotalRxBytes   uint64 `json:"totalRxBytes"`
+	TotalRxPackets uint64 `json:"totalRxPackets"`
+	TotalRxErrors  uint64 `json:"totalRxErrors"`
 
 	// 连接统计
 	ActiveConnections int `json:"activeConnections"`

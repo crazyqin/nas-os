@@ -7,15 +7,15 @@ import (
 
 // SystemOverview 系统概览.
 type SystemOverview struct {
-	System     SystemInfo     `json:"system"`
-	CPU        CPUInfo        `json:"cpu"`
-	Memory     MemoryInfo     `json:"memory"`
-	Storage    []StoragePool  `json:"storage"`
-	Network    []NetworkInfo  `json:"network"`
-	Services   []ServiceInfo  `json:"services"`
-	Recent     []ActivityItem `json:"recent"`
-	Alerts     []AlertItem    `json:"alerts"`
-	UpdatedAt  time.Time      `json:"updated_at"`
+	System    SystemInfo     `json:"system"`
+	CPU       CPUInfo        `json:"cpu"`
+	Memory    MemoryInfo     `json:"memory"`
+	Storage   []StoragePool  `json:"storage"`
+	Network   []NetworkInfo  `json:"network"`
+	Services  []ServiceInfo  `json:"services"`
+	Recent    []ActivityItem `json:"recent"`
+	Alerts    []AlertItem    `json:"alerts"`
+	UpdatedAt time.Time      `json:"updated_at"`
 }
 
 // SystemInfo 系统信息.
@@ -32,7 +32,7 @@ type SystemInfo struct {
 type CPUInfo struct {
 	Model       string    `json:"model"`
 	Cores       int       `json:"cores"`
-	Usage       float64   `json:"usage"`        // 0-100
+	Usage       float64   `json:"usage"` // 0-100
 	Temperature float64   `json:"temperature"`
 	Frequency   float64   `json:"frequency_mhz"`
 	PerCore     []float64 `json:"per_core"`
@@ -50,38 +50,38 @@ type MemoryInfo struct {
 
 // StoragePool 存储池信息.
 type StoragePool struct {
-	Name       string  `json:"name"`
-	Status     string  `json:"status"` // healthy, degraded, faulted
-	Total      int64   `json:"total_bytes"`
-	Used       int64   `json:"used_bytes"`
-	Available  int64   `json:"available_bytes"`
-	Usage      float64 `json:"usage"` // 0-100
-	Disks      int     `json:"disk_count"`
-	RAIDLevel  string  `json:"raid_level"`
-	Health     string  `json:"health"`
+	Name      string  `json:"name"`
+	Status    string  `json:"status"` // healthy, degraded, faulted
+	Total     int64   `json:"total_bytes"`
+	Used      int64   `json:"used_bytes"`
+	Available int64   `json:"available_bytes"`
+	Usage     float64 `json:"usage"` // 0-100
+	Disks     int     `json:"disk_count"`
+	RAIDLevel string  `json:"raid_level"`
+	Health    string  `json:"health"`
 }
 
 // NetworkInfo 网络信息.
 type NetworkInfo struct {
-	Name      string `json:"name"`
-	IP        string `json:"ip"`
-	MAC       string `json:"mac"`
-	Speed     int64  `json:"speed_mbps"`
-	RxBytes   int64  `json:"rx_bytes"`
-	TxBytes   int64  `json:"tx_bytes"`
-	RxRate    int64  `json:"rx_rate_bps"`
-	TxRate    int64  `json:"tx_rate_bps"`
-	IsUp      bool   `json:"is_up"`
+	Name    string `json:"name"`
+	IP      string `json:"ip"`
+	MAC     string `json:"mac"`
+	Speed   int64  `json:"speed_mbps"`
+	RxBytes int64  `json:"rx_bytes"`
+	TxBytes int64  `json:"tx_bytes"`
+	RxRate  int64  `json:"rx_rate_bps"`
+	TxRate  int64  `json:"tx_rate_bps"`
+	IsUp    bool   `json:"is_up"`
 }
 
 // ServiceInfo 服务信息.
 type ServiceInfo struct {
-	Name      string    `json:"name"`
-	Status    string    `json:"status"` // running, stopped, error
-	Port      int       `json:"port,omitempty"`
-	Uptime    int64     `json:"uptime_seconds"`
-	Health    string    `json:"health"`
-	Icon      string    `json:"icon,omitempty"`
+	Name   string `json:"name"`
+	Status string `json:"status"` // running, stopped, error
+	Port   int    `json:"port,omitempty"`
+	Uptime int64  `json:"uptime_seconds"`
+	Health string `json:"health"`
+	Icon   string `json:"icon,omitempty"`
 }
 
 // ActivityItem 最近活动.

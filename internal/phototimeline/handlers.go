@@ -12,11 +12,11 @@ import (
 
 // Handler 照片时间线 HTTP handler
 type Handler struct {
-	timeline  *TimelineManager
-	albums    *AlbumManager
-	dedup     *DedupManager
-	config    Config
-	logger    *zap.Logger
+	timeline *TimelineManager
+	albums   *AlbumManager
+	dedup    *DedupManager
+	config   Config
+	logger   *zap.Logger
 }
 
 // NewHandler 创建 HTTP handler

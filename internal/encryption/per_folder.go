@@ -50,19 +50,19 @@ const (
 
 // EncryptedFolder represents an encrypted folder with its own data key.
 type EncryptedFolder struct {
-	ID            string        `json:"id"`
-	Name          string        `json:"name"`
-	Path          string        `json:"path"`           // Virtual mount path
-	PhysicalPath  string        `json:"physicalPath"`   // Actual encrypted data location
-	State         FolderState   `json:"state"`
-	Algorithm     Algorithm     `json:"algorithm"`
-	EncryptedKey  string        `json:"encryptedKey"`  // Base64: data key encrypted by master key
-	KeyVersion    int           `json:"keyVersion"`
-	CreatedAt     time.Time     `json:"createdAt"`
-	LastAccessed  time.Time     `json:"lastAccessed"`
-	FileCount     int64         `json:"fileCount"`
-	TotalSize     int64         `json:"totalSize"`      // Encrypted size
-	OriginalSize  int64         `json:"originalSize"`   // Decrypted size
+	ID           string      `json:"id"`
+	Name         string      `json:"name"`
+	Path         string      `json:"path"`         // Virtual mount path
+	PhysicalPath string      `json:"physicalPath"` // Actual encrypted data location
+	State        FolderState `json:"state"`
+	Algorithm    Algorithm   `json:"algorithm"`
+	EncryptedKey string      `json:"encryptedKey"` // Base64: data key encrypted by master key
+	KeyVersion   int         `json:"keyVersion"`
+	CreatedAt    time.Time   `json:"createdAt"`
+	LastAccessed time.Time   `json:"lastAccessed"`
+	FileCount    int64       `json:"fileCount"`
+	TotalSize    int64       `json:"totalSize"`    // Encrypted size
+	OriginalSize int64       `json:"originalSize"` // Decrypted size
 }
 
 // FolderState represents the state of an encrypted folder.
@@ -88,29 +88,29 @@ type EncryptedFileHeader struct {
 
 // PerFolderManager manages per-folder encryption with hierarchical keys.
 type PerFolderManager struct {
-	mu           sync.RWMutex
-	folders      map[string]*EncryptedFolder     // folderID -> folder
-	decrypted    map[string]*DecryptedFolder     // folderID -> decrypted state
-	masterKey    []byte                          // Master key (derived from password)
-	keyStore     map[string][]byte               // folderID -> decrypted data key
-	config       PerFolderConfig
-	auditLogger  func(event, msg string)
+	mu          sync.RWMutex
+	folders     map[string]*EncryptedFolder // folderID -> folder
+	decrypted   map[string]*DecryptedFolder // folderID -> decrypted state
+	masterKey   []byte                      // Master key (derived from password)
+	keyStore    map[string][]byte           // folderID -> decrypted data key
+	config      PerFolderConfig
+	auditLogger func(event, msg string)
 }
 
 // DecryptedFolder holds the runtime state for an unlocked folder.
 type DecryptedFolder struct {
-	Folder   *EncryptedFolder
-	DataKey  []byte // Decrypted data key
+	Folder  *EncryptedFolder
+	DataKey []byte // Decrypted data key
 }
 
 // PerFolderConfig configuration for per-folder encryption.
 type PerFolderConfig struct {
-	PhysicalBasePath string        `json:"physicalBasePath"` // Base path for encrypted data storage
-	VirtualBasePath  string        `json:"virtualBasePath"`  // Base path for mount points
-	Algorithm        Algorithm     `json:"algorithm"`
-	PBKDF2Iterations int           `json:"pbkdf2Iterations"`
-	AutoLockMins     int           `json:"autoLockMins"`
-	ChunkSize        int           `json:"chunkSize"`
+	PhysicalBasePath string    `json:"physicalBasePath"` // Base path for encrypted data storage
+	VirtualBasePath  string    `json:"virtualBasePath"`  // Base path for mount points
+	Algorithm        Algorithm `json:"algorithm"`
+	PBKDF2Iterations int       `json:"pbkdf2Iterations"`
+	AutoLockMins     int       `json:"autoLockMins"`
+	ChunkSize        int       `json:"chunkSize"`
 }
 
 // DefaultPerFolderConfig returns production defaults.
@@ -732,13 +732,13 @@ func (m *PerFolderManager) Stats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"totalFolders":    total,
-		"unlockedFolders": unlocked,
-		"lockedFolders":   total - unlocked,
-		"totalFiles":      totalFiles,
+		"totalFolders":       total,
+		"unlockedFolders":    unlocked,
+		"lockedFolders":      total - unlocked,
+		"totalFiles":         totalFiles,
 		"totalEncryptedSize": totalSize,
 		"totalOriginalSize":  originalSize,
-		"masterKeyLoaded": m.masterKey != nil,
+		"masterKeyLoaded":    m.masterKey != nil,
 	}
 }
 

@@ -23,12 +23,12 @@ type Board struct {
 
 // Column 看板列
 type Column struct {
-	ID        string  `json:"id"`
-	BoardID   string  `json:"board_id"`
-	Name      string  `json:"name"`
-	Position  int     `json:"position"`
-	Cards     []*Card `json:"cards"`
-	WIPLimit  int     `json:"wip_limit"`
+	ID        string    `json:"id"`
+	BoardID   string    `json:"board_id"`
+	Name      string    `json:"name"`
+	Position  int       `json:"position"`
+	Cards     []*Card   `json:"cards"`
+	WIPLimit  int       `json:"wip_limit"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -89,14 +89,14 @@ type CreateBoardRequest struct {
 
 // AddCardRequest 创建卡片请求
 type AddCardRequest struct {
-	ColumnID    string  `json:"column_id" binding:"required"`
-	Title       string  `json:"title" binding:"required"`
-	Description string  `json:"description"`
-	Priority    string  `json:"priority"`
-	AssigneeID  string  `json:"assignee_id"`
-	LabelIDs    []string `json:"label_ids"`
+	ColumnID    string     `json:"column_id" binding:"required"`
+	Title       string     `json:"title" binding:"required"`
+	Description string     `json:"description"`
+	Priority    string     `json:"priority"`
+	AssigneeID  string     `json:"assignee_id"`
+	LabelIDs    []string   `json:"label_ids"`
 	DueDate     *time.Time `json:"due_date"`
-	CreatedBy   string  `json:"created_by"`
+	CreatedBy   string     `json:"created_by"`
 }
 
 // MoveCardRequest 移动卡片请求

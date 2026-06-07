@@ -283,17 +283,17 @@ func (s *Summarizer) parseDocumentResponse(response string, filePath string, con
 	}
 
 	summary := &Summary{
-		ID:                 generateID(),
-		FileID:             generateFileID(filePath),
-		FileInfo:           getFileInfo(filePath),
-		ContentType:        "document",
-		SummaryText:        parsed.Summary,
-		Title:              parsed.Title,
-		Language:           lang,
-		WordCount:          wordCount,
-		SummaryWordCount:   summaryWordCount,
-		CompressionRatio:   compressionRatio,
-		CreatedAt:          time.Now(),
+		ID:               generateID(),
+		FileID:           generateFileID(filePath),
+		FileInfo:         getFileInfo(filePath),
+		ContentType:      "document",
+		SummaryText:      parsed.Summary,
+		Title:            parsed.Title,
+		Language:         lang,
+		WordCount:        wordCount,
+		SummaryWordCount: summaryWordCount,
+		CompressionRatio: compressionRatio,
+		CreatedAt:        time.Now(),
 	}
 
 	if opts.ExtractKeywords {
@@ -326,14 +326,14 @@ func (s *Summarizer) parseImageResponse(response string, filePath string, opts *
 	}
 
 	summary := &Summary{
-		ID:                 generateID(),
-		FileID:             generateFileID(filePath),
-		FileInfo:           getFileInfo(filePath),
-		ContentType:        "image",
-		SummaryText:        parsed.Description,
-		ImageDescription:   parsed.Description,
-		Language:           lang,
-		CreatedAt:          time.Now(),
+		ID:               generateID(),
+		FileID:           generateFileID(filePath),
+		FileInfo:         getFileInfo(filePath),
+		ContentType:      "image",
+		SummaryText:      parsed.Description,
+		ImageDescription: parsed.Description,
+		Language:         lang,
+		CreatedAt:        time.Now(),
 	}
 
 	if opts.ExtractTags {
@@ -346,9 +346,9 @@ func (s *Summarizer) parseImageResponse(response string, filePath string, opts *
 // parseVideoResponse 解析视频摘要响应
 func (s *Summarizer) parseVideoResponse(response string, filePath string, opts *SummarizeOptions) *Summary {
 	var parsed struct {
-		Summary    string   `json:"summary"`
-		Tags       []string `json:"tags"`
-		KeyScenes  []struct {
+		Summary   string   `json:"summary"`
+		Tags      []string `json:"tags"`
+		KeyScenes []struct {
 			Timestamp   float64 `json:"timestamp"`
 			Description string  `json:"description"`
 		} `json:"key_scenes"`
@@ -375,14 +375,14 @@ func (s *Summarizer) parseVideoResponse(response string, filePath string, opts *
 	}
 
 	summary := &Summary{
-		ID:                 generateID(),
-		FileID:             generateFileID(filePath),
-		FileInfo:           getFileInfo(filePath),
-		ContentType:        "video",
-		SummaryText:        parsed.Summary,
-		VideoKeyFrames:     keyFrames,
-		Language:           lang,
-		CreatedAt:          time.Now(),
+		ID:             generateID(),
+		FileID:         generateFileID(filePath),
+		FileInfo:       getFileInfo(filePath),
+		ContentType:    "video",
+		SummaryText:    parsed.Summary,
+		VideoKeyFrames: keyFrames,
+		Language:       lang,
+		CreatedAt:      time.Now(),
 	}
 
 	if opts.ExtractTags {

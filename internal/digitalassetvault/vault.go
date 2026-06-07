@@ -18,15 +18,15 @@ import (
 type AssetType string
 
 const (
-	AssetTypeDocument  AssetType = "document"
-	AssetTypeImage     AssetType = "image"
-	AssetTypeVideo     AssetType = "video"
-	AssetTypeAudio     AssetType = "audio"
-	AssetTypeSoftware  AssetType = "software"
-	AssetTypeLicense   AssetType = "license"
+	AssetTypeDocument    AssetType = "document"
+	AssetTypeImage       AssetType = "image"
+	AssetTypeVideo       AssetType = "video"
+	AssetTypeAudio       AssetType = "audio"
+	AssetTypeSoftware    AssetType = "software"
+	AssetTypeLicense     AssetType = "license"
 	AssetTypeCertificate AssetType = "certificate"
-	AssetTypeKey       AssetType = "key"
-	AssetTypeOther     AssetType = "other"
+	AssetTypeKey         AssetType = "key"
+	AssetTypeOther       AssetType = "other"
 )
 
 // SecurityLevel 安全级别
@@ -43,72 +43,72 @@ const (
 type AssetStatus string
 
 const (
-	AssetStatusActive    AssetStatus = "active"
-	AssetStatusArchived  AssetStatus = "archived"
-	AssetStatusExpired   AssetStatus = "expired"
-	AssetStatusRevoked   AssetStatus = "revoked"
+	AssetStatusActive   AssetStatus = "active"
+	AssetStatusArchived AssetStatus = "archived"
+	AssetStatusExpired  AssetStatus = "expired"
+	AssetStatusRevoked  AssetStatus = "revoked"
 )
 
 // AccessLevel 访问级别
 type AccessLevel string
 
 const (
-	AccessNone     AccessLevel = "none"
-	AccessRead     AccessLevel = "read"
-	AccessWrite    AccessLevel = "write"
-	AccessAdmin    AccessLevel = "admin"
-	AccessOwner    AccessLevel = "owner"
+	AccessNone  AccessLevel = "none"
+	AccessRead  AccessLevel = "read"
+	AccessWrite AccessLevel = "write"
+	AccessAdmin AccessLevel = "admin"
+	AccessOwner AccessLevel = "owner"
 )
 
 // DigitalAsset 数字资产
 type DigitalAsset struct {
-	ID             string            `json:"id"`
-	Name           string            `json:"name"`
-	Description    string            `json:"description"`
-	Type           AssetType         `json:"type"`
-	SecurityLevel  SecurityLevel     `json:"security_level"`
-	Status         AssetStatus       `json:"status"`
-	Size           int64             `json:"size"`
-	Checksum       string            `json:"checksum"`
-	EncryptedKey   string            `json:"encrypted_key"`
-	Owner          string            `json:"owner"`
-	Custodians     []string          `json:"custodians"`
-	Tags           []string          `json:"tags"`
-	Metadata       map[string]string `json:"metadata"`
-	DRM            *DRMInfo          `json:"drm,omitempty"`
-	CreatedAt      time.Time         `json:"created_at"`
-	UpdatedAt      time.Time         `json:"updated_at"`
-	ExpiresAt      *time.Time        `json:"expires_at,omitempty"`
-	LastAccessed   *time.Time        `json:"last_accessed,omitempty"`
-	AccessCount    int64             `json:"access_count"`
-	Version        int               `json:"version"`
-	PreviousVersions []string        `json:"previous_versions,omitempty"`
+	ID               string            `json:"id"`
+	Name             string            `json:"name"`
+	Description      string            `json:"description"`
+	Type             AssetType         `json:"type"`
+	SecurityLevel    SecurityLevel     `json:"security_level"`
+	Status           AssetStatus       `json:"status"`
+	Size             int64             `json:"size"`
+	Checksum         string            `json:"checksum"`
+	EncryptedKey     string            `json:"encrypted_key"`
+	Owner            string            `json:"owner"`
+	Custodians       []string          `json:"custodians"`
+	Tags             []string          `json:"tags"`
+	Metadata         map[string]string `json:"metadata"`
+	DRM              *DRMInfo          `json:"drm,omitempty"`
+	CreatedAt        time.Time         `json:"created_at"`
+	UpdatedAt        time.Time         `json:"updated_at"`
+	ExpiresAt        *time.Time        `json:"expires_at,omitempty"`
+	LastAccessed     *time.Time        `json:"last_accessed,omitempty"`
+	AccessCount      int64             `json:"access_count"`
+	Version          int               `json:"version"`
+	PreviousVersions []string          `json:"previous_versions,omitempty"`
 }
 
 // DRMInfo 数字版权信息
 type DRMInfo struct {
-	LicenseType    string    `json:"license_type"`
-	LicenseHolder  string    `json:"license_holder"`
+	LicenseType    string     `json:"license_type"`
+	LicenseHolder  string     `json:"license_holder"`
 	ExpirationDate *time.Time `json:"expiration_date,omitempty"`
-	UsageRights    []string  `json:"usage_rights"`
-	Restrictions   []string  `json:"restrictions"`
-	Watermark      string    `json:"watermark,omitempty"`
-	IsRevocable    bool      `json:"is_revocable"`
+	UsageRights    []string   `json:"usage_rights"`
+	Restrictions   []string   `json:"restrictions"`
+	Watermark      string     `json:"watermark,omitempty"`
+	IsRevocable    bool       `json:"is_revocable"`
 }
 
 // AccessPolicy 访问策略
 type AccessPolicy struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	AssetID     string        `json:"asset_id"`
-	Subject     string        `json:"subject"`
-	Level       AccessLevel   `json:"level"`
-	Conditions  []Condition   `json:"conditions"`
-	ExpiresAt   *time.Time    `json:"expires_at,omitempty"`
-	MaxAccess   int           `json:"max_access"`
-	AccessCount int           `json:"access_count"`
-	IPWhitelist []string      `json:"ip_whitelist,omitempty"`
-	TimeWindow  *TimeWindow   `json:"time_window,omitempty"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	AssetID     string      `json:"asset_id"`
+	Subject     string      `json:"subject"`
+	Level       AccessLevel `json:"level"`
+	Conditions  []Condition `json:"conditions"`
+	ExpiresAt   *time.Time  `json:"expires_at,omitempty"`
+	MaxAccess   int         `json:"max_access"`
+	AccessCount int         `json:"access_count"`
+	IPWhitelist []string    `json:"ip_whitelist,omitempty"`
+	TimeWindow  *TimeWindow `json:"time_window,omitempty"`
 }
 
 // Condition 访问条件
@@ -141,28 +141,28 @@ type AuditLog struct {
 
 // BackupJob 备份任务
 type BackupJob struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Assets      []string  `json:"assets"`
-	Destination string    `json:"destination"`
-	Encryption  bool      `json:"encryption"`
-	Schedule    string    `json:"schedule"`
-	Status      string    `json:"status"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Assets      []string   `json:"assets"`
+	Destination string     `json:"destination"`
+	Encryption  bool       `json:"encryption"`
+	Schedule    string     `json:"schedule"`
+	Status      string     `json:"status"`
 	LastRun     *time.Time `json:"last_run,omitempty"`
 	NextRun     *time.Time `json:"next_run,omitempty"`
-	Size        int64     `json:"size"`
+	Size        int64      `json:"size"`
 }
 
 // Manager 数字资产管理器
 type Manager struct {
-	mu           sync.RWMutex
-	assets       map[string]*DigitalAsset
-	policies     map[string]*AccessPolicy
-	auditLog     []AuditLog
-	backups      map[string]*BackupJob
-	masterKey    []byte
-	maxAssets    int
-	retention    time.Duration
+	mu        sync.RWMutex
+	assets    map[string]*DigitalAsset
+	policies  map[string]*AccessPolicy
+	auditLog  []AuditLog
+	backups   map[string]*BackupJob
+	masterKey []byte
+	maxAssets int
+	retention time.Duration
 }
 
 // NewManager 创建管理器

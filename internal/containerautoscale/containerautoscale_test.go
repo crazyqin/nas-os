@@ -288,10 +288,10 @@ func TestAlerts(t *testing.T) {
 		Enabled:     true,
 		MetricType:  MetricCPU,
 		Threshold: &ThresholdConfig{
-			ScaleUpThreshold:  80,
+			ScaleUpThreshold:   80,
 			ScaleDownThreshold: 20,
-			EvaluationPeriods: 1,
-			ScaleUpStep:       10, // 会超出配额
+			EvaluationPeriods:  1,
+			ScaleUpStep:        10, // 会超出配额
 		},
 	}
 	m.SetPolicy(policy)

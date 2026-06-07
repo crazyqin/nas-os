@@ -23,15 +23,15 @@ import (
 // BleveContentIndex Bleve全文索引服务
 // 提供文件内容全文检索能力，支持中文分词
 type BleveContentIndex struct {
-	config     WebShareConfig
-	logger     *zap.Logger
-	index      bleve.Index
-	mu         sync.RWMutex
-	indexPath  string
-	running    bool
-	ctx        context.Context
-	cancel     context.CancelFunc
-	stats      BleveIndexStats
+	config    WebShareConfig
+	logger    *zap.Logger
+	index     bleve.Index
+	mu        sync.RWMutex
+	indexPath string
+	running   bool
+	ctx       context.Context
+	cancel    context.CancelFunc
+	stats     BleveIndexStats
 }
 
 // BleveDocument Bleve索引文档
@@ -52,22 +52,22 @@ type BleveDocument struct {
 
 // BleveSearchRequest Bleve搜索请求
 type BleveSearchRequest struct {
-	Query       string        `json:"query"`       // 搜索关键词
-	Paths       []string      `json:"paths"`       // 路径限制
-	Extensions  []string      `json:"extensions"`  // 扩展名过滤
-	MinSize     int64         `json:"minSize"`     // 最小大小
-	MaxSize     int64         `json:"maxSize"`     // 最大大小
-	FromDate    *time.Time    `json:"fromDate"`    // 时间起始
-	ToDate      *time.Time    `json:"toDate"`      // 时间结束
-	MaxResults  int           `json:"maxResults"`  // 最大结果
-	Offset      int           `json:"offset"`      // 偏移量
-	Highlight   bool          `json:"highlight"`   // 高亮
-	Fuzzy       bool          `json:"fuzzy"`       // 模糊搜索
-	ExactMatch  bool          `json:"exactMatch"`  // 精确匹配
-	CaseSense   bool          `json:"caseSense"`   // 大小写敏感
-	SortBy      string        `json:"sortBy"`      // 排序字段
-	SortDesc    bool          `json:"sortDesc"`    // 降序排序
-	Fields      []string      `json:"fields"`      // 搜索字段
+	Query      string     `json:"query"`      // 搜索关键词
+	Paths      []string   `json:"paths"`      // 路径限制
+	Extensions []string   `json:"extensions"` // 扩展名过滤
+	MinSize    int64      `json:"minSize"`    // 最小大小
+	MaxSize    int64      `json:"maxSize"`    // 最大大小
+	FromDate   *time.Time `json:"fromDate"`   // 时间起始
+	ToDate     *time.Time `json:"toDate"`     // 时间结束
+	MaxResults int        `json:"maxResults"` // 最大结果
+	Offset     int        `json:"offset"`     // 偏移量
+	Highlight  bool       `json:"highlight"`  // 高亮
+	Fuzzy      bool       `json:"fuzzy"`      // 模糊搜索
+	ExactMatch bool       `json:"exactMatch"` // 精确匹配
+	CaseSense  bool       `json:"caseSense"`  // 大小写敏感
+	SortBy     string     `json:"sortBy"`     // 排序字段
+	SortDesc   bool       `json:"sortDesc"`   // 降序排序
+	Fields     []string   `json:"fields"`     // 搜索字段
 }
 
 // BleveSearchResult Bleve搜索结果
@@ -89,37 +89,37 @@ type BleveSearchResult struct {
 
 // BleveSearchResponse Bleve搜索响应
 type BleveSearchResponse struct {
-	Query       string               `json:"query"`
-	Took        time.Duration        `json:"took"`
-	Total       int64                `json:"total"`
-	Results     []BleveSearchResult  `json:"results"`
-	Offset      int                  `json:"offset"`
-	Limit       int                  `json:"limit"`
-	Truncated   bool                 `json:"truncated"`
-	Suggestions []string             `json:"suggestions"`
-	Facets      map[string]int       `json:"facets"`
-	Stats       BleveIndexStats      `json:"stats"`
+	Query       string              `json:"query"`
+	Took        time.Duration       `json:"took"`
+	Total       int64               `json:"total"`
+	Results     []BleveSearchResult `json:"results"`
+	Offset      int                 `json:"offset"`
+	Limit       int                 `json:"limit"`
+	Truncated   bool                `json:"truncated"`
+	Suggestions []string            `json:"suggestions"`
+	Facets      map[string]int      `json:"facets"`
+	Stats       BleveIndexStats     `json:"stats"`
 }
 
 // BleveIndexStats Bleve索引统计
 type BleveIndexStats struct {
-	TotalDocuments  int64         `json:"totalDocuments"`
-	IndexSize       int64         `json:"indexSize"`
-	LastIndexed     time.Time     `json:"lastIndexed"`
-	IndexDuration   time.Duration `json:"indexDuration"`
-	IndexedBytes    int64         `json:"indexedBytes"`
-	IndexedFiles    int64         `json:"indexedFiles"`
-	AvgFileSize     int64         `json:"avgFileSize"`
-	TotalWordCount  int64         `json:"totalWordCount"`
-	TotalLineCount  int64         `json:"totalLineCount"`
+	TotalDocuments int64         `json:"totalDocuments"`
+	IndexSize      int64         `json:"indexSize"`
+	LastIndexed    time.Time     `json:"lastIndexed"`
+	IndexDuration  time.Duration `json:"indexDuration"`
+	IndexedBytes   int64         `json:"indexedBytes"`
+	IndexedFiles   int64         `json:"indexedFiles"`
+	AvgFileSize    int64         `json:"avgFileSize"`
+	TotalWordCount int64         `json:"totalWordCount"`
+	TotalLineCount int64         `json:"totalLineCount"`
 }
 
 // NewBleveContentIndex 创建Bleve全文索引
 func NewBleveContentIndex(config WebShareConfig, logger *zap.Logger) (*BleveContentIndex, error) {
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	indexPath := filepath.Join(config.BaseDir, ".bleve_index")
-	
+
 	bci := &BleveContentIndex{
 		config:    config,
 		logger:    logger,
@@ -128,12 +128,12 @@ func NewBleveContentIndex(config WebShareConfig, logger *zap.Logger) (*BleveCont
 		cancel:    cancel,
 		stats:     BleveIndexStats{},
 	}
-	
+
 	// 初始化或打开索引
 	if err := bci.initIndex(); err != nil {
 		return nil, fmt.Errorf("初始化Bleve索引失败: %w", err)
 	}
-	
+
 	return bci, nil
 }
 
@@ -141,7 +141,7 @@ func NewBleveContentIndex(config WebShareConfig, logger *zap.Logger) (*BleveCont
 func (bci *BleveContentIndex) initIndex() error {
 	// 创建索引映射
 	indexMapping := bci.createIndexMapping()
-	
+
 	// 检查索引是否存在
 	if _, err := os.Stat(bci.indexPath); err == nil {
 		// 打开现有索引
@@ -164,72 +164,72 @@ func (bci *BleveContentIndex) initIndex() error {
 		}
 		bci.index = index
 	}
-	
+
 	return nil
 }
 
 // createIndexMapping 创建索引映射
 func (bci *BleveContentIndex) createIndexMapping() mapping.IndexMapping {
 	indexMapping := bleve.NewIndexMapping()
-	
+
 	// 创建文档映射
 	docMapping := bleve.NewDocumentMapping()
-	
+
 	// 路径字段 - keyword analyzer
 	pathFieldMapping := bleve.NewTextFieldMapping()
 	pathFieldMapping.Analyzer = keyword.Name
 	docMapping.AddFieldMappingsAt("path", pathFieldMapping)
-	
+
 	// 名称字段
 	nameFieldMapping := bleve.NewTextFieldMapping()
 	docMapping.AddFieldMappingsAt("name", nameFieldMapping)
-	
+
 	// 扩展名字段
 	extFieldMapping := bleve.NewTextFieldMapping()
 	extFieldMapping.Analyzer = keyword.Name
 	docMapping.AddFieldMappingsAt("ext", extFieldMapping)
-	
+
 	// 内容字段 - 支持中文分词
 	contentFieldMapping := bleve.NewTextFieldMapping()
 	// 使用bleve内置的CJK分词器支持中日韩文字
 	contentFieldMapping.Analyzer = "cjk"
 	docMapping.AddFieldMappingsAt("content", contentFieldMapping)
-	
+
 	// 关键词字段
 	keywordsFieldMapping := bleve.NewTextFieldMapping()
 	docMapping.AddFieldMappingsAt("keywords", keywordsFieldMapping)
-	
+
 	// 摘要字段
 	excerptFieldMapping := bleve.NewTextFieldMapping()
 	docMapping.AddFieldMappingsAt("excerpt", excerptFieldMapping)
-	
+
 	// 数值字段
 	sizeFieldMapping := bleve.NewNumericFieldMapping()
 	docMapping.AddFieldMappingsAt("size", sizeFieldMapping)
-	
+
 	wordCountFieldMapping := bleve.NewNumericFieldMapping()
 	docMapping.AddFieldMappingsAt("wordCount", wordCountFieldMapping)
-	
+
 	// 日期字段
 	modTimeFieldMapping := bleve.NewDateTimeFieldMapping()
 	docMapping.AddFieldMappingsAt("modTime", modTimeFieldMapping)
-	
+
 	// 内容类型字段
 	contentTypeFieldMapping := bleve.NewTextFieldMapping()
 	contentTypeFieldMapping.Analyzer = keyword.Name
 	docMapping.AddFieldMappingsAt("contentType", contentTypeFieldMapping)
-	
+
 	// 语言字段
 	languageFieldMapping := bleve.NewTextFieldMapping()
 	languageFieldMapping.Analyzer = keyword.Name
 	docMapping.AddFieldMappingsAt("language", languageFieldMapping)
-	
+
 	// 添加文档映射
 	indexMapping.AddDocumentMapping("BleveDocument", docMapping)
-	
+
 	// 默认映射
 	indexMapping.DefaultMapping = docMapping
-	
+
 	return indexMapping
 }
 
@@ -238,25 +238,25 @@ func (bci *BleveContentIndex) Start() {
 	bci.mu.Lock()
 	bci.running = true
 	bci.mu.Unlock()
-	
+
 	// 启动后台索引构建
 	go bci.backgroundIndexer()
-	
+
 	bci.logger.Info("Bleve全文索引服务已启动", zap.String("indexPath", bci.indexPath))
 }
 
 // Stop 停止索引服务
 func (bci *BleveContentIndex) Stop() {
 	bci.cancel()
-	
+
 	bci.mu.Lock()
 	bci.running = false
 	bci.mu.Unlock()
-	
+
 	if bci.index != nil {
 		bci.index.Close()
 	}
-	
+
 	bci.logger.Info("Bleve全文索引服务已停止")
 }
 
@@ -264,10 +264,10 @@ func (bci *BleveContentIndex) Stop() {
 func (bci *BleveContentIndex) backgroundIndexer() {
 	// 初始构建
 	bci.BuildIndex(bci.config.BaseDir)
-	
+
 	ticker := time.NewTicker(10 * time.Minute)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-bci.ctx.Done():
@@ -284,28 +284,28 @@ func (bci *BleveContentIndex) BuildIndex(basePath string) error {
 	if basePath == "" {
 		basePath = bci.config.BaseDir
 	}
-	
+
 	absBase, err := filepath.Abs(basePath)
 	if err != nil {
 		return err
 	}
-	
+
 	bci.logger.Info("开始构建Bleve全文索引", zap.String("path", absBase))
 	startTime := time.Now()
-	
+
 	var filesIndexed int64
 	var bytesIndexed int64
 	var totalWords int64
 	var totalLines int64
-	
+
 	batch := bci.index.NewBatch()
 	batchSize := 100
-	
+
 	err = filepath.Walk(absBase, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil // 跳过错误
 		}
-		
+
 		// 跳过隐藏文件和目录
 		if strings.HasPrefix(info.Name(), ".") {
 			if info.IsDir() {
@@ -313,7 +313,7 @@ func (bci *BleveContentIndex) BuildIndex(basePath string) error {
 			}
 			return nil
 		}
-		
+
 		// 跳过索引目录本身
 		if strings.Contains(path, ".bleve_index") {
 			if info.IsDir() {
@@ -321,37 +321,37 @@ func (bci *BleveContentIndex) BuildIndex(basePath string) error {
 			}
 			return nil
 		}
-		
+
 		// 只索引文件
 		if info.IsDir() {
 			return nil
 		}
-		
+
 		ext := strings.ToLower(filepath.Ext(info.Name()))
-		
+
 		// 只索引文本文件
 		if !bci.isTextFile(ext) {
 			return nil
 		}
-		
+
 		// 限制大文件
 		if info.Size() > 10*1024*1024 { // 10MB
 			return nil
 		}
-		
+
 		// 索引文件
 		doc, err := bci.indexFile(path, info, absBase)
 		if err != nil {
 			return nil
 		}
-		
+
 		if doc != nil {
 			batch.Index(doc.Path, doc)
 			filesIndexed++
 			bytesIndexed += info.Size()
 			totalWords += int64(doc.WordCount)
 			totalLines += int64(doc.LineCount)
-			
+
 			// 批量提交
 			if batch.Size() >= batchSize {
 				if err := bci.index.Batch(batch); err != nil {
@@ -360,19 +360,19 @@ func (bci *BleveContentIndex) BuildIndex(basePath string) error {
 				batch = bci.index.NewBatch()
 			}
 		}
-		
+
 		return nil
 	})
-	
+
 	// 提交剩余批次
 	if batch.Size() > 0 {
 		if err := bci.index.Batch(batch); err != nil {
 			bci.logger.Error("最终批次索引失败", zap.Error(err))
 		}
 	}
-	
+
 	took := time.Since(startTime)
-	
+
 	bci.mu.Lock()
 	bci.stats.TotalDocuments = filesIndexed
 	bci.stats.IndexedBytes = bytesIndexed
@@ -385,20 +385,20 @@ func (bci *BleveContentIndex) BuildIndex(basePath string) error {
 		bci.stats.AvgFileSize = bytesIndexed / filesIndexed
 	}
 	bci.mu.Unlock()
-	
+
 	// 获取索引大小
 	if info, err := os.Stat(bci.indexPath); err == nil {
 		bci.mu.Lock()
 		bci.stats.IndexSize = info.Size()
 		bci.mu.Unlock()
 	}
-	
+
 	bci.logger.Info("Bleve索引构建完成",
 		zap.Int64("files", filesIndexed),
 		zap.Int64("bytes", bytesIndexed),
 		zap.Duration("took", took),
 	)
-	
+
 	return nil
 }
 
@@ -409,35 +409,35 @@ func (bci *BleveContentIndex) indexFile(absPath string, info os.FileInfo, baseDi
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 读取文件内容
 	file, err := os.Open(absPath)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
-	
+
 	// 限制读取大小
 	content, err := io.ReadAll(io.LimitReader(file, 5*1024*1024)) // 最大5MB
 	if err != nil {
 		return nil, err
 	}
-	
+
 	text := string(content)
-	
+
 	// 检测语言
 	language := bci.detectLanguage(text)
-	
+
 	// 提取关键词
 	keywords := bci.extractKeywords(text, language)
-	
+
 	// 创建摘要
 	excerpt := bci.makeExcerpt(text, 300)
-	
+
 	// 统计词数和行数
 	wordCount := bci.countWords(text)
 	lineCount := strings.Count(text, "\n") + 1
-	
+
 	doc := &BleveDocument{
 		Path:        relPath,
 		Name:        info.Name(),
@@ -452,7 +452,7 @@ func (bci *BleveContentIndex) indexFile(absPath string, info os.FileInfo, baseDi
 		WordCount:   wordCount,
 		LineCount:   lineCount,
 	}
-	
+
 	return doc, nil
 }
 
@@ -471,13 +471,13 @@ func (bci *BleveContentIndex) isTextFile(ext string) bool {
 		".license", ".readme", ".changelog", ".authors",
 		".adoc", ".tex", ".org", ".wiki", ".rst",
 	}
-	
+
 	for _, te := range textExts {
 		if ext == te {
 			return true
 		}
 	}
-	
+
 	return false
 }
 
@@ -485,7 +485,7 @@ func (bci *BleveContentIndex) isTextFile(ext string) bool {
 func (bci *BleveContentIndex) detectLanguage(text string) string {
 	chineseCount := 0
 	englishCount := 0
-	
+
 	for _, r := range text {
 		if r >= 0x4E00 && r <= 0x9FFF {
 			chineseCount++
@@ -493,7 +493,7 @@ func (bci *BleveContentIndex) detectLanguage(text string) string {
 			englishCount++
 		}
 	}
-	
+
 	if chineseCount > englishCount {
 		return "zh"
 	} else if englishCount > 0 {
@@ -506,31 +506,31 @@ func (bci *BleveContentIndex) detectLanguage(text string) string {
 func (bci *BleveContentIndex) extractKeywords(text, language string) []string {
 	// 统计词频
 	wordCount := make(map[string]int)
-	
+
 	// 分词处理
 	text = strings.ToLower(text)
-	
+
 	// 替换分隔符
 	sepChars := []string{",", ".", ";", ":", "!", "?", "\"", "'",
 		"(", ")", "[", "]", "{", "}", "<", ">", "/", "\\", "|",
 		"@", "#", "$", "%", "^", "&", "*", "=", "+", "-", "_",
 		"\n", "\r", "\t"}
-	
+
 	for _, sep := range sepChars {
 		text = strings.ReplaceAll(text, sep, " ")
 	}
-	
+
 	words := strings.Fields(text)
-	
+
 	// 过滤停用词和短词
 	stopWords := bci.getStopWords(language)
-	
+
 	for _, word := range words {
 		if len(word) >= 2 && !stopWords[word] {
 			wordCount[word]++
 		}
 	}
-	
+
 	// 选择高频词作为关键词
 	keywords := make([]string, 0)
 	for word, count := range wordCount {
@@ -541,21 +541,21 @@ func (bci *BleveContentIndex) extractKeywords(text, language string) []string {
 			break
 		}
 	}
-	
+
 	return keywords
 }
 
 // getStopWords 获取停用词
 func (bci *BleveContentIndex) getStopWords(language string) map[string]bool {
 	stopWords := make(map[string]bool)
-	
+
 	// 中文停用词
 	zhStopWords := []string{
 		"的", "是", "在", "有", "和", "了", "不", "这", "那", "之",
 		"为", "与", "以", "及", "其", "或", "但", "如", "而", "也",
 		"就", "都", "会", "能", "要", "对", "没", "从", "到", "被",
 	}
-	
+
 	// 英文停用词
 	enStopWords := []string{
 		"the", "a", "an", "is", "are", "was", "were", "be", "been",
@@ -569,7 +569,7 @@ func (bci *BleveContentIndex) getStopWords(language string) map[string]bool {
 		"some", "such", "no", "nor", "not", "only", "own", "same",
 		"so", "than", "too", "very", "just", "and", "but", "if",
 	}
-	
+
 	switch language {
 	case "zh":
 		for _, word := range zhStopWords {
@@ -588,7 +588,7 @@ func (bci *BleveContentIndex) getStopWords(language string) map[string]bool {
 			stopWords[word] = true
 		}
 	}
-	
+
 	return stopWords
 }
 
@@ -609,7 +609,7 @@ func (bci *BleveContentIndex) countWords(text string) int {
 // getContentType 获取内容类型
 func (bci *BleveContentIndex) getContentType(ext string) string {
 	ext = strings.ToLower(ext)
-	
+
 	contentTypes := map[string]string{
 		".txt":  "text/plain",
 		".md":   "text/markdown",
@@ -631,7 +631,7 @@ func (bci *BleveContentIndex) getContentType(ext string) string {
 		".log":  "text/x-log",
 		".csv":  "text/csv",
 	}
-	
+
 	if ct, ok := contentTypes[ext]; ok {
 		return ct
 	}
@@ -641,40 +641,40 @@ func (bci *BleveContentIndex) getContentType(ext string) string {
 // Search 执行全文搜索
 func (bci *BleveContentIndex) Search(ctx context.Context, req BleveSearchRequest) (*BleveSearchResponse, error) {
 	startTime := time.Now()
-	
+
 	if req.MaxResults == 0 {
 		req.MaxResults = 50
 	}
-	
+
 	if len(req.Fields) == 0 {
 		req.Fields = []string{"content", "name", "keywords", "excerpt"}
 	}
-	
+
 	response := &BleveSearchResponse{
-		Query:     req.Query,
-		Facets:    make(map[string]int),
-		Results:   make([]BleveSearchResult, 0),
-		Limit:     req.MaxResults,
-		Offset:    req.Offset,
+		Query:   req.Query,
+		Facets:  make(map[string]int),
+		Results: make([]BleveSearchResult, 0),
+		Limit:   req.MaxResults,
+		Offset:  req.Offset,
 	}
-	
+
 	// 构建查询
 	query := bci.buildQuery(req)
-	
+
 	// 构建搜索请求
 	searchRequest := bleve.NewSearchRequestOptions(query, req.MaxResults, req.Offset, false)
-	
+
 	// 设置搜索字段
 	if len(req.Fields) > 0 {
 		searchRequest.Fields = req.Fields
 	}
-	
+
 	// 设置高亮
 	if req.Highlight {
 		searchRequest.Highlight = bleve.NewHighlight()
 		searchRequest.Highlight.Fields = req.Fields
 	}
-	
+
 	// 设置排序
 	if req.SortBy != "" {
 		searchRequest.SortBy([]string{req.SortBy})
@@ -682,47 +682,47 @@ func (bci *BleveContentIndex) Search(ctx context.Context, req BleveSearchRequest
 			searchRequest.SortBy([]string{"-" + req.SortBy})
 		}
 	}
-	
+
 	// 执行搜索
 	searchResult, err := bci.index.Search(searchRequest)
 	if err != nil {
 		return nil, fmt.Errorf("搜索失败: %w", err)
 	}
-	
+
 	response.Total = int64(searchResult.Total)
-	
+
 	// 解析结果
 	for _, hit := range searchResult.Hits {
 		result := bci.parseSearchHit(hit, req)
-		
+
 		// 应用过滤条件
 		if !bci.filterResult(&result, req) {
 			continue
 		}
-		
+
 		response.Results = append(response.Results, result)
-		
+
 		// 统计分类
 		response.Facets[result.ContentType]++
 	}
-	
+
 	response.Took = time.Since(startTime)
-	
+
 	// 获取索引统计
 	bci.mu.RLock()
 	response.Stats = bci.stats
 	bci.mu.RUnlock()
-	
+
 	// 生成搜索建议
 	response.Suggestions = bci.getSuggestions(req.Query)
-	
+
 	return response, nil
 }
 
 // buildQuery 构建Bleve查询
 func (bci *BleveContentIndex) buildQuery(req BleveSearchRequest) query.Query {
 	var q query.Query
-	
+
 	if req.ExactMatch {
 		// 精确匹配查询
 		q = bleve.NewMatchQuery(req.Query)
@@ -734,11 +734,11 @@ func (bci *BleveContentIndex) buildQuery(req BleveSearchRequest) query.Query {
 	} else {
 		// 默认使用复合查询
 		conjunctionQuery := bleve.NewConjunctionQuery()
-		
+
 		// 文本匹配
 		matchQuery := bleve.NewMatchQuery(req.Query)
 		conjunctionQuery.AddQuery(matchQuery)
-		
+
 		// 如果指定了路径限制
 		if len(req.Paths) > 0 {
 			disjunctionQuery := bleve.NewDisjunctionQuery()
@@ -749,20 +749,20 @@ func (bci *BleveContentIndex) buildQuery(req BleveSearchRequest) query.Query {
 			}
 			conjunctionQuery.AddQuery(disjunctionQuery)
 		}
-		
+
 		q = conjunctionQuery
 	}
-	
+
 	return q
 }
 
 // parseSearchHit 解析搜索结果
 func (bci *BleveContentIndex) parseSearchHit(hit *search.DocumentMatch, req BleveSearchRequest) BleveSearchResult {
 	result := BleveSearchResult{
-		Path:    hit.ID,
-		Score:   hit.Score,
+		Path:  hit.ID,
+		Score: hit.Score,
 	}
-	
+
 	// 提取字段值
 	if name, ok := hit.Fields["name"].(string); ok {
 		result.Name = name
@@ -782,7 +782,7 @@ func (bci *BleveContentIndex) parseSearchHit(hit *search.DocumentMatch, req Blev
 	if language, ok := hit.Fields["language"].(string); ok {
 		result.Language = language
 	}
-	
+
 	// 提取关键词
 	if keywords, ok := hit.Fields["keywords"].([]interface{}); ok {
 		for _, kw := range keywords {
@@ -791,7 +791,7 @@ func (bci *BleveContentIndex) parseSearchHit(hit *search.DocumentMatch, req Blev
 			}
 		}
 	}
-	
+
 	// 提取高亮信息
 	if hit.Fragments != nil {
 		result.Highlights = make(map[string][]string)
@@ -799,7 +799,7 @@ func (bci *BleveContentIndex) parseSearchHit(hit *search.DocumentMatch, req Blev
 			result.Highlights[field] = fragments
 		}
 	}
-	
+
 	return result
 }
 
@@ -818,7 +818,7 @@ func (bci *BleveContentIndex) filterResult(result *BleveSearchResult, req BleveS
 			return false
 		}
 	}
-	
+
 	// 扩展名过滤
 	if len(req.Extensions) > 0 {
 		matched := false
@@ -832,29 +832,29 @@ func (bci *BleveContentIndex) filterResult(result *BleveSearchResult, req BleveS
 			return false
 		}
 	}
-	
+
 	return true
 }
 
 // getSuggestions 获取搜索建议
 func (bci *BleveContentIndex) getSuggestions(query string) []string {
 	suggestions := make([]string, 0)
-	
+
 	// 使用前缀查询获取相似词
 	prefixQuery := bleve.NewPrefixQuery(query)
 	searchRequest := bleve.NewSearchRequestOptions(prefixQuery, 10, 0, false)
-	
+
 	searchResult, err := bci.index.Search(searchRequest)
 	if err != nil {
 		return suggestions
 	}
-	
+
 	for _, hit := range searchResult.Hits {
 		if hit.ID != query && strings.HasPrefix(hit.ID, query) {
 			suggestions = append(suggestions, hit.ID)
 		}
 	}
-	
+
 	return suggestions
 }
 
@@ -865,7 +865,7 @@ func (bci *BleveContentIndex) refreshIndex() {
 	if err != nil {
 		return
 	}
-	
+
 	bci.mu.Lock()
 	bci.stats.TotalDocuments = int64(indexCount)
 	bci.mu.Unlock()
@@ -887,20 +887,20 @@ func (bci *BleveContentIndex) GetStats() BleveIndexStats {
 func (bci *BleveContentIndex) RebuildIndex() error {
 	bci.mu.Lock()
 	defer bci.mu.Unlock()
-	
+
 	// 关闭现有索引
 	if bci.index != nil {
 		bci.index.Close()
 	}
-	
+
 	// 删除索引目录
 	os.RemoveAll(bci.indexPath)
-	
+
 	// 重新初始化
 	if err := bci.initIndex(); err != nil {
 		return err
 	}
-	
+
 	// 重新构建
 	return bci.BuildIndex(bci.config.BaseDir)
 }
@@ -909,13 +909,13 @@ func (bci *BleveContentIndex) RebuildIndex() error {
 func (bci *BleveContentIndex) AdvancedSearch(ctx context.Context, req BleveSearchRequest) (*BleveSearchResponse, error) {
 	// 构建复杂查询
 	var queries []query.Query
-	
+
 	// 主查询
 	if req.Query != "" {
 		matchQuery := bleve.NewMatchQuery(req.Query)
 		queries = append(queries, matchQuery)
 	}
-	
+
 	// 内容类型过滤
 	if len(req.Extensions) > 0 {
 		extQuery := bleve.NewDisjunctionQuery()
@@ -926,7 +926,7 @@ func (bci *BleveContentIndex) AdvancedSearch(ctx context.Context, req BleveSearc
 		}
 		queries = append(queries, extQuery)
 	}
-	
+
 	// 时间范围过滤
 	if req.FromDate != nil || req.ToDate != nil {
 		var fromDate, toDate time.Time
@@ -940,7 +940,7 @@ func (bci *BleveContentIndex) AdvancedSearch(ctx context.Context, req BleveSearc
 		dateRangeQuery.SetField("modTime")
 		queries = append(queries, dateRangeQuery)
 	}
-	
+
 	// 大小范围过滤
 	if req.MinSize > 0 || req.MaxSize > 0 {
 		minSize := float64(req.MinSize)
@@ -949,25 +949,25 @@ func (bci *BleveContentIndex) AdvancedSearch(ctx context.Context, req BleveSearc
 		sizeRangeQuery.SetField("size")
 		queries = append(queries, sizeRangeQuery)
 	}
-	
+
 	// 组合查询
 	conjunctionQuery := bleve.NewConjunctionQuery(queries...)
-	
+
 	// 构建搜索请求
 	searchRequest := bleve.NewSearchRequestOptions(conjunctionQuery, req.MaxResults, req.Offset, false)
 	searchRequest.Fields = []string{"path", "name", "ext", "excerpt", "keywords", "contentType", "language"}
-	
+
 	if req.Highlight {
 		searchRequest.Highlight = bleve.NewHighlight()
 		searchRequest.Highlight.Fields = []string{"content"}
 	}
-	
+
 	// 执行搜索
 	searchResult, err := bci.index.Search(searchRequest)
 	if err != nil {
 		return nil, fmt.Errorf("高级搜索失败: %w", err)
 	}
-	
+
 	// 构建响应
 	response := &BleveSearchResponse{
 		Query:   req.Query,
@@ -977,12 +977,12 @@ func (bci *BleveContentIndex) AdvancedSearch(ctx context.Context, req BleveSearc
 		Results: make([]BleveSearchResult, 0),
 		Facets:  make(map[string]int),
 	}
-	
+
 	for _, hit := range searchResult.Hits {
 		result := bci.parseSearchHit(hit, req)
 		response.Results = append(response.Results, result)
 		response.Facets[result.ContentType]++
 	}
-	
+
 	return response, nil
 }

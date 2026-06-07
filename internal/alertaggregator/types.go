@@ -31,10 +31,10 @@ const (
 
 // 告警状态
 const (
-	AlertStatusActive    = "active"    // 活跃
-	AlertStatusResolved  = "resolved"  // 已解决
-	AlertStatusSilenced  = "silenced"  // 已静默
-	AlertStatusExpired   = "expired"   // 已过期
+	AlertStatusActive   = "active"   // 活跃
+	AlertStatusResolved = "resolved" // 已解决
+	AlertStatusSilenced = "silenced" // 已静默
+	AlertStatusExpired  = "expired"  // 已过期
 )
 
 // ========== SLA级别常量 ==========
@@ -90,103 +90,103 @@ type Alert struct {
 
 // AlertGroup 告警组（用于聚合相似告警）.
 type AlertGroup struct {
-	ID          string    `json:"id"`           // 告警组ID
-	Name        string    `json:"name"`         // 组名称
-	Fingerprint string    `json:"fingerprint"`  // 组指纹（基于模块、来源、标题模板）
-	Module      string    `json:"module"`       // 来源模块
-	AlertIDs    []string  `json:"alert_ids"`    // 组内告警ID列表
-	Count       int       `json:"count"`        // 告警数量
-	MaxLevel    string    `json:"max_level"`    // 最高级别
-	FirstSeen   time.Time `json:"first_seen"`   // 首次出现时间
-	LastSeen    time.Time `json:"last_seen"`    // 最后出现时间
+	ID          string    `json:"id"`          // 告警组ID
+	Name        string    `json:"name"`        // 组名称
+	Fingerprint string    `json:"fingerprint"` // 组指纹（基于模块、来源、标题模板）
+	Module      string    `json:"module"`      // 来源模块
+	AlertIDs    []string  `json:"alert_ids"`   // 组内告警ID列表
+	Count       int       `json:"count"`       // 告警数量
+	MaxLevel    string    `json:"max_level"`   // 最高级别
+	FirstSeen   time.Time `json:"first_seen"`  // 首次出现时间
+	LastSeen    time.Time `json:"last_seen"`   // 最后出现时间
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // AggregationRule 聚合规则.
 type AggregationRule struct {
-	ID          string        `json:"id"`           // 规则ID
-	Name        string        `json:"name"`         // 规则名称
-	Description string        `json:"description"`  // 规则描述
-	Module      string        `json:"module"`       // 适用模块（空表示全部）
-	GroupBy     []string      `json:"group_by"`     // 聚合维度：module, source, labels.xxx
-	Window      time.Duration `json:"window"`       // 聚合时间窗口
-	MaxCount    int           `json:"max_count"`    // 最大聚合数量
-	Enabled     bool          `json:"enabled"`      // 是否启用
+	ID          string        `json:"id"`          // 规则ID
+	Name        string        `json:"name"`        // 规则名称
+	Description string        `json:"description"` // 规则描述
+	Module      string        `json:"module"`      // 适用模块（空表示全部）
+	GroupBy     []string      `json:"group_by"`    // 聚合维度：module, source, labels.xxx
+	Window      time.Duration `json:"window"`      // 聚合时间窗口
+	MaxCount    int           `json:"max_count"`   // 最大聚合数量
+	Enabled     bool          `json:"enabled"`     // 是否启用
 	CreatedAt   time.Time     `json:"created_at"`
 	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
 // EscalationPolicy 升级策略.
 type EscalationPolicy struct {
-	ID          string            `json:"id"`           // 策略ID
-	Name        string            `json:"name"`         // 策略名称
-	Description string            `json:"description"`  // 策略描述
-	Module      string            `json:"module"`       // 适用模块（空表示全部）
-	Level       string            `json:"level"`        // 适用级别（空表示全部）
-	Conditions  []EscalationCondition `json:"conditions"` // 升级条件
-	Actions     []EscalationAction    `json:"actions"`    // 升级动作
-	Enabled     bool              `json:"enabled"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	ID          string                `json:"id"`          // 策略ID
+	Name        string                `json:"name"`        // 策略名称
+	Description string                `json:"description"` // 策略描述
+	Module      string                `json:"module"`      // 适用模块（空表示全部）
+	Level       string                `json:"level"`       // 适用级别（空表示全部）
+	Conditions  []EscalationCondition `json:"conditions"`  // 升级条件
+	Actions     []EscalationAction    `json:"actions"`     // 升级动作
+	Enabled     bool                  `json:"enabled"`
+	CreatedAt   time.Time             `json:"created_at"`
+	UpdatedAt   time.Time             `json:"updated_at"`
 }
 
 // EscalationCondition 升级条件.
 type EscalationCondition struct {
-	Type      string        `json:"type"`      // 条件类型：duration, count, severity
-	Duration  time.Duration `json:"duration"`  // 持续时间（用于 duration 类型）
-	Count     int           `json:"count"`     // 告警计数（用于 count 类型）
-	MinLevel  string        `json:"min_level"` // 最低级别（用于 severity 类型）
+	Type     string        `json:"type"`      // 条件类型：duration, count, severity
+	Duration time.Duration `json:"duration"`  // 持续时间（用于 duration 类型）
+	Count    int           `json:"count"`     // 告警计数（用于 count 类型）
+	MinLevel string        `json:"min_level"` // 最低级别（用于 severity 类型）
 }
 
 // EscalationAction 升级动作.
 type EscalationAction struct {
-	Type       string `json:"type"`       // 动作类型：escalate_level, notify, webhook
-	Target     string `json:"target"`     // 目标（通知渠道、webhook URL等）
-	NewLevel   string `json:"new_level"`  // 新级别（用于 escalate_level 类型）
-	Message    string `json:"message"`    // 消息模板
+	Type     string `json:"type"`      // 动作类型：escalate_level, notify, webhook
+	Target   string `json:"target"`    // 目标（通知渠道、webhook URL等）
+	NewLevel string `json:"new_level"` // 新级别（用于 escalate_level 类型）
+	Message  string `json:"message"`   // 消息模板
 }
 
 // SilenceRule 静默规则.
 type SilenceRule struct {
-	ID          string            `json:"id"`           // 规则ID
-	Name        string            `json:"name"`         // 规则名称
-	Description string            `json:"description"`  // 规则描述
-	Module      string            `json:"module"`       // 匹配模块（空表示全部）
-	Source      string            `json:"source"`       // 匹配来源（正则）
-	Level       string            `json:"level"`        // 匹配级别（空表示全部）
-	Labels      map[string]string `json:"labels"`       // 匹配标签
-	StartsAt    time.Time         `json:"starts_at"`    // 生效开始时间
-	EndsAt      time.Time         `json:"ends_at"`      // 生效结束时间
-	Creator     string            `json:"creator"`      // 创建者
-	Enabled     bool              `json:"enabled"`      // 是否启用
+	ID          string            `json:"id"`          // 规则ID
+	Name        string            `json:"name"`        // 规则名称
+	Description string            `json:"description"` // 规则描述
+	Module      string            `json:"module"`      // 匹配模块（空表示全部）
+	Source      string            `json:"source"`      // 匹配来源（正则）
+	Level       string            `json:"level"`       // 匹配级别（空表示全部）
+	Labels      map[string]string `json:"labels"`      // 匹配标签
+	StartsAt    time.Time         `json:"starts_at"`   // 生效开始时间
+	EndsAt      time.Time         `json:"ends_at"`     // 生效结束时间
+	Creator     string            `json:"creator"`     // 创建者
+	Enabled     bool              `json:"enabled"`     // 是否启用
 	CreatedAt   time.Time         `json:"created_at"`
 }
 
 // CorrelationRule 关联规则.
 type CorrelationRule struct {
-	ID          string   `json:"id"`           // 规则ID
-	Name        string   `json:"name"`         // 规则名称
-	Description string   `json:"description"`  // 规则描述
-	SourceRules []string `json:"source_rules"` // 源告警规则ID列表
-	TargetRule  string   `json:"target_rule"`  // 目标告警规则ID
-	Window      time.Duration `json:"window"`  // 关联时间窗口
-	Logic       string   `json:"logic"`        // 关联逻辑：and, or, sequence
-	RootCause   string   `json:"root_cause"`   // 根因描述
-	Enabled     bool     `json:"enabled"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID          string        `json:"id"`           // 规则ID
+	Name        string        `json:"name"`         // 规则名称
+	Description string        `json:"description"`  // 规则描述
+	SourceRules []string      `json:"source_rules"` // 源告警规则ID列表
+	TargetRule  string        `json:"target_rule"`  // 目标告警规则ID
+	Window      time.Duration `json:"window"`       // 关联时间窗口
+	Logic       string        `json:"logic"`        // 关联逻辑：and, or, sequence
+	RootCause   string        `json:"root_cause"`   // 根因描述
+	Enabled     bool          `json:"enabled"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
 // CorrelationResult 关联分析结果.
 type CorrelationResult struct {
-	ID          string    `json:"id"`           // 结果ID
-	RootCause   string    `json:"root_cause"`   // 根因描述
-	AlertIDs    []string  `json:"alert_ids"`    // 关联的告警ID列表
-	RuleID      string    `json:"rule_id"`      // 触发的关联规则ID
-	Confidence  float64   `json:"confidence"`   // 置信度 0-1
-	Timeline    []TimelineEntry `json:"timeline"` // 时间线
-	CreatedAt   time.Time `json:"created_at"`
+	ID         string          `json:"id"`         // 结果ID
+	RootCause  string          `json:"root_cause"` // 根因描述
+	AlertIDs   []string        `json:"alert_ids"`  // 关联的告警ID列表
+	RuleID     string          `json:"rule_id"`    // 触发的关联规则ID
+	Confidence float64         `json:"confidence"` // 置信度 0-1
+	Timeline   []TimelineEntry `json:"timeline"`   // 时间线
+	CreatedAt  time.Time       `json:"created_at"`
 }
 
 // TimelineEntry 时间线条目.
@@ -199,43 +199,43 @@ type TimelineEntry struct {
 
 // SLAPolicy SLA策略.
 type SLAPolicy struct {
-	ID            string        `json:"id"`             // 策略ID
-	Name          string        `json:"name"`           // 策略名称
-	Level         string        `json:"level"`          // SLA级别：P1/P2/P3/P4
-	ResponseTime  time.Duration `json:"response_time"`  // 响应时间
-	ResolveTime   time.Duration `json:"resolve_time"`   // 解决时间
-	NotifyBefore  time.Duration `json:"notify_before"`  // 提前通知时间
-	Enabled       bool          `json:"enabled"`
-	CreatedAt     time.Time     `json:"created_at"`
+	ID           string        `json:"id"`            // 策略ID
+	Name         string        `json:"name"`          // 策略名称
+	Level        string        `json:"level"`         // SLA级别：P1/P2/P3/P4
+	ResponseTime time.Duration `json:"response_time"` // 响应时间
+	ResolveTime  time.Duration `json:"resolve_time"`  // 解决时间
+	NotifyBefore time.Duration `json:"notify_before"` // 提前通知时间
+	Enabled      bool          `json:"enabled"`
+	CreatedAt    time.Time     `json:"created_at"`
 }
 
 // SLATracking SLA跟踪记录.
 type SLATracking struct {
-	ID            string     `json:"id"`             // 跟踪ID
-	AlertID       string     `json:"alert_id"`       // 告警ID
-	SLAPolicyID   string     `json:"sla_policy_id"`  // SLA策略ID
-	Level         string     `json:"level"`          // SLA级别
-	StartTime     time.Time  `json:"start_time"`     // 开始时间
-	ResponseTime  *time.Time `json:"response_time"`  // 响应时间
-	ResolveTime   *time.Time `json:"resolve_time"`   // 解决时间
-	ResponseDue   time.Time  `json:"response_due"`   // 响应截止时间
-	ResolveDue    time.Time  `json:"resolve_due"`    // 解决截止时间
-	IsBreached    bool       `json:"is_breached"`    // 是否违反SLA
-	BreachReason  string     `json:"breach_reason"`  // 违反原因
-	CreatedAt     time.Time  `json:"created_at"`
-	UpdatedAt     time.Time  `json:"updated_at"`
+	ID           string     `json:"id"`            // 跟踪ID
+	AlertID      string     `json:"alert_id"`      // 告警ID
+	SLAPolicyID  string     `json:"sla_policy_id"` // SLA策略ID
+	Level        string     `json:"level"`         // SLA级别
+	StartTime    time.Time  `json:"start_time"`    // 开始时间
+	ResponseTime *time.Time `json:"response_time"` // 响应时间
+	ResolveTime  *time.Time `json:"resolve_time"`  // 解决时间
+	ResponseDue  time.Time  `json:"response_due"`  // 响应截止时间
+	ResolveDue   time.Time  `json:"resolve_due"`   // 解决截止时间
+	IsBreached   bool       `json:"is_breached"`   // 是否违反SLA
+	BreachReason string     `json:"breach_reason"` // 违反原因
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
 }
 
 // AlertRule 自定义告警规则.
 type AlertRule struct {
-	ID          string            `json:"id"`           // 规则ID
-	Name        string            `json:"name"`         // 规则名称
-	Description string            `json:"description"`  // 规则描述
-	Module      string            `json:"module"`       // 适用模块
-	Level       string            `json:"level"`        // 触发告警级别
-	Conditions  []RuleCondition   `json:"conditions"`   // 触发条件
-	Labels      map[string]string `json:"labels"`       // 附加标签
-	Annotations map[string]string `json:"annotations"`  // 附加注解
+	ID          string            `json:"id"`          // 规则ID
+	Name        string            `json:"name"`        // 规则名称
+	Description string            `json:"description"` // 规则描述
+	Module      string            `json:"module"`      // 适用模块
+	Level       string            `json:"level"`       // 触发告警级别
+	Conditions  []RuleCondition   `json:"conditions"`  // 触发条件
+	Labels      map[string]string `json:"labels"`      // 附加标签
+	Annotations map[string]string `json:"annotations"` // 附加注解
 	Enabled     bool              `json:"enabled"`
 	CreatedAt   time.Time         `json:"created_at"`
 	UpdatedAt   time.Time         `json:"updated_at"`
@@ -273,10 +273,10 @@ type TrendPoint struct {
 
 // SourceStat 来源统计.
 type SourceStat struct {
-	Source    string `json:"source"`
-	Module    string `json:"module"`
-	Count     int    `json:"count"`
-	LastSeen  time.Time `json:"last_seen"`
+	Source   string    `json:"source"`
+	Module   string    `json:"module"`
+	Count    int       `json:"count"`
+	LastSeen time.Time `json:"last_seen"`
 }
 
 // ========== 请求/响应类型 ==========
@@ -326,10 +326,10 @@ type CreateAggregationRuleRequest struct {
 
 // CreateEscalationPolicyRequest 创建升级策略请求.
 type CreateEscalationPolicyRequest struct {
-	Name        string              `json:"name" binding:"required"`
-	Description string              `json:"description"`
-	Module      string              `json:"module"`
-	Level       string              `json:"level"`
+	Name        string                `json:"name" binding:"required"`
+	Description string                `json:"description"`
+	Module      string                `json:"module"`
+	Level       string                `json:"level"`
 	Conditions  []EscalationCondition `json:"conditions"`
 	Actions     []EscalationAction    `json:"actions"`
 }

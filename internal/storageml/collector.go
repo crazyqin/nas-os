@@ -7,11 +7,11 @@ import (
 
 // Collector collects storage metrics from the system
 type Collector struct {
-	ml        *StorageML
-	mu        sync.RWMutex
-	stopCh    chan struct{}
-	interval  time.Duration
-	running   bool
+	ml       *StorageML
+	mu       sync.RWMutex
+	stopCh   chan struct{}
+	interval time.Duration
+	running  bool
 }
 
 // NewCollector creates a new metric collector

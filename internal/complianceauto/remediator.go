@@ -21,12 +21,12 @@ type RemediationExecutor interface {
 
 // RemediationResult 修复结果
 type RemediationResult struct {
-	ActionID  string    `json:"actionId"`
-	Success   bool      `json:"success"`
-	Message   string    `json:"message"`
-	ExecutedAt time.Time `json:"executedAt"`
-	Duration  time.Duration `json:"duration"`
-	Changes   []string  `json:"changes,omitempty"`
+	ActionID   string        `json:"actionId"`
+	Success    bool          `json:"success"`
+	Message    string        `json:"message"`
+	ExecutedAt time.Time     `json:"executedAt"`
+	Duration   time.Duration `json:"duration"`
+	Changes    []string      `json:"changes,omitempty"`
 }
 
 // NewRemediator 创建修复器

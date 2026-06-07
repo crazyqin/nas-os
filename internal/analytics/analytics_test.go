@@ -377,11 +377,11 @@ func TestUserBehaviorAnalyzer_Analyze(t *testing.T) {
 	})
 
 	analyzer.RecordAccess(AccessLog{
-		Timestamp: now,
-		UserID:    "user-2",
-		Username:  "guest",
-		FilePath:  "/data/file2.txt",
-		Action:    "write",
+		Timestamp:    now,
+		UserID:       "user-2",
+		Username:     "guest",
+		FilePath:     "/data/file2.txt",
+		Action:       "write",
 		BytesWritten: 512,
 	})
 
@@ -737,7 +737,7 @@ func TestStorageAnalyticsStructure(t *testing.T) {
 	analytics := StorageAnalytics{
 		Timestamp:         time.Now(),
 		TotalCapacity:     1024 * 1024 * 1024 * 1024, // 1TB
-		UsedCapacity:      512 * 1024 * 1024 * 1024,   // 512GB
+		UsedCapacity:      512 * 1024 * 1024 * 1024,  // 512GB
 		AvailableCapacity: 512 * 1024 * 1024 * 1024,
 		UsagePercent:      50.0,
 		FileTypeDist: []FileTypeDistribution{

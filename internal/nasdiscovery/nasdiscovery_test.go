@@ -267,9 +267,9 @@ func TestDiscoveryDirectory(t *testing.T) {
 func TestScanResult(t *testing.T) {
 	// 验证扫描结果结构
 	result := &ScanResult{
-		ID:       "test-id",
+		ID:        "test-id",
 		StartTime: time.Now(),
-		Status:   ScanStatusCompleted,
+		Status:    ScanStatusCompleted,
 	}
 
 	if result.Status != ScanStatusCompleted {

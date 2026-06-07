@@ -83,24 +83,24 @@ func TestQueryActivities(t *testing.T) {
 	now := time.Now()
 	activities := []Activity{
 		{
-			Service:  ServiceFileOps,
-			Action:   "file_upload",
-			Actor:    ActivityActor{ID: "user1", Name: "User 1"},
-			Severity: SeverityInfo,
+			Service:   ServiceFileOps,
+			Action:    "file_upload",
+			Actor:     ActivityActor{ID: "user1", Name: "User 1"},
+			Severity:  SeverityInfo,
 			Timestamp: now.Add(-2 * time.Hour),
 		},
 		{
-			Service:  ServiceUserAuth,
-			Action:   "login",
-			Actor:    ActivityActor{ID: "user2", Name: "User 2"},
-			Severity: SeverityInfo,
+			Service:   ServiceUserAuth,
+			Action:    "login",
+			Actor:     ActivityActor{ID: "user2", Name: "User 2"},
+			Severity:  SeverityInfo,
 			Timestamp: now.Add(-1 * time.Hour),
 		},
 		{
-			Service:  ServiceSystem,
-			Action:   "backup_complete",
-			Actor:    ActivityActor{ID: "system", Name: "System"},
-			Severity: SeverityWarning,
+			Service:   ServiceSystem,
+			Action:    "backup_complete",
+			Actor:     ActivityActor{ID: "system", Name: "System"},
+			Severity:  SeverityWarning,
 			Timestamp: now,
 		},
 	}
@@ -185,10 +185,10 @@ func TestGetSummary(t *testing.T) {
 	now := time.Now()
 	for i := 0; i < 10; i++ {
 		_, err := feed.RecordActivity(Activity{
-			Service:  ServiceFileOps,
-			Action:   "file_upload",
-			Actor:    ActivityActor{ID: fmt.Sprintf("user%d", i%3), Name: fmt.Sprintf("User %d", i%3)},
-			Severity: SeverityInfo,
+			Service:   ServiceFileOps,
+			Action:    "file_upload",
+			Actor:     ActivityActor{ID: fmt.Sprintf("user%d", i%3), Name: fmt.Sprintf("User %d", i%3)},
+			Severity:  SeverityInfo,
 			Timestamp: now.Add(-time.Duration(i) * time.Hour),
 		})
 		if err != nil {

@@ -29,18 +29,18 @@ var (
 type VaultState string
 
 const (
-	VaultStateOnline     VaultState = "online"     // 在线，可读写
+	VaultStateOnline        VaultState = "online"        // 在线，可读写
 	VaultStateDisconnecting VaultState = "disconnecting" // 正在断开
-	VaultStateAirGapped  VaultState = "airgapped"  // 气隙隔离状态
-	VaultStateConnecting VaultState = "connecting"  // 正在连接
-	VaultStateError      VaultState = "error"
+	VaultStateAirGapped     VaultState = "airgapped"     // 气隙隔离状态
+	VaultStateConnecting    VaultState = "connecting"    // 正在连接
+	VaultStateError         VaultState = "error"
 )
 
 // WORMPolicy WORM (Write Once Read Many) 策略
 type WORMPolicy string
 
 const (
-	WORMDisabled  WORMPolicy = "disabled"
+	WORMDisabled   WORMPolicy = "disabled"
 	WORMCompliance WORMPolicy = "compliance" // 合规模式，不可删除
 	WORMGovernance WORMPolicy = "governance" // 管理模式，管理员可删
 )
@@ -58,20 +58,20 @@ const (
 
 // Vault 气隙备份保险库
 type Vault struct {
-	ID            string     `json:"id"`
-	Name          string     `json:"name"`
-	State         VaultState `json:"state"`
-	DevicePath    string     `json:"device_path"`
-	TotalSpace    uint64     `json:"total_space"`
-	UsedSpace     uint64     `json:"used_space"`
-	WORMPolicy    WORMPolicy `json:"worm_policy"`
-	AutoDisconnect bool      `json:"auto_disconnect"` // 备份完成后自动断开
+	ID              string        `json:"id"`
+	Name            string        `json:"name"`
+	State           VaultState    `json:"state"`
+	DevicePath      string        `json:"device_path"`
+	TotalSpace      uint64        `json:"total_space"`
+	UsedSpace       uint64        `json:"used_space"`
+	WORMPolicy      WORMPolicy    `json:"worm_policy"`
+	AutoDisconnect  bool          `json:"auto_disconnect"` // 备份完成后自动断开
 	DisconnectDelay time.Duration `json:"disconnect_delay"`
-	BackupCount   int64      `json:"backup_count"`
-	LastBackupAt  *time.Time `json:"last_backup_at,omitempty"`
-	LastVerifyAt  *time.Time `json:"last_verify_at,omitempty"`
-	CreatedAt     time.Time  `json:"created_at"`
-	UpdatedAt     time.Time  `json:"updated_at"`
+	BackupCount     int64         `json:"backup_count"`
+	LastBackupAt    *time.Time    `json:"last_backup_at,omitempty"`
+	LastVerifyAt    *time.Time    `json:"last_verify_at,omitempty"`
+	CreatedAt       time.Time     `json:"created_at"`
+	UpdatedAt       time.Time     `json:"updated_at"`
 }
 
 // Backup 备份记录
@@ -81,10 +81,10 @@ type Backup struct {
 	Name        string       `json:"name"`
 	Size        uint64       `json:"size"`
 	FileCount   int64        `json:"file_count"`
-	Checksum    string       `json:"checksum"`    // SHA-256
-	ChainHash   string       `json:"chain_hash"`  // 链式校验（包含前一个备份的hash）
+	Checksum    string       `json:"checksum"`   // SHA-256
+	ChainHash   string       `json:"chain_hash"` // 链式校验（包含前一个备份的hash）
 	Status      BackupStatus `json:"status"`
-	WORM        bool         `json:"worm"`        // 是否受WORM保护
+	WORM        bool         `json:"worm"` // 是否受WORM保护
 	ExpiresAt   *time.Time   `json:"expires_at,omitempty"`
 	VerifiedAt  *time.Time   `json:"verified_at,omitempty"`
 	CreatedAt   time.Time    `json:"created_at"`

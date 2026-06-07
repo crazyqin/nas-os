@@ -13,30 +13,30 @@ import (
 
 // App 应用信息
 type App struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Version     string            `json:"version"`
-	Description string            `json:"description"`
-	Author      string            `json:"author"`
-	Category    string            `json:"category"` // media, tools, development, security, network, storage
-	Icon        string            `json:"icon"`
-	Homepage    string            `json:"homepage"`
-	License     string            `json:"license"`
-	Size        int64             `json:"size_bytes"`
-	MinVersion  string            `json:"min_version"` // 最低系统版本
-	Dependencies []string         `json:"dependencies,omitempty"`
-	Tags        []string          `json:"tags,omitempty"`
-	Rating      float64           `json:"rating"`     // 0-5
-	Downloads   int64             `json:"downloads"`
-	Installed   bool              `json:"installed"`
-	Enabled     bool              `json:"enabled"`
-	Config      map[string]string `json:"config,omitempty"`
-	Ports       []PortMapping     `json:"ports,omitempty"`
-	Volumes     []VolumeMount     `json:"volumes,omitempty"`
-	EnvVars     map[string]string `json:"env_vars,omitempty"`
-	Status      string            `json:"status"` // available, installed, running, stopped, error
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	Version      string            `json:"version"`
+	Description  string            `json:"description"`
+	Author       string            `json:"author"`
+	Category     string            `json:"category"` // media, tools, development, security, network, storage
+	Icon         string            `json:"icon"`
+	Homepage     string            `json:"homepage"`
+	License      string            `json:"license"`
+	Size         int64             `json:"size_bytes"`
+	MinVersion   string            `json:"min_version"` // 最低系统版本
+	Dependencies []string          `json:"dependencies,omitempty"`
+	Tags         []string          `json:"tags,omitempty"`
+	Rating       float64           `json:"rating"` // 0-5
+	Downloads    int64             `json:"downloads"`
+	Installed    bool              `json:"installed"`
+	Enabled      bool              `json:"enabled"`
+	Config       map[string]string `json:"config,omitempty"`
+	Ports        []PortMapping     `json:"ports,omitempty"`
+	Volumes      []VolumeMount     `json:"volumes,omitempty"`
+	EnvVars      map[string]string `json:"env_vars,omitempty"`
+	Status       string            `json:"status"` // available, installed, running, stopped, error
+	CreatedAt    time.Time         `json:"created_at"`
+	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
 // PortMapping 端口映射

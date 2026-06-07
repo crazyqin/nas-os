@@ -11,25 +11,25 @@ import (
 
 // Manager 集群管理器.
 type Manager struct {
-	mu          sync.RWMutex
-	cluster     *Cluster
-	discovery   *ServiceDiscovery
-	balancer    LoadBalancer
-	stats       ClusterConfig
-	cancel      context.CancelFunc
-	startTime   time.Time
+	mu        sync.RWMutex
+	cluster   *Cluster
+	discovery *ServiceDiscovery
+	balancer  LoadBalancer
+	stats     ClusterConfig
+	cancel    context.CancelFunc
+	startTime time.Time
 
 	// 节点管理
-	nodes       map[string]*Node
-	leaderID    string
+	nodes    map[string]*Node
+	leaderID string
 
 	// 配置
-	config      ClusterConfig
+	config ClusterConfig
 
 	// 回调函数
-	onNodeJoin    func(node *Node)
-	onNodeLeave   func(node *Node)
-	onNodeFail    func(node *Node)
+	onNodeJoin     func(node *Node)
+	onNodeLeave    func(node *Node)
+	onNodeFail     func(node *Node)
 	onLeaderChange func(leaderID string)
 }
 
@@ -47,8 +47,8 @@ func NewManager(config ClusterConfig) *Manager {
 		discovery: &ServiceDiscovery{
 			Services: make(map[string]*ServiceInfo),
 		},
-		nodes:    make(map[string]*Node),
-		config:   config,
+		nodes:     make(map[string]*Node),
+		config:    config,
 		startTime: time.Now(),
 	}
 }
@@ -587,17 +587,17 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"clusterId":      m.cluster.ID,
-		"clusterName":    m.cluster.Name,
-		"clusterStatus":  m.cluster.Status,
-		"leaderId":       m.leaderID,
-		"totalNodes":     len(m.nodes),
-		"activeNodes":    activeNodes,
-		"failedNodes":    failedNodes,
-		"totalConns":     totalConns,
-		"totalServices":  len(m.discovery.Services),
-		"uptime":         time.Since(m.startTime).String(),
-		"startTime":      m.startTime,
+		"clusterId":     m.cluster.ID,
+		"clusterName":   m.cluster.Name,
+		"clusterStatus": m.cluster.Status,
+		"leaderId":      m.leaderID,
+		"totalNodes":    len(m.nodes),
+		"activeNodes":   activeNodes,
+		"failedNodes":   failedNodes,
+		"totalConns":    totalConns,
+		"totalServices": len(m.discovery.Services),
+		"uptime":        time.Since(m.startTime).String(),
+		"startTime":     m.startTime,
 	}
 }
 

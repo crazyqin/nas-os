@@ -18,12 +18,12 @@ import (
 
 // Manager 资源优化管理器.
 type Manager struct {
-	logger         *zap.Logger
-	mu             sync.RWMutex
-	history        []ResourceSnapshot
-	maxHistory     int
-	lastAnalysis   *AnalysisResult
-	analyzing      bool
+	logger       *zap.Logger
+	mu           sync.RWMutex
+	history      []ResourceSnapshot
+	maxHistory   int
+	lastAnalysis *AnalysisResult
+	analyzing    bool
 }
 
 // NewManager 创建管理器.
@@ -368,29 +368,29 @@ func (m *Manager) cpuRecommendations(snapshot *ResourceSnapshot) []Recommendatio
 	cpu := snapshot.CPU
 	if cpu.UsagePercent > 90 {
 		recs = append(recs, Recommendation{
-			ID:           uuid.New().String(),
-			ResourceType: ResourceCPU,
-			Title:        "CPU使用率过高",
-			Description:  fmt.Sprintf("当前CPU使用率 %.1f%%，建议检查高CPU进程并优化", cpu.UsagePercent),
-			CurrentValue: fmt.Sprintf("%.1f%%", cpu.UsagePercent),
+			ID:            uuid.New().String(),
+			ResourceType:  ResourceCPU,
+			Title:         "CPU使用率过高",
+			Description:   fmt.Sprintf("当前CPU使用率 %.1f%%，建议检查高CPU进程并优化", cpu.UsagePercent),
+			CurrentValue:  fmt.Sprintf("%.1f%%", cpu.UsagePercent),
 			ExpectedValue: "< 80%",
-			Priority:     PriorityCritical,
-			Action:       "检查高CPU进程，考虑优化代码或增加CPU资源",
-			Category:     "performance",
-			CreatedAt:    time.Now(),
+			Priority:      PriorityCritical,
+			Action:        "检查高CPU进程，考虑优化代码或增加CPU资源",
+			Category:      "performance",
+			CreatedAt:     time.Now(),
 		})
 	} else if cpu.UsagePercent > 70 {
 		recs = append(recs, Recommendation{
-			ID:           uuid.New().String(),
-			ResourceType: ResourceCPU,
-			Title:        "CPU使用率偏高",
-			Description:  fmt.Sprintf("当前CPU使用率 %.1f%%，接近阈值", cpu.UsagePercent),
-			CurrentValue: fmt.Sprintf("%.1f%%", cpu.UsagePercent),
+			ID:            uuid.New().String(),
+			ResourceType:  ResourceCPU,
+			Title:         "CPU使用率偏高",
+			Description:   fmt.Sprintf("当前CPU使用率 %.1f%%，接近阈值", cpu.UsagePercent),
+			CurrentValue:  fmt.Sprintf("%.1f%%", cpu.UsagePercent),
 			ExpectedValue: "< 70%",
-			Priority:     PriorityHigh,
-			Action:       "监控CPU使用趋势，识别优化机会",
-			Category:     "monitoring",
-			CreatedAt:    time.Now(),
+			Priority:      PriorityHigh,
+			Action:        "监控CPU使用趋势，识别优化机会",
+			Category:      "monitoring",
+			CreatedAt:     time.Now(),
 		})
 	}
 
@@ -408,16 +408,16 @@ func (m *Manager) cpuRecommendations(snapshot *ResourceSnapshot) []Recommendatio
 		}
 		if maxUsage-minUsage > 50 {
 			recs = append(recs, Recommendation{
-				ID:           uuid.New().String(),
-				ResourceType: ResourceCPU,
-				Title:        "CPU核心使用不均衡",
-				Description:  fmt.Sprintf("CPU核心使用差异 %.1f%%，可能存在线程绑定问题", maxUsage-minUsage),
-				CurrentValue: fmt.Sprintf("最大 %.1f%% / 最小 %.1f%%", maxUsage, minUsage),
+				ID:            uuid.New().String(),
+				ResourceType:  ResourceCPU,
+				Title:         "CPU核心使用不均衡",
+				Description:   fmt.Sprintf("CPU核心使用差异 %.1f%%，可能存在线程绑定问题", maxUsage-minUsage),
+				CurrentValue:  fmt.Sprintf("最大 %.1f%% / 最小 %.1f%%", maxUsage, minUsage),
 				ExpectedValue: "差异 < 30%",
-				Priority:     PriorityMedium,
-				Action:       "检查进程的CPU亲和性设置",
-				Category:     "performance",
-				CreatedAt:    time.Now(),
+				Priority:      PriorityMedium,
+				Action:        "检查进程的CPU亲和性设置",
+				Category:      "performance",
+				CreatedAt:     time.Now(),
 			})
 		}
 	}
@@ -434,16 +434,16 @@ func (m *Manager) memoryRecommendations(snapshot *ResourceSnapshot) []Recommenda
 	mem := snapshot.Memory
 	if mem.UsagePercent > 90 {
 		recs = append(recs, Recommendation{
-			ID:           uuid.New().String(),
-			ResourceType: ResourceMemory,
-			Title:        "内存使用率过高",
-			Description:  fmt.Sprintf("当前内存使用率 %.1f%%，可能导致OOM", mem.UsagePercent),
-			CurrentValue: fmt.Sprintf("%.1f%%", mem.UsagePercent),
+			ID:            uuid.New().String(),
+			ResourceType:  ResourceMemory,
+			Title:         "内存使用率过高",
+			Description:   fmt.Sprintf("当前内存使用率 %.1f%%，可能导致OOM", mem.UsagePercent),
+			CurrentValue:  fmt.Sprintf("%.1f%%", mem.UsagePercent),
 			ExpectedValue: "< 80%",
-			Priority:     PriorityCritical,
-			Action:       "检查内存泄漏进程，考虑增加内存或优化使用",
-			Category:     "stability",
-			CreatedAt:    time.Now(),
+			Priority:      PriorityCritical,
+			Action:        "检查内存泄漏进程，考虑增加内存或优化使用",
+			Category:      "stability",
+			CreatedAt:     time.Now(),
 		})
 	}
 
@@ -452,17 +452,17 @@ func (m *Manager) memoryRecommendations(snapshot *ResourceSnapshot) []Recommenda
 		swapPercent := (mem.SwapUsedMB / mem.SwapTotalMB) * 100
 		if swapPercent > 50 {
 			recs = append(recs, Recommendation{
-				ID:           uuid.New().String(),
-				ResourceType: ResourceMemory,
-				Title:        "Swap使用率过高",
-				Description:  fmt.Sprintf("Swap使用率 %.1f%%，系统性能可能受到影响", swapPercent),
-				CurrentValue: fmt.Sprintf("%.1f%%", swapPercent),
-				ExpectedValue: "< 20%",
-				Priority:     PriorityHigh,
+				ID:              uuid.New().String(),
+				ResourceType:    ResourceMemory,
+				Title:           "Swap使用率过高",
+				Description:     fmt.Sprintf("Swap使用率 %.1f%%，系统性能可能受到影响", swapPercent),
+				CurrentValue:    fmt.Sprintf("%.1f%%", swapPercent),
+				ExpectedValue:   "< 20%",
+				Priority:        PriorityHigh,
 				EstimatedSaving: "性能提升",
-				Action:       "增加物理内存或优化内存使用",
-				Category:     "performance",
-				CreatedAt:    time.Now(),
+				Action:          "增加物理内存或优化内存使用",
+				Category:        "performance",
+				CreatedAt:       time.Now(),
 			})
 		}
 	}
@@ -487,7 +487,7 @@ func (m *Manager) memoryRecommendations(snapshot *ResourceSnapshot) []Recommenda
 				ResourceType: ResourceMemory,
 				Title:        "可能存在内存泄漏",
 				Description:  "最近5次采样内存使用持续增长",
-			CurrentValue: fmt.Sprintf("%.1f MB", recent[len(recent)-1].Memory.UsedMB),
+				CurrentValue: fmt.Sprintf("%.1f MB", recent[len(recent)-1].Memory.UsedMB),
 				Priority:     PriorityHigh,
 				Action:       "检查进程内存增长趋势，使用pprof分析",
 				Category:     "stability",
@@ -508,30 +508,30 @@ func (m *Manager) diskRecommendations(snapshot *ResourceSnapshot) []Recommendati
 	d := snapshot.Disk
 	if d.UsagePercent > 90 {
 		recs = append(recs, Recommendation{
-			ID:           uuid.New().String(),
-			ResourceType: ResourceDisk,
-			Title:        "磁盘空间严重不足",
-			Description:  fmt.Sprintf("磁盘使用率 %.1f%%，可能导致写入失败", d.UsagePercent),
-			CurrentValue: fmt.Sprintf("%.1f%%", d.UsagePercent),
-			ExpectedValue: "< 80%",
-			Priority:     PriorityCritical,
+			ID:              uuid.New().String(),
+			ResourceType:    ResourceDisk,
+			Title:           "磁盘空间严重不足",
+			Description:     fmt.Sprintf("磁盘使用率 %.1f%%，可能导致写入失败", d.UsagePercent),
+			CurrentValue:    fmt.Sprintf("%.1f%%", d.UsagePercent),
+			ExpectedValue:   "< 80%",
+			Priority:        PriorityCritical,
 			EstimatedSaving: fmt.Sprintf("%.1f GB", d.FreeGB),
-			Action:       "清理临时文件、日志，或扩展存储",
-			Category:     "capacity",
-			CreatedAt:    time.Now(),
+			Action:          "清理临时文件、日志，或扩展存储",
+			Category:        "capacity",
+			CreatedAt:       time.Now(),
 		})
 	} else if d.UsagePercent > 80 {
 		recs = append(recs, Recommendation{
-			ID:           uuid.New().String(),
-			ResourceType: ResourceDisk,
-			Title:        "磁盘空间不足",
-			Description:  fmt.Sprintf("磁盘使用率 %.1f%%，建议提前规划", d.UsagePercent),
-			CurrentValue: fmt.Sprintf("%.1f%%", d.UsagePercent),
+			ID:            uuid.New().String(),
+			ResourceType:  ResourceDisk,
+			Title:         "磁盘空间不足",
+			Description:   fmt.Sprintf("磁盘使用率 %.1f%%，建议提前规划", d.UsagePercent),
+			CurrentValue:  fmt.Sprintf("%.1f%%", d.UsagePercent),
 			ExpectedValue: "< 80%",
-			Priority:     PriorityHigh,
-			Action:       "清理不必要文件，规划存储扩展",
-			Category:     "capacity",
-			CreatedAt:    time.Now(),
+			Priority:      PriorityHigh,
+			Action:        "清理不必要文件，规划存储扩展",
+			Category:      "capacity",
+			CreatedAt:     time.Now(),
 		})
 	}
 
@@ -547,16 +547,16 @@ func (m *Manager) networkRecommendations(snapshot *ResourceSnapshot) []Recommend
 	n := snapshot.Network
 	if n.Errors > 0 || n.Dropped > 0 {
 		recs = append(recs, Recommendation{
-			ID:           uuid.New().String(),
-			ResourceType: ResourceNetwork,
-			Title:        "网络错误或丢包",
-			Description:  fmt.Sprintf("检测到 %d 个错误和 %d 个丢包", n.Errors, n.Dropped),
-			CurrentValue: fmt.Sprintf("错误: %d, 丢包: %d", n.Errors, n.Dropped),
+			ID:            uuid.New().String(),
+			ResourceType:  ResourceNetwork,
+			Title:         "网络错误或丢包",
+			Description:   fmt.Sprintf("检测到 %d 个错误和 %d 个丢包", n.Errors, n.Dropped),
+			CurrentValue:  fmt.Sprintf("错误: %d, 丢包: %d", n.Errors, n.Dropped),
 			ExpectedValue: "错误: 0, 丢包: 0",
-			Priority:     PriorityHigh,
-			Action:       "检查网络连接、网卡配置和驱动",
-			Category:     "reliability",
-			CreatedAt:    time.Now(),
+			Priority:      PriorityHigh,
+			Action:        "检查网络连接、网卡配置和驱动",
+			Category:      "reliability",
+			CreatedAt:     time.Now(),
 		})
 	}
 

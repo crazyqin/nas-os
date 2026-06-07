@@ -14,17 +14,17 @@ import (
 
 // AccessController 访问控制器
 type AccessController struct {
-	mu             sync.RWMutex
-	logger         *zap.Logger
-	rateLimiter    map[string]*RateLimitEntry // IP -> RateLimit
-	maxAttempts    int
+	mu              sync.RWMutex
+	logger          *zap.Logger
+	rateLimiter     map[string]*RateLimitEntry // IP -> RateLimit
+	maxAttempts     int
 	lockoutDuration time.Duration
 }
 
 // RateLimitEntry 速率限制条目
 type RateLimitEntry struct {
-	Attempts  int       `json:"attempts"`
-	LastTry   time.Time `json:"last_try"`
+	Attempts    int        `json:"attempts"`
+	LastTry     time.Time  `json:"last_try"`
 	LockedUntil *time.Time `json:"locked_until,omitempty"`
 }
 
@@ -44,12 +44,12 @@ func NewAccessController(logger *zap.Logger) *AccessController {
 
 // AccessRequest 访问请求
 type AccessRequest struct {
-	ShareID    string `json:"share_id"`
-	Token      string `json:"token"`
-	Password   string `json:"password,omitempty"`
-	IPAddress  string `json:"ip_address"`
-	UserAgent  string `json:"user_agent"`
-	Action     string `json:"action"` // view, download, preview
+	ShareID   string `json:"share_id"`
+	Token     string `json:"token"`
+	Password  string `json:"password,omitempty"`
+	IPAddress string `json:"ip_address"`
+	UserAgent string `json:"user_agent"`
+	Action    string `json:"action"` // view, download, preview
 }
 
 // AccessResult 访问结果

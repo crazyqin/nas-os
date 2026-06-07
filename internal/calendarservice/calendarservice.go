@@ -28,19 +28,19 @@ const (
 
 // Reminder 提醒
 type Reminder struct {
-	ID       string `json:"id"`
-	Minutes  int    `json:"minutes"` // 提前多少分钟提醒
-	Method   string `json:"method"`  // email, notification, sms
-	Triggered bool  `json:"triggered"`
+	ID        string `json:"id"`
+	Minutes   int    `json:"minutes"` // 提前多少分钟提醒
+	Method    string `json:"method"`  // email, notification, sms
+	Triggered bool   `json:"triggered"`
 }
 
 // Attendee 参与者
 type Attendee struct {
-	UserID   string `json:"user_id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Status   string `json:"status"` // accepted, declined, tentative, pending
-	IsOrganizer bool `json:"is_organizer"`
+	UserID      string `json:"user_id"`
+	Name        string `json:"name"`
+	Email       string `json:"email"`
+	Status      string `json:"status"` // accepted, declined, tentative, pending
+	IsOrganizer bool   `json:"is_organizer"`
 }
 
 // CalendarEvent 日历事件
@@ -82,10 +82,10 @@ type Calendar struct {
 
 // CalendarService 日历服务 (类似群晖 Calendar)
 type CalendarService struct {
-	mu       sync.RWMutex
+	mu        sync.RWMutex
 	calendars map[string]*Calendar
 	events    map[string]map[string]*CalendarEvent // calendarID -> eventID -> event
-	users     map[string][]string                   // userID -> calendarIDs
+	users     map[string][]string                  // userID -> calendarIDs
 }
 
 // NewCalendarService 创建日历服务

@@ -11,9 +11,9 @@ type WorkflowStatus string
 
 const (
 	// WorkflowStatusDraft 草稿状态，工作流正在编辑中
-	WorkflowStatusDraft    WorkflowStatus = "draft"
+	WorkflowStatusDraft WorkflowStatus = "draft"
 	// WorkflowStatusActive 激活状态，工作流可以被执行
-	WorkflowStatusActive   WorkflowStatus = "active"
+	WorkflowStatusActive WorkflowStatus = "active"
 	// WorkflowStatusDisabled 停用状态，工作流暂时不可执行
 	WorkflowStatusDisabled WorkflowStatus = "disabled"
 	// WorkflowStatusArchived 归档状态，工作流已归档
@@ -25,17 +25,17 @@ type ExecutionStatus string
 
 const (
 	// ExecutionStatusPending 等待执行
-	ExecutionStatusPending   ExecutionStatus = "pending"
+	ExecutionStatusPending ExecutionStatus = "pending"
 	// ExecutionStatusRunning 正在执行
-	ExecutionStatusRunning   ExecutionStatus = "running"
+	ExecutionStatusRunning ExecutionStatus = "running"
 	// ExecutionStatusSuccess 执行成功
-	ExecutionStatusSuccess   ExecutionStatus = "success"
+	ExecutionStatusSuccess ExecutionStatus = "success"
 	// ExecutionStatusFailed 执行失败
-	ExecutionStatusFailed    ExecutionStatus = "failed"
+	ExecutionStatusFailed ExecutionStatus = "failed"
 	// ExecutionStatusCancelled 执行已取消
 	ExecutionStatusCancelled ExecutionStatus = "cancelled"
 	// ExecutionStatusSkipped 执行已跳过
-	ExecutionStatusSkipped   ExecutionStatus = "skipped"
+	ExecutionStatusSkipped ExecutionStatus = "skipped"
 )
 
 // NodeStatus 节点执行状态
@@ -43,15 +43,15 @@ type NodeStatus string
 
 const (
 	// NodeStatusPending 等待执行
-	NodeStatusPending   NodeStatus = "pending"
+	NodeStatusPending NodeStatus = "pending"
 	// NodeStatusRunning 正在执行
-	NodeStatusRunning   NodeStatus = "running"
+	NodeStatusRunning NodeStatus = "running"
 	// NodeStatusSuccess 执行成功
-	NodeStatusSuccess   NodeStatus = "success"
+	NodeStatusSuccess NodeStatus = "success"
 	// NodeStatusFailed 执行失败
-	NodeStatusFailed    NodeStatus = "failed"
+	NodeStatusFailed NodeStatus = "failed"
 	// NodeStatusSkipped 已跳过
-	NodeStatusSkipped   NodeStatus = "skipped"
+	NodeStatusSkipped NodeStatus = "skipped"
 	// NodeStatusCancelled 已取消
 	NodeStatusCancelled NodeStatus = "cancelled"
 )
@@ -61,13 +61,13 @@ type TriggerType string
 
 const (
 	// TriggerTypeManual 手动触发
-	TriggerTypeManual    TriggerType = "manual"
+	TriggerTypeManual TriggerType = "manual"
 	// TriggerTypeEvent 事件触发
-	TriggerTypeEvent     TriggerType = "event"
+	TriggerTypeEvent TriggerType = "event"
 	// TriggerTypeSchedule 定时触发
-	TriggerTypeSchedule  TriggerType = "schedule"
+	TriggerTypeSchedule TriggerType = "schedule"
 	// TriggerTypeWebhook Webhook 触发
-	TriggerTypeWebhook   TriggerType = "webhook"
+	TriggerTypeWebhook TriggerType = "webhook"
 	// TriggerTypeThreshold 阈值触发
 	TriggerTypeThreshold TriggerType = "threshold"
 )
@@ -77,19 +77,19 @@ type ConditionOperator string
 
 const (
 	// ConditionOpEquals 等于
-	ConditionOpEquals    ConditionOperator = "equals"
+	ConditionOpEquals ConditionOperator = "equals"
 	// ConditionOpNotEquals 不等于
 	ConditionOpNotEquals ConditionOperator = "not_equals"
 	// ConditionOpGreater 大于
-	ConditionOpGreater   ConditionOperator = "greater_than"
+	ConditionOpGreater ConditionOperator = "greater_than"
 	// ConditionOpLess 小于
-	ConditionOpLess      ConditionOperator = "less_than"
+	ConditionOpLess ConditionOperator = "less_than"
 	// ConditionOpContains 包含
-	ConditionOpContains  ConditionOperator = "contains"
+	ConditionOpContains ConditionOperator = "contains"
 	// ConditionOpIn 在列表中
-	ConditionOpIn        ConditionOperator = "in"
+	ConditionOpIn ConditionOperator = "in"
 	// ConditionOpRegex 正则匹配
-	ConditionOpRegex     ConditionOperator = "regex"
+	ConditionOpRegex ConditionOperator = "regex"
 )
 
 // Workflow 工作流定义
@@ -120,10 +120,10 @@ type Workflow struct {
 	Tags []string `json:"tags,omitempty"`
 
 	// 元数据
-	CreatedAt time.Time  `json:"createdAt"`
-	UpdatedAt time.Time  `json:"updatedAt"`
-	CreatedBy string     `json:"createdBy,omitempty"`
-	UpdatedBy string     `json:"updatedBy,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	CreatedBy string    `json:"createdBy,omitempty"`
+	UpdatedBy string    `json:"updatedBy,omitempty"`
 
 	// 统计
 	ExecutionCount int        `json:"executionCount"`
@@ -151,7 +151,7 @@ type WorkflowNode struct {
 	Dependencies []string `json:"dependencies,omitempty"`
 
 	// 任务配置
-	TaskType   string                 `json:"taskType,omitempty"`   // shell, http, script, builtin
+	TaskType   string                 `json:"taskType,omitempty"` // shell, http, script, builtin
 	TaskConfig map[string]interface{} `json:"taskConfig,omitempty"`
 
 	// 条件配置
@@ -176,25 +176,25 @@ type NodePosition struct {
 
 // Condition 条件定义
 type Condition struct {
-	Field    string           `json:"field"`
+	Field    string            `json:"field"`
 	Operator ConditionOperator `json:"operator"`
-	Value    interface{}      `json:"value"`
-	Logic    string           `json:"logic,omitempty"` // and, or
-	Children []Condition      `json:"children,omitempty"`
+	Value    interface{}       `json:"value"`
+	Logic    string            `json:"logic,omitempty"` // and, or
+	Children []Condition       `json:"children,omitempty"`
 }
 
 // Trigger 触发器定义
 type Trigger struct {
-	ID       string      `json:"id"`
-	Type     TriggerType `json:"type"`
-	Config   TriggerConfig `json:"config"`
-	Enabled  bool        `json:"enabled"`
+	ID      string        `json:"id"`
+	Type    TriggerType   `json:"type"`
+	Config  TriggerConfig `json:"config"`
+	Enabled bool          `json:"enabled"`
 }
 
 // TriggerConfig 触发器配置
 type TriggerConfig struct {
 	// 事件触发
-	EventType  string            `json:"eventType,omitempty"`
+	EventType   string            `json:"eventType,omitempty"`
 	EventFilter map[string]string `json:"eventFilter,omitempty"`
 
 	// 定时触发
@@ -300,22 +300,22 @@ type AuditLog struct {
 
 // CreateWorkflowRequest 创建工作流请求
 type CreateWorkflowRequest struct {
-	Name        string         `json:"name" binding:"required"`
-	Description string         `json:"description,omitempty"`
-	Nodes       []WorkflowNode `json:"nodes" binding:"required"`
-	Triggers    []Trigger      `json:"triggers,omitempty"`
+	Name        string                 `json:"name" binding:"required"`
+	Description string                 `json:"description,omitempty"`
+	Nodes       []WorkflowNode         `json:"nodes" binding:"required"`
+	Triggers    []Trigger              `json:"triggers,omitempty"`
 	Variables   map[string]interface{} `json:"variables,omitempty"`
-	Tags        []string       `json:"tags,omitempty"`
+	Tags        []string               `json:"tags,omitempty"`
 }
 
 // UpdateWorkflowRequest 更新工作流请求
 type UpdateWorkflowRequest struct {
-	Name        *string         `json:"name,omitempty"`
-	Description *string         `json:"description,omitempty"`
-	Nodes       []WorkflowNode  `json:"nodes,omitempty"`
-	Triggers    []Trigger       `json:"triggers,omitempty"`
+	Name        *string                `json:"name,omitempty"`
+	Description *string                `json:"description,omitempty"`
+	Nodes       []WorkflowNode         `json:"nodes,omitempty"`
+	Triggers    []Trigger              `json:"triggers,omitempty"`
 	Variables   map[string]interface{} `json:"variables,omitempty"`
-	Tags        []string        `json:"tags,omitempty"`
+	Tags        []string               `json:"tags,omitempty"`
 }
 
 // ExecuteWorkflowRequest 执行工作流请求
@@ -357,23 +357,23 @@ type AuditLogFilter struct {
 // WorkflowStats 工作流统计
 type WorkflowStats struct {
 	// TotalWorkflows 工作流总数
-	TotalWorkflows   int     `json:"totalWorkflows"`
+	TotalWorkflows int `json:"totalWorkflows"`
 	// ActiveWorkflows 激活的工作流数
-	ActiveWorkflows  int     `json:"activeWorkflows"`
+	ActiveWorkflows int `json:"activeWorkflows"`
 	// TotalExecutions 执行总数
-	TotalExecutions  int     `json:"totalExecutions"`
+	TotalExecutions int `json:"totalExecutions"`
 	// RunningExecs 正在执行的执行数
-	RunningExecs     int     `json:"runningExecutions"`
+	RunningExecs int `json:"runningExecutions"`
 	// SuccessExecs 成功的执行数
-	SuccessExecs     int     `json:"successExecutions"`
+	SuccessExecs int `json:"successExecutions"`
 	// FailedExecs 失败的执行数
-	FailedExecs      int     `json:"failedExecutions"`
+	FailedExecs int `json:"failedExecutions"`
 	// AvgExecutionTime 平均执行时间
-	AvgExecutionTime string  `json:"avgExecutionTime"`
+	AvgExecutionTime string `json:"avgExecutionTime"`
 	// SuccessRate 成功率（百分比）
-	SuccessRate      float64 `json:"successRate"`
+	SuccessRate float64 `json:"successRate"`
 	// TopWorkflows 使用最多的工作流
-	TopWorkflows     []WorkflowUsage `json:"topWorkflows,omitempty"`
+	TopWorkflows []WorkflowUsage `json:"topWorkflows,omitempty"`
 }
 
 // WorkflowUsage 工作流使用统计

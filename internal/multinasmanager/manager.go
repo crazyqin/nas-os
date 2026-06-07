@@ -67,18 +67,18 @@ type NASNode struct {
 
 // StoragePool 存储池信息.
 type StoragePool struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	NodeID      string   `json:"node_id"`
-	NodeName    string   `json:"node_name"`
-	TotalSize   int64    `json:"total_size"`
-	UsedSize    int64    `json:"used_size"`
-	FreeSize    int64    `json:"free_size"`
-	Health      string   `json:"health"`
-	RaidLevel   string   `json:"raid_level"`
-	Disks       []string `json:"disks"`
-	MountPoint  string   `json:"mount_point"`
-	IsAggregated bool   `json:"is_aggregated"`
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`
+	NodeID       string   `json:"node_id"`
+	NodeName     string   `json:"node_name"`
+	TotalSize    int64    `json:"total_size"`
+	UsedSize     int64    `json:"used_size"`
+	FreeSize     int64    `json:"free_size"`
+	Health       string   `json:"health"`
+	RaidLevel    string   `json:"raid_level"`
+	Disks        []string `json:"disks"`
+	MountPoint   string   `json:"mount_point"`
+	IsAggregated bool     `json:"is_aggregated"`
 }
 
 // Alert 告警信息.
@@ -123,11 +123,11 @@ type MigrationTask struct {
 
 // ClusterTopology 集群拓扑信息.
 type ClusterTopology struct {
-	LeaderID   string     `json:"leader_id"`
-	TotalNodes int        `json:"total_nodes"`
-	OnlineNodes int       `json:"online_nodes"`
-	Nodes      []*NASNode `json:"nodes"`
-	UpdatedAt  time.Time  `json:"updated_at"`
+	LeaderID    string     `json:"leader_id"`
+	TotalNodes  int        `json:"total_nodes"`
+	OnlineNodes int        `json:"online_nodes"`
+	Nodes       []*NASNode `json:"nodes"`
+	UpdatedAt   time.Time  `json:"updated_at"`
 }
 
 // Config 多NAS管理器配置.
@@ -143,25 +143,25 @@ type Config struct {
 
 // Manager 多NAS统一管理器.
 type Manager struct {
-	config        Config
-	nodes         map[string]*NASNode
-	pools         map[string]*StoragePool
-	alerts        []*Alert
-	events        []*Event
-	migrations    map[string]*MigrationTask
-	topology      *ClusterTopology
-	leaderID      string
+	config     Config
+	nodes      map[string]*NASNode
+	pools      map[string]*StoragePool
+	alerts     []*Alert
+	events     []*Event
+	migrations map[string]*MigrationTask
+	topology   *ClusterTopology
+	leaderID   string
 
-	nodesMu       sync.RWMutex
-	poolsMu       sync.RWMutex
-	alertsMu      sync.RWMutex
-	eventsMu      sync.RWMutex
-	migrationsMu  sync.RWMutex
-	topologyMu    sync.RWMutex
+	nodesMu      sync.RWMutex
+	poolsMu      sync.RWMutex
+	alertsMu     sync.RWMutex
+	eventsMu     sync.RWMutex
+	migrationsMu sync.RWMutex
+	topologyMu   sync.RWMutex
 
-	ctx           context.Context
-	cancel        context.CancelFunc
-	logger        *zap.Logger
+	ctx    context.Context
+	cancel context.CancelFunc
+	logger *zap.Logger
 }
 
 // NewManager 创建多NAS管理器.
@@ -778,10 +778,10 @@ func (m *Manager) updateTopology() {
 // 持久化.
 
 type persistentData struct {
-	Nodes      map[string]*NASNode         `json:"nodes"`
-	Pools      map[string]*StoragePool     `json:"pools"`
-	Migrations map[string]*MigrationTask   `json:"migrations"`
-	LeaderID   string                      `json:"leader_id"`
+	Nodes      map[string]*NASNode       `json:"nodes"`
+	Pools      map[string]*StoragePool   `json:"pools"`
+	Migrations map[string]*MigrationTask `json:"migrations"`
+	LeaderID   string                    `json:"leader_id"`
 }
 
 func (m *Manager) loadData() error {

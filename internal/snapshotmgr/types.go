@@ -7,13 +7,13 @@ import "time"
 
 // Snapshot 系统配置快照
 type Snapshot struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 	// Source 触发来源：manual / auto-update / auto-config / schedule
-	Source    string        `json:"source"`
-	CreatedAt time.Time     `json:"created_at"`
-	SizeBytes int64         `json:"size_bytes"`
+	Source    string    `json:"source"`
+	CreatedAt time.Time `json:"created_at"`
+	SizeBytes int64     `json:"size_bytes"`
 	// Status: active / restoring / deleted
 	Status string `json:"status"`
 	// Items 包含的配置项

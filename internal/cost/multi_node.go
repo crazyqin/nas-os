@@ -90,10 +90,10 @@ type ResourceCostDetail struct {
 
 // CostBreakdown 成本构成
 type CostBreakdown struct {
-	StorageCost     float64 `json:"storage_cost"`
-	ElectricityCost float64 `json:"electricity_cost"`
-	NetworkCost     float64 `json:"network_cost"`
-	OpsCost         float64 `json:"ops_cost"`
+	StorageCost      float64 `json:"storage_cost"`
+	ElectricityCost  float64 `json:"electricity_cost"`
+	NetworkCost      float64 `json:"network_cost"`
+	OpsCost          float64 `json:"ops_cost"`
 	DepreciationCost float64 `json:"depreciation_cost"`
 }
 
@@ -284,11 +284,11 @@ type ClusterCostForecast struct {
 
 // MultiNodeAggregator 多节点成本聚合器
 type MultiNodeAggregator struct {
-	mu           sync.RWMutex
-	nodes        map[string]*NodeCostStats
-	history      map[string][]TrendData // nodeID -> history
-	config       MultiNodeConfig
-	dashboard    *DashboardService
+	mu        sync.RWMutex
+	nodes     map[string]*NodeCostStats
+	history   map[string][]TrendData // nodeID -> history
+	config    MultiNodeConfig
+	dashboard *DashboardService
 }
 
 // MultiNodeConfig 多节点配置
@@ -351,9 +351,9 @@ func (a *MultiNodeAggregator) RegisterNode(node NodeInfo) {
 	stats, exists := a.nodes[node.ID]
 	if !exists {
 		stats = &NodeCostStats{
-			Node:         node,
-			CollectedAt:  now,
-			RecentTrend:  make([]TrendData, 0),
+			Node:        node,
+			CollectedAt: now,
+			RecentTrend: make([]TrendData, 0),
 		}
 		a.nodes[node.ID] = stats
 	} else {
@@ -446,12 +446,12 @@ func (a *MultiNodeAggregator) GenerateClusterReport(ctx context.Context, timeRan
 
 	now := time.Now()
 	report := &ClusterCostReport{
-		ID:          fmt.Sprintf("cluster_report_%d", now.Unix()),
-		GeneratedAt: now,
-		TimeRange:   timeRange,
-		CostByType:  make(map[CostType]float64),
-		CostByRegion: make(map[string]float64),
-		NodeDetails: make([]NodeCostStats, 0),
+		ID:                      fmt.Sprintf("cluster_report_%d", now.Unix()),
+		GeneratedAt:             now,
+		TimeRange:               timeRange,
+		CostByType:              make(map[CostType]float64),
+		CostByRegion:            make(map[string]float64),
+		NodeDetails:             make([]NodeCostStats, 0),
 		OptimizationSuggestions: make([]ClusterOptimizationSuggestion, 0),
 	}
 
@@ -503,13 +503,13 @@ func (a *MultiNodeAggregator) GenerateClusterReport(ctx context.Context, timeRan
 
 	// 填充汇总信息
 	report.ClusterSummary = ClusterCostSummary{
-		TotalNodes:        len(a.nodes),
-		OnlineNodes:       onlineNodes,
-		OfflineNodes:      offlineNodes,
+		TotalNodes:         len(a.nodes),
+		OnlineNodes:        onlineNodes,
+		OfflineNodes:       offlineNodes,
 		TotalCapacityBytes: totalCapacity,
 		UsedCapacityBytes:  usedCapacity,
-		TotalCostMonthly:  round(totalCost, 2),
-		TotalCostYearly:   round(totalCost*12, 2),
+		TotalCostMonthly:   round(totalCost, 2),
+		TotalCostYearly:    round(totalCost*12, 2),
 	}
 
 	// 计算平均单位成本
@@ -527,10 +527,10 @@ func (a *MultiNodeAggregator) GenerateClusterReport(ctx context.Context, timeRan
 	// 计算预算状态
 	report.ClusterSummary.BudgetStatus = BudgetStatus{
 		MonthlyBudget: a.config.MonthlyBudget,
-		Used:         totalCost,
-		Remaining:    a.config.MonthlyBudget - totalCost,
-		UsagePercent: round(totalCost/a.config.MonthlyBudget*100, 2),
-		Status:       a.getBudgetStatus(totalCost),
+		Used:          totalCost,
+		Remaining:     a.config.MonthlyBudget - totalCost,
+		UsagePercent:  round(totalCost/a.config.MonthlyBudget*100, 2),
+		Status:        a.getBudgetStatus(totalCost),
 	}
 
 	// 分析成本趋势
@@ -587,10 +587,10 @@ func (a *MultiNodeAggregator) GetClusterSummary() ClusterCostSummary {
 		AvgCostPerGB:       round(avgCostPerGB, 4),
 		BudgetStatus: BudgetStatus{
 			MonthlyBudget: a.config.MonthlyBudget,
-			Used:         totalCost,
-			Remaining:    a.config.MonthlyBudget - totalCost,
-			UsagePercent: round(totalCost/a.config.MonthlyBudget*100, 2),
-			Status:       a.getBudgetStatus(totalCost),
+			Used:          totalCost,
+			Remaining:     a.config.MonthlyBudget - totalCost,
+			UsagePercent:  round(totalCost/a.config.MonthlyBudget*100, 2),
+			Status:        a.getBudgetStatus(totalCost),
 		},
 	}
 }
@@ -893,15 +893,15 @@ func (a *MultiNodeAggregator) generateOptimizationSuggestions(report *ClusterCos
 		if node.UsageStats.StorageUsagePercent < a.config.LowUsageThreshold {
 			savings := node.Summary.TotalCostMonthly * 0.3
 			suggestions = append(suggestions, ClusterOptimizationSuggestion{
-				ID:             fmt.Sprintf("opt_%d", idCounter),
-				Type:           "scale_down",
-				Priority:       2,
-				AffectedNodes:  []string{node.Node.ID},
-				Description:    fmt.Sprintf("节点 %s 使用率 %.1f%% 过低，建议资源整合", node.Node.Name, node.UsageStats.StorageUsagePercent),
+				ID:              fmt.Sprintf("opt_%d", idCounter),
+				Type:            "scale_down",
+				Priority:        2,
+				AffectedNodes:   []string{node.Node.ID},
+				Description:     fmt.Sprintf("节点 %s 使用率 %.1f%% 过低，建议资源整合", node.Node.Name, node.UsageStats.StorageUsagePercent),
 				PotentialSaving: round(savings, 2),
-				Complexity:     "medium",
-				EstimatedHours: 4,
-				ROIScore:       round(savings/50*10, 1), // 简单ROI评分
+				Complexity:      "medium",
+				EstimatedHours:  4,
+				ROIScore:        round(savings/50*10, 1), // 简单ROI评分
 			})
 			idCounter++
 		}
@@ -909,15 +909,15 @@ func (a *MultiNodeAggregator) generateOptimizationSuggestions(report *ClusterCos
 		// 高使用率节点
 		if node.UsageStats.StorageUsagePercent > a.config.HighUsageThreshold {
 			suggestions = append(suggestions, ClusterOptimizationSuggestion{
-				ID:             fmt.Sprintf("opt_%d", idCounter),
-				Type:           "scale_up",
-				Priority:       1,
-				AffectedNodes:  []string{node.Node.ID},
-				Description:    fmt.Sprintf("节点 %s 使用率 %.1f%% 过高，建议扩容", node.Node.Name, node.UsageStats.StorageUsagePercent),
+				ID:              fmt.Sprintf("opt_%d", idCounter),
+				Type:            "scale_up",
+				Priority:        1,
+				AffectedNodes:   []string{node.Node.ID},
+				Description:     fmt.Sprintf("节点 %s 使用率 %.1f%% 过高，建议扩容", node.Node.Name, node.UsageStats.StorageUsagePercent),
 				PotentialSaving: 0, // 扩容没有节省，但避免风险
-				Complexity:     "high",
-				EstimatedHours: 8,
-				ROIScore:       80, // 高优先级
+				Complexity:      "high",
+				EstimatedHours:  8,
+				ROIScore:        80, // 高优先级
 			})
 			idCounter++
 		}
@@ -927,15 +927,15 @@ func (a *MultiNodeAggregator) generateOptimizationSuggestions(report *ClusterCos
 			if res.EfficiencyScore < 50 {
 				savings := res.MonthlyCost * 0.2
 				suggestions = append(suggestions, ClusterOptimizationSuggestion{
-					ID:             fmt.Sprintf("opt_%d", idCounter),
-					Type:           "optimize",
-					Priority:       3,
-					AffectedNodes:  []string{node.Node.ID},
-					Description:    fmt.Sprintf("资源 %s 效率评分 %.1f，建议优化", res.Name, res.EfficiencyScore),
+					ID:              fmt.Sprintf("opt_%d", idCounter),
+					Type:            "optimize",
+					Priority:        3,
+					AffectedNodes:   []string{node.Node.ID},
+					Description:     fmt.Sprintf("资源 %s 效率评分 %.1f，建议优化", res.Name, res.EfficiencyScore),
 					PotentialSaving: round(savings, 2),
-					Complexity:     "low",
-					EstimatedHours: 2,
-					ROIScore:       round(savings/20*10, 1),
+					Complexity:      "low",
+					EstimatedHours:  2,
+					ROIScore:        round(savings/20*10, 1),
 				})
 				idCounter++
 			}
@@ -1240,21 +1240,21 @@ func (a *MultiNodeAggregator) GetCrossNodeResourceStats() *CrossNodeResourceStat
 
 	now := time.Now()
 	stats := &CrossNodeResourceStats{
-		ID:                fmt.Sprintf("cross_node_stats_%d", now.Unix()),
-		StatTime:          now,
-		ResourceByType:    make(map[string]int),
-		ResourceByNode:    make(map[string]int),
-		ResourceByRegion:  make(map[string]int),
+		ID:                   fmt.Sprintf("cross_node_stats_%d", now.Unix()),
+		StatTime:             now,
+		ResourceByType:       make(map[string]int),
+		ResourceByNode:       make(map[string]int),
+		ResourceByRegion:     make(map[string]int),
 		ResourceDistribution: make([]ResourceDistribution, 0),
-		HealthStats:       ResourceHealthStats{
+		HealthStats: ResourceHealthStats{
 			HealthByType: make(map[string]TypeHealthStats),
 		},
-		CapacityStats:     CrossNodeCapacityStats{
+		CapacityStats: CrossNodeCapacityStats{
 			UsageDistribution: make([]UsageRange, 0),
 			CapacityHotspots:  make([]CapacityHotspot, 0),
 			CapacityColdspots: make([]CapacityColdspot, 0),
 		},
-		CostDistribution:  CostDistributionStats{
+		CostDistribution: CostDistributionStats{
 			CostByNode:   make(map[string]float64),
 			CostByType:   make(map[string]float64),
 			CostByRegion: make(map[string]float64),
@@ -1313,8 +1313,8 @@ func (a *MultiNodeAggregator) GetCrossNodeResourceStats() *CrossNodeResourceStat
 
 	// 计算平均使用率
 	if stats.CapacityStats.TotalCapacityBytes > 0 {
-		stats.CapacityStats.AvgUsagePercent = round(float64(stats.CapacityStats.TotalUsedBytes) /
-			float64(stats.CapacityStats.TotalCapacityBytes) * 100, 2)
+		stats.CapacityStats.AvgUsagePercent = round(float64(stats.CapacityStats.TotalUsedBytes)/
+			float64(stats.CapacityStats.TotalCapacityBytes)*100, 2)
 	}
 
 	// 分析资源分布均衡度
@@ -1365,10 +1365,10 @@ func (a *MultiNodeAggregator) analyzeResourceDistribution(allResources map[strin
 
 	for resType, nodeDist := range typeNodeMap {
 		dist := ResourceDistribution{
-			Type:             resType,
-			NodeDistribution: nodeDist,
+			Type:               resType,
+			NodeDistribution:   nodeDist,
 			RegionDistribution: typeRegionMap[resType],
-			Suggestions:      make([]string, 0),
+			Suggestions:        make([]string, 0),
 		}
 
 		// 计算均衡度评分
@@ -1397,7 +1397,7 @@ func (a *MultiNodeAggregator) calculateBalanceScore(distribution map[string]int,
 	for _, count := range distribution {
 		total += count
 	}
- avg := float64(total) / float64(len(distribution))
+	avg := float64(total) / float64(len(distribution))
 
 	// 计算方差
 	var variance float64
@@ -1474,7 +1474,7 @@ func (a *MultiNodeAggregator) analyzeResourceHealth(allResources map[string][]Re
 				typeStats.Critical++
 			}
 			if typeStats.Total > 0 {
-				typeStats.HealthRate = round(float64(typeStats.Healthy) / float64(typeStats.Total) * 100, 2)
+				typeStats.HealthRate = round(float64(typeStats.Healthy)/float64(typeStats.Total)*100, 2)
 			}
 			stats.HealthByType[res.Type] = typeStats
 		}
@@ -1483,8 +1483,8 @@ func (a *MultiNodeAggregator) analyzeResourceHealth(allResources map[string][]Re
 	// 计算总体健康率
 	totalActive := stats.HealthyCount + stats.WarningCount + stats.CriticalCount
 	if totalActive > 0 {
-		stats.HealthRate = round(float64(stats.HealthyCount) / float64(totalActive) * 100, 2)
-		stats.AvgHealthScore = round(totalHealthScore / float64(totalActive), 1)
+		stats.HealthRate = round(float64(stats.HealthyCount)/float64(totalActive)*100, 2)
+		stats.AvgHealthScore = round(totalHealthScore/float64(totalActive), 1)
 	}
 
 	return stats
@@ -1546,15 +1546,15 @@ func (a *MultiNodeAggregator) analyzeCapacityUsage(allResources map[string][]Res
 
 			// 识别热点（高使用率）
 			if usagePercent > a.config.HighUsageThreshold {
-				remainingGB := float64(res.TotalCapacityBytes - res.UsedCapacityBytes) / (1024 * 1024 * 1024)
+				remainingGB := float64(res.TotalCapacityBytes-res.UsedCapacityBytes) / (1024 * 1024 * 1024)
 				hotspot := CapacityHotspot{
-					NodeID:         nodeID,
-					NodeName:       nodeName,
-					ResourceName:   res.Name,
-					UsagePercent:   round(usagePercent, 2),
-					RemainingGB:    round(remainingGB, 2),
-					RiskLevel:      "high",
-					Suggestion:     "建议尽快扩容或迁移数据",
+					NodeID:       nodeID,
+					NodeName:     nodeName,
+					ResourceName: res.Name,
+					UsagePercent: round(usagePercent, 2),
+					RemainingGB:  round(remainingGB, 2),
+					RiskLevel:    "high",
+					Suggestion:   "建议尽快扩容或迁移数据",
 				}
 
 				// 简单估算耗尽时间（假设每月增长10%）
@@ -1570,14 +1570,14 @@ func (a *MultiNodeAggregator) analyzeCapacityUsage(allResources map[string][]Res
 
 			// 识别冷点（低使用率）
 			if usagePercent < a.config.LowUsageThreshold {
-				idleGB := float64(res.TotalCapacityBytes - res.UsedCapacityBytes) / (1024 * 1024 * 1024)
+				idleGB := float64(res.TotalCapacityBytes-res.UsedCapacityBytes) / (1024 * 1024 * 1024)
 				coldspot := CapacityColdspot{
 					NodeID:           nodeID,
 					NodeName:         nodeName,
 					ResourceName:     res.Name,
 					UsagePercent:     round(usagePercent, 2),
 					IdleGB:           round(idleGB, 2),
-					PotentialSavings: round(idleGB * 0.05, 2), // 假设0.05元/GB
+					PotentialSavings: round(idleGB*0.05, 2), // 假设0.05元/GB
 					Suggestion:       "建议释放闲置资源或重新分配",
 				}
 				capacityStats.CapacityColdspots = append(capacityStats.CapacityColdspots, coldspot)
@@ -1630,10 +1630,10 @@ func (a *MultiNodeAggregator) analyzeCostDistribution(costStats CostDistribution
 	costStats.LowestNodeCost = round(minCost, 2)
 
 	nodeCount := len(costStats.CostByNode)
-	costStats.AvgNodeCost = round(sum / float64(nodeCount), 2)
+	costStats.AvgNodeCost = round(sum/float64(nodeCount), 2)
 
 	// 计算成本集中度
-	costStats.ConcentrationRate = round(maxCost / costStats.TotalCostMonthly * 100, 2)
+	costStats.ConcentrationRate = round(maxCost/costStats.TotalCostMonthly*100, 2)
 
 	// 计算成本方差
 	var variance float64
@@ -1641,7 +1641,7 @@ func (a *MultiNodeAggregator) analyzeCostDistribution(costStats CostDistribution
 		diff := cost - costStats.AvgNodeCost
 		variance += diff * diff
 	}
-	costStats.CostVariance = round(variance / float64(nodeCount), 2)
+	costStats.CostVariance = round(variance/float64(nodeCount), 2)
 
 	return costStats
 }
@@ -1683,12 +1683,12 @@ func (a *MultiNodeAggregator) identifyAbnormalResources(allResources map[string]
 
 				if usagePercent > a.config.HighUsageThreshold {
 					abnormal = append(abnormal, AbnormalResource{
-						NodeID:          nodeID,
-						NodeName:        nodeName,
-						ResourceName:    res.Name,
-						ResourceType:    res.Type,
-						AbnormalType:    "high_usage",
-						Description:     fmt.Sprintf("使用率 %.2f%% 超过阈值 %.2f%%",
+						NodeID:       nodeID,
+						NodeName:     nodeName,
+						ResourceName: res.Name,
+						ResourceType: res.Type,
+						AbnormalType: "high_usage",
+						Description: fmt.Sprintf("使用率 %.2f%% 超过阈值 %.2f%%",
 							usagePercent, a.config.HighUsageThreshold),
 						DetectedAt:      now,
 						ImpactLevel:     4,
@@ -1698,12 +1698,12 @@ func (a *MultiNodeAggregator) identifyAbnormalResources(allResources map[string]
 
 				if usagePercent < a.config.LowUsageThreshold {
 					abnormal = append(abnormal, AbnormalResource{
-						NodeID:          nodeID,
-						NodeName:        nodeName,
-						ResourceName:    res.Name,
-						ResourceType:    res.Type,
-						AbnormalType:    "low_usage",
-						Description:     fmt.Sprintf("使用率 %.2f%% 低于阈值 %.2f%%，资源浪费",
+						NodeID:       nodeID,
+						NodeName:     nodeName,
+						ResourceName: res.Name,
+						ResourceType: res.Type,
+						AbnormalType: "low_usage",
+						Description: fmt.Sprintf("使用率 %.2f%% 低于阈值 %.2f%%，资源浪费",
 							usagePercent, a.config.LowUsageThreshold),
 						DetectedAt:      now,
 						ImpactLevel:     2,
@@ -1767,7 +1767,7 @@ func (a *MultiNodeAggregator) generateCrossNodeRecommendations(stats *CrossNodeR
 				stats.CostDistribution.ConcentrationRate))
 	}
 
-	if stats.CostDistribution.CostVariance > stats.CostDistribution.AvgNodeCost * 0.5 {
+	if stats.CostDistribution.CostVariance > stats.CostDistribution.AvgNodeCost*0.5 {
 		recommendations = append(recommendations,
 			"节点成本差异较大，建议调整资源分布实现成本均衡")
 	}

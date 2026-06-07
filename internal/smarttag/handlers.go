@@ -7,6 +7,7 @@ import (
 )
 
 type Handlers struct{ mgr *Manager }
+
 func NewHandlers(mgr *Manager) *Handlers { return &Handlers{mgr: mgr} }
 
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {

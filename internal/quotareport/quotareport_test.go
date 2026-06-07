@@ -164,12 +164,12 @@ func TestGenerateReport(t *testing.T) {
 	mgr := NewQuotaManager(nil)
 
 	mgr.AddQuota(&QuotaEntry{
-		ID:          "quota1",
-		Type:        QuotaTypeUser,
-		Name:        "user1",
-		HardLimit:   1024 * 1024 * 1024,
+		ID:           "quota1",
+		Type:         QuotaTypeUser,
+		Name:         "user1",
+		HardLimit:    1024 * 1024 * 1024,
 		CurrentUsage: 500 * 1024 * 1024,
-		Status:      QuotaStatusNormal,
+		Status:       QuotaStatusNormal,
 	})
 
 	period := ReportPeriod{

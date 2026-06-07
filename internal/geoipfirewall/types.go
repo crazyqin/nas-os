@@ -16,14 +16,14 @@ import (
 
 // Manager is the central GeoIP firewall manager.
 type Manager struct {
-	mu            sync.RWMutex
-	config        Config
-	rules         map[string]*Rule
-	geoDB         *GeoDatabase
-	stats         *Stats
-	blockedConns  []BlockedConnection
-	logger        Logger
-	stopCh        chan struct{}
+	mu           sync.RWMutex
+	config       Config
+	rules        map[string]*Rule
+	geoDB        *GeoDatabase
+	stats        *Stats
+	blockedConns []BlockedConnection
+	logger       Logger
+	stopCh       chan struct{}
 }
 
 // Logger interface for firewall logging.
@@ -37,16 +37,16 @@ type Logger interface {
 // Config holds GeoIP firewall configuration.
 type Config struct {
 	Enabled           bool     `json:"enabled"`
-	DefaultAction     Action   `json:"defaultAction"`     // allow or deny
-	GeoDBPath         string   `json:"geoDbPath"`         // Path to GeoIP database
-	GeoDBUpdateURL    string   `json:"geoDbUpdateUrl"`    // URL for auto-updates
-	UpdateInterval    int      `json:"updateInterval"`    // Hours between updates
-	BlockedCountries  []string `json:"blockedCountries"`  // ISO country codes
-	AllowedCountries  []string `json:"allowedCountries"`  // Whitelist (overrides blocks)
-	ThreatFeedURL     string   `json:"threatFeedUrl"`     // Threat intelligence feed
+	DefaultAction     Action   `json:"defaultAction"`    // allow or deny
+	GeoDBPath         string   `json:"geoDbPath"`        // Path to GeoIP database
+	GeoDBUpdateURL    string   `json:"geoDbUpdateUrl"`   // URL for auto-updates
+	UpdateInterval    int      `json:"updateInterval"`   // Hours between updates
+	BlockedCountries  []string `json:"blockedCountries"` // ISO country codes
+	AllowedCountries  []string `json:"allowedCountries"` // Whitelist (overrides blocks)
+	ThreatFeedURL     string   `json:"threatFeedUrl"`    // Threat intelligence feed
 	ThreatFeedEnabled bool     `json:"threatFeedEnabled"`
 	MaxLogEntries     int      `json:"maxLogEntries"`
-	RateLimitPerSec   int      `json:"rateLimitPerSec"`   // Rate limiting
+	RateLimitPerSec   int      `json:"rateLimitPerSec"` // Rate limiting
 	EnableIPv6        bool     `json:"enableIpv6"`
 }
 
@@ -64,10 +64,10 @@ type Rule struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
 	Action      Action    `json:"action"`
-	Countries   []string  `json:"countries"`   // ISO 3166-1 alpha-2 codes
-	Regions     []string  `json:"regions"`     // Continent codes
-	IPRanges    []string  `json:"ipRanges"`    // CIDR notation
-	Priority    int       `json:"priority"`    // Higher = checked first
+	Countries   []string  `json:"countries"` // ISO 3166-1 alpha-2 codes
+	Regions     []string  `json:"regions"`   // Continent codes
+	IPRanges    []string  `json:"ipRanges"`  // CIDR notation
+	Priority    int       `json:"priority"`  // Higher = checked first
 	Enabled     bool      `json:"enabled"`
 	LogAction   bool      `json:"logAction"`
 	Description string    `json:"description"`
@@ -91,7 +91,7 @@ type GeoEntry struct {
 	IPRange     net.IPNet `json:"ipRange"`
 	CountryCode string    `json:"countryCode"`
 	CountryName string    `json:"countryName"`
-	Region      string    `json:"region"`      // Continent
+	Region      string    `json:"region"` // Continent
 	City        string    `json:"city"`
 	ASN         int       `json:"asn"`
 	ASOrg       string    `json:"asOrg"`
@@ -102,12 +102,12 @@ type GeoEntry struct {
 
 // CountryInfo holds country-level information.
 type CountryInfo struct {
-	Code      string   `json:"code"`
-	Name      string   `json:"name"`
-	Region    string   `json:"region"`
-	IsBlocked bool     `json:"isBlocked"`
-	IsAllowed bool     `json:"isAllowed"`
-	IPCount   int64    `json:"ipCount"`
+	Code      string `json:"code"`
+	Name      string `json:"name"`
+	Region    string `json:"region"`
+	IsBlocked bool   `json:"isBlocked"`
+	IsAllowed bool   `json:"isAllowed"`
+	IPCount   int64  `json:"ipCount"`
 }
 
 // BlockedConnection represents a blocked connection attempt.
@@ -129,17 +129,17 @@ type BlockedConnection struct {
 
 // Stats holds firewall statistics.
 type Stats struct {
-	mu                sync.RWMutex
-	TotalConnections  int64            `json:"totalConnections"`
-	BlockedCount      int64            `json:"blockedCount"`
-	AllowedCount      int64            `json:"allowedCount"`
-	CountryStats      map[string]int64 `json:"countryStats"`
-	TopBlocked        []CountryCount   `json:"topBlocked"`
-	LastUpdated       time.Time        `json:"lastUpdated"`
-	GeoDBVersion      string           `json:"geoDbVersion"`
-	GeoDBLastUpdate   time.Time        `json:"geoDbLastUpdate"`
-	RulesCount        int              `json:"rulesCount"`
-	ThreatFeedSize    int              `json:"threatFeedSize"`
+	mu               sync.RWMutex
+	TotalConnections int64            `json:"totalConnections"`
+	BlockedCount     int64            `json:"blockedCount"`
+	AllowedCount     int64            `json:"allowedCount"`
+	CountryStats     map[string]int64 `json:"countryStats"`
+	TopBlocked       []CountryCount   `json:"topBlocked"`
+	LastUpdated      time.Time        `json:"lastUpdated"`
+	GeoDBVersion     string           `json:"geoDbVersion"`
+	GeoDBLastUpdate  time.Time        `json:"geoDbLastUpdate"`
+	RulesCount       int              `json:"rulesCount"`
+	ThreatFeedSize   int              `json:"threatFeedSize"`
 }
 
 // CountryCount represents a country with its connection count.
@@ -162,14 +162,14 @@ type ThreatEntry struct {
 
 // CheckResult represents the result of a connection check.
 type CheckResult struct {
-	Allowed     bool      `json:"allowed"`
-	Action      Action    `json:"action"`
-	RuleID      string    `json:"ruleId,omitempty"`
-	RuleName    string    `json:"ruleName,omitempty"`
-	CountryCode string    `json:"countryCode,omitempty"`
-	CountryName string    `json:"countryName,omitempty"`
-	ThreatLevel int       `json:"threatLevel"`
-	Reason      string    `json:"reason"`
+	Allowed     bool   `json:"allowed"`
+	Action      Action `json:"action"`
+	RuleID      string `json:"ruleId,omitempty"`
+	RuleName    string `json:"ruleName,omitempty"`
+	CountryCode string `json:"countryCode,omitempty"`
+	CountryName string `json:"countryName,omitempty"`
+	ThreatLevel int    `json:"threatLevel"`
+	Reason      string `json:"reason"`
 }
 
 // DefaultConfig returns a default GeoIP firewall configuration.

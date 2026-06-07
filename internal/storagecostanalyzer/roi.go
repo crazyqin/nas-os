@@ -45,11 +45,11 @@ func DefaultROIInput(tier StorageTier, investmentCost float64, months int) ROIIn
 		Tier:                   tier,
 		InvestmentCost:         investmentCost,
 		AnalysisMonths:         months,
-		ExpectedLifespanMonths: 36, // 3年
-		CompressionRatio:       0.3, // 30%压缩
-		DeduplicationRatio:     0.2, // 20%去重
-		PerformanceGainPercent: 20,  // 20%性能提升
-		DowntimeReductionHours: 10,  // 年减少10小时宕机
+		ExpectedLifespanMonths: 36,   // 3年
+		CompressionRatio:       0.3,  // 30%压缩
+		DeduplicationRatio:     0.2,  // 20%去重
+		PerformanceGainPercent: 20,   // 20%性能提升
+		DowntimeReductionHours: 10,   // 年减少10小时宕机
 		CostPerDowntimeHour:    1000, // 每小时宕机成本1000元
 	}
 }
@@ -184,10 +184,10 @@ func (a *ROIAnalyzer) CompareROI(inputs []ROIInput) (*ROIComparison, error) {
 	}
 
 	return &ROIComparison{
-		GeneratedAt:  a.manager.nowFunc(),
-		Results:      results,
-		BestROI:      bestROI,
-		BestPayback:  bestPayback,
+		GeneratedAt: a.manager.nowFunc(),
+		Results:     results,
+		BestROI:     bestROI,
+		BestPayback: bestPayback,
 	}, nil
 }
 
@@ -265,23 +265,23 @@ func (a *ROIAnalyzer) EstimateDataOptimizationROI(
 	}
 
 	return &DataOptimizationROI{
-		GeneratedAt:           a.manager.nowFunc(),
-		Tier:                  tier,
-		TierName:              cfg.Name,
-		OriginalDataTB:        originalTB,
-		DeduplicationRatio:    dedupRatio,
-		CompressionRatio:      compressionRatio,
-		TotalSavingsTB:        totalSavingsTB,
-		MonthlyCostSaving:     monthlyCostSaving,
-		AnnualCostSaving:      annualCostSaving,
-		ImplementationCost:    implementationCost,
-		PaybackMonths:         paybackMonths,
-		ROI12Months:           roiPercent12Months,
-		ROI3Years:             roiPercent3Years,
-		ROI5Years:             roiPercent5Years,
-		NetBenefit12Months:    netBenefit12Months,
-		NetBenefit3Years:      netBenefit3Years,
-		NetBenefit5Years:      netBenefit5Years,
+		GeneratedAt:        a.manager.nowFunc(),
+		Tier:               tier,
+		TierName:           cfg.Name,
+		OriginalDataTB:     originalTB,
+		DeduplicationRatio: dedupRatio,
+		CompressionRatio:   compressionRatio,
+		TotalSavingsTB:     totalSavingsTB,
+		MonthlyCostSaving:  monthlyCostSaving,
+		AnnualCostSaving:   annualCostSaving,
+		ImplementationCost: implementationCost,
+		PaybackMonths:      paybackMonths,
+		ROI12Months:        roiPercent12Months,
+		ROI3Years:          roiPercent3Years,
+		ROI5Years:          roiPercent5Years,
+		NetBenefit12Months: netBenefit12Months,
+		NetBenefit3Years:   netBenefit3Years,
+		NetBenefit5Years:   netBenefit5Years,
 	}, nil
 }
 
@@ -354,8 +354,8 @@ func (a *ROIAnalyzer) CalculateIRR(initialInvestment float64, monthlyCashFlows [
 	}
 
 	// 使用二分法求解月化 IRR
-	low := -0.5   // 月化收益率下限
-	high := 0.5   // 月化收益率上限
+	low := -0.5 // 月化收益率下限
+	high := 0.5 // 月化收益率上限
 	tolerance := 0.0001
 	maxIterations := 1000
 

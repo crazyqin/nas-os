@@ -735,11 +735,11 @@ func (m *SSDHealthMonitor) predictLife(health *SSDHealth) {
 	if health.HealthPercent > 0 && writeRatePerDay > 0 && health.LifeUsedPercent > 0 {
 		// G115 fix: 使用float64计算避免整数溢出
 		estimatedRemainingWritesFloat := float64(health.TotalWrites) / health.LifeUsedPercent * health.HealthPercent
-		
+
 		// 安全转换：限制剩余天数在合理范围内
 		const maxRemainingDays = 36500 // 100年上限
 		var remainingDays int
-		
+
 		if writeRatePerDay > 0 {
 			remainingDaysFloat := estimatedRemainingWritesFloat / float64(writeRatePerDay)
 			// 安全转换：确保不溢出int范围

@@ -21,10 +21,10 @@ const (
 
 // Detector 重复文件检测器
 type Detector struct {
-	mu       sync.RWMutex
-	config   *ScanConfig
-	result   *ScanResult
-	cancel   context.CancelFunc
+	mu     sync.RWMutex
+	config *ScanConfig
+	result *ScanResult
+	cancel context.CancelFunc
 }
 
 // NewDetector 创建检测器
@@ -363,7 +363,7 @@ func (d *Detector) buildDuplicateGroups(hashGroups map[string][]*FileFingerprint
 		}
 
 		group := &DuplicateGroup{
-			ID: fmt.Sprintf("grp_%x", sha256.Sum256([]byte(hash))),
+			ID:    fmt.Sprintf("grp_%x", sha256.Sum256([]byte(hash))),
 			Files: files,
 		}
 

@@ -254,7 +254,7 @@ func (h *Handler) Dashboard(c *gin.Context) {
 	devices := h.svc.Analyzer.GetDevices()
 
 	dashboard := DashboardData{
-		TotalDisks: len(devices),
+		TotalDisks:  len(devices),
 		GeneratedAt: time.Now(),
 	}
 

@@ -18,11 +18,11 @@ var (
 
 // ResourceLimits 资源限制定义
 type ResourceLimits struct {
-	CPUMilliCores int64  `json:"cpuMilliCores"` // CPU限制（毫核）
-	MemoryBytes   int64  `json:"memoryBytes"`   // 内存限制（字节）
-	IOReadBPS     int64  `json:"ioReadBps"`     // IO读取速率限制
-	IOWriteBPS    int64  `json:"ioWriteBps"`    // IO写入速率限制
-	NetUploadBPS  int64  `json:"netUploadBps"`  // 网络上传速率限制
+	CPUMilliCores  int64 `json:"cpuMilliCores"`  // CPU限制（毫核）
+	MemoryBytes    int64 `json:"memoryBytes"`    // 内存限制（字节）
+	IOReadBPS      int64 `json:"ioReadBps"`      // IO读取速率限制
+	IOWriteBPS     int64 `json:"ioWriteBps"`     // IO写入速率限制
+	NetUploadBPS   int64 `json:"netUploadBps"`   // 网络上传速率限制
 	NetDownloadBPS int64 `json:"netDownloadBps"` // 网络下载速率限制
 }
 
@@ -39,14 +39,14 @@ type UsageSample struct {
 
 // ContainerProfile 容器资源画像
 type ContainerProfile struct {
-	ContainerID    string         `json:"containerId"`
-	ContainerName  string         `json:"containerName"`
-	ImageName      string         `json:"imageName"`
-	CurrentLimits  ResourceLimits `json:"currentLimits"`
+	ContainerID       string         `json:"containerId"`
+	ContainerName     string         `json:"containerName"`
+	ImageName         string         `json:"imageName"`
+	CurrentLimits     ResourceLimits `json:"currentLimits"`
 	RecommendedLimits ResourceLimits `json:"recommendedLimits"`
-	Samples        []UsageSample  `json:"-"`
-	LastUpdated    time.Time      `json:"lastUpdated"`
-	Strategy       LimitStrategy  `json:"strategy"`
+	Samples           []UsageSample  `json:"-"`
+	LastUpdated       time.Time      `json:"lastUpdated"`
+	Strategy          LimitStrategy  `json:"strategy"`
 }
 
 // LimitStrategy 限制策略
@@ -84,24 +84,24 @@ type ResourceAnalysis struct {
 
 // AdjustmentRecord 调整记录
 type AdjustmentRecord struct {
-	Timestamp    time.Time     `json:"timestamp"`
-	ContainerID  string        `json:"containerId"`
-	OldLimits    ResourceLimits `json:"oldLimits"`
-	NewLimits    ResourceLimits `json:"newLimits"`
-	Reason       string        `json:"reason"`
-	Strategy     LimitStrategy `json:"strategy"`
-	Applied      bool          `json:"applied"`
+	Timestamp   time.Time      `json:"timestamp"`
+	ContainerID string         `json:"containerId"`
+	OldLimits   ResourceLimits `json:"oldLimits"`
+	NewLimits   ResourceLimits `json:"newLimits"`
+	Reason      string         `json:"reason"`
+	Strategy    LimitStrategy  `json:"strategy"`
+	Applied     bool           `json:"applied"`
 }
 
 // Manager 智能容器资源限制管理器
 type Manager struct {
-	mu           sync.RWMutex
-	config       *Config
-	containers   map[string]*ContainerProfile
-	adjustments  []AdjustmentRecord
-	running      bool
-	stopCh       chan struct{}
-	nowFunc      func() time.Time
+	mu          sync.RWMutex
+	config      *Config
+	containers  map[string]*ContainerProfile
+	adjustments []AdjustmentRecord
+	running     bool
+	stopCh      chan struct{}
+	nowFunc     func() time.Time
 }
 
 // Config 配置
@@ -413,13 +413,13 @@ func (m *Manager) GetDashboard() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"totalContainers":   totalContainers,
-		"autoManaged":       autoManaged,
-		"overProvisioned":   overProvisioned,
-		"underProvisioned":  underProvisioned,
-		"totalAdjustments":  len(m.adjustments),
-		"defaultStrategy":   string(m.config.DefaultStrategy),
-		"autoApply":         m.config.AutoApply,
+		"totalContainers":  totalContainers,
+		"autoManaged":      autoManaged,
+		"overProvisioned":  overProvisioned,
+		"underProvisioned": underProvisioned,
+		"totalAdjustments": len(m.adjustments),
+		"defaultStrategy":  string(m.config.DefaultStrategy),
+		"autoApply":        m.config.AutoApply,
 	}
 }
 

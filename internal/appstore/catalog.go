@@ -19,27 +19,27 @@ import (
 
 // CatalogEntry 应用目录条目
 type CatalogEntry struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	DisplayName  string            `json:"displayName"`
-	Description  string            `json:"description"`
-	Category     string            `json:"category"`
-	Icon         string            `json:"icon"`
-	Version      string            `json:"version"`
-	LatestVersion string           `json:"latestVersion"`
-	Author       string            `json:"author"`
-	Website      string            `json:"website"`
-	Source       string            `json:"source"`
-	License      string            `json:"license"`
-	Tags         []string          `json:"tags"`
-	Rating       float64           `json:"rating"`
-	Downloads    int64             `json:"downloads"`
-	Containers   []ContainerSpec   `json:"containers"`
-	Dependencies []string          `json:"dependencies,omitempty"`
-	Conflicts    []string          `json:"conflicts,omitempty"`
-	Metadata     map[string]string `json:"metadata,omitempty"`
-	RepositoryID string            `json:"repositoryId"`
-	UpdatedAt    time.Time         `json:"updatedAt"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	DisplayName   string            `json:"displayName"`
+	Description   string            `json:"description"`
+	Category      string            `json:"category"`
+	Icon          string            `json:"icon"`
+	Version       string            `json:"version"`
+	LatestVersion string            `json:"latestVersion"`
+	Author        string            `json:"author"`
+	Website       string            `json:"website"`
+	Source        string            `json:"source"`
+	License       string            `json:"license"`
+	Tags          []string          `json:"tags"`
+	Rating        float64           `json:"rating"`
+	Downloads     int64             `json:"downloads"`
+	Containers    []ContainerSpec   `json:"containers"`
+	Dependencies  []string          `json:"dependencies,omitempty"`
+	Conflicts     []string          `json:"conflicts,omitempty"`
+	Metadata      map[string]string `json:"metadata,omitempty"`
+	RepositoryID  string            `json:"repositoryId"`
+	UpdatedAt     time.Time         `json:"updatedAt"`
 }
 
 // ContainerSpec 容器规格
@@ -101,29 +101,29 @@ type Repository struct {
 
 // RepositoryData 仓库数据（从远端获取）
 type RepositoryData struct {
-	Repository Repository      `json:"repository"`
-	Apps       []CatalogEntry  `json:"apps"`
-	SyncedAt   time.Time       `json:"syncedAt"`
+	Repository Repository     `json:"repository"`
+	Apps       []CatalogEntry `json:"apps"`
+	SyncedAt   time.Time      `json:"syncedAt"`
 }
 
 // ========== 多源应用目录 ==========
 
 // Catalog 应用目录管理器
 type Catalog struct {
-	mu          sync.RWMutex
-	repos       map[string]*Repository
-	repoData    map[string]*RepositoryData // 仓库数据缓存
-	entries     map[string]*CatalogEntry   // 合并后的统一目录
-	dataDir     string
-	httpClient  *http.Client
+	mu         sync.RWMutex
+	repos      map[string]*Repository
+	repoData   map[string]*RepositoryData // 仓库数据缓存
+	entries    map[string]*CatalogEntry   // 合并后的统一目录
+	dataDir    string
+	httpClient *http.Client
 }
 
 // CatalogConfig 目录配置
 type CatalogConfig struct {
-	DataDir       string       `json:"dataDir"`
-	Repositories  []Repository `json:"repositories"`
-	SyncInterval  time.Duration `json:"syncInterval"`
-	HTTPTimeout   time.Duration `json:"httpTimeout"`
+	DataDir      string        `json:"dataDir"`
+	Repositories []Repository  `json:"repositories"`
+	SyncInterval time.Duration `json:"syncInterval"`
+	HTTPTimeout  time.Duration `json:"httpTimeout"`
 }
 
 // NewCatalog 创建应用目录
@@ -436,11 +436,11 @@ func (c *Catalog) GetUpdates(installed map[string]string) []*UpdateInfo {
 		}
 		if entry.LatestVersion != "" && entry.LatestVersion != currentVersion {
 			updates = append(updates, &UpdateInfo{
-				AppID:         id,
-				Name:          entry.DisplayName,
+				AppID:          id,
+				Name:           entry.DisplayName,
 				CurrentVersion: currentVersion,
-				LatestVersion: entry.LatestVersion,
-				Changelog:     entry.Metadata["changelog"],
+				LatestVersion:  entry.LatestVersion,
+				Changelog:      entry.Metadata["changelog"],
 			})
 		}
 	}
@@ -613,7 +613,7 @@ func (c *Catalog) loadBuiltinApps() {
 		{
 			ID: "jellyfin", Name: "jellyfin", DisplayName: "Jellyfin",
 			Description: "开源媒体服务器，支持电影、电视剧、音乐播放",
-			Category: "Media", Icon: "🎬", Version: "latest", LatestVersion: "latest",
+			Category:    "Media", Icon: "🎬", Version: "latest", LatestVersion: "latest",
 			Author: "Jellyfin Team", Website: "https://jellyfin.org",
 			License: "GPL-2.0", Tags: []string{"media", "streaming", "video"},
 			Rating: 4.8, Downloads: 15000,
@@ -632,7 +632,7 @@ func (c *Catalog) loadBuiltinApps() {
 		{
 			ID: "nextcloud", Name: "nextcloud", DisplayName: "Nextcloud",
 			Description: "私有云存储和协作平台",
-			Category: "Productivity", Icon: "☁️", Version: "latest", LatestVersion: "latest",
+			Category:    "Productivity", Icon: "☁️", Version: "latest", LatestVersion: "latest",
 			Author: "Nextcloud GmbH", Website: "https://nextcloud.com",
 			License: "AGPL-3.0", Tags: []string{"cloud", "storage", "sync"},
 			Rating: 4.6, Downloads: 12000,
@@ -651,7 +651,7 @@ func (c *Catalog) loadBuiltinApps() {
 		{
 			ID: "homeassistant", Name: "homeassistant", DisplayName: "Home Assistant",
 			Description: "开源智能家居平台，支持数千种设备集成",
-			Category: "Smart Home", Icon: "🏠", Version: "stable", LatestVersion: "stable",
+			Category:    "Smart Home", Icon: "🏠", Version: "stable", LatestVersion: "stable",
 			Author: "Home Assistant", Website: "https://www.home-assistant.io",
 			License: "Apache-2.0", Tags: []string{"iot", "smart-home", "automation"},
 			Rating: 4.9, Downloads: 20000,
@@ -669,7 +669,7 @@ func (c *Catalog) loadBuiltinApps() {
 		{
 			ID: "postgres", Name: "postgres", DisplayName: "PostgreSQL",
 			Description: "强大的开源关系型数据库",
-			Category: "Database", Icon: "🗄️", Version: "15", LatestVersion: "16",
+			Category:    "Database", Icon: "🗄️", Version: "15", LatestVersion: "16",
 			Author: "PostgreSQL", Website: "https://www.postgresql.org",
 			License: "PostgreSQL", Tags: []string{"database", "sql", "rdbms"},
 			Rating: 4.7, Downloads: 18000,
@@ -687,7 +687,7 @@ func (c *Catalog) loadBuiltinApps() {
 		{
 			ID: "redis", Name: "redis", DisplayName: "Redis",
 			Description: "高性能内存数据库和缓存服务器",
-			Category: "Database", Icon: "⚡", Version: "latest", LatestVersion: "latest",
+			Category:    "Database", Icon: "⚡", Version: "latest", LatestVersion: "latest",
 			Author: "Redis Ltd", Website: "https://redis.io",
 			License: "BSD-3-Clause", Tags: []string{"database", "cache", "nosql"},
 			Rating: 4.8, Downloads: 16000,
@@ -705,7 +705,7 @@ func (c *Catalog) loadBuiltinApps() {
 		{
 			ID: "plex", Name: "plex", DisplayName: "Plex",
 			Description: "流行媒体服务器，支持电影、电视剧、音乐播放",
-			Category: "Media", Icon: "🎥", Version: "latest", LatestVersion: "latest",
+			Category:    "Media", Icon: "🎥", Version: "latest", LatestVersion: "latest",
 			Author: "Plex Inc", Website: "https://www.plex.tv",
 			License: "Proprietary", Tags: []string{"media", "streaming"},
 			Rating: 4.5, Downloads: 14000,
@@ -719,13 +719,13 @@ func (c *Catalog) loadBuiltinApps() {
 					RestartPolicy: "unless-stopped",
 				},
 			},
-			Conflicts:     []string{"jellyfin"},
-			RepositoryID:  "official", UpdatedAt: time.Now(),
+			Conflicts:    []string{"jellyfin"},
+			RepositoryID: "official", UpdatedAt: time.Now(),
 		},
 		{
 			ID: "transmission", Name: "transmission", DisplayName: "Transmission",
 			Description: "轻量级 BitTorrent 客户端",
-			Category: "Download", Icon: "📥", Version: "latest", LatestVersion: "latest",
+			Category:    "Download", Icon: "📥", Version: "latest", LatestVersion: "latest",
 			Author: "Transmission", Website: "https://transmissionbt.com",
 			License: "GPL-2.0", Tags: []string{"download", "torrent", "bt"},
 			Rating: 4.4, Downloads: 10000,
@@ -747,7 +747,7 @@ func (c *Catalog) loadBuiltinApps() {
 		{
 			ID: "pihole", Name: "pihole", DisplayName: "Pi-hole",
 			Description: "网络级广告拦截器，DNS服务器",
-			Category: "Network", Icon: "🛡️", Version: "latest", LatestVersion: "latest",
+			Category:    "Network", Icon: "🛡️", Version: "latest", LatestVersion: "latest",
 			Author: "Pi-hole LLC", Website: "https://pi-hole.net",
 			License: "EUPL-1.2", Tags: []string{"network", "dns", "adblock"},
 			Rating: 4.7, Downloads: 11000,
@@ -770,7 +770,7 @@ func (c *Catalog) loadBuiltinApps() {
 		{
 			ID: "nginx", Name: "nginx", DisplayName: "Nginx",
 			Description: "高性能Web服务器和反向代理",
-			Category: "Network", Icon: "🌐", Version: "latest", LatestVersion: "latest",
+			Category:    "Network", Icon: "🌐", Version: "latest", LatestVersion: "latest",
 			Author: "NGINX", Website: "https://nginx.org",
 			License: "BSD-2-Clause", Tags: []string{"network", "web", "proxy"},
 			Rating: 4.8, Downloads: 17000,
@@ -792,7 +792,7 @@ func (c *Catalog) loadBuiltinApps() {
 		{
 			ID: "syncthing", Name: "syncthing", DisplayName: "Syncthing",
 			Description: "开源文件同步工具，支持多设备间实时同步",
-			Category: "Productivity", Icon: "🔄", Version: "latest", LatestVersion: "latest",
+			Category:    "Productivity", Icon: "🔄", Version: "latest", LatestVersion: "latest",
 			Author: "Syncthing Foundation", Website: "https://syncthing.net",
 			License: "MPL-2.0", Tags: []string{"sync", "file", "p2p"},
 			Rating: 4.6, Downloads: 9000,
@@ -813,7 +813,7 @@ func (c *Catalog) loadBuiltinApps() {
 		{
 			ID: "qdrant", Name: "qdrant", DisplayName: "Qdrant",
 			Description: "高性能向量数据库，用于AI应用",
-			Category: "AI", Icon: "🧠", Version: "latest", LatestVersion: "latest",
+			Category:    "AI", Icon: "🧠", Version: "latest", LatestVersion: "latest",
 			Author: "Qdrant", Website: "https://qdrant.tech",
 			License: "Apache-2.0", Tags: []string{"ai", "vector", "database"},
 			Rating: 4.5, Downloads: 5000,

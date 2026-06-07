@@ -958,13 +958,13 @@ func (m *Manager) GetStatus() *ModuleStatus {
 	defer m.mu.RUnlock()
 
 	status := &ModuleStatus{
-		Enabled:             m.config.Enabled,
-		AutoMigrate:         m.config.AutoMigrate,
-		AutoCleanup:         m.config.AutoCleanup,
-		TotalPolicies:       len(m.tieringPolicies) + len(m.retentionPolicies),
-		TotalRecords:        len(m.records),
-		TierDistribution:    make(map[FileTier]int),
-		StageDistribution:   make(map[LifecycleStage]int),
+		Enabled:           m.config.Enabled,
+		AutoMigrate:       m.config.AutoMigrate,
+		AutoCleanup:       m.config.AutoCleanup,
+		TotalPolicies:     len(m.tieringPolicies) + len(m.retentionPolicies),
+		TotalRecords:      len(m.records),
+		TierDistribution:  make(map[FileTier]int),
+		StageDistribution: make(map[LifecycleStage]int),
 	}
 
 	for _, p := range m.tieringPolicies {

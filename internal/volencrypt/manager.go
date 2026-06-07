@@ -32,22 +32,22 @@ const (
 type KeySource string
 
 const (
-	KeySourceLocal   KeySource = "local"   // 本地密钥
-	KeySourceKMIP    KeySource = "kmip"    // KMIP 远程密钥管理
-	KeySourceTPM     KeySource = "tpm"     // TPM 安全芯片
-	KeySourceUSB     KeySource = "usb"     // USB 密钥盘
-	KeySourceTang    KeySource = "tang"    // Tang 网络密钥服务器 (Clevis)
+	KeySourceLocal KeySource = "local" // 本地密钥
+	KeySourceKMIP  KeySource = "kmip"  // KMIP 远程密钥管理
+	KeySourceTPM   KeySource = "tpm"   // TPM 安全芯片
+	KeySourceUSB   KeySource = "usb"   // USB 密钥盘
+	KeySourceTang  KeySource = "tang"  // Tang 网络密钥服务器 (Clevis)
 )
 
 // EncryptConfig 加密配置
 type EncryptConfig struct {
-	Algorithm     string    `json:"algorithm"`      // 加密算法
-	KeySize       int       `json:"key_size"`       // 密钥大小（位）
-	BlockSize     int       `json:"block_size"`     // 块大小
-	KeySource     KeySource `json:"key_source"`     // 密钥来源
-	AutoMount     bool      `json:"auto_mount"`     // 自动挂载
-	RemoteBackup  bool      `json:"remote_backup"`  // 远程备份密钥
-	AuditLog      bool      `json:"audit_log"`      // 审计日志
+	Algorithm    string    `json:"algorithm"`     // 加密算法
+	KeySize      int       `json:"key_size"`      // 密钥大小（位）
+	BlockSize    int       `json:"block_size"`    // 块大小
+	KeySource    KeySource `json:"key_source"`    // 密钥来源
+	AutoMount    bool      `json:"auto_mount"`    // 自动挂载
+	RemoteBackup bool      `json:"remote_backup"` // 远程备份密钥
+	AuditLog     bool      `json:"audit_log"`     // 审计日志
 }
 
 // DefaultConfig 返回默认配置
@@ -65,32 +65,32 @@ func DefaultConfig() EncryptConfig {
 
 // Volume 加密卷
 type Volume struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Path        string       `json:"path"`
-	Status      VolumeStatus `json:"status"`
-	KeyID       string       `json:"key_id"`
-	Algorithm   string       `json:"algorithm"`
-	KeySource   KeySource    `json:"key_source"`
-	Size        int64        `json:"size"`
-	Used        int64        `json:"used"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
-	MountPoint  string       `json:"mount_point,omitempty"`
-	ErrorMsg    string       `json:"error_msg,omitempty"`
-	Progress    float64      `json:"progress"` // 0-100
+	ID         string       `json:"id"`
+	Name       string       `json:"name"`
+	Path       string       `json:"path"`
+	Status     VolumeStatus `json:"status"`
+	KeyID      string       `json:"key_id"`
+	Algorithm  string       `json:"algorithm"`
+	KeySource  KeySource    `json:"key_source"`
+	Size       int64        `json:"size"`
+	Used       int64        `json:"used"`
+	CreatedAt  time.Time    `json:"created_at"`
+	UpdatedAt  time.Time    `json:"updated_at"`
+	MountPoint string       `json:"mount_point,omitempty"`
+	ErrorMsg   string       `json:"error_msg,omitempty"`
+	Progress   float64      `json:"progress"` // 0-100
 }
 
 // EncryptionKey 加密密钥
 type EncryptionKey struct {
-	ID        string    `json:"id"`
-	Algorithm string    `json:"algorithm"`
-	KeyData   []byte    `json:"-"` // 不序列化
-	KeyHash   string    `json:"key_hash"`
-	Source    KeySource `json:"source"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        string     `json:"id"`
+	Algorithm string     `json:"algorithm"`
+	KeyData   []byte     `json:"-"` // 不序列化
+	KeyHash   string     `json:"key_hash"`
+	Source    KeySource  `json:"source"`
+	CreatedAt time.Time  `json:"created_at"`
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
-	Revoked   bool      `json:"revoked"`
+	Revoked   bool       `json:"revoked"`
 }
 
 // AuditEntry 审计条目
@@ -367,9 +367,9 @@ func (m *Manager) GetStats() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"total_volumes":   len(m.volumes),
-		"total_keys":      len(m.keys),
-		"audit_entries":   len(m.auditLog),
+		"total_volumes": len(m.volumes),
+		"total_keys":    len(m.keys),
+		"audit_entries": len(m.auditLog),
 	}
 
 	encrypted := 0

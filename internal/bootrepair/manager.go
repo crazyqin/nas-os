@@ -16,10 +16,10 @@ import (
 type BootloaderType string
 
 const (
-	BootloaderGRUB       BootloaderType = "grub"        // GRUB 引导加载器
+	BootloaderGRUB        BootloaderType = "grub"         // GRUB 引导加载器
 	BootloaderSystemdBoot BootloaderType = "systemd-boot" // systemd-boot
-	BootloaderUEFIShell  BootloaderType = "uefi-shell"  // UEFI Shell
-	BootloaderUnknown    BootloaderType = "unknown"     // 未知
+	BootloaderUEFIShell   BootloaderType = "uefi-shell"   // UEFI Shell
+	BootloaderUnknown     BootloaderType = "unknown"      // 未知
 )
 
 // IssueType 问题类型
@@ -30,10 +30,10 @@ const (
 	IssueTypeCorruptedConfig IssueType = "corrupted_config" // 配置文件损坏
 	IssueTypeMissingKernel   IssueType = "missing_kernel"   // 内核文件缺失
 	IssueTypePartitionError  IssueType = "partition_error"  // 分区错误
-	IssueTypeUEFIMissing     IssueType = "uefi_missing"    // UEFI 引导项缺失
-	IssueTypeSecureBootIssue IssueType = "secure_boot"     // 安全启动问题
-	IssueTypeMBRIssue        IssueType = "mbr_error"       // MBR 错误
-	IssueTypeModuleMissing   IssueType = "module_missing"  // GRUB 模块缺失
+	IssueTypeUEFIMissing     IssueType = "uefi_missing"     // UEFI 引导项缺失
+	IssueTypeSecureBootIssue IssueType = "secure_boot"      // 安全启动问题
+	IssueTypeMBRIssue        IssueType = "mbr_error"        // MBR 错误
+	IssueTypeModuleMissing   IssueType = "module_missing"   // GRUB 模块缺失
 )
 
 // IssueSeverity 问题严重程度
@@ -53,18 +53,18 @@ const (
 	RepairStatusPending   RepairStatus = "pending"   // 等待中
 	RepairStatusRunning   RepairStatus = "running"   // 运行中
 	RepairStatusCompleted RepairStatus = "completed" // 已完成
-	RepairStatusFailed    RepairStatus = "failed"     // 失败
+	RepairStatusFailed    RepairStatus = "failed"    // 失败
 )
 
 // LogPhase 日志阶段
 type LogPhase string
 
 const (
-	PhaseFirmware  LogPhase = "firmware"  // 固件阶段
+	PhaseFirmware   LogPhase = "firmware"   // 固件阶段
 	PhaseBootloader LogPhase = "bootloader" // 引导加载器阶段
-	PhaseKernel    LogPhase = "kernel"    // 内核加载阶段
-	PhaseInitrd    LogPhase = "initrd"    // initrd 阶段
-	PhaseUserspace LogPhase = "userspace" // 用户空间阶段
+	PhaseKernel     LogPhase = "kernel"     // 内核加载阶段
+	PhaseInitrd     LogPhase = "initrd"     // initrd 阶段
+	PhaseUserspace  LogPhase = "userspace"  // 用户空间阶段
 )
 
 // BootloaderInfo 引导加载器信息
@@ -141,19 +141,19 @@ type BootLog struct {
 
 // Manager 启动修复管理器
 type Manager struct {
-	mu           sync.RWMutex
-	bootloader   *BootloaderInfo
-	entries      map[string]*BootEntry
-	issues       map[string]*BootIssue
-	repairJobs   map[string]*RepairJob
-	uefiEntries  map[string]*UEFIEntry
-	secureBoot   *SecureBootStatus
-	bootLogs     []BootLog
-	issueSeq     int
-	jobSeq       int
-	entrySeq     int
-	uefiSeq      int
-	rescueMode   bool
+	mu          sync.RWMutex
+	bootloader  *BootloaderInfo
+	entries     map[string]*BootEntry
+	issues      map[string]*BootIssue
+	repairJobs  map[string]*RepairJob
+	uefiEntries map[string]*UEFIEntry
+	secureBoot  *SecureBootStatus
+	bootLogs    []BootLog
+	issueSeq    int
+	jobSeq      int
+	entrySeq    int
+	uefiSeq     int
+	rescueMode  bool
 }
 
 // NewManager 创建管理器

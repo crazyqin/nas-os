@@ -228,10 +228,10 @@ func (h *Handler) getSnapshot(c *gin.Context) {
 
 func (h *Handler) restoreSingleFile(c *gin.Context) {
 	var req struct {
-		JobID      string            `json:"job_id" binding:"required"`
-		SnapshotID string            `json:"snapshot_id" binding:"required"`
-		Files      []string          `json:"files" binding:"required"`
-		TargetPath string            `json:"target_path" binding:"required"`
+		JobID      string             `json:"job_id" binding:"required"`
+		SnapshotID string             `json:"snapshot_id" binding:"required"`
+		Files      []string           `json:"files" binding:"required"`
+		TargetPath string             `json:"target_path" binding:"required"`
 		Options    RestoreExecOptions `json:"options"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -253,9 +253,9 @@ func (h *Handler) restoreSingleFile(c *gin.Context) {
 
 func (h *Handler) restoreFull(c *gin.Context) {
 	var req struct {
-		JobID      string            `json:"job_id" binding:"required"`
-		SnapshotID string            `json:"snapshot_id" binding:"required"`
-		TargetPath string            `json:"target_path" binding:"required"`
+		JobID      string             `json:"job_id" binding:"required"`
+		SnapshotID string             `json:"snapshot_id" binding:"required"`
+		TargetPath string             `json:"target_path" binding:"required"`
 		Options    RestoreExecOptions `json:"options"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {

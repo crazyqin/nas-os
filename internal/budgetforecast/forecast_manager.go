@@ -17,14 +17,14 @@ import (
 
 // ForecastManager 预算预测管理器
 type ForecastManager struct {
-	mu          sync.RWMutex
-	logger      *zap.Logger
-	engine      *ForecastEngine
-	models      map[string]*ForecastModel
-	configs     map[string]*BudgetConfig
-	trends      map[string]*CostTrend
-	exports     map[string]*ExportResponse
-	alerts      []BudgetAlert
+	mu      sync.RWMutex
+	logger  *zap.Logger
+	engine  *ForecastEngine
+	models  map[string]*ForecastModel
+	configs map[string]*BudgetConfig
+	trends  map[string]*CostTrend
+	exports map[string]*ExportResponse
+	alerts  []BudgetAlert
 }
 
 // NewForecastManager 创建预算预测管理器
@@ -483,5 +483,3 @@ func (fm *ForecastManager) GetExport(exportID string) (*ExportResponse, error) {
 
 	return export, nil
 }
-
-

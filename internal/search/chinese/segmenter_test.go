@@ -264,7 +264,7 @@ func TestCustomDictionary(t *testing.T) {
 	// 加载自定义词典
 	customWords := []string{"专有词汇", "自定义术语"}
 	weights := map[string]float64{
-		"专有词汇":   2.0,
+		"专有词汇":  2.0,
 		"自定义术语": 1.5,
 	}
 

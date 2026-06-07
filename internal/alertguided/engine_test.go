@@ -130,9 +130,9 @@ func TestManager_AggregationResolved(t *testing.T) {
 func TestManager_CorrelateAlerts(t *testing.T) {
 	m := setupTestManager()
 
-	alert1 := m.Fire("smart_warning", "disk sda issue")   // hardware
-	alert2 := m.Fire("pool_degraded", "pool degraded")     // storage
-	alert3 := m.Fire("disk_space_low", "space low")        // storage (aggregated, so first creates new)
+	alert1 := m.Fire("smart_warning", "disk sda issue") // hardware
+	alert2 := m.Fire("pool_degraded", "pool degraded")  // storage
+	alert3 := m.Fire("disk_space_low", "space low")     // storage (aggregated, so first creates new)
 
 	// alert2 和 alert3 应该关联（都是 storage 类别，且 alert3 会创建新告警）
 	// 但 alert3 有 aggregation key，所以可能聚合，这里验证关联逻辑
@@ -258,10 +258,10 @@ func TestManager_UpdateStatusNotFound(t *testing.T) {
 func TestManager_ListBySeverity(t *testing.T) {
 	m := setupTestManager()
 
-	m.Fire("smart_warning", "test1")      // WARNING
-	m.Fire("pool_degraded", "test2")      // CRITICAL
-	m.Fire("security_breach", "test3")    // EMERGENCY
-	m.Fire("high_cpu", "test4")           // WARNING
+	m.Fire("smart_warning", "test1")   // WARNING
+	m.Fire("pool_degraded", "test2")   // CRITICAL
+	m.Fire("security_breach", "test3") // EMERGENCY
+	m.Fire("high_cpu", "test4")        // WARNING
 
 	warnings := m.ListBySeverity(SeverityWarning)
 	if len(warnings) != 2 {
@@ -310,7 +310,7 @@ func TestManager_Summary(t *testing.T) {
 
 	m.Fire("smart_warning", "test1")
 	m.Fire("pool_degraded", "test2")
-	m.Fire("disk_space_low", "test3")    // aggregated
+	m.Fire("disk_space_low", "test3") // aggregated
 	m.Fire("network_down", "test4")
 	m.Fire("high_cpu", "test5")
 	m.Fire("security_breach", "test6")

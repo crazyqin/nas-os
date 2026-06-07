@@ -21,9 +21,9 @@ type WakeRequest struct {
 type WakeRequestType int
 
 const (
-	WakeRequestImmediate  WakeRequestType = 0 // 立即唤醒
-	WakeRequestBatched    WakeRequestType = 1 // 批量唤醒
-	WakeRequestScheduled  WakeRequestType = 2 // 定时唤醒
+	WakeRequestImmediate WakeRequestType = 0 // 立即唤醒
+	WakeRequestBatched   WakeRequestType = 1 // 批量唤醒
+	WakeRequestScheduled WakeRequestType = 2 // 定时唤醒
 )
 
 // WakeTrigger 磁盘唤醒触发器
@@ -37,21 +37,21 @@ type WakeTrigger struct {
 
 // ActivityMonitor 磁盘活动监控器
 type ActivityMonitor struct {
-	Device       string
-	LastRead     time.Time
-	LastWrite    time.Time
-	ReadCount    int64
-	WriteCount   int64
-	IdleTimer    *IdleTimer
+	Device     string
+	LastRead   time.Time
+	LastWrite  time.Time
+	ReadCount  int64
+	WriteCount int64
+	IdleTimer  *IdleTimer
 }
 
 // IdleTimer 空闲计时器
 type IdleTimer struct {
-	Device       string
-	StartTime    time.Time
-	IdleMinutes  int
-	Threshold    int // 空闲阈值（分钟）
-	OnThreshold  func(device string)
+	Device      string
+	StartTime   time.Time
+	IdleMinutes int
+	Threshold   int // 空闲阈值（分钟）
+	OnThreshold func(device string)
 }
 
 // NewWakeTrigger 创建唤醒触发器

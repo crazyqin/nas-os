@@ -14,11 +14,11 @@ import (
 
 // Manager 照片去重管理器.
 type Manager struct {
-	tasks     map[string]*ScanTask
-	groups    map[string]map[string]*DuplicateGroup // taskID -> groupID -> group
-	photos    map[string]map[string]*PhotoInfo       // taskID -> photoID -> photo
-	schedule  *ScheduleConfig
-	mu        sync.RWMutex
+	tasks    map[string]*ScanTask
+	groups   map[string]map[string]*DuplicateGroup // taskID -> groupID -> group
+	photos   map[string]map[string]*PhotoInfo      // taskID -> photoID -> photo
+	schedule *ScheduleConfig
+	mu       sync.RWMutex
 }
 
 // NewManager 创建照片去重管理器.
@@ -465,15 +465,15 @@ func (m *Manager) generateMockResults(taskID string) {
 	photos := make([]*PhotoInfo, 5)
 	for i := 0; i < 5; i++ {
 		p := &PhotoInfo{
-			ID:       uuid.New().String(),
-			FilePath: fmt.Sprintf("/photos/img_%d.jpg", i),
-			FileName: fmt.Sprintf("img_%d.jpg", i),
-			FileSize: int64((i + 1) * 1024 * 1024), // 1MB, 2MB, 3MB, 4MB, 5MB
-			Width:    1920,
-			Height:   1080,
-			ModTime:  time.Now().Add(-time.Duration(i) * 24 * time.Hour),
-			HashValue: uint64(0xFF00FF00FF00FF00),
-			BlurScore: float64(100 + i*50),
+			ID:           uuid.New().String(),
+			FilePath:     fmt.Sprintf("/photos/img_%d.jpg", i),
+			FileName:     fmt.Sprintf("img_%d.jpg", i),
+			FileSize:     int64((i + 1) * 1024 * 1024), // 1MB, 2MB, 3MB, 4MB, 5MB
+			Width:        1920,
+			Height:       1080,
+			ModTime:      time.Now().Add(-time.Duration(i) * 24 * time.Hour),
+			HashValue:    uint64(0xFF00FF00FF00FF00),
+			BlurScore:    float64(100 + i*50),
 			ThumbnailURL: fmt.Sprintf("/api/v1/photo-dedup/thumbnails/%s", uuid.New().String()),
 		}
 		photos[i] = p

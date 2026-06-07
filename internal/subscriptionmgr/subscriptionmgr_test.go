@@ -206,18 +206,18 @@ func TestGetExpiringSubscriptions(t *testing.T) {
 	m := NewManager()
 
 	_ = m.AddSubscription(Subscription{
-		ID:         "exp-soon",
+		ID:          "exp-soon",
 		ServiceName: "Expiring Soon",
-		Type:       TypeBackup,
-		Cost:       50,
-		ExpiryDate: time.Now().AddDate(0, 0, 5), // 5天后到期
+		Type:        TypeBackup,
+		Cost:        50,
+		ExpiryDate:  time.Now().AddDate(0, 0, 5), // 5天后到期
 	})
 	_ = m.AddSubscription(Subscription{
-		ID:         "exp-later",
+		ID:          "exp-later",
 		ServiceName: "Expiring Later",
-		Type:       TypeBackup,
-		Cost:       50,
-		ExpiryDate: time.Now().AddDate(0, 3, 0), // 3个月后到期
+		Type:        TypeBackup,
+		Cost:        50,
+		ExpiryDate:  time.Now().AddDate(0, 3, 0), // 3个月后到期
 	})
 
 	// 7天内到期

@@ -15,15 +15,15 @@ import (
 
 // Manager Apple 生态管理器
 type Manager struct {
-	mu              sync.RWMutex
-	logger          *zap.Logger
-	config          *AppleShareConfig
-	devices         map[string]*AirPlayDevice
+	mu                sync.RWMutex
+	logger            *zap.Logger
+	config            *AppleShareConfig
+	devices           map[string]*AirPlayDevice
 	timeMachineShares map[string]*TimeMachineShare
 	spotlightIndexes  map[string]*SpotlightIndex
-	smbConfig       *SMBConfig
-	stopChan        chan struct{}
-	running         bool
+	smbConfig         *SMBConfig
+	stopChan          chan struct{}
+	running           bool
 }
 
 // NewManager 创建 Apple 生态管理器
@@ -91,7 +91,7 @@ func (m *Manager) DiscoverAirPlayDevices(ctx context.Context) ([]AirPlayDevice, 
 	}
 	m.mu.Unlock()
 
-	m.logger.Info("AirPlay device discovery completed", 
+	m.logger.Info("AirPlay device discovery completed",
 		zap.Int("devices_found", len(discoveredDevices)))
 
 	return discoveredDevices, nil
@@ -198,14 +198,14 @@ func (m *Manager) CreateTimeMachineShare(name, path string, quota int64) (*TimeM
 	}
 
 	share := &TimeMachineShare{
-		ID:        generateID(),
-		Name:      name,
-		Path:      path,
-		Quota:     quota,
-		UsedSpace: 0,
+		ID:         generateID(),
+		Name:       name,
+		Path:       path,
+		Quota:      quota,
+		UsedSpace:  0,
 		SMBEnabled: true,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
 	}
 
 	m.timeMachineShares[share.ID] = share

@@ -10,14 +10,14 @@ import (
 type ChannelType string
 
 const (
-	ChannelEmail     ChannelType = "email"
-	ChannelTelegram  ChannelType = "telegram"
-	ChannelWebhook   ChannelType = "webhook"
-	ChannelWeChat    ChannelType = "wechat"
-	ChannelDingTalk  ChannelType = "dingtalk"
-	ChannelSlack     ChannelType = "slack"
-	ChannelBark      ChannelType = "bark"
-	ChannelGotify    ChannelType = "gotify"
+	ChannelEmail    ChannelType = "email"
+	ChannelTelegram ChannelType = "telegram"
+	ChannelWebhook  ChannelType = "webhook"
+	ChannelWeChat   ChannelType = "wechat"
+	ChannelDingTalk ChannelType = "dingtalk"
+	ChannelSlack    ChannelType = "slack"
+	ChannelBark     ChannelType = "bark"
+	ChannelGotify   ChannelType = "gotify"
 )
 
 // Channel represents a notification channel.
@@ -25,7 +25,7 @@ type Channel struct {
 	ID      string            `json:"id"`
 	Name    string            `json:"name"`
 	Type    ChannelType       `json:"type"`
-	Config  map[string]string `json:"config"`  // channel-specific config
+	Config  map[string]string `json:"config"` // channel-specific config
 	Enabled bool              `json:"enabled"`
 }
 

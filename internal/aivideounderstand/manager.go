@@ -12,10 +12,10 @@ import (
 
 // Manager 视频理解管理器.
 type Manager struct {
-	mu        sync.RWMutex
-	analyses  map[string]*VideoAnalysis
-	scenes    map[string][]*Scene
-	objects   map[string][]*DetectedObject
+	mu         sync.RWMutex
+	analyses   map[string]*VideoAnalysis
+	scenes     map[string][]*Scene
+	objects    map[string][]*DetectedObject
 	highlights map[string][]*VideoHighlight
 }
 
@@ -38,9 +38,9 @@ func (m *Manager) AnalyzeVideo(videoPath string) (*VideoAnalysis, error) {
 	start := time.Now()
 
 	analysis := &VideoAnalysis{
-		ID:        id,
-		VideoPath: videoPath,
-		Status:    "processing",
+		ID:         id,
+		VideoPath:  videoPath,
+		Status:     "processing",
 		AnalyzedAt: start,
 	}
 
@@ -71,14 +71,14 @@ func (m *Manager) AnalyzeVideo(videoPath string) (*VideoAnalysis, error) {
 	for i := 0; i < numScenes; i++ {
 		sceneDur := 5.0 + rand.Float64()*15.0
 		scene := &Scene{
-			ID:         fmt.Sprintf("scene-%s-%d", id, i),
-			AnalysisID: id,
-			StartTime:  currentTime,
-			EndTime:    currentTime + sceneDur,
+			ID:          fmt.Sprintf("scene-%s-%d", id, i),
+			AnalysisID:  id,
+			StartTime:   currentTime,
+			EndTime:     currentTime + sceneDur,
 			Description: sceneDescriptions[rand.Intn(len(sceneDescriptions))],
-			Tags:       []string{"scene", sceneTypes[rand.Intn(len(sceneTypes))]},
-			Confidence: 0.7 + rand.Float64()*0.3,
-			SceneType:  sceneTypes[rand.Intn(len(sceneTypes))],
+			Tags:        []string{"scene", sceneTypes[rand.Intn(len(sceneTypes))]},
+			Confidence:  0.7 + rand.Float64()*0.3,
+			SceneType:   sceneTypes[rand.Intn(len(sceneTypes))],
 		}
 		m.scenes[id] = append(m.scenes[id], scene)
 		currentTime += sceneDur

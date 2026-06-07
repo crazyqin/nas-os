@@ -28,15 +28,15 @@ const (
 
 // DedupCandidate 去重候选
 type DedupCandidate struct {
-	Hash         string    `json:"hash"`
-	Size         int64     `json:"size"`
-	FileType     FileType  `json:"file_type"`
-	Count        int       `json:"count"`          // 重复次数
-	TotalSize    int64     `json:"total_size"`      // 总占用空间
-	PotentialSave int64    `json:"potential_save"`   // 可节省空间
-	Files        []FileInfo `json:"files"`           // 重复文件列表
-	FirstSeen    time.Time `json:"first_seen"`
-	LastSeen     time.Time `json:"last_seen"`
+	Hash          string     `json:"hash"`
+	Size          int64      `json:"size"`
+	FileType      FileType   `json:"file_type"`
+	Count         int        `json:"count"`          // 重复次数
+	TotalSize     int64      `json:"total_size"`     // 总占用空间
+	PotentialSave int64      `json:"potential_save"` // 可节省空间
+	Files         []FileInfo `json:"files"`          // 重复文件列表
+	FirstSeen     time.Time  `json:"first_seen"`
+	LastSeen      time.Time  `json:"last_seen"`
 }
 
 // FileInfo 文件信息
@@ -44,25 +44,25 @@ type FileInfo struct {
 	Path         string    `json:"path"`
 	Size         int64     `json:"size"`
 	ModTime      time.Time `json:"mod_time"`
-	IsOriginal   bool      `json:"is_original"`   // 是否为原始文件
+	IsOriginal   bool      `json:"is_original"` // 是否为原始文件
 	AccessCount  int       `json:"access_count"`
 	LastAccessed time.Time `json:"last_accessed"`
 }
 
 // ScanResult 扫描结果
 type ScanResult struct {
-	ScanID        string           `json:"scan_id"`
-	StartTime     time.Time        `json:"start_time"`
-	EndTime       time.Time        `json:"end_time"`
-	Duration      time.Duration    `json:"duration"`
-	TotalFiles    int              `json:"total_files"`
-	TotalSize     int64            `json:"total_size"`
-	DuplicateFiles int             `json:"duplicate_files"`
-	DuplicateSize  int64           `json:"duplicate_size"`
-	SaveableSize   int64           `json:"saveable_size"`
-	DedupRatio     float64         `json:"dedup_ratio"`    // 去重率
-	Candidates     []DedupCandidate `json:"candidates"`
-	TopDuplicates  []DedupCandidate `json:"top_duplicates"` // 按节省空间排序的前N个
+	ScanID          string           `json:"scan_id"`
+	StartTime       time.Time        `json:"start_time"`
+	EndTime         time.Time        `json:"end_time"`
+	Duration        time.Duration    `json:"duration"`
+	TotalFiles      int              `json:"total_files"`
+	TotalSize       int64            `json:"total_size"`
+	DuplicateFiles  int              `json:"duplicate_files"`
+	DuplicateSize   int64            `json:"duplicate_size"`
+	SaveableSize    int64            `json:"saveable_size"`
+	DedupRatio      float64          `json:"dedup_ratio"` // 去重率
+	Candidates      []DedupCandidate `json:"candidates"`
+	TopDuplicates   []DedupCandidate `json:"top_duplicates"` // 按节省空间排序的前N个
 	Recommendations []Recommendation `json:"recommendations"`
 }
 
@@ -81,8 +81,8 @@ type Recommendation struct {
 type ScanConfig struct {
 	Paths           []string   `json:"paths"`
 	ExcludePatterns []string   `json:"exclude_patterns"`
-	MinFileSize     int64      `json:"min_file_size"`     // 最小文件大小
-	MaxFileSize     int64      `json:"max_file_size"`     // 最大文件大小`
+	MinFileSize     int64      `json:"min_file_size"` // 最小文件大小
+	MaxFileSize     int64      `json:"max_file_size"` // 最大文件大小`
 	FileTypes       []FileType `json:"file_types"`
 	MaxDepth        int        `json:"max_depth"`
 	FollowSymlinks  bool       `json:"follow_symlinks"`
@@ -101,7 +101,7 @@ func NewAdvisor() *Advisor {
 	return &Advisor{
 		results: make(map[string]*ScanResult),
 		config: ScanConfig{
-			MinFileSize: 1024,      // 1KB
+			MinFileSize: 1024,       // 1KB
 			MaxFileSize: 1073741824, // 1GB
 			MaxDepth:    10,
 		},
@@ -201,15 +201,15 @@ func (a *Advisor) Scan(paths []string) (*ScanResult, error) {
 		potentialSave := fileSize * int64(count-1)
 
 		candidate := DedupCandidate{
-			Hash:         hash,
-			Size:         fileSize,
-			FileType:     a.detectFileType(files[0].Path),
-			Count:        count,
-			TotalSize:    totalDupSize,
+			Hash:          hash,
+			Size:          fileSize,
+			FileType:      a.detectFileType(files[0].Path),
+			Count:         count,
+			TotalSize:     totalDupSize,
 			PotentialSave: potentialSave,
-			Files:        files,
-			FirstSeen:    files[0].ModTime,
-			LastSeen:     files[len(files)-1].ModTime,
+			Files:         files,
+			FirstSeen:     files[0].ModTime,
+			LastSeen:      files[len(files)-1].ModTime,
 		}
 
 		candidates = append(candidates, candidate)
@@ -337,12 +337,12 @@ func (a *Advisor) generateRecommendations(candidates []DedupCandidate) []Recomme
 		}
 		if c.PotentialSave > 100*1024*1024 { // > 100MB
 			recs = append(recs, Recommendation{
-				ID:       fmt.Sprintf("dedup-high-%d", i),
-				Type:     "dedup",
-				Priority: "high",
-				Title:    fmt.Sprintf("去重: %s (节省 %s)", c.Files[0].Path, formatSize(c.PotentialSave)),
+				ID:          fmt.Sprintf("dedup-high-%d", i),
+				Type:        "dedup",
+				Priority:    "high",
+				Title:       fmt.Sprintf("去重: %s (节省 %s)", c.Files[0].Path, formatSize(c.PotentialSave)),
 				Description: fmt.Sprintf("发现 %d 个相同文件，可节省 %s 空间", c.Count, formatSize(c.PotentialSave)),
-				Saveable: c.PotentialSave,
+				Saveable:    c.PotentialSave,
 			})
 		}
 	}
@@ -352,12 +352,12 @@ func (a *Advisor) generateRecommendations(candidates []DedupCandidate) []Recomme
 	for _, c := range candidates {
 		if c.Count >= 3 && dedupCount < 5 {
 			recs = append(recs, Recommendation{
-				ID:       fmt.Sprintf("dedup-med-%d", dedupCount),
-				Type:     "dedup",
-				Priority: "medium",
-				Title:    fmt.Sprintf("去重: %d 个副本 - %s", c.Count, filepath.Base(c.Files[0].Path)),
+				ID:          fmt.Sprintf("dedup-med-%d", dedupCount),
+				Type:        "dedup",
+				Priority:    "medium",
+				Title:       fmt.Sprintf("去重: %d 个副本 - %s", c.Count, filepath.Base(c.Files[0].Path)),
 				Description: fmt.Sprintf("文件有 %d 个副本，建议保留1个", c.Count),
-				Saveable: c.PotentialSave,
+				Saveable:    c.PotentialSave,
 			})
 			dedupCount++
 		}

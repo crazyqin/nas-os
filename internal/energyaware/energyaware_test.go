@@ -7,7 +7,7 @@ import (
 
 func TestDeviceRegistration(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	mgr.RegisterDevice(&DevicePower{
 		DeviceID: "disk1",
 		Name:     "HDD-1",
@@ -15,7 +15,7 @@ func TestDeviceRegistration(t *testing.T) {
 		State:    StateActive,
 		Watts:    8.0,
 	})
-	
+
 	devices := mgr.GetDevices()
 	if len(devices) != 1 {
 		t.Fatalf("expected 1 device, got %d", len(devices))
@@ -27,7 +27,7 @@ func TestDeviceRegistration(t *testing.T) {
 
 func TestStateUpdate(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	mgr.RegisterDevice(&DevicePower{
 		DeviceID: "disk1",
 		Name:     "HDD-1",
@@ -35,7 +35,7 @@ func TestStateUpdate(t *testing.T) {
 		State:    StateActive,
 		Watts:    8.0,
 	})
-	
+
 	mgr.UpdateDeviceState("disk1", StateIdle, 2.0)
 	devices := mgr.GetDevices()
 	if devices[0].State != StateIdle {
@@ -48,10 +48,10 @@ func TestStateUpdate(t *testing.T) {
 
 func TestEnergyStats(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	mgr.RegisterDevice(&DevicePower{DeviceID: "d1", Watts: 10.0, State: StateActive})
 	mgr.RegisterDevice(&DevicePower{DeviceID: "d2", Watts: 5.0, State: StateActive})
-	
+
 	stats := mgr.GetStats()
 	if stats.TotalWatts != 15.0 {
 		t.Errorf("total watts = %.1f, want 15.0", stats.TotalWatts)
@@ -66,7 +66,7 @@ func TestEnergyStats(t *testing.T) {
 
 func TestScheduleRules(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	rule := &ScheduleRule{
 		ID:          "rule1",
 		Name:        "夜间节能",
@@ -78,7 +78,7 @@ func TestScheduleRules(t *testing.T) {
 		Devices:     []string{"disk1", "disk2"},
 		Priority:    1,
 	}
-	
+
 	mgr.AddRule(rule)
 	rules := mgr.GetRules()
 	if len(rules) != 1 {
@@ -91,15 +91,15 @@ func TestScheduleRules(t *testing.T) {
 
 func TestRemoveRule(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	mgr.AddRule(&ScheduleRule{ID: "rule1", Name: "test"})
 	mgr.AddRule(&ScheduleRule{ID: "rule2", Name: "test2"})
-	
+
 	removed := mgr.RemoveRule("rule1")
 	if !removed {
 		t.Error("expected rule to be removed")
 	}
-	
+
 	rules := mgr.GetRules()
 	if len(rules) != 1 {
 		t.Fatalf("expected 1 rule, got %d", len(rules))
@@ -113,14 +113,14 @@ func TestSavingTips(t *testing.T) {
 	config := DefaultManagerConfig()
 	config.IdleTimeout = 1 * time.Millisecond
 	mgr := NewManager(config)
-	
+
 	mgr.RegisterDevice(&DevicePower{
 		DeviceID:   "disk1",
 		State:      StateIdle,
 		Watts:      8.0,
 		LastActive: time.Now().Add(-1 * time.Hour),
 	})
-	
+
 	stats := mgr.GetStats()
 	if len(stats.SavingTips) == 0 {
 		t.Error("expected saving tips")
@@ -129,9 +129,9 @@ func TestSavingTips(t *testing.T) {
 
 func TestCO2Calculation(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	mgr.RegisterDevice(&DevicePower{DeviceID: "d1", Watts: 100.0, State: StateActive})
-	
+
 	stats := mgr.GetStats()
 	if stats.CO2Kg <= 0 {
 		t.Error("CO2 should be positive")
@@ -140,14 +140,14 @@ func TestCO2Calculation(t *testing.T) {
 
 func TestSetDeviceActive(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	mgr.RegisterDevice(&DevicePower{
 		DeviceID:   "disk1",
 		State:      StateStandby,
 		Watts:      2.0,
 		LastActive: time.Now().Add(-1 * time.Hour),
 	})
-	
+
 	mgr.SetDeviceActive("disk1")
 	devices := mgr.GetDevices()
 	if devices[0].State != StateActive {
@@ -162,7 +162,7 @@ func TestMonitorStartStop(t *testing.T) {
 		ElectricityRate: 0.55,
 		CO2Factor:       0.5703,
 	})
-	
+
 	mgr.Start()
 	time.Sleep(50 * time.Millisecond)
 	mgr.Stop()

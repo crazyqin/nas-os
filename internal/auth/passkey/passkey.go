@@ -24,59 +24,59 @@ import (
 type Manager struct {
 	mu          sync.RWMutex
 	credentials map[string][]*Credential // userID -> credentials
-	sessions    map[string]*Session     // sessionID -> session data
+	sessions    map[string]*Session      // sessionID -> session data
 	config      Config
 }
 
 // Credential represents a stored WebAuthn passkey credential.
 type Credential struct {
 	ID              string     `json:"id"`              // Base64URL encoded credential ID
-	PublicKey       []byte     `json:"-"`                // Stored server-side for advanced verification; raw bytes kept
-	AttestationType string    `json:"attestationType"` // none, indirect, direct
-	Transport       []string  `json:"transport"`        // internal, hybrid, cross-platform
-	AAGUID          string    `json:"aaguid"`           // Authenticator Attestation GUID
-	CreatedAt       time.Time `json:"createdAt"`
+	PublicKey       []byte     `json:"-"`               // Stored server-side for advanced verification; raw bytes kept
+	AttestationType string     `json:"attestationType"` // none, indirect, direct
+	Transport       []string   `json:"transport"`       // internal, hybrid, cross-platform
+	AAGUID          string     `json:"aaguid"`          // Authenticator Attestation GUID
+	CreatedAt       time.Time  `json:"createdAt"`
 	LastUsedAt      *time.Time `json:"lastUsedAt"`
-	Name            string    `json:"name"`             // User-assigned friendly name
-	DeviceType      string    `json:"deviceType"`       // single_device, multi_device
-	BackupState     string    `json:"backupState"`     // eligible, ineligible, excluded, exists
-	IsPasskey       bool      `json:"isPasskey"`        // true if this is a FIDO2 passkey (vs legacy U2F)
-	Counter         uint32    `json:"counter"`          // Sign counter for replay detection
+	Name            string     `json:"name"`        // User-assigned friendly name
+	DeviceType      string     `json:"deviceType"`  // single_device, multi_device
+	BackupState     string     `json:"backupState"` // eligible, ineligible, excluded, exists
+	IsPasskey       bool       `json:"isPasskey"`   // true if this is a FIDO2 passkey (vs legacy U2F)
+	Counter         uint32     `json:"counter"`     // Sign counter for replay detection
 }
 
 // Session represents an active WebAuthn ceremony session.
 type Session struct {
-	SessionID   string    `json:"sessionId"`
-	UserID      string    `json:"userId"`      // empty for discoverable credential (auto-fill) auth
-	Username    string    `json:"username"`     // display name only
-	Challenge   string    `json:"challenge"`    // Base64URL encoded challenge
-	UserHandle  string    `json:"userHandle"`  // Base64URL user ID (for discoverable creds)
-	CreatedAt   time.Time `json:"createdAt"`
-	ExpiresAt   time.Time `json:"expiresAt"`
-	IsRegister  bool      `json:"isRegister"`  // true=registration, false=authentication
-	RPID        string    `json:"rpId"`
+	SessionID     string             `json:"sessionId"`
+	UserID        string             `json:"userId"`     // empty for discoverable credential (auto-fill) auth
+	Username      string             `json:"username"`   // display name only
+	Challenge     string             `json:"challenge"`  // Base64URL encoded challenge
+	UserHandle    string             `json:"userHandle"` // Base64URL user ID (for discoverable creds)
+	CreatedAt     time.Time          `json:"createdAt"`
+	ExpiresAt     time.Time          `json:"expiresAt"`
+	IsRegister    bool               `json:"isRegister"` // true=registration, false=authentication
+	RPID          string             `json:"rpId"`
 	Authenticator *AuthenticatorInfo `json:"authenticator,omitempty"` // populated on finish
 }
 
 // AuthenticatorInfo captures authenticator metadata from authentication.
 type AuthenticatorInfo struct {
-	AAGUID       string   `json:"aaguid"`
-	Counter      uint32   `json:"counter"`
-	DeviceType   string   `json:"deviceType"`
-	BackupState  string   `json:"backupState"`
-	Transport    []string `json:"transport"`
+	AAGUID      string   `json:"aaguid"`
+	Counter     uint32   `json:"counter"`
+	DeviceType  string   `json:"deviceType"`
+	BackupState string   `json:"backupState"`
+	Transport   []string `json:"transport"`
 }
 
 // Config holds Passkey RP configuration.
 type Config struct {
-	RPDisplayName         string   `json:"rpDisplayName"`          // e.g. "NAS-OS"
-	RPID                  string   `json:"rpId"`                   // e.g. "nas.example.com" (must be有效的 domain or public suffix)
-	RPOrigins             []string `json:"rpOrigins"`              // Allowed origins incl. port variants
-	TimeoutMs             uint32   `json:"timeoutMs"`              // Ceremony timeout in milliseconds
-	RequireResidentKey    bool     `json:"requireResidentKey"`     // Required for discoverable credentials
-	UserVerification      string   `json:"userVerification"`      // "required", "preferred", "discouraged"
-	AttestationConveyance  string   `json:"attestationConveyance"`  // "none", "indirect", "direct"
-	AuthenticatorAttachment string  `json:"authenticatorAttachment"` // "platform", "cross-platform", "" (either)
+	RPDisplayName           string   `json:"rpDisplayName"`           // e.g. "NAS-OS"
+	RPID                    string   `json:"rpId"`                    // e.g. "nas.example.com" (must be有效的 domain or public suffix)
+	RPOrigins               []string `json:"rpOrigins"`               // Allowed origins incl. port variants
+	TimeoutMs               uint32   `json:"timeoutMs"`               // Ceremony timeout in milliseconds
+	RequireResidentKey      bool     `json:"requireResidentKey"`      // Required for discoverable credentials
+	UserVerification        string   `json:"userVerification"`        // "required", "preferred", "discouraged"
+	AttestationConveyance   string   `json:"attestationConveyance"`   // "none", "indirect", "direct"
+	AuthenticatorAttachment string   `json:"authenticatorAttachment"` // "platform", "cross-platform", "" (either)
 	// AllowedAlgorithmIDs lists accepted COSE algorithm IDs for public keys.
 	// Defaults: -7 (ES256), -257 (RS256), -37 (PS256), -258 (RS384), -39 (ES384), -47 (ES512)
 	AllowedAlgorithmIDs []int `json:"allowedAlgorithmIDs"`
@@ -85,14 +85,14 @@ type Config struct {
 // DefaultConfig returns production-ready defaults.
 func DefaultConfig(rpID, displayName string, origins []string) Config {
 	return Config{
-		RPDisplayName:        displayName,
-		RPID:                 rpID,
-		RPOrigins:            origins,
-		TimeoutMs:            60000,
-		RequireResidentKey:   true,
-		UserVerification:     "preferred",
+		RPDisplayName:         displayName,
+		RPID:                  rpID,
+		RPOrigins:             origins,
+		TimeoutMs:             60000,
+		RequireResidentKey:    true,
+		UserVerification:      "preferred",
 		AttestationConveyance: "none",
-		AllowedAlgorithmIDs:  []int{-7, -257, -37, -258, -39, -47},
+		AllowedAlgorithmIDs:   []int{-7, -257, -37, -258, -39, -47},
 	}
 }
 
@@ -191,7 +191,7 @@ func (m *Manager) RegistrationOptions(userID, username, displayName string) (ses
 	}
 
 	options = map[string]interface{}{
-		"challenge":           challenge,
+		"challenge": challenge,
 		"rp": map[string]interface{}{
 			"name": m.config.RPDisplayName,
 			"id":   m.config.RPID,
@@ -201,11 +201,11 @@ func (m *Manager) RegistrationOptions(userID, username, displayName string) (ses
 			"name":        username,
 			"displayName": displayName,
 		},
-		"pubKeyCredParams":      algParams,
-		"timeout":              m.config.TimeoutMs,
-		"excludeCredentials":   excludeCreds,
+		"pubKeyCredParams":       algParams,
+		"timeout":                m.config.TimeoutMs,
+		"excludeCredentials":     excludeCreds,
 		"authenticatorSelection": authenticatorSelection,
-		"attestation":          m.config.AttestationConveyance,
+		"attestation":            m.config.AttestationConveyance,
 		"extensions": map[string]interface{}{
 			"credProps":        true, // Request credentialProperties extension
 			"hmacCreateSecret": true, // HMAC-Secret extension for encryption
@@ -241,12 +241,12 @@ type RegistrationResponse struct {
 
 // ParsedAuthData represents the parsed authenticator data (authData).
 type ParsedAuthData struct {
-	RPIDHash     []byte
-	Flags        uint8
-	Counter      uint32
-	AAGUID       []byte
-	CredID       []byte
-	PublicKey    []byte
+	RPIDHash  []byte
+	Flags     uint8
+	Counter   uint32
+	AAGUID    []byte
+	CredID    []byte
+	PublicKey []byte
 }
 
 // VerifyRegistration completes the registration ceremony.
@@ -412,10 +412,10 @@ func (m *Manager) authenticationOptionsInternal(userID string, creds []*Credenti
 	m.mu.Lock()
 	m.sessions[sid] = &Session{
 		SessionID:  sid,
-		UserID:    userID,
-		Challenge: challenge,
-		CreatedAt: now,
-		ExpiresAt: now.Add(time.Duration(m.config.TimeoutMs) * time.Millisecond),
+		UserID:     userID,
+		Challenge:  challenge,
+		CreatedAt:  now,
+		ExpiresAt:  now.Add(time.Duration(m.config.TimeoutMs) * time.Millisecond),
 		IsRegister: false,
 		RPID:       m.config.RPID,
 	}
@@ -442,8 +442,8 @@ func (m *Manager) authenticationOptionsInternal(userID string, creds []*Credenti
 		"allowCredentials": allow,
 		"userVerification": m.config.UserVerification,
 		"extensions": map[string]interface{}{
-			"appid":     m.config.RPID,
-			"authnSel":  allow, // Authentication selection hints
+			"appid":    m.config.RPID,
+			"authnSel": allow, // Authentication selection hints
 		},
 	}
 
@@ -628,10 +628,10 @@ func (m *Manager) Stats(userID string) map[string]interface{} {
 		lastUsedStr = lastUsed.Format(time.RFC3339)
 	}
 	return map[string]interface{}{
-		"total":           len(creds),
-		"passkeyCount":   passkeyCount,
-		"lastUsedAt":      lastUsedStr,
-		"hasBackup":      passkeyCount > 1,
+		"total":        len(creds),
+		"passkeyCount": passkeyCount,
+		"lastUsedAt":   lastUsedStr,
+		"hasBackup":    passkeyCount > 1,
 	}
 }
 
@@ -639,10 +639,10 @@ func (m *Manager) Stats(userID string) map[string]interface{} {
 
 // ClientDataJSON represents the parsed client data JSON.
 type ClientDataJSON struct {
-	Type      string `json:"type"`
-	Challenge string `json:"challenge"`
-	Origin    string `json:"origin"`
-	CrossOrigin bool `json:"crossOrigin,omitempty"`
+	Type        string `json:"type"`
+	Challenge   string `json:"challenge"`
+	Origin      string `json:"origin"`
+	CrossOrigin bool   `json:"crossOrigin,omitempty"`
 }
 
 func (m *Manager) parseAndVerifyClientData(data string, expectedType, expectedChallenge string) (*ClientDataJSON, error) {
@@ -773,7 +773,6 @@ func (m *Manager) parseAuthData(data []byte) (*ParsedAuthData, error) {
 
 	return p, nil
 }
-
 
 // Sha256Hash computes SHA-256 of a string (exported for tests).
 func Sha256Hash(s string) []byte {

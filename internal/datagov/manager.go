@@ -61,20 +61,20 @@ type Manager struct {
 // NewManager 创建数据治理管理器
 func NewManager(config Config) *Manager {
 	return &Manager{
-		config:              config,
-		assets:              make(map[string]*DataAsset),
-		scanRules:           make(map[string]*ScanRule),
-		scanResults:         make(map[string]*ScanResult),
-		retentionPolicies:   make(map[string]*RetentionPolicy),
-		retentionTasks:      make(map[string]*RetentionTask),
-		accessEvents:        make([]AccessEvent, 0),
-		accessPatterns:      make(map[string]*AccessPattern),
-		anomalyRules:        make(map[string]*AnomalyRule),
-		anomalyAlerts:       make(map[string]*AnomalyAlert),
-		complianceReports:   make(map[string]*ComplianceReport),
-		dataFlows:           make(map[string]*DataFlow),
-		maskingRules:        make(map[string]*MaskingRule),
-		anonymizationTasks:  make(map[string]*AnonymizationTask),
+		config:             config,
+		assets:             make(map[string]*DataAsset),
+		scanRules:          make(map[string]*ScanRule),
+		scanResults:        make(map[string]*ScanResult),
+		retentionPolicies:  make(map[string]*RetentionPolicy),
+		retentionTasks:     make(map[string]*RetentionTask),
+		accessEvents:       make([]AccessEvent, 0),
+		accessPatterns:     make(map[string]*AccessPattern),
+		anomalyRules:       make(map[string]*AnomalyRule),
+		anomalyAlerts:      make(map[string]*AnomalyAlert),
+		complianceReports:  make(map[string]*ComplianceReport),
+		dataFlows:          make(map[string]*DataFlow),
+		maskingRules:       make(map[string]*MaskingRule),
+		anonymizationTasks: make(map[string]*AnonymizationTask),
 	}
 }
 

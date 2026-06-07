@@ -314,8 +314,8 @@ func (h *Handlers) importICS(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":    "ICS 导入成功",
-		"imported":   count,
+		"message":     "ICS 导入成功",
+		"imported":    count,
 		"calendar_id": calendarID,
 	})
 }

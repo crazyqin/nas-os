@@ -115,50 +115,50 @@ const (
 
 // BudgetPlan 预算计划.
 type BudgetPlan struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Department  string    `json:"department"`
-	Project     string    `json:"project,omitempty"`
-	Owner       string    `json:"owner,omitempty"`
-	MonthlyCap  float64   `json:"monthly_cap"`
-	CurrentUse  float64   `json:"current_use"`
-	Currency    string    `json:"currency"`
-	Period      Period    `json:"period"`
-	Provider    CloudProvider `json:"provider,omitempty"`
-	Tags        []string  `json:"tags,omitempty"`
-	Status      string    `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID         string        `json:"id"`
+	Name       string        `json:"name"`
+	Department string        `json:"department"`
+	Project    string        `json:"project,omitempty"`
+	Owner      string        `json:"owner,omitempty"`
+	MonthlyCap float64       `json:"monthly_cap"`
+	CurrentUse float64       `json:"current_use"`
+	Currency   string        `json:"currency"`
+	Period     Period        `json:"period"`
+	Provider   CloudProvider `json:"provider,omitempty"`
+	Tags       []string      `json:"tags,omitempty"`
+	Status     string        `json:"status"`
+	CreatedAt  time.Time     `json:"created_at"`
+	UpdatedAt  time.Time     `json:"updated_at"`
 }
 
 // CostBreakdown 成本明细.
 type CostBreakdown struct {
-	Category    string  `json:"category"` // storage, compute, network, backup
-	Amount      float64 `json:"amount"`
-	Percentage  float64 `json:"percentage"`
-	Trend       Trend   `json:"trend"`
-	Department  string  `json:"department,omitempty"`
-	Provider    string  `json:"provider,omitempty"`
+	Category   string  `json:"category"` // storage, compute, network, backup
+	Amount     float64 `json:"amount"`
+	Percentage float64 `json:"percentage"`
+	Trend      Trend   `json:"trend"`
+	Department string  `json:"department,omitempty"`
+	Provider   string  `json:"provider,omitempty"`
 }
 
 // CostOptimization 成本优化建议.
 type CostOptimization struct {
-	ID          string          `json:"id"`
+	ID          string           `json:"id"`
 	Type        OptimizationType `json:"type"`
-	Description string          `json:"description"`
-	SavingEst   float64         `json:"saving_estimate"`
-	Priority    Priority        `json:"priority"`
-	Resource    string          `json:"resource,omitempty"`
-	Department  string          `json:"department,omitempty"`
-	CreatedAt   time.Time       `json:"created_at"`
+	Description string           `json:"description"`
+	SavingEst   float64          `json:"saving_estimate"`
+	Priority    Priority         `json:"priority"`
+	Resource    string           `json:"resource,omitempty"`
+	Department  string           `json:"department,omitempty"`
+	CreatedAt   time.Time        `json:"created_at"`
 }
 
 // CostTrend 成本趋势数据点.
 type CostTrend struct {
-	Date        time.Time `json:"date"`
-	Amount      float64   `json:"amount"`
-	Category    string    `json:"category,omitempty"`
-	Department  string    `json:"department,omitempty"`
+	Date       time.Time `json:"date"`
+	Amount     float64   `json:"amount"`
+	Category   string    `json:"category,omitempty"`
+	Department string    `json:"department,omitempty"`
 }
 
 // CostForecast 成本预测.
@@ -172,27 +172,27 @@ type CostForecast struct {
 
 // BudgetAlert 预算告警.
 type BudgetAlert struct {
-	ID          string    `json:"id"`
-	PlanID      string    `json:"plan_id"`
-	PlanName    string    `json:"plan_name"`
-	Level       AlertLevel `json:"level"`
-	Message     string    `json:"message"`
-	Threshold   float64   `json:"threshold"`
-	CurrentUse  float64   `json:"current_use"`
-	BudgetCap   float64   `json:"budget_cap"`
-	CreatedAt   time.Time `json:"created_at"`
-	AckedAt     *time.Time `json:"acked_at,omitempty"`
+	ID         string     `json:"id"`
+	PlanID     string     `json:"plan_id"`
+	PlanName   string     `json:"plan_name"`
+	Level      AlertLevel `json:"level"`
+	Message    string     `json:"message"`
+	Threshold  float64    `json:"threshold"`
+	CurrentUse float64    `json:"current_use"`
+	BudgetCap  float64    `json:"budget_cap"`
+	CreatedAt  time.Time  `json:"created_at"`
+	AckedAt    *time.Time `json:"acked_at,omitempty"`
 }
 
 // MonthlyReport 月度报告.
 type MonthlyReport struct {
-	Month       string           `json:"month"` // YYYY-MM
-	TotalCost   float64          `json:"total_cost"`
-	BudgetCap   float64          `json:"budget_cap"`
-	Usage       float64          `json:"usage"` // percentage
-	Breakdown   []CostBreakdown  `json:"breakdown"`
-	Trends      []CostTrend      `json:"trends"`
-	Alerts      []BudgetAlert    `json:"alerts"`
+	Month         string             `json:"month"` // YYYY-MM
+	TotalCost     float64            `json:"total_cost"`
+	BudgetCap     float64            `json:"budget_cap"`
+	Usage         float64            `json:"usage"` // percentage
+	Breakdown     []CostBreakdown    `json:"breakdown"`
+	Trends        []CostTrend        `json:"trends"`
+	Alerts        []BudgetAlert      `json:"alerts"`
 	Optimizations []CostOptimization `json:"optimizations"`
 }
 
@@ -213,12 +213,12 @@ type CreatePlanRequest struct {
 
 // CostQueryRequest 成本查询请求.
 type CostQueryRequest struct {
-	Department string    `form:"department,omitempty"`
-	Project    string    `form:"project,omitempty"`
-	Provider   string    `form:"provider,omitempty"`
-	Category   string    `form:"category,omitempty"`
-	StartDate  string    `form:"start_date,omitempty"`
-	EndDate    string    `form:"end_date,omitempty"`
+	Department string `form:"department,omitempty"`
+	Project    string `form:"project,omitempty"`
+	Provider   string `form:"provider,omitempty"`
+	Category   string `form:"category,omitempty"`
+	StartDate  string `form:"start_date,omitempty"`
+	EndDate    string `form:"end_date,omitempty"`
 }
 
 // TrendQueryRequest 趋势查询请求.

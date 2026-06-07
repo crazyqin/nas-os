@@ -86,9 +86,9 @@ const (
 type AlertStatus string
 
 const (
-	AlertStatusOpen        AlertStatus = "open"
-	AlertStatusAcknowledged AlertStatus = "acknowledged"
-	AlertStatusResolved    AlertStatus = "resolved"
+	AlertStatusOpen          AlertStatus = "open"
+	AlertStatusAcknowledged  AlertStatus = "acknowledged"
+	AlertStatusResolved      AlertStatus = "resolved"
 	AlertStatusFalsePositive AlertStatus = "false_positive"
 )
 
@@ -356,12 +356,12 @@ func (e *ThreatIntelError) Unwrap() error {
 
 // 预定义错误
 var (
-	ErrFeedNotFound    = &ThreatIntelError{Code: "FEED_NOT_FOUND", Message: "情报源不存在"}
-	ErrFeedExists      = &ThreatIntelError{Code: "FEED_EXISTS", Message: "情报源已存在"}
-	ErrIOCNotFound     = &ThreatIntelError{Code: "IOC_NOT_FOUND", Message: "IOC 不存在"}
-	ErrAlertNotFound   = &ThreatIntelError{Code: "ALERT_NOT_FOUND", Message: "告警不存在"}
-	ErrScanInProgress  = &ThreatIntelError{Code: "SCAN_IN_PROGRESS", Message: "扫描正在进行中"}
-	ErrInvalidTarget   = &ThreatIntelError{Code: "INVALID_TARGET", Message: "无效的扫描目标"}
+	ErrFeedNotFound     = &ThreatIntelError{Code: "FEED_NOT_FOUND", Message: "情报源不存在"}
+	ErrFeedExists       = &ThreatIntelError{Code: "FEED_EXISTS", Message: "情报源已存在"}
+	ErrIOCNotFound      = &ThreatIntelError{Code: "IOC_NOT_FOUND", Message: "IOC 不存在"}
+	ErrAlertNotFound    = &ThreatIntelError{Code: "ALERT_NOT_FOUND", Message: "告警不存在"}
+	ErrScanInProgress   = &ThreatIntelError{Code: "SCAN_IN_PROGRESS", Message: "扫描正在进行中"}
+	ErrInvalidTarget    = &ThreatIntelError{Code: "INVALID_TARGET", Message: "无效的扫描目标"}
 	ErrFeedUpdateFailed = &ThreatIntelError{Code: "FEED_UPDATE_FAILED", Message: "情报源更新失败"}
 )
 

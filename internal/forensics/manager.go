@@ -541,9 +541,9 @@ func (a *API) getTimeline(w http.ResponseWriter, r *http.Request) {
 // ========== Report Operations ==========
 
 type GenerateReportRequest struct {
-	CaseID      string `json:"caseId"`
+	CaseID       string `json:"caseId"`
 	Investigator string `json:"investigator"`
-	Format      string `json:"format"`
+	Format       string `json:"format"`
 }
 
 func (a *API) generateReport(w http.ResponseWriter, r *http.Request) {
@@ -586,14 +586,14 @@ type SecurityScanRequest struct {
 }
 
 type SecurityScanResult struct {
-	ScanID         string            `json:"scanId"`
-	Timestamp      time.Time         `json:"timestamp"`
-	Path           string            `json:"path"`
-	FilesScanned   int               `json:"filesScanned"`
-	IssuesFound    int               `json:"issuesFound"`
-	Issues         []SecurityIssue   `json:"issues"`
-	NetworkThreats int               `json:"networkThreats,omitempty"`
-	Summary        string            `json:"summary"`
+	ScanID         string          `json:"scanId"`
+	Timestamp      time.Time       `json:"timestamp"`
+	Path           string          `json:"path"`
+	FilesScanned   int             `json:"filesScanned"`
+	IssuesFound    int             `json:"issuesFound"`
+	Issues         []SecurityIssue `json:"issues"`
+	NetworkThreats int             `json:"networkThreats,omitempty"`
+	Summary        string          `json:"summary"`
 }
 
 type SecurityIssue struct {
@@ -670,8 +670,8 @@ func (a *API) analyzeNetwork(w http.ResponseWriter, r *http.Request) {
 	suspicious := a.manager.AnalyzeNetworkConnections(req.Connections)
 
 	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"total":      len(req.Connections),
-		"suspicious": len(suspicious),
+		"total":       len(req.Connections),
+		"suspicious":  len(suspicious),
 		"connections": suspicious,
 	})
 }
@@ -733,8 +733,8 @@ func (m *Manager) Stats() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"totalCases":    len(m.cases),
-		"totalEvidence": len(m.evidence),
+		"totalCases":     len(m.cases),
+		"totalEvidence":  len(m.evidence),
 		"totalTimelines": len(m.timelines),
 	}
 

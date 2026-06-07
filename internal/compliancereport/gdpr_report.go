@@ -11,62 +11,62 @@ type DataCategory string
 
 const (
 	DataCategoryPersonal   DataCategory = "personal"   // 个人身份信息
-	DataCategorySensitive  DataCategory = "sensitive"   // 敏感个人信息
-	DataCategoryFinancial  DataCategory = "financial"   // 财务数据
-	DataCategoryHealth     DataCategory = "health"      // 健康数据
-	DataCategoryBehavioral DataCategory = "behavioral"  // 行为数据
-	DataCategoryTechnical  DataCategory = "technical"   // 技术数据
+	DataCategorySensitive  DataCategory = "sensitive"  // 敏感个人信息
+	DataCategoryFinancial  DataCategory = "financial"  // 财务数据
+	DataCategoryHealth     DataCategory = "health"     // 健康数据
+	DataCategoryBehavioral DataCategory = "behavioral" // 行为数据
+	DataCategoryTechnical  DataCategory = "technical"  // 技术数据
 )
 
 // ProcessingPurpose 处理目的.
 type ProcessingPurpose string
 
 const (
-	PurposeServiceProvision  ProcessingPurpose = "service_provision"  // 服务提供
-	PurposeAnalytics         ProcessingPurpose = "analytics"          // 数据分析
-	PurposeMarketing         ProcessingPurpose = "marketing"          // 营销推广
-	PurposeLegalCompliance   ProcessingPurpose = "legal_compliance"   // 法律合规
-	PurposeSecurity          ProcessingPurpose = "security"           // 安全防护
-	PurposeBackup            ProcessingPurpose = "backup"             // 数据备份
+	PurposeServiceProvision ProcessingPurpose = "service_provision" // 服务提供
+	PurposeAnalytics        ProcessingPurpose = "analytics"         // 数据分析
+	PurposeMarketing        ProcessingPurpose = "marketing"         // 营销推广
+	PurposeLegalCompliance  ProcessingPurpose = "legal_compliance"  // 法律合规
+	PurposeSecurity         ProcessingPurpose = "security"          // 安全防护
+	PurposeBackup           ProcessingPurpose = "backup"            // 数据备份
 )
 
 // LegalBasis 合法处理基础.
 type LegalBasis string
 
 const (
-	LegalBasisConsent       LegalBasis = "consent"        // 同意
-	LegalBasisContract      LegalBasis = "contract"       // 合同履行
-	LegalBasisLegalOblig    LegalBasis = "legal_obligation" // 法律义务
-	LegalBasisVitalInterest LegalBasis = "vital_interest" // 重大利益
-	LegalBasisPublicTask    LegalBasis = "public_task"    // 公共任务
+	LegalBasisConsent       LegalBasis = "consent"             // 同意
+	LegalBasisContract      LegalBasis = "contract"            // 合同履行
+	LegalBasisLegalOblig    LegalBasis = "legal_obligation"    // 法律义务
+	LegalBasisVitalInterest LegalBasis = "vital_interest"      // 重大利益
+	LegalBasisPublicTask    LegalBasis = "public_task"         // 公共任务
 	LegalBasisLegitInterest LegalBasis = "legitimate_interest" // 合法利益
 )
 
 // DataStorageLocation 数据存储位置.
 type DataStorageLocation struct {
-	LocationID   string `json:"location_id"`
-	Name         string `json:"name"`
-	Region       string `json:"region"`       // 存储区域（如 EU, CN, US）
-	Country      string `json:"country"`      // 国家代码
-	IsEncrypted  bool   `json:"is_encrypted"` // 是否加密存储
-	Provider     string `json:"provider"`     // 存储提供商
-	Description  string `json:"description"`
+	LocationID  string `json:"location_id"`
+	Name        string `json:"name"`
+	Region      string `json:"region"`       // 存储区域（如 EU, CN, US）
+	Country     string `json:"country"`      // 国家代码
+	IsEncrypted bool   `json:"is_encrypted"` // 是否加密存储
+	Provider    string `json:"provider"`     // 存储提供商
+	Description string `json:"description"`
 }
 
 // DataProcessingActivity 数据处理活动.
 type DataProcessingActivity struct {
-	ActivityID   string             `json:"activity_id"`
-	Name         string             `json:"name"`
-	Description  string             `json:"description"`
-	DataTypes    []DataCategory     `json:"data_types"`    // 处理的数据类型
-	Purposes     []ProcessingPurpose `json:"purposes"`     // 处理目的
-	LegalBasis   LegalBasis         `json:"legal_basis"`   // 合法基础
-	StorageLocs  []string           `json:"storage_locations"` // 存储位置 ID
-	RetentionDays int              `json:"retention_days"` // 保留天数
-	RetentionDesc string           `json:"retention_desc"` // 保留策略描述
-	IsActive     bool               `json:"is_active"`
-	CreatedAt    time.Time          `json:"created_at"`
-	UpdatedAt    time.Time          `json:"updated_at"`
+	ActivityID    string              `json:"activity_id"`
+	Name          string              `json:"name"`
+	Description   string              `json:"description"`
+	DataTypes     []DataCategory      `json:"data_types"`        // 处理的数据类型
+	Purposes      []ProcessingPurpose `json:"purposes"`          // 处理目的
+	LegalBasis    LegalBasis          `json:"legal_basis"`       // 合法基础
+	StorageLocs   []string            `json:"storage_locations"` // 存储位置 ID
+	RetentionDays int                 `json:"retention_days"`    // 保留天数
+	RetentionDesc string              `json:"retention_desc"`    // 保留策略描述
+	IsActive      bool                `json:"is_active"`
+	CreatedAt     time.Time           `json:"created_at"`
+	UpdatedAt     time.Time           `json:"updated_at"`
 }
 
 // GDPRReport GDPR 数据处理报告.
@@ -90,11 +90,11 @@ type ReportPeriod struct {
 
 // DataController 数据控制者.
 type DataController struct {
-	Name           string `json:"name"`
-	Address        string `json:"address"`
-	ContactEmail   string `json:"contact_email"`
-	DPOName        string `json:"dpo_name,omitempty"`        // 数据保护官
-	DPOContact     string `json:"dpo_contact,omitempty"`
+	Name         string `json:"name"`
+	Address      string `json:"address"`
+	ContactEmail string `json:"contact_email"`
+	DPOName      string `json:"dpo_name,omitempty"` // 数据保护官
+	DPOContact   string `json:"dpo_contact,omitempty"`
 }
 
 // DataProcessor 数据处理者.
@@ -112,19 +112,19 @@ type DataSubjectRightsSummary struct {
 	PortabilityRequests int `json:"portability_requests"` // 可携性请求数
 	ObjectionRequests   int `json:"objection_requests"`   // 异议请求数
 	TotalRequests       int `json:"total_requests"`
-	AvgResponseDays     int `json:"avg_response_days"`    // 平均响应天数
+	AvgResponseDays     int `json:"avg_response_days"` // 平均响应天数
 }
 
 // GDPRSummary GDPR 报告摘要.
 type GDPRSummary struct {
-	TotalActivities      int    `json:"total_activities"`
-	ActiveActivities     int    `json:"active_activities"`
-	TotalStorageLocs     int    `json:"total_storage_locations"`
-	EUStorageLocs        int    `json:"eu_storage_locations"`
-	NonEUStorageLocs     int    `json:"non_eu_storage_locations"`
-	EncryptedStoragePct  int    `json:"encrypted_storage_pct"` // 加密存储百分比
-	ComplianceStatus     string `json:"compliance_status"`
-	Recommendations      []string `json:"recommendations"`
+	TotalActivities     int      `json:"total_activities"`
+	ActiveActivities    int      `json:"active_activities"`
+	TotalStorageLocs    int      `json:"total_storage_locations"`
+	EUStorageLocs       int      `json:"eu_storage_locations"`
+	NonEUStorageLocs    int      `json:"non_eu_storage_locations"`
+	EncryptedStoragePct int      `json:"encrypted_storage_pct"` // 加密存储百分比
+	ComplianceStatus    string   `json:"compliance_status"`
+	Recommendations     []string `json:"recommendations"`
 }
 
 // GDPRReportGenerator GDPR 报告生成器.
@@ -177,7 +177,7 @@ type GDPRReportConfig struct {
 // generateGDPRSummary 生成 GDPR 报告摘要.
 func (g *GDPRReportGenerator) generateGDPRSummary(report *GDPRReport) GDPRSummary {
 	summary := GDPRSummary{
-		TotalActivities: len(report.Activities),
+		TotalActivities:  len(report.Activities),
 		TotalStorageLocs: len(report.StorageLocations),
 	}
 

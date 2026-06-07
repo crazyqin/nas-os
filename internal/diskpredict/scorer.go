@@ -8,19 +8,19 @@ import (
 // Scorer 健康评分计算器
 type Scorer struct {
 	// 各维度权重
-	attributeWeight float64 // SMART属性权重
+	attributeWeight   float64 // SMART属性权重
 	temperatureWeight float64 // 温度权重
-	powerOnWeight float64 // 通电时间权重
-	overallWeight float64 // 综合评估权重
+	powerOnWeight     float64 // 通电时间权重
+	overallWeight     float64 // 综合评估权重
 }
 
 // NewScorer 创建评分器
 func NewScorer() *Scorer {
 	return &Scorer{
-		attributeWeight:   0.5,  // SMART属性占50%
-		temperatureWeight: 0.2,  // 温度占20%
-		powerOnWeight:     0.2,  // 通电时间占20%
-		overallWeight:     0.1,  // 综合评估占10%
+		attributeWeight:   0.5, // SMART属性占50%
+		temperatureWeight: 0.2, // 温度占20%
+		powerOnWeight:     0.2, // 通电时间占20%
+		overallWeight:     0.1, // 综合评估占10%
 	}
 }
 
@@ -111,23 +111,23 @@ func (s *Scorer) baseEstimateFromScore(score float64) int {
 	case score >= 90:
 		return 1095 // 3年
 	case score >= 80:
-		return 730  // 2年
+		return 730 // 2年
 	case score >= 70:
-		return 548  // 1.5年
+		return 548 // 1.5年
 	case score >= 60:
-		return 365  // 1年
+		return 365 // 1年
 	case score >= 50:
-		return 274  // 9个月
+		return 274 // 9个月
 	case score >= 40:
-		return 182  // 6个月
+		return 182 // 6个月
 	case score >= 30:
-		return 120  // 4个月
+		return 120 // 4个月
 	case score >= 20:
-		return 90   // 3个月
+		return 90 // 3个月
 	case score >= 10:
-		return 60   // 2个月
+		return 60 // 2个月
 	default:
-		return 30   // 1个月
+		return 30 // 1个月
 	}
 }
 

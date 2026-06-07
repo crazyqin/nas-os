@@ -534,12 +534,12 @@ func loadAvgWithContext(ctx context.Context) ([]float64, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	fields := strings.Fields(string(data))
 	if len(fields) < 3 {
 		return nil, fmt.Errorf("invalid loadavg format")
 	}
-	
+
 	var loadAvg []float64
 	for i := 0; i < 3; i++ {
 		var v float64

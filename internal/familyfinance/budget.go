@@ -13,10 +13,10 @@ import (
 
 // BudgetManager 预算管理器
 type BudgetManager struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	engine   *FinanceEngine
-	budgets  map[string]*Budget
+	mu      sync.RWMutex
+	logger  *zap.Logger
+	engine  *FinanceEngine
+	budgets map[string]*Budget
 }
 
 // NewBudgetManager 创建预算管理器

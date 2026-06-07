@@ -610,15 +610,15 @@ func (h *NVMeHandlers) getNVMeSummary(c *gin.Context) {
 
 	// 计算汇总数据
 	summary := struct {
-		TotalDevices     int     `json:"totalDevices"`
-		HealthyCount     int     `json:"healthyCount"`
-		WarningCount     int     `json:"warningCount"`
-		CriticalCount    int     `json:"criticalCount"`
-		EmergencyCount   int     `json:"emergencyCount"`
-		AvgTemperature   float64 `json:"avgTemperature"`
-		AvgHealthPercent float64 `json:"avgHealthPercent"`
-		TotalTBW         float64 `json:"totalTBW"`
-		TotalCapacity    uint64  `json:"totalCapacity"`
+		TotalDevices     int                `json:"totalDevices"`
+		HealthyCount     int                `json:"healthyCount"`
+		WarningCount     int                `json:"warningCount"`
+		CriticalCount    int                `json:"criticalCount"`
+		EmergencyCount   int                `json:"emergencyCount"`
+		AvgTemperature   float64            `json:"avgTemperature"`
+		AvgHealthPercent float64            `json:"avgHealthPercent"`
+		TotalTBW         float64            `json:"totalTBW"`
+		TotalCapacity    uint64             `json:"totalCapacity"`
 		AlertsByLevel    map[AlertLevel]int `json:"alertsByLevel"`
 	}{}
 
@@ -719,13 +719,13 @@ func (h *NVMeHandlers) getNVMeAlertStatus(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"device":        info.Device,
-			"alertLevel":    info.AlertLevel,
-			"alertReasons":  info.AlertReasons,
-			"healthPct":     info.HealthPercentage,
-			"thresholds":    info.AlertThresholds,
+			"device":          info.Device,
+			"alertLevel":      info.AlertLevel,
+			"alertReasons":    info.AlertReasons,
+			"healthPct":       info.HealthPercentage,
+			"thresholds":      info.AlertThresholds,
 			"recommendations": recommendations,
-			"timestamp":     info.LastCheck,
+			"timestamp":       info.LastCheck,
 		},
 	})
 }
@@ -776,13 +776,13 @@ func (h *NVMeHandlers) getNVMeLifePrediction(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"device":                info.Device,
-			"model":                 info.Model,
-			"healthPercentage":      info.HealthPercentage,
-			"prediction":            prediction,
-			"usage":                 info.Usage,
-			"powerOnHours":          info.PowerOnHours,
-			"lastCheck":             info.LastCheck,
+			"device":           info.Device,
+			"model":            info.Model,
+			"healthPercentage": info.HealthPercentage,
+			"prediction":       prediction,
+			"usage":            info.Usage,
+			"powerOnHours":     info.PowerOnHours,
+			"lastCheck":        info.LastCheck,
 		},
 	})
 }
@@ -819,9 +819,9 @@ func (h *NVMeHandlers) getNVMeAlertHistory(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"device":       device,
+			"device":             device,
 			"temperatureHistory": tempHistory,
-			"lastPrediction": h.monitor.GetLifePrediction(device),
+			"lastPrediction":     h.monitor.GetLifePrediction(device),
 		},
 	})
 }
@@ -983,12 +983,12 @@ func (h *NVMeHandlers) getNVMeTemperatureHistory(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"device":   device,
-			"history":  history,
+			"device":  device,
+			"history": history,
 			"stats": gin.H{
-				"avgTemp": avgTemp,
-				"minTemp": minTemp,
-				"maxTemp": maxTemp,
+				"avgTemp":     avgTemp,
+				"minTemp":     minTemp,
+				"maxTemp":     maxTemp,
 				"recordCount": len(history),
 			},
 		},

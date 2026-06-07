@@ -14,22 +14,22 @@ import (
 type CarbonSource string
 
 const (
-	SourceStorage   CarbonSource = "storage"
-	SourceCompute   CarbonSource = "compute"
-	SourceNetwork   CarbonSource = "network"
-	SourceCooling   CarbonSource = "cooling"
-	SourceIdle      CarbonSource = "idle"
+	SourceStorage CarbonSource = "storage"
+	SourceCompute CarbonSource = "compute"
+	SourceNetwork CarbonSource = "network"
+	SourceCooling CarbonSource = "cooling"
+	SourceIdle    CarbonSource = "idle"
 )
 
 // EnergyType 能源类型
 type EnergyType string
 
 const (
-	EnergySolar    EnergyType = "solar"
-	EnergyWind     EnergyType = "wind"
-	EnergyGrid     EnergyType = "grid"
-	EnergyBattery  EnergyType = "battery"
-	EnergyHybrid   EnergyType = "hybrid"
+	EnergySolar   EnergyType = "solar"
+	EnergyWind    EnergyType = "wind"
+	EnergyGrid    EnergyType = "grid"
+	EnergyBattery EnergyType = "battery"
+	EnergyHybrid  EnergyType = "hybrid"
 )
 
 // CarbonIntensity 碳强度级别
@@ -44,29 +44,29 @@ const (
 
 // CarbonRecord 碳排放记录
 type CarbonRecord struct {
-	ID          string       `json:"id"`
-	Timestamp   time.Time    `json:"timestamp"`
-	Source      CarbonSource `json:"source"`
-	ValueKg     float64      `json:"value_kg"`
-	EnergyKWh   float64      `json:"energy_kwh"`
-	EnergyType  EnergyType   `json:"energy_type"`
-	Description string       `json:"description"`
+	ID          string            `json:"id"`
+	Timestamp   time.Time         `json:"timestamp"`
+	Source      CarbonSource      `json:"source"`
+	ValueKg     float64           `json:"value_kg"`
+	EnergyKWh   float64           `json:"energy_kwh"`
+	EnergyType  EnergyType        `json:"energy_type"`
+	Description string            `json:"description"`
 	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
 // CarbonBudget 碳预算
 type CarbonBudget struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	DailyLimitKg float64   `json:"daily_limit_kg"`
-	MonthlyLimitKg float64 `json:"monthly_limit_kg"`
-	YearlyLimitKg  float64 `json:"yearly_limit_kg"`
-	CurrentDailyKg float64 `json:"current_daily_kg"`
-	CurrentMonthlyKg float64 `json:"current_monthly_kg"`
-	AlertThreshold   float64 `json:"alert_threshold"`
-	Enabled      bool      `json:"enabled"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ID               string    `json:"id"`
+	Name             string    `json:"name"`
+	DailyLimitKg     float64   `json:"daily_limit_kg"`
+	MonthlyLimitKg   float64   `json:"monthly_limit_kg"`
+	YearlyLimitKg    float64   `json:"yearly_limit_kg"`
+	CurrentDailyKg   float64   `json:"current_daily_kg"`
+	CurrentMonthlyKg float64   `json:"current_monthly_kg"`
+	AlertThreshold   float64   `json:"alert_threshold"`
+	Enabled          bool      `json:"enabled"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
 }
 
 // CarbonFootprint 碳足迹
@@ -83,13 +83,13 @@ type CarbonFootprint struct {
 
 // CarbonOffset 碳补偿
 type CarbonOffset struct {
-	ID          string    `json:"id"`
-	ProjectName string    `json:"project_name"`
-	Type        string    `json:"type"`
-	CreditsKg   float64   `json:"credits_kg"`
-	CostUSD     float64   `json:"cost_usd"`
-	Status      string    `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID          string     `json:"id"`
+	ProjectName string     `json:"project_name"`
+	Type        string     `json:"type"`
+	CreditsKg   float64    `json:"credits_kg"`
+	CostUSD     float64    `json:"cost_usd"`
+	Status      string     `json:"status"`
+	CreatedAt   time.Time  `json:"created_at"`
 	VerifiedAt  *time.Time `json:"verified_at,omitempty"`
 }
 
@@ -107,17 +107,17 @@ type GreenOptimization struct {
 
 // CarbonStats 碳管理统计
 type CarbonStats struct {
-	TodayKg         float64            `json:"today_kg"`
-	ThisWeekKg      float64            `json:"this_week_kg"`
-	ThisMonthKg     float64            `json:"this_month_kg"`
-	ThisYearKg      float64            `json:"this_year_kg"`
-	AverageDailyKg  float64            `json:"average_daily_kg"`
-	Trend           string             `json:"trend"`
-	Intensity       CarbonIntensity    `json:"intensity"`
-	TopSource       CarbonSource       `json:"top_source"`
-	GreenEnergyPct  float64            `json:"green_energy_pct"`
-	TotalOffsets    float64            `json:"total_offsets"`
-	NetEmissions    float64            `json:"net_emissions"`
+	TodayKg        float64         `json:"today_kg"`
+	ThisWeekKg     float64         `json:"this_week_kg"`
+	ThisMonthKg    float64         `json:"this_month_kg"`
+	ThisYearKg     float64         `json:"this_year_kg"`
+	AverageDailyKg float64         `json:"average_daily_kg"`
+	Trend          string          `json:"trend"`
+	Intensity      CarbonIntensity `json:"intensity"`
+	TopSource      CarbonSource    `json:"top_source"`
+	GreenEnergyPct float64         `json:"green_energy_pct"`
+	TotalOffsets   float64         `json:"total_offsets"`
+	NetEmissions   float64         `json:"net_emissions"`
 }
 
 // CarbonManager 碳管理器
@@ -133,13 +133,13 @@ type CarbonManager struct {
 
 // CarbonConfig 碳管理配置
 type CarbonConfig struct {
-	DefaultRegion      string  `json:"default_region"`
-	EmissionFactor     float64 `json:"emission_factor"`
-	GreenEnergyPct     float64 `json:"green_energy_pct"`
-	OffsetEnabled      bool    `json:"offset_enabled"`
-	AlertEnabled       bool    `json:"alert_enabled"`
-	OptimizationMode   string  `json:"optimization_mode"`
-	TrackingInterval   int     `json:"tracking_interval_minutes"`
+	DefaultRegion    string  `json:"default_region"`
+	EmissionFactor   float64 `json:"emission_factor"`
+	GreenEnergyPct   float64 `json:"green_energy_pct"`
+	OffsetEnabled    bool    `json:"offset_enabled"`
+	AlertEnabled     bool    `json:"alert_enabled"`
+	OptimizationMode string  `json:"optimization_mode"`
+	TrackingInterval int     `json:"tracking_interval_minutes"`
 }
 
 // NewCarbonManager 创建碳管理器
@@ -391,11 +391,11 @@ func (cm *CarbonManager) MarshalJSON() ([]byte, error) {
 	defer cm.mu.RUnlock()
 
 	return json.Marshal(struct {
-		Records       []CarbonRecord       `json:"records"`
-		Budget        *CarbonBudget        `json:"budget"`
-		Offsets       []CarbonOffset       `json:"offsets"`
+		Records       []CarbonRecord      `json:"records"`
+		Budget        *CarbonBudget       `json:"budget"`
+		Offsets       []CarbonOffset      `json:"offsets"`
 		Optimizations []GreenOptimization `json:"optimizations"`
-		Config        *CarbonConfig        `json:"config"`
+		Config        *CarbonConfig       `json:"config"`
 	}{
 		Records:       cm.records,
 		Budget:        cm.budget,

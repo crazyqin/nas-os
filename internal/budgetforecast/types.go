@@ -17,12 +17,12 @@ type ForecastPoint struct {
 	Date          time.Time `json:"date"`
 	PredictedGB   float64   `json:"predicted_gb"`
 	PredictedCost float64   `json:"predicted_cost"` // 预测月成本（元）
-	Confidence    float64   `json:"confidence"`      // 置信度 0~1
+	Confidence    float64   `json:"confidence"`     // 置信度 0~1
 }
 
 // BudgetAlert 预算告警
 type BudgetAlert struct {
-	Threshold     float64   `json:"threshold"`     // 阈值（元/月）
+	Threshold     float64   `json:"threshold"`      // 阈值（元/月）
 	PredictedDate time.Time `json:"predicted_date"` // 预计触发日期
 	Severity      string    `json:"severity"`       // info / warning / critical
 }

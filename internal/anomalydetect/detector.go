@@ -153,13 +153,13 @@ func (sw *SlidingWindow) LatestValue() (float64, bool) {
 // AnomalyDetector 异常检测器核心结构体
 type AnomalyDetector struct {
 	mu              sync.RWMutex
-	windows         map[MetricType]*SlidingWindow      // 各指标的滑动窗口
-	thresholds      map[MetricType]*AdaptiveThreshold  // 自适应阈值
-	history         map[MetricType][]float64           // 历史数据（用于自适应阈值）
-	minDataPoints   int                                // 最少数据点数（低于此值不检测）
-	zScoreThreshold float64                            // Z-Score 阈值（默认3.0）
-	maxHistory      int                                // 历史数据最大长度
-	windowSize      int                                // 窗口大小
+	windows         map[MetricType]*SlidingWindow     // 各指标的滑动窗口
+	thresholds      map[MetricType]*AdaptiveThreshold // 自适应阈值
+	history         map[MetricType][]float64          // 历史数据（用于自适应阈值）
+	minDataPoints   int                               // 最少数据点数（低于此值不检测）
+	zScoreThreshold float64                           // Z-Score 阈值（默认3.0）
+	maxHistory      int                               // 历史数据最大长度
+	windowSize      int                               // 窗口大小
 }
 
 // DetectorConfig 检测器配置

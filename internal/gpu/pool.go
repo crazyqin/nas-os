@@ -13,15 +13,15 @@ import (
 // Pool GPU资源池
 // 管理多个GPU设备的统一调度和分配
 type Pool struct {
-	manager    *Manager
-	config     *PoolConfig
-	logger     *zap.Logger
-	devices    map[string]*PoolDevice
-	queue      *TaskQueue
-	allocator  *PoolAllocator
-	mu         sync.RWMutex
-	ctx        context.Context
-	cancel     context.CancelFunc
+	manager   *Manager
+	config    *PoolConfig
+	logger    *zap.Logger
+	devices   map[string]*PoolDevice
+	queue     *TaskQueue
+	allocator *PoolAllocator
+	mu        sync.RWMutex
+	ctx       context.Context
+	cancel    context.CancelFunc
 }
 
 // PoolConfig 资源池配置
@@ -51,7 +51,7 @@ type PoolConfig struct {
 // DefaultPoolConfig 默认资源池配置
 func DefaultPoolConfig() *PoolConfig {
 	return &PoolConfig{
-		Name:              "default",
+		Name:               "default",
 		MaxConcurrentTasks: 10,
 		TaskTimeout:        3600, // 1小时
 		ReservePercent:     10,
@@ -199,9 +199,9 @@ func (p *Pool) SubmitTask(task *GPUTask) (*TaskResult, error) {
 	go p.tryAllocateTask()
 
 	return &TaskResult{
-		TaskID:    task.ID,
-		Status:    TaskStatusPending,
-		Message:   "任务已提交，等待分配",
+		TaskID:     task.ID,
+		Status:     TaskStatusPending,
+		Message:    "任务已提交，等待分配",
 		SubmitTime: task.SubmitTime,
 	}, nil
 }
@@ -306,10 +306,10 @@ func (p *Pool) executeTask(task *GPUTask, device *PoolDevice) {
 
 	// 执行任务（调用任务执行函数）
 	result := &TaskResult{
-		TaskID:     task.ID,
-		GPUID:      device.Device.ID,
-		Status:     TaskStatusRunning,
-		StartTime:  task.StartTime,
+		TaskID:    task.ID,
+		GPUID:     device.Device.ID,
+		Status:    TaskStatusRunning,
+		StartTime: task.StartTime,
 	}
 
 	// 模拟任务执行（实际应该调用任务处理函数）
@@ -353,9 +353,9 @@ func (p *Pool) GetPoolStatus() *PoolStatus {
 	defer p.mu.RUnlock()
 
 	status := &PoolStatus{
-		Name:       p.config.Name,
+		Name:        p.config.Name,
 		DeviceCount: len(p.devices),
-		Devices:    make([]PoolDeviceStatus, 0),
+		Devices:     make([]PoolDeviceStatus, 0),
 		QueueLength: p.queue.Length(),
 	}
 
@@ -364,16 +364,16 @@ func (p *Pool) GetPoolStatus() *PoolStatus {
 
 	for id, device := range p.devices {
 		deviceStatus := PoolDeviceStatus{
-			ID:         id,
-			Name:       device.Device.Name,
-			Allocated:  device.Allocated,
+			ID:          id,
+			Name:        device.Device.Name,
+			Allocated:   device.Allocated,
 			AllocatedTo: device.AllocatedTo,
 			MemoryTotal: device.Device.MemoryTotal,
 			MemoryUsed:  device.MemoryUsed,
 			MemoryFree:  device.Device.MemoryTotal - device.MemoryUsed,
-			TaskCount:  device.TaskCount,
-			LoadScore:  device.LoadScore,
-			Health:     device.HealthStatus,
+			TaskCount:   device.TaskCount,
+			LoadScore:   device.LoadScore,
+			Health:      device.HealthStatus,
 		}
 		status.Devices = append(status.Devices, deviceStatus)
 
@@ -529,36 +529,36 @@ func (p *Pool) Close() error {
 
 // PoolStatus 资源池状态
 type PoolStatus struct {
-	Name            string              `json:"name"`
-	DeviceCount     int                 `json:"deviceCount"`
-	HealthyDevices  int                 `json:"healthyDevices"`
-	ActiveTasks     int                 `json:"activeTasks"`
-	QueueLength     int                 `json:"queueLength"`
-	TotalMemory     uint64              `json:"totalMemory"`
-	UsedMemory      uint64              `json:"usedMemory"`
-	FreeMemory      uint64              `json:"freeMemory"`
-	Utilization     float64             `json:"utilization"`
-	Devices         []PoolDeviceStatus  `json:"devices"`
+	Name           string             `json:"name"`
+	DeviceCount    int                `json:"deviceCount"`
+	HealthyDevices int                `json:"healthyDevices"`
+	ActiveTasks    int                `json:"activeTasks"`
+	QueueLength    int                `json:"queueLength"`
+	TotalMemory    uint64             `json:"totalMemory"`
+	UsedMemory     uint64             `json:"usedMemory"`
+	FreeMemory     uint64             `json:"freeMemory"`
+	Utilization    float64            `json:"utilization"`
+	Devices        []PoolDeviceStatus `json:"devices"`
 }
 
 // PoolDeviceStatus 设备状态
 type PoolDeviceStatus struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Allocated   bool      `json:"allocated"`
-	AllocatedTo string    `json:"allocatedTo"`
-	MemoryTotal uint64    `json:"memoryTotal"`
-	MemoryUsed  uint64    `json:"memoryUsed"`
-	MemoryFree  uint64    `json:"memoryFree"`
-	TaskCount   int       `json:"taskCount"`
-	LoadScore   float64   `json:"loadScore"`
-	Health      string    `json:"health"`
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Allocated   bool    `json:"allocated"`
+	AllocatedTo string  `json:"allocatedTo"`
+	MemoryTotal uint64  `json:"memoryTotal"`
+	MemoryUsed  uint64  `json:"memoryUsed"`
+	MemoryFree  uint64  `json:"memoryFree"`
+	TaskCount   int     `json:"taskCount"`
+	LoadScore   float64 `json:"loadScore"`
+	Health      string  `json:"health"`
 }
 
 // GPUTask GPU任务
 type GPUTask struct {
 	ID              string             `json:"id"`
-	Type            string             `json:"type"`            // compute, inference, encode, decode
+	Type            string             `json:"type"` // compute, inference, encode, decode
 	Priority        AllocationPriority `json:"priority"`
 	MemoryRequired  uint64             `json:"memoryRequired"`  // 显存需求(MB)
 	ComputeRequired int                `json:"computeRequired"` // 计算需求
@@ -571,7 +571,7 @@ type GPUTask struct {
 	Status          TaskStatus         `json:"status"`
 	AssignedGPU     string             `json:"assignedGpu"`
 	Result          *TaskResult        `json:"result"`
-	Params          map[string]string  `json:"params"`          // 任务参数
+	Params          map[string]string  `json:"params"` // 任务参数
 }
 
 // TaskStatus 任务状态
@@ -588,23 +588,23 @@ const (
 
 // TaskResult 任务结果
 type TaskResult struct {
-	TaskID     string     `json:"taskId"`
-	GPUID      string     `json:"gpuId"`
-	Status     TaskStatus `json:"status"`
-	Message    string     `json:"message"`
-	SubmitTime time.Time  `json:"submitTime"`
-	StartTime  time.Time  `json:"startTime"`
-	EndTime    time.Time  `json:"endTime"`
+	TaskID     string        `json:"taskId"`
+	GPUID      string        `json:"gpuId"`
+	Status     TaskStatus    `json:"status"`
+	Message    string        `json:"message"`
+	SubmitTime time.Time     `json:"submitTime"`
+	StartTime  time.Time     `json:"startTime"`
+	EndTime    time.Time     `json:"endTime"`
 	Duration   time.Duration `json:"duration"`
-	Output     string     `json:"output"`
+	Output     string        `json:"output"`
 }
 
 // 错误定义
 var (
-	ErrInvalidTask       = NewPoolError("invalid_task", "无效的任务")
-	ErrInvalidTaskType   = NewPoolError("invalid_task_type", "无效的任务类型")
+	ErrInvalidTask        = NewPoolError("invalid_task", "无效的任务")
+	ErrInvalidTaskType    = NewPoolError("invalid_task_type", "无效的任务类型")
 	ErrInsufficientMemory = NewPoolError("insufficient_memory", "显存不足")
-	ErrTaskNotFound      = NewPoolError("task_not_found", "任务不存在")
+	ErrTaskNotFound       = NewPoolError("task_not_found", "任务不存在")
 	ErrDeviceNotAvailable = NewPoolError("device_not_available", "设备不可用")
 )
 

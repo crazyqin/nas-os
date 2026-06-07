@@ -93,7 +93,7 @@ type DiskSummaryMetrics struct {
 // NetworkMetrics 网络指标
 type NetworkMetrics struct {
 	Interfaces []NetworkInterfaceMetrics `json:"interfaces"`
-	Total      NetworkSummaryMetrics    `json:"total"`
+	Total      NetworkSummaryMetrics     `json:"total"`
 }
 
 // NetworkInterfaceMetrics 网络接口指标
@@ -118,66 +118,66 @@ type NetworkSummaryMetrics struct {
 
 // StorageAnalytics 存储分析
 type StorageAnalytics struct {
-	Timestamp       time.Time              `json:"timestamp"`
-	TotalCapacity   uint64                 `json:"totalCapacity"`
-	UsedCapacity    uint64                 `json:"usedCapacity"`
-	AvailableCapacity uint64               `json:"availableCapacity"`
-	UsagePercent    float64                `json:"usagePercent"`
-	FileTypeDist    []FileTypeDistribution `json:"fileTypeDistribution"`
-	GrowthTrend     []StorageGrowthPoint   `json:"growthTrend"`
-	GrowthPrediction *GrowthPrediction     `json:"growthPrediction,omitempty"`
-	TopDirectories  []DirectoryUsage       `json:"topDirectories,omitempty"`
+	Timestamp         time.Time              `json:"timestamp"`
+	TotalCapacity     uint64                 `json:"totalCapacity"`
+	UsedCapacity      uint64                 `json:"usedCapacity"`
+	AvailableCapacity uint64                 `json:"availableCapacity"`
+	UsagePercent      float64                `json:"usagePercent"`
+	FileTypeDist      []FileTypeDistribution `json:"fileTypeDistribution"`
+	GrowthTrend       []StorageGrowthPoint   `json:"growthTrend"`
+	GrowthPrediction  *GrowthPrediction      `json:"growthPrediction,omitempty"`
+	TopDirectories    []DirectoryUsage       `json:"topDirectories,omitempty"`
 }
 
 // FileTypeDistribution 文件类型分布
 type FileTypeDistribution struct {
-	Category    string  `json:"category"`
-	Extensions  []string `json:"extensions,omitempty"`
-	FileCount   int64   `json:"fileCount"`
-	TotalBytes  uint64  `json:"totalBytes"`
-	Percent     float64 `json:"percent"`
+	Category   string   `json:"category"`
+	Extensions []string `json:"extensions,omitempty"`
+	FileCount  int64    `json:"fileCount"`
+	TotalBytes uint64   `json:"totalBytes"`
+	Percent    float64  `json:"percent"`
 }
 
 // StorageGrowthPoint 存储增长点
 type StorageGrowthPoint struct {
-	Timestamp   time.Time `json:"timestamp"`
-	TotalBytes  uint64    `json:"totalBytes"`
-	UsedBytes   uint64    `json:"usedBytes"`
-	FileCount   int64     `json:"fileCount"`
+	Timestamp  time.Time `json:"timestamp"`
+	TotalBytes uint64    `json:"totalBytes"`
+	UsedBytes  uint64    `json:"usedBytes"`
+	FileCount  int64     `json:"fileCount"`
 }
 
 // GrowthPrediction 增长预测
 type GrowthPrediction struct {
-	DaysToFull      int       `json:"daysToFull"`
+	DaysToFull        int       `json:"daysToFull"`
 	PredictedFullDate time.Time `json:"predictedFullDate"`
-	DailyGrowthRate float64   `json:"dailyGrowthRateBytes"`
-	Confidence      float64   `json:"confidence"`
-	Methodology     string    `json:"methodology"`
+	DailyGrowthRate   float64   `json:"dailyGrowthRateBytes"`
+	Confidence        float64   `json:"confidence"`
+	Methodology       string    `json:"methodology"`
 }
 
 // DirectoryUsage 目录使用情况
 type DirectoryUsage struct {
-	Path       string `json:"path"`
-	TotalBytes uint64 `json:"totalBytes"`
-	FileCount  int64  `json:"fileCount"`
+	Path       string  `json:"path"`
+	TotalBytes uint64  `json:"totalBytes"`
+	FileCount  int64   `json:"fileCount"`
 	Percent    float64 `json:"percent"`
 }
 
 // UserBehavior 用户行为分析
 type UserBehavior struct {
-	Timestamp     time.Time          `json:"timestamp"`
+	Timestamp      time.Time         `json:"timestamp"`
 	AccessPatterns []AccessPattern   `json:"accessPatterns"`
-	HotFiles      []HotFile         `json:"hotFiles"`
-	UsageTrend    []UsageTrendPoint `json:"usageTrend"`
-	UserActivity  []UserActivity    `json:"userActivity"`
+	HotFiles       []HotFile         `json:"hotFiles"`
+	UsageTrend     []UsageTrendPoint `json:"usageTrend"`
+	UserActivity   []UserActivity    `json:"userActivity"`
 }
 
 // AccessPattern 访问模式
 type AccessPattern struct {
-	Hour        int     `json:"hour"`
-	DayOfWeek   int     `json:"dayOfWeek"`
-	AccessCount int64   `json:"accessCount"`
-	BytesRead   uint64  `json:"bytesRead"`
+	Hour         int    `json:"hour"`
+	DayOfWeek    int    `json:"dayOfWeek"`
+	AccessCount  int64  `json:"accessCount"`
+	BytesRead    uint64 `json:"bytesRead"`
 	BytesWritten uint64 `json:"bytesWritten"`
 }
 
@@ -211,50 +211,50 @@ type UserActivity struct {
 
 // PerformanceMetrics 性能指标
 type PerformanceMetrics struct {
-	Timestamp time.Time        `json:"timestamp"`
-	IOPS      IOPSMetrics      `json:"iops"`
-	Latency   LatencyMetrics   `json:"latency"`
+	Timestamp  time.Time         `json:"timestamp"`
+	IOPS       IOPSMetrics       `json:"iops"`
+	Latency    LatencyMetrics    `json:"latency"`
 	Throughput ThroughputMetrics `json:"throughput"`
 }
 
 // IOPSMetrics IOPS指标
 type IOPSMetrics struct {
-	ReadIOPS  float64 `json:"readIOPS"`
-	WriteIOPS float64 `json:"writeIOPS"`
-	TotalIOPS float64 `json:"totalIOPS"`
+	ReadIOPS  float64     `json:"readIOPS"`
+	WriteIOPS float64     `json:"writeIOPS"`
+	TotalIOPS float64     `json:"totalIOPS"`
 	Trend     []IOPSPoint `json:"trend,omitempty"`
 }
 
 // IOPSPoint IOPS趋势点
 type IOPSPoint struct {
-	Timestamp  time.Time `json:"timestamp"`
-	ReadIOPS   float64   `json:"readIOPS"`
-	WriteIOPS  float64   `json:"writeIOPS"`
+	Timestamp time.Time `json:"timestamp"`
+	ReadIOPS  float64   `json:"readIOPS"`
+	WriteIOPS float64   `json:"writeIOPS"`
 }
 
 // LatencyMetrics 延迟指标
 type LatencyMetrics struct {
-	ReadLatencyAvg  float64 `json:"readLatencyAvgMs"`
-	ReadLatencyP50  float64 `json:"readLatencyP50Ms"`
-	ReadLatencyP99  float64 `json:"readLatencyP99Ms"`
-	WriteLatencyAvg float64 `json:"writeLatencyAvgMs"`
-	WriteLatencyP50 float64 `json:"writeLatencyP50Ms"`
-	WriteLatencyP99 float64 `json:"writeLatencyP99Ms"`
+	ReadLatencyAvg  float64        `json:"readLatencyAvgMs"`
+	ReadLatencyP50  float64        `json:"readLatencyP50Ms"`
+	ReadLatencyP99  float64        `json:"readLatencyP99Ms"`
+	WriteLatencyAvg float64        `json:"writeLatencyAvgMs"`
+	WriteLatencyP50 float64        `json:"writeLatencyP50Ms"`
+	WriteLatencyP99 float64        `json:"writeLatencyP99Ms"`
 	Trend           []LatencyPoint `json:"trend,omitempty"`
 }
 
 // LatencyPoint 延迟趋势点
 type LatencyPoint struct {
-	Timestamp      time.Time `json:"timestamp"`
-	ReadLatencyAvg float64   `json:"readLatencyAvgMs"`
-	WriteLatencyAvg float64  `json:"writeLatencyAvgMs"`
+	Timestamp       time.Time `json:"timestamp"`
+	ReadLatencyAvg  float64   `json:"readLatencyAvgMs"`
+	WriteLatencyAvg float64   `json:"writeLatencyAvgMs"`
 }
 
 // ThroughputMetrics 吞吐量指标
 type ThroughputMetrics struct {
-	ReadBytesPS  uint64 `json:"readBytesPerSec"`
-	WriteBytesPS uint64 `json:"writeBytesPerSec"`
-	TotalBytesPS uint64 `json:"totalBytesPerSec"`
+	ReadBytesPS  uint64            `json:"readBytesPerSec"`
+	WriteBytesPS uint64            `json:"writeBytesPerSec"`
+	TotalBytesPS uint64            `json:"totalBytesPerSec"`
 	Trend        []ThroughputPoint `json:"trend,omitempty"`
 }
 
@@ -267,11 +267,11 @@ type ThroughputPoint struct {
 
 // AnalyticsSummary 分析摘要
 type AnalyticsSummary struct {
-	Timestamp     time.Time             `json:"timestamp"`
-	SystemHealth  HealthStatus          `json:"systemHealth"`
-	StorageStatus StorageStatus         `json:"storageStatus"`
-	Performance   PerformanceStatus     `json:"performance"`
-	Alerts        []AnalyticsAlert      `json:"alerts,omitempty"`
+	Timestamp     time.Time         `json:"timestamp"`
+	SystemHealth  HealthStatus      `json:"systemHealth"`
+	StorageStatus StorageStatus     `json:"storageStatus"`
+	Performance   PerformanceStatus `json:"performance"`
+	Alerts        []AnalyticsAlert  `json:"alerts,omitempty"`
 }
 
 // HealthStatus 健康状态
@@ -285,11 +285,11 @@ type HealthStatus struct {
 
 // StorageStatus 存储状态
 type StorageStatus struct {
-	Status          string  `json:"status"`
-	TotalCapacity   uint64  `json:"totalCapacity"`
-	UsedCapacity    uint64  `json:"usedCapacity"`
-	UsagePercent    float64 `json:"usagePercent"`
-	DaysUntilFull   int     `json:"daysUntilFull,omitempty"`
+	Status        string  `json:"status"`
+	TotalCapacity uint64  `json:"totalCapacity"`
+	UsedCapacity  uint64  `json:"usedCapacity"`
+	UsagePercent  float64 `json:"usagePercent"`
+	DaysUntilFull int     `json:"daysUntilFull,omitempty"`
 }
 
 // PerformanceStatus 性能状态

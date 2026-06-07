@@ -17,32 +17,32 @@ import (
 
 // Manager manages the smart photo system
 type Manager struct {
-	mu           sync.RWMutex
-	photos       map[string]*Photo
-	metadata     map[string]*PhotoMetadata
-	persons      map[string]*Person
-	albums       map[string]*Album
-	shares       map[string]*ShareLink
-	imports      map[string]*ImportStatus
-	storagePath  string
-	indexPath    string
-	aiEnabled    bool
-	maxFileSize  int64
+	mu               sync.RWMutex
+	photos           map[string]*Photo
+	metadata         map[string]*PhotoMetadata
+	persons          map[string]*Person
+	albums           map[string]*Album
+	shares           map[string]*ShareLink
+	imports          map[string]*ImportStatus
+	storagePath      string
+	indexPath        string
+	aiEnabled        bool
+	maxFileSize      int64
 	supportedFormats map[string]bool
 }
 
 // NewManager creates a new photo manager
 func NewManager(storagePath string, aiEnabled bool) *Manager {
 	return &Manager{
-		photos:     make(map[string]*Photo),
-		metadata:   make(map[string]*PhotoMetadata),
-		persons:    make(map[string]*Person),
-		albums:     make(map[string]*Album),
-		shares:     make(map[string]*ShareLink),
-		imports:    make(map[string]*ImportStatus),
+		photos:      make(map[string]*Photo),
+		metadata:    make(map[string]*PhotoMetadata),
+		persons:     make(map[string]*Person),
+		albums:      make(map[string]*Album),
+		shares:      make(map[string]*ShareLink),
+		imports:     make(map[string]*ImportStatus),
 		storagePath: storagePath,
-		indexPath:  filepath.Join(storagePath, ".index"),
-		aiEnabled:  aiEnabled,
+		indexPath:   filepath.Join(storagePath, ".index"),
+		aiEnabled:   aiEnabled,
 		maxFileSize: 100 * 1024 * 1024, // 100MB
 		supportedFormats: map[string]bool{
 			".jpg": true, ".jpeg": true, ".png": true,

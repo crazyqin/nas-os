@@ -18,33 +18,33 @@ const (
 
 // StateStore 同步状态持久化存储.
 type StateStore struct {
-	mu       sync.RWMutex
-	baseDir  string
-	states   map[string]*TaskState // taskID -> state
+	mu      sync.RWMutex
+	baseDir string
+	states  map[string]*TaskState // taskID -> state
 }
 
 // TaskState 单个同步任务的持久化状态.
 type TaskState struct {
-	TaskID         string             `json:"taskId"`
-	LastSyncRev    int64              `json:"lastSyncRev"`
-	LastSyncTime   time.Time          `json:"lastSyncTime"`
-	LocalSnapshot  *Snapshot          `json:"localSnapshot,omitempty"`
-	RemoteSnapshot *Snapshot          `json:"remoteSnapshot,omitempty"`
+	TaskID         string                `json:"taskId"`
+	LastSyncRev    int64                 `json:"lastSyncRev"`
+	LastSyncTime   time.Time             `json:"lastSyncTime"`
+	LocalSnapshot  *Snapshot             `json:"localSnapshot,omitempty"`
+	RemoteSnapshot *Snapshot             `json:"remoteSnapshot,omitempty"`
 	FileStates     map[string]*FileState `json:"fileStates"` // relPath -> state
 }
 
 // FileState 文件级别的同步状态.
 type FileState struct {
-	RelPath      string    `json:"relPath"`
-	LocalRev     int64     `json:"localRev"`
-	RemoteRev    int64     `json:"remoteRev"`
-	LastSyncRev  int64     `json:"lastSyncRev"`
-	LocalMtime   time.Time `json:"localMtime"`
-	RemoteMtime  time.Time `json:"remoteMtime"`
-	LocalCS      string    `json:"localCs"`
-	RemoteCS     string    `json:"remoteCs"`
-	LocalSize    int64     `json:"localSize"`
-	RemoteSize   int64     `json:"remoteSize"`
+	RelPath     string    `json:"relPath"`
+	LocalRev    int64     `json:"localRev"`
+	RemoteRev   int64     `json:"remoteRev"`
+	LastSyncRev int64     `json:"lastSyncRev"`
+	LocalMtime  time.Time `json:"localMtime"`
+	RemoteMtime time.Time `json:"remoteMtime"`
+	LocalCS     string    `json:"localCs"`
+	RemoteCS    string    `json:"remoteCs"`
+	LocalSize   int64     `json:"localSize"`
+	RemoteSize  int64     `json:"remoteSize"`
 }
 
 // NewStateStore 创建状态存储.
@@ -224,9 +224,9 @@ func snapToDeltaAdds(snap *Snapshot) []*DeltaItem {
 
 // VersionManager 版本管理器.
 type VersionManager struct {
-	mu        sync.Mutex
-	baseDir   string
-	maxKeep   int
+	mu      sync.Mutex
+	baseDir string
+	maxKeep int
 }
 
 // NewVersionManager 创建版本管理器.

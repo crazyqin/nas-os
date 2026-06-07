@@ -14,14 +14,14 @@ import (
 
 // Manager Spotlight 服务管理器
 type Manager struct {
-	mu          sync.RWMutex
-	config      SpotlightConfig
-	index       map[string]*SpotlightIndex
-	stats       SpotlightStats
-	running     bool
-	startTime   time.Time
-	indexTasks  map[string]*IndexTask
-	sharePaths  []string
+	mu         sync.RWMutex
+	config     SpotlightConfig
+	index      map[string]*SpotlightIndex
+	stats      SpotlightStats
+	running    bool
+	startTime  time.Time
+	indexTasks map[string]*IndexTask
+	sharePaths []string
 }
 
 // NewManager 创建管理器

@@ -78,9 +78,9 @@ func (h *Handlers) GetBottlenecks(c *gin.Context) {
 
 	bottlenecks := h.mgr.DiagnoseBottlenecks(result)
 	c.JSON(http.StatusOK, gin.H{
-		"result_id":  id,
+		"result_id":   id,
 		"bottlenecks": bottlenecks,
-		"count":      len(bottlenecks),
+		"count":       len(bottlenecks),
 	})
 }
 

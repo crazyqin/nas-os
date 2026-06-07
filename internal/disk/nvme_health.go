@@ -37,9 +37,9 @@ type AlertThresholds struct {
 	TempCritical uint8 `json:"temp_critical"` // 85°C
 
 	// 健康度阈值 (百分比)
-	HealthWarning    uint8 `json:"health_warning"`    // 90%
-	HealthCritical   uint8 `json:"health_critical"`   // 80%
-	HealthEmergency  uint8 `json:"health_emergency"`  // 70%
+	HealthWarning   uint8 `json:"health_warning"`   // 90%
+	HealthCritical  uint8 `json:"health_critical"`  // 80%
+	HealthEmergency uint8 `json:"health_emergency"` // 70%
 
 	// 写入量阈值 (TBW百分比)
 	TBWWarning  uint8 `json:"tbw_warning"`  // 80%
@@ -50,11 +50,11 @@ type AlertThresholds struct {
 var DefaultAlertThresholds = &AlertThresholds{
 	TempWarning:     70,
 	TempCritical:    85,
-	HealthWarning:    90,
+	HealthWarning:   90,
 	HealthCritical:  80,
 	HealthEmergency: 70,
-	TBWWarning:       80,
-	TBWCritical:      90,
+	TBWWarning:      80,
+	TBWCritical:     90,
 }
 
 // NVMeHealthInfo NVMe健康信息.
@@ -75,9 +75,9 @@ type NVMeHealthInfo struct {
 	HealthScore      *HealthScore `json:"healthScore,omitempty"`
 
 	// 三级预警 - v2.387.0
-	AlertLevel       AlertLevel     `json:"alertLevel"`       // 当前预警等级
-	AlertReasons     []string       `json:"alertReasons"`     // 预警原因列表
-	AlertThresholds  *AlertThresholds `json:"alertThresholds,omitempty"` // 使用的阈值配置
+	AlertLevel      AlertLevel       `json:"alertLevel"`                // 当前预警等级
+	AlertReasons    []string         `json:"alertReasons"`              // 预警原因列表
+	AlertThresholds *AlertThresholds `json:"alertThresholds,omitempty"` // 使用的阈值配置
 
 	// NVMe SMART属性
 	Temperature      *NVMeTempInfo  `json:"temperature,omitempty"`
@@ -131,9 +131,9 @@ type NVMeUsageInfo struct {
 	EstimatedLife    string  `json:"estimatedLife"`    // 预估剩余寿命
 
 	// 寿命预测增强 - v2.387.0
-	LifePrediction   *NVMeLifePrediction `json:"lifePrediction,omitempty"`   // 寿命预测
-	EstimatedTBW     float64             `json:"estimatedTBW,omitempty"`    // 预估TBW总容量
-	TBWUsedPercent   float64             `json:"tbwUsedPercent,omitempty"` // TBW使用百分比
+	LifePrediction *NVMeLifePrediction `json:"lifePrediction,omitempty"` // 寿命预测
+	EstimatedTBW   float64             `json:"estimatedTBW,omitempty"`   // 预估TBW总容量
+	TBWUsedPercent float64             `json:"tbwUsedPercent,omitempty"` // TBW使用百分比
 }
 
 // NVMeLifePrediction NVMe寿命预测 - 基于写入量、温度历史、磨损程度
@@ -142,18 +142,18 @@ type NVMeLifePrediction struct {
 	RemainingLifePercent float64   `json:"remainingLifePercent"` // 剩余寿命百分比
 	EstimatedDaysLeft    int       `json:"estimatedDaysLeft"`    // 预估剩余天数
 	EstimatedEndDate     time.Time `json:"estimatedEndDate"`     // 预估寿命终结日期
-	ConfidenceLevel      string    `json:"confidenceLevel"`     // 预测置信度: high/medium/low
+	ConfidenceLevel      string    `json:"confidenceLevel"`      // 预测置信度: high/medium/low
 
 	// 预测因子
 	WriteAmplificationFactor float64 `json:"writeAmplificationFactor"` // 写放大因子
-	AverageDailyWrites       float64 `json:"averageDailyWrites"`     // 平均每日写入量(GB)
-	TemperatureImpact        float64 `json:"temperatureImpact"`      // 温度对寿命的影响系数 (0-1)
-	WearImpact               float64 `json:"wearImpact"`             // 磨损程度影响系数 (0-1)
+	AverageDailyWrites       float64 `json:"averageDailyWrites"`       // 平均每日写入量(GB)
+	TemperatureImpact        float64 `json:"temperatureImpact"`        // 温度对寿命的影响系数 (0-1)
+	WearImpact               float64 `json:"wearImpact"`               // 磨损程度影响系数 (0-1)
 
 	// 历史数据
-	TemperatureHistory      []TempRecord `json:"temperatureHistory,omitempty"` // 温度历史
-	WeeklyWriteRates        []float64    `json:"weeklyWriteRates,omitempty"`  // 每周写入率历史
-	PredictionLastUpdated   time.Time    `json:"predictionLastUpdated"`
+	TemperatureHistory    []TempRecord `json:"temperatureHistory,omitempty"` // 温度历史
+	WeeklyWriteRates      []float64    `json:"weeklyWriteRates,omitempty"`   // 每周写入率历史
+	PredictionLastUpdated time.Time    `json:"predictionLastUpdated"`
 }
 
 // TempRecord 温度历史记录
@@ -205,10 +205,10 @@ type NVMeMonitor struct {
 	mu        sync.RWMutex
 
 	// v2.387.0 增强
-	alertThresholds  *AlertThresholds           // 预警阈值
+	alertThresholds *AlertThresholds               // 预警阈值
 	lifePredictions map[string]*NVMeLifePrediction // 设备寿命预测缓存
 	predictionMu    sync.RWMutex
-	tempHistory     map[string][]TempRecord     // 设备温度历史
+	tempHistory     map[string][]TempRecord // 设备温度历史
 	historyMu       sync.RWMutex
 }
 
@@ -218,8 +218,8 @@ func NewNVMeMonitor() *NVMeMonitor {
 		devices:         make(map[string]*NVMeHealthInfo),
 		testQueue:       make(map[string]*NVMeTestResult),
 		alertThresholds: DefaultAlertThresholds,
-		lifePredictions:  make(map[string]*NVMeLifePrediction),
-		tempHistory:      make(map[string][]TempRecord),
+		lifePredictions: make(map[string]*NVMeLifePrediction),
+		tempHistory:     make(map[string][]TempRecord),
 	}
 }
 
@@ -1293,7 +1293,7 @@ func (m *NVMeMonitor) PredictRemainingLife(info *NVMeHealthInfo) *NVMeLifePredic
 	prediction.TemperatureImpact = tempImpact
 
 	// 3. 计算磨损程度影响系数
-	wearImpact := 1.0 + (pctUsed / 100.0) * 0.5 // 使用越多，磨损加速
+	wearImpact := 1.0 + (pctUsed/100.0)*0.5 // 使用越多，磨损加速
 	prediction.WearImpact = wearImpact
 
 	// 4. 计算平均每日写入量 (基于开机时间)
@@ -1405,24 +1405,24 @@ func (m *NVMeMonitor) GetLifePrediction(device string) *NVMeLifePrediction {
 
 // GetAlertSummary 获取所有NVMe设备的预警摘要.
 func (m *NVMeMonitor) GetAlertSummary() map[string]struct {
-	Level    AlertLevel
-	Reasons  []string
+	Level     AlertLevel
+	Reasons   []string
 	HealthPct uint8
 } {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	summary := make(map[string]struct {
-		Level    AlertLevel
-		Reasons  []string
+		Level     AlertLevel
+		Reasons   []string
 		HealthPct uint8
 	})
 
 	for device, info := range m.devices {
 		level, reasons := m.EvaluateAlertLevel(info)
 		summary[device] = struct {
-			Level    AlertLevel
-			Reasons  []string
+			Level     AlertLevel
+			Reasons   []string
 			HealthPct uint8
 		}{
 			Level:     level,

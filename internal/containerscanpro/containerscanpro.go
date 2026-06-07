@@ -12,22 +12,22 @@ import (
 
 // ContainerScanPro 高级容器安全扫描系统
 type ContainerScanPro struct {
-	mu       sync.RWMutex
-	config   *Config
-	scanner  *Scanner
-	cveDB    *CVEDatabase
-	runtime  *RuntimeScanner
-	alerter  *Alerter
-	stats    *ScanStats
-	stopCh   chan struct{}
-	running  bool
+	mu      sync.RWMutex
+	config  *Config
+	scanner *Scanner
+	cveDB   *CVEDatabase
+	runtime *RuntimeScanner
+	alerter *Alerter
+	stats   *ScanStats
+	stopCh  chan struct{}
+	running bool
 }
 
 // Config 总配置
 type Config struct {
-	Scan    ScanConfig   `json:"scan"`
-	Alert   AlertConfig  `json:"alert"`
-	DataDir string       `json:"data_dir"`
+	Scan     ScanConfig  `json:"scan"`
+	Alert    AlertConfig `json:"alert"`
+	DataDir  string      `json:"data_dir"`
 	HTTPAddr string      `json:"http_addr"`
 }
 

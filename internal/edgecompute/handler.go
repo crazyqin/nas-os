@@ -61,7 +61,7 @@ func (h *Handler) handleFunction(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "id parameter is required", http.StatusBadRequest)
 		return
 	}
-	
+
 	switch r.Method {
 	case http.MethodGet:
 		fn, err := h.manager.GetFunction(functionID)
@@ -88,7 +88,7 @@ func (h *Handler) handleInvoke(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	var req struct {
 		FunctionID string      `json:"function_id"`
 		Input      interface{} `json:"input"`
@@ -97,7 +97,7 @@ func (h *Handler) handleInvoke(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	
+
 	var params map[string]string
 	if req.Input != nil {
 		if p, ok := req.Input.(map[string]interface{}); ok {
@@ -112,7 +112,7 @@ func (h *Handler) handleInvoke(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(invocation)
 }
@@ -127,7 +127,7 @@ func (h *Handler) handleWorkloads(w http.ResponseWriter, r *http.Request) {
 			workloads = append(workloads, wl)
 		}
 		h.manager.mu.RUnlock()
-		
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"workloads": workloads,
@@ -157,14 +157,14 @@ func (h *Handler) handleNodes(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	h.manager.mu.RLock()
 	nodes := make([]*LocalNode, 0, len(h.manager.nodes))
 	for _, n := range h.manager.nodes {
 		nodes = append(nodes, n)
 	}
 	h.manager.mu.RUnlock()
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"nodes": nodes,
@@ -178,7 +178,7 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	stats := h.manager.GetStats()
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(stats)

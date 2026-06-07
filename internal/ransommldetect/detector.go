@@ -32,10 +32,10 @@ type FileActivity struct {
 
 // DetectorConfig holds ML detector configuration.
 type DetectorConfig struct {
-	WindowSizeSec    int     `json:"window_size_sec"`    // analysis window
-	EntropyThreshold float64 `json:"entropy_threshold"`   // high entropy = encrypted
-	RateThreshold    int     `json:"rate_threshold"`      // max ops per window
-	BlockThreshold   float64 `json:"block_threshold"`     // score to auto-block
+	WindowSizeSec    int     `json:"window_size_sec"`   // analysis window
+	EntropyThreshold float64 `json:"entropy_threshold"` // high entropy = encrypted
+	RateThreshold    int     `json:"rate_threshold"`    // max ops per window
+	BlockThreshold   float64 `json:"block_threshold"`   // score to auto-block
 	Enabled          bool    `json:"enabled"`
 }
 
@@ -52,19 +52,19 @@ func DefaultDetectorConfig() DetectorConfig {
 
 // Detector provides ML-based ransomware detection.
 type Detector struct {
-	mu      sync.RWMutex
-	config  DetectorConfig
+	mu         sync.RWMutex
+	config     DetectorConfig
 	activities []FileActivity
-	alerts  []Alert
-	stopCh  chan struct{}
-	running bool
+	alerts     []Alert
+	stopCh     chan struct{}
+	running    bool
 }
 
 // NewDetector creates a new ransomware detector.
 func NewDetector(config DetectorConfig) *Detector {
 	return &Detector{
-		config:  config,
-		stopCh:  make(chan struct{}),
+		config: config,
+		stopCh: make(chan struct{}),
 	}
 }
 

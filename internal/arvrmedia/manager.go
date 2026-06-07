@@ -14,18 +14,18 @@ import (
 
 // Manager 管理 AR/VR 媒体体验模块
 type Manager struct {
-	mu              sync.RWMutex
-	panoramas       map[string]*PanoramaMedia
-	models          map[string]*Model3D
-	galleries       map[string]*VREntry
-	audioConfigs    map[string]*SpatialAudioConfig
-	theaters        map[string]*ImmersiveTheater
-	sessions        map[string]*WebXRSession
-	imports         map[string]*ImportTask
-	storagePath     string
-	maxFileSize     int64
+	mu               sync.RWMutex
+	panoramas        map[string]*PanoramaMedia
+	models           map[string]*Model3D
+	galleries        map[string]*VREntry
+	audioConfigs     map[string]*SpatialAudioConfig
+	theaters         map[string]*ImmersiveTheater
+	sessions         map[string]*WebXRSession
+	imports          map[string]*ImportTask
+	storagePath      string
+	maxFileSize      int64
 	supportedFormats map[string]bool
-	modelFormats    map[string]bool
+	modelFormats     map[string]bool
 }
 
 // NewManager 创建新的 AR/VR 媒体管理器
@@ -189,21 +189,21 @@ func (m *Manager) CreateModel(req *Model3D) (*Model3D, error) {
 
 	now := time.Now()
 	model := &Model3D{
-		ID:            fmt.Sprintf("model-%d", now.UnixNano()),
-		Name:          req.Name,
-		Description:   req.Description,
-		Path:          req.Path,
-		Format:        req.Format,
-		Size:          req.Size,
-		VertexCount:   req.VertexCount,
-		FaceCount:     req.FaceCount,
-		HasTextures:   req.HasTextures,
-		HasAnimation:  req.HasAnimation,
-		TexturePaths:  req.TexturePaths,
-		BoundingBox:   req.BoundingBox,
-		Tags:          req.Tags,
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		ID:           fmt.Sprintf("model-%d", now.UnixNano()),
+		Name:         req.Name,
+		Description:  req.Description,
+		Path:         req.Path,
+		Format:       req.Format,
+		Size:         req.Size,
+		VertexCount:  req.VertexCount,
+		FaceCount:    req.FaceCount,
+		HasTextures:  req.HasTextures,
+		HasAnimation: req.HasAnimation,
+		TexturePaths: req.TexturePaths,
+		BoundingBox:  req.BoundingBox,
+		Tags:         req.Tags,
+		CreatedAt:    now,
+		UpdatedAt:    now,
 	}
 
 	m.models[model.ID] = model
@@ -675,10 +675,10 @@ func (m *Manager) processImport(ctx context.Context, task *ImportTask) {
 			}
 			task.TotalFiles++
 			_, err := m.CreatePanorama(&PanoramaMedia{
-				Name:     info.Name(),
-				Path:     path,
-				Size:     info.Size(),
-				IsVideo:  ext == ".mp4" || ext == ".webm",
+				Name:       info.Name(),
+				Path:       path,
+				Size:       info.Size(),
+				IsVideo:    ext == ".mp4" || ext == ".webm",
 				Projection: ProjectionEquirectangular,
 			})
 			if err != nil {

@@ -12,21 +12,21 @@ import (
 
 // Manager 监控中心管理器
 type Manager struct {
-	mu             sync.RWMutex
-	cameras        map[string]*Camera
-	streams        map[string]*CameraStream
-	recordings     []*Recording
-	schedules      map[string]*RecordingSchedule
-	motions        map[string]*MotionDetection
-	events         []*MotionEvent
-	alerts         []*Alert
-	actionRules    map[string]*ActionRule
-	groups         map[string]*CameraGroup
-	quotas         map[string]*StorageQuota
-	snapshots      []*Snapshot
-	stopCh         chan struct{}
-	running        bool
-	onAlert        func(*Alert) // 告警回调
+	mu          sync.RWMutex
+	cameras     map[string]*Camera
+	streams     map[string]*CameraStream
+	recordings  []*Recording
+	schedules   map[string]*RecordingSchedule
+	motions     map[string]*MotionDetection
+	events      []*MotionEvent
+	alerts      []*Alert
+	actionRules map[string]*ActionRule
+	groups      map[string]*CameraGroup
+	quotas      map[string]*StorageQuota
+	snapshots   []*Snapshot
+	stopCh      chan struct{}
+	running     bool
+	onAlert     func(*Alert) // 告警回调
 }
 
 // NewManager 创建管理器
@@ -90,10 +90,10 @@ func (m *Manager) initMockData() {
 
 	// 添加默认分组
 	m.groups["group-default"] = &CameraGroup{
-		ID:   "group-default",
-		Name: "默认分组",
+		ID:        "group-default",
+		Name:      "默认分组",
 		CameraIDs: []string{"cam-001", "cam-002", "cam-003"},
-		Layout: Layout{Rows: 2, Columns: 2},
+		Layout:    Layout{Rows: 2, Columns: 2},
 		CreatedAt: time.Now(),
 	}
 
@@ -444,12 +444,12 @@ func (m *Manager) SimulateMotionEvent(cameraID string) (*MotionEvent, error) {
 	}
 
 	event := &MotionEvent{
-		ID:         generateID("motion"),
-		CameraID:   cameraID,
-		Confidence: confidence,
-		IsHuman:    isHuman,
+		ID:          generateID("motion"),
+		CameraID:    cameraID,
+		Confidence:  confidence,
+		IsHuman:     isHuman,
 		SnapshotURL: fmt.Sprintf("/api/v1/surveillance/cameras/%s/snapshot", cameraID),
-		Timestamp:  time.Now(),
+		Timestamp:   time.Now(),
 	}
 
 	// 如果有配置的区域，随机选择一个
@@ -623,7 +623,7 @@ func (m *Manager) TakeSnapshot(cameraID string) (*Snapshot, error) {
 		FilePath:  fmt.Sprintf("/snapshots/%s/%s.jpg", cameraID, time.Now().Format("20060102_150405")),
 		Width:     width,
 		Height:    height,
-		Size:      int64(100 + rand.Intn(400)) * 1024, // 100-500KB
+		Size:      int64(100+rand.Intn(400)) * 1024, // 100-500KB
 		CreatedAt: time.Now(),
 	}
 
@@ -787,7 +787,7 @@ func (m *Manager) GetStats() *SurveillanceStats {
 
 	stats := &SurveillanceStats{
 		TotalCameras:    len(m.cameras),
-		ActiveStreams:    len(m.streams),
+		ActiveStreams:   len(m.streams),
 		TotalRecordings: len(m.recordings),
 		TotalEvents:     len(m.events),
 		TotalAlerts:     len(m.alerts),
@@ -814,7 +814,7 @@ func (m *Manager) GetStats() *SurveillanceStats {
 
 	// 模拟存储使用
 	stats.StorageUsedGB = float64(len(m.recordings)) * 0.5 // 每个录像约0.5GB
-	stats.StorageTotalGB = 1000.0                            // 总共1TB
+	stats.StorageTotalGB = 1000.0                          // 总共1TB
 
 	return stats
 }

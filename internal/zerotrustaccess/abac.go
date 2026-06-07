@@ -28,17 +28,17 @@ type Attribute struct {
 
 // ABACPolicy ABAC策略
 type ABACPolicy struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Description string       `json:"description"`
-	Enabled     bool         `json:"enabled"`
-	Priority    int          `json:"priority"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Enabled     bool          `json:"enabled"`
+	Priority    int           `json:"priority"`
 	Target      *PolicyTarget `json:"target"`
-	Rules       []Rule       `json:"rules"`
-	Effect      PolicyEffect `json:"effect"`
-	Obligations []Obligation `json:"obligations"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	Rules       []Rule        `json:"rules"`
+	Effect      PolicyEffect  `json:"effect"`
+	Obligations []Obligation  `json:"obligations"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
 // PolicyTarget 策略目标
@@ -58,10 +58,10 @@ type AttributeMatch struct {
 
 // Rule 策略规则
 type Rule struct {
-	ID         string        `json:"id"`
-	Condition  string        `json:"condition"` // 表达式，如 "subject.trust_level >= 3 && resource.sensitivity <= 2"
-	Effect     PolicyEffect  `json:"effect"`
-	Target     *PolicyTarget `json:"target,omitempty"`
+	ID        string        `json:"id"`
+	Condition string        `json:"condition"` // 表达式，如 "subject.trust_level >= 3 && resource.sensitivity <= 2"
+	Effect    PolicyEffect  `json:"effect"`
+	Target    *PolicyTarget `json:"target,omitempty"`
 }
 
 // PolicyEffect 策略效果

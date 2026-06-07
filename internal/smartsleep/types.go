@@ -9,9 +9,9 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	ErrDiskNotFound       = errors.New("disk not found")
-	ErrScheduleConflict   = errors.New("schedule conflict")
-	ErrInvalidConfig      = errors.New("invalid config")
+	ErrDiskNotFound        = errors.New("disk not found")
+	ErrScheduleConflict    = errors.New("schedule conflict")
+	ErrInvalidConfig       = errors.New("invalid config")
 	ErrDiskAlreadySleeping = errors.New("disk already sleeping")
 )
 
@@ -218,16 +218,16 @@ type WakeResponse struct {
 
 // Manager 智能休眠管理器.
 type Manager struct {
-	mu           sync.RWMutex
-	config       *Config
-	disks        map[string]*DiskInfo
-	patterns     map[string]*AccessPattern
-	predictions  map[string]*SleepPrediction
-	policy       *WeekendPolicy
-	tasks        map[string]*ScheduledTask
-	stats        *EnergyStats
-	accessLog    []AccessRecord
-	wakeChan     chan WakeRequest
+	mu          sync.RWMutex
+	config      *Config
+	disks       map[string]*DiskInfo
+	patterns    map[string]*AccessPattern
+	predictions map[string]*SleepPrediction
+	policy      *WeekendPolicy
+	tasks       map[string]*ScheduledTask
+	stats       *EnergyStats
+	accessLog   []AccessRecord
+	wakeChan    chan WakeRequest
 }
 
 // AccessRecord 访问记录.

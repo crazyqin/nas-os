@@ -120,18 +120,18 @@ type StorageCostEstimate struct {
 
 // ForecastConfig 配置
 type ForecastConfig struct {
-	Enabled           bool          `json:"enabled"`
-	WarningThreshold  float64       `json:"warning_threshold"`   // 80%
-	CriticalThreshold float64       `json:"critical_threshold"`  // 90%
-	FullThreshold     float64       `json:"full_threshold"`      // 95%
-	ForecastDays      int           `json:"forecast_days"`       // 预测天数
-	SnapshotInterval  time.Duration `json:"snapshot_interval"`
-	MaxSnapshots      int           `json:"max_snapshots"`
-	MinDataPoints     int           `json:"min_data_points"`     // 最少数据点
-	MovingAverageWindow int         `json:"moving_average_window"` // 移动平均窗口
-	CostPerGBMonth    float64       `json:"cost_per_gb_month"`   // 每 GB 每月成本
-	CostCurrency      string        `json:"cost_currency"`       // 货币单位
-	ExpansionTargetDays int         `json:"expansion_target_days"` // 扩容目标天数
+	Enabled             bool          `json:"enabled"`
+	WarningThreshold    float64       `json:"warning_threshold"`  // 80%
+	CriticalThreshold   float64       `json:"critical_threshold"` // 90%
+	FullThreshold       float64       `json:"full_threshold"`     // 95%
+	ForecastDays        int           `json:"forecast_days"`      // 预测天数
+	SnapshotInterval    time.Duration `json:"snapshot_interval"`
+	MaxSnapshots        int           `json:"max_snapshots"`
+	MinDataPoints       int           `json:"min_data_points"`       // 最少数据点
+	MovingAverageWindow int           `json:"moving_average_window"` // 移动平均窗口
+	CostPerGBMonth      float64       `json:"cost_per_gb_month"`     // 每 GB 每月成本
+	CostCurrency        string        `json:"cost_currency"`         // 货币单位
+	ExpansionTargetDays int           `json:"expansion_target_days"` // 扩容目标天数
 }
 
 // DefaultConfig 返回默认配置
@@ -148,7 +148,7 @@ func DefaultConfig() ForecastConfig {
 		MovingAverageWindow: 7,    // 7 天移动平均
 		CostPerGBMonth:      0.02, // $0.02/GB/月
 		CostCurrency:        "USD",
-		ExpansionTargetDays: 180,  // 扩容后至少支撑 180 天
+		ExpansionTargetDays: 180, // 扩容后至少支撑 180 天
 	}
 }
 

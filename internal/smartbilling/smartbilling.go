@@ -15,30 +15,30 @@ import (
 type ResourceType string
 
 const (
-	ResourceStorage ResourceType = "storage" // 存储资源
+	ResourceStorage   ResourceType = "storage"   // 存储资源
 	ResourceBandwidth ResourceType = "bandwidth" // 带宽资源
-	ResourceCPU ResourceType = "cpu" // CPU资源
-	ResourceMemory ResourceType = "memory" // 内存资源
+	ResourceCPU       ResourceType = "cpu"       // CPU资源
+	ResourceMemory    ResourceType = "memory"    // 内存资源
 )
 
 // TierConfig 阶梯定价配置
 type TierConfig struct {
-	Limit  float64 // 阶梯上限（不含此值）
-	Price  float64 // 单位价格
+	Limit float64 // 阶梯上限（不含此值）
+	Price float64 // 单位价格
 }
 
 // PricingStrategy 定价策略
 type PricingStrategy struct {
-	ResourceType ResourceType   // 资源类型
-	Unit         string         // 计量单位（如 GB、MB/s、核、GB）
-	Tiers        []TierConfig   // 阶梯定价配置
+	ResourceType ResourceType // 资源类型
+	Unit         string       // 计量单位（如 GB、MB/s、核、GB）
+	Tiers        []TierConfig // 阶梯定价配置
 }
 
 // BudgetConfig 预算配置
 type BudgetConfig struct {
-	Limit   float64   // 预算上限
-	Period  string    // 预算周期（monthly、weekly、daily）
-	Enabled bool      // 是否启用预算管理
+	Limit   float64 // 预算上限
+	Period  string  // 预算周期（monthly、weekly、daily）
+	Enabled bool    // 是否启用预算管理
 }
 
 // Account 用户账户
@@ -64,12 +64,12 @@ type UsageRecord struct {
 
 // Invoice 账单
 type Invoice struct {
-	ID        string         // 账单ID
-	AccountID string         // 用户ID
-	Period    string         // 账单周期
-	Items     []InvoiceItem  // 账单明细
-	Total     float64        // 总费用
-	CreatedAt time.Time      // 生成时间
+	ID        string        // 账单ID
+	AccountID string        // 用户ID
+	Period    string        // 账单周期
+	Items     []InvoiceItem // 账单明细
+	Total     float64       // 总费用
+	CreatedAt time.Time     // 生成时间
 }
 
 // InvoiceItem 账单明细项
@@ -82,12 +82,12 @@ type InvoiceItem struct {
 
 // BillingStats 计费统计信息
 type BillingStats struct {
-	TotalRevenue    float64                    // 总收入
-	AccountCount    int                        // 账户数量
-	RecordCount     int                        // 使用记录数量
-	ByResource      map[ResourceType]float64   // 各资源类型费用
-	ByAccount       map[string]float64         // 各账户费用
-	AvgCostPerUser  float64                    // 平均每用户费用
+	TotalRevenue   float64                  // 总收入
+	AccountCount   int                      // 账户数量
+	RecordCount    int                      // 使用记录数量
+	ByResource     map[ResourceType]float64 // 各资源类型费用
+	ByAccount      map[string]float64       // 各账户费用
+	AvgCostPerUser float64                  // 平均每用户费用
 }
 
 // SmartBilling 智能计费系统主结构体

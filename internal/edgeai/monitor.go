@@ -9,14 +9,14 @@ import (
 
 // DefaultResourceMonitor 默认资源监控器
 type DefaultResourceMonitor struct {
-	mu          sync.RWMutex
-	running     bool
-	stopCh      chan struct{}
-	interval    time.Duration
-	usage       *ResourceUsage
-	history     []ResourceUsage
-	maxHistory  int
-	onUpdate    func(*ResourceUsage)
+	mu         sync.RWMutex
+	running    bool
+	stopCh     chan struct{}
+	interval   time.Duration
+	usage      *ResourceUsage
+	history    []ResourceUsage
+	maxHistory int
+	onUpdate   func(*ResourceUsage)
 }
 
 // NewDefaultResourceMonitor 创建默认资源监控器
@@ -74,8 +74,8 @@ func (m *DefaultResourceMonitor) GetUsage() (*ResourceUsage, error) {
 		GPU: GPUUsage{
 			Available:   true,
 			Usage:       m.simulateGPUUsage(),
-			MemoryUsed:  2 * 1024 * 1024 * 1024,  // 2GB
-			MemoryTotal: 8 * 1024 * 1024 * 1024,  // 8GB
+			MemoryUsed:  2 * 1024 * 1024 * 1024, // 2GB
+			MemoryTotal: 8 * 1024 * 1024 * 1024, // 8GB
 			Temperature: 65.0,
 			PowerUsage:  150.0,
 		},
@@ -172,27 +172,27 @@ func (m *DefaultResourceMonitor) simulateGPUUsage() float64 {
 
 // InferenceMonitor 推理监控器
 type InferenceMonitor struct {
-	mu          sync.RWMutex
-	metrics     *InferenceMetrics
-	history     []InferenceMetrics
-	maxHistory  int
-	onUpdate    func(*InferenceMetrics)
+	mu         sync.RWMutex
+	metrics    *InferenceMetrics
+	history    []InferenceMetrics
+	maxHistory int
+	onUpdate   func(*InferenceMetrics)
 }
 
 // InferenceMetrics 推理指标
 type InferenceMetrics struct {
-	Timestamp       time.Time     `json:"timestamp"`
-	TotalRequests   int64         `json:"totalRequests"`
-	SuccessRequests int64         `json:"successRequests"`
-	FailedRequests  int64         `json:"failedRequests"`
-	AvgLatency      float64       `json:"avgLatency"`  // ms
-	P95Latency      float64       `json:"p95Latency"`  // ms
-	P99Latency      float64       `json:"p99Latency"`  // ms
-	Throughput      float64       `json:"throughput"`  // 推理/秒
-	GPUUtilization  float64       `json:"gpuUtilization"`
-	CPUUtilization  float64       `json:"cpuUtilization"`
-	MemoryUsage     int64         `json:"memoryUsage"`
-	QueuedRequests  int64         `json:"queuedRequests"`
+	Timestamp       time.Time `json:"timestamp"`
+	TotalRequests   int64     `json:"totalRequests"`
+	SuccessRequests int64     `json:"successRequests"`
+	FailedRequests  int64     `json:"failedRequests"`
+	AvgLatency      float64   `json:"avgLatency"` // ms
+	P95Latency      float64   `json:"p95Latency"` // ms
+	P99Latency      float64   `json:"p99Latency"` // ms
+	Throughput      float64   `json:"throughput"` // 推理/秒
+	GPUUtilization  float64   `json:"gpuUtilization"`
+	CPUUtilization  float64   `json:"cpuUtilization"`
+	MemoryUsage     int64     `json:"memoryUsage"`
+	QueuedRequests  int64     `json:"queuedRequests"`
 }
 
 // NewInferenceMonitor 创建推理监控器
@@ -266,11 +266,11 @@ type PerformanceProfiler struct {
 
 // ProfileData 性能数据
 type ProfileData struct {
-	ModelID     string        `json:"modelId"`
-	Operation   string        `json:"operation"`
-	Duration    time.Duration `json:"duration"`
-	MemoryUsed  int64         `json:"memoryUsed"`
-	Timestamp   time.Time     `json:"timestamp"`
+	ModelID    string        `json:"modelId"`
+	Operation  string        `json:"operation"`
+	Duration   time.Duration `json:"duration"`
+	MemoryUsed int64         `json:"memoryUsed"`
+	Timestamp  time.Time     `json:"timestamp"`
 }
 
 // NewPerformanceProfiler 创建性能分析器
@@ -381,7 +381,7 @@ type AlertRule struct {
 	Metric    string  `json:"metric"`
 	Threshold float64 `json:"threshold"`
 	Operator  string  `json:"operator"` // gt, lt, eq
-	Level     string  `json:"level"`   // info, warning, error
+	Level     string  `json:"level"`    // info, warning, error
 	Enabled   bool    `json:"enabled"`
 }
 

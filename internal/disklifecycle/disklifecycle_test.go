@@ -35,11 +35,11 @@ func TestRegisterDisk(t *testing.T) {
 	defer mgr.Stop()
 
 	disk := &Disk{
-		Device:    "/dev/sda",
-		Serial:    "ABC123",
-		Model:     "Samsung 990 Pro",
-		Vendor:    "Samsung",
-		Interface: "NVMe",
+		Device:      "/dev/sda",
+		Serial:      "ABC123",
+		Model:       "Samsung 990 Pro",
+		Vendor:      "Samsung",
+		Interface:   "NVMe",
 		InstallDate: time.Now().AddDate(-1, 0, 0),
 	}
 	err := mgr.RegisterDisk(disk)
@@ -73,8 +73,8 @@ func TestUpdateSMARTData(t *testing.T) {
 	mgr.RegisterDisk(disk)
 
 	err := mgr.UpdateSMARTData(disk.ID, SMARTData{
-		HealthOK:    true,
-		Temperature: 45.0,
+		HealthOK:     true,
+		Temperature:  45.0,
 		PowerOnHours: 10000,
 	})
 	require.NoError(t, err)
@@ -93,7 +93,7 @@ func TestUpdateSMARTData_WithReallocatedSectors(t *testing.T) {
 	mgr.RegisterDisk(disk)
 
 	err := mgr.UpdateSMARTData(disk.ID, SMARTData{
-		HealthOK:          true,
+		HealthOK:           true,
 		ReallocatedSectors: 10,
 	})
 	require.NoError(t, err)
@@ -160,9 +160,9 @@ func TestGetPrediction(t *testing.T) {
 	mgr.RegisterDisk(disk)
 
 	mgr.UpdateSMARTData(disk.ID, SMARTData{
-		HealthOK:          true,
+		HealthOK:           true,
 		ReallocatedSectors: 5,
-		Temperature:       58,
+		Temperature:        58,
 	})
 
 	prediction, err := mgr.GetPrediction(disk.ID)

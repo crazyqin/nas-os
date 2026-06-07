@@ -47,8 +47,8 @@ func TestManager_GetShare(t *testing.T) {
 
 	// 先创建
 	link := ShareLink{
-		Name:     "测试分享",
-		FilePath: "/test/file.txt",
+		Name:      "测试分享",
+		FilePath:  "/test/file.txt",
 		CreatorID: "user1",
 	}
 	created, _ := mgr.CreateShare(ctx, link)
@@ -69,8 +69,8 @@ func TestManager_GetShareByShortURL(t *testing.T) {
 
 	// 创建分享
 	link := ShareLink{
-		Name:     "短链测试",
-		FilePath: "/test/file.txt",
+		Name:      "短链测试",
+		FilePath:  "/test/file.txt",
 		CreatorID: "user1",
 	}
 	created, _ := mgr.CreateShare(ctx, link)
@@ -101,10 +101,10 @@ func TestManager_UpdateShare(t *testing.T) {
 
 	// 更新
 	updates := ShareLink{
-		Name:           "新名称",
-		AllowUpload:    true,
-		AllowPreview:   true,
-		AllowDownload:  true,
+		Name:          "新名称",
+		AllowUpload:   true,
+		AllowPreview:  true,
+		AllowDownload: true,
 	}
 	result, err := mgr.UpdateShare(ctx, created.ID, updates)
 	if err != nil {
@@ -124,8 +124,8 @@ func TestManager_DeleteShare(t *testing.T) {
 
 	// 创建
 	link := ShareLink{
-		Name:     "待删除",
-		FilePath: "/test/file.txt",
+		Name:      "待删除",
+		FilePath:  "/test/file.txt",
 		CreatorID: "user1",
 	}
 	created, _ := mgr.CreateShare(ctx, link)
@@ -377,13 +377,13 @@ func TestManager_CreatePortal(t *testing.T) {
 
 	// 创建一些分享
 	link1, _ := mgr.CreateShare(ctx, ShareLink{
-		Name:     "分享1",
-		FilePath: "/test/file1.txt",
+		Name:      "分享1",
+		FilePath:  "/test/file1.txt",
 		CreatorID: "user1",
 	})
 	link2, _ := mgr.CreateShare(ctx, ShareLink{
-		Name:     "分享2",
-		FilePath: "/test/file2.txt",
+		Name:      "分享2",
+		FilePath:  "/test/file2.txt",
 		CreatorID: "user1",
 	})
 

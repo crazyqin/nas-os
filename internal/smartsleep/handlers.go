@@ -281,12 +281,12 @@ func (m *Manager) RegisterDisk(id, device, model, serial string, wattsActive, wa
 	defer m.mu.Unlock()
 
 	disk := &DiskInfo{
-		ID:             id,
-		Device:         device,
-		Model:          model,
-		Serial:         serial,
-		State:          StateActive,
-		LastAccess:     time.Now(),
+		ID:              id,
+		Device:          device,
+		Model:           model,
+		Serial:          serial,
+		State:           StateActive,
+		LastAccess:      time.Now(),
 		WattsWhenActive: wattsActive,
 		WattsWhenSleep:  wattsSleep,
 	}

@@ -12,8 +12,8 @@ import (
 // Scheduler 快照调度器
 type Scheduler struct {
 	mu        sync.RWMutex
-	snapshots map[string]*Snapshot   // id -> snapshot
-	schedules map[string]*Schedule   // id -> schedule
+	snapshots map[string]*Snapshot      // id -> snapshot
+	schedules map[string]*Schedule      // id -> schedule
 	volumes   map[string]FileSystemType // volume -> fs type
 	stopChan  chan struct{}
 	running   bool

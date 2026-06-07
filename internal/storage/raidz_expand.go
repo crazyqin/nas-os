@@ -19,9 +19,9 @@ import (
 // RAIDZExpandProgress 扩展进度详情（UI展示）
 type RAIDZExpandProgress struct {
 	// 任务标识
-	TaskID    string    `json:"taskId"`    // 任务唯一ID
-	PoolName  string    `json:"poolName"`  // 池名称
-	VdevName  string    `json:"vdevName"`  // VDEV名称 (如 raidz2-0)
+	TaskID   string `json:"taskId"`   // 任务唯一ID
+	PoolName string `json:"poolName"` // 池名称
+	VdevName string `json:"vdevName"` // VDEV名称 (如 raidz2-0)
 
 	// 进度信息
 	Percent      float64 `json:"percent"`      // 完成百分比 (0-100)
@@ -32,22 +32,22 @@ type RAIDZExpandProgress struct {
 	ETAFormatted string  `json:"etaFormatted"` // 格式化ETA (如 "2h 15m")
 
 	// 时间信息
-	StartTime    time.Time  `json:"startTime"`    // 开始时间
-	Elapsed      int64      `json:"elapsed"`      // 已耗时秒数
-	ElapsedFormatted string `json:"elapsedFormatted"` // 格式化耗时
-	LastUpdate   time.Time  `json:"lastUpdate"`   // 最后更新时间
+	StartTime        time.Time `json:"startTime"`        // 开始时间
+	Elapsed          int64     `json:"elapsed"`          // 已耗时秒数
+	ElapsedFormatted string    `json:"elapsedFormatted"` // 格式化耗时
+	LastUpdate       time.Time `json:"lastUpdate"`       // 最后更新时间
 
 	// 状态信息
-	Status       string `json:"status"`       // running/paused/completed/failed
-	StatusText   string `json:"statusText"`   // 状态中文描述
-	CanPause     bool   `json:"canPause"`     // 是否可暂停
-	CanResume    bool   `json:"canResume"`    // 是否可恢复
-	CanCancel    bool   `json:"canCancel"`    // 是否可取消
+	Status     string `json:"status"`     // running/paused/completed/failed
+	StatusText string `json:"statusText"` // 状态中文描述
+	CanPause   bool   `json:"canPause"`   // 是否可暂停
+	CanResume  bool   `json:"canResume"`  // 是否可恢复
+	CanCancel  bool   `json:"canCancel"`  // 是否可取消
 
 	// 阶段信息（扩展过程的细分阶段）
-	Phase         string  `json:"phase"`         // 当前阶段
-	PhasePercent  float64 `json:"phasePercent"`  // 阶段内进度
-	Phases        []PhaseInfo `json:"phases"`     // 所有阶段信息
+	Phase        string      `json:"phase"`        // 当前阶段
+	PhasePercent float64     `json:"phasePercent"` // 阶段内进度
+	Phases       []PhaseInfo `json:"phases"`       // 所有阶段信息
 
 	// 磁盘信息
 	OriginalDisks []DiskSlot `json:"originalDisks"` // 原始磁盘
@@ -56,9 +56,9 @@ type RAIDZExpandProgress struct {
 	WidthAfter    int        `json:"widthAfter"`    // 扩展后宽度
 
 	// 容量信息
-	CapacityBeforeGB  float64 `json:"capacityBeforeGB"`  // 扩展前容量GB
-	CapacityAfterGB   float64 `json:"capacityAfterGB"`   // 扩展后预估容量GB
-	CapacityGainGB    float64 `json:"capacityGainGB"`    // 容量增益GB
+	CapacityBeforeGB float64 `json:"capacityBeforeGB"` // 扩展前容量GB
+	CapacityAfterGB  float64 `json:"capacityAfterGB"`  // 扩展后预估容量GB
+	CapacityGainGB   float64 `json:"capacityGainGB"`   // 容量增益GB
 
 	// 错误与警告
 	Errors   []string `json:"errors"`   // 错误列表
@@ -88,12 +88,12 @@ type DiskSlot struct {
 
 // ExpansionPhase 扩展阶段常量
 const (
-	PhasePreparing      = "preparing"      // 准备阶段
-	PhaseDataScan       = "data_scan"      // 数据扫描
-	PhaseDataMigration  = "data_migration" // 数据迁移（主要阶段）
-	PhaseVerification   = "verification"   // 数据校验
-	PhaseFinalization   = "finalization"   // 最终化
-	PhaseCompleted      = "completed"      // 完成
+	PhasePreparing     = "preparing"      // 准备阶段
+	PhaseDataScan      = "data_scan"      // 数据扫描
+	PhaseDataMigration = "data_migration" // 数据迁移（主要阶段）
+	PhaseVerification  = "verification"   // 数据校验
+	PhaseFinalization  = "finalization"   // 最终化
+	PhaseCompleted     = "completed"      // 完成
 )
 
 // DefaultPhases 默认阶段列表
@@ -250,9 +250,9 @@ func (m *RAIDZExpandMonitor) UpdateProgress(poolName string, task *ExpansionTask
 	if !exists {
 		// 如果不存在，创建新的
 		progress = &RAIDZExpandProgress{
-			TaskID:    task.ID,
-			PoolName:  poolName,
-			Phases:    DefaultPhases,
+			TaskID:   task.ID,
+			PoolName: poolName,
+			Phases:   DefaultPhases,
 		}
 		m.activeProgress[poolName] = progress
 	}
@@ -703,10 +703,10 @@ func (m *RAIDZExpandMonitor) GetExpandSummary() *ExpandSummary {
 
 	for _, progress := range m.activeProgress {
 		taskSummary := ExpandTaskSummary{
-			PoolName:    progress.PoolName,
-			Percent:     progress.Percent,
-			Status:      progress.Status,
-			StatusText:  progress.StatusText,
+			PoolName:     progress.PoolName,
+			Percent:      progress.Percent,
+			Status:       progress.Status,
+			StatusText:   progress.StatusText,
 			ETAFormatted: progress.ETAFormatted,
 		}
 		summary.ActiveTasks = append(summary.ActiveTasks, taskSummary)
@@ -717,9 +717,9 @@ func (m *RAIDZExpandMonitor) GetExpandSummary() *ExpandSummary {
 
 // ExpandSummary 扩展摘要（Dashboard展示）
 type ExpandSummary struct {
-	ActiveCount  int                `json:"activeCount"`  // 活跃任务数
-	TotalHistory int                `json:"totalHistory"` // 历史总数
-	ActiveTasks  []ExpandTaskSummary `json:"activeTasks"` // 活跃任务摘要
+	ActiveCount  int                 `json:"activeCount"`  // 活跃任务数
+	TotalHistory int                 `json:"totalHistory"` // 历史总数
+	ActiveTasks  []ExpandTaskSummary `json:"activeTasks"`  // 活跃任务摘要
 }
 
 // ExpandTaskSummary 任务摘要
@@ -776,5 +776,5 @@ func CalculateEfficiency(raidzLevel string, width int) float64 {
 		return 0
 	}
 
-	return float64(width - parity) / float64(width) * 100
+	return float64(width-parity) / float64(width) * 100
 }

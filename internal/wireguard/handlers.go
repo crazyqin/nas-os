@@ -53,12 +53,12 @@ func (h *Handler) updateInterface(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
-	
+
 	if err := h.manager.ConfigureInterface(req); err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	
+
 	iface, err := h.manager.GetInterface()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
@@ -93,7 +93,7 @@ func (h *Handler) createPeer(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
-	
+
 	if req.PublicKey == "" {
 		writeError(w, http.StatusBadRequest, "public_key is required")
 		return
@@ -102,7 +102,7 @@ func (h *Handler) createPeer(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "allowed_ips is required")
 		return
 	}
-	
+
 	peer, err := h.manager.CreatePeer(req)
 	if err != nil {
 		writeError(w, http.StatusConflict, err.Error())
@@ -119,22 +119,22 @@ func (h *Handler) handlePeerByID(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid path")
 		return
 	}
-	
+
 	remaining := strings.TrimPrefix(path, prefix)
 	parts := strings.Split(remaining, "/")
 	id := parts[0]
-	
+
 	if id == "" {
 		writeError(w, http.StatusBadRequest, "peer ID is required")
 		return
 	}
-	
+
 	// Check for sub-resource: /config
 	if len(parts) > 1 && parts[1] == "config" {
 		h.getPeerConfig(w, r, id)
 		return
 	}
-	
+
 	switch r.Method {
 	case http.MethodGet:
 		h.getPeer(w, r, id)
@@ -162,7 +162,7 @@ func (h *Handler) updatePeer(w http.ResponseWriter, r *http.Request, id string) 
 		writeError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
-	
+
 	if err := h.manager.UpdatePeer(id, req); err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			writeError(w, http.StatusNotFound, err.Error())
@@ -171,7 +171,7 @@ func (h *Handler) updatePeer(w http.ResponseWriter, r *http.Request, id string) 
 		}
 		return
 	}
-	
+
 	peer, err := h.manager.GetPeer(id)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
@@ -193,19 +193,19 @@ func (h *Handler) getPeerConfig(w http.ResponseWriter, r *http.Request, id strin
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
-	
+
 	peer, err := h.manager.GetPeer(id)
 	if err != nil {
 		writeError(w, http.StatusNotFound, err.Error())
 		return
 	}
-	
+
 	config, err := h.manager.GeneratePeerConfig(peer)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
+
 	writeJSON(w, http.StatusOK, PeerConfigResponse{Config: config})
 }
 
@@ -214,7 +214,7 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
-	
+
 	stats, err := h.manager.GetStats()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
@@ -228,13 +228,13 @@ func (h *Handler) handleGenerateKeyPair(w http.ResponseWriter, r *http.Request) 
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
-	
+
 	publicKey, privateKey, err := h.manager.GenerateKeyPair()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
+
 	writeJSON(w, http.StatusOK, KeyPairResponse{
 		PublicKey:  publicKey,
 		PrivateKey: privateKey,

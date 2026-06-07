@@ -14,24 +14,24 @@ import (
 
 // FailoverConfig 故障转移配置
 type FailoverConfig struct {
-	Enabled             bool   `json:"enabled"`               // 是否启用故障转移
+	Enabled             bool   `json:"enabled"`                // 是否启用故障转移
 	Mode                string `json:"mode"`                   // "primary_standby" | "load_balance"
 	HeartbeatIntervalMs int    `json:"heartbeat_interval_ms"`  // 心跳间隔(毫秒)
 	HeartbeatTimeoutMs  int    `json:"heartbeat_timeout_ms"`   // 心跳超时(毫秒)
-	MaxRetries          int    `json:"max_retries"`           // 最大重试次数
+	MaxRetries          int    `json:"max_retries"`            // 最大重试次数
 	RetryIntervalMs     int    `json:"retry_interval_ms"`      // 重试间隔(毫秒)
 	StateSyncIntervalMs int    `json:"state_sync_interval_ms"` // 状态同步间隔(毫秒)
 	PreferredNode       string `json:"preferred_node"`         // 偏好节点ID
-	ClusterIP           string `json:"cluster_ip"`            // 集群虚拟IP
-	StateFilePath       string `json:"state_file_path"`       // 会话状态文件路径
+	ClusterIP           string `json:"cluster_ip"`             // 集群虚拟IP
+	StateFilePath       string `json:"state_file_path"`        // 会话状态文件路径
 }
 
 // NodeState 节点状态
 type NodeState struct {
 	NodeID        string    `json:"node_id"`
 	Host          string    `json:"host"`
-	Role          string    `json:"role"`    // "primary" | "standby" | "unknown"
-	Status        string    `json:"status"`  // "active" | "unhealthy" | "offline"
+	Role          string    `json:"role"`   // "primary" | "standby" | "unknown"
+	Status        string    `json:"status"` // "active" | "unhealthy" | "offline"
 	Priority      int       `json:"priority"`
 	LastHeartbeat time.Time `json:"last_heartbeat"`
 	HealthScore   int       `json:"health_score"` // 0-100
@@ -49,7 +49,7 @@ type SMBSession struct {
 	TemporalFile  string            `json:"temporal_file,omitempty"` // 临时文件路径
 	OpenedFiles   []string          `json:"opened_files,omitempty"`  // 打开的文件列表
 	Locks         []FileLock        `json:"locks,omitempty"`         // 文件锁
-	OplockLevel   string            `json:"oplock_level,omitempty"` // oplock级别
+	OplockLevel   string            `json:"oplock_level,omitempty"`  // oplock级别
 	ConnectedAt   time.Time         `json:"connected_at"`
 	LastActiveAt  time.Time         `json:"last_active_at"`
 	ExpiresAt     time.Time         `json:"expires_at,omitempty"` // 会话过期时间
@@ -60,38 +60,38 @@ type SMBSession struct {
 
 // FileLock 文件锁信息
 type FileLock struct {
-	FilePath  string    `json:"file_path"`
-	PID       int       `json:"pid"`
-	Mode      string    `json:"mode"` // "read" | "write" | "read_write"
-	Acquired  time.Time `json:"acquired"`
+	FilePath string    `json:"file_path"`
+	PID      int       `json:"pid"`
+	Mode     string    `json:"mode"` // "read" | "write" | "read_write"
+	Acquired time.Time `json:"acquired"`
 }
 
 // SessionRegistry 会话注册表
 type SessionRegistry struct {
 	mu           sync.RWMutex
-	sessions     map[string]*SMBSession       // key: session_id
-	indexByIP    map[string][]string          // key: client_ip -> session_ids
-	indexByUser  map[string][]string          // key: username -> session_ids
-	indexByShare map[string][]string          // key: share_name -> session_ids
+	sessions     map[string]*SMBSession // key: session_id
+	indexByIP    map[string][]string    // key: client_ip -> session_ids
+	indexByUser  map[string][]string    // key: username -> session_ids
+	indexByShare map[string][]string    // key: share_name -> session_ids
 }
 
 // FailoverState 故障转移状态管理器
 type FailoverState struct {
-	mu                sync.RWMutex
-	config            *FailoverConfig
-	localNode         *NodeState
-	clusterNodes      map[string]*NodeState // node_id -> NodeState
-	sessionRegistry   *SessionRegistry
-	activeSessions    int
-	failoverCount     int
-	healthyCount      int
-	lastFailover      time.Time
-	lastStateSync     time.Time
-	isPrimary         bool
-	isRunning         bool
-	stopChan          chan struct{}
-	heartbeatChan     chan heartbeatMsg
-	stateSyncChan     chan stateSyncMsg
+	mu              sync.RWMutex
+	config          *FailoverConfig
+	localNode       *NodeState
+	clusterNodes    map[string]*NodeState // node_id -> NodeState
+	sessionRegistry *SessionRegistry
+	activeSessions  int
+	failoverCount   int
+	healthyCount    int
+	lastFailover    time.Time
+	lastStateSync   time.Time
+	isPrimary       bool
+	isRunning       bool
+	stopChan        chan struct{}
+	heartbeatChan   chan heartbeatMsg
+	stateSyncChan   chan stateSyncMsg
 }
 
 // heartbeatMsg 心跳消息
@@ -106,24 +106,24 @@ type heartbeatMsg struct {
 type stateSyncMsg struct {
 	Type      string      `json:"type"` // "session_update" | "node_update" | "full_sync"
 	Session   *SMBSession `json:"session,omitempty"`
-	NodeState *NodeState `json:"node_state,omitempty"`
-	Timestamp time.Time  `json:"timestamp"`
+	NodeState *NodeState  `json:"node_state,omitempty"`
+	Timestamp time.Time   `json:"timestamp"`
 }
 
 // FailoverStatus 故障转移状态（用于API查询）
 type FailoverStatus struct {
-	Enabled        bool             `json:"enabled"`
-	Mode           string           `json:"mode"`
-	IsPrimary      bool             `json:"is_primary"`
-	LocalNode      *NodeState       `json:"local_node"`
-	ClusterNodes   []*NodeState     `json:"cluster_nodes"`
-	ActiveSessions int              `json:"active_sessions"`
-	FailoverCount  int              `json:"failover_count"`
-	HealthyCount   int              `json:"healthy_count"`
-	LastFailover   *time.Time       `json:"last_failover,omitempty"`
-	LastStateSync  *time.Time       `json:"last_state_sync,omitempty"`
-	IsRunning      bool             `json:"is_running"`
-	Config         *FailoverConfig  `json:"config"`
+	Enabled        bool            `json:"enabled"`
+	Mode           string          `json:"mode"`
+	IsPrimary      bool            `json:"is_primary"`
+	LocalNode      *NodeState      `json:"local_node"`
+	ClusterNodes   []*NodeState    `json:"cluster_nodes"`
+	ActiveSessions int             `json:"active_sessions"`
+	FailoverCount  int             `json:"failover_count"`
+	HealthyCount   int             `json:"healthy_count"`
+	LastFailover   *time.Time      `json:"last_failover,omitempty"`
+	LastStateSync  *time.Time      `json:"last_state_sync,omitempty"`
+	IsRunning      bool            `json:"is_running"`
+	Config         *FailoverConfig `json:"config"`
 }
 
 // FailoverEvent 故障转移事件（用于事件通知）
@@ -272,7 +272,7 @@ func NewFailoverState(config *FailoverConfig) (*FailoverState, error) {
 	hostname, _ := os.Hostname()
 
 	state := &FailoverState{
-		config:          config,
+		config: config,
 		localNode: &NodeState{
 			NodeID:        nodeID,
 			Host:          hostname,
@@ -912,11 +912,11 @@ func (s *FailoverState) saveState() error {
 	}
 
 	type persistState struct {
-		Sessions      []*SMBSession       `json:"sessions"`
-		LocalNode     *NodeState          `json:"local_node"`
+		Sessions      []*SMBSession         `json:"sessions"`
+		LocalNode     *NodeState            `json:"local_node"`
 		ClusterNodes  map[string]*NodeState `json:"cluster_nodes"`
-		FailoverCount int                 `json:"failover_count"`
-		SavedAt       time.Time           `json:"saved_at"`
+		FailoverCount int                   `json:"failover_count"`
+		SavedAt       time.Time             `json:"saved_at"`
 	}
 
 	s.mu.RLock()
@@ -967,11 +967,11 @@ func (s *FailoverState) loadState() error {
 	}
 
 	type persistState struct {
-		Sessions      []*SMBSession        `json:"sessions"`
-		LocalNode     *NodeState           `json:"local_node"`
+		Sessions      []*SMBSession         `json:"sessions"`
+		LocalNode     *NodeState            `json:"local_node"`
 		ClusterNodes  map[string]*NodeState `json:"cluster_nodes"`
-		FailoverCount int                 `json:"failover_count"`
-		SavedAt       time.Time           `json:"saved_at"`
+		FailoverCount int                   `json:"failover_count"`
+		SavedAt       time.Time             `json:"saved_at"`
 	}
 
 	var state persistState

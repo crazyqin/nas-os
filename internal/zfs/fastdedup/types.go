@@ -38,9 +38,9 @@ const (
 type HashAlgorithm string
 
 const (
-	HashSHA256  HashAlgorithm = "sha256"  // SHA-256（默认）
-	HashSHA512  HashAlgorithm = "sha512"  // SHA-512（更安全）
-	HashSkein   HashAlgorithm = "skein"   // Skein（ZFS原生）
+	HashSHA256    HashAlgorithm = "sha256"    // SHA-256（默认）
+	HashSHA512    HashAlgorithm = "sha512"    // SHA-512（更安全）
+	HashSkein     HashAlgorithm = "skein"     // Skein（ZFS原生）
 	HashFletcher4 HashAlgorithm = "fletcher4" // Fletcher-4（最快）
 )
 
@@ -52,8 +52,8 @@ type Config struct {
 	HashAlgorithm HashAlgorithm `json:"hashAlgorithm"`
 
 	// ZFS 配置
-	PoolName      string `json:"poolName"`
-	Dataset       string `json:"dataset"`
+	PoolName string `json:"poolName"`
+	Dataset  string `json:"dataset"`
 
 	// 性能配置
 	ChunkSizeKB     int `json:"chunkSizeKB"`     // 块大小 KB (4-64)
@@ -192,8 +192,8 @@ type Status struct {
 	ProcessedBlocks int64 `json:"processedBlocks"`
 
 	// 空间统计
-	TotalDataSize int64 `json:"totalDataSize"`
-	DedupedSize   int64 `json:"dedupedSize"`
+	TotalDataSize int64   `json:"totalDataSize"`
+	DedupedSize   int64   `json:"dedupedSize"`
 	SavingsRatio  float64 `json:"savingsRatio"`
 
 	// 性能指标
@@ -232,16 +232,16 @@ const (
 
 // Progress 去重进度
 type Progress struct {
-	Phase       Phase    `json:"phase"`
-	PhaseStr    string   `json:"phaseStr"`
-	Current     int64    `json:"current"`
-	Total       int64    `json:"total"`
-	Percent     float64  `json:"percent"`
-	SpeedMBps   float64  `json:"speedMBps"`
-	ETASeconds  int      `json:"etaSeconds"`
-	Message     string   `json:"message"`
-	StartTime   time.Time `json:"startTime"`
-	LastUpdate  time.Time `json:"lastUpdate"`
+	Phase      Phase     `json:"phase"`
+	PhaseStr   string    `json:"phaseStr"`
+	Current    int64     `json:"current"`
+	Total      int64     `json:"total"`
+	Percent    float64   `json:"percent"`
+	SpeedMBps  float64   `json:"speedMBps"`
+	ETASeconds int       `json:"etaSeconds"`
+	Message    string    `json:"message"`
+	StartTime  time.Time `json:"startTime"`
+	LastUpdate time.Time `json:"lastUpdate"`
 }
 
 // Update 更新进度
@@ -256,7 +256,7 @@ func (p *Progress) Update(current int64) {
 		p.SpeedMBps = float64(current) / elapsed
 
 		if p.SpeedMBps > 0 {
-			remaining := float64(p.Total - current) / p.SpeedMBps
+			remaining := float64(p.Total-current) / p.SpeedMBps
 			p.ETASeconds = int(remaining)
 		}
 	}
@@ -277,17 +277,17 @@ type Result struct {
 	EndTime         time.Time     `json:"endTime"`
 
 	// 详细统计
-	HashCollisions int64         `json:"hashCollisions"`
-	VerificationOK int64         `json:"verificationOK"`
-	Errors         []DedupError  `json:"errors,omitempty"`
+	HashCollisions int64        `json:"hashCollisions"`
+	VerificationOK int64        `json:"verificationOK"`
+	Errors         []DedupError `json:"errors,omitempty"`
 }
 
 // DedupError 去重错误
 type DedupError struct {
-	BlockHash string `json:"blockHash"`
-	Path      string `json:"path"`
-	Offset    int64  `json:"offset"`
-	Error     string `json:"error"`
+	BlockHash string    `json:"blockHash"`
+	Path      string    `json:"path"`
+	Offset    int64     `json:"offset"`
+	Error     string    `json:"error"`
 	Timestamp time.Time `json:"timestamp"`
 }
 
@@ -295,11 +295,11 @@ type DedupError struct {
 
 // BloomFilter 快速哈希查找过滤器
 type BloomFilter struct {
-	bits     []uint64
-	size     int          // 位图大小（位）
-	k        int          // 哈希函数数量
-	count    int64        // 已添加元素数
-	mu       sync.RWMutex
+	bits  []uint64
+	size  int   // 位图大小（位）
+	k     int   // 哈希函数数量
+	count int64 // 已添加元素数
+	mu    sync.RWMutex
 }
 
 // NewBloomFilter 创建 Bloom Filter
@@ -350,7 +350,7 @@ func (bf *BloomFilter) MightContain(hash []byte) bool {
 		idx := bf.hashWithSeed(hash, i) % uint64(bf.size)
 		wordIdx := idx / 64
 		bitIdx := idx % 64
-		if bf.bits[wordIdx] & (1 << bitIdx) == 0 {
+		if bf.bits[wordIdx]&(1<<bitIdx) == 0 {
 			return false
 		}
 	}
@@ -436,11 +436,11 @@ type DedupTable struct {
 	mu        sync.RWMutex
 
 	// 统计
-	totalLookups    int64
-	bloomHits       int64
-	bloomMisses     int64
-	exactHits       int64
-	exactMisses     int64
+	totalLookups int64
+	bloomHits    int64
+	bloomMisses  int64
+	exactHits    int64
+	exactMisses  int64
 }
 
 // NewDedupTable 创建去重表
@@ -502,11 +502,11 @@ func (dt *DedupTable) Add(hash string, size int64) *DedupEntry {
 
 	// 创建新条目
 	entry = &DedupEntry{
-		Hash:      hash,
-		Size:      size,
-		RefCount:  1,
-		FirstSeen: time.Now(),
-		LastSeen:  time.Now(),
+		Hash:       hash,
+		Size:       size,
+		RefCount:   1,
+		FirstSeen:  time.Now(),
+		LastSeen:   time.Now(),
 		LastAccess: time.Now(),
 	}
 	dt.entries[hash] = entry
@@ -543,22 +543,22 @@ func (dt *DedupTable) Stats() DedupTableStats {
 	dt.mu.RUnlock()
 
 	return DedupTableStats{
-		TotalEntries:   entries,
-		MemoryUsage:    dt.memoryUsage(),
-		BloomFilterSize: dt.bloom.size,
+		TotalEntries:     entries,
+		MemoryUsage:      dt.memoryUsage(),
+		BloomFilterSize:  dt.bloom.size,
 		BloomFilterCount: dt.bloom.Count(),
-		BloomHitRate:   dt.getBloomHitRate(),
-		ExactHitRate:   dt.getExactHitRate(),
+		BloomHitRate:     dt.getBloomHitRate(),
+		ExactHitRate:     dt.getExactHitRate(),
 	}
 }
 
 type DedupTableStats struct {
-	TotalEntries    int     `json:"totalEntries"`
-	MemoryUsage     int64   `json:"memoryUsage"`
-	BloomFilterSize int     `json:"bloomFilterSize"`
-	BloomFilterCount int64  `json:"bloomFilterCount"`
-	BloomHitRate    float64 `json:"bloomHitRate"`
-	ExactHitRate    float64 `json:"exactHitRate"`
+	TotalEntries     int     `json:"totalEntries"`
+	MemoryUsage      int64   `json:"memoryUsage"`
+	BloomFilterSize  int     `json:"bloomFilterSize"`
+	BloomFilterCount int64   `json:"bloomFilterCount"`
+	BloomHitRate     float64 `json:"bloomHitRate"`
+	ExactHitRate     float64 `json:"exactHitRate"`
 }
 
 func (dt *DedupTable) memoryUsage() int64 {
@@ -625,7 +625,7 @@ type Manager struct {
 	wsHandler    func(Progress)
 
 	// 自动任务
-	autoTask     *AutoTask
+	autoTask *AutoTask
 }
 
 // AutoTask 自动去重任务

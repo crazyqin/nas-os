@@ -11,14 +11,14 @@ import (
 
 // Manager 多云联邦管理器
 type Manager struct {
-	mu          sync.RWMutex
-	providers   map[string]*CloudProviderConfig
-	namespaces  map[string]*Namespace
-	objects     map[string]map[string]*StorageObject // namespace -> key -> object
-	syncTasks   map[string]*SyncTask
-	migTasks    map[string]*MigrationTask
-	config      *FederationConfig
-	dataFile    string
+	mu         sync.RWMutex
+	providers  map[string]*CloudProviderConfig
+	namespaces map[string]*Namespace
+	objects    map[string]map[string]*StorageObject // namespace -> key -> object
+	syncTasks  map[string]*SyncTask
+	migTasks   map[string]*MigrationTask
+	config     *FederationConfig
+	dataFile   string
 }
 
 // NewManager 创建管理器
@@ -573,13 +573,13 @@ func (m *Manager) GetFederationStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_providers":  len(m.providers),
-		"total_namespaces": len(m.namespaces),
-		"total_objects":    totalObjects,
-		"total_size_bytes": totalSize,
-		"active_syncs":     m.countActiveSyncs(),
+		"total_providers":   len(m.providers),
+		"total_namespaces":  len(m.namespaces),
+		"total_objects":     totalObjects,
+		"total_size_bytes":  totalSize,
+		"active_syncs":      m.countActiveSyncs(),
 		"active_migrations": m.countActiveMigrations(),
-		"provider_types":   providerStats,
+		"provider_types":    providerStats,
 	}
 }
 
@@ -679,11 +679,11 @@ func (m *Manager) load() error {
 		return err
 	}
 	var stored struct {
-		Providers  map[string]*CloudProviderConfig `json:"providers"`
-		Namespaces map[string]*Namespace           `json:"namespaces"`
+		Providers  map[string]*CloudProviderConfig      `json:"providers"`
+		Namespaces map[string]*Namespace                `json:"namespaces"`
 		Objects    map[string]map[string]*StorageObject `json:"objects"`
-		SyncTasks  map[string]*SyncTask            `json:"sync_tasks"`
-		MigTasks   map[string]*MigrationTask       `json:"migration_tasks"`
+		SyncTasks  map[string]*SyncTask                 `json:"sync_tasks"`
+		MigTasks   map[string]*MigrationTask            `json:"migration_tasks"`
 	}
 	if err := json.Unmarshal(data, &stored); err != nil {
 		return err
@@ -714,7 +714,7 @@ func (m *Manager) save() error {
 	data, err := json.MarshalIndent(struct {
 		Providers  map[string]*CloudProviderConfig      `json:"providers"`
 		Namespaces map[string]*Namespace                `json:"namespaces"`
-		Objects    map[string]map[string]*StorageObject  `json:"objects"`
+		Objects    map[string]map[string]*StorageObject `json:"objects"`
 		SyncTasks  map[string]*SyncTask                 `json:"sync_tasks"`
 		MigTasks   map[string]*MigrationTask            `json:"migration_tasks"`
 	}{m.providers, m.namespaces, m.objects, m.syncTasks, m.migTasks}, "", "  ")

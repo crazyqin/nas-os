@@ -41,15 +41,15 @@ const (
 
 // ComplianceReport 合规报告摘要
 type ComplianceReport struct {
-	GeneratedAt    time.Time        `json:"generated_at"`
-	PeriodStart    time.Time        `json:"period_start"`
-	PeriodEnd      time.Time        `json:"period_end"`
-	TotalEvents    int              `json:"total_events"`
-	ActionStats    map[string]int   `json:"action_stats"`
-	ResultStats    map[string]int   `json:"result_stats"`
-	SecurityEvents []AuditEntry     `json:"security_events"`
-	TopUsers       []UserActivity   `json:"top_users"`
-	AnomalyLogins  []AuditEntry     `json:"anomaly_logins"`
+	GeneratedAt    time.Time      `json:"generated_at"`
+	PeriodStart    time.Time      `json:"period_start"`
+	PeriodEnd      time.Time      `json:"period_end"`
+	TotalEvents    int            `json:"total_events"`
+	ActionStats    map[string]int `json:"action_stats"`
+	ResultStats    map[string]int `json:"result_stats"`
+	SecurityEvents []AuditEntry   `json:"security_events"`
+	TopUsers       []UserActivity `json:"top_users"`
+	AnomalyLogins  []AuditEntry   `json:"anomaly_logins"`
 }
 
 // UserActivity 用户活跃度

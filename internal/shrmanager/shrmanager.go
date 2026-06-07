@@ -48,16 +48,16 @@ var validRedundancyLevels = map[string]bool{
 
 // SHRDisk 表示一块物理硬盘
 type SHRDisk struct {
-	Device   string    `json:"device"`     // 设备路径，如 /dev/sda
-	Model    string    `json:"model"`      // 硬盘型号
-	Serial   string    `json:"serial"`     // 序列号
-	Capacity int64     `json:"capacity"`   // 容量（字节）
-	Status   string    `json:"status"`     // 状态
-	TempC    int       `json:"temp_c"`     // 温度（摄氏度）
-	Health   int       `json:"health"`     // 健康度 0-100
-	PoolName string    `json:"pool_name"`  // 所属存储池（空表示未分配）
-	IsSpare  bool      `json:"is_spare"`   // 是否为热备盘
-	AddedAt  time.Time `json:"added_at"`   // 加入时间
+	Device   string    `json:"device"`    // 设备路径，如 /dev/sda
+	Model    string    `json:"model"`     // 硬盘型号
+	Serial   string    `json:"serial"`    // 序列号
+	Capacity int64     `json:"capacity"`  // 容量（字节）
+	Status   string    `json:"status"`    // 状态
+	TempC    int       `json:"temp_c"`    // 温度（摄氏度）
+	Health   int       `json:"health"`    // 健康度 0-100
+	PoolName string    `json:"pool_name"` // 所属存储池（空表示未分配）
+	IsSpare  bool      `json:"is_spare"`  // 是否为热备盘
+	AddedAt  time.Time `json:"added_at"`  // 加入时间
 }
 
 // SHRArrange 表示 SHR 内部的一个子阵列

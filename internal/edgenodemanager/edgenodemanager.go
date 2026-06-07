@@ -49,31 +49,31 @@ const (
 
 // NodeMetrics 节点指标
 type NodeMetrics struct {
-	CPUUsage    float64 `json:"cpu_usage"`
-	MemoryUsage float64 `json:"memory_usage"`
-	DiskUsage   float64 `json:"disk_usage"`
-	NetworkIn   int64   `json:"network_in_bytes"`
-	NetworkOut  int64   `json:"network_out_bytes"`
-	LoadAverage float64 `json:"load_average"`
+	CPUUsage    float64   `json:"cpu_usage"`
+	MemoryUsage float64   `json:"memory_usage"`
+	DiskUsage   float64   `json:"disk_usage"`
+	NetworkIn   int64     `json:"network_in_bytes"`
+	NetworkOut  int64     `json:"network_out_bytes"`
+	LoadAverage float64   `json:"load_average"`
 	Timestamp   time.Time `json:"timestamp"`
 }
 
 // EdgeNode 边缘节点
 type EdgeNode struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	IPAddress   string       `json:"ip_address"`
-	Port        int          `json:"port"`
-	Role        NodeRole     `json:"role"`
-	Status      NodeStatus   `json:"status"`
-	Labels      map[string]string `json:"labels,omitempty"`
-	Metrics     *NodeMetrics `json:"metrics,omitempty"`
-	Version     string       `json:"version"`
-	Region      string       `json:"region"`
-	Zone        string       `json:"zone"`
-	LastSeen    time.Time    `json:"last_seen"`
-	RegisteredAt time.Time   `json:"registered_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	IPAddress    string            `json:"ip_address"`
+	Port         int               `json:"port"`
+	Role         NodeRole          `json:"role"`
+	Status       NodeStatus        `json:"status"`
+	Labels       map[string]string `json:"labels,omitempty"`
+	Metrics      *NodeMetrics      `json:"metrics,omitempty"`
+	Version      string            `json:"version"`
+	Region       string            `json:"region"`
+	Zone         string            `json:"zone"`
+	LastSeen     time.Time         `json:"last_seen"`
+	RegisteredAt time.Time         `json:"registered_at"`
+	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
 // ComputeTask 计算任务
@@ -95,52 +95,52 @@ type ComputeTask struct {
 
 // DeployRequest 部署请求
 type DeployRequest struct {
-	ID          string    `json:"id"`
-	TargetNodes []string  `json:"target_nodes"`
-	Image       string    `json:"image"`
-	Version     string    `json:"version"`
+	ID          string            `json:"id"`
+	TargetNodes []string          `json:"target_nodes"`
+	Image       string            `json:"image"`
+	Version     string            `json:"version"`
 	Config      map[string]string `json:"config,omitempty"`
-	Status      string    `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
-	CompletedAt *time.Time `json:"completed_at,omitempty"`
+	Status      string            `json:"status"`
+	CreatedAt   time.Time         `json:"created_at"`
+	CompletedAt *time.Time        `json:"completed_at,omitempty"`
 }
 
 // DataSync 数据同步记录
 type DataSync struct {
-	ID          string    `json:"id"`
-	SourceNode  string    `json:"source_node"`
-	TargetNodes []string  `json:"target_nodes"`
-	SyncKey     string    `json:"sync_key"`
-	SyncType    string    `json:"sync_type"`
-	Status      string    `json:"status"`
-	BytesSynced int64     `json:"bytes_synced"`
-	StartedAt   time.Time `json:"started_at"`
+	ID          string     `json:"id"`
+	SourceNode  string     `json:"source_node"`
+	TargetNodes []string   `json:"target_nodes"`
+	SyncKey     string     `json:"sync_key"`
+	SyncType    string     `json:"sync_type"`
+	Status      string     `json:"status"`
+	BytesSynced int64      `json:"bytes_synced"`
+	StartedAt   time.Time  `json:"started_at"`
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
 }
 
 // ClusterStats 集群统计
 type ClusterStats struct {
-	TotalNodes      int            `json:"total_nodes"`
-	OnlineNodes     int            `json:"online_nodes"`
-	OfflineNodes    int            `json:"offline_nodes"`
-	TotalTasks      int            `json:"total_tasks"`
-	RunningTasks    int            `json:"running_tasks"`
-	PendingTasks    int            `json:"pending_tasks"`
-	CompletedTasks  int            `json:"completed_tasks"`
-	FailedTasks     int            `json:"failed_tasks"`
-	AvgCPUUsage     float64        `json:"avg_cpu_usage"`
-	AvgMemoryUsage  float64        `json:"avg_memory_usage"`
-	TasksByNode     map[string]int `json:"tasks_by_node"`
+	TotalNodes     int            `json:"total_nodes"`
+	OnlineNodes    int            `json:"online_nodes"`
+	OfflineNodes   int            `json:"offline_nodes"`
+	TotalTasks     int            `json:"total_tasks"`
+	RunningTasks   int            `json:"running_tasks"`
+	PendingTasks   int            `json:"pending_tasks"`
+	CompletedTasks int            `json:"completed_tasks"`
+	FailedTasks    int            `json:"failed_tasks"`
+	AvgCPUUsage    float64        `json:"avg_cpu_usage"`
+	AvgMemoryUsage float64        `json:"avg_memory_usage"`
+	TasksByNode    map[string]int `json:"tasks_by_node"`
 }
 
 // EdgeNodeManager 边缘节点管理器
 type EdgeNodeManager struct {
-	mu           sync.RWMutex
-	nodes        map[string]*EdgeNode
-	tasks        map[string]*ComputeTask
-	deploys      map[string]*DeployRequest
-	syncs        map[string]*DataSync
-	strategy     LoadBalanceStrategy
+	mu            sync.RWMutex
+	nodes         map[string]*EdgeNode
+	tasks         map[string]*ComputeTask
+	deploys       map[string]*DeployRequest
+	syncs         map[string]*DataSync
+	strategy      LoadBalanceStrategy
 	roundRobinIdx int
 }
 
@@ -382,7 +382,7 @@ func selectResourceBased(nodes []*EdgeNode) *EdgeNode {
 			return node
 		}
 		// 计算资源得分 (100 - usage) = available
-		score := (100 - node.Metrics.CPUUsage) * 0.4 + (100 - node.Metrics.MemoryUsage) * 0.4 + (100 - node.Metrics.DiskUsage) * 0.2
+		score := (100-node.Metrics.CPUUsage)*0.4 + (100-node.Metrics.MemoryUsage)*0.4 + (100-node.Metrics.DiskUsage)*0.2
 		if score > bestScore {
 			bestScore = score
 			selected = node

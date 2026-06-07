@@ -18,15 +18,15 @@ func NewAnalyzer(ml *StorageML) *Analyzer {
 
 // TrendAnalysis represents trend analysis results
 type TrendAnalysis struct {
-	PoolID        string      `json:"pool_id"`
-	MetricType    MetricType  `json:"metric_type"`
-	Direction     string      `json:"direction"`
-	AvgChangeRate float64     `json:"avg_change_rate"`
-	MaxChangeRate float64     `json:"max_change_rate"`
-	Volatility    float64     `json:"volatility"`
-	DataPoints    int         `json:"data_points"`
-	StartTime     time.Time   `json:"start_time"`
-	EndTime       time.Time   `json:"end_time"`
+	PoolID        string     `json:"pool_id"`
+	MetricType    MetricType `json:"metric_type"`
+	Direction     string     `json:"direction"`
+	AvgChangeRate float64    `json:"avg_change_rate"`
+	MaxChangeRate float64    `json:"max_change_rate"`
+	Volatility    float64    `json:"volatility"`
+	DataPoints    int        `json:"data_points"`
+	StartTime     time.Time  `json:"start_time"`
+	EndTime       time.Time  `json:"end_time"`
 }
 
 // Anomaly represents an anomalous data point
@@ -41,7 +41,7 @@ type Anomaly struct {
 // AnalyzeTrend analyzes the trend of a specific metric for a pool
 func (a *Analyzer) AnalyzeTrend(poolID string, metricType MetricType, duration time.Duration) (*TrendAnalysis, error) {
 	points := a.ml.GetDataPoints(poolID)
-	
+
 	// Filter by type and time range
 	cutoff := time.Now().Add(-duration)
 	var filtered []DataPoint
@@ -127,10 +127,10 @@ func (a *Analyzer) DetectAnomalies(poolID string, metricType MetricType) ([]Anom
 			}
 
 			anomalies = append(anomalies, Anomaly{
-				DataPoint: dp,
-				Expected:  mean,
-				Deviation: deviation,
-				Severity:  severity,
+				DataPoint:   dp,
+				Expected:    mean,
+				Deviation:   deviation,
+				Severity:    severity,
 				Description: generateAnomalyDescription(dp, mean, deviation),
 			})
 		}

@@ -33,9 +33,9 @@ const (
 type ConnectionType string
 
 const (
-	ConnUSB     ConnectionType = "usb"
-	ConnNetwork ConnectionType = "network"
-	ConnSerial  ConnectionType = "serial"
+	ConnUSB       ConnectionType = "usb"
+	ConnNetwork   ConnectionType = "network"
+	ConnSerial    ConnectionType = "serial"
 	ConnBluetooth ConnectionType = "bluetooth"
 )
 
@@ -43,10 +43,10 @@ const (
 type PrintQuality string
 
 const (
-	QualityDraft   PrintQuality = "draft"
-	QualityNormal  PrintQuality = "normal"
-	QualityHigh    PrintQuality = "high"
-	QualityBest    PrintQuality = "best"
+	QualityDraft  PrintQuality = "draft"
+	QualityNormal PrintQuality = "normal"
+	QualityHigh   PrintQuality = "high"
+	QualityBest   PrintQuality = "best"
 )
 
 // ColorMode 色彩模式
@@ -75,9 +75,9 @@ const (
 type DuplexMode string
 
 const (
-	DuplexNone       DuplexMode = "none"
-	DuplexLongEdge   DuplexMode = "long_edge"
-	DuplexShortEdge  DuplexMode = "short_edge"
+	DuplexNone      DuplexMode = "none"
+	DuplexLongEdge  DuplexMode = "long_edge"
+	DuplexShortEdge DuplexMode = "short_edge"
 )
 
 // PrintJobStatus 打印任务状态
@@ -119,52 +119,52 @@ type Printer struct {
 
 // TonerLevel 耗材水平
 type TonerLevel struct {
-	Color    string `json:"color"`
-	Current  int    `json:"current"`
-	Max      int    `json:"max"`
-	Percent  float64 `json:"percent"`
-	Low      bool   `json:"low"`
+	Color   string  `json:"color"`
+	Current int     `json:"current"`
+	Max     int     `json:"max"`
+	Percent float64 `json:"percent"`
+	Low     bool    `json:"low"`
 }
 
 // PrinterHealth 打印机健康状态
 type PrinterHealth struct {
-	PrinterID      string       `json:"printer_id"`
-	Status         PrinterStatus `json:"status"`
-	TonerLevels    []TonerLevel `json:"toner_levels"`
-	DrumLife       float64      `json:"drum_life"`
-	PaperLevel     float64      `json:"paper_level"`
-	ErrorCount     int          `json:"error_count"`
-	TotalPrints    int64        `json:"total_prints"`
-	LastMaintenance time.Time   `json:"last_maintenance"`
-	NextMaintenance time.Time   `json:"next_maintenance"`
-	Alerts         []string     `json:"alerts,omitempty"`
+	PrinterID       string        `json:"printer_id"`
+	Status          PrinterStatus `json:"status"`
+	TonerLevels     []TonerLevel  `json:"toner_levels"`
+	DrumLife        float64       `json:"drum_life"`
+	PaperLevel      float64       `json:"paper_level"`
+	ErrorCount      int           `json:"error_count"`
+	TotalPrints     int64         `json:"total_prints"`
+	LastMaintenance time.Time     `json:"last_maintenance"`
+	NextMaintenance time.Time     `json:"next_maintenance"`
+	Alerts          []string      `json:"alerts,omitempty"`
 }
 
 // PrintJob 打印任务
 type PrintJob struct {
-	ID          string        `json:"id"`
-	PrinterID   string        `json:"printer_id"`
-	PrinterName string        `json:"printer_name"`
-	UserID      string        `json:"user_id"`
-	UserName    string        `json:"user_name"`
-	DocumentName string       `json:"document_name"`
-	FilePath    string        `json:"file_path"`
-	FileType    string        `json:"file_type"`
-	FileSize    int64         `json:"file_size"`
-	Copies      int           `json:"copies"`
-	PaperSize   PaperSize     `json:"paper_size"`
-	Orientation string        `json:"orientation"`
-	Quality     PrintQuality  `json:"quality"`
-	ColorMode   ColorMode     `json:"color_mode"`
-	Duplex      DuplexMode    `json:"duplex"`
-	Status      PrintJobStatus `json:"status"`
-	PagesPrinted int          `json:"pages_printed"`
-	TotalPages  int           `json:"total_pages"`
-	ErrorMessage string       `json:"error_message,omitempty"`
-	SubmittedAt time.Time     `json:"submitted_at"`
-	StartedAt   *time.Time    `json:"started_at,omitempty"`
-	CompletedAt *time.Time    `json:"completed_at,omitempty"`
-	Priority    int           `json:"priority"`
+	ID           string         `json:"id"`
+	PrinterID    string         `json:"printer_id"`
+	PrinterName  string         `json:"printer_name"`
+	UserID       string         `json:"user_id"`
+	UserName     string         `json:"user_name"`
+	DocumentName string         `json:"document_name"`
+	FilePath     string         `json:"file_path"`
+	FileType     string         `json:"file_type"`
+	FileSize     int64          `json:"file_size"`
+	Copies       int            `json:"copies"`
+	PaperSize    PaperSize      `json:"paper_size"`
+	Orientation  string         `json:"orientation"`
+	Quality      PrintQuality   `json:"quality"`
+	ColorMode    ColorMode      `json:"color_mode"`
+	Duplex       DuplexMode     `json:"duplex"`
+	Status       PrintJobStatus `json:"status"`
+	PagesPrinted int            `json:"pages_printed"`
+	TotalPages   int            `json:"total_pages"`
+	ErrorMessage string         `json:"error_message,omitempty"`
+	SubmittedAt  time.Time      `json:"submitted_at"`
+	StartedAt    *time.Time     `json:"started_at,omitempty"`
+	CompletedAt  *time.Time     `json:"completed_at,omitempty"`
+	Priority     int            `json:"priority"`
 }
 
 // PrintQueue 打印队列
@@ -179,34 +179,34 @@ type PrintQueue struct {
 
 // PrintPolicy 打印策略
 type PrintPolicy struct {
-	ID              string    `json:"id"`
-	Name            string    `json:"name"`
-	Description     string    `json:"description"`
-	MaxCopies       int       `json:"max_copies"`
-	AllowedSizes    []PaperSize `json:"allowed_sizes"`
-	AllowColor      bool      `json:"allow_color"`
-	AllowDuplex     bool      `json:"allow_duplex"`
-	MaxFileSize     int64     `json:"max_file_size"`
-	AllowedFileTypes []string `json:"allowed_file_types"`
-	QuotaDaily      int       `json:"quota_daily"`
-	QuotaMonthly    int       `json:"quota_monthly"`
-	Watermark       string    `json:"watermark,omitempty"`
-	Enabled         bool      `json:"enabled"`
-	CreatedAt       time.Time `json:"created_at"`
+	ID               string      `json:"id"`
+	Name             string      `json:"name"`
+	Description      string      `json:"description"`
+	MaxCopies        int         `json:"max_copies"`
+	AllowedSizes     []PaperSize `json:"allowed_sizes"`
+	AllowColor       bool        `json:"allow_color"`
+	AllowDuplex      bool        `json:"allow_duplex"`
+	MaxFileSize      int64       `json:"max_file_size"`
+	AllowedFileTypes []string    `json:"allowed_file_types"`
+	QuotaDaily       int         `json:"quota_daily"`
+	QuotaMonthly     int         `json:"quota_monthly"`
+	Watermark        string      `json:"watermark,omitempty"`
+	Enabled          bool        `json:"enabled"`
+	CreatedAt        time.Time   `json:"created_at"`
 }
 
 // PrintStats 打印统计
 type PrintStats struct {
-	TotalPrinters  int     `json:"total_printers"`
-	OnlinePrinters int     `json:"online_printers"`
-	TotalJobs      int64   `json:"total_jobs"`
-	JobsToday      int     `json:"jobs_today"`
-	JobsThisWeek   int     `json:"jobs_this_week"`
-	JobsThisMonth  int     `json:"jobs_this_month"`
-	TotalPages     int64   `json:"total_pages"`
-	PagesToday     int     `json:"pages_today"`
-	AvgJobTime     float64 `json:"avg_job_time"`
-	ErrorRate      float64 `json:"error_rate"`
+	TotalPrinters  int            `json:"total_printers"`
+	OnlinePrinters int            `json:"online_printers"`
+	TotalJobs      int64          `json:"total_jobs"`
+	JobsToday      int            `json:"jobs_today"`
+	JobsThisWeek   int            `json:"jobs_this_week"`
+	JobsThisMonth  int            `json:"jobs_this_month"`
+	TotalPages     int64          `json:"total_pages"`
+	PagesToday     int            `json:"pages_today"`
+	AvgJobTime     float64        `json:"avg_job_time"`
+	ErrorRate      float64        `json:"error_rate"`
 	TopPrinters    []PrinterUsage `json:"top_printers"`
 	TopUsers       []UserUsage    `json:"top_users"`
 }
@@ -221,10 +221,10 @@ type PrinterUsage struct {
 
 // UserUsage 用户使用统计
 type UserUsage struct {
-	UserID   string `json:"user_id"`
-	UserName string `json:"user_name"`
-	JobCount int64  `json:"job_count"`
-	PageCount int64 `json:"page_count"`
+	UserID    string `json:"user_id"`
+	UserName  string `json:"user_name"`
+	JobCount  int64  `json:"job_count"`
+	PageCount int64  `json:"page_count"`
 }
 
 // PrintTemplate 打印模板
@@ -242,16 +242,16 @@ type PrintTemplate struct {
 
 // ScheduledPrint 定时打印
 type ScheduledPrint struct {
-	ID          string    `json:"id"`
-	PrinterID   string    `json:"printer_id"`
-	TemplateID  string    `json:"template_id,omitempty"`
-	FilePath    string    `json:"file_path"`
-	CronExpr    string    `json:"cron_expr"`
-	Options     PrintOptions `json:"options"`
-	Enabled     bool      `json:"enabled"`
-	LastRun     *time.Time `json:"last_run,omitempty"`
-	NextRun     *time.Time `json:"next_run,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID         string       `json:"id"`
+	PrinterID  string       `json:"printer_id"`
+	TemplateID string       `json:"template_id,omitempty"`
+	FilePath   string       `json:"file_path"`
+	CronExpr   string       `json:"cron_expr"`
+	Options    PrintOptions `json:"options"`
+	Enabled    bool         `json:"enabled"`
+	LastRun    *time.Time   `json:"last_run,omitempty"`
+	NextRun    *time.Time   `json:"next_run,omitempty"`
+	CreatedAt  time.Time    `json:"created_at"`
 }
 
 // PrintOptions 打印选项

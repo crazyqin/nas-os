@@ -21,8 +21,8 @@ type UserPerm struct {
 
 // PermIssue 权限问题
 type PermIssue struct {
-	Type           string `json:"type"`       // over-privileged / orphan / stale / weak-password / no-2fa
-	Severity       string `json:"severity"`   // low / medium / high / critical
+	Type           string `json:"type"`     // over-privileged / orphan / stale / weak-password / no-2fa
+	Severity       string `json:"severity"` // low / medium / high / critical
 	UserID         string `json:"user_id"`
 	UserName       string `json:"user_name"`
 	Resource       string `json:"resource"`
@@ -35,11 +35,11 @@ type AuditReport struct {
 	GeneratedAt     time.Time      `json:"generated_at"`
 	TotalUsers      int            `json:"total_users"`
 	AdminCount      int            `json:"admin_count"`
-	ActiveUsers     int            `json:"active_users"`    // 30天内登录
+	ActiveUsers     int            `json:"active_users"` // 30天内登录
 	InactiveUsers   int            `json:"inactive_users"`
 	Issues          []PermIssue    `json:"issues"`
-	IssueSummary    map[string]int `json:"issue_summary"`     // 按类型统计
-	SeveritySummary map[string]int `json:"severity_summary"`  // 按严重级别统计
-	Score           int            `json:"score"`             // 安全评分 0-100
-	Recommendations []string       `json:"recommendations"`   // 总体建议
+	IssueSummary    map[string]int `json:"issue_summary"`    // 按类型统计
+	SeveritySummary map[string]int `json:"severity_summary"` // 按严重级别统计
+	Score           int            `json:"score"`            // 安全评分 0-100
+	Recommendations []string       `json:"recommendations"`  // 总体建议
 }

@@ -11,73 +11,73 @@ import (
 
 // MailServer 邮件服务器
 type MailServer struct {
-	mu          sync.RWMutex
-	domains     map[string]*Domain
-	users       map[string]*MailUser
-	messages    map[string]*Message
-	config      *Config
-	smtpServer  *SMTPServer
-	imapServer  *IMAPServer
-	running     bool
-	ctx         context.Context
-	cancel      context.CancelFunc
+	mu         sync.RWMutex
+	domains    map[string]*Domain
+	users      map[string]*MailUser
+	messages   map[string]*Message
+	config     *Config
+	smtpServer *SMTPServer
+	imapServer *IMAPServer
+	running    bool
+	ctx        context.Context
+	cancel     context.CancelFunc
 }
 
 // Config 邮件服务器配置
 type Config struct {
-	SMTPHost     string `json:"smtp_host"`
-	SMTPPort     int    `json:"smtp_port"`
-	IMAPHost     string `json:"imap_host"`
-	IMAPPort     int    `json:"imap_port"`
-	MaxMailboxes int    `json:"max_mailboxes"`
-	MaxMessageSize int64 `json:"max_message_size"`
-	EnableTLS    bool   `json:"enable_tls"`
-	CertFile     string `json:"cert_file"`
-	KeyFile      string `json:"key_file"`
+	SMTPHost       string `json:"smtp_host"`
+	SMTPPort       int    `json:"smtp_port"`
+	IMAPHost       string `json:"imap_host"`
+	IMAPPort       int    `json:"imap_port"`
+	MaxMailboxes   int    `json:"max_mailboxes"`
+	MaxMessageSize int64  `json:"max_message_size"`
+	EnableTLS      bool   `json:"enable_tls"`
+	CertFile       string `json:"cert_file"`
+	KeyFile        string `json:"key_file"`
 }
 
 // Domain 邮件域名
 type Domain struct {
-	Name       string    `json:"name"`
-	Enabled    bool      `json:"enabled"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
-	UserCount  int       `json:"user_count"`
-	Aliases    []string  `json:"aliases"`
+	Name      string    `json:"name"`
+	Enabled   bool      `json:"enabled"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	UserCount int       `json:"user_count"`
+	Aliases   []string  `json:"aliases"`
 }
 
 // MailUser 邮件用户
 type MailUser struct {
-	Username    string    `json:"username"`
-	Email       string    `json:"email"`
-	Password    string    `json:"-"`
-	Domain      string    `json:"domain"`
-	Quota       int64     `json:"quota"`      // 配额（字节）
-	Used        int64     `json:"used"`       // 已使用（字节）
-	Enabled     bool      `json:"enabled"`
-	CreatedAt   time.Time `json:"created_at"`
-	LastLogin   time.Time `json:"last_login"`
-	Aliases     []string  `json:"aliases"`
-	ForwardTo   []string  `json:"forward_to"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	Password  string    `json:"-"`
+	Domain    string    `json:"domain"`
+	Quota     int64     `json:"quota"` // 配额（字节）
+	Used      int64     `json:"used"`  // 已使用（字节）
+	Enabled   bool      `json:"enabled"`
+	CreatedAt time.Time `json:"created_at"`
+	LastLogin time.Time `json:"last_login"`
+	Aliases   []string  `json:"aliases"`
+	ForwardTo []string  `json:"forward_to"`
 }
 
 // Message 邮件消息
 type Message struct {
-	ID          string    `json:"id"`
-	From        string    `json:"from"`
-	To          []string  `json:"to"`
-	Cc          []string  `json:"cc"`
-	Bcc         []string  `json:"bcc"`
-	Subject     string    `json:"subject"`
-	Body        string    `json:"body"`
-	HTML        string    `json:"html"`
+	ID          string       `json:"id"`
+	From        string       `json:"from"`
+	To          []string     `json:"to"`
+	Cc          []string     `json:"cc"`
+	Bcc         []string     `json:"bcc"`
+	Subject     string       `json:"subject"`
+	Body        string       `json:"body"`
+	HTML        string       `json:"html"`
 	Attachments []Attachment `json:"attachments"`
-	Size        int64     `json:"size"`
-	ReceivedAt  time.Time `json:"received_at"`
-	Read        bool      `json:"read"`
-	Flagged     bool      `json:"flagged"`
-	Deleted     bool      `json:"deleted"`
-	Folder      string    `json:"folder"`
+	Size        int64        `json:"size"`
+	ReceivedAt  time.Time    `json:"received_at"`
+	Read        bool         `json:"read"`
+	Flagged     bool         `json:"flagged"`
+	Deleted     bool         `json:"deleted"`
+	Folder      string       `json:"folder"`
 }
 
 // Attachment 附件
@@ -90,30 +90,30 @@ type Attachment struct {
 
 // SMTPServer SMTP 服务器
 type SMTPServer struct {
-	host     string
-	port     int
+	host      string
+	port      int
 	enableTLS bool
-	certFile string
-	keyFile  string
+	certFile  string
+	keyFile   string
 }
 
 // IMAPServer IMAP 服务器
 type IMAPServer struct {
-	host     string
-	port     int
+	host      string
+	port      int
 	enableTLS bool
-	certFile string
-	keyFile  string
+	certFile  string
+	keyFile   string
 }
 
 // NewMailServer 创建邮件服务器
 func NewMailServer(config *Config) *MailServer {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &MailServer{
-		domains:    make(map[string]*Domain),
-		users:      make(map[string]*MailUser),
-		messages:   make(map[string]*Message),
-		config:     config,
+		domains:  make(map[string]*Domain),
+		users:    make(map[string]*MailUser),
+		messages: make(map[string]*Message),
+		config:   config,
 		smtpServer: &SMTPServer{
 			host:      config.SMTPHost,
 			port:      config.SMTPPort,
@@ -338,13 +338,13 @@ func (ms *MailServer) GetStats() map[string]interface{} {
 	defer ms.mu.RUnlock()
 
 	return map[string]interface{}{
-		"domains":      len(ms.domains),
-		"users":        len(ms.users),
-		"messages":     len(ms.messages),
-		"running":      ms.running,
-		"smtp_port":    ms.config.SMTPPort,
-		"imap_port":    ms.config.IMAPPort,
-		"tls_enabled":  ms.config.EnableTLS,
+		"domains":     len(ms.domains),
+		"users":       len(ms.users),
+		"messages":    len(ms.messages),
+		"running":     ms.running,
+		"smtp_port":   ms.config.SMTPPort,
+		"imap_port":   ms.config.IMAPPort,
+		"tls_enabled": ms.config.EnableTLS,
 	}
 }
 

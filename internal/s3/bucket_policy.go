@@ -15,27 +15,27 @@ type PolicyAction string
 
 // Well-known S3 policy actions.
 const (
-	PolicyActionGetObject            PolicyAction = "s3:GetObject"
-	PolicyActionPutObject            PolicyAction = "s3:PutObject"
-	PolicyActionDeleteObject         PolicyAction = "s3:DeleteObject"
-	PolicyActionListBucket           PolicyAction = "s3:ListBucket"
-	PolicyActionGetBucketLocation    PolicyAction = "s3:GetBucketLocation"
-	PolicyActionGetBucketVersioning  PolicyAction = "s3:GetBucketVersioning"
-	PolicyActionPutBucketVersioning  PolicyAction = "s3:PutBucketVersioning"
-	PolicyActionGetBucketPolicy      PolicyAction = "s3:GetBucketPolicy"
-	PolicyActionPutBucketPolicy      PolicyAction = "s3:PutBucketPolicy"
-	PolicyActionDeleteBucketPolicy   PolicyAction = "s3:DeleteBucketPolicy"
-	PolicyActionGetObjectVersion     PolicyAction = "s3:GetObjectVersion"
-	PolicyActionDeleteObjectVersion  PolicyAction = "s3:DeleteObjectVersion"
-	PolicyActionGetObjectRetention   PolicyAction = "s3:GetObjectRetention"
-	PolicyActionPutObjectRetention   PolicyAction = "s3:PutObjectRetention"
-	PolicyActionGetObjectLegalHold   PolicyAction = "s3:GetObjectLegalHold"
-	PolicyActionPutObjectLegalHold   PolicyAction = "s3:PutObjectLegalHold"
-	PolicyActionGetLifecycleConfig   PolicyAction = "s3:GetLifecycleConfiguration"
-	PolicyActionPutLifecycleConfig   PolicyAction = "s3:PutLifecycleConfiguration"
-	PolicyActionGetObjectLockConfig  PolicyAction = "s3:GetObjectLockConfiguration"
-	PolicyActionPutObjectLockConfig  PolicyAction = "s3:PutObjectLockConfiguration"
-	PolicyActionAll                  PolicyAction = "s3:*"
+	PolicyActionGetObject           PolicyAction = "s3:GetObject"
+	PolicyActionPutObject           PolicyAction = "s3:PutObject"
+	PolicyActionDeleteObject        PolicyAction = "s3:DeleteObject"
+	PolicyActionListBucket          PolicyAction = "s3:ListBucket"
+	PolicyActionGetBucketLocation   PolicyAction = "s3:GetBucketLocation"
+	PolicyActionGetBucketVersioning PolicyAction = "s3:GetBucketVersioning"
+	PolicyActionPutBucketVersioning PolicyAction = "s3:PutBucketVersioning"
+	PolicyActionGetBucketPolicy     PolicyAction = "s3:GetBucketPolicy"
+	PolicyActionPutBucketPolicy     PolicyAction = "s3:PutBucketPolicy"
+	PolicyActionDeleteBucketPolicy  PolicyAction = "s3:DeleteBucketPolicy"
+	PolicyActionGetObjectVersion    PolicyAction = "s3:GetObjectVersion"
+	PolicyActionDeleteObjectVersion PolicyAction = "s3:DeleteObjectVersion"
+	PolicyActionGetObjectRetention  PolicyAction = "s3:GetObjectRetention"
+	PolicyActionPutObjectRetention  PolicyAction = "s3:PutObjectRetention"
+	PolicyActionGetObjectLegalHold  PolicyAction = "s3:GetObjectLegalHold"
+	PolicyActionPutObjectLegalHold  PolicyAction = "s3:PutObjectLegalHold"
+	PolicyActionGetLifecycleConfig  PolicyAction = "s3:GetLifecycleConfiguration"
+	PolicyActionPutLifecycleConfig  PolicyAction = "s3:PutLifecycleConfiguration"
+	PolicyActionGetObjectLockConfig PolicyAction = "s3:GetObjectLockConfiguration"
+	PolicyActionPutObjectLockConfig PolicyAction = "s3:PutObjectLockConfiguration"
+	PolicyActionAll                 PolicyAction = "s3:*"
 )
 
 // PolicyEffect represents the effect of a policy statement.
@@ -49,10 +49,10 @@ const (
 
 // PolicyEvaluationResult contains the result of a policy evaluation.
 type PolicyEvaluationResult struct {
-	Allowed bool           `json:"allowed"`
-	Effect  PolicyEffect   `json:"effect"`
-	Matched []string       `json:"matched"` // matched statement SIDs
-	Reason  string         `json:"reason"`
+	Allowed bool         `json:"allowed"`
+	Effect  PolicyEffect `json:"effect"`
+	Matched []string     `json:"matched"` // matched statement SIDs
+	Reason  string       `json:"reason"`
 }
 
 // PolicyRequest represents a request to evaluate against a policy.

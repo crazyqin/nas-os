@@ -75,10 +75,10 @@ func (h *Handler) Summary(c *gin.Context) {
 
 // CreateRuleRequest 创建规则请求
 type CreateRuleRequest struct {
-	Name     string   `json:"name" binding:"required"`
-	Condition string  `json:"condition" binding:"required"`
-	Severity Severity `json:"severity" binding:"required"`
-	Category Category `json:"category" binding:"required"`
+	Name      string   `json:"name" binding:"required"`
+	Condition string   `json:"condition" binding:"required"`
+	Severity  Severity `json:"severity" binding:"required"`
+	Category  Category `json:"category" binding:"required"`
 }
 
 // CreateRule POST /api/v1/alerts/guided/rules

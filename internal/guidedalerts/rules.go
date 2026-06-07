@@ -17,35 +17,35 @@ type AlertRule struct {
 	Labels      map[string]string `json:"labels,omitempty"`
 
 	// 条件配置
-	Condition   RuleCondition     `json:"condition"`
+	Condition RuleCondition `json:"condition"`
 
 	// 引导修复
-	Guidance    *Guidance         `json:"guidance,omitempty"`
-	MenuHint    *MenuHint         `json:"menuHint,omitempty"`
-	AutoFix     *AutoFix          `json:"autoFix,omitempty"`
+	Guidance *Guidance `json:"guidance,omitempty"`
+	MenuHint *MenuHint `json:"menuHint,omitempty"`
+	AutoFix  *AutoFix  `json:"autoFix,omitempty"`
 
 	// 升级策略
-	Escalation  *EscalationConfig `json:"escalation,omitempty"`
+	Escalation *EscalationConfig `json:"escalation,omitempty"`
 
 	// 聚合与去重
-	GroupBy     []string          `json:"groupBy,omitempty"`    // 按标签分组
-	RepeatWait  time.Duration     `json:"repeatWait"`          // 重复告警等待时间
+	GroupBy    []string      `json:"groupBy,omitempty"` // 按标签分组
+	RepeatWait time.Duration `json:"repeatWait"`        // 重复告警等待时间
 
 	// 静默与抑制
 	SilenceMatchers []LabelMatcher `json:"silenceMatchers,omitempty"`
 
-	CreatedAt   time.Time         `json:"createdAt"`
-	UpdatedAt   time.Time         `json:"updatedAt"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // RuleCondition 规则条件
 type RuleCondition struct {
-	Type       ConditionType     `json:"type"`       // threshold, range, status, custom
-	Metric     string            `json:"metric"`     // 指标名
-	Operator   string            `json:"operator"`   // gt, lt, gte, lte, eq, ne
-	Threshold  float64           `json:"threshold"`  // 阈值
-	Duration   time.Duration     `json:"duration"`   // 持续时间
-	For        time.Duration     `json:"for"`        // 触发前持续满足条件的时间
+	Type      ConditionType `json:"type"`      // threshold, range, status, custom
+	Metric    string        `json:"metric"`    // 指标名
+	Operator  string        `json:"operator"`  // gt, lt, gte, lte, eq, ne
+	Threshold float64       `json:"threshold"` // 阈值
+	Duration  time.Duration `json:"duration"`  // 持续时间
+	For       time.Duration `json:"for"`       // 触发前持续满足条件的时间
 }
 
 // ConditionType 条件类型
@@ -60,10 +60,10 @@ const (
 
 // EscalationConfig 升级配置
 type EscalationConfig struct {
-	Enabled     bool              `json:"enabled"`
-	Timeout     time.Duration     `json:"timeout"`
-	MaxLevel    int               `json:"maxLevel"`
-	Targets     []EscalationTarget `json:"targets"`
+	Enabled  bool               `json:"enabled"`
+	Timeout  time.Duration      `json:"timeout"`
+	MaxLevel int                `json:"maxLevel"`
+	Targets  []EscalationTarget `json:"targets"`
 }
 
 // EscalationTarget 升级目标
@@ -423,9 +423,9 @@ func GetBuiltinRules() []*AlertRule {
 			},
 			AutoFix: &AutoFix{
 				Available: true,
-				Commands:   []string{"systemctl restart <service>"},
-				NeedsRoot:  true,
-				RiskLevel:  "medium",
+				Commands:  []string{"systemctl restart <service>"},
+				NeedsRoot: true,
+				RiskLevel: "medium",
 			},
 			Escalation: &EscalationConfig{
 				Enabled:  true,

@@ -9,11 +9,11 @@ import (
 
 // OpsCenter 运维中心
 type OpsCenter struct {
-	mu       sync.RWMutex
-	config   Config
-	nodes    map[string]*NASNode
-	alerts   []*Alert
-	checks   map[string]*HealthCheck
+	mu     sync.RWMutex
+	config Config
+	nodes  map[string]*NASNode
+	alerts []*Alert
+	checks map[string]*HealthCheck
 }
 
 // New 创建运维中心

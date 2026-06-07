@@ -42,42 +42,42 @@ const (
 type ProcessingPurpose string
 
 const (
-	PurposeAnalytics    ProcessingPurpose = "analytics"
-	PurposeStorage      ProcessingPurpose = "storage"
-	PurposeTransfer     ProcessingPurpose = "transfer"
-	PurposeDeletion     ProcessingPurpose = "deletion"
+	PurposeAnalytics      ProcessingPurpose = "analytics"
+	PurposeStorage        ProcessingPurpose = "storage"
+	PurposeTransfer       ProcessingPurpose = "transfer"
+	PurposeDeletion       ProcessingPurpose = "deletion"
 	PurposeTransformation ProcessingPurpose = "transformation"
-	PurposeAggregation  ProcessingPurpose = "aggregation"
+	PurposeAggregation    ProcessingPurpose = "aggregation"
 )
 
 // DataNode 数据节点（数据资产）
 type DataNode struct {
-	ID               string             `json:"id"`
-	Name             string             `json:"name"`
-	Description      string             `json:"description,omitempty"`
-	Type             DataSourceType     `json:"type"`
-	Location         string             `json:"location,omitempty"`
-	Database         string             `json:"database,omitempty"`
-	Schema           string             `json:"schema,omitempty"`
-	Table            string             `json:"table,omitempty"`
-	Columns          []string           `json:"columns,omitempty"`
-	Classification   DataClassification `json:"classification"`
-	Tags             []string           `json:"tags,omitempty"`
-	Owner            string             `json:"owner,omitempty"`
-	CreatedAt        time.Time          `json:"created_at"`
-	UpdatedAt        time.Time          `json:"updated_at"`
+	ID             string             `json:"id"`
+	Name           string             `json:"name"`
+	Description    string             `json:"description,omitempty"`
+	Type           DataSourceType     `json:"type"`
+	Location       string             `json:"location,omitempty"`
+	Database       string             `json:"database,omitempty"`
+	Schema         string             `json:"schema,omitempty"`
+	Table          string             `json:"table,omitempty"`
+	Columns        []string           `json:"columns,omitempty"`
+	Classification DataClassification `json:"classification"`
+	Tags           []string           `json:"tags,omitempty"`
+	Owner          string             `json:"owner,omitempty"`
+	CreatedAt      time.Time          `json:"created_at"`
+	UpdatedAt      time.Time          `json:"updated_at"`
 }
 
 // EdgeType 边类型
 type EdgeType string
 
 const (
-	EdgeDirect        EdgeType = "direct"
-	EdgeTransform     EdgeType = "transform"
-	EdgeAggregate     EdgeType = "aggregate"
-	EdgeFilter        EdgeType = "filter"
-	EdgeJoin          EdgeType = "join"
-	EdgeDerived       EdgeType = "derived"
+	EdgeDirect    EdgeType = "direct"
+	EdgeTransform EdgeType = "transform"
+	EdgeAggregate EdgeType = "aggregate"
+	EdgeFilter    EdgeType = "filter"
+	EdgeJoin      EdgeType = "join"
+	EdgeDerived   EdgeType = "derived"
 )
 
 // LineageEdge 血缘边（数据流转关系）
@@ -94,41 +94,41 @@ type LineageEdge struct {
 
 // ProcessingRecord 处理记录（合规审计用）
 type ProcessingRecord struct {
-	ID             string               `json:"id"`
-	NodeID         string               `json:"node_id"`
-	Operation      ProcessingPurpose    `json:"operation"`
-	Regulation     ComplianceRegulation `json:"regulation"`
-	Purpose        string               `json:"purpose"`
-	Processor      string               `json:"processor"`
-	LegalBasis     string               `json:"legal_basis,omitempty"`
-	Retention      string               `json:"retention,omitempty"`
-	CrossBorder    bool                 `json:"cross_border"`
-	DestCountry    string               `json:"dest_country,omitempty"`
-	ConsentObtained bool               `json:"consent_obtained"`
-	Timestamp      time.Time            `json:"timestamp"`
+	ID              string               `json:"id"`
+	NodeID          string               `json:"node_id"`
+	Operation       ProcessingPurpose    `json:"operation"`
+	Regulation      ComplianceRegulation `json:"regulation"`
+	Purpose         string               `json:"purpose"`
+	Processor       string               `json:"processor"`
+	LegalBasis      string               `json:"legal_basis,omitempty"`
+	Retention       string               `json:"retention,omitempty"`
+	CrossBorder     bool                 `json:"cross_border"`
+	DestCountry     string               `json:"dest_country,omitempty"`
+	ConsentObtained bool                 `json:"consent_obtained"`
+	Timestamp       time.Time            `json:"timestamp"`
 }
 
 // ImpactResult 影响分析结果
 type ImpactResult struct {
-	NodeID     string      `json:"node_id"`
-	Depth      int         `json:"depth"`
-	Affected   []*DataNode `json:"affected"`
+	NodeID     string         `json:"node_id"`
+	Depth      int            `json:"depth"`
+	Affected   []*DataNode    `json:"affected"`
 	Edges      []*LineageEdge `json:"edges"`
-	TotalCount int         `json:"total_count"`
+	TotalCount int            `json:"total_count"`
 }
 
 // TraceResult 溯源结果
 type TraceResult struct {
-	NodeID     string      `json:"node_id"`
-	Depth      int         `json:"depth"`
-	Sources    []*DataNode `json:"sources"`
+	NodeID     string         `json:"node_id"`
+	Depth      int            `json:"depth"`
+	Sources    []*DataNode    `json:"sources"`
 	Edges      []*LineageEdge `json:"edges"`
-	TotalCount int         `json:"total_count"`
+	TotalCount int            `json:"total_count"`
 }
 
 // LineageGraph 血缘图
 type LineageGraph struct {
-	Nodes []*DataNode   `json:"nodes"`
+	Nodes []*DataNode    `json:"nodes"`
 	Edges []*LineageEdge `json:"edges"`
 }
 

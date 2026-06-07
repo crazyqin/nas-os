@@ -14,12 +14,12 @@ type Analyzer struct {
 func NewAnalyzer() *Analyzer {
 	return &Analyzer{
 		weights: map[uint8]float64{
-			5:   25.0,  // Reallocated Sectors Count（重分配扇区计数）- 高权重
-			187: 15.0,  // Reported Uncorrectable Errors（报告的不可纠正错误）
-			188: 10.0,  // Command Timeout（命令超时）
-			197: 20.0,  // Current Pending Sector Count（当前待处理扇区计数）- 高权重
-			198: 20.0,  // Offline Uncorrectable（离线不可纠正扇区计数）- 高权重
-			9:   10.0,  // Power-On Hours（通电时间）
+			5:   25.0, // Reallocated Sectors Count（重分配扇区计数）- 高权重
+			187: 15.0, // Reported Uncorrectable Errors（报告的不可纠正错误）
+			188: 10.0, // Command Timeout（命令超时）
+			197: 20.0, // Current Pending Sector Count（当前待处理扇区计数）- 高权重
+			198: 20.0, // Offline Uncorrectable（离线不可纠正扇区计数）- 高权重
+			9:   10.0, // Power-On Hours（通电时间）
 		},
 	}
 }
@@ -231,7 +231,7 @@ func (a *Analyzer) AnalyzePowerOnHours(hours uint64) (float64, string) {
 	switch {
 	case hours <= 0:
 		return 100, "新磁盘"
-	case hours <= 8760:  // 1年
+	case hours <= 8760: // 1年
 		return 100, "通电时间正常"
 	case hours <= 17520: // 2年
 		return 90, "通电时间正常"

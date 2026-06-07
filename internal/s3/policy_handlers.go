@@ -215,11 +215,11 @@ func (ph *PolicyHandlers) applyLifecycleRules(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":       "Lifecycle rules applied successfully",
-		"bucket":        bucketName,
-		"expired":       result.Expired,
-		"transitioned":  result.Transitioned,
-		"errors":        result.Errors,
+		"message":      "Lifecycle rules applied successfully",
+		"bucket":       bucketName,
+		"expired":      result.Expired,
+		"transitioned": result.Transitioned,
+		"errors":       result.Errors,
 	})
 }
 
@@ -393,8 +393,8 @@ func (ph *PolicyHandlers) sendManagerError(c *gin.Context, err error) {
 	if s3Err, ok := err.(*S3Error); ok {
 		c.JSON(s3Err.Code, gin.H{
 			"error": gin.H{
-				"code":    s3Err.CodeStr,
-				"message": s3Err.Message,
+				"code":     s3Err.CodeStr,
+				"message":  s3Err.Message,
 				"resource": s3Err.Resource,
 			},
 		})

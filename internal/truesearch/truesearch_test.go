@@ -374,9 +374,9 @@ func TestSearchPagination(t *testing.T) {
 
 	// 第二页
 	resp2, _ := m.Search(&SearchQuery{
-		Query: "file",
-		Mode:  SearchModeFilename,
-		Limit: 5,
+		Query:  "file",
+		Mode:   SearchModeFilename,
+		Limit:  5,
 		Offset: 5,
 	})
 

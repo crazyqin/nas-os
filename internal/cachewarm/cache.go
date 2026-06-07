@@ -30,28 +30,28 @@ const (
 
 // CacheEntry 缓存条目.
 type CacheEntry struct {
-	Key       string      `json:"key"`
-	Value     interface{} `json:"value"`
-	Size      int64       `json:"size"`
-	HitCount  int64       `json:"hitCount"`
-	CreatedAt time.Time   `json:"createdAt"`
-	LastHit   time.Time   `json:"lastHit"`
-	Frequency int         `json:"frequency"` // 访问频率
+	Key       string        `json:"key"`
+	Value     interface{}   `json:"value"`
+	Size      int64         `json:"size"`
+	HitCount  int64         `json:"hitCount"`
+	CreatedAt time.Time     `json:"createdAt"`
+	LastHit   time.Time     `json:"lastHit"`
+	Frequency int           `json:"frequency"` // 访问频率
 	TTL       time.Duration `json:"ttl"`
-	ExpiresAt time.Time   `json:"expiresAt"`
+	ExpiresAt time.Time     `json:"expiresAt"`
 }
 
 // WarmTask 预热任务.
 type WarmTask struct {
-	ID        string        `json:"id"`
-	Keys      []string      `json:"keys"`
-	Strategy  WarmStrategy  `json:"strategy"`
-	Schedule  string        `json:"schedule"` // cron表达式
-	Status    string        `json:"status"`
-	LastRun   time.Time     `json:"lastRun"`
-	NextRun   time.Time     `json:"nextRun"`
-	Warmed    int           `json:"warmed"`
-	Failed    int           `json:"failed"`
+	ID       string       `json:"id"`
+	Keys     []string     `json:"keys"`
+	Strategy WarmStrategy `json:"strategy"`
+	Schedule string       `json:"schedule"` // cron表达式
+	Status   string       `json:"status"`
+	LastRun  time.Time    `json:"lastRun"`
+	NextRun  time.Time    `json:"nextRun"`
+	Warmed   int          `json:"warmed"`
+	Failed   int          `json:"failed"`
 }
 
 // AccessPattern 访问模式.
@@ -64,16 +64,16 @@ type AccessPattern struct {
 
 // CacheStats 缓存统计.
 type CacheStats struct {
-	mu          sync.RWMutex
-	Hits        int64   `json:"hits"`
-	Misses      int64   `json:"misses"`
-	HitRate     float64 `json:"hitRate"`
-	TotalSize   int64   `json:"totalSize"`
-	EntryCount  int     `json:"entryCount"`
-	MaxSize     int64   `json:"maxSize"`
-	Evictions   int64   `json:"evictions"`
-	WarmHits    int64   `json:"warmHits"`    // 预热命中
-	WarmMisses  int64   `json:"warmMisses"`  // 预热未命中
+	mu         sync.RWMutex
+	Hits       int64   `json:"hits"`
+	Misses     int64   `json:"misses"`
+	HitRate    float64 `json:"hitRate"`
+	TotalSize  int64   `json:"totalSize"`
+	EntryCount int     `json:"entryCount"`
+	MaxSize    int64   `json:"maxSize"`
+	Evictions  int64   `json:"evictions"`
+	WarmHits   int64   `json:"warmHits"`   // 预热命中
+	WarmMisses int64   `json:"warmMisses"` // 预热未命中
 }
 
 // SmartCache 智能缓存.

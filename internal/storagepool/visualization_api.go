@@ -47,15 +47,15 @@ type TopologyData struct {
 
 // PoolNode 存储池节点
 type PoolNode struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Type     string `json:"type"` // "pool"
-	Status   string `json:"status"`
-	Capacity int64  `json:"capacity"`
-	Used     int64  `json:"used"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Type      string `json:"type"` // "pool"
+	Status    string `json:"status"`
+	Capacity  int64  `json:"capacity"`
+	Used      int64  `json:"used"`
 	RAIDLevel string `json:"raid_level"`
-	X        int    `json:"x"` // 布局坐标
-	Y        int    `json:"y"`
+	X         int    `json:"x"` // 布局坐标
+	Y         int    `json:"y"`
 }
 
 // DiskNode 磁盘节点
@@ -63,14 +63,14 @@ type DiskNode struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Type        string `json:"type"` // "disk"
-	Status     string `json:"status"`
-	Capacity   int64  `json:"capacity"`
-	Model      string `json:"model"`
-	Serial     string `json:"serial"`
-	Temperature int   `json:"temperature"`
-	PoolID     string `json:"pool_id,omitempty"`
-	X          int    `json:"x"`
-	Y          int    `json:"y"`
+	Status      string `json:"status"`
+	Capacity    int64  `json:"capacity"`
+	Model       string `json:"model"`
+	Serial      string `json:"serial"`
+	Temperature int    `json:"temperature"`
+	PoolID      string `json:"pool_id,omitempty"`
+	X           int    `json:"x"`
+	Y           int    `json:"y"`
 }
 
 // Link 连接关系
@@ -83,7 +83,7 @@ type Link struct {
 // GetTopology 获取存储池拓扑图数据
 func (api *VisualizationAPI) GetTopology(c *gin.Context) {
 	pools := api.manager.ListPools()
-	
+
 	topology := TopologyData{
 		Pools: make([]PoolNode, 0),
 		Disks: make([]DiskNode, 0),
@@ -149,45 +149,45 @@ func (api *VisualizationAPI) GetTopology(c *gin.Context) {
 
 // CapacityChartData 容量饼图数据
 type CapacityChartData struct {
-	Total    int64           `json:"total"`
-	Used     int64           `json:"used"`
-	Free     int64           `json:"free"`
-	ByPool   []PoolCapacity  `json:"by_pool"`
-	ByType   []TypeCapacity  `json:"by_type"`
+	Total  int64          `json:"total"`
+	Used   int64          `json:"used"`
+	Free   int64          `json:"free"`
+	ByPool []PoolCapacity `json:"by_pool"`
+	ByType []TypeCapacity `json:"by_type"`
 }
 
 // PoolCapacity 按存储池的容量分布
 type PoolCapacity struct {
-	PoolID   string `json:"pool_id"`
-	PoolName string `json:"pool_name"`
-	Capacity int64  `json:"capacity"`
-	Used     int64  `json:"used"`
+	PoolID   string  `json:"pool_id"`
+	PoolName string  `json:"pool_name"`
+	Capacity int64   `json:"capacity"`
+	Used     int64   `json:"used"`
 	Percent  float64 `json:"percent"`
 }
 
 // TypeCapacity 按类型的容量分布
 type TypeCapacity struct {
-	Type     string `json:"type"` // "media", "backup", "system", "other"
-	Capacity int64  `json:"capacity"`
+	Type     string  `json:"type"` // "media", "backup", "system", "other"
+	Capacity int64   `json:"capacity"`
 	Percent  float64 `json:"percent"`
 }
 
 // GetCapacityChart 获取容量饼图数据
 func (api *VisualizationAPI) GetCapacityChart(c *gin.Context) {
 	pools := api.manager.ListPools()
-	
+
 	var totalCapacity, totalUsed int64
 	byPool := make([]PoolCapacity, 0)
-	
+
 	for _, pool := range pools {
 		totalCapacity += int64(pool.Size)
 		totalUsed += int64(pool.Used)
-		
+
 		percent := 0.0
 		if pool.Size > 0 {
 			percent = float64(pool.Used) / float64(pool.Size) * 100
 		}
-		
+
 		byPool = append(byPool, PoolCapacity{
 			PoolID:   pool.ID,
 			PoolName: pool.Name,
@@ -223,20 +223,20 @@ type RAIDStatusData struct {
 
 // RAIDPoolStatus RAID存储池状态
 type RAIDPoolStatus struct {
-	PoolID     string          `json:"pool_id"`
-	PoolName   string          `json:"pool_name"`
-	RAIDLevel  string          `json:"raid_level"`
-	Status     string          `json:"status"`
-	Health     int             `json:"health"` // 0-100健康评分
+	PoolID     string           `json:"pool_id"`
+	PoolName   string           `json:"pool_name"`
+	RAIDLevel  string           `json:"raid_level"`
+	Status     string           `json:"status"`
+	Health     int              `json:"health"` // 0-100健康评分
 	Disks      []RAIDDiskStatus `json:"disks"`
-	Rebuilding *RebuildStatus  `json:"rebuilding,omitempty"`
-	Alerts     []string        `json:"alerts"`
+	Rebuilding *RebuildStatus   `json:"rebuilding,omitempty"`
+	Alerts     []string         `json:"alerts"`
 }
 
 // RAIDDiskStatus RAID磁盘状态
 type RAIDDiskStatus struct {
 	DevicePath string `json:"device_path"`
-	Status     string `json:"status"` // "active", "spare", "failed", "rebuilding"
+	Status     string `json:"status"`   // "active", "spare", "failed", "rebuilding"
 	Progress   int    `json:"progress"` // 重建进度 0-100
 	IsSpare    bool   `json:"is_spare"`
 }
@@ -252,7 +252,7 @@ type RebuildStatus struct {
 // GetRAIDStatus 获取RAID状态可视化
 func (api *VisualizationAPI) GetRAIDStatus(c *gin.Context) {
 	pools := api.manager.ListPools()
-	
+
 	raidData := RAIDStatusData{
 		Pools: make([]RAIDPoolStatus, 0),
 	}
@@ -294,7 +294,7 @@ func (api *VisualizationAPI) GetRAIDStatus(c *gin.Context) {
 				InProgress: true,
 				Progress:   45.5,
 				Estimate:   "约2小时完成",
-				Speed:     "150 MB/s",
+				Speed:      "150 MB/s",
 			}
 		}
 
@@ -322,7 +322,7 @@ type DiskHeatmapEntry struct {
 // GetDiskHeatmap 获取磁盘热力图
 func (api *VisualizationAPI) GetDiskHeatmap(c *gin.Context) {
 	pools := api.manager.ListPools()
-	
+
 	heatmap := DiskHeatmapData{
 		Disks: make([]DiskHeatmapEntry, 0),
 	}
@@ -363,9 +363,9 @@ type PerformanceTrendData struct {
 
 // PoolPerformance 存储池性能
 type PoolPerformance struct {
-	PoolID   string        `json:"pool_id"`
-	PoolName string        `json:"pool_name"`
-	Data     []PerfPoint   `json:"data"`
+	PoolID   string      `json:"pool_id"`
+	PoolName string      `json:"pool_name"`
+	Data     []PerfPoint `json:"data"`
 }
 
 // PerfPoint 性能数据点
@@ -381,9 +381,9 @@ type PerfPoint struct {
 // GetPerformanceTrend 获取性能趋势
 func (api *VisualizationAPI) GetPerformanceTrend(c *gin.Context) {
 	timeRange := c.DefaultQuery("range", "1h")
-	
+
 	pools := api.manager.ListPools()
-	
+
 	trendData := PerformanceTrendData{
 		TimeRange: timeRange,
 		Pools:     make([]PoolPerformance, 0),
@@ -404,25 +404,25 @@ func (api *VisualizationAPI) GetPerformanceTrend(c *gin.Context) {
 
 // HealthScoreData 健康评分数据
 type HealthScoreData struct {
-	OverallScore int             `json:"overall_score"`
-	Pools        []PoolHealth    `json:"pools"`
+	OverallScore    int          `json:"overall_score"`
+	Pools           []PoolHealth `json:"pools"`
 	Recommendations []string     `json:"recommendations"`
 }
 
 // PoolHealth 存储池健康状态
 type PoolHealth struct {
-	PoolID       string `json:"pool_id"`
-	PoolName     string `json:"pool_name"`
-	Score        int    `json:"score"`
-	Status       string `json:"status"`
-	Issues       int    `json:"issues"`
-	CriticalDisks int   `json:"critical_disks"`
+	PoolID        string `json:"pool_id"`
+	PoolName      string `json:"pool_name"`
+	Score         int    `json:"score"`
+	Status        string `json:"status"`
+	Issues        int    `json:"issues"`
+	CriticalDisks int    `json:"critical_disks"`
 }
 
 // GetHealthScore 获取健康评分
 func (api *VisualizationAPI) GetHealthScore(c *gin.Context) {
 	pools := api.manager.ListPools()
-	
+
 	var overallScore int = 100
 	poolHealths := make([]PoolHealth, 0)
 	recommendations := make([]string, 0)
@@ -443,7 +443,7 @@ func (api *VisualizationAPI) GetHealthScore(c *gin.Context) {
 				overallScore -= 15
 			}
 			if disk.Temperature > 55 {
-				recommendations = append(recommendations, 
+				recommendations = append(recommendations,
 					"磁盘 "+disk.Path+" 温度过高，建议检查散热")
 			}
 		}
@@ -463,8 +463,8 @@ func (api *VisualizationAPI) GetHealthScore(c *gin.Context) {
 	}
 
 	data := HealthScoreData{
-		OverallScore:   overallScore,
-		Pools:          poolHealths,
+		OverallScore:    overallScore,
+		Pools:           poolHealths,
 		Recommendations: recommendations,
 	}
 
@@ -474,7 +474,7 @@ func (api *VisualizationAPI) GetHealthScore(c *gin.Context) {
 // calculatePoolHealth 计算存储池健康评分
 func calculatePoolHealth(pool Pool) int {
 	score := 100
-	
+
 	switch pool.Status {
 	case PoolStatusHealthy:
 		score = 100
@@ -499,7 +499,7 @@ func calculatePoolHealth(pool Pool) int {
 			score -= 5
 		}
 	}
-	
+
 	// Check spare devices too
 	for _, disk := range pool.SpareDevices {
 		if disk.Status == DeviceStatusFaulted {
@@ -516,10 +516,10 @@ func calculatePoolHealth(pool Pool) int {
 // generateMockPerfData 生成模拟性能数据
 func generateMockPerfData(timeRange string) []PerfPoint {
 	data := make([]PerfPoint, 0)
-	
+
 	now := time.Now()
 	points := 60 // 默认60个数据点
-	
+
 	for i := 0; i < points; i++ {
 		t := now.Add(-time.Duration(i) * time.Minute)
 		data = append(data, PerfPoint{
@@ -528,9 +528,9 @@ func generateMockPerfData(timeRange string) []PerfPoint {
 			WriteIOPS: 500 + float64(i%5)*50,
 			ReadMBps:  50 + float64(i%8)*5,
 			WriteMBps: 25 + float64(i%4)*3,
-			LatencyMs:  2 + float64(i%3)*0.5,
+			LatencyMs: 2 + float64(i%3)*0.5,
 		})
 	}
-	
+
 	return data
 }

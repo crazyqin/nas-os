@@ -65,9 +65,9 @@ type RecycleStats struct {
 
 // RecycleBin SMB 共享回收站。
 type RecycleBin struct {
-	shareName string
-	sharePath string
-	config    RecycleBinConfig
+	shareName   string
+	sharePath   string
+	config      RecycleBinConfig
 	recyclePath string // 回收站根目录
 	metaPath    string // 元数据目录
 	mu          sync.RWMutex

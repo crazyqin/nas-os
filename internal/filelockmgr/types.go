@@ -39,22 +39,22 @@ type FileLockEntry struct {
 
 // LockConflict 锁冲突记录
 type LockConflict struct {
-	ID             string    `json:"id"`
-	FilePath       string    `json:"file_path"`
-	RequesterID    string    `json:"requester_id"`
-	CurrentHolderID string   `json:"current_holder_id"`
-	ConflictType   string    `json:"conflict_type"`
-	ResolvedAt     time.Time `json:"resolved_at,omitempty"`
-	Resolution     string    `json:"resolution,omitempty"`
+	ID              string    `json:"id"`
+	FilePath        string    `json:"file_path"`
+	RequesterID     string    `json:"requester_id"`
+	CurrentHolderID string    `json:"current_holder_id"`
+	ConflictType    string    `json:"conflict_type"`
+	ResolvedAt      time.Time `json:"resolved_at,omitempty"`
+	Resolution      string    `json:"resolution,omitempty"`
 }
 
 // LockStats 锁统计信息
 type LockStats struct {
-	TotalLocks        int     `json:"total_locks"`
-	ExclusiveLocks    int     `json:"exclusive_locks"`
-	SharedLocks       int     `json:"shared_locks"`
-	PendingConflicts  int     `json:"pending_conflicts"`
-	AvgLockDuration   float64 `json:"avg_lock_duration"`
+	TotalLocks       int     `json:"total_locks"`
+	ExclusiveLocks   int     `json:"exclusive_locks"`
+	SharedLocks      int     `json:"shared_locks"`
+	PendingConflicts int     `json:"pending_conflicts"`
+	AvgLockDuration  float64 `json:"avg_lock_duration"`
 }
 
 // LockRequest 锁请求
@@ -71,11 +71,11 @@ type LockRequest struct {
 
 // LockPolicy 锁策略配置
 type LockPolicy struct {
-	MaxLockDuration   time.Duration    `json:"max_lock_duration"`
-	AutoExpire        bool             `json:"auto_expire"`
-	AllowUpgrade      bool             `json:"allow_upgrade"`
-	MaxLocksPerUser   int              `json:"max_locks_per_user"`
-	ConflictStrategy  ConflictStrategy `json:"conflict_strategy"`
+	MaxLockDuration  time.Duration    `json:"max_lock_duration"`
+	AutoExpire       bool             `json:"auto_expire"`
+	AllowUpgrade     bool             `json:"allow_upgrade"`
+	MaxLocksPerUser  int              `json:"max_locks_per_user"`
+	ConflictStrategy ConflictStrategy `json:"conflict_strategy"`
 }
 
 // RefreshRequest 续期请求

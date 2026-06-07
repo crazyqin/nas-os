@@ -298,11 +298,11 @@ func (e *ScreenEngine) HandleKeyboardEvent(sessionID string, event *KeyboardEven
 
 // KeyboardEvent 键盘事件.
 type KeyboardEvent struct {
-	Key      string `json:"key"`      // 按键
-	Code     string `json:"code"`     // 按键代码
-	Action   string `json:"action"`   // 动作(up/down/press)
-	Shift    bool   `json:"shift"`    // Shift键
-	Control  bool   `json:"control"`  // Ctrl键
-	Alt      bool   `json:"alt"`      // Alt键
-	Meta     bool   `json:"meta"`     // Meta键
+	Key     string `json:"key"`     // 按键
+	Code    string `json:"code"`    // 按键代码
+	Action  string `json:"action"`  // 动作(up/down/press)
+	Shift   bool   `json:"shift"`   // Shift键
+	Control bool   `json:"control"` // Ctrl键
+	Alt     bool   `json:"alt"`     // Alt键
+	Meta    bool   `json:"meta"`    // Meta键
 }

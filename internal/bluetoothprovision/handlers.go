@@ -12,8 +12,8 @@ import (
 
 // Handler 蓝牙配网HTTP处理器
 type Handler struct {
-	manager   *Manager
-	scanner   *DefaultScanner
+	manager     *Manager
+	scanner     *DefaultScanner
 	provisioner *DefaultProvisioner
 }
 

@@ -24,10 +24,10 @@ const (
 
 // 注册状态
 const (
-	RegStatusPending   = "pending"   // 等待验证
-	RegStatusVerified  = "verified"  // 已验证
-	RegStatusRejected  = "rejected"  // 已拒绝
-	RegStatusRevoked   = "revoked"   // 已撤销
+	RegStatusPending  = "pending"  // 等待验证
+	RegStatusVerified = "verified" // 已验证
+	RegStatusRejected = "rejected" // 已拒绝
+	RegStatusRevoked  = "revoked"  // 已撤销
 )
 
 var (
@@ -43,40 +43,40 @@ var (
 
 // PasskeyCredential Passkey凭证
 type PasskeyCredential struct {
-	ID              string    `json:"id"`               // 凭证ID
-	UserID          string    `json:"user_id"`          // 用户ID
-	Name            string    `json:"name"`             // 凭证名称（如"iPhone指纹"）
-	PublicKey        []byte    `json:"public_key"`       // 公钥
-	SignCount       uint32    `json:"sign_count"`       // 签名计数
-	AuthenticatorType string  `json:"authenticator_type"` // 认证器类型
-	AAGUID          []byte    `json:"aaguid"`           // 认证器GUID
-	AttestationType string    `json:"attestation_type"` // 认证类型
-	Status          string    `json:"status"`           // 状态
-	DeviceName      string    `json:"device_name"`      // 设备名称
-	DeviceOS        string    `json:"device_os"`        // 设备操作系统
-	LastUsed        time.Time `json:"last_used"`        // 最后使用
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID                string    `json:"id"`                 // 凭证ID
+	UserID            string    `json:"user_id"`            // 用户ID
+	Name              string    `json:"name"`               // 凭证名称（如"iPhone指纹"）
+	PublicKey         []byte    `json:"public_key"`         // 公钥
+	SignCount         uint32    `json:"sign_count"`         // 签名计数
+	AuthenticatorType string    `json:"authenticator_type"` // 认证器类型
+	AAGUID            []byte    `json:"aaguid"`             // 认证器GUID
+	AttestationType   string    `json:"attestation_type"`   // 认证类型
+	Status            string    `json:"status"`             // 状态
+	DeviceName        string    `json:"device_name"`        // 设备名称
+	DeviceOS          string    `json:"device_os"`          // 设备操作系统
+	LastUsed          time.Time `json:"last_used"`          // 最后使用
+	CreatedAt         time.Time `json:"created_at"`
+	UpdatedAt         time.Time `json:"updated_at"`
 }
 
 // RegistrationChallenge 注册挑战
 type RegistrationChallenge struct {
-	ID        string    `json:"id"`
-	UserID    string    `json:"user_id"`
-	Challenge []byte    `json:"challenge"`
+	ID        string       `json:"id"`
+	UserID    string       `json:"user_id"`
+	Challenge []byte       `json:"challenge"`
 	RP        RelyingParty `json:"rp"`
-	ExpiresAt time.Time `json:"expires_at"`
-	CreatedAt time.Time `json:"created_at"`
+	ExpiresAt time.Time    `json:"expires_at"`
+	CreatedAt time.Time    `json:"created_at"`
 }
 
 // AuthenticationChallenge 认证挑战
 type AuthenticationChallenge struct {
-	ID            string   `json:"id"`
-	UserID        string   `json:"user_id"`
-	Challenge     []byte   `json:"challenge"`
-	AllowedCreds  []string `json:"allowed_creds"`
-	ExpiresAt     time.Time `json:"expires_at"`
-	CreatedAt     time.Time `json:"created_at"`
+	ID           string    `json:"id"`
+	UserID       string    `json:"user_id"`
+	Challenge    []byte    `json:"challenge"`
+	AllowedCreds []string  `json:"allowed_creds"`
+	ExpiresAt    time.Time `json:"expires_at"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 // RelyingParty 依赖方
@@ -101,8 +101,8 @@ type AuthEvent struct {
 // PasskeyManager Passkey管理器
 type PasskeyManager struct {
 	mu             sync.RWMutex
-	credentials    map[string]*PasskeyCredential     // credentialID -> credential
-	userCreds      map[string][]string                // userID -> credentialIDs
+	credentials    map[string]*PasskeyCredential // credentialID -> credential
+	userCreds      map[string][]string           // userID -> credentialIDs
 	regChallenges  map[string]*RegistrationChallenge
 	authChallenges map[string]*AuthenticationChallenge
 	events         []*AuthEvent
@@ -164,7 +164,7 @@ func (m *PasskeyManager) CompleteRegistration(challengeID, credentialName, authT
 		ID:                fmt.Sprintf("cred-%d", m.credCounter),
 		UserID:            ch.UserID,
 		Name:              credentialName,
-		PublicKey:          publicKey,
+		PublicKey:         publicKey,
 		AuthenticatorType: authType,
 		Status:            RegStatusVerified,
 		DeviceName:        deviceName,

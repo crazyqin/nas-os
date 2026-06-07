@@ -476,8 +476,8 @@ func (h *Handlers) findDuplicates(c *gin.Context) {
 // mergeContacts 合并联系人
 func (h *Handlers) mergeContacts(c *gin.Context) {
 	var req struct {
-		KeepID    string   `json:"keep_id" binding:"required"`
-		MergeIDs  []string `json:"merge_ids" binding:"required"`
+		KeepID   string   `json:"keep_id" binding:"required"`
+		MergeIDs []string `json:"merge_ids" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, response{

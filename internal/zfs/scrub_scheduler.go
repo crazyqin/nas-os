@@ -32,28 +32,28 @@ const (
 
 // ScrubResult scrub执行结果
 type ScrubResult struct {
-	ID          string      `json:"id"`
-	PoolName    string      `json:"pool_name"`
-	Status      ScrubStatus `json:"status"`
-	StartTime   time.Time   `json:"start_time"`
-	EndTime     time.Time   `json:"end_time,omitempty"`
-	Duration    string      `json:"duration,omitempty"`
-	BytesScanned  int64     `json:"bytes_scanned"`
-	BytesIssued   int64     `json:"bytes_issued"`
-	Errors      int         `json:"errors"`
-	Repairs     int         `json:"repairs"`
-	ScanPercent float64     `json:"scan_percent"`
-	ErrorMsg    string      `json:"error_msg,omitempty"`
+	ID           string      `json:"id"`
+	PoolName     string      `json:"pool_name"`
+	Status       ScrubStatus `json:"status"`
+	StartTime    time.Time   `json:"start_time"`
+	EndTime      time.Time   `json:"end_time,omitempty"`
+	Duration     string      `json:"duration,omitempty"`
+	BytesScanned int64       `json:"bytes_scanned"`
+	BytesIssued  int64       `json:"bytes_issued"`
+	Errors       int         `json:"errors"`
+	Repairs      int         `json:"repairs"`
+	ScanPercent  float64     `json:"scan_percent"`
+	ErrorMsg     string      `json:"error_msg,omitempty"`
 }
 
 // ScrubScheduleConfig scrub调度配置
 type ScrubScheduleConfig struct {
-	Enabled         bool    `json:"enabled"`
-	IntervalDays    int     `json:"interval_days"`     // scrub间隔天数
-	PreferredHour   int     `json:"preferred_hour"`    // 优先执行时间（小时，0-23）
-	IOPSThreshold   int     `json:"iops_threshold"`    // IO负载阈值，超过此值暂停scrub
-	AutoPauseOnLoad bool    `json:"auto_pause_on_load"` // 高负载自动暂停
-	MaxErrorCount   int     `json:"max_error_count"`    // 最大允许错误数，超过则告警
+	Enabled         bool `json:"enabled"`
+	IntervalDays    int  `json:"interval_days"`      // scrub间隔天数
+	PreferredHour   int  `json:"preferred_hour"`     // 优先执行时间（小时，0-23）
+	IOPSThreshold   int  `json:"iops_threshold"`     // IO负载阈值，超过此值暂停scrub
+	AutoPauseOnLoad bool `json:"auto_pause_on_load"` // 高负载自动暂停
+	MaxErrorCount   int  `json:"max_error_count"`    // 最大允许错误数，超过则告警
 }
 
 // DefaultScrubScheduleConfig 默认调度配置

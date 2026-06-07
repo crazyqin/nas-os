@@ -12,12 +12,12 @@ import (
 
 // AlertTemplate 告警模板
 type AlertTemplate struct {
-	ID               string        `json:"id"`
-	Name             string        `json:"name"`
-	Description      string        `json:"description"`
-	Severity         AlertSeverity `json:"severity"`
-	Category         AlertCategory `json:"category"`
-	MessageTemplate  string        `json:"messageTemplate"`
+	ID              string        `json:"id"`
+	Name            string        `json:"name"`
+	Description     string        `json:"description"`
+	Severity        AlertSeverity `json:"severity"`
+	Category        AlertCategory `json:"category"`
+	MessageTemplate string        `json:"messageTemplate"`
 }
 
 // 扩展 AlertSeverity 常量（补充 activity.go 未定义的级别）
@@ -543,48 +543,49 @@ func SendHTTPWebhook(ctx context.Context, url string, payload map[string]interfa
 
 	return nil
 }
+
 // GetAlertTemplates returns all alert templates
 // Enhanced in v2.454.0 with SMB Stateful Failover monitoring templates
 func (m *AlertManager) GetAlertTemplates() []AlertTemplate {
 	return []AlertTemplate{
 		{
-			ID:          "smb_failover_initiated",
-			Name:        "SMB故障转移已启动",
-			Description: "检测到SMB主节点故障，已启动故障转移流程",
-			Severity:    AlertSeverityCritical,
-			Category:    AlertCategoryStorage,
+			ID:              "smb_failover_initiated",
+			Name:            "SMB故障转移已启动",
+			Description:     "检测到SMB主节点故障，已启动故障转移流程",
+			Severity:        AlertSeverityCritical,
+			Category:        AlertCategoryStorage,
 			MessageTemplate: "SMB Stateful Failover initiated for {{.ShareName}}. Target: {{.TargetNode}}. Time: {{.Timestamp}}",
 		},
 		{
-			ID:          "smb_failover_completed",
-			Name:        "SMB故障转移完成",
-			Description: "SMB会话已成功转移到备用节点",
-			Severity:    AlertSeverityInfo,
-			Category:    AlertCategoryStorage,
+			ID:              "smb_failover_completed",
+			Name:            "SMB故障转移完成",
+			Description:     "SMB会话已成功转移到备用节点",
+			Severity:        AlertSeverityInfo,
+			Category:        AlertCategoryStorage,
 			MessageTemplate: "SMB failover completed for {{.ShareName}}. Active on: {{.ActiveNode}}",
 		},
 		{
-			ID:          "smb_failover_failed",
-			Name:        "SMB故障转移失败",
-			Description: "SMB故障转移流程失败，需要人工干预",
-			Severity:    AlertSeverityCritical,
-			Category:    AlertCategoryStorage,
+			ID:              "smb_failover_failed",
+			Name:            "SMB故障转移失败",
+			Description:     "SMB故障转移流程失败，需要人工干预",
+			Severity:        AlertSeverityCritical,
+			Category:        AlertCategoryStorage,
 			MessageTemplate: "SMB failover FAILED for {{.ShareName}}. Reason: {{.Reason}}. Manual intervention required.",
 		},
 		{
-			ID:          "pool_migration_health_warning",
-			Name:        "存储池迁移健康告警",
-			Description: "存储池迁移健康检查发现异常",
-			Severity:    AlertSeverityWarning,
-			Category:    AlertCategoryStorage,
+			ID:              "pool_migration_health_warning",
+			Name:            "存储池迁移健康告警",
+			Description:     "存储池迁移健康检查发现异常",
+			Severity:        AlertSeverityWarning,
+			Category:        AlertCategoryStorage,
 			MessageTemplate: "Pool migration health warning on {{.PoolName}}: {{.Message}}",
 		},
 		{
-			ID:          "smart_health_degraded",
-			Name:        "磁盘SMART健康降级",
-			Description: "磁盘SMART健康分数低于阈值",
-			Severity:    AlertSeverityWarning,
-			Category:    AlertCategoryDisk,
+			ID:              "smart_health_degraded",
+			Name:            "磁盘SMART健康降级",
+			Description:     "磁盘SMART健康分数低于阈值",
+			Severity:        AlertSeverityWarning,
+			Category:        AlertCategoryDisk,
 			MessageTemplate: "Disk {{.DiskID}} SMART health degraded: {{.HealthScore}}/100",
 		},
 	}

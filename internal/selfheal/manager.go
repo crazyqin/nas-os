@@ -36,8 +36,8 @@ func NewManager(store *Store, logger *zap.Logger) *Manager {
 			CheckInterval: 30 * time.Minute,
 			Enabled:       true,
 		},
-		store:   store,
-		logger:  logger,
+		store:    store,
+		logger:   logger,
 		stopChan: make(chan struct{}),
 	}
 }

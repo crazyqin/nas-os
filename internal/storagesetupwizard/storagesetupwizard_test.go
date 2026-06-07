@@ -271,31 +271,31 @@ func TestRecommendRAID(t *testing.T) {
 
 func TestEstimateCapacity(t *testing.T) {
 	tests := []struct {
-		name      string
-		diskCount int
-		diskSize  int64
-		raidType  RAIDType
+		name       string
+		diskCount  int
+		diskSize   int64
+		raidType   RAIDType
 		wantUsable int64
 	}{
 		{
-			name:      "RAID1 2 disks",
-			diskCount: 2,
-			diskSize:  1000000000,
-			raidType:  RAID1,
+			name:       "RAID1 2 disks",
+			diskCount:  2,
+			diskSize:   1000000000,
+			raidType:   RAID1,
 			wantUsable: 1000000000,
 		},
 		{
-			name:      "RAID5 3 disks",
-			diskCount: 3,
-			diskSize:  1000000000,
-			raidType:  RAID5,
+			name:       "RAID5 3 disks",
+			diskCount:  3,
+			diskSize:   1000000000,
+			raidType:   RAID5,
 			wantUsable: 2000000000,
 		},
 		{
-			name:      "RAID0 2 disks",
-			diskCount: 2,
-			diskSize:  1000000000,
-			raidType:  RAID0,
+			name:       "RAID0 2 disks",
+			diskCount:  2,
+			diskSize:   1000000000,
+			raidType:   RAID0,
 			wantUsable: 2000000000,
 		},
 	}

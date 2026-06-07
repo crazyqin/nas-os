@@ -631,9 +631,9 @@ func (c *XSSChecker) Check(input string) bool {
 
 // CSRFProtector CSRF防护器.
 type CSRFProtector struct {
-	tokens    map[string]time.Time
-	mu        sync.RWMutex
-	tokenTTL  time.Duration
+	tokens   map[string]time.Time
+	mu       sync.RWMutex
+	tokenTTL time.Duration
 }
 
 // NewCSRFProtector 创建CSRF防护器.

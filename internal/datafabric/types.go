@@ -25,12 +25,12 @@ type DataSource struct {
 type DataSourceType string
 
 const (
-	DataSourceLocal    DataSourceType = "local"
-	DataSourceCloud    DataSourceType = "cloud"
-	DataSourceEdge     DataSourceType = "edge"
-	DataSourceNAS      DataSourceType = "nas"
-	DataSourceS3       DataSourceType = "s3"
-	DataSourceWebDAV   DataSourceType = "webdav"
+	DataSourceLocal  DataSourceType = "local"
+	DataSourceCloud  DataSourceType = "cloud"
+	DataSourceEdge   DataSourceType = "edge"
+	DataSourceNAS    DataSourceType = "nas"
+	DataSourceS3     DataSourceType = "s3"
+	DataSourceWebDAV DataSourceType = "webdav"
 )
 
 // DataSourceStatus 数据源状态.
@@ -45,47 +45,47 @@ const (
 
 // DataPlacement 数据放置策略.
 type DataPlacement struct {
-	ID            string           `json:"id"`
-	Name          string           `json:"name"`
-	Rules         []PlacementRule  `json:"rules"`
-	Priority      int              `json:"priority"`
-	Enabled       bool             `json:"enabled"`
-	CreatedAt     time.Time        `json:"created_at"`
+	ID        string          `json:"id"`
+	Name      string          `json:"name"`
+	Rules     []PlacementRule `json:"rules"`
+	Priority  int             `json:"priority"`
+	Enabled   bool            `json:"enabled"`
+	CreatedAt time.Time       `json:"created_at"`
 }
 
 // PlacementRule 放置规则.
 type PlacementRule struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Condition   string        `json:"condition"`
-	TargetID    string        `json:"target_id"`
-	Weight      float64       `json:"weight"`
-	Enabled     bool          `json:"enabled"`
+	ID        string  `json:"id"`
+	Name      string  `json:"name"`
+	Condition string  `json:"condition"`
+	TargetID  string  `json:"target_id"`
+	Weight    float64 `json:"weight"`
+	Enabled   bool    `json:"enabled"`
 }
 
 // FabricTask 数据编织任务.
 type FabricTask struct {
-	ID          string        `json:"id"`
-	Type        TaskType      `json:"type"`
-	SourceID    string        `json:"source_id"`
-	TargetID    string        `json:"target_id"`
-	FilePath    string        `json:"file_path"`
-	Status      TaskStatus    `json:"status"`
-	Progress    float64       `json:"progress"`
-	Error       string        `json:"error,omitempty"`
-	StartedAt   *time.Time    `json:"started_at,omitempty"`
-	CompletedAt *time.Time    `json:"completed_at,omitempty"`
-	CreatedAt   time.Time     `json:"created_at"`
+	ID          string     `json:"id"`
+	Type        TaskType   `json:"type"`
+	SourceID    string     `json:"source_id"`
+	TargetID    string     `json:"target_id"`
+	FilePath    string     `json:"file_path"`
+	Status      TaskStatus `json:"status"`
+	Progress    float64    `json:"progress"`
+	Error       string     `json:"error,omitempty"`
+	StartedAt   *time.Time `json:"started_at,omitempty"`
+	CompletedAt *time.Time `json:"completed_at,omitempty"`
+	CreatedAt   time.Time  `json:"created_at"`
 }
 
 // TaskType 任务类型.
 type TaskType string
 
 const (
-	TaskMigrate  TaskType = "migrate"
+	TaskMigrate   TaskType = "migrate"
 	TaskReplicate TaskType = "replicate"
-	TaskArchive  TaskType = "archive"
-	TaskOptimize TaskType = "optimize"
+	TaskArchive   TaskType = "archive"
+	TaskOptimize  TaskType = "optimize"
 )
 
 // TaskStatus 任务状态.
@@ -100,22 +100,22 @@ const (
 
 // DataFabricStats 数据编织统计.
 type DataFabricStats struct {
-	TotalSources   int     `json:"total_sources"`
-	OnlineSources  int     `json:"online_sources"`
-	TotalCapacity  int64   `json:"total_capacity"`
-	TotalUsed      int64   `json:"total_used"`
-	ActiveTasks    int     `json:"active_tasks"`
-	DataLocality   float64 `json:"data_locality"`
-	AvgLatency     float64 `json:"avg_latency"`
+	TotalSources  int     `json:"total_sources"`
+	OnlineSources int     `json:"online_sources"`
+	TotalCapacity int64   `json:"total_capacity"`
+	TotalUsed     int64   `json:"total_used"`
+	ActiveTasks   int     `json:"active_tasks"`
+	DataLocality  float64 `json:"data_locality"`
+	AvgLatency    float64 `json:"avg_latency"`
 }
 
 // Manager 数据编织管理器.
 type Manager struct {
-	mu          sync.RWMutex
-	sources     map[string]*DataSource
-	placements  map[string]*DataPlacement
-	tasks       map[string]*FabricTask
-	stats       *DataFabricStats
+	mu         sync.RWMutex
+	sources    map[string]*DataSource
+	placements map[string]*DataPlacement
+	tasks      map[string]*FabricTask
+	stats      *DataFabricStats
 }
 
 // NewManager 创建管理器.

@@ -14,16 +14,16 @@ import (
 
 // Manager 病毒扫描管理器.
 type Manager struct {
-	mu              sync.RWMutex
-	client          *ClamAVClient
-	tasks           map[string]*ScanTask
-	schedules       map[string]*ScanSchedule
-	quarantine      map[string]*QuarantineEntry
-	whitelist       map[string]*WhitelistEntry
-	monitorConfig   *RealtimeMonitorConfig
-	dbStatus        *VirusDBUpdateStatus
-	quarantineDir   string
-	counter         int
+	mu            sync.RWMutex
+	client        *ClamAVClient
+	tasks         map[string]*ScanTask
+	schedules     map[string]*ScanSchedule
+	quarantine    map[string]*QuarantineEntry
+	whitelist     map[string]*WhitelistEntry
+	monitorConfig *RealtimeMonitorConfig
+	dbStatus      *VirusDBUpdateStatus
+	quarantineDir string
+	counter       int
 }
 
 // NewManager 创建管理器.
@@ -52,15 +52,15 @@ func (m *Manager) CreateScan(req CreateScanRequest) (*ScanTask, error) {
 
 	m.counter++
 	task := &ScanTask{
-		ID:            fmt.Sprintf("scan-%d", m.counter),
-		Name:          req.Name,
-		Type:          req.Type,
-		Status:        ScanStatusPending,
-		Paths:         req.Paths,
-		Recursive:     req.Recursive,
-		ScanArchives:  req.ScanArchives,
-		ThreatAction:  req.ThreatAction,
-		CreatedAt:     time.Now(),
+		ID:           fmt.Sprintf("scan-%d", m.counter),
+		Name:         req.Name,
+		Type:         req.Type,
+		Status:       ScanStatusPending,
+		Paths:        req.Paths,
+		Recursive:    req.Recursive,
+		ScanArchives: req.ScanArchives,
+		ThreatAction: req.ThreatAction,
+		CreatedAt:    time.Now(),
 	}
 	if task.ThreatAction == "" {
 		task.ThreatAction = ThreatActionQuarantine

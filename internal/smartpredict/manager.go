@@ -12,36 +12,36 @@ import (
 
 // SMARTAttribute SMART 属性
 type SMARTAttribute struct {
-	ID         int     `json:"id"`
-	Name       string  `json:"name"`
-	Value      int     `json:"value"`
-	Worst      int     `json:"worst"`
-	Threshold  int     `json:"threshold"`
-	RawValue   int64   `json:"raw_value"`
-	Failed     bool    `json:"failed"`
-	Critical   bool    `json:"critical"`
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	Value     int    `json:"value"`
+	Worst     int    `json:"worst"`
+	Threshold int    `json:"threshold"`
+	RawValue  int64  `json:"raw_value"`
+	Failed    bool   `json:"failed"`
+	Critical  bool   `json:"critical"`
 }
 
 // DiskHealth 磁盘健康状态
 type DiskHealth struct {
-	Device       string          `json:"device"`
-	Model        string          `json:"model"`
-	Serial       string          `json:"serial"`
-	TBW          int64           `json:"tbw"`           // 已写入 TB
-	TBWLimited   int64           `json:"tbw_limited"`   // TBW 上限
-	PowerOnHours int64           `json:"power_on_hours"`
-	Temperature  int             `json:"temperature"`
+	Device       string           `json:"device"`
+	Model        string           `json:"model"`
+	Serial       string           `json:"serial"`
+	TBW          int64            `json:"tbw"`         // 已写入 TB
+	TBWLimited   int64            `json:"tbw_limited"` // TBW 上限
+	PowerOnHours int64            `json:"power_on_hours"`
+	Temperature  int              `json:"temperature"`
 	Attributes   []SMARTAttribute `json:"attributes"`
-	HealthScore  float64         `json:"health_score"` // 0-100
-	FailProb     float64         `json:"fail_prob"`    // 故障概率 0-1
-	Prediction   *Prediction     `json:"prediction,omitempty"`
+	HealthScore  float64          `json:"health_score"` // 0-100
+	FailProb     float64          `json:"fail_prob"`    // 故障概率 0-1
+	Prediction   *Prediction      `json:"prediction,omitempty"`
 }
 
 // Prediction 预测结果
 type Prediction struct {
 	EstimatedFailDate *time.Time `json:"estimated_fail_date,omitempty"`
-	Confidence        float64    `json:"confidence"`       // 0-1
-	RiskLevel         string     `json:"risk_level"`       // low/medium/high/critical
+	Confidence        float64    `json:"confidence"` // 0-1
+	RiskLevel         string     `json:"risk_level"` // low/medium/high/critical
 	Factors           []string   `json:"factors"`
 	Recommendations   []string   `json:"recommendations"`
 	RemainingLifeDays int        `json:"remaining_life_days"`
@@ -49,13 +49,13 @@ type Prediction struct {
 
 // PredictConfig 预测配置
 type PredictConfig struct {
-	CheckInterval    time.Duration `json:"check_interval"`
-	TemperatureWarn  int           `json:"temperature_warn"`
-	TemperatureCrit  int           `json:"temperature_crit"`
-	ReallocatedThresh int          `json:"reallocated_thresh"`
-	PendingThresh    int           `json:"pending_thresh"`
-	UNCThresh        int           `json:"unc_thresh"`
-	TBWWarningPct    float64       `json:"tbw_warning_pct"`  // TBW 使用百分比警告
+	CheckInterval     time.Duration `json:"check_interval"`
+	TemperatureWarn   int           `json:"temperature_warn"`
+	TemperatureCrit   int           `json:"temperature_crit"`
+	ReallocatedThresh int           `json:"reallocated_thresh"`
+	PendingThresh     int           `json:"pending_thresh"`
+	UNCThresh         int           `json:"unc_thresh"`
+	TBWWarningPct     float64       `json:"tbw_warning_pct"` // TBW 使用百分比警告
 }
 
 // DefaultConfig 默认配置
@@ -90,7 +90,7 @@ func NewManager(config *PredictConfig) *Manager {
 	return &Manager{
 		config: config,
 		disks:  make(map[string]*DiskHealth),
-		ctx:       ctx,
+		ctx:    ctx,
 		cancel: cancel,
 	}
 }
@@ -114,12 +114,12 @@ func (m *Manager) Stop() {
 func (m *Manager) UpdateDisk(health *DiskHealth) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	health.HealthScore = m.calculateHealthScore(health)
 	health.FailProb = m.calculateFailProb(health)
 	health.Prediction = m.predict(health)
 	m.disks[health.Device] = health
-	
+
 	if m.alertFunc != nil && health.Prediction != nil && health.Prediction.RiskLevel == "critical" {
 		m.alertFunc(health.Device, health.Prediction)
 	}
@@ -147,14 +147,14 @@ func (m *Manager) GetAllDisks() map[string]*DiskHealth {
 // calculateHealthScore 计算健康评分 (0-100)
 func (m *Manager) calculateHealthScore(h *DiskHealth) float64 {
 	score := 100.0
-	
+
 	// 温度影响
 	if h.Temperature >= m.config.TemperatureCrit {
 		score -= 30
 	} else if h.Temperature >= m.config.TemperatureWarn {
 		score -= 15
 	}
-	
+
 	// SMART 属性影响
 	for _, attr := range h.Attributes {
 		if attr.Failed {
@@ -184,7 +184,7 @@ func (m *Manager) calculateHealthScore(h *DiskHealth) float64 {
 			}
 		}
 	}
-	
+
 	// TBW 影响
 	if h.TBWLimited > 0 {
 		tbwPct := float64(h.TBW) / float64(h.TBWLimited) * 100
@@ -194,14 +194,14 @@ func (m *Manager) calculateHealthScore(h *DiskHealth) float64 {
 			score -= 15
 		}
 	}
-	
+
 	// 通电时间影响
 	if h.PowerOnHours > 50000 { // ~5.7 年
 		score -= 15
 	} else if h.PowerOnHours > 30000 { // ~3.4 年
 		score -= 8
 	}
-	
+
 	if score < 0 {
 		score = 0
 	}
@@ -211,7 +211,7 @@ func (m *Manager) calculateHealthScore(h *DiskHealth) float64 {
 // calculateFailProb 计算故障概率
 func (m *Manager) calculateFailProb(h *DiskHealth) float64 {
 	prob := 0.0
-	
+
 	// 基于 SMART 属性
 	for _, attr := range h.Attributes {
 		if attr.Failed {
@@ -228,12 +228,12 @@ func (m *Manager) calculateFailProb(h *DiskHealth) float64 {
 			}
 		}
 	}
-	
+
 	// 温度因素
 	if h.Temperature >= m.config.TemperatureCrit {
 		prob = math.Max(prob, 0.4)
 	}
-	
+
 	// TBW 因素
 	if h.TBWLimited > 0 {
 		tbwPct := float64(h.TBW) / float64(h.TBWLimited)
@@ -241,7 +241,7 @@ func (m *Manager) calculateFailProb(h *DiskHealth) float64 {
 			prob = math.Max(prob, 0.6)
 		}
 	}
-	
+
 	return math.Round(prob*1000) / 1000
 }
 
@@ -256,11 +256,11 @@ func (m *Manager) predict(h *DiskHealth) *Prediction {
 			Recommendations:   []string{"继续定期监控"},
 		}
 	}
-	
+
 	pred := &Prediction{
 		Confidence: 0.75,
 	}
-	
+
 	// 评估风险等级
 	switch {
 	case h.HealthScore < 30 || h.FailProb > 0.7:
@@ -274,25 +274,25 @@ func (m *Manager) predict(h *DiskHealth) *Prediction {
 	default:
 		pred.RiskLevel = "low"
 	}
-	
+
 	// 收集风险因素
 	pred.Factors = m.collectFactors(h)
 	pred.Recommendations = m.generateRecommendations(h, pred.RiskLevel)
-	
+
 	// 估算剩余寿命
 	pred.RemainingLifeDays = m.estimateRemainingDays(h)
 	if pred.RemainingLifeDays > 0 {
 		t := time.Now().AddDate(0, 0, pred.RemainingLifeDays)
 		pred.EstimatedFailDate = &t
 	}
-	
+
 	return pred
 }
 
 // collectFactors 收集风险因素
 func (m *Manager) collectFactors(h *DiskHealth) []string {
 	var factors []string
-	
+
 	for _, attr := range h.Attributes {
 		switch attr.ID {
 		case 5:
@@ -309,18 +309,18 @@ func (m *Manager) collectFactors(h *DiskHealth) []string {
 			}
 		}
 	}
-	
+
 	if h.Temperature >= m.config.TemperatureWarn {
 		factors = append(factors, fmt.Sprintf("温度过高: %d°C", h.Temperature))
 	}
-	
+
 	if h.TBWLimited > 0 {
 		pct := float64(h.TBW) / float64(h.TBWLimited) * 100
 		if pct > m.config.TBWWarningPct {
 			factors = append(factors, fmt.Sprintf("TBW 使用率: %.1f%%", pct))
 		}
 	}
-	
+
 	if len(factors) == 0 {
 		factors = append(factors, "未发现明显风险因素")
 	}
@@ -330,7 +330,7 @@ func (m *Manager) collectFactors(h *DiskHealth) []string {
 // generateRecommendations 生成建议
 func (m *Manager) generateRecommendations(h *DiskHealth, riskLevel string) []string {
 	var recs []string
-	
+
 	switch riskLevel {
 	case "critical":
 		recs = append(recs, "⚠️ 立即备份重要数据")
@@ -347,18 +347,18 @@ func (m *Manager) generateRecommendations(h *DiskHealth, riskLevel string) []str
 	default:
 		recs = append(recs, "✅ 继续定期检查")
 	}
-	
+
 	if h.Temperature >= m.config.TemperatureWarn {
 		recs = append(recs, "🌡️ 改善机箱散热")
 	}
-	
+
 	return recs
 }
 
 // estimateRemainingDays 估算剩余寿命（天）
 func (m *Manager) estimateRemainingDays(h *DiskHealth) int {
 	days := 365 * 5 // 默认 5 年
-	
+
 	// 基于通电时间
 	if h.PowerOnHours > 0 {
 		// 假设总寿命 50000 小时
@@ -368,21 +368,21 @@ func (m *Manager) estimateRemainingDays(h *DiskHealth) int {
 		}
 		days = int(remainingHours / 24)
 	}
-	
+
 	// 基于健康评分调整
 	factor := h.HealthScore / 100.0
 	if factor < 0.1 {
 		factor = 0.1
 	}
 	days = int(float64(days) * factor)
-	
+
 	// 基于故障概率调整
 	if h.FailProb > 0.5 {
 		days = days / 3
 	} else if h.FailProb > 0.3 {
 		days = days / 2
 	}
-	
+
 	if days < 1 {
 		days = 1
 	}
@@ -393,7 +393,7 @@ func (m *Manager) estimateRemainingDays(h *DiskHealth) int {
 func (m *Manager) monitorLoop() {
 	ticker := time.NewTicker(m.config.CheckInterval)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-m.ctx.Done():
@@ -412,7 +412,7 @@ func (m *Manager) checkAll() {
 		disks[k] = v
 	}
 	m.mu.RUnlock()
-	
+
 	for _, disk := range disks {
 		if disk.Prediction != nil && disk.Prediction.RiskLevel == "critical" && m.alertFunc != nil {
 			m.alertFunc(disk.Device, disk.Prediction)
@@ -424,7 +424,7 @@ func (m *Manager) checkAll() {
 func (m *Manager) GetRiskSummary() map[string]int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	summary := map[string]int{
 		"low": 0, "medium": 0, "high": 0, "critical": 0,
 	}

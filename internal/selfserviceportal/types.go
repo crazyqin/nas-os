@@ -19,10 +19,10 @@ const (
 type TicketType string
 
 const (
-	TicketTypeQuota    TicketType = "quota"
-	TicketTypePerm     TicketType = "permission"
-	TicketTypeBackup   TicketType = "backup"
-	TicketTypeIssue    TicketType = "issue"
+	TicketTypeQuota  TicketType = "quota"
+	TicketTypePerm   TicketType = "permission"
+	TicketTypeBackup TicketType = "backup"
+	TicketTypeIssue  TicketType = "issue"
 )
 
 // ApprovalStatus 审批状态
@@ -38,35 +38,35 @@ const (
 type PermissionType string
 
 const (
-	PermRead   PermissionType = "read"
-	PermWrite  PermissionType = "write"
-	PermAdmin  PermissionType = "admin"
+	PermRead  PermissionType = "read"
+	PermWrite PermissionType = "write"
+	PermAdmin PermissionType = "admin"
 )
 
 // QuotaRequest 配额申请
 type QuotaRequest struct {
-	ID          string    `json:"id"`
-	UserID      string    `json:"user_id"`
-	CurrentGB   int64     `json:"current_gb"`
-	RequestedGB int64     `json:"requested_gb"`
-	Reason      string    `json:"reason"`
+	ID          string       `json:"id"`
+	UserID      string       `json:"user_id"`
+	CurrentGB   int64        `json:"current_gb"`
+	RequestedGB int64        `json:"requested_gb"`
+	Reason      string       `json:"reason"`
 	Status      TicketStatus `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
 // PermissionRequest 权限申请
 type PermissionRequest struct {
-	ID         string         `json:"id"`
-	UserID     string         `json:"user_id"`
-	SharePath  string         `json:"share_path"`
-	PermType   PermissionType `json:"perm_type"`
-	Temporary  bool           `json:"temporary"`
-	ExpiresAt  *time.Time     `json:"expires_at,omitempty"`
-	Reason     string         `json:"reason"`
-	Status     TicketStatus   `json:"status"`
-	CreatedAt  time.Time      `json:"created_at"`
-	UpdatedAt  time.Time      `json:"updated_at"`
+	ID        string         `json:"id"`
+	UserID    string         `json:"user_id"`
+	SharePath string         `json:"share_path"`
+	PermType  PermissionType `json:"perm_type"`
+	Temporary bool           `json:"temporary"`
+	ExpiresAt *time.Time     `json:"expires_at,omitempty"`
+	Reason    string         `json:"reason"`
+	Status    TicketStatus   `json:"status"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
 }
 
 // RestorePoint 恢复点
@@ -107,13 +107,13 @@ type IssueTicket struct {
 
 // Approval 审批记录
 type Approval struct {
-	ID        string         `json:"id"`
-	TicketID  string         `json:"ticket_id"`
-	TicketType TicketType    `json:"ticket_type"`
-	ApproverID string        `json:"approver_id"`
-	Status    ApprovalStatus `json:"status"`
-	Comment   string         `json:"comment,omitempty"`
-	CreatedAt time.Time      `json:"created_at"`
+	ID         string         `json:"id"`
+	TicketID   string         `json:"ticket_id"`
+	TicketType TicketType     `json:"ticket_type"`
+	ApproverID string         `json:"approver_id"`
+	Status     ApprovalStatus `json:"status"`
+	Comment    string         `json:"comment,omitempty"`
+	CreatedAt  time.Time      `json:"created_at"`
 }
 
 // UserStats 用户统计
@@ -152,15 +152,15 @@ type AutoApprovalRule struct {
 
 // Portal 自助门户
 type Portal struct {
-	mu               sync.RWMutex
-	quotaRequests    map[string]*QuotaRequest
-	permRequests     map[string]*PermissionRequest
-	restoreRequests  map[string]*RestoreRequest
-	issueTickets     map[string]*IssueTicket
-	approvals        map[string][]*Approval
-	notifications    map[string][]*Notification
-	restorePoints    map[string][]*RestorePoint
-	userStats        map[string]*UserStats
+	mu                sync.RWMutex
+	quotaRequests     map[string]*QuotaRequest
+	permRequests      map[string]*PermissionRequest
+	restoreRequests   map[string]*RestoreRequest
+	issueTickets      map[string]*IssueTicket
+	approvals         map[string][]*Approval
+	notifications     map[string][]*Notification
+	restorePoints     map[string][]*RestorePoint
+	userStats         map[string]*UserStats
 	autoApprovalRules []*AutoApprovalRule
-	nextID           int64
+	nextID            int64
 }

@@ -50,17 +50,17 @@ type FastDedupConfig struct {
 // DefaultFastDedupConfig 默认Fast Dedup配置
 func DefaultFastDedupConfig() FastDedupConfig {
 	return FastDedupConfig{
-		TraditionalDDTEntryBytes: 320,     // 传统ZFS DDT条目大小
-		FastDedupDDTEntryBytes:   32,      // Fast Dedup压缩后的条目大小
-		MemorySavingClaim:        90.0,    // TrueNAS宣称90%内存节省
-		SSDCacheCostPerGBMonthly: 0.08,    // SSD缓存成本
-		MemoryCostPerGBMonthly:   0.15,    // 内存成本
+		TraditionalDDTEntryBytes: 320,                            // 传统ZFS DDT条目大小
+		FastDedupDDTEntryBytes:   32,                             // Fast Dedup压缩后的条目大小
+		MemorySavingClaim:        90.0,                           // TrueNAS宣称90%内存节省
+		SSDCacheCostPerGBMonthly: 0.08,                           // SSD缓存成本
+		MemoryCostPerGBMonthly:   0.15,                           // 内存成本
 		TotalDataBytes:           10 * 1024 * 1024 * 1024 * 1024, // 10TB
-		AvgBlockSizeBytes:        128 * 1024, // 128KB块大小
-		ExpectedDedupRate:        30.0,    // 30%去重率
-		SSDCacheHitRate:          85.0,    // SSD缓存命中率85%
-		PerformanceImpactFactor:  0.05,    // 5%性能损耗
-		OpsComplexityFactor:      0.15,    // 15%运维复杂度增加
+		AvgBlockSizeBytes:        128 * 1024,                     // 128KB块大小
+		ExpectedDedupRate:        30.0,                           // 30%去重率
+		SSDCacheHitRate:          85.0,                           // SSD缓存命中率85%
+		PerformanceImpactFactor:  0.05,                           // 5%性能损耗
+		OpsComplexityFactor:      0.15,                           // 15%运维复杂度增加
 	}
 }
 
@@ -226,8 +226,8 @@ type FastDedupComparison struct {
 
 	// 推荐启用阈值
 	EnableThreshold struct {
-		MinDataSizeTB    float64 `json:"min_data_size_tb"`
-		MinDedupRate     float64 `json:"min_dedup_rate"`
+		MinDataSizeTB     float64 `json:"min_data_size_tb"`
+		MinDedupRate      float64 `json:"min_dedup_rate"`
 		MaxMemoryBudgetGB float64 `json:"max_memory_budget_gb"`
 	} `json:"enable_threshold"`
 
@@ -269,13 +269,13 @@ func NewFastDedupROICalculator(config FastDedupConfig) *FastDedupROICalculator {
 func (c *FastDedupROICalculator) Analyze() *FastDedupAnalysis {
 	now := time.Now()
 	analysis := &FastDedupAnalysis{
-		ID:            fmt.Sprintf("fast_dedup_analysis_%d", now.Unix()),
-		AnalysisTime:  now,
-		Config:        c.config,
-		Risks:         make([]string, 0),
-		Suggestions:   make([]string, 0),
-		CostBreakdown: make(map[string]float64),
-		RecommendedScenarios: make([]string, 0),
+		ID:                      fmt.Sprintf("fast_dedup_analysis_%d", now.Unix()),
+		AnalysisTime:            now,
+		Config:                  c.config,
+		Risks:                   make([]string, 0),
+		Suggestions:             make([]string, 0),
+		CostBreakdown:           make(map[string]float64),
+		RecommendedScenarios:    make([]string, 0),
 		NotRecommendedScenarios: make([]string, 0),
 	}
 
@@ -334,7 +334,7 @@ func (c *FastDedupROICalculator) Analyze() *FastDedupAnalysis {
 	// 验证内存节省效果
 	if analysis.ActualMemorySavingRate >= c.config.MemorySavingClaim {
 		analysis.MemorySavingVerified = "verified"
-	} else if analysis.ActualMemorySavingRate >= c.config.MemorySavingClaim * 0.8 {
+	} else if analysis.ActualMemorySavingRate >= c.config.MemorySavingClaim*0.8 {
 		analysis.MemorySavingVerified = "close"
 	} else {
 		analysis.MemorySavingVerified = "underperform"
@@ -458,14 +458,14 @@ func (c *FastDedupROICalculator) AnalyzeScenario(dataSizeTB float64, dedupRate f
 // CompareScenarios 对比多场景
 func (c *FastDedupROICalculator) CompareScenarios() *FastDedupComparison {
 	comparison := &FastDedupComparison{
-		Scenarios:           make([]FastDedupScenarioResult, 0),
-		MemorySavingCurve:   make([]MemorySavingPoint, 0),
-		CostBenefitCurve:    make([]CostBenefitPoint, 0),
+		Scenarios:             make([]FastDedupScenarioResult, 0),
+		MemorySavingCurve:     make([]MemorySavingPoint, 0),
+		CostBenefitCurve:      make([]CostBenefitPoint, 0),
 		OverallRecommendation: "根据场景选择",
 	}
 
 	// 场景矩阵：数据量 x 去重率
-	dataSizes := []float64{5, 10, 20, 50, 100} // TB
+	dataSizes := []float64{5, 10, 20, 50, 100}      // TB
 	dedupRates := []float64{15, 20, 30, 40, 50, 60} // %
 
 	bestROI := -999.0
@@ -507,8 +507,8 @@ func (c *FastDedupROICalculator) CompareScenarios() *FastDedupComparison {
 	comparison.BestScenario = bestScenarioName
 
 	// 设置启用阈值
-	comparison.EnableThreshold.MinDataSizeTB = 10.0 // 最小10TB
-	comparison.EnableThreshold.MinDedupRate = 20.0  // 最小20%去重率
+	comparison.EnableThreshold.MinDataSizeTB = 10.0    // 最小10TB
+	comparison.EnableThreshold.MinDedupRate = 20.0     // 最小20%去重率
 	comparison.EnableThreshold.MaxMemoryBudgetGB = 4.0 // 传统DDT超过4GB时强烈推荐
 
 	// 生成总体建议
@@ -778,7 +778,7 @@ func GenerateFastDedupReport(config FastDedupConfig) string {
 
 func fastDedupRound(val float64, precision int) float64 {
 	factor := math.Pow10(precision)
-	return math.Round(val * factor) / factor
+	return math.Round(val*factor) / factor
 }
 
 func fastDedupBoolToStr(b bool) string {

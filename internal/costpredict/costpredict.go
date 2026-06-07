@@ -355,12 +355,12 @@ func (p *Predictor) PredictCost(periodsAhead int) ([]PredictionResult, error) {
 		predicted := slope*float64(len(costs)+periodsAhead-1) + intercept
 		stdErr := calcStdError(x, costs, slope, intercept)
 		results = append(results, PredictionResult{
-			Method:          "linear_regression",
-			PredictedCost:   math.Max(0, predicted),
-			ConfidenceLow:   math.Max(0, predicted-1.96*stdErr),
-			ConfidenceHigh:  predicted + 1.96*stdErr,
+			Method:            "linear_regression",
+			PredictedCost:     math.Max(0, predicted),
+			ConfidenceLow:     math.Max(0, predicted-1.96*stdErr),
+			ConfidenceHigh:    predicted + 1.96*stdErr,
 			PredictedCapacity: p.predictCapacity(records, periodsAhead),
-			PeriodsAhead:    periodsAhead,
+			PeriodsAhead:      periodsAhead,
 		})
 	}
 
@@ -372,12 +372,12 @@ func (p *Predictor) PredictCost(periodsAhead int) ([]PredictionResult, error) {
 		residuals := calcResidualsHolt(costs, level, trend)
 		stdErr := calcArrayStdDev(residuals)
 		results = append(results, PredictionResult{
-			Method:          "exponential_smoothing",
-			PredictedCost:   math.Max(0, predicted),
-			ConfidenceLow:   math.Max(0, predicted-1.96*stdErr),
-			ConfidenceHigh:  predicted + 1.96*stdErr,
+			Method:            "exponential_smoothing",
+			PredictedCost:     math.Max(0, predicted),
+			ConfidenceLow:     math.Max(0, predicted-1.96*stdErr),
+			ConfidenceHigh:    predicted + 1.96*stdErr,
 			PredictedCapacity: p.predictCapacity(records, periodsAhead),
-			PeriodsAhead:    periodsAhead,
+			PeriodsAhead:      periodsAhead,
 		})
 	}
 
@@ -488,10 +488,10 @@ func (p *Predictor) PredictCapacityGrowth(months int) ([]CapacityGrowthForecast,
 	for i := 0; i < months; i++ {
 		predicted := baseCapacity * math.Pow(1+avgRate, float64(i+1))
 		forecasts[i] = CapacityGrowthForecast{
-			Month:          lastRecord.Time.AddDate(0, i+1, 0),
-			PredictedUsed:  int64(predicted),
-			GrowthRate:     avgRate,
-			IsFull:         totalCapacity > 0 && predicted/totalCapacity > 0.9,
+			Month:         lastRecord.Time.AddDate(0, i+1, 0),
+			PredictedUsed: int64(predicted),
+			GrowthRate:    avgRate,
+			IsFull:        totalCapacity > 0 && predicted/totalCapacity > 0.9,
 		}
 	}
 	return forecasts, nil
@@ -667,12 +667,12 @@ func (p *Predictor) CheckBudgetAlerts(periodsAhead int) ([]BudgetAlert, error) {
 				level = "critical"
 			}
 			alerts = append(alerts, BudgetAlert{
-				Department:    dept,
-				BudgetAmount:  budget,
-				PredictedCost: predicted,
-				OverrunAmount: math.Max(0, predicted-budget),
+				Department:     dept,
+				BudgetAmount:   budget,
+				PredictedCost:  predicted,
+				OverrunAmount:  math.Max(0, predicted-budget),
 				OverrunPercent: ((predicted - budget) / budget) * 100,
-				AlertLevel:    level,
+				AlertLevel:     level,
 			})
 		}
 	}

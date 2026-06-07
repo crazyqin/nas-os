@@ -47,8 +47,8 @@ func TestGetPolicy(t *testing.T) {
 
 	// 创建策略
 	req := CreatePolicyRequest{
-		Name:   "策略1",
-		Action: ActionAllow,
+		Name:     "策略1",
+		Action:   ActionAllow,
 		MinTrust: 50,
 	}
 	created, err := mgr.CreatePolicy(req)

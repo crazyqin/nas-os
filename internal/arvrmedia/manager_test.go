@@ -292,9 +292,9 @@ func TestUpdateGallery(t *testing.T) {
 	gallery, _ := m.CreateGallery(&VREntry{Name: "Old Name"})
 
 	updated, err := m.UpdateGallery(gallery.ID, map[string]interface{}{
-		"name":        "New Name",
-		"background":  "space",
-		"media_ids":   []string{"pano-1"},
+		"name":       "New Name",
+		"background": "space",
+		"media_ids":  []string{"pano-1"},
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -325,9 +325,9 @@ func TestCreateAudioConfig(t *testing.T) {
 	m, _ := newTestManager(t)
 
 	req := &SpatialAudioConfig{
-		Name:  "Test Audio",
-		Mode:  AudioModeSpatialized,
-		Gain:  0.8,
+		Name:    "Test Audio",
+		Mode:    AudioModeSpatialized,
+		Gain:    0.8,
 		Enabled: true,
 	}
 
@@ -358,10 +358,10 @@ func TestUpdateAudioConfig(t *testing.T) {
 	config, _ := m.CreateAudioConfig(&SpatialAudioConfig{Name: "Test", Gain: 1.0})
 
 	updated, err := m.UpdateAudioConfig(config.ID, map[string]interface{}{
-		"gain":        0.5,
-		"room_size":   "large",
+		"gain":         0.5,
+		"room_size":    "large",
 		"reverb_level": 0.7,
-		"enabled":     false,
+		"enabled":      false,
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

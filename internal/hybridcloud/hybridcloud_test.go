@@ -8,17 +8,17 @@ import (
 
 // MockCloudProvider implements CloudProvider for testing
 type MockCloudProvider struct {
-	name        string
+	name         string
 	providerType string
-	available   bool
-	uploadErr   error
-	downloadErr error
-	deleteErr   error
-	existsErr   error
-	listErr     error
-	storageCost float64
+	available    bool
+	uploadErr    error
+	downloadErr  error
+	deleteErr    error
+	existsErr    error
+	listErr      error
+	storageCost  float64
 	transferCost float64
-	objects     map[string][]byte
+	objects      map[string][]byte
 }
 
 func NewMockProvider(name, providerType string) *MockCloudProvider {
@@ -32,8 +32,8 @@ func NewMockProvider(name, providerType string) *MockCloudProvider {
 	}
 }
 
-func (m *MockCloudProvider) Name() string          { return m.name }
-func (m *MockCloudProvider) Type() string           { return m.providerType }
+func (m *MockCloudProvider) Name() string { return m.name }
+func (m *MockCloudProvider) Type() string { return m.providerType }
 
 func (m *MockCloudProvider) Upload(ctx context.Context, key string, data []byte, opts *UploadOptions) error {
 	if m.uploadErr != nil {
@@ -991,9 +991,9 @@ func BenchmarkFetchFromCloud(b *testing.B) {
 
 	manager.mu.Lock()
 	pool.Files["/data/file.txt"] = &FileEntry{
-		Path:      "/data/file.txt",
-		Size:      1024,
-		CloudKey:  "file.txt",
+		Path:       "/data/file.txt",
+		Size:       1024,
+		CloudKey:   "file.txt",
 		LastAccess: time.Now(),
 	}
 	manager.mu.Unlock()

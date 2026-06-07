@@ -15,12 +15,12 @@ import (
 type SelectiveADSyncManager struct {
 	mu          sync.RWMutex
 	config      OUSyncConfig
-	ous         map[string]*OUInfo      // DN -> OU信息
-	rules       map[string]*SyncRule    // 规则ID -> 同步规则
-	syncHistory []SyncHistory           // 同步历史
-	lastResult  *SyncResult             // 最后一次同步结果
-	stats       SyncStats               // 统计信息
-	ldapConn    interface{}             // LDAP连接（实际使用 go-ldap）
+	ous         map[string]*OUInfo   // DN -> OU信息
+	rules       map[string]*SyncRule // 规则ID -> 同步规则
+	syncHistory []SyncHistory        // 同步历史
+	lastResult  *SyncResult          // 最后一次同步结果
+	stats       SyncStats            // 统计信息
+	ldapConn    interface{}          // LDAP连接（实际使用 go-ldap）
 }
 
 // NewSelectiveADSyncManager 创建管理器

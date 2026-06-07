@@ -11,9 +11,9 @@ import (
 // Manager 仪表盘管理器.
 type Manager struct {
 	mu          sync.RWMutex
-	dashboards  map[string]*Dashboard   // dashboardID -> Dashboard
-	templates   map[string]*WidgetTemplate // templateID -> Template
-	widgetData  map[string]interface{}  // widgetID -> cached data
+	dashboards  map[string]*Dashboard       // dashboardID -> Dashboard
+	templates   map[string]*WidgetTemplate  // templateID -> Template
+	widgetData  map[string]interface{}      // widgetID -> cached data
 	subscribers map[string][]chan WSMessage // dashboardID -> subscriber channels
 }
 

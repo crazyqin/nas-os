@@ -89,13 +89,13 @@ func (h *Handler) StopCollector(c *gin.Context) {
 func (h *Handler) GetCollectorStatus(c *gin.Context) {
 	stats := h.collector.GetTrafficStats()
 	c.JSON(http.StatusOK, gin.H{
-		"running":          h.collector.IsRunning(),
-		"total_bytes_in":   stats.TotalBytesIn,
-		"total_bytes_out":  stats.TotalBytesOut,
-		"total_packets_in": stats.TotalPacketsIn,
-		"total_packets_out": stats.TotalPacketsOut,
+		"running":            h.collector.IsRunning(),
+		"total_bytes_in":     stats.TotalBytesIn,
+		"total_bytes_out":    stats.TotalBytesOut,
+		"total_packets_in":   stats.TotalPacketsIn,
+		"total_packets_out":  stats.TotalPacketsOut,
 		"active_connections": stats.ActiveConnections,
-		"config":           h.collector.config,
+		"config":             h.collector.config,
 	})
 }
 

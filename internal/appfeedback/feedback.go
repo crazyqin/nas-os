@@ -52,7 +52,7 @@ type MemoryStore struct {
 	mu        sync.RWMutex
 	feedbacks map[string]*Feedback
 	replies   map[string]*FeedbackReply
-	votes     map[string]map[string]*Vote // feedbackID -> userID -> vote
+	votes     map[string]map[string]*Vote   // feedbackID -> userID -> vote
 	reports   map[string]map[string]*Report // feedbackID -> userID -> report
 }
 

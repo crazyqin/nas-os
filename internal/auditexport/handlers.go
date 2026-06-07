@@ -81,8 +81,8 @@ func (h *Handlers) handleExport(c *gin.Context) {
 		"code":    0,
 		"message": "导出成功",
 		"data": gin.H{
-			"format": req.Format,
-			"size":   len(data),
+			"format":  req.Format,
+			"size":    len(data),
 			"content": string(data),
 		},
 	})

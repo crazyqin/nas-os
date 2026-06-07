@@ -15,7 +15,7 @@ import (
 // AuditEvent represents an NVMe-oF audit event.
 type AuditEvent struct {
 	Timestamp    time.Time `json:"timestamp"`
-	EventType    string    `json:"event_type"`    // connect, disconnect, auth_fail, subsystem_create, etc.
+	EventType    string    `json:"event_type"` // connect, disconnect, auth_fail, subsystem_create, etc.
 	HostNQN      string    `json:"host_nqn"`
 	SubsystemNQN string    `json:"subsystem_nqn"`
 	SourceIP     string    `json:"source_ip"`
@@ -26,12 +26,12 @@ type AuditEvent struct {
 
 // AuditLogger provides audit logging for NVMe-oF operations.
 type AuditLogger struct {
-	mu       sync.Mutex
-	logger   *zap.Logger
-	logFile  *os.File
-	logPath  string
-	encoder  *json.Encoder
-	events   []AuditEvent
+	mu        sync.Mutex
+	logger    *zap.Logger
+	logFile   *os.File
+	logPath   string
+	encoder   *json.Encoder
+	events    []AuditEvent
 	maxEvents int
 }
 

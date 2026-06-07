@@ -11,25 +11,25 @@ import (
 
 // Manager 审计追踪管理器
 type Manager struct {
-	mu              sync.RWMutex
-	logger          *zap.Logger
-	events          map[string]*AuditEvent
-	activities      map[string]*SuspiciousActivity
-	reports         map[string]*AuditReport
-	policies        map[string]*RetentionPolicy
-	exports         map[string]*AuditExport
-	rules           []DetectionRule
+	mu         sync.RWMutex
+	logger     *zap.Logger
+	events     map[string]*AuditEvent
+	activities map[string]*SuspiciousActivity
+	reports    map[string]*AuditReport
+	policies   map[string]*RetentionPolicy
+	exports    map[string]*AuditExport
+	rules      []DetectionRule
 }
 
 // DetectionRule 检测规则
 type DetectionRule struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Type        string   `json:"type"`
-	Conditions  []string `json:"conditions"`
-	Threshold   int      `json:"threshold"`
-	TimeWindow  string   `json:"time_window"`
-	Enabled     bool     `json:"enabled"`
+	ID         string   `json:"id"`
+	Name       string   `json:"name"`
+	Type       string   `json:"type"`
+	Conditions []string `json:"conditions"`
+	Threshold  int      `json:"threshold"`
+	TimeWindow string   `json:"time_window"`
+	Enabled    bool     `json:"enabled"`
 }
 
 // NewManager 创建审计追踪管理器
@@ -61,17 +61,17 @@ func (m *Manager) initDetectionRules() {
 		{
 			ID: "brute-force", Name: "暴力破解检测", Type: "brute-force",
 			Conditions: []string{"event_type == 'login'", "result == 'failure'"},
-			Threshold: 5, TimeWindow: "5m", Enabled: true,
+			Threshold:  5, TimeWindow: "5m", Enabled: true,
 		},
 		{
 			ID: "data-exfil", Name: "数据泄露检测", Type: "data-exfiltration",
 			Conditions: []string{"event_type == 'download'", "resource.type == 'database'"},
-			Threshold: 100, TimeWindow: "1h", Enabled: true,
+			Threshold:  100, TimeWindow: "1h", Enabled: true,
 		},
 		{
 			ID: "privilege-esc", Name: "权限提升检测", Type: "privilege-escalation",
 			Conditions: []string{"event_type == 'admin'", "actor.role != 'admin'"},
-			Threshold: 1, TimeWindow: "1m", Enabled: true,
+			Threshold:  1, TimeWindow: "1m", Enabled: true,
 		},
 	}
 }
@@ -411,11 +411,11 @@ func (m *Manager) GenerateReport(title, reportType string, period ReportPeriod, 
 			SuspiciousCount:  len(activities),
 			FailureRate:      failureRate,
 		},
-		Events:       events,
-		Activities:   activities,
-		GeneratedAt:  time.Now(),
-		GeneratedBy:  generatedBy,
-		Format:       "json",
+		Events:      events,
+		Activities:  activities,
+		GeneratedAt: time.Now(),
+		GeneratedBy: generatedBy,
+		Format:      "json",
 	}
 
 	m.reports[reportID] = report

@@ -46,28 +46,28 @@ type Guide struct {
 
 // BestPractice 最佳实践
 type BestPractice struct {
-	ID          string   `json:"id"`
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Category    string   `json:"category"`
-	Content     string   `json:"content"`
-	Tags        []string `json:"tags"`
-	Priority    int      `json:"priority"`
+	ID          string    `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Category    string    `json:"category"`
+	Content     string    `json:"content"`
+	Tags        []string  `json:"tags"`
+	Priority    int       `json:"priority"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 
 // Progress 进度
 type Progress struct {
-	UserID         string    `json:"user_id"`
-	WizardID       string    `json:"wizard_id"`
-	CompletedSteps []string  `json:"completed_steps"`
-	TotalSteps     int       `json:"total_steps"`
-	CompletedCount int       `json:"completed_count"`
-	Percentage     float64   `json:"percentage"`
-	IsCompleted    bool      `json:"is_completed"`
-	StartedAt      time.Time `json:"started_at"`
+	UserID         string     `json:"user_id"`
+	WizardID       string     `json:"wizard_id"`
+	CompletedSteps []string   `json:"completed_steps"`
+	TotalSteps     int        `json:"total_steps"`
+	CompletedCount int        `json:"completed_count"`
+	Percentage     float64    `json:"percentage"`
+	IsCompleted    bool       `json:"is_completed"`
+	StartedAt      time.Time  `json:"started_at"`
 	CompletedAt    *time.Time `json:"completed_at,omitempty"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	UpdatedAt      time.Time  `json:"updated_at"`
 }
 
 // ============================================================
@@ -82,6 +82,6 @@ type CompleteStepRequest struct {
 
 // GetGuidesRequest 获取引导请求
 type GetGuidesRequest struct {
-	Category string `json:"category"`
+	Category string   `json:"category"`
 	Tags     []string `json:"tags"`
 }

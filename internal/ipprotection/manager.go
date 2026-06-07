@@ -13,17 +13,17 @@ import (
 
 // Manager IP 防护管理器
 type Manager struct {
-	mu           sync.RWMutex
-	logger       *zap.Logger
-	config       *IPProtectionConfig
-	detector     *Detector
-	rateLimiter  *RateLimiterManager
-	records      map[string]*IPRecord    // IP -> 记录
-	allowList    map[string]*AllowListEntry
-	denyList     map[string]*DenyListEntry
-	banLog       []*BanRecord
-	stopChan     chan struct{}
-	running      bool
+	mu          sync.RWMutex
+	logger      *zap.Logger
+	config      *IPProtectionConfig
+	detector    *Detector
+	rateLimiter *RateLimiterManager
+	records     map[string]*IPRecord // IP -> 记录
+	allowList   map[string]*AllowListEntry
+	denyList    map[string]*DenyListEntry
+	banLog      []*BanRecord
+	stopChan    chan struct{}
+	running     bool
 }
 
 // NewManager 创建 IP 防护管理器

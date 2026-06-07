@@ -57,16 +57,16 @@ func DefaultSyncConfig() SyncConfig {
 
 // SyncEndpoint represents a sync endpoint
 type SyncEndpoint struct {
-	mu           sync.RWMutex
-	NodeID       string    `json:"node_id"`
-	Hostname     string    `json:"hostname"`
-	Address      string    `json:"address"`
-	Port         int       `json:"port"`
-	Connected    bool      `json:"connected"`
-	LastSync     time.Time `json:"last_sync"`
-	SyncLag      time.Duration `json:"sync_lag"`
-	SequenceNum  uint64    `json:"sequence_num"`
-	Failures     int       `json:"failures"`
+	mu          sync.RWMutex
+	NodeID      string        `json:"node_id"`
+	Hostname    string        `json:"hostname"`
+	Address     string        `json:"address"`
+	Port        int           `json:"port"`
+	Connected   bool          `json:"connected"`
+	LastSync    time.Time     `json:"last_sync"`
+	SyncLag     time.Duration `json:"sync_lag"`
+	SequenceNum uint64        `json:"sequence_num"`
+	Failures    int           `json:"failures"`
 }
 
 // SyncRequest represents a sync request
@@ -114,24 +114,24 @@ const (
 
 // SyncResponse represents a sync response
 type SyncResponse struct {
-	ID          string    `json:"id"`
-	Success     bool      `json:"success"`
-	Message     string    `json:"message,omitempty"`
-	SessionsSync int     `json:"sessions_synced"`
-	Timestamp   time.Time `json:"timestamp"`
-	SequenceNum uint64    `json:"sequence_num"`
+	ID           string    `json:"id"`
+	Success      bool      `json:"success"`
+	Message      string    `json:"message,omitempty"`
+	SessionsSync int       `json:"sessions_synced"`
+	Timestamp    time.Time `json:"timestamp"`
+	SequenceNum  uint64    `json:"sequence_num"`
 }
 
 // SyncMetrics tracks synchronization metrics
 type SyncMetrics struct {
-	mu              sync.RWMutex
-	TotalSyncs      int64         `json:"total_syncs"`
-	SuccessfulSyncs int64         `json:"successful_syncs"`
-	FailedSyncs     int64         `json:"failed_syncs"`
-	TotalBytes      int64         `json:"total_bytes"`
-	AverageDuration time.Duration `json:"average_duration"`
-	LastSyncTime    time.Time     `json:"last_sync_time"`
-	CompressionRatio float64      `json:"compression_ratio"`
+	mu               sync.RWMutex
+	TotalSyncs       int64         `json:"total_syncs"`
+	SuccessfulSyncs  int64         `json:"successful_syncs"`
+	FailedSyncs      int64         `json:"failed_syncs"`
+	TotalBytes       int64         `json:"total_bytes"`
+	AverageDuration  time.Duration `json:"average_duration"`
+	LastSyncTime     time.Time     `json:"last_sync_time"`
+	CompressionRatio float64       `json:"compression_ratio"`
 }
 
 // NewStateSynchronizer creates a new state synchronizer
@@ -536,7 +536,7 @@ func (ss *StateSynchronizer) updateMetrics(successful bool, duration time.Durati
 
 	if ss.syncMetrics.TotalSyncs > 0 {
 		ss.syncMetrics.AverageDuration = time.Duration(
-			int64(ss.syncMetrics.AverageDuration)*(ss.syncMetrics.TotalSyncs-1) + int64(duration),
+			int64(ss.syncMetrics.AverageDuration)*(ss.syncMetrics.TotalSyncs-1)+int64(duration),
 		) / time.Duration(ss.syncMetrics.TotalSyncs)
 	}
 }

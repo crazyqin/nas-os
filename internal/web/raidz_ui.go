@@ -89,15 +89,15 @@ func (h *RAIDZUIHandlers) RegisterRoutes(rg *gin.RouterGroup) {
 // RAIDZDashboardSummary Dashboard展示摘要
 type RAIDZDashboardSummary struct {
 	// 活跃任务
-	ActiveCount    int `json:"activeCount"`    // 活跃任务数
-	RunningCount   int `json:"runningCount"`   // 运行中数
-	PausedCount    int `json:"pausedCount"`    // 已暂停数
+	ActiveCount  int `json:"activeCount"`  // 活跃任务数
+	RunningCount int `json:"runningCount"` // 运行中数
+	PausedCount  int `json:"pausedCount"`  // 已暂停数
 
 	// 最新任务（如果有）
-	LatestTask     *RAIDZTaskCard `json:"latestTask"` // 最新任务卡片
+	LatestTask *RAIDZTaskCard `json:"latestTask"` // 最新任务卡片
 
 	// 最近历史
-	RecentHistory  []RAIDZHistoryCard `json:"recentHistory"` // 最近历史卡片
+	RecentHistory []RAIDZHistoryCard `json:"recentHistory"` // 最近历史卡片
 
 	// 是否支持扩展
 	ExpansionSupported bool   `json:"expansionSupported"` // 系统是否支持RAIDZ扩展
@@ -107,25 +107,25 @@ type RAIDZDashboardSummary struct {
 	ExpandablePools []ExpandablePoolCard `json:"expandablePools"` // 可扩展池列表
 
 	// 最后更新时间
-	LastUpdate     time.Time `json:"lastUpdate"`
+	LastUpdate time.Time `json:"lastUpdate"`
 }
 
 // RAIDZTaskCard 任务卡片（Dashboard展示）
 type RAIDZTaskCard struct {
-	PoolName       string    `json:"poolName"`       // 池名称
-	RAIDZLevel     string    `json:"raidzLevel"`     // RAIDZ级别
-	Status         string    `json:"status"`         // 状态
-	StatusText     string    `json:"statusText"`     // 状态文本
-	Percent        float64   `json:"percent"`        // 进度百分比
-	SpeedMBps      float64   `json:"speedMBps"`      // 当前速度
-	ETAFormatted   string    `json:"etaFormatted"`   // 预估剩余时间
-	ElapsedFormatted string  `json:"elapsedFormatted"` // 已耗时
-	Phase          string    `json:"phase"`          // 当前阶段
-	PhaseText      string    `json:"phaseText"`      // 阶段文本
-	CanPause       bool      `json:"canPause"`       // 是否可暂停
-	CanResume      bool      `json:"canResume"`      // 是否可恢复
-	CanCancel      bool      `json:"canCancel"`      // 是否可取消
-	StartTime      time.Time `json:"startTime"`      // 开始时间
+	PoolName         string    `json:"poolName"`         // 池名称
+	RAIDZLevel       string    `json:"raidzLevel"`       // RAIDZ级别
+	Status           string    `json:"status"`           // 状态
+	StatusText       string    `json:"statusText"`       // 状态文本
+	Percent          float64   `json:"percent"`          // 进度百分比
+	SpeedMBps        float64   `json:"speedMBps"`        // 当前速度
+	ETAFormatted     string    `json:"etaFormatted"`     // 预估剩余时间
+	ElapsedFormatted string    `json:"elapsedFormatted"` // 已耗时
+	Phase            string    `json:"phase"`            // 当前阶段
+	PhaseText        string    `json:"phaseText"`        // 阶段文本
+	CanPause         bool      `json:"canPause"`         // 是否可暂停
+	CanResume        bool      `json:"canResume"`        // 是否可恢复
+	CanCancel        bool      `json:"canCancel"`        // 是否可取消
+	StartTime        time.Time `json:"startTime"`        // 开始时间
 }
 
 // RAIDZHistoryCard 历史卡片
@@ -141,13 +141,13 @@ type RAIDZHistoryCard struct {
 
 // ExpandablePoolCard 可扩展池卡片
 type ExpandablePoolCard struct {
-	PoolName       string  `json:"poolName"`       // 池名称
-	RAIDZLevel     string  `json:"raidzLevel"`     // RAIDZ级别
-	CurrentWidth   int     `json:"currentWidth"`   // 当前宽度
-	CurrentCapGB   float64 `json:"currentCapGB"`   // 当前容量GB
-	PotentialGain  float64 `json:"potentialGain"`  // 潜在增益GB
-	Healthy        bool    `json:"healthy"`        // 是否健康
-	HasActiveTask  bool    `json:"hasActiveTask"`  // 是否有活跃任务
+	PoolName      string  `json:"poolName"`      // 池名称
+	RAIDZLevel    string  `json:"raidzLevel"`    // RAIDZ级别
+	CurrentWidth  int     `json:"currentWidth"`  // 当前宽度
+	CurrentCapGB  float64 `json:"currentCapGB"`  // 当前容量GB
+	PotentialGain float64 `json:"potentialGain"` // 潜在增益GB
+	Healthy       bool    `json:"healthy"`       // 是否健康
+	HasActiveTask bool    `json:"hasActiveTask"` // 是否有活跃任务
 }
 
 // getDashboardSummary 获取Dashboard摘要
@@ -347,12 +347,12 @@ func (h *RAIDZUIHandlers) getSummary(c *gin.Context) {
 
 // StartExpansionUIReq WebUI启动扩展请求
 type StartExpansionUIReq struct {
-	PoolName      string            `json:"poolName" binding:"required"`      // 存储池名称
-	NewDisk       string            `json:"newDisk" binding:"required"`       // 新磁盘路径
-	Force         bool              `json:"force"`                            // 强制执行
-	DryRun        bool              `json:"dryRun"`                           // 模拟运行（预检模式）
-	AutoStart     bool              `json:"autoStart"`                        // 验证后自动启动
-	Metadata      map[string]string `json:"metadata"`                         // 扩展元数据
+	PoolName  string            `json:"poolName" binding:"required"` // 存储池名称
+	NewDisk   string            `json:"newDisk" binding:"required"`  // 新磁盘路径
+	Force     bool              `json:"force"`                       // 强制执行
+	DryRun    bool              `json:"dryRun"`                      // 模拟运行（预检模式）
+	AutoStart bool              `json:"autoStart"`                   // 验证后自动启动
+	Metadata  map[string]string `json:"metadata"`                    // 扩展元数据
 }
 
 // startExpansion 启动RAIDZ扩展
@@ -501,11 +501,11 @@ func (h *RAIDZUIHandlers) validateExpansion(c *gin.Context) {
 
 	// 构建验证结果
 	result := &storage.ValidateExpansionResult{
-		Valid:    true,
+		Valid:     true,
 		CanExpand: true,
-		Errors:   []string{},
-		Warnings: []string{},
-		Checks:   []storage.CheckDetail{},
+		Errors:    []string{},
+		Warnings:  []string{},
+		Checks:    []storage.CheckDetail{},
 	}
 
 	// 使用扩展服务进行验证
@@ -783,7 +783,7 @@ func (h *RAIDZUIHandlers) getExpandablePools(ctx context.Context) []ExpandablePo
 			RAIDZLevel:    "raidz1", // 需要从实际池获取
 			CurrentWidth:  len(vol.Devices),
 			CurrentCapGB:  float64(vol.Size) / (1024 * 1024 * 1024),
-			PotentialGain: float64(vol.Size / uint64(len(vol.Devices))) / (1024 * 1024 * 1024),
+			PotentialGain: float64(vol.Size/uint64(len(vol.Devices))) / (1024 * 1024 * 1024),
 			Healthy:       vol.Status.Healthy,
 			HasActiveTask: false,
 		}

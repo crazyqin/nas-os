@@ -14,11 +14,11 @@ import (
 type PowerState string
 
 const (
-	PowerOn      PowerState = "on"       // 正常运行
-	PowerSleep   PowerState = "sleep"    // 睡眠
+	PowerOn        PowerState = "on"        // 正常运行
+	PowerSleep     PowerState = "sleep"     // 睡眠
 	PowerHibernate PowerState = "hibernate" // 休眠
-	PowerStandby PowerState = "standby"  // 待机
-	PowerOff     PowerState = "off"      // 关机
+	PowerStandby   PowerState = "standby"   // 待机
+	PowerOff       PowerState = "off"       // 关机
 )
 
 // ========== 能源模式 ==========
@@ -38,31 +38,31 @@ const (
 
 // PowerRecord 功耗记录
 type PowerRecord struct {
-	ID        string    `json:"id"`
-	DeviceID  string    `json:"device_id"`
-	PowerW    float64   `json:"power_w"`    // 当前功耗（瓦特）
-	Voltage   float64   `json:"voltage"`    // 电压
-	Current   float64   `json:"current"`    // 电流
-	TempCPU   float64   `json:"temp_cpu"`   // CPU温度
-	TempDisk  float64   `json:"temp_disk"`  // 磁盘温度
-	FanRPM    int       `json:"fan_rpm"`    // 风扇转速
+	ID        string     `json:"id"`
+	DeviceID  string     `json:"device_id"`
+	PowerW    float64    `json:"power_w"`   // 当前功耗（瓦特）
+	Voltage   float64    `json:"voltage"`   // 电压
+	Current   float64    `json:"current"`   // 电流
+	TempCPU   float64    `json:"temp_cpu"`  // CPU温度
+	TempDisk  float64    `json:"temp_disk"` // 磁盘温度
+	FanRPM    int        `json:"fan_rpm"`   // 风扇转速
 	State     PowerState `json:"state"`
-	Timestamp time.Time `json:"timestamp"`
+	Timestamp time.Time  `json:"timestamp"`
 }
 
 // ========== 节能策略 ==========
 
 // EnergyPolicy 节能策略
 type EnergyPolicy struct {
-	ID            string     `json:"id"`
-	Name          string     `json:"name"`
-	Description   string     `json:"description"`
-	Mode          EnergyMode `json:"mode"`
-	Enabled       bool       `json:"enabled"`
-	Rules         []PolicyRule `json:"rules"`
-	Schedule      *Schedule  `json:"schedule,omitempty"`
-	Priority      int        `json:"priority"`
-	CreatedAt     time.Time  `json:"created_at"`
+	ID          string       `json:"id"`
+	Name        string       `json:"name"`
+	Description string       `json:"description"`
+	Mode        EnergyMode   `json:"mode"`
+	Enabled     bool         `json:"enabled"`
+	Rules       []PolicyRule `json:"rules"`
+	Schedule    *Schedule    `json:"schedule,omitempty"`
+	Priority    int          `json:"priority"`
+	CreatedAt   time.Time    `json:"created_at"`
 }
 
 // PolicyRule 策略规则
@@ -86,13 +86,13 @@ type Schedule struct {
 
 // CarbonRecord 碳排放记录
 type CarbonRecord struct {
-	ID          string    `json:"id"`
-	Date        string    `json:"date"`        // YYYY-MM-DD
-	EnergyKWh   float64   `json:"energy_kwh"`  // 用电量（千瓦时）
-	CarbonKg    float64   `json:"carbon_kg"`   // 碳排放（千克CO2）
-	Factor      float64   `json:"factor"`      // 碳排放因子（kgCO2/kWh）
-	Source      string    `json:"source"`      // 数据来源
-	Timestamp   time.Time `json:"timestamp"`
+	ID        string    `json:"id"`
+	Date      string    `json:"date"`       // YYYY-MM-DD
+	EnergyKWh float64   `json:"energy_kwh"` // 用电量（千瓦时）
+	CarbonKg  float64   `json:"carbon_kg"`  // 碳排放（千克CO2）
+	Factor    float64   `json:"factor"`     // 碳排放因子（kgCO2/kWh）
+	Source    string    `json:"source"`     // 数据来源
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // CarbonSummary 碳排放汇总
@@ -101,7 +101,7 @@ type CarbonSummary struct {
 	TotalKWh    float64 `json:"total_kwh"`
 	TotalKg     float64 `json:"total_kg"`
 	AvgDaily    float64 `json:"avg_daily"`
-	Trend       string  `json:"trend"`       // increasing, decreasing, stable
+	Trend       string  `json:"trend"`        // increasing, decreasing, stable
 	TreesNeeded float64 `json:"trees_needed"` // 需要种植的树木数量（年吸收量）
 }
 
@@ -110,11 +110,11 @@ type CarbonSummary struct {
 // EnergySuggestion 能源优化建议
 type EnergySuggestion struct {
 	ID          string  `json:"id"`
-	Type        string  `json:"type"`       // disk_hibernate, cpu_freq, fan_curve, schedule
-	Priority    string  `json:"priority"`   // high, medium, low
+	Type        string  `json:"type"`     // disk_hibernate, cpu_freq, fan_curve, schedule
+	Priority    string  `json:"priority"` // high, medium, low
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
-	EstSaving   float64 `json:"est_saving_kwh"` // 预计节省（kWh/月）
+	EstSaving   float64 `json:"est_saving_kwh"`  // 预计节省（kWh/月）
 	EstCost     float64 `json:"est_cost_saving"` // 预计节省（元/月）
 	Confidence  float64 `json:"confidence"`
 	Applied     bool    `json:"applied"`
@@ -126,13 +126,13 @@ type EnergySuggestion struct {
 type DeviceConfig struct {
 	DeviceID         string     `json:"device_id"`
 	Name             string     `json:"name"`
-	Type             string     `json:"type"`     // nas, switch, ups, router
+	Type             string     `json:"type"` // nas, switch, ups, router
 	MaxPowerW        float64    `json:"max_power_w"`
 	IdlePowerW       float64    `json:"idle_power_w"`
 	CurrentMode      EnergyMode `json:"current_mode"`
 	DiskHibernateMin int        `json:"disk_hibernate_min"` // 磁盘休眠时间（分钟）
-	CPUGovernor      string     `json:"cpu_governor"`        // powersave, performance, ondemand
-	FanProfile       string     `json:"fan_profile"`         // silent, balanced, performance
+	CPUGovernor      string     `json:"cpu_governor"`       // powersave, performance, ondemand
+	FanProfile       string     `json:"fan_profile"`        // silent, balanced, performance
 	LEDEnabled       bool       `json:"led_enabled"`
 	WakeOnLAN        bool       `json:"wake_on_lan"`
 	CreatedAt        time.Time  `json:"created_at"`
@@ -409,11 +409,11 @@ func (e *EnergyEngine) GetStatistics() map[string]interface{} {
 	defer e.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"total_devices":   len(e.devices),
-		"total_records":   0,
+		"total_devices":    len(e.devices),
+		"total_records":    0,
 		"total_energy_kwh": e.totalEnergy,
-		"current_mode":    string(e.currentMode),
-		"total_policies":  len(e.policies),
+		"current_mode":     string(e.currentMode),
+		"total_policies":   len(e.policies),
 	}
 
 	totalRecords := 0

@@ -20,56 +20,56 @@ import (
 type ClipType string
 
 const (
-	ClipText      ClipType = "text"      // 纯文本
-	ClipRichText  ClipType = "richtext"  // 富文本
-	ClipImage     ClipType = "image"     // 图片（base64）
-	ClipFilePath  ClipType = "filepath"  // 文件路径
-	ClipURL       ClipType = "url"       // URL链接
+	ClipText     ClipType = "text"     // 纯文本
+	ClipRichText ClipType = "richtext" // 富文本
+	ClipImage    ClipType = "image"    // 图片（base64）
+	ClipFilePath ClipType = "filepath" // 文件路径
+	ClipURL      ClipType = "url"      // URL链接
 )
 
 // ClipItem 剪贴板条目
 type ClipItem struct {
-	ID        string    `json:"id"`
-	DeviceID  string    `json:"deviceId"`
-	DeviceName string   `json:"deviceName"`
-	Type      ClipType  `json:"type"`
-	Content   string    `json:"content"`
-	Size      int64     `json:"size"`
-	Hash      string    `json:"hash"`
-	CreatedAt time.Time `json:"createdAt"`
-	ExpiresAt time.Time `json:"expiresAt,omitempty"`
+	ID         string    `json:"id"`
+	DeviceID   string    `json:"deviceId"`
+	DeviceName string    `json:"deviceName"`
+	Type       ClipType  `json:"type"`
+	Content    string    `json:"content"`
+	Size       int64     `json:"size"`
+	Hash       string    `json:"hash"`
+	CreatedAt  time.Time `json:"createdAt"`
+	ExpiresAt  time.Time `json:"expiresAt,omitempty"`
 }
 
 // Device 注册设备信息
 type Device struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	Platform     string    `json:"platform"` // ios/android/windows/macos/linux/web
-	UserAgent    string    `json:"userAgent"`
-	LastSeen     time.Time `json:"lastSeen"`
-	PairedAt     time.Time `json:"pairedAt"`
-	PublicKey    string    `json:"publicKey,omitempty"`
-	Enabled      bool      `json:"enabled"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Platform  string    `json:"platform"` // ios/android/windows/macos/linux/web
+	UserAgent string    `json:"userAgent"`
+	LastSeen  time.Time `json:"lastSeen"`
+	PairedAt  time.Time `json:"pairedAt"`
+	PublicKey string    `json:"publicKey,omitempty"`
+	Enabled   bool      `json:"enabled"`
 }
 
 // SyncConfig 同步配置
 type SyncConfig struct {
-	MaxContentSize  int64         `json:"maxContentSize"`  // 最大内容大小（字节）
-	MaxHistory      int           `json:"maxHistory"`      // 最大历史条数
-	ExpiryDuration  time.Duration `json:"expiryDuration"`  // 内容过期时间
-	EncryptionKey   string        `json:"encryptionKey"`   // 端到端加密密钥
-	AutoSync        bool          `json:"autoSync"`        // 自动同步
-	AllowedDevices  []string      `json:"allowedDevices"`  // 允许的设备列表
+	MaxContentSize int64         `json:"maxContentSize"` // 最大内容大小（字节）
+	MaxHistory     int           `json:"maxHistory"`     // 最大历史条数
+	ExpiryDuration time.Duration `json:"expiryDuration"` // 内容过期时间
+	EncryptionKey  string        `json:"encryptionKey"`  // 端到端加密密钥
+	AutoSync       bool          `json:"autoSync"`       // 自动同步
+	AllowedDevices []string      `json:"allowedDevices"` // 允许的设备列表
 }
 
 // ClipboardManager 剪贴板管理器
 type ClipboardManager struct {
-	mu          sync.RWMutex
-	items       []ClipItem
-	devices     map[string]*Device
-	config      SyncConfig
-	maxItems    int
-	encryptKey  []byte
+	mu         sync.RWMutex
+	items      []ClipItem
+	devices    map[string]*Device
+	config     SyncConfig
+	maxItems   int
+	encryptKey []byte
 }
 
 // NewClipboardManager 创建剪贴板管理器
@@ -148,15 +148,15 @@ func (m *ClipboardManager) PushContent(deviceID string, clipType ClipType, conte
 	}
 
 	item := ClipItem{
-		ID:        generateID(),
-		DeviceID:  deviceID,
+		ID:         generateID(),
+		DeviceID:   deviceID,
 		DeviceName: device.Name,
-		Type:      clipType,
-		Content:   encrypted,
-		Size:      int64(len(content)),
-		Hash:      computeHash(content),
-		CreatedAt: time.Now(),
-		ExpiresAt: time.Now().Add(m.config.ExpiryDuration),
+		Type:       clipType,
+		Content:    encrypted,
+		Size:       int64(len(content)),
+		Hash:       computeHash(content),
+		CreatedAt:  time.Now(),
+		ExpiresAt:  time.Now().Add(m.config.ExpiryDuration),
 	}
 
 	// 添加到历史
@@ -267,11 +267,11 @@ func (m *ClipboardManager) Cleanup() int {
 
 // Stats 剪贴板统计
 type Stats struct {
-	TotalItems   int           `json:"totalItems"`
-	TotalDevices int           `json:"totalDevices"`
-	TotalSize    int64         `json:"totalSize"`
-	OldestItem   time.Time     `json:"oldestItem,omitempty"`
-	NewestItem   time.Time     `json:"newestItem,omitempty"`
+	TotalItems   int       `json:"totalItems"`
+	TotalDevices int       `json:"totalDevices"`
+	TotalSize    int64     `json:"totalSize"`
+	OldestItem   time.Time `json:"oldestItem,omitempty"`
+	NewestItem   time.Time `json:"newestItem,omitempty"`
 }
 
 // GetStats 获取统计信息

@@ -36,8 +36,8 @@ const (
 type NodeStatus string
 
 const (
-	NodeStatusOnline  NodeStatus = "online"
-	NodeStatusOffline NodeStatus = "offline"
+	NodeStatusOnline   NodeStatus = "online"
+	NodeStatusOffline  NodeStatus = "offline"
 	NodeStatusDegraded NodeStatus = "degraded"
 )
 
@@ -73,25 +73,25 @@ type MetricPoint struct {
 
 // AggregatedMetrics 聚合指标
 type AggregatedMetrics struct {
-	Name      string      `json:"name"`
-	Min       float64     `json:"min"`
-	Max       float64     `json:"max"`
-	Avg       float64     `json:"avg"`
-	Sum       float64     `json:"sum"`
-	Count     int         `json:"count"`
+	Name      string             `json:"name"`
+	Min       float64            `json:"min"`
+	Max       float64            `json:"max"`
+	Avg       float64            `json:"avg"`
+	Sum       float64            `json:"sum"`
+	Count     int                `json:"count"`
 	PerNode   map[string]float64 `json:"per_node"`
-	Timestamp time.Time   `json:"timestamp"`
+	Timestamp time.Time          `json:"timestamp"`
 }
 
 // ========== 健康评分 ==========
 
 // ClusterHealthScore 集群健康评分
 type ClusterHealthScore struct {
-	Score    int              `json:"score"`    // 0-100
-	Level    string           `json:"level"`    // good/warning/critical
-	PerNode  map[string]int   `json:"per_node"` // 各节点得分
-	Details  map[string]int   `json:"details"`  // 各项得分
-	LastEval time.Time        `json:"last_eval"`
+	Score    int            `json:"score"`    // 0-100
+	Level    string         `json:"level"`    // good/warning/critical
+	PerNode  map[string]int `json:"per_node"` // 各节点得分
+	Details  map[string]int `json:"details"`  // 各项得分
+	LastEval time.Time      `json:"last_eval"`
 }
 
 // ========== 节点间延迟 ==========
@@ -108,30 +108,30 @@ type NodeLatency struct {
 
 // LatencyMatrix 延迟矩阵
 type LatencyMatrix struct {
-	Nodes    []string              `json:"nodes"`
-	Matrix   map[string]map[string]time.Duration `json:"matrix"`
-	AvgMs    float64               `json:"avg_ms"`
-	MaxMs    float64               `json:"max_ms"`
-	MinMs    float64               `json:"min_ms"`
-	Updated  time.Time             `json:"updated"`
+	Nodes   []string                            `json:"nodes"`
+	Matrix  map[string]map[string]time.Duration `json:"matrix"`
+	AvgMs   float64                             `json:"avg_ms"`
+	MaxMs   float64                             `json:"max_ms"`
+	MinMs   float64                             `json:"min_ms"`
+	Updated time.Time                           `json:"updated"`
 }
 
 // ========== 告警 ==========
 
 // AlertRule 告警规则
 type AlertRule struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Type        RuleType          `json:"type"`
-	Metric      string            `json:"metric"`
-	Condition   AlertCondition    `json:"condition"`
-	Threshold   float64           `json:"threshold"`
-	Duration    time.Duration     `json:"duration"`
-	Severity    AlertSeverity     `json:"severity"`
-	NodeIDs     []string          `json:"node_ids,omitempty"` // 空表示所有节点
-	Labels      map[string]string `json:"labels,omitempty"`
-	Enabled     bool              `json:"enabled"`
-	CreatedAt   time.Time         `json:"created_at"`
+	ID        string            `json:"id"`
+	Name      string            `json:"name"`
+	Type      RuleType          `json:"type"`
+	Metric    string            `json:"metric"`
+	Condition AlertCondition    `json:"condition"`
+	Threshold float64           `json:"threshold"`
+	Duration  time.Duration     `json:"duration"`
+	Severity  AlertSeverity     `json:"severity"`
+	NodeIDs   []string          `json:"node_ids,omitempty"` // 空表示所有节点
+	Labels    map[string]string `json:"labels,omitempty"`
+	Enabled   bool              `json:"enabled"`
+	CreatedAt time.Time         `json:"created_at"`
 }
 
 // RuleType 规则类型
@@ -165,18 +165,18 @@ const (
 
 // Alert 告警实例
 type Alert struct {
-	ID         string            `json:"id"`
-	RuleID     string            `json:"rule_id"`
-	RuleName   string            `json:"rule_name"`
-	Severity   AlertSeverity     `json:"severity"`
-	Message    string            `json:"message"`
-	Value      float64           `json:"value"`
-	Threshold  float64           `json:"threshold"`
-	NodeID     string            `json:"node_id"`
-	Labels     map[string]string `json:"labels,omitempty"`
-	Status     AlertStatus       `json:"status"`
-	Triggered  time.Time         `json:"triggered"`
-	Resolved   *time.Time        `json:"resolved,omitempty"`
+	ID        string            `json:"id"`
+	RuleID    string            `json:"rule_id"`
+	RuleName  string            `json:"rule_name"`
+	Severity  AlertSeverity     `json:"severity"`
+	Message   string            `json:"message"`
+	Value     float64           `json:"value"`
+	Threshold float64           `json:"threshold"`
+	NodeID    string            `json:"node_id"`
+	Labels    map[string]string `json:"labels,omitempty"`
+	Status    AlertStatus       `json:"status"`
+	Triggered time.Time         `json:"triggered"`
+	Resolved  *time.Time        `json:"resolved,omitempty"`
 }
 
 // AlertStatus 告警状态
@@ -192,25 +192,25 @@ const (
 
 // CorrelatedAlert 关联告警
 type CorrelatedAlert struct {
-	RootCause   string   `json:"root_cause"`
-	RelatedIDs  []string `json:"related_ids"`
-	Description string   `json:"description"`
+	RootCause   string        `json:"root_cause"`
+	RelatedIDs  []string      `json:"related_ids"`
+	Description string        `json:"description"`
 	Severity    AlertSeverity `json:"severity"`
-	Timestamp   time.Time `json:"timestamp"`
+	Timestamp   time.Time     `json:"timestamp"`
 }
 
 // ========== 仪表板 ==========
 
 // DashboardData 仪表板数据
 type DashboardData struct {
-	ClusterHealth  ClusterHealthScore          `json:"cluster_health"`
-	Nodes          []ClusterNode               `json:"nodes"`
-	ActiveAlerts   []Alert                     `json:"active_alerts"`
-	Correlated     []CorrelatedAlert           `json:"correlated_alerts"`
-	Latency        LatencyMatrix               `json:"latency"`
-	Aggregated     map[string]AggregatedMetrics `json:"aggregated"`
-	TopIssues      []string                    `json:"top_issues"`
-	Timestamp      time.Time                   `json:"timestamp"`
+	ClusterHealth ClusterHealthScore           `json:"cluster_health"`
+	Nodes         []ClusterNode                `json:"nodes"`
+	ActiveAlerts  []Alert                      `json:"active_alerts"`
+	Correlated    []CorrelatedAlert            `json:"correlated_alerts"`
+	Latency       LatencyMatrix                `json:"latency"`
+	Aggregated    map[string]AggregatedMetrics `json:"aggregated"`
+	TopIssues     []string                     `json:"top_issues"`
+	Timestamp     time.Time                    `json:"timestamp"`
 }
 
 // ========== 存储接口 ==========
@@ -233,25 +233,25 @@ type AlertStore interface {
 
 // Manager 统一监控管理器
 type Manager struct {
-	mu           sync.RWMutex
-	nodes        map[string]*ClusterNode
-	rules        map[string]*AlertRule
-	alerts       map[string]*Alert
-	correlated   []CorrelatedAlert
-	latency      map[string]map[string]*NodeLatency
-	metricStore  MetricStore
-	alertStore   AlertStore
-	config       ManagerConfig
-	stopCh       chan struct{}
+	mu          sync.RWMutex
+	nodes       map[string]*ClusterNode
+	rules       map[string]*AlertRule
+	alerts      map[string]*Alert
+	correlated  []CorrelatedAlert
+	latency     map[string]map[string]*NodeLatency
+	metricStore MetricStore
+	alertStore  AlertStore
+	config      ManagerConfig
+	stopCh      chan struct{}
 }
 
 // ManagerConfig 管理器配置
 type ManagerConfig struct {
-	HealthCheckInterval time.Duration `json:"health_check_interval"`
-	MetricRetention     time.Duration `json:"metric_retention"`
-	AlertDedupWindow    time.Duration `json:"alert_dedup_window"`
-	MaxAlerts           int           `json:"max_alerts"`
-	OfflineThreshold    time.Duration `json:"offline_threshold"`
+	HealthCheckInterval  time.Duration `json:"health_check_interval"`
+	MetricRetention      time.Duration `json:"metric_retention"`
+	AlertDedupWindow     time.Duration `json:"alert_dedup_window"`
+	MaxAlerts            int           `json:"max_alerts"`
+	OfflineThreshold     time.Duration `json:"offline_threshold"`
 	LatencyCheckInterval time.Duration `json:"latency_check_interval"`
 }
 

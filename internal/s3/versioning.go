@@ -15,37 +15,37 @@ import (
 
 // ObjectVersion represents a specific version of an object.
 type ObjectVersion struct {
-	VersionID    string            `json:"versionId"`
-	Key          string            `json:"key"`
-	Size         int64             `json:"size"`
-	ETag         string            `json:"etag"`
-	LastModified time.Time         `json:"lastModified"`
-	IsLatest     bool              `json:"isLatest"`
-	StorageClass StorageClass      `json:"storageClass"`
-	IsDeleteMarker bool            `json:"isDeleteMarker,omitempty"`
-	Owner        string            `json:"owner,omitempty"`
-	Metadata     map[string]string `json:"metadata,omitempty"`
+	VersionID      string            `json:"versionId"`
+	Key            string            `json:"key"`
+	Size           int64             `json:"size"`
+	ETag           string            `json:"etag"`
+	LastModified   time.Time         `json:"lastModified"`
+	IsLatest       bool              `json:"isLatest"`
+	StorageClass   StorageClass      `json:"storageClass"`
+	IsDeleteMarker bool              `json:"isDeleteMarker,omitempty"`
+	Owner          string            `json:"owner,omitempty"`
+	Metadata       map[string]string `json:"metadata,omitempty"`
 }
 
 // VersionList contains a list of object versions.
 type VersionList struct {
-	Bucket             string           `json:"bucket"`
-	Prefix             string           `json:"prefix"`
-	KeyMarker          string           `json:"keyMarker,omitempty"`
-	VersionIDMarker    string           `json:"versionIdMarker,omitempty"`
-	MaxKeys            int              `json:"maxKeys"`
-	IsTruncated        bool             `json:"isTruncated"`
-	NextKeyMarker      string           `json:"nextKeyMarker,omitempty"`
-	NextVersionIDMarker string          `json:"nextVersionIdMarker,omitempty"`
-	Versions           []*ObjectVersion `json:"versions"`
-	DeleteMarkers      []*ObjectVersion `json:"deleteMarkers,omitempty"`
+	Bucket              string           `json:"bucket"`
+	Prefix              string           `json:"prefix"`
+	KeyMarker           string           `json:"keyMarker,omitempty"`
+	VersionIDMarker     string           `json:"versionIdMarker,omitempty"`
+	MaxKeys             int              `json:"maxKeys"`
+	IsTruncated         bool             `json:"isTruncated"`
+	NextKeyMarker       string           `json:"nextKeyMarker,omitempty"`
+	NextVersionIDMarker string           `json:"nextVersionIdMarker,omitempty"`
+	Versions            []*ObjectVersion `json:"versions"`
+	DeleteMarkers       []*ObjectVersion `json:"deleteMarkers,omitempty"`
 }
 
 // VersioningStatusSummary contains versioning status details.
 type VersioningStatusSummary struct {
-	Status         VersioningStatus `json:"status"`
-	VersionCount   int64            `json:"versionCount"`
-	DeleteMarkerCount int64         `json:"deleteMarkerCount"`
+	Status            VersioningStatus `json:"status"`
+	VersionCount      int64            `json:"versionCount"`
+	DeleteMarkerCount int64            `json:"deleteMarkerCount"`
 }
 
 // EnableVersioning enables versioning for a bucket.
@@ -149,7 +149,7 @@ func (m *Manager) ListVersions(bucketName, prefix, delimiter, keyMarker, version
 	// Collect all versions from objects and version metadata
 	objects := m.objects[bucketName]
 	type versionEntry struct {
-		version *ObjectVersion
+		version  *ObjectVersion
 		isDelete bool
 	}
 

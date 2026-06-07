@@ -703,7 +703,7 @@ func TestIsolator_SetupIsolation(t *testing.T) {
 		ID:       "test-sandbox",
 		RootPath: "/tmp/test-sandbox",
 		Config: &SandboxConfig{
-			Name: "test",
+			Name:           "test",
 			IsolationLevel: IsolationLevelStandard,
 			Filesystem: &FilesystemIsolation{
 				ReadOnly:    false,

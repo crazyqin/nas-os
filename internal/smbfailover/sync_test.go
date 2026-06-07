@@ -381,12 +381,12 @@ func TestSyncResponse_Fields(t *testing.T) {
 
 func TestSyncMetrics_Fields(t *testing.T) {
 	metrics := &SyncMetrics{
-		TotalSyncs:      10,
-		SuccessfulSyncs: 8,
-		FailedSyncs:     2,
-		TotalBytes:      1024 * 1024,
-		AverageDuration: 100 * time.Millisecond,
-		LastSyncTime:    time.Now(),
+		TotalSyncs:       10,
+		SuccessfulSyncs:  8,
+		FailedSyncs:      2,
+		TotalBytes:       1024 * 1024,
+		AverageDuration:  100 * time.Millisecond,
+		LastSyncTime:     time.Now(),
 		CompressionRatio: 0.75,
 	}
 

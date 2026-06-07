@@ -15,11 +15,11 @@ import (
 type Manager struct {
 	mu sync.RWMutex
 
-	config         CostPredictConfig
-	costHistory    []CostRecord
-	growthHistory  []GrowthRecord
-	alertConfigs   []AlertConfig
-	activeAlerts   []BudgetAlert
+	config        CostPredictConfig
+	costHistory   []CostRecord
+	growthHistory []GrowthRecord
+	alertConfigs  []AlertConfig
+	activeAlerts  []BudgetAlert
 
 	// 预测缓存
 	forecastCache map[string]*ForecastResult
@@ -28,12 +28,12 @@ type Manager struct {
 // NewManager 创建成本预测管理器
 func NewManager(config CostPredictConfig) *Manager {
 	m := &Manager{
-		config:         config,
-		costHistory:    make([]CostRecord, 0),
-		growthHistory:  make([]GrowthRecord, 0),
-		alertConfigs:   make([]AlertConfig, 0),
-		activeAlerts:   make([]BudgetAlert, 0),
-		forecastCache:  make(map[string]*ForecastResult),
+		config:        config,
+		costHistory:   make([]CostRecord, 0),
+		growthHistory: make([]GrowthRecord, 0),
+		alertConfigs:  make([]AlertConfig, 0),
+		activeAlerts:  make([]BudgetAlert, 0),
+		forecastCache: make(map[string]*ForecastResult),
 	}
 
 	// 生成模拟历史数据
@@ -471,24 +471,24 @@ func (m *Manager) checkAlerts() {
 
 		if utilization >= config.CriticalThreshold {
 			alert := BudgetAlert{
-				Department:    "default",
-				Project:       "nas-os",
-				BudgetAmount:  config.Budget,
-				PredictedCost: currentCost,
-				OverrunAmount: currentCost - config.Budget,
+				Department:     "default",
+				Project:        "nas-os",
+				BudgetAmount:   config.Budget,
+				PredictedCost:  currentCost,
+				OverrunAmount:  currentCost - config.Budget,
 				OverrunPercent: utilization,
-				AlertLevel:    "critical",
+				AlertLevel:     "critical",
 			}
 			m.activeAlerts = append(m.activeAlerts, alert)
 		} else if utilization >= config.WarningThreshold {
 			alert := BudgetAlert{
-				Department:    "default",
-				Project:       "nas-os",
-				BudgetAmount:  config.Budget,
-				PredictedCost: currentCost,
-				OverrunAmount: 0,
+				Department:     "default",
+				Project:        "nas-os",
+				BudgetAmount:   config.Budget,
+				PredictedCost:  currentCost,
+				OverrunAmount:  0,
 				OverrunPercent: utilization,
-				AlertLevel:    "warning",
+				AlertLevel:     "warning",
 			}
 			m.activeAlerts = append(m.activeAlerts, alert)
 		}

@@ -76,12 +76,12 @@ func TestDCConfig(t *testing.T) {
 func TestSyncResult(t *testing.T) {
 	now := time.Now()
 	result := SyncResult{
-		ID:        "test-sync-001",
-		StartTime: now,
-		EndTime:   now.Add(5 * time.Second),
-		Duration:  5 * time.Second,
-		Status:    SyncStatusCompleted,
-		Strategy:  SyncStrategyFull,
+		ID:            "test-sync-001",
+		StartTime:     now,
+		EndTime:       now.Add(5 * time.Second),
+		Duration:      5 * time.Second,
+		Status:        SyncStatusCompleted,
+		Strategy:      SyncStrategyFull,
 		UsersSynced:   50,
 		GroupsSynced:  10,
 		OUSynced:      3,
@@ -89,9 +89,9 @@ func TestSyncResult(t *testing.T) {
 		UsersUpdated:  45,
 		GroupsCreated: 2,
 		GroupsUpdated: 8,
-		Progress:  100,
-		Message:   "同步完成",
-		Success:   true,
+		Progress:      100,
+		Message:       "同步完成",
+		Success:       true,
 	}
 
 	assert.Equal(t, "test-sync-001", result.ID)

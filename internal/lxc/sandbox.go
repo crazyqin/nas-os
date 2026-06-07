@@ -15,13 +15,13 @@ import (
 // 对标 TrueNAS SCALE 的 LXC Sandboxes 功能
 // 提供轻量级应用隔离运行环境
 type LXCSandboxManager struct {
-	mu       sync.RWMutex
-	config   *LXCConfig
+	mu        sync.RWMutex
+	config    *LXCConfig
 	sandboxes map[string]*Sandbox
 	templates map[string]*Template
-	ctx      context.Context
-	cancel   context.CancelFunc
-	wg       sync.WaitGroup
+	ctx       context.Context
+	cancel    context.CancelFunc
+	wg        sync.WaitGroup
 }
 
 // LXCConfig LXC配置
@@ -39,7 +39,7 @@ type LXCConfig struct {
 // Template LXC模板
 type Template struct {
 	Name        string            `json:"name"`
-	Distro      string            `json:"distro"`      // ubuntu, alpine, debian, etc.
+	Distro      string            `json:"distro"` // ubuntu, alpine, debian, etc.
 	Version     string            `json:"version"`
 	Description string            `json:"description"`
 	ImageURL    string            `json:"image_url"`
@@ -50,32 +50,32 @@ type Template struct {
 
 // Sandbox LXC沙箱实例
 type Sandbox struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Template    string            `json:"template"`
-	Status      SandboxStatus     `json:"status"`
-	IP          string            `json:"ip"`
-	CPU         int               `json:"cpu"`
-	MemoryMB    int               `json:"memory_mb"`
-	DiskGB      int               `json:"disk_gb"`
-	Ports       []PortMapping     `json:"ports"`
-	Volumes     []VolumeMount     `json:"volumes"`
-	EnvVars     map[string]string `json:"env_vars"`
-	CreatedAt   time.Time         `json:"created_at"`
-	StartedAt   *time.Time        `json:"started_at,omitempty"`
-	Stats       *SandboxStats     `json:"stats,omitempty"`
-	RestartPolicy RestartPolicy   `json:"restart_policy"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Template      string            `json:"template"`
+	Status        SandboxStatus     `json:"status"`
+	IP            string            `json:"ip"`
+	CPU           int               `json:"cpu"`
+	MemoryMB      int               `json:"memory_mb"`
+	DiskGB        int               `json:"disk_gb"`
+	Ports         []PortMapping     `json:"ports"`
+	Volumes       []VolumeMount     `json:"volumes"`
+	EnvVars       map[string]string `json:"env_vars"`
+	CreatedAt     time.Time         `json:"created_at"`
+	StartedAt     *time.Time        `json:"started_at,omitempty"`
+	Stats         *SandboxStats     `json:"stats,omitempty"`
+	RestartPolicy RestartPolicy     `json:"restart_policy"`
 }
 
 // SandboxStatus 沙箱状态
 type SandboxStatus string
 
 const (
-	StatusCreating  SandboxStatus = "creating"
-	StatusStopped   SandboxStatus = "stopped"
-	StatusRunning   SandboxStatus = "running"
-	StatusError     SandboxStatus = "error"
-	StatusDeleting  SandboxStatus = "deleting"
+	StatusCreating SandboxStatus = "creating"
+	StatusStopped  SandboxStatus = "stopped"
+	StatusRunning  SandboxStatus = "running"
+	StatusError    SandboxStatus = "error"
+	StatusDeleting SandboxStatus = "deleting"
 )
 
 // RestartPolicy 重启策略
@@ -103,13 +103,13 @@ type VolumeMount struct {
 
 // SandboxStats 沙箱统计
 type SandboxStats struct {
-	CPUPercent    float64 `json:"cpu_percent"`
-	MemoryUsedMB  int     `json:"memory_used_mb"`
-	MemoryLimitMB int     `json:"memory_limit_mb"`
-	DiskUsedGB    float64 `json:"disk_used_gb"`
-	NetRxBytes    int64   `json:"net_rx_bytes"`
-	NetTxBytes    int64   `json:"net_tx_bytes"`
-	PIDs          int     `json:"pids"`
+	CPUPercent    float64   `json:"cpu_percent"`
+	MemoryUsedMB  int       `json:"memory_used_mb"`
+	MemoryLimitMB int       `json:"memory_limit_mb"`
+	DiskUsedGB    float64   `json:"disk_used_gb"`
+	NetRxBytes    int64     `json:"net_rx_bytes"`
+	NetTxBytes    int64     `json:"net_tx_bytes"`
+	PIDs          int       `json:"pids"`
 	Timestamp     time.Time `json:"timestamp"`
 }
 
@@ -210,17 +210,17 @@ func (m *LXCSandboxManager) CreateSandbox(name, templateName string, opts *Sandb
 	}
 
 	sandbox := &Sandbox{
-		ID:        fmt.Sprintf("lxc-%s-%d", name, time.Now().UnixNano()),
-		Name:      name,
-		Template:  templateName,
-		Status:    StatusCreating,
-		CPU:       opts.CPU,
-		MemoryMB:  opts.MemoryMB,
-		DiskGB:    opts.DiskGB,
-		Ports:     opts.Ports,
-		Volumes:   opts.Volumes,
-		EnvVars:   opts.EnvVars,
-		CreatedAt: time.Now(),
+		ID:            fmt.Sprintf("lxc-%s-%d", name, time.Now().UnixNano()),
+		Name:          name,
+		Template:      templateName,
+		Status:        StatusCreating,
+		CPU:           opts.CPU,
+		MemoryMB:      opts.MemoryMB,
+		DiskGB:        opts.DiskGB,
+		Ports:         opts.Ports,
+		Volumes:       opts.Volumes,
+		EnvVars:       opts.EnvVars,
+		CreatedAt:     time.Now(),
 		RestartPolicy: opts.RestartPolicy,
 	}
 

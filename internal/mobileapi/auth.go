@@ -14,18 +14,18 @@ import (
 
 // JWT相关错误.
 var (
-	ErrInvalidToken     = errors.New("invalid token")        // 无效令牌
-	ErrTokenExpired     = errors.New("token expired")        // 令牌已过期
-	ErrTokenRevoked     = errors.New("token revoked")        // 令牌已撤销
-	ErrDeviceNotFound   = errors.New("device not found")     // 设备未找到
-	ErrDeviceBlocked    = errors.New("device blocked")       // 设备已封禁
-	ErrInvalidSignature = errors.New("invalid signature")    // 无效签名
+	ErrInvalidToken     = errors.New("invalid token")         // 无效令牌
+	ErrTokenExpired     = errors.New("token expired")         // 令牌已过期
+	ErrTokenRevoked     = errors.New("token revoked")         // 令牌已撤销
+	ErrDeviceNotFound   = errors.New("device not found")      // 设备未找到
+	ErrDeviceBlocked    = errors.New("device blocked")        // 设备已封禁
+	ErrInvalidSignature = errors.New("invalid signature")     // 无效签名
 	ErrRefreshExpired   = errors.New("refresh token expired") // 刷新令牌已过期
 )
 
 // AuthConfig 认证配置.
 type AuthConfig struct {
-	JWTSecret          string        `json:"-"`                 // JWT密钥
+	JWTSecret          string        `json:"-"`                  // JWT密钥
 	AccessTokenExpiry  time.Duration `json:"accessTokenExpiry"`  // 访问令牌过期时间
 	RefreshTokenExpiry time.Duration `json:"refreshTokenExpiry"` // 刷新令牌过期时间
 	Issuer             string        `json:"issuer"`             // 签发者
@@ -35,7 +35,7 @@ type AuthConfig struct {
 // DefaultAuthConfig 返回默认认证配置.
 func DefaultAuthConfig() *AuthConfig {
 	return &AuthConfig{
-		AccessTokenExpiry:  1 * time.Hour,      // 1小时
+		AccessTokenExpiry:  1 * time.Hour,       // 1小时
 		RefreshTokenExpiry: 30 * 24 * time.Hour, // 30天
 		Issuer:             "nas-os-mobile",
 		MaxSessions:        10,
@@ -51,10 +51,10 @@ type JWTClaims struct {
 
 // AuthService 认证服务.
 type AuthService struct {
-	mu           sync.RWMutex
-	config       *AuthConfig
-	devices      map[string]*MobileDevice  // deviceID -> device
-	sessions     map[string]*Session       // sessionID -> session
+	mu            sync.RWMutex
+	config        *AuthConfig
+	devices       map[string]*MobileDevice // deviceID -> device
+	sessions      map[string]*Session      // sessionID -> session
 	refreshTokens map[string]*RefreshToken // token -> refreshToken
 }
 

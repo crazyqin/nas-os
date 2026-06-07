@@ -162,17 +162,17 @@ type SyncHistory struct {
 
 // SyncEngine 同步引擎
 type SyncEngine struct {
-	mu       sync.RWMutex
-	tasks    map[string]*SyncTask
+	mu        sync.RWMutex
+	tasks     map[string]*SyncTask
 	conflicts map[string]*SyncConflict
-	history  []SyncHistory
-	running  bool
+	history   []SyncHistory
+	running   bool
 }
 
 // NewSyncEngine 创建同步引擎
 func NewSyncEngine() *SyncEngine {
 	return &SyncEngine{
-		tasks:    make(map[string]*SyncTask),
+		tasks:     make(map[string]*SyncTask),
 		conflicts: make(map[string]*SyncConflict),
 	}
 }

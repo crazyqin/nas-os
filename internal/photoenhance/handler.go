@@ -34,28 +34,28 @@ func (h *Handler) handleEnhance(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	var req EnhancementRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	
+
 	if req.SourcePath == "" {
 		http.Error(w, "source_path is required", http.StatusBadRequest)
 		return
 	}
-	
+
 	if req.OutputPath == "" {
 		ext := filepath.Ext(req.SourcePath)
 		req.OutputPath = req.SourcePath[:len(req.SourcePath)-len(ext)] + "_enhanced" + ext
 	}
-	
+
 	if req.ID == "" {
 		req.ID = fmt.Sprintf("enh_%d", time.Now().UnixNano())
 	}
 	req.CreatedAt = time.Now()
-	
+
 	result, err := h.manager.EnhancePhoto(r.Context(), &req)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
@@ -63,7 +63,7 @@ func (h *Handler) handleEnhance(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		return
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)
 }
@@ -74,30 +74,30 @@ func (h *Handler) handleBatch(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	var req struct {
-		Name     string               `json:"name"`
+		Name     string                `json:"name"`
 		Requests []*EnhancementRequest `json:"requests"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	
+
 	if len(req.Requests) == 0 {
 		http.Error(w, "requests array is required", http.StatusBadRequest)
 		return
 	}
-	
+
 	if req.Name == "" {
 		req.Name = fmt.Sprintf("Batch_%s", time.Now().Format("2006-01-02_15:04"))
 	}
-	
+
 	job := h.manager.CreateBatchJob(req.Name, req.Requests)
-	
+
 	// Process job in background
 	go h.manager.ProcessBatchJob(r.Context(), job.ID)
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusAccepted)
 	json.NewEncoder(w).Encode(job)
@@ -110,13 +110,13 @@ func (h *Handler) handleJob(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "id parameter is required", http.StatusBadRequest)
 		return
 	}
-	
+
 	job, err := h.manager.GetJob(jobID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(job)
 }
@@ -124,7 +124,7 @@ func (h *Handler) handleJob(w http.ResponseWriter, r *http.Request) {
 // handleJobs handles jobs listing requests
 func (h *Handler) handleJobs(w http.ResponseWriter, r *http.Request) {
 	jobs := h.manager.ListJobs()
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"jobs":  jobs,
@@ -135,7 +135,7 @@ func (h *Handler) handleJobs(w http.ResponseWriter, r *http.Request) {
 // handleStats handles statistics requests
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	stats := h.manager.GetStats()
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(stats)
 }
@@ -195,7 +195,7 @@ func (h *Handler) handlePresets(w http.ResponseWriter, r *http.Request) {
 			"quality":     QualityBalance,
 		},
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"presets": presets,

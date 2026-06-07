@@ -34,63 +34,63 @@ type SessionState struct {
 
 // AuthContext contains authentication state
 type AuthContext struct {
-	AuthType     string    `json:"auth_type"` // NTLM, Kerberos, etc.
-	NTLMSession  []byte    `json:"ntlm_session,omitempty"`
-	KerberosTGT  []byte    `json:"kerberos_tgt,omitempty"`
-	TokenGroups  []uint32  `json:"token_groups"`
-	UserSID      string    `json:"user_sid"`
-	GroupSIDs    []string  `json:"group_sids"`
-	Privileges   uint32    `json:"privileges"`
-	ExpiryTime   time.Time `json:"expiry_time"`
+	AuthType    string    `json:"auth_type"` // NTLM, Kerberos, etc.
+	NTLMSession []byte    `json:"ntlm_session,omitempty"`
+	KerberosTGT []byte    `json:"kerberos_tgt,omitempty"`
+	TokenGroups []uint32  `json:"token_groups"`
+	UserSID     string    `json:"user_sid"`
+	GroupSIDs   []string  `json:"group_sids"`
+	Privileges  uint32    `json:"privileges"`
+	ExpiryTime  time.Time `json:"expiry_time"`
 }
 
 // TreeConnState represents the state of a tree connection
 type TreeConnState struct {
-	ID          string   `json:"id"`
-	ShareName   string   `json:"share_name"`
-	SharePath   string   `json:"share_path"`
-	AccessMask  uint32   `json:"access_mask"`
+	ID          string    `json:"id"`
+	ShareName   string    `json:"share_name"`
+	SharePath   string    `json:"share_path"`
+	AccessMask  uint32    `json:"access_mask"`
 	ConnectedAt time.Time `json:"connected_at"`
-	IsDfs       bool     `json:"is_dfs"`
-	IsDFSN      bool     `json:"is_dfsn"`
-	IsPinned    bool     `json:"is_pinned"`
+	IsDfs       bool      `json:"is_dfs"`
+	IsDFSN      bool      `json:"is_dfsn"`
+	IsPinned    bool      `json:"is_pinned"`
 }
 
 // FileHandleState represents an open file handle
 type FileHandleState struct {
-	FileID       string    `json:"file_id"`
-	Handle       uint64    `json:"handle"`
-	TreeConnID   string    `json:"tree_conn_id"`
-	RelativePath string    `json:"relative_path"`
-	FullPath     string    `json:"full_path"`
-	AccessMask   uint32    `json:"access_mask"`
-	ShareMode    uint32    `json:"share_mode"`
-	CreateOptions uint32   `json:"create_options"`
-	IsDirectory  bool      `json:"is_directory"`
-	StreamName   string    `json:"stream_name,omitempty"`
-	OpenedAt     time.Time `json:"opened_at"`
-	LastOp       time.Time `json:"last_op"`
+	FileID        string    `json:"file_id"`
+	Handle        uint64    `json:"handle"`
+	TreeConnID    string    `json:"tree_conn_id"`
+	RelativePath  string    `json:"relative_path"`
+	FullPath      string    `json:"full_path"`
+	AccessMask    uint32    `json:"access_mask"`
+	ShareMode     uint32    `json:"share_mode"`
+	CreateOptions uint32    `json:"create_options"`
+	IsDirectory   bool      `json:"is_directory"`
+	StreamName    string    `json:"stream_name,omitempty"`
+	OpenedAt      time.Time `json:"opened_at"`
+	LastOp        time.Time `json:"last_op"`
 }
 
 // LockState represents a file lock
 type LockState struct {
-	LockID     string `json:"lock_id"`
-	FileID     string `json:"file_id"`
-	Offset     int64  `json:"offset"`
-	Length     int64  `json:"length"`
-	LockType   uint32 `json:"lock_type"` // SMB2_LOCKFLAG_SHARED_LOCK, etc.
-	Owner      []byte `json:"owner"`
-	GrantedAt  time.Time `json:"granted_at"`
+	LockID    string    `json:"lock_id"`
+	FileID    string    `json:"file_id"`
+	Offset    int64     `json:"offset"`
+	Length    int64     `json:"length"`
+	LockType  uint32    `json:"lock_type"` // SMB2_LOCKFLAG_SHARED_LOCK, etc.
+	Owner     []byte    `json:"owner"`
+	GrantedAt time.Time `json:"granted_at"`
 }
 
 // NotifyWatch represents a change notification watch
 type NotifyWatch struct {
-	WatchID    string `json:"watch_id"`
-	TreeConnID string `json:"tree_conn_id"`
-	Path       string `json:"path"`
-	Filter     uint32 `json:"filter"`
-	Recursive  bool   `json:"recursive"`
-	Subdir     string `json:"subdir,omitempty"`
+	WatchID    string    `json:"watch_id"`
+	TreeConnID string    `json:"tree_conn_id"`
+	Path       string    `json:"path"`
+	Filter     uint32    `json:"filter"`
+	Recursive  bool      `json:"recursive"`
+	Subdir     string    `json:"subdir,omitempty"`
 	CreatedAt  time.Time `json:"created_at"`
 }
 
@@ -108,15 +108,15 @@ type SessionManager struct {
 
 // SessionConfig configures session management behavior
 type SessionConfig struct {
-	MaxSessions          int           `json:"max_sessions"`
-	SessionTimeout       time.Duration `json:"session_timeout"`
-	IdleTimeout          time.Duration `json:"idle_timeout"`
-	CleanupInterval      time.Duration `json:"cleanup_interval"`
-	MaxFilesPerSession   int           `json:"max_files_per_session"`
-	MaxLocksPerSession   int           `json:"max_locks_per_session"`
-	PersistState         bool          `json:"persist_state"`
-	CompressState        bool          `json:"compress_state"`
-	ValidateOnRestore    bool          `json:"validate_on_restore"`
+	MaxSessions        int           `json:"max_sessions"`
+	SessionTimeout     time.Duration `json:"session_timeout"`
+	IdleTimeout        time.Duration `json:"idle_timeout"`
+	CleanupInterval    time.Duration `json:"cleanup_interval"`
+	MaxFilesPerSession int           `json:"max_files_per_session"`
+	MaxLocksPerSession int           `json:"max_locks_per_session"`
+	PersistState       bool          `json:"persist_state"`
+	CompressState      bool          `json:"compress_state"`
+	ValidateOnRestore  bool          `json:"validate_on_restore"`
 }
 
 // DefaultSessionConfig returns sensible defaults
@@ -146,11 +146,11 @@ type StateStore interface {
 
 // SessionEvent represents a session lifecycle event
 type SessionEvent struct {
-	Type      string         `json:"type"`
-	SessionID string         `json:"session_id"`
-	Timestamp time.Time      `json:"timestamp"`
-	State     *SessionState  `json:"state,omitempty"`
-	Error     error          `json:"error,omitempty"`
+	Type      string        `json:"type"`
+	SessionID string        `json:"session_id"`
+	Timestamp time.Time     `json:"timestamp"`
+	State     *SessionState `json:"state,omitempty"`
+	Error     error         `json:"error,omitempty"`
 }
 
 // SessionEventListener is called on session events
@@ -562,11 +562,11 @@ func (sm *SessionManager) GetSessionStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_sessions":    len(sm.sessions),
-		"total_open_files":  totalFiles,
-		"total_locks":       totalLocks,
-		"total_tree_conns":  totalTreeConns,
-		"max_sessions":      sm.config.MaxSessions,
+		"total_sessions":   len(sm.sessions),
+		"total_open_files": totalFiles,
+		"total_locks":      totalLocks,
+		"total_tree_conns": totalTreeConns,
+		"max_sessions":     sm.config.MaxSessions,
 	}
 }
 

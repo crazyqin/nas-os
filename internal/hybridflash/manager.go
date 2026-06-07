@@ -14,15 +14,15 @@ import (
 
 // Manager 混合闪存池管理器.
 type Manager struct {
-	mu              sync.RWMutex
-	logger          *zap.Logger
-	pools           map[string]*PoolStatus
-	configs         map[string]*HybridPoolConfig
-	blockTracker    *BlockHeatTracker
-	engine          *TieringEngine
-	ctx             context.Context
-	cancel          context.CancelFunc
-	rebalanceTasks  map[string]*RebalanceResult
+	mu             sync.RWMutex
+	logger         *zap.Logger
+	pools          map[string]*PoolStatus
+	configs        map[string]*HybridPoolConfig
+	blockTracker   *BlockHeatTracker
+	engine         *TieringEngine
+	ctx            context.Context
+	cancel         context.CancelFunc
+	rebalanceTasks map[string]*RebalanceResult
 }
 
 // NewManager 创建混合闪存池管理器.
@@ -71,16 +71,16 @@ func (m *Manager) CreatePool(config *HybridPoolConfig) (*PoolStatus, error) {
 	var flashTotal int64
 	for i, path := range config.FlashDevices {
 		device := FlashDevice{
-			ID:         fmt.Sprintf("flash-%s-%d", poolID, i),
-			Name:       fmt.Sprintf("nvme%dn1", i),
-			Path:       path,
-			Type:       config.FlashType,
-			CacheRole:  CacheRole(config.FlashRole),
-			Capacity:   512 * 1024 * 1024 * 1024, // 默认 512GB
-			Enabled:    true,
-			Health:     100.0,
-			CreatedAt:  time.Now(),
-			UpdatedAt:  time.Now(),
+			ID:        fmt.Sprintf("flash-%s-%d", poolID, i),
+			Name:      fmt.Sprintf("nvme%dn1", i),
+			Path:      path,
+			Type:      config.FlashType,
+			CacheRole: CacheRole(config.FlashRole),
+			Capacity:  512 * 1024 * 1024 * 1024, // 默认 512GB
+			Enabled:   true,
+			Health:    100.0,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		}
 		flashDevices = append(flashDevices, device)
 		flashTotal += device.Capacity

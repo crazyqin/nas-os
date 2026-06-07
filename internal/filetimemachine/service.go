@@ -262,7 +262,7 @@ func (s *Service) CompareSnapshots(oldID, newID string) (*SnapshotDiff, error) {
 	diff.TotalFiles = len(files)
 	diff.Files = files
 	diff.TotalAdditions = diff.Added*10 + diff.Modified*10
-	diff.TotalDeletions = diff.Modified*5
+	diff.TotalDeletions = diff.Modified * 5
 
 	return diff, nil
 }
@@ -391,7 +391,7 @@ func (s *Service) RollbackToSnapshot(ctx context.Context, req RollbackRequest) (
 
 	// 如果需要先备份
 	if req.BackupFirst {
-		backupSnap, err := s.CreateSnapshot(ctx, 
+		backupSnap, err := s.CreateSnapshot(ctx,
 			fmt.Sprintf("rollback-backup-%s", result.ID),
 			"回滚前自动备份",
 			TriggerManual,
@@ -793,9 +793,9 @@ func (s *Service) GetStorageUsage() (*StorageUsage, error) {
 	defer s.mu.RUnlock()
 
 	usage := &StorageUsage{
-		ByTier: make(map[StorageTier]int64),
-		ByPath: make(map[string]int64),
-		ByPolicy: make(map[string]int64),
+		ByTier:    make(map[StorageTier]int64),
+		ByPath:    make(map[string]int64),
+		ByPolicy:  make(map[string]int64),
 		UpdatedAt: time.Now(),
 	}
 
@@ -858,11 +858,11 @@ func (s *Service) HealthCheck() *HealthStatus {
 	defer s.mu.RUnlock()
 
 	status := &HealthStatus{
-		Status:          "healthy",
-		TotalSnapshots:  len(s.snapshots),
-		TrashItems:      0,
-		LockedFiles:     len(s.locks),
-		CheckedAt:       time.Now(),
+		Status:         "healthy",
+		TotalSnapshots: len(s.snapshots),
+		TrashItems:     0,
+		LockedFiles:    len(s.locks),
+		CheckedAt:      time.Now(),
 	}
 
 	// 统计活跃快照

@@ -21,16 +21,16 @@ var (
 type AppCategory string
 
 const (
-	CategoryMedia      AppCategory = "media"
+	CategoryMedia        AppCategory = "media"
 	CategoryProductivity AppCategory = "productivity"
-	CategoryBackup     AppCategory = "backup"
-	CategorySecurity   AppCategory = "security"
-	CategoryNetwork    AppCategory = "network"
-	CategoryDev        AppCategory = "development"
-	CategoryHome       AppCategory = "home"
-	CategoryOffice     AppCategory = "office"
-	CategoryAI         AppCategory = "ai"
-	CategoryStorage    AppCategory = "storage"
+	CategoryBackup       AppCategory = "backup"
+	CategorySecurity     AppCategory = "security"
+	CategoryNetwork      AppCategory = "network"
+	CategoryDev          AppCategory = "development"
+	CategoryHome         AppCategory = "home"
+	CategoryOffice       AppCategory = "office"
+	CategoryAI           AppCategory = "ai"
+	CategoryStorage      AppCategory = "storage"
 )
 
 // AppInfo 应用信息。
@@ -51,11 +51,11 @@ type AppInfo struct {
 
 // UserProfile 用户使用画像。
 type UserProfile struct {
-	UserID        string                 `json:"user_id"`
-	InstalledApps []string               `json:"installed_apps"`
-	UsageStats    map[string]AppUsage    `json:"usage_stats"`
-	Preferences   UserPreferences        `json:"preferences"`
-	LastUpdated   time.Time              `json:"last_updated"`
+	UserID        string              `json:"user_id"`
+	InstalledApps []string            `json:"installed_apps"`
+	UsageStats    map[string]AppUsage `json:"usage_stats"`
+	Preferences   UserPreferences     `json:"preferences"`
+	LastUpdated   time.Time           `json:"last_updated"`
 }
 
 // AppUsage 应用使用统计。
@@ -69,28 +69,28 @@ type AppUsage struct {
 
 // UserPreferences 用户偏好。
 type UserPreferences struct {
-	Categories   []AppCategory `json:"preferred_categories,omitempty"`
-	Tags         []string      `json:"preferred_tags,omitempty"`
-	MaxAppSize   int64         `json:"max_app_size,omitempty"`
-	FreeOnly     bool          `json:"free_only,omitempty"`
-	Language     string        `json:"language,omitempty"`
+	Categories []AppCategory `json:"preferred_categories,omitempty"`
+	Tags       []string      `json:"preferred_tags,omitempty"`
+	MaxAppSize int64         `json:"max_app_size,omitempty"`
+	FreeOnly   bool          `json:"free_only,omitempty"`
+	Language   string        `json:"language,omitempty"`
 }
 
 // ========== 推荐结果 ==========
 
 // Recommendation 推荐结果。
 type Recommendation struct {
-	App         AppInfo  `json:"app"`
-	Score       float64  `json:"score"`
-	Reason      string   `json:"reason"`
-	MatchTags   []string `json:"match_tags,omitempty"`
-	SimilarTo   string   `json:"similar_to,omitempty"`
+	App       AppInfo  `json:"app"`
+	Score     float64  `json:"score"`
+	Reason    string   `json:"reason"`
+	MatchTags []string `json:"match_tags,omitempty"`
+	SimilarTo string   `json:"similar_to,omitempty"`
 }
 
 // RecommendationSet 推荐集合。
 type RecommendationSet struct {
-	UserID        string           `json:"user_id"`
-	GeneratedAt   time.Time        `json:"generated_at"`
+	UserID          string           `json:"user_id"`
+	GeneratedAt     time.Time        `json:"generated_at"`
 	Recommendations []Recommendation `json:"recommendations"`
 	TrendingApps    []AppInfo        `json:"trending_apps"`
 	NewApps         []AppInfo        `json:"new_apps"`
@@ -100,7 +100,7 @@ type RecommendationSet struct {
 
 // RecommendRequest 推荐请求。
 type RecommendRequest struct {
-	UserID  string `json:"user_id"`
-	Limit   int    `json:"limit,omitempty"`
+	UserID  string   `json:"user_id"`
+	Limit   int      `json:"limit,omitempty"`
 	Exclude []string `json:"exclude,omitempty"`
 }

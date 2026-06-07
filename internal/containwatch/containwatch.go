@@ -13,12 +13,12 @@ import (
 type AnomalyType string
 
 const (
-	AnomalyCPU         AnomalyType = "cpu_spike"          // CPU异常飙升
-	AnomalyMemory      AnomalyType = "memory_spike"       // 内存异常飙升
-	AnomalyNetwork     AnomalyType = "suspicious_network"  // 可疑网络连接
-	AnomalyFileSystem  AnomalyType = "filesystem_anomaly"  // 文件系统异常
-	AnomalyPrivEsc     AnomalyType = "privilege_escalation" // 特权提升
-	AnomalyEscape      AnomalyType = "container_escape"    // 容器逃逸
+	AnomalyCPU        AnomalyType = "cpu_spike"            // CPU异常飙升
+	AnomalyMemory     AnomalyType = "memory_spike"         // 内存异常飙升
+	AnomalyNetwork    AnomalyType = "suspicious_network"   // 可疑网络连接
+	AnomalyFileSystem AnomalyType = "filesystem_anomaly"   // 文件系统异常
+	AnomalyPrivEsc    AnomalyType = "privilege_escalation" // 特权提升
+	AnomalyEscape     AnomalyType = "container_escape"     // 容器逃逸
 )
 
 // Severity 严重程度
@@ -33,43 +33,43 @@ const (
 
 // AnomalyEvent 异常事件
 type AnomalyEvent struct {
-	ID          string      `json:"id"`
-	ContainerID string      `json:"container_id"`
-	Type        AnomalyType `json:"type"`
-	Severity    Severity    `json:"severity"`
-	Description string      `json:"description"`
-	Timestamp   time.Time   `json:"timestamp"`
-	Resolved    bool        `json:"resolved"`
-	ResolvedAt  *time.Time  `json:"resolved_at,omitempty"`
+	ID          string                 `json:"id"`
+	ContainerID string                 `json:"container_id"`
+	Type        AnomalyType            `json:"type"`
+	Severity    Severity               `json:"severity"`
+	Description string                 `json:"description"`
+	Timestamp   time.Time              `json:"timestamp"`
+	Resolved    bool                   `json:"resolved"`
+	ResolvedAt  *time.Time             `json:"resolved_at,omitempty"`
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // ResourceBaseline 资源使用基线
 type ResourceBaseline struct {
-	CPUAvg      float64   `json:"cpu_avg"`       // 平均CPU使用率 (%)
-	CPUPeak     float64   `json:"cpu_peak"`      // CPU峰值 (%)
-	MemoryAvg   float64   `json:"memory_avg"`    // 平均内存使用 (bytes)
-	MemoryPeak  float64   `json:"memory_peak"`   // 内存峰值 (bytes)
-	NetInAvg    float64   `json:"net_in_avg"`    // 平均入站流量 (bytes/s)
-	NetOutAvg   float64   `json:"net_out_avg"`   // 平均出站流量 (bytes/s)
-	IOReadAvg   float64   `json:"io_read_avg"`   // 平均读IO (bytes/s)
-	IOWriteAvg  float64   `json:"io_write_avg"`  // 平均写IO (bytes/s)
-	SampleCount int       `json:"sample_count"`  // 采样次数
+	CPUAvg      float64   `json:"cpu_avg"`      // 平均CPU使用率 (%)
+	CPUPeak     float64   `json:"cpu_peak"`     // CPU峰值 (%)
+	MemoryAvg   float64   `json:"memory_avg"`   // 平均内存使用 (bytes)
+	MemoryPeak  float64   `json:"memory_peak"`  // 内存峰值 (bytes)
+	NetInAvg    float64   `json:"net_in_avg"`   // 平均入站流量 (bytes/s)
+	NetOutAvg   float64   `json:"net_out_avg"`  // 平均出站流量 (bytes/s)
+	IOReadAvg   float64   `json:"io_read_avg"`  // 平均读IO (bytes/s)
+	IOWriteAvg  float64   `json:"io_write_avg"` // 平均写IO (bytes/s)
+	SampleCount int       `json:"sample_count"` // 采样次数
 	LastUpdated time.Time `json:"last_updated"`
 }
 
 // ContainerMetrics 容器实时指标
 type ContainerMetrics struct {
-	ContainerID   string    `json:"container_id"`
-	CPUPercent    float64   `json:"cpu_percent"`
-	MemoryUsage   float64   `json:"memory_usage"`
-	MemoryLimit   float64   `json:"memory_limit"`
-	NetBytesIn    float64   `json:"net_bytes_in"`
-	NetBytesOut   float64   `json:"net_bytes_out"`
-	IOReadBytes   float64   `json:"io_read_bytes"`
-	IOWriteBytes  float64   `json:"io_write_bytes"`
-	Connections   []NetworkConnection `json:"connections"`
-	Timestamp     time.Time `json:"timestamp"`
+	ContainerID  string              `json:"container_id"`
+	CPUPercent   float64             `json:"cpu_percent"`
+	MemoryUsage  float64             `json:"memory_usage"`
+	MemoryLimit  float64             `json:"memory_limit"`
+	NetBytesIn   float64             `json:"net_bytes_in"`
+	NetBytesOut  float64             `json:"net_bytes_out"`
+	IOReadBytes  float64             `json:"io_read_bytes"`
+	IOWriteBytes float64             `json:"io_write_bytes"`
+	Connections  []NetworkConnection `json:"connections"`
+	Timestamp    time.Time           `json:"timestamp"`
 }
 
 // NetworkConnection 网络连接信息
@@ -82,36 +82,36 @@ type NetworkConnection struct {
 
 // WatchConfig 监控配置
 type WatchConfig struct {
-	BaselineWindow      time.Duration `json:"baseline_window"`       // 基线建立窗口期
-	AnomalyThreshold    float64       `json:"anomaly_threshold"`     // 异常阈值倍数 (默认 3.0)
-	ScanInterval        time.Duration `json:"scan_interval"`         // 扫描间隔
-	MaxAnomalyHistory   int           `json:"max_anomaly_history"`   // 最大异常记录数
-	TrustedPorts        []int         `json:"trusted_ports"`         // 可信端口列表
-	TrustedNetworks     []string      `json:"trusted_networks"`      // 可信网络CIDR列表
+	BaselineWindow    time.Duration `json:"baseline_window"`     // 基线建立窗口期
+	AnomalyThreshold  float64       `json:"anomaly_threshold"`   // 异常阈值倍数 (默认 3.0)
+	ScanInterval      time.Duration `json:"scan_interval"`       // 扫描间隔
+	MaxAnomalyHistory int           `json:"max_anomaly_history"` // 最大异常记录数
+	TrustedPorts      []int         `json:"trusted_ports"`       // 可信端口列表
+	TrustedNetworks   []string      `json:"trusted_networks"`    // 可信网络CIDR列表
 }
 
 // DefaultWatchConfig 返回默认监控配置
 func DefaultWatchConfig() WatchConfig {
 	return WatchConfig{
-		BaselineWindow:   24 * time.Hour,
-		AnomalyThreshold: 3.0,
-		ScanInterval:     30 * time.Second,
+		BaselineWindow:    24 * time.Hour,
+		AnomalyThreshold:  3.0,
+		ScanInterval:      30 * time.Second,
 		MaxAnomalyHistory: 1000,
-		TrustedPorts:     []int{80, 443, 8080, 3000, 5432, 6379, 27017},
-		TrustedNetworks:  []string{"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"},
+		TrustedPorts:      []int{80, 443, 8080, 3000, 5432, 6379, 27017},
+		TrustedNetworks:   []string{"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"},
 	}
 }
 
 // ContainerWatcher 容器安全监控器
 type ContainerWatcher struct {
-	mu          sync.RWMutex
-	config      WatchConfig
-	baselines   map[string]*ResourceBaseline  // 容器ID -> 基线
-	metrics     map[string][]ContainerMetrics  // 容器ID -> 指标历史
-	anomalies   map[string][]AnomalyEvent      // 容器ID -> 异常事件
-	monitored   map[string]bool                // 容器ID -> 是否正在监控
-	stopCh      chan struct{}
-	nextID      int64
+	mu        sync.RWMutex
+	config    WatchConfig
+	baselines map[string]*ResourceBaseline  // 容器ID -> 基线
+	metrics   map[string][]ContainerMetrics // 容器ID -> 指标历史
+	anomalies map[string][]AnomalyEvent     // 容器ID -> 异常事件
+	monitored map[string]bool               // 容器ID -> 是否正在监控
+	stopCh    chan struct{}
+	nextID    int64
 }
 
 // NewContainerWatcher 创建容器安全监控器
@@ -285,9 +285,9 @@ func (w *ContainerWatcher) detectAnomalies(containerID string, metrics Container
 			fmt.Sprintf("文件系统写入异常激增，可能存在加密行为: 当前 %.2f MB/s, 基线 %.2f MB/s",
 				metrics.IOWriteBytes/1024/1024, baseline.IOWriteAvg/1024/1024),
 			map[string]interface{}{
-				"current":   metrics.IOWriteBytes,
-				"baseline":  baseline.IOWriteAvg,
-				"pattern":   "possible_ransomware",
+				"current":  metrics.IOWriteBytes,
+				"baseline": baseline.IOWriteAvg,
+				"pattern":  "possible_ransomware",
 			}))
 	}
 
@@ -346,10 +346,10 @@ func (w *ContainerWatcher) checkSuspiciousConnection(conn NetworkConnection) *An
 		Severity:    severity,
 		Description: fmt.Sprintf("可疑网络连接: %s -> %s (%s)", conn.LocalAddr, conn.RemoteAddr, conn.Protocol),
 		Metadata: map[string]interface{}{
-			"local_addr":  conn.LocalAddr,
-			"remote_addr": conn.RemoteAddr,
-			"protocol":    conn.Protocol,
-			"is_external": !isTrusted,
+			"local_addr":           conn.LocalAddr,
+			"remote_addr":          conn.RemoteAddr,
+			"protocol":             conn.Protocol,
+			"is_external":          !isTrusted,
 			"is_non_standard_port": !isTrustedPort,
 		},
 	}
@@ -544,10 +544,10 @@ func (w *ContainerWatcher) GetWatchOverview() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_monitored":     totalMonitored,
-		"total_anomalies":     totalAnomalies,
+		"total_monitored":      totalMonitored,
+		"total_anomalies":      totalAnomalies,
 		"unresolved_anomalies": unresolvedAnomalies,
-		"critical_count":      criticalCount,
-		"timestamp":           time.Now(),
+		"critical_count":       criticalCount,
+		"timestamp":            time.Now(),
 	}
 }

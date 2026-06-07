@@ -18,14 +18,14 @@ type Manager struct {
 	statsMu   sync.RWMutex
 
 	// 存储层信息
-	tiers map[StorageTier]*TierConfig
+	tiers  map[StorageTier]*TierConfig
 	tierMu sync.RWMutex
 
 	// 优化统计
 	optimStats OptimizationStats
 
 	// 迁移记录
-	migrations []MigrationRecord
+	migrations  []MigrationRecord
 	migrationMu sync.RWMutex
 
 	// 控制

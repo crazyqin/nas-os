@@ -52,14 +52,14 @@ const (
 
 // Vault 加密卷结构体.
 type Vault struct {
-	ID           string      `json:"id"`
-	Name         string      `json:"name"`
-	EncryptedKey string      `json:"encrypted_key"` // Base64 编码的加密数据
-	Salt         string      `json:"salt"`           // Base64 编码的盐值
-	Algorithm    Algorithm   `json:"algorithm"`
-	State        VaultState  `json:"state"`
-	CreatedAt    time.Time   `json:"created_at"`
-	LastAccessed time.Time   `json:"last_accessed"`
+	ID           string     `json:"id"`
+	Name         string     `json:"name"`
+	EncryptedKey string     `json:"encrypted_key"` // Base64 编码的加密数据
+	Salt         string     `json:"salt"`          // Base64 编码的盐值
+	Algorithm    Algorithm  `json:"algorithm"`
+	State        VaultState `json:"state"`
+	CreatedAt    time.Time  `json:"created_at"`
+	LastAccessed time.Time  `json:"last_accessed"`
 }
 
 // DecryptedVault 解锁后的 vault（内存中临时持有密钥）.

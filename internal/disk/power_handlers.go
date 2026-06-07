@@ -80,11 +80,11 @@ func (h *PowerHandlers) getAllPowerStatus(c *gin.Context) {
 
 	// 生成摘要
 	summary := struct {
-		Total      int     `json:"total"`
-		Active     int     `json:"active"`
-		Idle       int     `json:"idle"`
-		Standby    int     `json:"standby"`
-		Sleep      int     `json:"sleep"`
+		Total       int     `json:"total"`
+		Active      int     `json:"active"`
+		Idle        int     `json:"idle"`
+		Standby     int     `json:"standby"`
+		Sleep       int     `json:"sleep"`
 		EnergySaved float64 `json:"energySaved"` // kWh
 	}{}
 
@@ -107,7 +107,7 @@ func (h *PowerHandlers) getAllPowerStatus(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"summary": summary,
+			"summary":  summary,
 			"statuses": statuses,
 		},
 	})
@@ -204,16 +204,16 @@ func (h *PowerHandlers) getPolicy(c *gin.Context) {
 
 // createPolicyRequest 创建策略请求
 type createPolicyRequest struct {
-	ID               string        `json:"id" binding:"required"`
-	Name             string        `json:"name" binding:"required"`
-	IdleThreshold    int           `json:"idleThreshold"`    // 秒
-	StandbyThreshold int           `json:"standbyThreshold"` // 秒
-	SleepThreshold   int           `json:"sleepThreshold"`   // 秒
-	Enabled          bool          `json:"enabled"`
-	ExcludedDisks    []string      `json:"excludedDisks"`
+	ID               string           `json:"id" binding:"required"`
+	Name             string           `json:"name" binding:"required"`
+	IdleThreshold    int              `json:"idleThreshold"`    // 秒
+	StandbyThreshold int              `json:"standbyThreshold"` // 秒
+	SleepThreshold   int              `json:"sleepThreshold"`   // 秒
+	Enabled          bool             `json:"enabled"`
+	ExcludedDisks    []string         `json:"excludedDisks"`
 	BusinessPeriods  []BusinessPeriod `json:"businessPeriods"`
-	AllowSleepInPeak bool          `json:"allowSleepInPeak"`
-	MaxWakePerHour   int           `json:"maxWakePerHour"`
+	AllowSleepInPeak bool             `json:"allowSleepInPeak"`
+	MaxWakePerHour   int              `json:"maxWakePerHour"`
 }
 
 // createPolicy 创建电源策略
@@ -453,7 +453,7 @@ type wakeQueueRequest struct {
 	DiskID      string `json:"diskId" binding:"required"`
 	Reason      string `json:"reason"`
 	Priority    int    `json:"priority"`
-RequestedBy string `json:"requestedBy"`
+	RequestedBy string `json:"requestedBy"`
 }
 
 // getWakeQueue 获取唤醒队列
@@ -677,11 +677,11 @@ func (h *PowerHandlers) updateBusinessHours(c *gin.Context) {
 
 // smartScheduleConfigRequest 智能调度配置请求
 type smartScheduleConfigRequest struct {
-	EnableWakeOnDemand     bool    `json:"enableWakeOnDemand"`
-	EnableSmartScheduling  bool    `json:"enableSmartScheduling"`
-	DefaultDiskPowerWatts  float64 `json:"defaultDiskPowerWatts"`
-	WakePowerSpikeWatts    float64 `json:"wakePowerSpikeWatts"`
-	WakeDurationSeconds    float64 `json:"wakeDurationSeconds"`
+	EnableWakeOnDemand    bool    `json:"enableWakeOnDemand"`
+	EnableSmartScheduling bool    `json:"enableSmartScheduling"`
+	DefaultDiskPowerWatts float64 `json:"defaultDiskPowerWatts"`
+	WakePowerSpikeWatts   float64 `json:"wakePowerSpikeWatts"`
+	WakeDurationSeconds   float64 `json:"wakeDurationSeconds"`
 }
 
 // getSmartScheduleConfig 获取智能调度配置
@@ -750,14 +750,14 @@ func (h *PowerHandlers) getConfig(c *gin.Context) {
 
 // powerConfigRequest 电源配置请求
 type powerConfigRequest struct {
-	CheckInterval          int     `json:"checkInterval"`          // 秒
-	DefaultPolicy          string  `json:"defaultPolicy"`
-	EnableMonitoring       bool    `json:"enableMonitoring"`
-	EnableWakeOnDemand     bool    `json:"enableWakeOnDemand"`
-	EnableSmartScheduling  bool    `json:"enableSmartScheduling"`
-	DefaultDiskPowerWatts  float64 `json:"defaultDiskPowerWatts"`
-	WakePowerSpikeWatts    float64 `json:"wakePowerSpikeWatts"`
-	WakeDurationSeconds    float64 `json:"wakeDurationSeconds"`
+	CheckInterval         int     `json:"checkInterval"` // 秒
+	DefaultPolicy         string  `json:"defaultPolicy"`
+	EnableMonitoring      bool    `json:"enableMonitoring"`
+	EnableWakeOnDemand    bool    `json:"enableWakeOnDemand"`
+	EnableSmartScheduling bool    `json:"enableSmartScheduling"`
+	DefaultDiskPowerWatts float64 `json:"defaultDiskPowerWatts"`
+	WakePowerSpikeWatts   float64 `json:"wakePowerSpikeWatts"`
+	WakeDurationSeconds   float64 `json:"wakeDurationSeconds"`
 }
 
 // updateConfig 更新电源管理配置
@@ -780,14 +780,14 @@ func (h *PowerHandlers) updateConfig(c *gin.Context) {
 	}
 
 	h.manager.UpdateConfig(&PowerConfig{
-		CheckInterval:          time.Duration(req.CheckInterval) * time.Second,
-		DefaultPolicy:          req.DefaultPolicy,
-		EnableMonitoring:       req.EnableMonitoring,
-		EnableWakeOnDemand:     req.EnableWakeOnDemand,
-		EnableSmartScheduling:  req.EnableSmartScheduling,
-		DefaultDiskPowerWatts:  req.DefaultDiskPowerWatts,
-		WakePowerSpikeWatts:    req.WakePowerSpikeWatts,
-		WakeDurationSeconds:    req.WakeDurationSeconds,
+		CheckInterval:         time.Duration(req.CheckInterval) * time.Second,
+		DefaultPolicy:         req.DefaultPolicy,
+		EnableMonitoring:      req.EnableMonitoring,
+		EnableWakeOnDemand:    req.EnableWakeOnDemand,
+		EnableSmartScheduling: req.EnableSmartScheduling,
+		DefaultDiskPowerWatts: req.DefaultDiskPowerWatts,
+		WakePowerSpikeWatts:   req.WakePowerSpikeWatts,
+		WakeDurationSeconds:   req.WakeDurationSeconds,
 	})
 
 	c.JSON(http.StatusOK, gin.H{
@@ -798,7 +798,7 @@ func (h *PowerHandlers) updateConfig(c *gin.Context) {
 
 // registerDiskRequest 注册磁盘请求
 type registerDiskRequest struct {
-	DiskID  string `json:"diskId" binding:"required"`
+	DiskID   string `json:"diskId" binding:"required"`
 	PolicyID string `json:"policyId"`
 }
 

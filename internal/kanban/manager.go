@@ -73,16 +73,16 @@ func (m *Manager) CreateBoard(req *CreateBoardRequest) (*Board, error) {
 			{ID: generateID(), Name: "进行中", Position: 1, Cards: make([]*Card, 0), CreatedAt: now},
 			{ID: generateID(), Name: "已完成", Position: 2, Cards: make([]*Card, 0), CreatedAt: now},
 		},
-		Labels:    make([]*Label, 0),
+		Labels: make([]*Label, 0),
 		Members: []*Member{{
 			UserID:   req.OwnerID,
 			Role:     "owner",
 			JoinedAt: now,
 		}},
-		OwnerID:   req.OwnerID,
+		OwnerID:    req.OwnerID,
 		IsArchived: false,
-		CreatedAt: now,
-		UpdatedAt: now,
+		CreatedAt:  now,
+		UpdatedAt:  now,
 	}
 
 	// 回填 boardID

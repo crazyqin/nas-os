@@ -54,11 +54,11 @@ const (
 
 // Config 存储分层引擎配置
 type Config struct {
-	Enabled   bool             `json:"enabled"`
-	Tiers     []TierCapacity   `json:"tiers"`
-	Analyzer  AnalyzerConfig   `json:"analyzer"`
-	Policy    PolicyConfig     `json:"policy"`
-	Migrator  MigratorConfig   `json:"migrator"`
+	Enabled  bool           `json:"enabled"`
+	Tiers    []TierCapacity `json:"tiers"`
+	Analyzer AnalyzerConfig `json:"analyzer"`
+	Policy   PolicyConfig   `json:"policy"`
+	Migrator MigratorConfig `json:"migrator"`
 }
 
 // Validate 验证配置
@@ -77,11 +77,11 @@ type AnalyzerConfig struct {
 
 // PolicyConfig 策略配置
 type PolicyConfig struct {
-	Thresholds       ThresholdConfig   `json:"thresholds"`
-	CapacityHighPct  float64           `json:"capacity_high_pct"`
-	CapacityLowPct   float64           `json:"capacity_low_pct"`
+	Thresholds       ThresholdConfig    `json:"thresholds"`
+	CapacityHighPct  float64            `json:"capacity_high_pct"`
+	CapacityLowPct   float64            `json:"capacity_low_pct"`
 	FileTypeBoosts   map[string]float64 `json:"file_type_boosts"`
-	LargeFilePenalty float64           `json:"large_file_penalty"`
+	LargeFilePenalty float64            `json:"large_file_penalty"`
 }
 
 // ThresholdConfig 热度阈值配置
@@ -92,9 +92,9 @@ type ThresholdConfig struct {
 
 // MigratorConfig 迁移器配置
 type MigratorConfig struct {
-	MaxConcurrent   int  `json:"max_concurrent"`
-	VerifyChecksum  bool `json:"verify_checksum"`
-	BandwidthMBps   int  `json:"bandwidth_mbps"`
+	MaxConcurrent  int  `json:"max_concurrent"`
+	VerifyChecksum bool `json:"verify_checksum"`
+	BandwidthMBps  int  `json:"bandwidth_mbps"`
 }
 
 // TierCapacity 层级容量
@@ -134,20 +134,20 @@ type AccessRecord struct {
 
 // MigrationTask 迁移任务（用于迁移器）
 type MigrationTask struct {
-	ID           string         `json:"id"`
-	FilePath     string         `json:"file_path"`
-	FileSize     int64          `json:"file_size"`
-	FromTier     Tier           `json:"from_tier"`
-	ToTier       Tier           `json:"to_tier"`
-	State        MigrationState `json:"state"`
-	Progress     int            `json:"progress"` // 0-100
-	Reason       string         `json:"reason"`
-	ChecksumSrc  string         `json:"checksum_src,omitempty"`
-	ChecksumDst  string         `json:"checksum_dst,omitempty"`
-	Error        string         `json:"error,omitempty"`
-	CreatedAt    time.Time      `json:"created_at"`
-	StartedAt    *time.Time     `json:"started_at,omitempty"`
-	CompletedAt  *time.Time     `json:"completed_at,omitempty"`
+	ID          string         `json:"id"`
+	FilePath    string         `json:"file_path"`
+	FileSize    int64          `json:"file_size"`
+	FromTier    Tier           `json:"from_tier"`
+	ToTier      Tier           `json:"to_tier"`
+	State       MigrationState `json:"state"`
+	Progress    int            `json:"progress"` // 0-100
+	Reason      string         `json:"reason"`
+	ChecksumSrc string         `json:"checksum_src,omitempty"`
+	ChecksumDst string         `json:"checksum_dst,omitempty"`
+	Error       string         `json:"error,omitempty"`
+	CreatedAt   time.Time      `json:"created_at"`
+	StartedAt   *time.Time     `json:"started_at,omitempty"`
+	CompletedAt *time.Time     `json:"completed_at,omitempty"`
 }
 
 // MigrationHistoryItem 迁移历史记录
@@ -168,12 +168,12 @@ type MigrationHistoryItem struct {
 
 // Stats 引擎统计信息
 type Stats struct {
-	Tiers            []TierStats             `json:"tiers"`
-	TotalMigrations  int64                   `json:"total_migrations"`
-	ActiveMigrations int                     `json:"active_migrations"`
-	HitRate          float64                 `json:"hit_rate"`
-	RecentHistory    []MigrationHistoryItem  `json:"recent_history"`
-	LastAnalysis     time.Time               `json:"last_analysis"`
+	Tiers            []TierStats            `json:"tiers"`
+	TotalMigrations  int64                  `json:"total_migrations"`
+	ActiveMigrations int                    `json:"active_migrations"`
+	HitRate          float64                `json:"hit_rate"`
+	RecentHistory    []MigrationHistoryItem `json:"recent_history"`
+	LastAnalysis     time.Time              `json:"last_analysis"`
 }
 
 // TierStats 层级统计

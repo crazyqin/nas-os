@@ -14,21 +14,21 @@ import (
 
 // ClientManager 客户端管理器
 type ClientManager struct {
-	clients     map[string]*Client
-	nodeConfig  *FreeNodeConfig
-	logger      *zap.Logger
-	
+	clients    map[string]*Client
+	nodeConfig *FreeNodeConfig
+	logger     *zap.Logger
+
 	// 状态监控
-	statusCache  map[string]*ClientStatusInfo
-	statusMu     sync.RWMutex
-	
+	statusCache map[string]*ClientStatusInfo
+	statusMu    sync.RWMutex
+
 	// 事件通道
-	eventChan    chan ClientEvent
-	
-	mu           sync.RWMutex
-	ctx          context.Context
-	cancel       context.CancelFunc
-	wg           sync.WaitGroup
+	eventChan chan ClientEvent
+
+	mu     sync.RWMutex
+	ctx    context.Context
+	cancel context.CancelFunc
+	wg     sync.WaitGroup
 }
 
 // ClientStatusInfo 客户端状态信息
@@ -50,16 +50,16 @@ type ClientStatusInfo struct {
 type ClientEvent struct {
 	Type      string    `json:"type"` // connected, disconnected, tunnel_started, tunnel_stopped, error
 	ClientID  string    `json:"client_id"`
-	NodeID    string     `json:"node_id"`
-	TunnelID  string     `json:"tunnel_id,omitempty"`
-	Timestamp time.Time  `json:"timestamp"`
-	Error     error      `json:"error,omitempty"`
+	NodeID    string    `json:"node_id"`
+	TunnelID  string    `json:"tunnel_id,omitempty"`
+	Timestamp time.Time `json:"timestamp"`
+	Error     error     `json:"error,omitempty"`
 }
 
 // NewClientManager 创建客户端管理器
 func NewClientManager(logger *zap.Logger) *ClientManager {
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	mgr := &ClientManager{
 		clients:     make(map[string]*Client),
 		nodeConfig:  NewFreeNodeConfig(),
@@ -69,11 +69,11 @@ func NewClientManager(logger *zap.Logger) *ClientManager {
 		ctx:         ctx,
 		cancel:      cancel,
 	}
-	
+
 	// 启动状态监控
 	mgr.wg.Add(1)
 	go mgr.statusMonitorLoop()
-	
+
 	return mgr
 }
 
@@ -97,21 +97,21 @@ func (m *ClientManager) QuickConnect(config *QuickConnectConfig) (*QuickConnectR
 			return nil, fmt.Errorf("no available node")
 		}
 	}
-	
+
 	// 创建客户端配置
 	clientConfig := NodeToClientConfig(node)
-	
+
 	// 添加隧道配置
 	tunnelName := config.TunnelName
 	if tunnelName == "" {
 		tunnelName = fmt.Sprintf("quick-%d", time.Now().Unix())
 	}
-	
+
 	tunnelType := config.TunnelType
 	if tunnelType == "" {
 		tunnelType = TunnelTypeTCP
 	}
-	
+
 	tunnel := TunnelConfig{
 		ID:         generateTunnelID(),
 		Name:       tunnelName,
@@ -123,15 +123,15 @@ func (m *ClientManager) QuickConnect(config *QuickConnectConfig) (*QuickConnectR
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}
-	
+
 	clientConfig.Tunnels = append(clientConfig.Tunnels, tunnel)
-	
+
 	// 创建客户端
 	client, err := NewClient(clientConfig, m.logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create client: %w", err)
 	}
-	
+
 	// 设置回调
 	client.SetOnConnect(func() {
 		m.eventChan <- ClientEvent{
@@ -141,7 +141,7 @@ func (m *ClientManager) QuickConnect(config *QuickConnectConfig) (*QuickConnectR
 			Timestamp: time.Now(),
 		}
 	})
-	
+
 	client.SetOnDisconnect(func(err error) {
 		m.eventChan <- ClientEvent{
 			Type:      "disconnected",
@@ -151,18 +151,18 @@ func (m *ClientManager) QuickConnect(config *QuickConnectConfig) (*QuickConnectR
 			Error:     err,
 		}
 	})
-	
+
 	// 启动客户端
 	if err := client.Start(); err != nil {
 		return nil, fmt.Errorf("failed to start client: %w", err)
 	}
-	
+
 	// 保存客户端
 	clientID := node.ID
 	m.mu.Lock()
 	m.clients[clientID] = client
 	m.mu.Unlock()
-	
+
 	// 构建结果
 	result := &QuickConnectResult{
 		Success:   true,
@@ -170,7 +170,7 @@ func (m *ClientManager) QuickConnect(config *QuickConnectConfig) (*QuickConnectR
 		TunnelID:  tunnel.ID,
 		ConnectAt: time.Now(),
 	}
-	
+
 	// 构建公网URL
 	if tunnel.Type == TunnelTypeHTTP || tunnel.Type == TunnelTypeHTTPS {
 		// HTTP隧道使用子域名
@@ -178,7 +178,7 @@ func (m *ClientManager) QuickConnect(config *QuickConnectConfig) (*QuickConnectR
 	} else if tunnel.RemotePort > 0 {
 		result.PublicURL = fmt.Sprintf("%s:%d", node.ServerAddr, tunnel.RemotePort)
 	}
-	
+
 	return result, nil
 }
 
@@ -192,16 +192,16 @@ func (m *ClientManager) Disconnect(clientID string) error {
 	}
 	delete(m.clients, clientID)
 	m.mu.Unlock()
-	
+
 	if err := client.Stop(); err != nil {
 		return err
 	}
-	
+
 	// 清除状态缓存
 	m.statusMu.Lock()
 	delete(m.statusCache, clientID)
 	m.statusMu.Unlock()
-	
+
 	return nil
 }
 
@@ -214,19 +214,19 @@ func (m *ClientManager) DisconnectAll() error {
 		delete(m.clients, id)
 	}
 	m.mu.Unlock()
-	
+
 	var errs []error
 	for _, client := range clients {
 		if err := client.Stop(); err != nil {
 			errs = append(errs, err)
 		}
 	}
-	
+
 	// 清除状态缓存
 	m.statusMu.Lock()
 	m.statusCache = make(map[string]*ClientStatusInfo)
 	m.statusMu.Unlock()
-	
+
 	if len(errs) > 0 {
 		return fmt.Errorf("errors during disconnect: %v", errs)
 	}
@@ -244,7 +244,7 @@ func (m *ClientManager) GetClient(clientID string) *Client {
 func (m *ClientManager) GetAllClients() map[string]*Client {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	result := make(map[string]*Client, len(m.clients))
 	for id, client := range m.clients {
 		result[id] = client
@@ -257,20 +257,20 @@ func (m *ClientManager) GetClientStatus(clientID string) *ClientStatusInfo {
 	m.statusMu.RLock()
 	status, exists := m.statusCache[clientID]
 	m.statusMu.RUnlock()
-	
+
 	if exists {
 		return status
 	}
-	
+
 	// 实时获取状态
 	m.mu.RLock()
 	client, ok := m.clients[clientID]
 	m.mu.RUnlock()
-	
+
 	if !ok {
 		return nil
 	}
-	
+
 	return m.buildClientStatus(clientID, client)
 }
 
@@ -282,7 +282,7 @@ func (m *ClientManager) GetAllClientStatus() []*ClientStatusInfo {
 		clients[id] = client
 	}
 	m.mu.RUnlock()
-	
+
 	statuses := make([]*ClientStatusInfo, 0, len(clients))
 	for id, client := range clients {
 		status := m.buildClientStatus(id, client)
@@ -290,7 +290,7 @@ func (m *ClientManager) GetAllClientStatus() []*ClientStatusInfo {
 			statuses = append(statuses, status)
 		}
 	}
-	
+
 	return statuses
 }
 
@@ -306,7 +306,7 @@ func (m *ClientManager) buildClientStatus(clientID string, client *Client) *Clie
 			ServerPort: client.config.Common.ServerPort,
 		}
 	}
-	
+
 	status := &ClientStatusInfo{
 		ClientID:   clientID,
 		NodeID:     node.ID,
@@ -317,12 +317,12 @@ func (m *ClientManager) buildClientStatus(clientID string, client *Client) *Clie
 		Tunnels:    client.ListTunnelStatus(),
 		LastUpdate: time.Now(),
 	}
-	
+
 	if !status.Stats.ConnectedAt.IsZero() {
 		status.ConnectedAt = status.Stats.ConnectedAt
 		status.Uptime = status.Stats.Uptime
 	}
-	
+
 	return status
 }
 
@@ -367,10 +367,10 @@ func (m *ClientManager) Events() <-chan ClientEvent {
 // statusMonitorLoop 状态监控循环
 func (m *ClientManager) statusMonitorLoop() {
 	defer m.wg.Done()
-	
+
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-m.ctx.Done():
@@ -389,10 +389,10 @@ func (m *ClientManager) updateAllStatus() {
 		clients[id] = client
 	}
 	m.mu.RUnlock()
-	
+
 	m.statusMu.Lock()
 	defer m.statusMu.Unlock()
-	
+
 	for id, client := range clients {
 		status := m.buildClientStatus(id, client)
 		if status != nil {
@@ -405,12 +405,12 @@ func (m *ClientManager) updateAllStatus() {
 func (m *ClientManager) Close() error {
 	m.cancel()
 	m.wg.Wait()
-	
+
 	// 关闭所有客户端
 	_ = m.DisconnectAll()
-	
+
 	close(m.eventChan)
-	
+
 	return nil
 }
 
@@ -418,22 +418,22 @@ func (m *ClientManager) Close() error {
 func (m *ClientManager) HealthCheck(ctx context.Context) map[string]*NodeHealthResult {
 	nodes := m.nodeConfig.GetAllNodes()
 	results := make(map[string]*NodeHealthResult)
-	
+
 	var wg sync.WaitGroup
 	var mu sync.Mutex
-	
+
 	for _, node := range nodes {
 		wg.Add(1)
 		go func(n *FreeNode) {
 			defer wg.Done()
-			
+
 			result := &NodeHealthResult{
 				NodeID:    n.ID,
 				NodeName:  n.Name,
 				Region:    n.Region,
 				CheckTime: time.Now(),
 			}
-			
+
 			// 执行连接测试
 			start := time.Now()
 			if err := m.checkNodeConnectivity(ctx, n); err != nil {
@@ -443,16 +443,16 @@ func (m *ClientManager) HealthCheck(ctx context.Context) map[string]*NodeHealthR
 				result.Online = true
 				result.Latency = int(time.Since(start).Milliseconds())
 			}
-			
+
 			mu.Lock()
 			results[n.ID] = result
 			mu.Unlock()
-			
+
 			// 更新节点状态
 			m.nodeConfig.UpdateNodeStatus(n.ID, result.Online, result.Latency)
 		}(node)
 	}
-	
+
 	wg.Wait()
 	return results
 }
@@ -472,16 +472,16 @@ type NodeHealthResult struct {
 func (m *ClientManager) checkNodeConnectivity(ctx context.Context, node *FreeNode) error {
 	// 简单的TCP连接测试
 	addr := fmt.Sprintf("%s:%d", node.ServerAddr, node.ServerPort)
-	
+
 	dialer := &net.Dialer{
 		Timeout: 5 * time.Second,
 	}
-	
+
 	conn, err := dialer.DialContext(ctx, "tcp", addr)
 	if err != nil {
 		return fmt.Errorf("connection failed: %w", err)
 	}
 	_ = conn.Close()
-	
+
 	return nil
 }

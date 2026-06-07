@@ -21,15 +21,15 @@ const (
 
 // PostureScore represents security posture score
 type PostureScore struct {
-	Overall     int                    `json:"overall"`
-	Network     int                    `json:"network"`
-	System      int                    `json:"system"`
-	Data        int                    `json:"data"`
-	Access      int                    `json:"access"`
-	Compliance  int                    `json:"compliance"`
-	Trend       string                 `json:"trend"`
-	UpdatedAt   time.Time              `json:"updated_at"`
-	Breakdown   map[string]int         `json:"breakdown"`
+	Overall    int            `json:"overall"`
+	Network    int            `json:"network"`
+	System     int            `json:"system"`
+	Data       int            `json:"data"`
+	Access     int            `json:"access"`
+	Compliance int            `json:"compliance"`
+	Trend      string         `json:"trend"`
+	UpdatedAt  time.Time      `json:"updated_at"`
+	Breakdown  map[string]int `json:"breakdown"`
 }
 
 // Threat represents a detected threat
@@ -50,28 +50,28 @@ type Threat struct {
 
 // Vulnerability represents a security vulnerability
 type Vulnerability struct {
-	ID          string    `json:"id"`
-	CVE         string    `json:"cve"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Severity    string    `json:"severity"`
-	Score       float64   `json:"score"`
-	Affected    []string  `json:"affected"`
-	Fix         string    `json:"fix"`
-	DetectedAt  time.Time `json:"detected_at"`
+	ID          string     `json:"id"`
+	CVE         string     `json:"cve"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	Severity    string     `json:"severity"`
+	Score       float64    `json:"score"`
+	Affected    []string   `json:"affected"`
+	Fix         string     `json:"fix"`
+	DetectedAt  time.Time  `json:"detected_at"`
 	FixedAt     *time.Time `json:"fixed_at,omitempty"`
-	Status      string    `json:"status"`
+	Status      string     `json:"status"`
 }
 
 // AttackSurface represents attack surface analysis
 type AttackSurface struct {
-	OpenPorts       []Port         `json:"open_ports"`
-	Services        []Service      `json:"services"`
-	Endpoints       []Endpoint     `json:"endpoints"`
-	ExposedData     []string       `json:"exposed_data"`
-	RiskScore       int            `json:"risk_score"`
-	Recommendations []string       `json:"recommendations"`
-	AnalyzedAt      time.Time      `json:"analyzed_at"`
+	OpenPorts       []Port     `json:"open_ports"`
+	Services        []Service  `json:"services"`
+	Endpoints       []Endpoint `json:"endpoints"`
+	ExposedData     []string   `json:"exposed_data"`
+	RiskScore       int        `json:"risk_score"`
+	Recommendations []string   `json:"recommendations"`
+	AnalyzedAt      time.Time  `json:"analyzed_at"`
 }
 
 // Port represents an open port
@@ -102,32 +102,32 @@ type Endpoint struct {
 
 // SecurityEvent represents a security event
 type SecurityEvent struct {
-	ID        string      `json:"id"`
-	Type      string      `json:"type"`
-	Level     ThreatLevel `json:"level"`
-	Source    string      `json:"source"`
-	Message   string      `json:"message"`
+	ID        string                 `json:"id"`
+	Type      string                 `json:"type"`
+	Level     ThreatLevel            `json:"level"`
+	Source    string                 `json:"source"`
+	Message   string                 `json:"message"`
 	Details   map[string]interface{} `json:"details,omitempty"`
-	Timestamp time.Time   `json:"timestamp"`
+	Timestamp time.Time              `json:"timestamp"`
 }
 
 // Manager manages cybersecurity posture
 type Manager struct {
-	mu             sync.RWMutex
-	threats        map[string]*Threat
+	mu              sync.RWMutex
+	threats         map[string]*Threat
 	vulnerabilities map[string]*Vulnerability
-	events         []*SecurityEvent
-	surface        *AttackSurface
-	score          *PostureScore
-	config         *Config
+	events          []*SecurityEvent
+	surface         *AttackSurface
+	score           *PostureScore
+	config          *Config
 }
 
 // Config represents manager configuration
 type Config struct {
-	ScanInterval    time.Duration `json:"scan_interval"`
-	AlertThreshold  ThreatLevel   `json:"alert_threshold"`
-	AutoMitigate    bool          `json:"auto_mitigate"`
-	MaxEvents       int           `json:"max_events"`
+	ScanInterval   time.Duration `json:"scan_interval"`
+	AlertThreshold ThreatLevel   `json:"alert_threshold"`
+	AutoMitigate   bool          `json:"auto_mitigate"`
+	MaxEvents      int           `json:"max_events"`
 }
 
 // DefaultConfig returns default configuration
@@ -204,7 +204,7 @@ func (m *Manager) ScanVulnerabilities(ctx context.Context) ([]*Vulnerability, er
 		vulns = append(vulns, &Vulnerability{
 			ID:          "vuln-1",
 			CVE:         "CVE-2026-1234",
-			Title:        "OpenSSL Buffer Overflow",
+			Title:       "OpenSSL Buffer Overflow",
 			Description: "Buffer overflow in OpenSSL 1.1.1",
 			Severity:    "high",
 			Score:       8.5,
@@ -279,11 +279,11 @@ func (m *Manager) GetScore(ctx context.Context) (*PostureScore, error) {
 			Trend:      "improving",
 			UpdatedAt:  time.Now(),
 			Breakdown: map[string]int{
-				"firewall":     80,
-				"encryption":   75,
+				"firewall":       80,
+				"encryption":     75,
 				"authentication": 70,
-				"patching":     85,
-				"monitoring":   65,
+				"patching":       85,
+				"monitoring":     65,
 			},
 		}
 	}
@@ -406,13 +406,13 @@ func (m *Manager) GenerateReport(ctx context.Context) (map[string]interface{}, e
 
 	report := map[string]interface{}{
 		"generated_at": time.Now(),
-		"score": m.score,
+		"score":        m.score,
 		"threats": map[string]int{
 			"active":   0,
 			"resolved": 0,
 		},
 		"vulnerabilities": map[string]int{
-			"open": 0,
+			"open":  0,
 			"fixed": 0,
 		},
 		"recommendations": []string{

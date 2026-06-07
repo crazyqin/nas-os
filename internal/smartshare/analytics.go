@@ -12,10 +12,10 @@ import (
 
 // AnalyticsEngine 统计分析引擎
 type AnalyticsEngine struct {
-	mu        sync.RWMutex
-	logger    *zap.Logger
-	logs      map[string][]*AccessLog // shareID -> logs
-	visitors  map[string]map[string]bool // shareID -> {ip -> true} (UV)
+	mu       sync.RWMutex
+	logger   *zap.Logger
+	logs     map[string][]*AccessLog    // shareID -> logs
+	visitors map[string]map[string]bool // shareID -> {ip -> true} (UV)
 }
 
 // NewAnalyticsEngine 创建统计分析引擎
@@ -176,8 +176,8 @@ func (ae *AnalyticsEngine) GetAnalyticsSummary() *AnalyticsSummary {
 	defer ae.mu.RUnlock()
 
 	summary := &AnalyticsSummary{
-		ShareCount:   len(ae.logs),
-		GeneratedAt:  time.Now(),
+		ShareCount:  len(ae.logs),
+		GeneratedAt: time.Now(),
 	}
 
 	totalViews := 0
@@ -209,12 +209,12 @@ func (ae *AnalyticsEngine) GetAnalyticsSummary() *AnalyticsSummary {
 
 // AnalyticsSummary 统计摘要
 type AnalyticsSummary struct {
-	ShareCount        int       `json:"share_count"`
-	TotalViews        int       `json:"total_views"`
-	TotalDownloads    int       `json:"total_downloads"`
-	TotalUniqueVisitors int     `json:"total_unique_visitors"`
-	AvgViewsPerShare  float64   `json:"avg_views_per_share"`
-	GeneratedAt       time.Time `json:"generated_at"`
+	ShareCount          int       `json:"share_count"`
+	TotalViews          int       `json:"total_views"`
+	TotalDownloads      int       `json:"total_downloads"`
+	TotalUniqueVisitors int       `json:"total_unique_visitors"`
+	AvgViewsPerShare    float64   `json:"avg_views_per_share"`
+	GeneratedAt         time.Time `json:"generated_at"`
 }
 
 // DetectUserAgent 检测用户代理信息

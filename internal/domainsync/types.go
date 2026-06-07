@@ -44,14 +44,14 @@ const (
 
 // OU 表示 Active Directory 中的组织单元.
 type OU struct {
-	DN          string `json:"dn"`                     // 可分辨名称
-	Name        string `json:"name"`                   // OU 名称
-	Description string `json:"description,omitempty"`  // 描述
-	ParentDN    string `json:"parent_dn,omitempty"`     // 父 OU 的 DN
-	Level       int    `json:"level"`                   // 层级深度（从 0 开始）
-	Enabled     bool   `json:"enabled"`                 // 是否启用
-	UserCount   int    `json:"user_count,omitempty"`    // 用户数（可选填充）
-	GroupCount  int    `json:"group_count,omitempty"`   // 组数（可选填充）
+	DN          string `json:"dn"`                    // 可分辨名称
+	Name        string `json:"name"`                  // OU 名称
+	Description string `json:"description,omitempty"` // 描述
+	ParentDN    string `json:"parent_dn,omitempty"`   // 父 OU 的 DN
+	Level       int    `json:"level"`                 // 层级深度（从 0 开始）
+	Enabled     bool   `json:"enabled"`               // 是否启用
+	UserCount   int    `json:"user_count,omitempty"`  // 用户数（可选填充）
+	GroupCount  int    `json:"group_count,omitempty"` // 组数（可选填充）
 }
 
 // DCConfig 域控制器连接配置.
@@ -103,15 +103,15 @@ type SyncResult struct {
 	Strategy  SyncStrategy  `json:"strategy"`   // 使用的策略
 
 	// 同步统计
-	UsersSynced     int `json:"users_synced"`     // 同步的用户数
-	GroupsSynced    int `json:"groups_synced"`    // 同步的组数
-	OUSynced        int `json:"ou_synced"`        // 同步的 OU 数
-	UsersCreated    int `json:"users_created"`    // 新增用户
-	UsersUpdated    int `json:"users_updated"`    // 更新用户
-	UsersDeleted    int `json:"users_deleted"`    // 删除用户
-	GroupsCreated   int `json:"groups_created"`   // 新增组
-	GroupsUpdated   int `json:"groups_updated"`   // 更新组
-	GroupsDeleted   int `json:"groups_deleted"`   // 删除组
+	UsersSynced   int `json:"users_synced"`   // 同步的用户数
+	GroupsSynced  int `json:"groups_synced"`  // 同步的组数
+	OUSynced      int `json:"ou_synced"`      // 同步的 OU 数
+	UsersCreated  int `json:"users_created"`  // 新增用户
+	UsersUpdated  int `json:"users_updated"`  // 更新用户
+	UsersDeleted  int `json:"users_deleted"`  // 删除用户
+	GroupsCreated int `json:"groups_created"` // 新增组
+	GroupsUpdated int `json:"groups_updated"` // 更新组
+	GroupsDeleted int `json:"groups_deleted"` // 删除组
 
 	// 错误信息
 	Errors   []SyncError `json:"errors,omitempty"`
@@ -122,25 +122,25 @@ type SyncResult struct {
 
 // SyncError 同步错误.
 type SyncError struct {
-	Type    string `json:"type"`     // ou, user, group
-	DN      string `json:"dn"`       // 对象 DN
-	Message string `json:"message"`  // 错误信息
+	Type    string `json:"type"`           // ou, user, group
+	DN      string `json:"dn"`             // 对象 DN
+	Message string `json:"message"`        // 错误信息
 	Code    string `json:"code,omitempty"` // 错误码
 }
 
 // DomainSyncStatus 域同步总状态.
 type DomainSyncStatus struct {
-	Enabled       bool          `json:"enabled"`        // 是否启用
-	Status        SyncStatus    `json:"status"`         // 当前状态
-	Strategy      SyncStrategy  `json:"strategy"`       // 当前策略
-	LastSyncTime  *time.Time    `json:"last_sync_time"` // 上次同步时间
-	LastSyncID    string        `json:"last_sync_id"`   // 上次同步 ID
-	NextSyncTime  *time.Time    `json:"next_sync_time"` // 下次同步时间（定时模式）
-	DCConnected   bool          `json:"dc_connected"`   // 域控制器是否已连接
-	OUCount       int           `json:"ou_count"`       // 已配置的 OU 数量
-	SelectedCount int           `json:"selected_count"` // 已选择的 OU 数量
-	LastResult    *SyncResult   `json:"last_result"`    // 最后同步结果
-	ScheduleCron  string        `json:"schedule_cron"`  // 定时表达式
+	Enabled       bool         `json:"enabled"`        // 是否启用
+	Status        SyncStatus   `json:"status"`         // 当前状态
+	Strategy      SyncStrategy `json:"strategy"`       // 当前策略
+	LastSyncTime  *time.Time   `json:"last_sync_time"` // 上次同步时间
+	LastSyncID    string       `json:"last_sync_id"`   // 上次同步 ID
+	NextSyncTime  *time.Time   `json:"next_sync_time"` // 下次同步时间（定时模式）
+	DCConnected   bool         `json:"dc_connected"`   // 域控制器是否已连接
+	OUCount       int          `json:"ou_count"`       // 已配置的 OU 数量
+	SelectedCount int          `json:"selected_count"` // 已选择的 OU 数量
+	LastResult    *SyncResult  `json:"last_result"`    // 最后同步结果
+	ScheduleCron  string       `json:"schedule_cron"`  // 定时表达式
 }
 
 // DefaultSyncConfig 获取默认同步配置.

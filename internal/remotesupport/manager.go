@@ -17,7 +17,7 @@ import (
 type Manager struct {
 	mu         sync.RWMutex
 	logger     *zap.Logger
-	sessions   map[string]*Session    // sessionID -> Session
+	sessions   map[string]*Session     // sessionID -> Session
 	tokens     map[string]*AccessToken // token -> AccessToken
 	tunnels    map[string]*TunnelInfo  // sessionID -> TunnelInfo
 	configPath string
@@ -25,10 +25,10 @@ type Manager struct {
 
 // RemoteSupportConfig 远程支持配置.
 type RemoteSupportConfig struct {
-	DefaultBandwidthKB int  `json:"default_bandwidth_kb"` // 默认带宽限制（KB/s）
+	DefaultBandwidthKB int  `json:"default_bandwidth_kb"`     // 默认带宽限制（KB/s）
 	DefaultMaxDuration int  `json:"default_max_duration_sec"` // 默认最大持续时间（秒）
-	RequireRecording   bool `json:"require_recording"`    // 强制录制
-	TokenExpirySec     int  `json:"token_expiry_sec"`     // 令牌过期时间（秒）
+	RequireRecording   bool `json:"require_recording"`        // 强制录制
+	TokenExpirySec     int  `json:"token_expiry_sec"`         // 令牌过期时间（秒）
 }
 
 // NewManager 创建远程支持隧道管理器.

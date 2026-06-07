@@ -11,14 +11,14 @@ import (
 
 // TagUpdateRequest 标签更新请求.
 type TagUpdateRequest struct {
-	Title      string `json:"title,omitempty"`       // 标题
-	Artist     string `json:"artist,omitempty"`      // 艺术家
-	Album      string `json:"album,omitempty"`       // 专辑
+	Title       string `json:"title,omitempty"`        // 标题
+	Artist      string `json:"artist,omitempty"`       // 艺术家
+	Album       string `json:"album,omitempty"`        // 专辑
 	AlbumArtist string `json:"album_artist,omitempty"` // 专辑艺术家
-	Genre      string `json:"genre,omitempty"`       // 流派
-	Year       int    `json:"year,omitempty"`        // 年份
-	TrackNum   int    `json:"track_num,omitempty"`   // 曲目号
-	DiscNum    int    `json:"disc_num,omitempty"`    // 碟片号
+	Genre       string `json:"genre,omitempty"`        // 流派
+	Year        int    `json:"year,omitempty"`         // 年份
+	TrackNum    int    `json:"track_num,omitempty"`    // 曲目号
+	DiscNum     int    `json:"disc_num,omitempty"`     // 碟片号
 }
 
 // TagEditor 标签编辑器.
@@ -285,9 +285,9 @@ func (te *TagEditor) buildID3v2Tag(version byte, frames []byte) []byte {
 
 	// 编码帧数据大小为同步安全整数
 	size := len(frames)
-	tag[6] = byte(size >> 21) & 0x7F
-	tag[7] = byte(size >> 14) & 0x7F
-	tag[8] = byte(size >> 7) & 0x7F
+	tag[6] = byte(size>>21) & 0x7F
+	tag[7] = byte(size>>14) & 0x7F
+	tag[8] = byte(size>>7) & 0x7F
 	tag[9] = byte(size) & 0x7F
 
 	tag = append(tag, frames...)

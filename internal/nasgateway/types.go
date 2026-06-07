@@ -43,49 +43,49 @@ var (
 
 // Route 路由规则.
 type Route struct {
-	ID            string            `json:"id"`
-	Name          string            `json:"name"`
-	Description   string            `json:"description"`
-	Path          string            `json:"path"`
-	Methods       []string          `json:"methods"`
-	UpstreamID    string            `json:"upstream_id"`
-	StripPrefix   string            `json:"strip_prefix,omitempty"`
-	AddPrefix     string            `json:"add_prefix,omitempty"`
-	Hosts         []string          `json:"hosts,omitempty"`
-	Headers       map[string]string `json:"headers,omitempty"`
-	Plugins       []string          `json:"plugins,omitempty"`
-	Priority      int               `json:"priority"`
-	Enabled       bool              `json:"enabled"`
-	Version       string            `json:"version,omitempty"`
-	Tags          []string          `json:"tags,omitempty"`
-	Timeout       time.Duration     `json:"timeout"`
-	RetryCount    int               `json:"retry_count"`
-	CreatedAt     time.Time         `json:"created_at"`
-	UpdatedAt     time.Time         `json:"updated_at"`
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Path        string            `json:"path"`
+	Methods     []string          `json:"methods"`
+	UpstreamID  string            `json:"upstream_id"`
+	StripPrefix string            `json:"strip_prefix,omitempty"`
+	AddPrefix   string            `json:"add_prefix,omitempty"`
+	Hosts       []string          `json:"hosts,omitempty"`
+	Headers     map[string]string `json:"headers,omitempty"`
+	Plugins     []string          `json:"plugins,omitempty"`
+	Priority    int               `json:"priority"`
+	Enabled     bool              `json:"enabled"`
+	Version     string            `json:"version,omitempty"`
+	Tags        []string          `json:"tags,omitempty"`
+	Timeout     time.Duration     `json:"timeout"`
+	RetryCount  int               `json:"retry_count"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
 // Upstream 上游服务.
 type Upstream struct {
-	ID                string        `json:"id"`
-	Name              string        `json:"name"`
-	Targets           []*Target     `json:"targets"`
-	Algorithm         string        `json:"algorithm"` // round-robin, weighted, least-connections, ip-hash
-	HealthCheck       *HealthCheck  `json:"health_check,omitempty"`
-	ConnectTimeout    time.Duration `json:"connect_timeout"`
-	ReadTimeout       time.Duration `json:"read_timeout"`
-	WriteTimeout      time.Duration `json:"write_timeout"`
-	MaxConnections    int           `json:"max_connections"`
-	Retries           int           `json:"retries"`
-	Enabled           bool          `json:"enabled"`
+	ID             string        `json:"id"`
+	Name           string        `json:"name"`
+	Targets        []*Target     `json:"targets"`
+	Algorithm      string        `json:"algorithm"` // round-robin, weighted, least-connections, ip-hash
+	HealthCheck    *HealthCheck  `json:"health_check,omitempty"`
+	ConnectTimeout time.Duration `json:"connect_timeout"`
+	ReadTimeout    time.Duration `json:"read_timeout"`
+	WriteTimeout   time.Duration `json:"write_timeout"`
+	MaxConnections int           `json:"max_connections"`
+	Retries        int           `json:"retries"`
+	Enabled        bool          `json:"enabled"`
 }
 
 // Target 目标服务.
 type Target struct {
-	ID       string `json:"id"`
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
-	Weight   int    `json:"weight"`
-	Health   string `json:"health"` // healthy, unhealthy, unknown
+	ID       string            `json:"id"`
+	Host     string            `json:"host"`
+	Port     int               `json:"port"`
+	Weight   int               `json:"weight"`
+	Health   string            `json:"health"` // healthy, unhealthy, unknown
 	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
@@ -195,7 +195,7 @@ type RateLimitResult struct {
 	Allowed    bool  `json:"allowed"`
 	Limit      int   `json:"limit"`
 	Remaining  int   `json:"remaining"`
-	ResetAt    int64 `json:"reset_at"` // Unix timestamp
+	ResetAt    int64 `json:"reset_at"`              // Unix timestamp
 	RetryAfter int   `json:"retry_after,omitempty"` // 秒
 }
 
@@ -284,38 +284,38 @@ type WAFRule struct {
 	Name        string      `json:"name"`
 	Type        WAFRuleType `json:"type"`
 	Action      WAFAction   `json:"action"`
-	Pattern     string      `json:"pattern"`      // 正则表达式或规则模式
-	Paths       []string    `json:"paths,omitempty"` // 适用路径
+	Pattern     string      `json:"pattern"`           // 正则表达式或规则模式
+	Paths       []string    `json:"paths,omitempty"`   // 适用路径
 	Methods     []string    `json:"methods,omitempty"` // 适用方法
 	Enabled     bool        `json:"enabled"`
 	Priority    int         `json:"priority"`
 	Description string      `json:"description"`
-	Threshold   int         `json:"threshold,omitempty"` // 触发阈值
+	Threshold   int         `json:"threshold,omitempty"`  // 触发阈值
 	WindowSec   int         `json:"window_sec,omitempty"` // 时间窗口（秒）
 }
 
 // WAFConfig WAF配置.
 type WAFConfig struct {
-	Enabled        bool        `json:"enabled"`
-	Mode           string      `json:"mode"` // block, detect
-	DefaultAction  WAFAction   `json:"default_action"`
-	Rules          []*WAFRule  `json:"rules"`
-	IPBlacklist    []string    `json:"ip_blacklist,omitempty"`
-	IPWhitelist    []string    `json:"ip_whitelist,omitempty"`
-	BlockedCountries []string  `json:"blocked_countries,omitempty"`
-	MaxBodySize    int64       `json:"max_body_size"`
-	AllowedOrigins []string    `json:"allowed_origins,omitempty"`
-	EnableLogging  bool        `json:"enable_logging"`
+	Enabled          bool       `json:"enabled"`
+	Mode             string     `json:"mode"` // block, detect
+	DefaultAction    WAFAction  `json:"default_action"`
+	Rules            []*WAFRule `json:"rules"`
+	IPBlacklist      []string   `json:"ip_blacklist,omitempty"`
+	IPWhitelist      []string   `json:"ip_whitelist,omitempty"`
+	BlockedCountries []string   `json:"blocked_countries,omitempty"`
+	MaxBodySize      int64      `json:"max_body_size"`
+	AllowedOrigins   []string   `json:"allowed_origins,omitempty"`
+	EnableLogging    bool       `json:"enable_logging"`
 }
 
 // WAFResult WAF检查结果.
 type WAFResult struct {
-	Blocked   bool     `json:"blocked"`
-	Rule      *WAFRule `json:"rule,omitempty"`
-	Reason    string   `json:"reason,omitempty"`
-	ClientIP  string   `json:"client_ip"`
-	Path      string   `json:"path"`
-	Severity  string   `json:"severity"` // low, medium, high, critical
+	Blocked  bool     `json:"blocked"`
+	Rule     *WAFRule `json:"rule,omitempty"`
+	Reason   string   `json:"reason,omitempty"`
+	ClientIP string   `json:"client_ip"`
+	Path     string   `json:"path"`
+	Severity string   `json:"severity"` // low, medium, high, critical
 }
 
 // ========== OAuth2.0 相关 ==========
@@ -336,18 +336,18 @@ const (
 
 // OAuthClient OAuth2.0客户端.
 type OAuthClient struct {
-	ID           string   `json:"id"`
-	Secret       string   `json:"secret"`
-	Name         string   `json:"name"`
-	Description  string   `json:"description"`
-	RedirectURIs []string `json:"redirect_uris"`
-	GrantTypes   []GrantType `json:"grant_types"`
-	Scopes       []string `json:"scopes"`
-	Enabled      bool     `json:"enabled"`
+	ID              string        `json:"id"`
+	Secret          string        `json:"secret"`
+	Name            string        `json:"name"`
+	Description     string        `json:"description"`
+	RedirectURIs    []string      `json:"redirect_uris"`
+	GrantTypes      []GrantType   `json:"grant_types"`
+	Scopes          []string      `json:"scopes"`
+	Enabled         bool          `json:"enabled"`
 	AccessTokenTTL  time.Duration `json:"access_token_ttl"`
 	RefreshTokenTTL time.Duration `json:"refresh_token_ttl"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	CreatedAt       time.Time     `json:"created_at"`
+	UpdatedAt       time.Time     `json:"updated_at"`
 }
 
 // OAuthUser OAuth2.0用户.
@@ -445,11 +445,11 @@ type PluginContext struct {
 
 // PluginConfig 插件配置.
 type PluginConfig struct {
-	Name        string                 `json:"name"`
-	Enabled     bool                   `json:"enabled"`
-	Config      map[string]interface{} `json:"config,omitempty"`
-	Routes      []string               `json:"routes,omitempty"`
-	Priority    int                    `json:"priority"`
+	Name     string                 `json:"name"`
+	Enabled  bool                   `json:"enabled"`
+	Config   map[string]interface{} `json:"config,omitempty"`
+	Routes   []string               `json:"routes,omitempty"`
+	Priority int                    `json:"priority"`
 }
 
 // PluginInfo 插件信息.
@@ -477,60 +477,60 @@ type APIVersion struct {
 
 // RequestLog 请求日志.
 type RequestLog struct {
-	ID            string        `json:"id"`
-	RequestID     string        `json:"request_id"`
-	Method        string        `json:"method"`
-	Path          string        `json:"path"`
-	Host          string        `json:"host"`
-	ClientIP      string        `json:"client_ip"`
-	UserAgent     string        `json:"user_agent"`
-	StatusCode    int           `json:"status_code"`
-	Latency       time.Duration `json:"latency"`
-	RequestSize   int64         `json:"request_size"`
-	ResponseSize  int64         `json:"response_size"`
-	UpstreamHost  string        `json:"upstream_host"`
-	RouteID       string        `json:"route_id"`
-	WAFResult     *WAFResult    `json:"waf_result,omitempty"`
+	ID              string           `json:"id"`
+	RequestID       string           `json:"request_id"`
+	Method          string           `json:"method"`
+	Path            string           `json:"path"`
+	Host            string           `json:"host"`
+	ClientIP        string           `json:"client_ip"`
+	UserAgent       string           `json:"user_agent"`
+	StatusCode      int              `json:"status_code"`
+	Latency         time.Duration    `json:"latency"`
+	RequestSize     int64            `json:"request_size"`
+	ResponseSize    int64            `json:"response_size"`
+	UpstreamHost    string           `json:"upstream_host"`
+	RouteID         string           `json:"route_id"`
+	WAFResult       *WAFResult       `json:"waf_result,omitempty"`
 	RateLimitResult *RateLimitResult `json:"rate_limit_result,omitempty"`
-	Timestamp     time.Time     `json:"timestamp"`
+	Timestamp       time.Time        `json:"timestamp"`
 }
 
 // ========== 网关统计 ==========
 
 // GatewayStats 网关统计.
 type GatewayStats struct {
-	TotalRequests   int64         `json:"total_requests"`
-	TotalErrors     int64         `json:"total_errors"`
-	AvgLatency      time.Duration `json:"avg_latency"`
-	P99Latency      time.Duration `json:"p99_latency"`
-	ActiveSessions  int           `json:"active_sessions"`
-	TotalRoutes     int           `json:"total_routes"`
-	TotalUpstreams  int           `json:"total_upstreams"`
-	WAFBlocked      int64         `json:"waf_blocked"`
-	RateLimited     int64         `json:"rate_limited"`
-	CircuitBroken   int64         `json:"circuit_broken"`
-	Uptime          time.Duration `json:"uptime"`
-	BytesIn         int64         `json:"bytes_in"`
-	BytesOut        int64         `json:"bytes_out"`
+	TotalRequests  int64         `json:"total_requests"`
+	TotalErrors    int64         `json:"total_errors"`
+	AvgLatency     time.Duration `json:"avg_latency"`
+	P99Latency     time.Duration `json:"p99_latency"`
+	ActiveSessions int           `json:"active_sessions"`
+	TotalRoutes    int           `json:"total_routes"`
+	TotalUpstreams int           `json:"total_upstreams"`
+	WAFBlocked     int64         `json:"waf_blocked"`
+	RateLimited    int64         `json:"rate_limited"`
+	CircuitBroken  int64         `json:"circuit_broken"`
+	Uptime         time.Duration `json:"uptime"`
+	BytesIn        int64         `json:"bytes_in"`
+	BytesOut       int64         `json:"bytes_out"`
 }
 
 // ========== 网关配置 ==========
 
 // GatewayConfig 网关配置.
 type GatewayConfig struct {
-	ListenAddr      string        `json:"listen_addr"`
-	ListenPort      int           `json:"listen_port"`
-	TLSEnabled      bool          `json:"tls_enabled"`
-	CertFile        string        `json:"cert_file"`
-	KeyFile         string        `json:"key_file"`
-	ReadTimeout     time.Duration `json:"read_timeout"`
-	WriteTimeout    time.Duration `json:"write_timeout"`
-	IdleTimeout     time.Duration `json:"idle_timeout"`
-	MaxHeaderBytes  int           `json:"max_header_bytes"`
-	TrustedProxies  []string      `json:"trusted_proxies"`
-	EnableCORS      bool          `json:"enable_cors"`
-	EnableMetrics   bool          `json:"enable_metrics"`
-	EnableLogging   bool          `json:"enable_logging"`
-	LogLevel        string        `json:"log_level"`
-	WAFConfig       *WAFConfig    `json:"waf_config,omitempty"`
+	ListenAddr     string        `json:"listen_addr"`
+	ListenPort     int           `json:"listen_port"`
+	TLSEnabled     bool          `json:"tls_enabled"`
+	CertFile       string        `json:"cert_file"`
+	KeyFile        string        `json:"key_file"`
+	ReadTimeout    time.Duration `json:"read_timeout"`
+	WriteTimeout   time.Duration `json:"write_timeout"`
+	IdleTimeout    time.Duration `json:"idle_timeout"`
+	MaxHeaderBytes int           `json:"max_header_bytes"`
+	TrustedProxies []string      `json:"trusted_proxies"`
+	EnableCORS     bool          `json:"enable_cors"`
+	EnableMetrics  bool          `json:"enable_metrics"`
+	EnableLogging  bool          `json:"enable_logging"`
+	LogLevel       string        `json:"log_level"`
+	WAFConfig      *WAFConfig    `json:"waf_config,omitempty"`
 }

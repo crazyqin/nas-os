@@ -2,9 +2,9 @@
 package docprocessor
 
 import (
-	"net/http"
 	"encoding/json"
 	"io"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -27,9 +27,9 @@ type AnalyzeRequest struct {
 
 // AnalyzeResponse 文档分析响应
 type AnalyzeResponse struct {
-	Success bool           `json:"success"`
+	Success bool            `json:"success"`
 	Result  *AnalysisResult `json:"result,omitempty"`
-	Error   string         `json:"error,omitempty"`
+	Error   string          `json:"error,omitempty"`
 }
 
 // ClassifyRequest 文档分类请求
@@ -54,9 +54,9 @@ type SummarizeRequest struct {
 
 // SummarizeResponse 文档摘要响应
 type SummarizeResponse struct {
-	Success bool            `json:"success"`
-	Result  *SummaryResult  `json:"result,omitempty"`
-	Error   string          `json:"error,omitempty"`
+	Success bool           `json:"success"`
+	Result  *SummaryResult `json:"result,omitempty"`
+	Error   string         `json:"error,omitempty"`
 }
 
 // DiffRequest 文档对比请求

@@ -161,10 +161,10 @@ func TestOptimizationHistory(t *testing.T) {
 
 	// 测试添加记录
 	record := &OptimizationRecord{
-		ID:        "test-1",
-		Type:      "auto",
-		Category:  "cpu",
-		Status:    "success",
+		ID:         "test-1",
+		Type:       "auto",
+		Category:   "cpu",
+		Status:     "success",
 		ExecutedAt: time.Now(),
 	}
 	history.Add(record)

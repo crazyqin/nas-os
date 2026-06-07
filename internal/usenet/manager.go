@@ -12,24 +12,24 @@ import (
 
 // Manager Usenet 下载管理器
 type Manager struct {
-	mu        sync.RWMutex
-	servers   map[string]*Server
-	nzbs      map[string]*NZB
-	downloads map[string]*Download
+	mu         sync.RWMutex
+	servers    map[string]*Server
+	nzbs       map[string]*NZB
+	downloads  map[string]*Download
 	categories map[string]*Category
 	indexers   map[string]*Indexer
-	queue     []*QueueItem
+	queue      []*QueueItem
 }
 
 // NewManager 创建 Usenet 下载管理器
 func NewManager() *Manager {
 	m := &Manager{
-		servers:   make(map[string]*Server),
-		nzbs:      make(map[string]*NZB),
-		downloads: make(map[string]*Download),
+		servers:    make(map[string]*Server),
+		nzbs:       make(map[string]*NZB),
+		downloads:  make(map[string]*Download),
 		categories: make(map[string]*Category),
 		indexers:   make(map[string]*Indexer),
-		queue:     make([]*QueueItem, 0),
+		queue:      make([]*QueueItem, 0),
 	}
 
 	// 初始化预置服务器
@@ -487,12 +487,12 @@ func (m *Manager) SearchIndexer(indexerID, query string) ([]NZB, error) {
 	// 模拟搜索结果
 	results := []NZB{
 		{
-			ID:       generateID(),
-			Name:     fmt.Sprintf("搜索结果: %s", query),
-			Size:     1024 * 1024 * 100, // 100MB
-			Files:    10,
-			Status:   NZBStatusPending,
-			AddedAt:  time.Now(),
+			ID:      generateID(),
+			Name:    fmt.Sprintf("搜索结果: %s", query),
+			Size:    1024 * 1024 * 100, // 100MB
+			Files:   10,
+			Status:  NZBStatusPending,
+			AddedAt: time.Now(),
 		},
 	}
 

@@ -36,13 +36,13 @@ type PXEImage struct {
 
 // BootMenuItem represents a single entry in the PXE boot menu
 type BootMenuItem struct {
-	ID       string `json:"id"`
-	Label    string `json:"label"`
-	ImageID  string `json:"image_id"`
-	Kernel   string `json:"kernel"`
-	Initrd   string `json:"initrd,omitempty"`
-	Cmdline  string `json:"cmdline,omitempty"`
-	Default  bool   `json:"default"`
+	ID      string `json:"id"`
+	Label   string `json:"label"`
+	ImageID string `json:"image_id"`
+	Kernel  string `json:"kernel"`
+	Initrd  string `json:"initrd,omitempty"`
+	Cmdline string `json:"cmdline,omitempty"`
+	Default bool   `json:"default"`
 }
 
 // PXEConfig represents the full PXE service configuration

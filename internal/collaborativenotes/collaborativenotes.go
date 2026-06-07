@@ -12,9 +12,9 @@ import (
 type NoteStatus string
 
 const (
-	StatusDraft    NoteStatus = "draft"
+	StatusDraft     NoteStatus = "draft"
 	StatusPublished NoteStatus = "published"
-	StatusArchived NoteStatus = "archived"
+	StatusArchived  NoteStatus = "archived"
 )
 
 // ConflictResolution 冲突解决策略
@@ -45,21 +45,21 @@ const (
 
 // Note 笔记
 type Note struct {
-	ID          string       `json:"id"`
-	Title       string       `json:"title"`
-	Content     string       `json:"content"`
-	Markdown    string       `json:"markdown"`
-	Status      NoteStatus   `json:"status"`
-	NotebookID  string       `json:"notebook_id"`
-	Tags        []string     `json:"tags,omitempty"`
-	Author      string       `json:"author"`
+	ID            string     `json:"id"`
+	Title         string     `json:"title"`
+	Content       string     `json:"content"`
+	Markdown      string     `json:"markdown"`
+	Status        NoteStatus `json:"status"`
+	NotebookID    string     `json:"notebook_id"`
+	Tags          []string   `json:"tags,omitempty"`
+	Author        string     `json:"author"`
 	Collaborators []string   `json:"collaborators,omitempty"`
-	IsPinned    bool         `json:"is_pinned"`
-	IsFavorite  bool         `json:"is_favorite"`
-	Version     int          `json:"version"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
-	UpdatedBy   string       `json:"updated_by"`
+	IsPinned      bool       `json:"is_pinned"`
+	IsFavorite    bool       `json:"is_favorite"`
+	Version       int        `json:"version"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
+	UpdatedBy     string     `json:"updated_by"`
 }
 
 // Notebook 笔记本
@@ -79,10 +79,10 @@ type Notebook struct {
 
 // Tag 标签
 type Tag struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Color    string `json:"color,omitempty"`
-	NoteCount int   `json:"note_count"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Color     string `json:"color,omitempty"`
+	NoteCount int    `json:"note_count"`
 }
 
 // Version 版本记录
@@ -123,12 +123,12 @@ type CollaborationSession struct {
 
 // SearchResult 搜索结果
 type SearchResult struct {
-	NoteID    string  `json:"note_id"`
-	Title     string  `json:"title"`
-	Content   string  `json:"content_snippet"`
-	Notebook  string  `json:"notebook_name"`
-	Tags      []string `json:"tags,omitempty"`
-	Score     float64 `json:"score"`
+	NoteID    string    `json:"note_id"`
+	Title     string    `json:"title"`
+	Content   string    `json:"content_snippet"`
+	Notebook  string    `json:"notebook_name"`
+	Tags      []string  `json:"tags,omitempty"`
+	Score     float64   `json:"score"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
@@ -144,28 +144,28 @@ type NoteStats struct {
 
 // CollaborativeNotes 协作笔记系统
 type CollaborativeNotes struct {
-	mu              sync.RWMutex
-	notes           map[string]*Note
-	notebooks       map[string]*Notebook
-	tags            map[string]*Tag
-	versions        map[string][]*Version        // noteID -> versions
-	operations      map[string][]*EditOperation  // noteID -> operations
-	sessions        map[string]*CollaborationSession
-	noteTags        map[string][]string          // noteID -> tagIDs
-	conflictRes     ConflictResolution
+	mu          sync.RWMutex
+	notes       map[string]*Note
+	notebooks   map[string]*Notebook
+	tags        map[string]*Tag
+	versions    map[string][]*Version       // noteID -> versions
+	operations  map[string][]*EditOperation // noteID -> operations
+	sessions    map[string]*CollaborationSession
+	noteTags    map[string][]string // noteID -> tagIDs
+	conflictRes ConflictResolution
 }
 
 // NewCollaborativeNotes 创建协作笔记系统
 func NewCollaborativeNotes() *CollaborativeNotes {
 	return &CollaborativeNotes{
-		notes:        make(map[string]*Note),
-		notebooks:    make(map[string]*Notebook),
-		tags:         make(map[string]*Tag),
-		versions:     make(map[string][]*Version),
-		operations:   make(map[string][]*EditOperation),
-		sessions:     make(map[string]*CollaborationSession),
-		noteTags:     make(map[string][]string),
-		conflictRes:  ConflictLastWrite,
+		notes:       make(map[string]*Note),
+		notebooks:   make(map[string]*Notebook),
+		tags:        make(map[string]*Tag),
+		versions:    make(map[string][]*Version),
+		operations:  make(map[string][]*EditOperation),
+		sessions:    make(map[string]*CollaborationSession),
+		noteTags:    make(map[string][]string),
+		conflictRes: ConflictLastWrite,
 	}
 }
 

@@ -37,29 +37,29 @@ type BehaviorAnalyzer struct {
 	onAnomaly func(event AnomalyEvent)
 
 	// running 运行状态
-	running bool
+	running  bool
 	stopChan chan struct{}
 }
 
 // ProcessProfile 进程行为画像
 type ProcessProfile struct {
-	PID          int                `json:"pid"`
-	Name         string             `json:"name"`
-	StartTime    time.Time          `json:"start_time"`
-	TotalReads   int64              `json:"total_reads"`
-	TotalWrites  int64              `json:"total_writes"`
-	TotalDeletes int64              `json:"total_deletes"`
-	TotalRenames int64              `json:"total_renames"`
-	UniqueFiles  map[string]bool    `json:"-"`
-	EntropyAvg   float64            `json:"entropy_avg"`
-	EntropyMax   float64            `json:"entropy_max"`
-	BytesWritten int64              `json:"bytes_written"`
-	Extensions   map[string]int     `json:"extensions"`
-	AnomalyScore float64            `json:"anomaly_score"`
-	BehaviorTags []string           `json:"behavior_tags"`
-	FirstSeen    time.Time          `json:"first_seen"`
-	LastSeen     time.Time          `json:"last_seen"`
-	WindowStats  *WindowStats       `json:"window_stats,omitempty"`
+	PID          int             `json:"pid"`
+	Name         string          `json:"name"`
+	StartTime    time.Time       `json:"start_time"`
+	TotalReads   int64           `json:"total_reads"`
+	TotalWrites  int64           `json:"total_writes"`
+	TotalDeletes int64           `json:"total_deletes"`
+	TotalRenames int64           `json:"total_renames"`
+	UniqueFiles  map[string]bool `json:"-"`
+	EntropyAvg   float64         `json:"entropy_avg"`
+	EntropyMax   float64         `json:"entropy_max"`
+	BytesWritten int64           `json:"bytes_written"`
+	Extensions   map[string]int  `json:"extensions"`
+	AnomalyScore float64         `json:"anomaly_score"`
+	BehaviorTags []string        `json:"behavior_tags"`
+	FirstSeen    time.Time       `json:"first_seen"`
+	LastSeen     time.Time       `json:"last_seen"`
+	WindowStats  *WindowStats    `json:"window_stats,omitempty"`
 }
 
 // WindowStats 滑动窗口统计
@@ -75,14 +75,14 @@ type WindowStats struct {
 
 // FileOpRecord 文件操作记录
 type FileOpRecord struct {
-	Path       string    `json:"path"`
-	OldPath    string    `json:"old_path,omitempty"`
-	OpType     string    `json:"op_type"` // read, write, delete, rename
-	Size       int64     `json:"size"`
-	Entropy    float64   `json:"entropy"`
-	ProcessID  int       `json:"process_id"`
-	ProcessName string   `json:"process_name"`
-	Timestamp  time.Time `json:"timestamp"`
+	Path        string    `json:"path"`
+	OldPath     string    `json:"old_path,omitempty"`
+	OpType      string    `json:"op_type"` // read, write, delete, rename
+	Size        int64     `json:"size"`
+	Entropy     float64   `json:"entropy"`
+	ProcessID   int       `json:"process_id"`
+	ProcessName string    `json:"process_name"`
+	Timestamp   time.Time `json:"timestamp"`
 }
 
 // AnomalyEvent 异常事件
@@ -106,14 +106,14 @@ type PatternDetector interface {
 
 // BehaviorBaseline 行为基线
 type BehaviorBaseline struct {
-	AvgWriteRate    float64 `json:"avg_write_rate"`
-	AvgDeleteRate   float64 `json:"avg_delete_rate"`
-	AvgEntropy      float64 `json:"avg_entropy"`
-	StdWriteRate    float64 `json:"std_write_rate"`
-	StdDeleteRate   float64 `json:"std_delete_rate"`
-	StdEntropy      float64 `json:"std_entropy"`
-	SampleCount     int     `json:"sample_count"`
-	LastUpdated     time.Time `json:"last_updated"`
+	AvgWriteRate  float64   `json:"avg_write_rate"`
+	AvgDeleteRate float64   `json:"avg_delete_rate"`
+	AvgEntropy    float64   `json:"avg_entropy"`
+	StdWriteRate  float64   `json:"std_write_rate"`
+	StdDeleteRate float64   `json:"std_delete_rate"`
+	StdEntropy    float64   `json:"std_entropy"`
+	SampleCount   int       `json:"sample_count"`
+	LastUpdated   time.Time `json:"last_updated"`
 }
 
 // BehaviorStats 行为分析统计
@@ -132,17 +132,17 @@ type BehaviorStats struct {
 // NewBehaviorAnalyzer 创建行为分析引擎
 func NewBehaviorAnalyzer() *BehaviorAnalyzer {
 	ba := &BehaviorAnalyzer{
-		profiles:     make(map[int]*ProcessProfile),
-		fileOps:      make(map[string][]FileOpRecord),
+		profiles: make(map[int]*ProcessProfile),
+		fileOps:  make(map[string][]FileOpRecord),
 		globalBaseline: &BehaviorBaseline{
-			AvgWriteRate:  10.0,  // 初始基线：每分钟10次写入
+			AvgWriteRate:  10.0, // 初始基线：每分钟10次写入
 			AvgDeleteRate: 2.0,
 			AvgEntropy:    5.0,
 			StdWriteRate:  5.0,
-			StdDeleteRate:  2.0,
-			StdEntropy:     1.5,
-			SampleCount:    0,
-			LastUpdated:    time.Now(),
+			StdDeleteRate: 2.0,
+			StdEntropy:    1.5,
+			SampleCount:   0,
+			LastUpdated:   time.Now(),
 		},
 		stopChan: make(chan struct{}),
 	}

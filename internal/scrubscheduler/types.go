@@ -8,11 +8,11 @@ import "time"
 type ScrubState string
 
 const (
-	ScrubStateIdle     ScrubState = "idle"
-	ScrubStateRunning  ScrubState = "running"
-	ScrubStatePaused   ScrubState = "paused"
+	ScrubStateIdle      ScrubState = "idle"
+	ScrubStateRunning   ScrubState = "running"
+	ScrubStatePaused    ScrubState = "paused"
 	ScrubStateCompleted ScrubState = "completed"
-	ScrubStateFailed   ScrubState = "failed"
+	ScrubStateFailed    ScrubState = "failed"
 )
 
 // MaintenanceWindow 定义维护时间窗口，用于避开业务高峰期
@@ -101,11 +101,11 @@ type CreateScheduleRequest struct {
 
 // UpdateScheduleRequest 更新调度的请求体
 type UpdateScheduleRequest struct {
-	Schedule          *string           `json:"schedule"`
+	Schedule          *string            `json:"schedule"`
 	MaintenanceWindow *MaintenanceWindow `json:"maintenance_window"`
-	MaxDuration       *int              `json:"max_duration"`
-	RetryCount        *int              `json:"retry_count"`
-	Enabled           *bool             `json:"enabled"`
+	MaxDuration       *int               `json:"max_duration"`
+	RetryCount        *int               `json:"retry_count"`
+	Enabled           *bool              `json:"enabled"`
 }
 
 // ScrubSchedulerConfig 调度器配置

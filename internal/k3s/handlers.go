@@ -528,8 +528,8 @@ func (h *Handlers) listQuotas(c *gin.Context) {
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
-			"total":   len(quotas),
-			"quotas":  quotas,
+			"total":  len(quotas),
+			"quotas": quotas,
 		},
 	})
 }

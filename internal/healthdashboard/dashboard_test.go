@@ -14,7 +14,7 @@ func TestUpdateDiskWithWarnings(t *testing.T) {
 		Model:       "WD Red",
 		CapacityGB:  4000,
 		Temperature: 60,
-		HealthScore:  85,
+		HealthScore: 85,
 	})
 
 	dash := c.GetDashboard()
@@ -36,7 +36,7 @@ func TestDiskWithReallocatedSectors(t *testing.T) {
 
 	c.UpdateDisk(DiskHealth{
 		Device:      "/dev/sdb",
-		HealthScore:  45,
+		HealthScore: 45,
 		Reallocated: 100,
 		Pending:     5,
 	})
@@ -53,16 +53,16 @@ func TestPoolHealth(t *testing.T) {
 	c := NewCollector()
 
 	c.UpdatePool(PoolHealth{
-		ID:            "pool1",
-		Name:          "tank",
-		Status:        PoolHealthy,
-		RAIDLevel:     "raidz2",
-		TotalGB:       16000,
-		UsedGB:        8000,
-		FreeGB:        8000,
-		UsagePercent:  50.0,
-		DiskCount:     4,
-		HealthyDisks:  4,
+		ID:           "pool1",
+		Name:         "tank",
+		Status:       PoolHealthy,
+		RAIDLevel:    "raidz2",
+		TotalGB:      16000,
+		UsedGB:       8000,
+		FreeGB:       8000,
+		UsagePercent: 50.0,
+		DiskCount:    4,
+		HealthyDisks: 4,
 	})
 
 	dash := c.GetDashboard()
@@ -105,7 +105,7 @@ func TestGetWarnings(t *testing.T) {
 	c.UpdateDisk(DiskHealth{
 		Device:      "/dev/sda",
 		Temperature: 60,
-		HealthScore:  85,
+		HealthScore: 85,
 	})
 
 	c.UpdatePool(PoolHealth{

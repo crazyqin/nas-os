@@ -369,13 +369,13 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_folders":   totalFolders,
-		"locked_folders":  lockedFolders,
-		"open_folders":    openFolders,
-		"expired_folders": expiredFolders,
-		"total_files":     totalFiles,
+		"total_folders":    totalFolders,
+		"locked_folders":   lockedFolders,
+		"open_folders":     openFolders,
+		"expired_folders":  expiredFolders,
+		"total_files":      totalFiles,
 		"total_size_bytes": totalSize,
-		"audit_entries":   len(m.audit),
+		"audit_entries":    len(m.audit),
 	}
 }
 

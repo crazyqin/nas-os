@@ -9,13 +9,13 @@ import (
 
 // Manager IPMI 远程管理器.
 type Manager struct {
-	mu       sync.RWMutex
-	config   IPMIConfig
-	devices  map[string]*IPMIDevice
-	sensors  map[string]*Sensor
-	events   []*SystemEvent
-	running  bool
-	stopCh   chan struct{}
+	mu      sync.RWMutex
+	config  IPMIConfig
+	devices map[string]*IPMIDevice
+	sensors map[string]*Sensor
+	events  []*SystemEvent
+	running bool
+	stopCh  chan struct{}
 }
 
 // NewManager 创建管理器.
@@ -272,11 +272,11 @@ func (m *Manager) GetStats() *IPMIStats {
 		}
 	}
 	return &IPMIStats{
-		TotalDevices:  len(m.devices),
-		OnlineDevices: online,
+		TotalDevices:   len(m.devices),
+		OnlineDevices:  online,
 		OfflineDevices: offline,
-		TotalSensors:  len(m.sensors),
-		TotalEvents:   len(m.events),
+		TotalSensors:   len(m.sensors),
+		TotalEvents:    len(m.events),
 	}
 }
 

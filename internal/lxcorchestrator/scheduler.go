@@ -37,9 +37,9 @@ type ResourceAllocation struct {
 
 // SchedulerConfig 调度器配置
 type SchedulerConfig struct {
-	TotalCPU     int   `json:"total_cpu"`     // CPU 核心数 * 1024
-	TotalMemory  int64 `json:"total_memory"`  // 总内存字节
-	TotalIO      int   `json:"total_io"`      // IO 权重总和
+	TotalCPU        int     `json:"total_cpu"`        // CPU 核心数 * 1024
+	TotalMemory     int64   `json:"total_memory"`     // 总内存字节
+	TotalIO         int     `json:"total_io"`         // IO 权重总和
 	OvercommitRatio float64 `json:"overcommit_ratio"` // 超配比例
 }
 
@@ -49,7 +49,7 @@ func NewScheduler(logger *zap.Logger, orchestrator *Orchestrator) *Scheduler {
 		logger:       logger,
 		orchestrator: orchestrator,
 		allocations:  make(map[string]*ResourceAllocation),
-		totalCPU:     4096,                // 默认 4 核
+		totalCPU:     4096,                   // 默认 4 核
 		totalMemory:  8 * 1024 * 1024 * 1024, // 默认 8GB
 		totalIO:      1000,
 	}

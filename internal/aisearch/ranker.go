@@ -15,13 +15,13 @@ type Ranker struct {
 
 // RankWeights 排序权重配置
 type RankWeights struct {
-	TextRelevance float64 `json:"textRelevance"` // 文本相关性权重
+	TextRelevance    float64 `json:"textRelevance"`    // 文本相关性权重
 	VectorSimilarity float64 `json:"vectorSimilarity"` // 语义相似度权重
-	Recency       float64 `json:"recency"`       // 时间新鲜度权重
-	Frequency     float64 `json:"frequency"`     // 使用频率权重
-	FileSize      float64 `json:"fileSize"`      // 文件大小权重
-	NameMatch     float64 `json:"nameMatch"`     // 文件名匹配权重
-	TagMatch      float64 `json:"tagMatch"`      // 标签匹配权重
+	Recency          float64 `json:"recency"`          // 时间新鲜度权重
+	Frequency        float64 `json:"frequency"`        // 使用频率权重
+	FileSize         float64 `json:"fileSize"`         // 文件大小权重
+	NameMatch        float64 `json:"nameMatch"`        // 文件名匹配权重
+	TagMatch         float64 `json:"tagMatch"`         // 标签匹配权重
 }
 
 // NewRanker 创建排序器
@@ -195,8 +195,8 @@ func (r *Ranker) calculateTagMatchScore(tags []string, keyword string) float64 {
 func (r *Ranker) calculateSizeScore(size int64) float64 {
 	// 100KB - 10MB 的文件得分最高
 	const (
-		minOptimal = 100 * 1024        // 100KB
-		maxOptimal = 10 * 1024 * 1024  // 10MB
+		minOptimal = 100 * 1024       // 100KB
+		maxOptimal = 10 * 1024 * 1024 // 10MB
 	)
 
 	if size >= minOptimal && size <= maxOptimal {

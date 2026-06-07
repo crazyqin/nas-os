@@ -33,48 +33,48 @@ const (
 
 // Content represents a content item
 type Content struct {
-	ID          string         `json:"id"`
-	Title       string         `json:"title"`
-	Type        ContentType    `json:"type"`
-	Body        string         `json:"body"`
-	Tags        []string       `json:"tags"`
-	Author      string         `json:"author"`
-	Status      WorkflowStatus `json:"status"`
-	Version     int            `json:"version"`
-	WorkflowID  string         `json:"workflow_id,omitempty"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	PublishedAt *time.Time     `json:"published_at,omitempty"`
+	ID          string            `json:"id"`
+	Title       string            `json:"title"`
+	Type        ContentType       `json:"type"`
+	Body        string            `json:"body"`
+	Tags        []string          `json:"tags"`
+	Author      string            `json:"author"`
+	Status      WorkflowStatus    `json:"status"`
+	Version     int               `json:"version"`
+	WorkflowID  string            `json:"workflow_id,omitempty"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   time.Time         `json:"updated_at"`
+	PublishedAt *time.Time        `json:"published_at,omitempty"`
 	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
 // Workflow represents a content workflow
 type Workflow struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	ContentType ContentType    `json:"content_type"`
-	Stages      []Stage        `json:"stages"`
-	Enabled     bool           `json:"enabled"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	ContentType ContentType `json:"content_type"`
+	Stages      []Stage     `json:"stages"`
+	Enabled     bool        `json:"enabled"`
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
 // Stage represents a workflow stage
 type Stage struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
 	Status      WorkflowStatus `json:"status"`
-	Assignees   []string `json:"assignees"`
-	Actions     []Action `json:"actions"`
-	AutoAdvance bool     `json:"auto_advance"`
+	Assignees   []string       `json:"assignees"`
+	Actions     []Action       `json:"actions"`
+	AutoAdvance bool           `json:"auto_advance"`
 }
 
 // Action represents a stage action
 type Action struct {
-	Type    ActionType `json:"type"`
-	Config  map[string]interface{} `json:"config,omitempty"`
+	Type   ActionType             `json:"type"`
+	Config map[string]interface{} `json:"config,omitempty"`
 }
 
 // ActionType represents action types

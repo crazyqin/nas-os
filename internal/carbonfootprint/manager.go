@@ -40,12 +40,12 @@ type EnergyRecord struct {
 
 // CarbonFootprint represents carbon footprint calculation
 type CarbonFootprint struct {
-	Period        string  `json:"period"`
-	EnergyWh      float64 `json:"energy_wh"`
-	CarbonG       float64 `json:"carbon_g"`
-	CarbonKg      float64 `json:"carbon_kg"`
-	OffsetCost    float64 `json:"offset_cost"`
-	TreesNeeded   float64 `json:"trees_needed"`
+	Period          string                   `json:"period"`
+	EnergyWh        float64                  `json:"energy_wh"`
+	CarbonG         float64                  `json:"carbon_g"`
+	CarbonKg        float64                  `json:"carbon_kg"`
+	OffsetCost      float64                  `json:"offset_cost"`
+	TreesNeeded     float64                  `json:"trees_needed"`
 	SourceBreakdown map[EnergySource]float64 `json:"source_breakdown"`
 }
 
@@ -63,11 +63,11 @@ type GreenRecommendation struct {
 
 // Manager manages carbon footprint tracking
 type Manager struct {
-	mu             sync.RWMutex
-	records        []*EnergyRecord
-	intensities    map[EnergySource]*CarbonIntensity
+	mu              sync.RWMutex
+	records         []*EnergyRecord
+	intensities     map[EnergySource]*CarbonIntensity
 	recommendations []*GreenRecommendation
-	config         *Config
+	config          *Config
 }
 
 // Config represents manager configuration

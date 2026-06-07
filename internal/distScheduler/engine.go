@@ -465,17 +465,17 @@ func (e *Engine) checkCronTasks() {
 		}
 
 		newTask := &Task{
-			ID:          generateID(),
-			Name:        original.Name,
-			Type:        original.Type,
-			Status:      TaskStatusPending,
-			Priority:    original.Priority,
+			ID:           generateID(),
+			Name:         original.Name,
+			Type:         original.Type,
+			Status:       TaskStatusPending,
+			Priority:     original.Priority,
 			Requirements: original.Requirements,
-			Payload:     original.Payload,
-			MaxAttempts: original.MaxAttempts,
-			Tags:        original.Tags,
-			Timeout:     original.Timeout,
-			CreatedAt:   now,
+			Payload:      original.Payload,
+			MaxAttempts:  original.MaxAttempts,
+			Tags:         original.Tags,
+			Timeout:      original.Timeout,
+			CreatedAt:    now,
 		}
 		e.tasks[newTask.ID] = newTask
 

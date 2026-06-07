@@ -55,14 +55,14 @@ func TestDedupROICalculator_AnalyzeScenario(t *testing.T) {
 	calc := NewDedupROICalculator(config)
 
 	tests := []struct {
-		dataSizeTB  float64
-		dedupRate   float64
+		dataSizeTB      float64
+		dedupRate       float64
 		wantPositiveROI bool
 	}{
-		{10, 30, true},   // 10TB 30%去重
-		{10, 15, false},  // 10TB 15%去重（低去重率）
-		{50, 50, true},   // 50TB 50%去重（高去重率）
-		{1, 30, false},   // 1TB 30%去重（小数据量）
+		{10, 30, true},  // 10TB 30%去重
+		{10, 15, false}, // 10TB 15%去重（低去重率）
+		{50, 50, true},  // 50TB 50%去重（高去重率）
+		{1, 30, false},  // 1TB 30%去重（小数据量）
 	}
 
 	for _, tt := range tests {
@@ -231,13 +231,13 @@ func TestBenefitScoreCalculation(t *testing.T) {
 	config := DefaultDedupCostConfig()
 
 	tests := []struct {
-		dedupRate   float64
-		dataSizeTB  float64
-		minScore    float64
+		dedupRate  float64
+		dataSizeTB float64
+		minScore   float64
 	}{
-		{50, 100, 60},  // 高去重率大数据量
-		{30, 10, 30},   // 中等场景
-		{15, 5, 10},    // 低去重率小数据量
+		{50, 100, 60}, // 高去重率大数据量
+		{30, 10, 30},  // 中等场景
+		{15, 5, 10},   // 低去重率小数据量
 	}
 
 	for _, tt := range tests {
@@ -277,5 +277,5 @@ func TestThresholdCalculation(t *testing.T) {
 func dedupContains(s, substr string) bool {
 	return len(s) > 0 && len(substr) > 0 &&
 		(len(s) >= len(substr) && s[:len(substr)] == substr ||
-		 len(s) > len(substr) && dedupContains(s[1:], substr))
+			len(s) > len(substr) && dedupContains(s[1:], substr))
 }

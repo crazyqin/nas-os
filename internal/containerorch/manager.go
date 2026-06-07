@@ -644,7 +644,7 @@ func (m *Manager) GetHealthReport(projectID string) (*HealthReport, error) {
 			instance := InstanceHealth{
 				ContainerID: containerID,
 				Status:      health.Status,
-				CPU:         0.5,  // 模拟数据
+				CPU:         0.5,               // 模拟数据
 				Memory:      128 * 1024 * 1024, // 128MB
 				Uptime:      time.Since(project.CreatedAt),
 			}

@@ -17,16 +17,16 @@ import (
 
 // 集群配置相关错误
 var (
-	ErrClusterAlreadyExists  = errors.New("cluster already exists")
-	ErrClusterNotFound       = errors.New("cluster not found")
-	ErrNodeAlreadyJoined     = errors.New("node already joined cluster")
-	ErrNodeNotInCluster      = errors.New("node not in cluster")
-	ErrInvalidClusterConfig  = errors.New("invalid cluster configuration")
-	ErrClusterNotActive      = errors.New("cluster not active")
-	ErrPrimaryRequired       = errors.New("primary node required")
-	ErrSecondaryRequired     = errors.New("secondary node required")
-	ErrClusterStateConflict  = errors.New("cluster state conflict")
-	ErrNodeCapacityExceeded  = errors.New("node capacity exceeded")
+	ErrClusterAlreadyExists = errors.New("cluster already exists")
+	ErrClusterNotFound      = errors.New("cluster not found")
+	ErrNodeAlreadyJoined    = errors.New("node already joined cluster")
+	ErrNodeNotInCluster     = errors.New("node not in cluster")
+	ErrInvalidClusterConfig = errors.New("invalid cluster configuration")
+	ErrClusterNotActive     = errors.New("cluster not active")
+	ErrPrimaryRequired      = errors.New("primary node required")
+	ErrSecondaryRequired    = errors.New("secondary node required")
+	ErrClusterStateConflict = errors.New("cluster state conflict")
+	ErrNodeCapacityExceeded = errors.New("node capacity exceeded")
 )
 
 // ClusterConfig 集群配置
@@ -85,15 +85,15 @@ const (
 type ClusterState string
 
 const (
-	ClusterStateCreating    ClusterState = "creating"    // 创建中
+	ClusterStateCreating     ClusterState = "creating"     // 创建中
 	ClusterStateInitializing ClusterState = "initializing" // 初始化中
-	ClusterStateActive      ClusterState = "active"      // 正常运行
-	ClusterStateDegraded    ClusterState = "degraded"    // 降级运行（单节点）
-	ClusterStateFailover    ClusterState = "failover"    // 故障转移中
-	ClusterStateSyncing     ClusterState = "syncing"     // 数据同步中
-	ClusterStateMaintenance  ClusterState = "maintenance" // 维护模式
-	ClusterStateDisabled     ClusterState = "disabled"    // 已禁用
-	ClusterStateError       ClusterState = "error"       // 错误状态
+	ClusterStateActive       ClusterState = "active"       // 正常运行
+	ClusterStateDegraded     ClusterState = "degraded"     // 降级运行（单节点）
+	ClusterStateFailover     ClusterState = "failover"     // 故障转移中
+	ClusterStateSyncing      ClusterState = "syncing"      // 数据同步中
+	ClusterStateMaintenance  ClusterState = "maintenance"  // 维护模式
+	ClusterStateDisabled     ClusterState = "disabled"     // 已禁用
+	ClusterStateError        ClusterState = "error"        // 错误状态
 )
 
 // NodeConfig 节点配置
@@ -105,57 +105,57 @@ type NodeConfig struct {
 	CreatedAt   time.Time `json:"created_at"`
 
 	// 网络配置
-	Addresses     []NodeAddress `json:"addresses"`      // 网络地址列表
-	ManagementIP  string        `json:"management_ip"`  // 管理IP
-	HeartbeatIP   string        `json:"heartbeat_ip"`   // 心跳IP（专用）
-	DataSyncIP    string        `json:"data_sync_ip"`   // 数据同步IP（专用）
-	FloatingIP    string        `json:"floating_ip"`    // 浮动IP（主节点持有）
+	Addresses    []NodeAddress `json:"addresses"`     // 网络地址列表
+	ManagementIP string        `json:"management_ip"` // 管理IP
+	HeartbeatIP  string        `json:"heartbeat_ip"`  // 心跳IP（专用）
+	DataSyncIP   string        `json:"data_sync_ip"`  // 数据同步IP（专用）
+	FloatingIP   string        `json:"floating_ip"`   // 浮动IP（主节点持有）
 
 	// 角色配置
-	Role          HARole       `json:"role"`           // primary/secondary
-	State         HAState      `json:"state"`          // 当前状态
-	Priority      int          `json:"priority"`       // 优先级（1-100）
-	Weight        int          `json:"weight"`         // 权重（负载均衡用）
+	Role     HARole  `json:"role"`     // primary/secondary
+	State    HAState `json:"state"`    // 当前状态
+	Priority int     `json:"priority"` // 优先级（1-100）
+	Weight   int     `json:"weight"`   // 权重（负载均衡用）
 
 	// 硬件信息
 	HardwareInfo *NodeHardwareInfo `json:"hardware_info,omitempty"`
 
 	// 服务配置
-	Services     []string `json:"services"`        // 提供的服务列表
-	Capabilities []string `json:"capabilities"`    // 能力列表
+	Services     []string `json:"services"`     // 提供的服务列表
+	Capabilities []string `json:"capabilities"` // 能力列表
 
 	// 心跳端口
 	HeartbeatPort int `json:"heartbeat_port"` // 心跳端口
 
 	// 状态信息
-	LastHeartbeat time.Time `json:"last_heartbeat"`
-	HealthScore   float64   `json:"health_score"` // 0-100
+	LastHeartbeat time.Time     `json:"last_heartbeat"`
+	HealthScore   float64       `json:"health_score"` // 0-100
 	Uptime        time.Duration `json:"uptime"`
 
 	// 同步状态
-	SyncProgress  float64   `json:"sync_progress"` // 0-100
-	LastSyncTime  time.Time `json:"last_sync_time"`
-	SyncLatency   time.Duration `json:"sync_latency"`
+	SyncProgress float64       `json:"sync_progress"` // 0-100
+	LastSyncTime time.Time     `json:"last_sync_time"`
+	SyncLatency  time.Duration `json:"sync_latency"`
 }
 
 // NodeAddress 节点网络地址
 type NodeAddress struct {
-	Type       string `json:"type"`        // management, heartbeat, data_sync, floating
-	IP         string `json:"ip"`
-	Port       int    `json:"port"`
-	Interface  string `json:"interface"`   // 网络接口名
-	Network    string `json:"network"`     // 所属网络
-	IsPrimary  bool   `json:"is_primary"`  // 是否主要地址
+	Type      string `json:"type"` // management, heartbeat, data_sync, floating
+	IP        string `json:"ip"`
+	Port      int    `json:"port"`
+	Interface string `json:"interface"`  // 网络接口名
+	Network   string `json:"network"`    // 所属网络
+	IsPrimary bool   `json:"is_primary"` // 是否主要地址
 }
 
 // NodeHardwareInfo 节点硬件信息
 type NodeHardwareInfo struct {
-	CPUModel      string `json:"cpu_model"`
-	CPUCores      int    `json:"cpu_cores"`
-	MemoryGB      int    `json:"memory_gb"`
-	StorageGB     int    `json:"storage_gb"`
-	NetworkCards  []string `json:"network_cards"`
-	SerialNumber  string `json:"serial_number"`
+	CPUModel     string   `json:"cpu_model"`
+	CPUCores     int      `json:"cpu_cores"`
+	MemoryGB     int      `json:"memory_gb"`
+	StorageGB    int      `json:"storage_gb"`
+	NetworkCards []string `json:"network_cards"`
+	SerialNumber string   `json:"serial_number"`
 }
 
 // ClusterNetworkConfig 集群网络配置
@@ -170,22 +170,22 @@ type ClusterNetworkConfig struct {
 	DataSyncPort    int          `json:"data_sync_port"`
 
 	// 客户端访问网络
-	ClientNetwork  *NetworkInfo `json:"client_network"`
-	FloatingIP     string       `json:"floating_ip"`      // 浮动VIP
-	FloatingIPMask string       `json:"floating_ip_mask"` // 子网掩码
-	FloatingIPIface string      `json:"floating_ip_iface"` // 绑定接口
+	ClientNetwork   *NetworkInfo `json:"client_network"`
+	FloatingIP      string       `json:"floating_ip"`       // 浮动VIP
+	FloatingIPMask  string       `json:"floating_ip_mask"`  // 子网掩码
+	FloatingIPIface string       `json:"floating_ip_iface"` // 绑定接口
 
 	// 网络冗余
 	EnableNICFailover bool `json:"enable_nic_failover"` // 网卡故障转移
-	BondingMode       int  `json:"bonding_mode"`       // 绑定模式
+	BondingMode       int  `json:"bonding_mode"`        // 绑定模式
 }
 
 // NetworkInfo 网络信息
 type NetworkInfo struct {
-	NetworkName string `json:"network_name"`
-	Subnet      string `json:"subnet"`
-	Gateway     string `json:"gateway"`
-	VLAN        int    `json:"vlan,omitempty"`
+	NetworkName string   `json:"network_name"`
+	Subnet      string   `json:"subnet"`
+	Gateway     string   `json:"gateway"`
+	VLAN        int      `json:"vlan,omitempty"`
 	DNS         []string `json:"dns"`
 }
 
@@ -212,19 +212,19 @@ type ClusterStorageConfig struct {
 type StorageType string
 
 const (
-	StorageTypeShared    StorageType = "shared"    // 共享存储（SAN/iSCSI）
+	StorageTypeShared     StorageType = "shared"     // 共享存储（SAN/iSCSI）
 	StorageTypeReplicated StorageType = "replicated" // 复制存储（本地同步）
-	StorageTypeHybrid    StorageType = "hybrid"    // 混合模式
+	StorageTypeHybrid     StorageType = "hybrid"     // 混合模式
 )
 
 // SharedStorageConfig 共享存储配置
 type SharedStorageConfig struct {
-	Type         string   `json:"type"`         // iscsi, fc, nfs
-	Target       string   `json:"target"`       // 存储目标地址
-	LUN          string   `json:"lun"`          // LUN ID
-	MountPoint   string   `json:"mount_point"`  // 挂载点
-	FileSystem   string   `json:"file_system"`  // 文件系统类型
-	Multipath    bool     `json:"multipath"`    // 多路径支持
+	Type           string   `json:"type"`            // iscsi, fc, nfs
+	Target         string   `json:"target"`          // 存储目标地址
+	LUN            string   `json:"lun"`             // LUN ID
+	MountPoint     string   `json:"mount_point"`     // 挂载点
+	FileSystem     string   `json:"file_system"`     // 文件系统类型
+	Multipath      bool     `json:"multipath"`       // 多路径支持
 	MultipathPaths []string `json:"multipath_paths"` // 多路径列表
 }
 
@@ -234,10 +234,10 @@ type ReplicatedStorageConfig struct {
 	ReplicationMode ReplicationMode `json:"replication_mode"`
 
 	// 同步配置
-	SyncInterval     time.Duration `json:"sync_interval"`
-	SyncMethod       string        `json:"sync_method"` // rsync, btrfs, zfs
-	Compression      bool          `json:"compression"`
-	Encryption       bool          `json:"encryption"`
+	SyncInterval time.Duration `json:"sync_interval"`
+	SyncMethod   string        `json:"sync_method"` // rsync, btrfs, zfs
+	Compression  bool          `json:"compression"`
+	Encryption   bool          `json:"encryption"`
 
 	// 存储路径
 	PrimaryPath   string `json:"primary_path"`
@@ -255,24 +255,24 @@ type ReplicatedStorageConfig struct {
 type ReplicationMode string
 
 const (
-	ReplicationModeSync   ReplicationMode = "sync"   // 同步复制
-	ReplicationModeAsync  ReplicationMode = "async"  // 异步复制
+	ReplicationModeSync     ReplicationMode = "sync"      // 同步复制
+	ReplicationModeAsync    ReplicationMode = "async"     // 异步复制
 	ReplicationModeSemiSync ReplicationMode = "semi_sync" // 半同步
 )
 
 // StoragePoolConfig 存储池配置
 type StoragePoolConfig struct {
-	PoolName    string   `json:"pool_name"`
-	Volumes     []string `json:"volumes"`
-	SizeGB      int      `json:"size_gb"`
-	UsedGB      int      `json:"used_gb"`
-	FileSystem  string   `json:"file_system"`
-	RAIDLevel   string   `json:"raid_level"`
+	PoolName   string   `json:"pool_name"`
+	Volumes    []string `json:"volumes"`
+	SizeGB     int      `json:"size_gb"`
+	UsedGB     int      `json:"used_gb"`
+	FileSystem string   `json:"file_system"`
+	RAIDLevel  string   `json:"raid_level"`
 }
 
 // StorageSyncPolicy 存储同步策略
 type StorageSyncPolicy struct {
-	SyncMode       string        `json:"sync_mode"`       // full, incremental
+	SyncMode       string        `json:"sync_mode"` // full, incremental
 	SyncInterval   time.Duration `json:"sync_interval"`
 	RetryCount     int           `json:"retry_count"`
 	BandwidthLimit int           `json:"bandwidth_limit"` // MB/s, 0=无限制
@@ -285,16 +285,16 @@ type ClusterHeartbeatConfig struct {
 	HeartbeatMethods []HeartbeatMethod `json:"heartbeat_methods"`
 
 	// 心跳间隔
-	Interval     time.Duration `json:"interval"`     // 心跳发送间隔
-	Timeout      time.Duration `json:"timeout"`      // 心跳超时时间
-	MissThreshold int          `json:"miss_threshold"` // 丢失阈值
+	Interval      time.Duration `json:"interval"`       // 心跳发送间隔
+	Timeout       time.Duration `json:"timeout"`        // 心跳超时时间
+	MissThreshold int           `json:"miss_threshold"` // 丢失阈值
 
 	// Phi 检测器配置
 	PhiThreshold float64 `json:"phi_threshold"` // Phi 阈值
 	SampleWindow int     `json:"sample_window"` // 样本窗口大小
 
 	// 心跳内容
-	IncludeMetrics bool `json:"include_metrics"` // 包含性能指标
+	IncludeMetrics  bool `json:"include_metrics"`  // 包含性能指标
 	IncludeServices bool `json:"include_services"` // 包含服务状态
 
 	// 多路径心跳
@@ -305,12 +305,12 @@ type ClusterHeartbeatConfig struct {
 type HeartbeatMethod string
 
 const (
-	HeartbeatMethodUDP    HeartbeatMethod = "udp"     // UDP心跳
-	HeartbeatMethodTCP    HeartbeatMethod = "tcp"     // TCP心跳
-	HeartbeatMethodHTTP   HeartbeatMethod = "http"    // HTTP心跳
+	HeartbeatMethodUDP       HeartbeatMethod = "udp"       // UDP心跳
+	HeartbeatMethodTCP       HeartbeatMethod = "tcp"       // TCP心跳
+	HeartbeatMethodHTTP      HeartbeatMethod = "http"      // HTTP心跳
 	HeartbeatMethodMulticast HeartbeatMethod = "multicast" // 组播心跳
-	HeartbeatMethodSerial HeartbeatMethod = "serial"  // 串口心跳（直连）
-	HeartbeatMethodShared HeartbeatMethod = "shared"  // 共享存储心跳
+	HeartbeatMethodSerial    HeartbeatMethod = "serial"    // 串口心跳（直连）
+	HeartbeatMethodShared    HeartbeatMethod = "shared"    // 共享存储心跳
 )
 
 // ClusterFailoverConfig 集群故障转移配置
@@ -319,22 +319,22 @@ type ClusterFailoverConfig struct {
 	Strategy FailoverStrategyType `json:"strategy"`
 
 	// 基本配置
-	Enabled         bool          `json:"enabled"`
-	DetectionDelay  time.Duration `json:"detection_delay"`  // 故障检测延迟
+	Enabled          bool          `json:"enabled"`
+	DetectionDelay   time.Duration `json:"detection_delay"`   // 故障检测延迟
 	ConfirmationWait time.Duration `json:"confirmation_wait"` // 确认等待时间
-	TakeoverDelay   time.Duration `json:"takeover_delay"`   // 接管延迟
+	TakeoverDelay    time.Duration `json:"takeover_delay"`    // 接管延迟
 	VerificationTime time.Duration `json:"verification_time"` // 验证时间
 
 	// 自动回切
-	AutoFallback    bool          `json:"auto_fallback"`    // 自动回切
-	FallbackDelay   time.Duration `json:"fallback_delay"`   // 回切延迟
-	FallbackRequireConfirmation bool `json:"fallback_require_confirmation"` // 回切需确认
+	AutoFallback                bool          `json:"auto_fallback"`                 // 自动回切
+	FallbackDelay               time.Duration `json:"fallback_delay"`                // 回切延迟
+	FallbackRequireConfirmation bool          `json:"fallback_require_confirmation"` // 回切需确认
 
 	// 服务优先级
 	ServicePriority []ServicePriority `json:"service_priority"`
 
 	// SMB 有状态故障转移
-	EnableSMBStateful bool `json:"enable_smb_stateful"` // SMB有状态转移
+	EnableSMBStateful bool          `json:"enable_smb_stateful"` // SMB有状态转移
 	SMBSessionTimeout time.Duration `json:"smb_session_timeout"`
 
 	// 通知配置
@@ -354,8 +354,8 @@ const (
 
 // ServicePriority 服务优先级
 type ServicePriority struct {
-	ServiceName string `json:"service_name"`
-	Priority    int    `json:"priority"`
+	ServiceName string        `json:"service_name"`
+	Priority    int           `json:"priority"`
 	StartDelay  time.Duration `json:"start_delay"`
 	StopDelay   time.Duration `json:"stop_delay"`
 }
@@ -371,14 +371,14 @@ type ClusterSyncConfig struct {
 	DataSyncInterval   time.Duration `json:"data_sync_interval"`
 
 	// 同步方式
-	SyncMethod    SyncMethodType `json:"sync_method"`
-	Compression   bool           `json:"compression"`
-	Encryption    bool           `json:"encryption"`
-	BandwidthLimit int           `json:"bandwidth_limit"`
+	SyncMethod     SyncMethodType `json:"sync_method"`
+	Compression    bool           `json:"compression"`
+	Encryption     bool           `json:"encryption"`
+	BandwidthLimit int            `json:"bandwidth_limit"`
 
 	// 增量同步
-	EnableIncremental bool `json:"enable_incremental"`
-	BlockSizeKB       int  `json:"block_size_kb"`
+	EnableIncremental  bool          `json:"enable_incremental"`
+	BlockSizeKB        int           `json:"block_size_kb"`
 	CheckpointInterval time.Duration `json:"checkpoint_interval"`
 
 	// 验证
@@ -390,33 +390,33 @@ type ClusterSyncConfig struct {
 type SyncScopeType string
 
 const (
-	SyncScopeConfig  SyncScopeType = "config"  // 配置同步
-	SyncScopeState   SyncScopeType = "state"   // 状态同步
-	SyncScopeData    SyncScopeType = "data"    // 数据同步
+	SyncScopeConfig   SyncScopeType = "config"   // 配置同步
+	SyncScopeState    SyncScopeType = "state"    // 状态同步
+	SyncScopeData     SyncScopeType = "data"     // 数据同步
 	SyncScopeMetadata SyncScopeType = "metadata" // 元数据同步
-	SyncScopeLogs    SyncScopeType = "logs"    // 日志同步
+	SyncScopeLogs     SyncScopeType = "logs"     // 日志同步
 )
 
 // SyncMethodType 同步方式
 type SyncMethodType string
 
 const (
-	SyncMethodPush    SyncMethodType = "push"    // 推送同步
-	SyncMethodPull    SyncMethodType = "pull"    // 拉取同步
+	SyncMethodPush          SyncMethodType = "push"          // 推送同步
+	SyncMethodPull          SyncMethodType = "pull"          // 拉取同步
 	SyncMethodBidirectional SyncMethodType = "bidirectional" // 双向同步
-	SyncMethodEventDriven SyncMethodType = "event_driven" // 事件驱动
+	SyncMethodEventDriven   SyncMethodType = "event_driven"  // 事件驱动
 )
 
 // ClusterConfigManager 集群配置管理器
 type ClusterConfigManager struct {
-	config      *ClusterConfig
-	configFile  string
-	dataDir     string
-	mu          sync.RWMutex
-	logger      *zap.Logger
-	hooks       []ClusterConfigHook
-	ctx         context.Context
-	cancel      context.CancelFunc
+	config     *ClusterConfig
+	configFile string
+	dataDir    string
+	mu         sync.RWMutex
+	logger     *zap.Logger
+	hooks      []ClusterConfigHook
+	ctx        context.Context
+	cancel     context.CancelFunc
 }
 
 // ClusterConfigHook 配置变更钩子
@@ -953,22 +953,22 @@ func (mgr *ClusterConfigManager) GetClusterStatus() *ClusterStatus {
 
 	if mgr.config.PrimaryNode != nil {
 		status.PrimaryNode = &NodeStatus{
-			NodeID:      mgr.config.PrimaryNode.NodeID,
-			NodeName:    mgr.config.PrimaryNode.NodeName,
-			Role:        mgr.config.PrimaryNode.Role,
-			State:       mgr.config.PrimaryNode.State,
-			HealthScore: mgr.config.PrimaryNode.HealthScore,
+			NodeID:       mgr.config.PrimaryNode.NodeID,
+			NodeName:     mgr.config.PrimaryNode.NodeName,
+			Role:         mgr.config.PrimaryNode.Role,
+			State:        mgr.config.PrimaryNode.State,
+			HealthScore:  mgr.config.PrimaryNode.HealthScore,
 			ManagementIP: mgr.config.PrimaryNode.ManagementIP,
 		}
 	}
 
 	if mgr.config.SecondaryNode != nil {
 		status.SecondaryNode = &NodeStatus{
-			NodeID:      mgr.config.SecondaryNode.NodeID,
-			NodeName:    mgr.config.SecondaryNode.NodeName,
-			Role:        mgr.config.SecondaryNode.Role,
-			State:       mgr.config.SecondaryNode.State,
-			HealthScore: mgr.config.SecondaryNode.HealthScore,
+			NodeID:       mgr.config.SecondaryNode.NodeID,
+			NodeName:     mgr.config.SecondaryNode.NodeName,
+			Role:         mgr.config.SecondaryNode.Role,
+			State:        mgr.config.SecondaryNode.State,
+			HealthScore:  mgr.config.SecondaryNode.HealthScore,
 			ManagementIP: mgr.config.SecondaryNode.ManagementIP,
 		}
 	}
@@ -978,23 +978,23 @@ func (mgr *ClusterConfigManager) GetClusterStatus() *ClusterStatus {
 
 // ClusterStatus 集群状态摘要
 type ClusterStatus struct {
-	ClusterID   string       `json:"cluster_id"`
-	ClusterName string       `json:"cluster_name"`
-	State       ClusterState `json:"state"`
-	ClusterType ClusterType  `json:"cluster_type"`
-	ActiveSince time.Time    `json:"active_since,omitempty"`
-	PrimaryNode *NodeStatus  `json:"primary_node"`
-	SecondaryNode *NodeStatus `json:"secondary_node"`
+	ClusterID     string       `json:"cluster_id"`
+	ClusterName   string       `json:"cluster_name"`
+	State         ClusterState `json:"state"`
+	ClusterType   ClusterType  `json:"cluster_type"`
+	ActiveSince   time.Time    `json:"active_since,omitempty"`
+	PrimaryNode   *NodeStatus  `json:"primary_node"`
+	SecondaryNode *NodeStatus  `json:"secondary_node"`
 }
 
 // NodeStatus 节点状态摘要
 type NodeStatus struct {
-	NodeID      string  `json:"node_id"`
-	NodeName    string  `json:"node_name"`
-	Role        HARole  `json:"role"`
-	State       HAState `json:"state"`
-	HealthScore float64 `json:"health_score"`
-	ManagementIP string `json:"management_ip"`
+	NodeID       string  `json:"node_id"`
+	NodeName     string  `json:"node_name"`
+	Role         HARole  `json:"role"`
+	State        HAState `json:"state"`
+	HealthScore  float64 `json:"health_score"`
+	ManagementIP string  `json:"management_ip"`
 }
 
 // Stop 停止管理器

@@ -71,47 +71,47 @@ const (
 
 // VerifyJob 校验任务.
 type VerifyJob struct {
-	ID          string          `json:"id"`           // 任务ID
-	Name        string          `json:"name"`         // 任务名称
-	Paths       []string        `json:"paths"`        // 校验路径列表
-	Algorithm   VerifyAlgorithm `json:"algorithm"`    // 校验算法
-	Schedule    ScheduleConfig  `json:"schedule"`     // 调度配置
-	Status      JobStatus       `json:"status"`       // 当前状态
-	LastRun     *time.Time      `json:"last_run"`     // 上次运行时间
-	NextRun     *time.Time      `json:"next_run"`     // 下次运行时间
-	FileCount   int64           `json:"file_count"`   // 文件总数
-	ErrorCount  int64           `json:"error_count"`  // 错误数
-	CreatedAt   time.Time       `json:"created_at"`   // 创建时间
-	UpdatedAt   time.Time       `json:"updated_at"`   // 更新时间
+	ID         string          `json:"id"`          // 任务ID
+	Name       string          `json:"name"`        // 任务名称
+	Paths      []string        `json:"paths"`       // 校验路径列表
+	Algorithm  VerifyAlgorithm `json:"algorithm"`   // 校验算法
+	Schedule   ScheduleConfig  `json:"schedule"`    // 调度配置
+	Status     JobStatus       `json:"status"`      // 当前状态
+	LastRun    *time.Time      `json:"last_run"`    // 上次运行时间
+	NextRun    *time.Time      `json:"next_run"`    // 下次运行时间
+	FileCount  int64           `json:"file_count"`  // 文件总数
+	ErrorCount int64           `json:"error_count"` // 错误数
+	CreatedAt  time.Time       `json:"created_at"`  // 创建时间
+	UpdatedAt  time.Time       `json:"updated_at"`  // 更新时间
 }
 
 // ScheduleConfig 调度配置.
 type ScheduleConfig struct {
-	Type     ScheduleType `json:"type"`                // 调度类型
-	Interval time.Duration `json:"interval,omitempty"` // 间隔时长
+	Type     ScheduleType  `json:"type"`                // 调度类型
+	Interval time.Duration `json:"interval,omitempty"`  // 间隔时长
 	CronExpr string        `json:"cron_expr,omitempty"` // Cron表达式
 }
 
 // VerifyResult 校验结果.
 type VerifyResult struct {
-	JobID       string    `json:"job_id"`       // 任务ID
-	TotalFiles  int64     `json:"total_files"`  // 总文件数
-	CheckedFiles int64    `json:"checked_files"` // 已检查文件数
-	PassedFiles int64     `json:"passed_files"`  // 通过文件数
-	FailedFiles int64     `json:"failed_files"`  // 失败文件数
-	SkipFiles   int64     `json:"skip_files"`    // 跳过文件数
-	StartTime   time.Time `json:"start_time"`   // 开始时间
-	EndTime     time.Time `json:"end_time"`     // 结束时间
-	Duration    time.Duration `json:"duration"` // 耗时
-	Errors      []FileError  `json:"errors"`    // 错误列表
+	JobID        string        `json:"job_id"`        // 任务ID
+	TotalFiles   int64         `json:"total_files"`   // 总文件数
+	CheckedFiles int64         `json:"checked_files"` // 已检查文件数
+	PassedFiles  int64         `json:"passed_files"`  // 通过文件数
+	FailedFiles  int64         `json:"failed_files"`  // 失败文件数
+	SkipFiles    int64         `json:"skip_files"`    // 跳过文件数
+	StartTime    time.Time     `json:"start_time"`    // 开始时间
+	EndTime      time.Time     `json:"end_time"`      // 结束时间
+	Duration     time.Duration `json:"duration"`      // 耗时
+	Errors       []FileError   `json:"errors"`        // 错误列表
 }
 
 // FileError 文件错误.
 type FileError struct {
-	Path      string `json:"path"`       // 文件路径
-	Error     string `json:"error"`      // 错误信息
-	Expected  string `json:"expected"`   // 期望校验和
-	Actual    string `json:"actual"`     // 实际校验和
+	Path     string `json:"path"`     // 文件路径
+	Error    string `json:"error"`    // 错误信息
+	Expected string `json:"expected"` // 期望校验和
+	Actual   string `json:"actual"`   // 实际校验和
 }
 
 // ChecksumEntry 校验和记录.

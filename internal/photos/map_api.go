@@ -88,7 +88,7 @@ func (g *GPSExtractor) getGPSAltitude(x *exif.Exif) (float64, error) {
 		return 0, err
 	}
 
-num, denom, err := tag.Rat2(0)
+	num, denom, err := tag.Rat2(0)
 	if err != nil {
 		return 0, err
 	}
@@ -175,13 +175,13 @@ func (g *GPSExtractor) ExtractCameraModel(filePath string) (*CameraInfo, error) 
 
 	// 提取光圈
 	if apertureTag, err := x.Get(exif.FNumber); err == nil {
-num, denom, _ := apertureTag.Rat2(0)
+		num, denom, _ := apertureTag.Rat2(0)
 		camera.Aperture = fmt.Sprintf("f/%.1f", float64(num)/float64(denom))
 	}
 
 	// 提取快门速度
 	if shutterTag, err := x.Get(exif.ExposureTime); err == nil {
-camera.ShutterSpeed = string(shutterTag.Val)
+		camera.ShutterSpeed = string(shutterTag.Val)
 	}
 
 	// 提取 ISO
@@ -191,7 +191,7 @@ camera.ShutterSpeed = string(shutterTag.Val)
 
 	// 提取焦距
 	if focalTag, err := x.Get(exif.FocalLength); err == nil {
-num, denom, _ := focalTag.Rat2(0)
+		num, denom, _ := focalTag.Rat2(0)
 		camera.FocalLength = fmt.Sprintf("%.0fmm", float64(num)/float64(denom))
 	}
 
@@ -220,17 +220,17 @@ type CameraInfo struct {
 
 // MapCluster 地图聚合簇
 type MapCluster struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	CenterLat   float64   `json:"centerLat"`
-	CenterLng   float64   `json:"centerLng"`
-	Radius      float64   `json:"radius"` // 米
-	PhotoCount  int       `json:"photoCount"`
-	PhotoIDs    []string  `json:"photoIds"`
-	Bounds      GeoBounds `json:"bounds"`
-	DateRange   *DateRange `json:"dateRange,omitempty"`
-	PlaceName   string    `json:"placeName,omitempty"`
-	Thumbnails  []string  `json:"thumbnails,omitempty"`
+	ID         string     `json:"id"`
+	Name       string     `json:"name"`
+	CenterLat  float64    `json:"centerLat"`
+	CenterLng  float64    `json:"centerLng"`
+	Radius     float64    `json:"radius"` // 米
+	PhotoCount int        `json:"photoCount"`
+	PhotoIDs   []string   `json:"photoIds"`
+	Bounds     GeoBounds  `json:"bounds"`
+	DateRange  *DateRange `json:"dateRange,omitempty"`
+	PlaceName  string     `json:"placeName,omitempty"`
+	Thumbnails []string   `json:"thumbnails,omitempty"`
 }
 
 // GeoBounds 地理边界

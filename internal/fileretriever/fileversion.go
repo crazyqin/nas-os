@@ -8,17 +8,17 @@ import (
 
 // FileVersionManager 文件版本恢复管理器
 type FileVersionManager struct {
-	mu        sync.RWMutex
-	versions  map[string][]*FileVersion
-	recycles  map[string]*RecycleEntry
-	config    *VersionConfig
+	mu       sync.RWMutex
+	versions map[string][]*FileVersion
+	recycles map[string]*RecycleEntry
+	config   *VersionConfig
 }
 
 type VersionConfig struct {
-	MaxVersions     int  `json:"max_versions"`
-	RetentionDays   int  `json:"retention_days"`
-	RecycleBinDays  int  `json:"recycle_bin_days"`
-	AutoCleanup     bool `json:"auto_cleanup"`
+	MaxVersions    int  `json:"max_versions"`
+	RetentionDays  int  `json:"retention_days"`
+	RecycleBinDays int  `json:"recycle_bin_days"`
+	AutoCleanup    bool `json:"auto_cleanup"`
 }
 
 type FileVersion struct {
@@ -34,23 +34,23 @@ type FileVersion struct {
 }
 
 type RecycleEntry struct {
-	ID          string    `json:"id"`
-	OriginalPath string   `json:"original_path"`
-	DeletedPath  string   `json:"deleted_path"`
-	Size        int64     `json:"size_bytes"`
-	DeletedBy   string    `json:"deleted_by"`
-	DeletedAt   time.Time `json:"deleted_at"`
-	ExpiresAt   time.Time `json:"expires_at"`
-	FileType    string    `json:"file_type"`
+	ID           string    `json:"id"`
+	OriginalPath string    `json:"original_path"`
+	DeletedPath  string    `json:"deleted_path"`
+	Size         int64     `json:"size_bytes"`
+	DeletedBy    string    `json:"deleted_by"`
+	DeletedAt    time.Time `json:"deleted_at"`
+	ExpiresAt    time.Time `json:"expires_at"`
+	FileType     string    `json:"file_type"`
 }
 
 type RetrievalStats struct {
-	TotalVersions   int   `json:"total_versions"`
-	TotalRecycle    int   `json:"total_recycle_entries"`
-	TotalSize       int64 `json:"total_size_bytes"`
-	RecycleSize     int64 `json:"recycle_size_bytes"`
-	OldestVersion   *time.Time `json:"oldest_version,omitempty"`
-	NewestVersion   *time.Time `json:"newest_version,omitempty"`
+	TotalVersions int        `json:"total_versions"`
+	TotalRecycle  int        `json:"total_recycle_entries"`
+	TotalSize     int64      `json:"total_size_bytes"`
+	RecycleSize   int64      `json:"recycle_size_bytes"`
+	OldestVersion *time.Time `json:"oldest_version,omitempty"`
+	NewestVersion *time.Time `json:"newest_version,omitempty"`
 }
 
 func NewFileVersionManager(config *VersionConfig) *FileVersionManager {

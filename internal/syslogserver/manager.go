@@ -20,15 +20,15 @@ import (
 
 // Manager 日志管理器.
 type Manager struct {
-	entries       []*SyslogEntry
-	forwardTargets map[string]*ForwardTarget
-	alertRules     map[string]*AlertRule
-	alertEvents    []*AlertEvent
+	entries         []*SyslogEntry
+	forwardTargets  map[string]*ForwardTarget
+	alertRules      map[string]*AlertRule
+	alertEvents     []*AlertEvent
 	archivePolicies map[string]*ArchivePolicy
-	wsClients      map[string]*WSClient
+	wsClients       map[string]*WSClient
 
 	// 统计计数器
-	statsMu        sync.RWMutex
+	statsMu         sync.RWMutex
 	statsBySeverity map[SyslogSeverity]int64
 	statsByFacility map[SyslogFacility]int64
 	statsByHost     map[string]int64

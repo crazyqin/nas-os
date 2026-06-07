@@ -9,7 +9,7 @@ import (
 func TestNewTrackerManager(t *testing.T) {
 	cfg := &CarbonTrackerManagerConfig{
 		MonitorInterval: 300,
-		Enabled:        true,
+		Enabled:         true,
 	}
 	logger, _ := zap.NewDevelopment()
 	mgr := NewTrackerManager(logger, cfg)

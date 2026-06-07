@@ -13,10 +13,10 @@ import (
 
 // 迁移类型
 const (
-	MigrationTypeReplace  = "replace"  // 替换：旧盘换新盘
-	MigrationTypeExpand   = "expand"   // 扩容：添加新盘扩展存储池
-	MigrationTypeMigrate  = "migrate"  // 迁移：跨存储池迁移
-	MigrationTypeShrink   = "shrink"   // 缩容：移除磁盘
+	MigrationTypeReplace = "replace" // 替换：旧盘换新盘
+	MigrationTypeExpand  = "expand"  // 扩容：添加新盘扩展存储池
+	MigrationTypeMigrate = "migrate" // 迁移：跨存储池迁移
+	MigrationTypeShrink  = "shrink"  // 缩容：移除磁盘
 )
 
 // 迁移状态
@@ -33,63 +33,63 @@ const (
 
 // RAID类型
 const (
-	RAIDTypeBasic   = "basic"   // Basic/单盘
-	RAIDTypeRAID0   = "raid0"   // RAID 0
-	RAIDTypeRAID1   = "raid1"   // RAID 1
-	RAIDTypeRAID5   = "raid5"   // RAID 5
-	RAIDTypeRAID6   = "raid6"   // RAID 6
-	RAIDTypeRAID10  = "raid10"  // RAID 10
-	RAIDTypeSHR     = "shr"     // Synology Hybrid RAID
-	RAIDTypeRAIDZ1  = "raidz1"  // RAIDZ1
-	RAIDTypeRAIDZ2  = "raidz2"  // RAIDZ2
-	RAIDTypeRAIDZ3  = "raidz3"  // RAIDZ3
+	RAIDTypeBasic  = "basic"  // Basic/单盘
+	RAIDTypeRAID0  = "raid0"  // RAID 0
+	RAIDTypeRAID1  = "raid1"  // RAID 1
+	RAIDTypeRAID5  = "raid5"  // RAID 5
+	RAIDTypeRAID6  = "raid6"  // RAID 6
+	RAIDTypeRAID10 = "raid10" // RAID 10
+	RAIDTypeSHR    = "shr"    // Synology Hybrid RAID
+	RAIDTypeRAIDZ1 = "raidz1" // RAIDZ1
+	RAIDTypeRAIDZ2 = "raidz2" // RAIDZ2
+	RAIDTypeRAIDZ3 = "raidz3" // RAIDZ3
 )
 
 var (
-	ErrDiskNotFound       = errors.New("磁盘未找到")
-	ErrPoolNotFound       = errors.New("存储池未找到")
-	ErrMigrationExists    = errors.New("迁移任务已存在")
-	ErrDiskInUse          = errors.New("磁盘正在使用中")
-	ErrInsufficientSpace  = errors.New("空间不足")
-	ErrInvalidRAIDType    = errors.New("不支持的RAID类型")
-	ErrMigrationRunning   = errors.New("迁移正在进行中")
+	ErrDiskNotFound      = errors.New("磁盘未找到")
+	ErrPoolNotFound      = errors.New("存储池未找到")
+	ErrMigrationExists   = errors.New("迁移任务已存在")
+	ErrDiskInUse         = errors.New("磁盘正在使用中")
+	ErrInsufficientSpace = errors.New("空间不足")
+	ErrInvalidRAIDType   = errors.New("不支持的RAID类型")
+	ErrMigrationRunning  = errors.New("迁移正在进行中")
 )
 
 // Disk 磁盘信息
 type Disk struct {
-	ID         string    `json:"id"`          // 磁盘ID
-	Device     string    `json:"device"`      // 设备路径（如/dev/sda）
-	Model      string    `json:"model"`       // 型号
-	Serial     string    `json:"serial"`      // 序列号
-	Size       int64     `json:"size"`        // 容量（字节）
-	UsedSize   int64     `json:"used_size"`   // 已使用容量
-	Health     string    `json:"health"`      // 健康状态
-	Temperature int      `json:"temperature"` // 温度
-	RPM        int       `json:"rpm"`         // 转速（SSD为0）
-	Interface  string    `json:"interface"`   // 接口（SATA/SAS/NVMe）
-	PoolID     string    `json:"pool_id"`     // 所属存储池
-	SlotIndex  int       `json:"slot_index"`  // 槽位
-	IsSpare     bool     `json:"is_spare"`    // 是否热备盘
-	IsSSD      bool      `json:"is_ssd"`      // 是否SSD
-	WearLevel  float64   `json:"wear_level"`  // 磨损程度（SSD）
-	CreatedAt  time.Time `json:"created_at"`
+	ID          string    `json:"id"`          // 磁盘ID
+	Device      string    `json:"device"`      // 设备路径（如/dev/sda）
+	Model       string    `json:"model"`       // 型号
+	Serial      string    `json:"serial"`      // 序列号
+	Size        int64     `json:"size"`        // 容量（字节）
+	UsedSize    int64     `json:"used_size"`   // 已使用容量
+	Health      string    `json:"health"`      // 健康状态
+	Temperature int       `json:"temperature"` // 温度
+	RPM         int       `json:"rpm"`         // 转速（SSD为0）
+	Interface   string    `json:"interface"`   // 接口（SATA/SAS/NVMe）
+	PoolID      string    `json:"pool_id"`     // 所属存储池
+	SlotIndex   int       `json:"slot_index"`  // 槽位
+	IsSpare     bool      `json:"is_spare"`    // 是否热备盘
+	IsSSD       bool      `json:"is_ssd"`      // 是否SSD
+	WearLevel   float64   `json:"wear_level"`  // 磨损程度（SSD）
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 // StoragePool 存储池
 type StoragePool struct {
-	ID           string   `json:"id"`            // 池ID
-	Name         string   `json:"name"`          // 池名称
-	RAIDType     string   `json:"raid_type"`     // RAID类型
-	TotalSize    int64    `json:"total_size"`    // 总容量
-	UsedSize     int64    `json:"used_size"`     // 已用容量
-	AvailSize    int64    `json:"avail_size"`    // 可用容量
-	Disks        []string `json:"disks"`         // 磁盘ID列表
-	Status       string   `json:"status"`        // 状态
-	Degraded     bool     `json:"degraded"`      // 是否降级
-	Rebuilding   bool     `json:"rebuilding"`    // 是否重建中
-	ScrubStatus  string   `json:"scrub_status"`  // Scrub状态
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ID          string    `json:"id"`           // 池ID
+	Name        string    `json:"name"`         // 池名称
+	RAIDType    string    `json:"raid_type"`    // RAID类型
+	TotalSize   int64     `json:"total_size"`   // 总容量
+	UsedSize    int64     `json:"used_size"`    // 已用容量
+	AvailSize   int64     `json:"avail_size"`   // 可用容量
+	Disks       []string  `json:"disks"`        // 磁盘ID列表
+	Status      string    `json:"status"`       // 状态
+	Degraded    bool      `json:"degraded"`     // 是否降级
+	Rebuilding  bool      `json:"rebuilding"`   // 是否重建中
+	ScrubStatus string    `json:"scrub_status"` // Scrub状态
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // MigrationTask 迁移任务
@@ -115,10 +115,10 @@ type MigrationTask struct {
 
 // MigrationManager 磁盘迁移管理器
 type MigrationManager struct {
-	mu         sync.RWMutex
-	disks      map[string]*Disk
-	pools      map[string]*StoragePool
-	tasks      map[string]*MigrationTask
+	mu          sync.RWMutex
+	disks       map[string]*Disk
+	pools       map[string]*StoragePool
+	tasks       map[string]*MigrationTask
 	taskCounter int64
 }
 
@@ -277,9 +277,9 @@ func (m *MigrationManager) ExportReport() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	report := map[string]interface{}{
-		"disks":      m.disks,
-		"pools":      m.pools,
-		"migrations": m.tasks,
+		"disks":       m.disks,
+		"pools":       m.pools,
+		"migrations":  m.tasks,
 		"exported_at": time.Now(),
 	}
 	return json.MarshalIndent(report, "", "  ")

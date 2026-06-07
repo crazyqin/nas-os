@@ -33,24 +33,24 @@ type UsageRecord struct {
 
 // UserPreferences 用户偏好
 type UserPreferences struct {
-	FavoriteCategories []string          `json:"favoriteCategories"`
-	FavoriteTags       []string          `json:"favoriteTags"`
-	BlockedApps        map[string]bool   `json:"blockedApps"`
-	InstalledCategories map[string]int   `json:"installedCategories"` // 分类 -> 安装数量
-	CustomWeights      map[string]float64 `json:"customWeights,omitempty"`
+	FavoriteCategories  []string           `json:"favoriteCategories"`
+	FavoriteTags        []string           `json:"favoriteTags"`
+	BlockedApps         map[string]bool    `json:"blockedApps"`
+	InstalledCategories map[string]int     `json:"installedCategories"` // 分类 -> 安装数量
+	CustomWeights       map[string]float64 `json:"customWeights,omitempty"`
 }
 
 // SystemInfo 系统信息（用于推荐上下文）
 type SystemInfo struct {
-	TotalMemoryMB  int64   `json:"totalMemoryMB"`
-	UsedMemoryMB   int64   `json:"usedMemoryMB"`
-	TotalDiskGB    int64   `json:"totalDiskGB"`
-	UsedDiskGB     int64   `json:"usedDiskGB"`
-	CPUCores       int     `json:"cpuCores"`
-	HasGPU         bool    `json:"hasGPU"`
-	HasDocker      bool    `json:"hasDocker"`
-	HasLXC         bool    `json:"hasLXC"`
-	NetworkType    string  `json:"networkType"` // "home", "office", "datacenter"
+	TotalMemoryMB int64  `json:"totalMemoryMB"`
+	UsedMemoryMB  int64  `json:"usedMemoryMB"`
+	TotalDiskGB   int64  `json:"totalDiskGB"`
+	UsedDiskGB    int64  `json:"usedDiskGB"`
+	CPUCores      int    `json:"cpuCores"`
+	HasGPU        bool   `json:"hasGPU"`
+	HasDocker     bool   `json:"hasDocker"`
+	HasLXC        bool   `json:"hasLXC"`
+	NetworkType   string `json:"networkType"` // "home", "office", "datacenter"
 }
 
 // Recommendation 推荐结果
@@ -74,8 +74,8 @@ func NewRecommender(catalog *Catalog, sysInfo *SystemInfo) *Recommender {
 			BlockedApps:         make(map[string]bool),
 			InstalledCategories: make(map[string]int),
 		},
-		sysInfo:   sysInfo,
-		catalog:   catalog,
+		sysInfo: sysInfo,
+		catalog: catalog,
 	}
 }
 
@@ -190,7 +190,7 @@ func (r *Recommender) calculateScore(app *CatalogEntry, installed map[string]boo
 	var score float64
 
 	// 1. 基础分数：评分和下载量
-	ratingScore := app.Rating / 5.0 * 30 // 最高30分
+	ratingScore := app.Rating / 5.0 * 30                             // 最高30分
 	downloadScore := math.Log10(float64(app.Downloads)+1) / 5.0 * 20 // 最高20分
 	score += ratingScore + downloadScore
 

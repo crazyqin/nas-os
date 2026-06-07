@@ -20,9 +20,9 @@ var (
 // Cluster 集群实例
 // 注：此类型用于 failover.go，提供兼容定义
 type Cluster struct {
-	leader   *Node
-	nodes    map[string]*Node
-	nodesMu  sync.RWMutex
+	leader  *Node
+	nodes   map[string]*Node
+	nodesMu sync.RWMutex
 }
 
 // GetLeader 获取 leader 节点

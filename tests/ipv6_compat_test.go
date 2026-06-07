@@ -174,43 +174,43 @@ func TestJoinHostPortMixedScenarios(t *testing.T) {
 // TestSplitHostPortIPv6 tests that net.SplitHostPort correctly parses IPv6
 func TestSplitHostPortIPv6(t *testing.T) {
 	tests := []struct {
-		name      string
-		address   string
+		name       string
+		address    string
 		expectHost string
 		expectPort string
 		expectErr  bool
 	}{
 		{
-			name:      "IPv6 with brackets",
-			address:   "[2001:db8::1]:8080",
+			name:       "IPv6 with brackets",
+			address:    "[2001:db8::1]:8080",
 			expectHost: "2001:db8::1",
 			expectPort: "8080",
 			expectErr:  false,
 		},
 		{
-			name:      "IPv6 localhost",
-			address:   "[::1]:3000",
+			name:       "IPv6 localhost",
+			address:    "[::1]:3000",
 			expectHost: "::1",
 			expectPort: "3000",
 			expectErr:  false,
 		},
 		{
-			name:      "IPv6 wildcard",
-			address:   "[::]:80",
+			name:       "IPv6 wildcard",
+			address:    "[::]:80",
 			expectHost: "::",
 			expectPort: "80",
 			expectErr:  false,
 		},
 		{
-			name:      "IPv6 with zone",
-			address:   "[fe80::1%eth0]:8080",
+			name:       "IPv6 with zone",
+			address:    "[fe80::1%eth0]:8080",
 			expectHost: "fe80::1%eth0",
 			expectPort: "8080",
 			expectErr:  false,
 		},
 		{
-			name:      "IPv4 standard",
-			address:   "192.168.1.1:8080",
+			name:       "IPv4 standard",
+			address:    "192.168.1.1:8080",
 			expectHost: "192.168.1.1",
 			expectPort: "8080",
 			expectErr:  false,
@@ -218,7 +218,7 @@ func TestSplitHostPortIPv6(t *testing.T) {
 		{
 			name:      "missing brackets for IPv6",
 			address:   "2001:db8::1:8080", // Invalid format
-			expectErr:  true,
+			expectErr: true,
 		},
 	}
 

@@ -132,11 +132,11 @@ type WakeSchedule struct {
 
 // PowerManager 电源管理器.
 type PowerManager struct {
-	config      *PowerConfig
-	disks       map[string]*DiskState
-	profile     *PowerProfile
-	schedules   map[string]*WakeSchedule
+	config       *PowerConfig
+	disks        map[string]*DiskState
+	profile      *PowerProfile
+	schedules    map[string]*WakeSchedule
 	thermalZones map[string]*ThermalZone
-	stats       *PowerStats
-	mu          sync.RWMutex
+	stats        *PowerStats
+	mu           sync.RWMutex
 }

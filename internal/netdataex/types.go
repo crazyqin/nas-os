@@ -52,25 +52,25 @@ type MetricPoint struct {
 
 // MetricSeries 指标序列
 type MetricSeries struct {
-	Name        string         `json:"name"`
-	Unit        string         `json:"unit"`
-	Type        MetricType     `json:"type"`
-	Points      []MetricPoint  `json:"points"`
-	Aggregation string         `json:"aggregation,omitempty"`
+	Name        string        `json:"name"`
+	Unit        string        `json:"unit"`
+	Type        MetricType    `json:"type"`
+	Points      []MetricPoint `json:"points"`
+	Aggregation string        `json:"aggregation,omitempty"`
 }
 
 // AlertRule 告警规则
 type AlertRule struct {
-	ID            string         `json:"id"`
-	Name          string         `json:"name"`
-	Metric        string         `json:"metric"`
-	Condition     AlertCondition `json:"condition"`
-	Threshold     float64        `json:"threshold"`
-	Duration      time.Duration  `json:"duration"`
-	Severity      AlertSeverity  `json:"severity"`
-	NotifyChannels []string      `json:"notify_channels,omitempty"`
-	Enabled       bool           `json:"enabled"`
-	LastFired     *time.Time     `json:"last_fired,omitempty"`
+	ID             string         `json:"id"`
+	Name           string         `json:"name"`
+	Metric         string         `json:"metric"`
+	Condition      AlertCondition `json:"condition"`
+	Threshold      float64        `json:"threshold"`
+	Duration       time.Duration  `json:"duration"`
+	Severity       AlertSeverity  `json:"severity"`
+	NotifyChannels []string       `json:"notify_channels,omitempty"`
+	Enabled        bool           `json:"enabled"`
+	LastFired      *time.Time     `json:"last_fired,omitempty"`
 }
 
 // AlertEvent 告警事件
@@ -126,23 +126,23 @@ type ComponentHealth struct {
 
 // HealthReport 健康报告
 type HealthReport struct {
-	Score          int              `json:"score"`
-	CPU            ComponentHealth  `json:"cpu"`
-	Memory         ComponentHealth  `json:"memory"`
-	Disk           ComponentHealth  `json:"disk"`
-	Network        ComponentHealth  `json:"network"`
-	Temperature    ComponentHealth  `json:"temperature"`
-	Power          ComponentHealth  `json:"power"`
-	Uptime         int64            `json:"uptime"`
+	Score           int             `json:"score"`
+	CPU             ComponentHealth `json:"cpu"`
+	Memory          ComponentHealth `json:"memory"`
+	Disk            ComponentHealth `json:"disk"`
+	Network         ComponentHealth `json:"network"`
+	Temperature     ComponentHealth `json:"temperature"`
+	Power           ComponentHealth `json:"power"`
+	Uptime          int64           `json:"uptime"`
 	Recommendations []string        `json:"recommendations,omitempty"`
 }
 
 // NetdataConfig Netdata 配置
 type NetdataConfig struct {
-	NetdataURL        string `json:"netdata_url"`
-	RetentionDays     int    `json:"retention_days"`
-	AlertWebhook      string `json:"alert_webhook,omitempty"`
-	DefaultDashboard  string `json:"default_dashboard,omitempty"`
-	SamplingInterval  int    `json:"sampling_interval"`
-	ExportEnabled     bool   `json:"export_enabled"`
+	NetdataURL       string `json:"netdata_url"`
+	RetentionDays    int    `json:"retention_days"`
+	AlertWebhook     string `json:"alert_webhook,omitempty"`
+	DefaultDashboard string `json:"default_dashboard,omitempty"`
+	SamplingInterval int    `json:"sampling_interval"`
+	ExportEnabled    bool   `json:"export_enabled"`
 }

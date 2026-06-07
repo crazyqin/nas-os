@@ -469,12 +469,12 @@ func (s *TaskScheduler) CompleteTask(requestID string) {
 
 // InferCache 推理缓存
 type InferCache struct {
-	mu          sync.RWMutex
-	results     map[string]interface{}
-	models      map[string]interface{}
+	mu           sync.RWMutex
+	results      map[string]interface{}
+	models       map[string]interface{}
 	asyncResults map[string]interface{}
-	maxSize     int
-	ttl         time.Duration
+	maxSize      int
+	ttl          time.Duration
 }
 
 // NewInferCache 创建推理缓存

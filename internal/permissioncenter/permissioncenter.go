@@ -568,12 +568,12 @@ func (pc *PermissionCenter) GetEffectivePermissions(userID string) (*UserPermiss
 	defer pc.mu.RUnlock()
 
 	summary := &UserPermissionSummary{
-		UserID:          userID,
-		Roles:           make([]*Role, 0),
-		DirectPermissions: make([]*Permission, 0),
+		UserID:               userID,
+		Roles:                make([]*Role, 0),
+		DirectPermissions:    make([]*Permission, 0),
 		DelegatedPermissions: make([]*DelegatedPermission, 0),
-		TempPermissions: make([]*TempGrant, 0),
-		AllPermissions:  make([]*Permission, 0),
+		TempPermissions:      make([]*TempGrant, 0),
+		AllPermissions:       make([]*Permission, 0),
 	}
 
 	permSet := make(map[string]bool)

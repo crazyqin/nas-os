@@ -10,9 +10,9 @@ import (
 
 // PasswordHistoryStore stores password history for users.
 type PasswordHistoryStore struct {
-	mu        sync.RWMutex
-	history   map[string][]passwordRecord // userID -> history
-	maxCount  int
+	mu       sync.RWMutex
+	history  map[string][]passwordRecord // userID -> history
+	maxCount int
 }
 
 type passwordRecord struct {

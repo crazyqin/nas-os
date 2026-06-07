@@ -18,10 +18,10 @@ import (
 type ConnectionState string
 
 const (
-	StateActive    ConnectionState = "active"
-	StateInactive  ConnectionState = "inactive"
-	StateDegraded  ConnectionState = "degraded"
-	StateFailed    ConnectionState = "failed"
+	StateActive     ConnectionState = "active"
+	StateInactive   ConnectionState = "inactive"
+	StateDegraded   ConnectionState = "degraded"
+	StateFailed     ConnectionState = "failed"
 	StateConnecting ConnectionState = "connecting"
 )
 
@@ -89,22 +89,22 @@ type RDMAConnection struct {
 
 // MultipathGroup 多路径组
 type MultipathGroup struct {
-	ID             string   `json:"id"`
-	ConnectionIDs  []string `json:"connectionIds"`
-	ActivePathIdx  int      `json:"activePathIdx"`
-	Policy         string   `json:"policy"` // round-robin, failover, weighted
-	TotalPaths     int      `json:"totalPaths"`
-	ActivePaths    int      `json:"activePaths"`
-	FailedPaths    int      `json:"failedPaths"`
+	ID             string     `json:"id"`
+	ConnectionIDs  []string   `json:"connectionIds"`
+	ActivePathIdx  int        `json:"activePathIdx"`
+	Policy         string     `json:"policy"` // round-robin, failover, weighted
+	TotalPaths     int        `json:"totalPaths"`
+	ActivePaths    int        `json:"activePaths"`
+	FailedPaths    int        `json:"failedPaths"`
 	LastFailoverAt *time.Time `json:"lastFailoverAt,omitempty"`
 }
 
 // RDMAStats RDMA性能统计
 type RDMAStats struct {
 	// IOPS统计
-	ReadIOPS   int64 `json:"readIops"`
-	WriteIOPS  int64 `json:"writeIops"`
-	TotalIOPS  int64 `json:"totalIops"`
+	ReadIOPS  int64 `json:"readIops"`
+	WriteIOPS int64 `json:"writeIops"`
+	TotalIOPS int64 `json:"totalIops"`
 
 	// 吞吐量统计
 	ReadThroughput  float64 `json:"readThroughput"`  // MB/s
@@ -112,16 +112,16 @@ type RDMAStats struct {
 	TotalThroughput float64 `json:"totalThroughput"` // MB/s
 
 	// 延迟统计
-	AvgLatency  float64 `json:"avgLatency"`  // μs
-	P50Latency  float64 `json:"p50Latency"`  // μs
-	P99Latency  float64 `json:"p99Latency"`  // μs
-	MaxLatency  float64 `json:"maxLatency"`  // μs
+	AvgLatency float64 `json:"avgLatency"` // μs
+	P50Latency float64 `json:"p50Latency"` // μs
+	P99Latency float64 `json:"p99Latency"` // μs
+	MaxLatency float64 `json:"maxLatency"` // μs
 
 	// 连接统计
-	ActiveConnections  int   `json:"activeConnections"`
-	TotalConnections   int   `json:"totalConnections"`
-	FailedConnections  int64 `json:"failedConnections"`
-	DegradedConnections int  `json:"degradedConnections"`
+	ActiveConnections   int   `json:"activeConnections"`
+	TotalConnections    int   `json:"totalConnections"`
+	FailedConnections   int64 `json:"failedConnections"`
+	DegradedConnections int   `json:"degradedConnections"`
 
 	// 传输统计
 	TotalBytesSent     int64 `json:"totalBytesSent"`
@@ -134,10 +134,10 @@ type RDMAStats struct {
 
 // RateLimitConfig 速率限制配置
 type RateLimitConfig struct {
-	Enabled       bool    `json:"enabled"`
-	MaxBandwidth  float64 `json:"maxBandwidth"`  // Mbps
-	MaxIOPS       int64   `json:"maxIops"`
-	BurstSize     int64   `json:"burstSize"`     // 字节
+	Enabled      bool    `json:"enabled"`
+	MaxBandwidth float64 `json:"maxBandwidth"` // Mbps
+	MaxIOPS      int64   `json:"maxIops"`
+	BurstSize    int64   `json:"burstSize"` // 字节
 }
 
 // CongestionConfig 拥塞控制配置
@@ -152,30 +152,30 @@ type CongestionConfig struct {
 
 // FailoverConfig 故障切换配置
 type FailoverConfig struct {
-	Enabled          bool          `json:"enabled"`
-	ProbeInterval    time.Duration `json:"probeInterval"`    // 探测间隔
-	FailoverTimeout  time.Duration `json:"failoverTimeout"`  // 故障切换超时
-	MaxRetries       int           `json:"maxRetries"`       // 最大重试次数
-	AutoRecover      bool          `json:"autoRecover"`      // 自动恢复
-	RecoverInterval  time.Duration `json:"recoverInterval"`  // 恢复探测间隔
+	Enabled         bool          `json:"enabled"`
+	ProbeInterval   time.Duration `json:"probeInterval"`   // 探测间隔
+	FailoverTimeout time.Duration `json:"failoverTimeout"` // 故障切换超时
+	MaxRetries      int           `json:"maxRetries"`      // 最大重试次数
+	AutoRecover     bool          `json:"autoRecover"`     // 自动恢复
+	RecoverInterval time.Duration `json:"recoverInterval"` // 恢复探测间隔
 }
 
 // RDMAConfig RDMA模块配置
 type RDMAConfig struct {
-	Enabled         bool              `json:"enabled"`
+	Enabled          bool             `json:"enabled"`
 	DefaultTransport TransportType    `json:"defaultTransport"`
-	FallbackToTCP   bool             `json:"fallbackToTcp"` // RDMA不可用时回退到TCP
-	MonitorInterval time.Duration    `json:"monitorInterval"`
-	DeviceFilter    []string         `json:"deviceFilter"` // 设备白名单，空表示全部
-	RateLimit       RateLimitConfig  `json:"rateLimit"`
-	Congestion      CongestionConfig `json:"congestion"`
-	Failover        FailoverConfig   `json:"failover"`
+	FallbackToTCP    bool             `json:"fallbackToTcp"` // RDMA不可用时回退到TCP
+	MonitorInterval  time.Duration    `json:"monitorInterval"`
+	DeviceFilter     []string         `json:"deviceFilter"` // 设备白名单，空表示全部
+	RateLimit        RateLimitConfig  `json:"rateLimit"`
+	Congestion       CongestionConfig `json:"congestion"`
+	Failover         FailoverConfig   `json:"failover"`
 
 	// 连接健康阈值
 	MaxLatencyMs     float64 `json:"maxLatencyMs"`     // 最大延迟阈值(ms)
-	MaxPacketLoss    float64 `json:"maxPacketLoss"`     // 最大丢包率(%)
-	MaxQueueDepth    int     `json:"maxQueueDepth"`     // 最大队列深度
-	HealthCheckCount int     `json:"healthCheckCount"`  // 健康检查失败次数触发降级
+	MaxPacketLoss    float64 `json:"maxPacketLoss"`    // 最大丢包率(%)
+	MaxQueueDepth    int     `json:"maxQueueDepth"`    // 最大队列深度
+	HealthCheckCount int     `json:"healthCheckCount"` // 健康检查失败次数触发降级
 }
 
 // DefaultConfig 返回默认配置
@@ -291,13 +291,13 @@ func (m *RDMAManager) GetStatus() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return map[string]interface{}{
-		"enabled":     m.config.Enabled,
-		"running":     m.running,
-		"transport":   m.config.DefaultTransport,
-		"deviceCount": len(m.devices),
-		"connCount":   len(m.conns),
+		"enabled":         m.config.Enabled,
+		"running":         m.running,
+		"transport":       m.config.DefaultTransport,
+		"deviceCount":     len(m.devices),
+		"connCount":       len(m.conns),
 		"multipathGroups": len(m.multipathGrps),
-		"fallbackToTcp": m.config.FallbackToTCP,
+		"fallbackToTcp":   m.config.FallbackToTCP,
 	}
 }
 

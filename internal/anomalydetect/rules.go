@@ -28,12 +28,12 @@ const (
 type ComparisonOp string
 
 const (
-	OpGT  ComparisonOp = ">"   // 大于
-	OpGTE ComparisonOp = ">="  // 大于等于
-	OpLT  ComparisonOp = "<"   // 小于
-	OpLTE ComparisonOp = "<="  // 小于等于
-	OpEQ  ComparisonOp = "=="  // 等于
-	OpNEQ ComparisonOp = "!="  // 不等于
+	OpGT  ComparisonOp = ">"  // 大于
+	OpGTE ComparisonOp = ">=" // 大于等于
+	OpLT  ComparisonOp = "<"  // 小于
+	OpLTE ComparisonOp = "<=" // 小于等于
+	OpEQ  ComparisonOp = "==" // 等于
+	OpNEQ ComparisonOp = "!=" // 不等于
 )
 
 // RuleCondition 单个规则条件
@@ -45,21 +45,21 @@ type RuleCondition struct {
 
 // Rule 自定义检测规则
 type Rule struct {
-	ID          string           `json:"id"`          // 规则 ID
-	Name        string           `json:"name"`        // 规则名称
-	Description string           `json:"description"` // 规则描述
-	Priority    RulePriority     `json:"priority"`    // 优先级
-	Conditions  []RuleCondition  `json:"conditions"`  // 条件列表
-	Logic       LogicalOp        `json:"logic"`       // 条件间逻辑
-	Enabled     bool             `json:"enabled"`     // 是否启用
-	Message     string           `json:"message"`     // 告警消息模板
+	ID          string          `json:"id"`          // 规则 ID
+	Name        string          `json:"name"`        // 规则名称
+	Description string          `json:"description"` // 规则描述
+	Priority    RulePriority    `json:"priority"`    // 优先级
+	Conditions  []RuleCondition `json:"conditions"`  // 条件列表
+	Logic       LogicalOp       `json:"logic"`       // 条件间逻辑
+	Enabled     bool            `json:"enabled"`     // 是否启用
+	Message     string          `json:"message"`     // 告警消息模板
 }
 
 // RuleMatchResult 规则匹配结果
 type RuleMatchResult struct {
-	Rule      *Rule    `json:"rule"`      // 匹配的规则
-	Triggered bool     `json:"triggered"` // 是否触发
-	Message   string   `json:"message"`   // 描述
+	Rule      *Rule  `json:"rule"`      // 匹配的规则
+	Triggered bool   `json:"triggered"` // 是否触发
+	Message   string `json:"message"`   // 描述
 }
 
 // RuleEngine 规则引擎

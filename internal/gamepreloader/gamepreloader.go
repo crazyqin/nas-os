@@ -20,15 +20,15 @@ import (
 type Platform string
 
 const (
-	PlatformPC       Platform = "pc"
-	PlatformMobile   Platform = "mobile"
-	PlatformConsole  Platform = "console"
-	PlatformSteam    Platform = "steam"
-	PlatformEpic     Platform = "epic"
-	PlatformWeGame   Platform = "wegame"
-	PlatformPS5      Platform = "ps5"
-	PlatformXbox     Platform = "xbox"
-	PlatformSwitch   Platform = "switch"
+	PlatformPC      Platform = "pc"
+	PlatformMobile  Platform = "mobile"
+	PlatformConsole Platform = "console"
+	PlatformSteam   Platform = "steam"
+	PlatformEpic    Platform = "epic"
+	PlatformWeGame  Platform = "wegame"
+	PlatformPS5     Platform = "ps5"
+	PlatformXbox    Platform = "xbox"
+	PlatformSwitch  Platform = "switch"
 )
 
 // GameStatus 游戏状态
@@ -46,10 +46,10 @@ const (
 type ScheduleMode string
 
 const (
-	ScheduleImmediate ScheduleMode = "immediate"  // 立即下载
-	ScheduleOffPeak   ScheduleMode = "off_peak"    // 低峰时段
-	ScheduleManual    ScheduleMode = "manual"      // 手动触发
-	ScheduleSmart     ScheduleMode = "smart"       // AI 智能调度
+	ScheduleImmediate ScheduleMode = "immediate" // 立即下载
+	ScheduleOffPeak   ScheduleMode = "off_peak"  // 低峰时段
+	ScheduleManual    ScheduleMode = "manual"    // 手动触发
+	ScheduleSmart     ScheduleMode = "smart"     // AI 智能调度
 )
 
 // DeviceType 设备类型
@@ -64,40 +64,40 @@ const (
 
 // Game 游戏信息
 type Game struct {
-	ID            string     `json:"id"`
-	Name          string     `json:"name"`
-	Platform      Platform   `json:"platform"`
-	Size          int64      `json:"size"`           // 字节
-	Version       string     `json:"version"`
-	Status        GameStatus `json:"status"`
-	PreloadPath   string     `json:"preloadPath"`    // NAS 存储路径
-	SourceURL     string     `json:"sourceUrl"`      // 下载源
-	LastSync      time.Time  `json:"lastSync"`
-	NextSync      time.Time  `json:"nextSync"`
-	Progress      float64    `json:"progress"`       // 0-100
-	Speed         int64      `json:"speed"`          // bytes/sec
-	ETag          string     `json:"etag"`           // 用于增量检测
-	IconURL       string     `json:"iconUrl"`
-	Tags          []string   `json:"tags"`
-	PlayCount     int        `json:"playCount"`
-	LastPlay      time.Time  `json:"lastPlay"`
-	Priority      int        `json:"priority"`       // 1-10, 越高越优先
-	CreatedAt     time.Time  `json:"createdAt"`
-	UpdatedAt     time.Time  `json:"updatedAt"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Platform    Platform   `json:"platform"`
+	Size        int64      `json:"size"` // 字节
+	Version     string     `json:"version"`
+	Status      GameStatus `json:"status"`
+	PreloadPath string     `json:"preloadPath"` // NAS 存储路径
+	SourceURL   string     `json:"sourceUrl"`   // 下载源
+	LastSync    time.Time  `json:"lastSync"`
+	NextSync    time.Time  `json:"nextSync"`
+	Progress    float64    `json:"progress"` // 0-100
+	Speed       int64      `json:"speed"`    // bytes/sec
+	ETag        string     `json:"etag"`     // 用于增量检测
+	IconURL     string     `json:"iconUrl"`
+	Tags        []string   `json:"tags"`
+	PlayCount   int        `json:"playCount"`
+	LastPlay    time.Time  `json:"lastPlay"`
+	Priority    int        `json:"priority"` // 1-10, 越高越优先
+	CreatedAt   time.Time  `json:"createdAt"`
+	UpdatedAt   time.Time  `json:"updatedAt"`
 }
 
 // Device 局域网设备
 type Device struct {
-	ID         string     `json:"id"`
-	Name       string     `json:"name"`
-	Type       DeviceType `json:"type"`
-	IP         string     `json:"ip"`
-	MAC        string     `json:"mac"`
-	Platform   Platform   `json:"platform"`
-	Online     bool       `json:"online"`
-	LastSeen   time.Time  `json:"lastSeen"`
-	Bandwidth  int64      `json:"bandwidth"`  // 可用带宽 bytes/sec
-	Games      []string   `json:"games"`      // 已安装的游戏 ID
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Type      DeviceType `json:"type"`
+	IP        string     `json:"ip"`
+	MAC       string     `json:"mac"`
+	Platform  Platform   `json:"platform"`
+	Online    bool       `json:"online"`
+	LastSeen  time.Time  `json:"lastSeen"`
+	Bandwidth int64      `json:"bandwidth"` // 可用带宽 bytes/sec
+	Games     []string   `json:"games"`     // 已安装的游戏 ID
 }
 
 // PreloadTask 预加载任务
@@ -128,23 +128,23 @@ type ScheduleConfig struct {
 
 // Manager 预加载管理器
 type Manager struct {
-	mu        sync.RWMutex
-	config    *Config
-	games     map[string]*Game
-	devices   map[string]*Device
-	tasks     []*PreloadTask
-	schedule  *ScheduleConfig
-	stopCh    chan struct{}
+	mu       sync.RWMutex
+	config   *Config
+	games    map[string]*Game
+	devices  map[string]*Device
+	tasks    []*PreloadTask
+	schedule *ScheduleConfig
+	stopCh   chan struct{}
 }
 
 // Config 管理器配置
 type Config struct {
-	Enabled        bool   `json:"enabled"`
-	StoragePath    string `json:"storagePath"`    // NAS 存储根路径
-	MaxStorage     int64  `json:"maxStorage"`     // 最大存储空间
-	ScheduleConfig *ScheduleConfig `json:"scheduleConfig"`
-	AutoDiscovery  bool   `json:"autoDiscovery"`  // 自动发现设备
-	UpdateCheckInterval time.Duration `json:"updateCheckInterval"` // 更新检查间隔
+	Enabled             bool            `json:"enabled"`
+	StoragePath         string          `json:"storagePath"` // NAS 存储根路径
+	MaxStorage          int64           `json:"maxStorage"`  // 最大存储空间
+	ScheduleConfig      *ScheduleConfig `json:"scheduleConfig"`
+	AutoDiscovery       bool            `json:"autoDiscovery"`       // 自动发现设备
+	UpdateCheckInterval time.Duration   `json:"updateCheckInterval"` // 更新检查间隔
 }
 
 // NewManager 创建管理器
@@ -325,11 +325,11 @@ func (m *Manager) GetStorageUsage() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"usedBytes":   totalUsed,
-		"maxBytes":    m.config.MaxStorage,
+		"usedBytes":    totalUsed,
+		"maxBytes":     m.config.MaxStorage,
 		"usagePercent": float64(totalUsed) / float64(m.config.MaxStorage) * 100,
-		"gameCount":   gameCount,
-		"totalGames":  len(m.games),
+		"gameCount":    gameCount,
+		"totalGames":   len(m.games),
 	}
 }
 
@@ -344,11 +344,11 @@ func (m *Manager) GetSmartRecommendations() []map[string]interface{} {
 	for _, g := range m.games {
 		if g.Status == StatusIdle && g.PlayCount > 5 {
 			recommendations = append(recommendations, map[string]interface{}{
-				"gameId":     g.ID,
-				"gameName":   g.Name,
-				"reason":     fmt.Sprintf("高频游戏（已玩 %d 次），建议预缓存", g.PlayCount),
-				"priority":   "high",
-				"sizeBytes":  g.Size,
+				"gameId":    g.ID,
+				"gameName":  g.Name,
+				"reason":    fmt.Sprintf("高频游戏（已玩 %d 次），建议预缓存", g.PlayCount),
+				"priority":  "high",
+				"sizeBytes": g.Size,
 			})
 		}
 	}
@@ -359,11 +359,11 @@ func (m *Manager) GetSmartRecommendations() []map[string]interface{} {
 			daysSincePlay := time.Since(g.LastPlay).Hours() / 24
 			if daysSincePlay < 7 {
 				recommendations = append(recommendations, map[string]interface{}{
-					"gameId":     g.ID,
-					"gameName":   g.Name,
-					"reason":     fmt.Sprintf("%.0f 天前玩过，可能近期还会玩", daysSincePlay),
-					"priority":   "medium",
-					"sizeBytes":  g.Size,
+					"gameId":    g.ID,
+					"gameName":  g.Name,
+					"reason":    fmt.Sprintf("%.0f 天前玩过，可能近期还会玩", daysSincePlay),
+					"priority":  "medium",
+					"sizeBytes": g.Size,
 				})
 			}
 		}

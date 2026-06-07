@@ -492,7 +492,7 @@ func (e *Engine) buildCacheKey(query *SearchQuery) string {
 func (e *Engine) highlightText(text, keyword string) string {
 	lower := strings.ToLower(text)
 	keywordLower := strings.ToLower(keyword)
-	
+
 	idx := strings.Index(lower, keywordLower)
 	if idx < 0 {
 		return text

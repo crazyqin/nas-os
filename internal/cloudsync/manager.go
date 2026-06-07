@@ -928,7 +928,7 @@ func (m *CloudSyncManager) GetStorageUsage(connID string) (*StorageUsage, error)
 
 	// 模拟数据
 	totalBytes := int64(1024 * 1024 * 1024 * 100) // 100GB
-	usedBytes := int64(1024 * 1024 * 1024 * 35)    // 35GB
+	usedBytes := int64(1024 * 1024 * 1024 * 35)   // 35GB
 
 	return &StorageUsage{
 		ConnectionID: connID,
@@ -967,17 +967,17 @@ func (m *CloudSyncManager) LoadMockData() {
 			UpdatedAt: time.Now().Add(-2 * time.Hour),
 		},
 		{
-			ID:          "conn-oss-002",
-			Name:        "阿里云 OSS 冷存储",
-			Backend:     BackendOSS,
-			Endpoint:    "oss-cn-hangzhou.aliyuncs.com",
-			Bucket:      "nas-cold-storage",
-			AccessKey:   "LTAI5tPcHoFxFjq2example",
-			SecretKey:   "aBcDeFgHiJkLmNoPqRsTuVwXyZexample",
-			BasePath:    "archive/",
-			UseSSL:      true,
-			CreatedAt:   time.Now().Add(-15 * 24 * time.Hour),
-			UpdatedAt:   time.Now().Add(-24 * time.Hour),
+			ID:        "conn-oss-002",
+			Name:      "阿里云 OSS 冷存储",
+			Backend:   BackendOSS,
+			Endpoint:  "oss-cn-hangzhou.aliyuncs.com",
+			Bucket:    "nas-cold-storage",
+			AccessKey: "LTAI5tPcHoFxFjq2example",
+			SecretKey: "aBcDeFgHiJkLmNoPqRsTuVwXyZexample",
+			BasePath:  "archive/",
+			UseSSL:    true,
+			CreatedAt: time.Now().Add(-15 * 24 * time.Hour),
+			UpdatedAt: time.Now().Add(-24 * time.Hour),
 		},
 		{
 			ID:        "conn-minio-003",
@@ -1049,7 +1049,7 @@ func (m *CloudSyncManager) LoadMockData() {
 				ExcludeHidden:     true,
 			},
 			Schedule: SyncSchedule{
-				Type:     ScheduleRealtime,
+				Type: ScheduleRealtime,
 			},
 			Transfer: TransferConfig{
 				ConcurrentTransfers: 2,

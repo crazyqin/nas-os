@@ -126,15 +126,15 @@ type ScanRule struct {
 
 // ScanTask 扫描任务.
 type ScanTask struct {
-	ID         string      `json:"id"`
-	Name       string      `json:"name"`
-	TargetPath string      `json:"target_path"`
-	RuleIDs    []string    `json:"rule_ids"`
-	Status     TaskStatus  `json:"status"`
-	Progress   float64     `json:"progress"`
-	StartTime  *time.Time  `json:"start_time,omitempty"`
-	EndTime    *time.Time  `json:"end_time,omitempty"`
-	CreatedAt  time.Time   `json:"created_at"`
+	ID         string     `json:"id"`
+	Name       string     `json:"name"`
+	TargetPath string     `json:"target_path"`
+	RuleIDs    []string   `json:"rule_ids"`
+	Status     TaskStatus `json:"status"`
+	Progress   float64    `json:"progress"`
+	StartTime  *time.Time `json:"start_time,omitempty"`
+	EndTime    *time.Time `json:"end_time,omitempty"`
+	CreatedAt  time.Time  `json:"created_at"`
 }
 
 // ScanResult 扫描结果.
@@ -151,19 +151,19 @@ type ScanResult struct {
 
 // Violation 违规记录.
 type Violation struct {
-	ID          string     `json:"id"`
-	ResultID    string     `json:"result_id"`
-	RuleID      string     `json:"rule_id"`
-	RuleName    string     `json:"rule_name"`
-	FilePath    string     `json:"file_path"`
-	LineNumber  int        `json:"line_number"`
-	MatchContent string    `json:"match_content"`
-	Severity    Severity   `json:"severity"`
-	Action      Action     `json:"action"`
-	Resolved    bool       `json:"resolved"`
-	ResolvedBy  string     `json:"resolved_by,omitempty"`
-	ResolvedAt  *time.Time `json:"resolved_at,omitempty"`
-	CreatedAt   time.Time  `json:"created_at"`
+	ID           string     `json:"id"`
+	ResultID     string     `json:"result_id"`
+	RuleID       string     `json:"rule_id"`
+	RuleName     string     `json:"rule_name"`
+	FilePath     string     `json:"file_path"`
+	LineNumber   int        `json:"line_number"`
+	MatchContent string     `json:"match_content"`
+	Severity     Severity   `json:"severity"`
+	Action       Action     `json:"action"`
+	Resolved     bool       `json:"resolved"`
+	ResolvedBy   string     `json:"resolved_by,omitempty"`
+	ResolvedAt   *time.Time `json:"resolved_at,omitempty"`
+	CreatedAt    time.Time  `json:"created_at"`
 }
 
 // RuleSummary 规则摘要.
@@ -176,13 +176,13 @@ type RuleSummary struct {
 
 // ComplianceReport 合规报告.
 type ComplianceReport struct {
-	GeneratedAt         time.Time         `json:"generated_at"`
-	TotalScans          int               `json:"total_scans"`
-	ViolationsBySeverity map[string]int   `json:"violations_by_severity"`
-	ViolationsByCategory map[string]int   `json:"violations_by_category"`
-	TopViolatedRules    []RuleSummary     `json:"top_violated_rules"`
-	RiskScore           float64           `json:"risk_score"`
-	Recommendations     []string          `json:"recommendations"`
+	GeneratedAt          time.Time      `json:"generated_at"`
+	TotalScans           int            `json:"total_scans"`
+	ViolationsBySeverity map[string]int `json:"violations_by_severity"`
+	ViolationsByCategory map[string]int `json:"violations_by_category"`
+	TopViolatedRules     []RuleSummary  `json:"top_violated_rules"`
+	RiskScore            float64        `json:"risk_score"`
+	Recommendations      []string       `json:"recommendations"`
 }
 
 // ScanSchedule 扫描调度.
@@ -197,9 +197,9 @@ type ScanSchedule struct {
 
 // DataClassification 数据分类.
 type DataClassification struct {
-	FilePath         string             `json:"file_path"`
-	Categories       []string           `json:"categories"`
-	SensitivityLevel SensitivityLevel   `json:"sensitivity_level"`
-	LastScanned      time.Time          `json:"last_scanned"`
-	ViolationCount   int                `json:"violation_count"`
+	FilePath         string           `json:"file_path"`
+	Categories       []string         `json:"categories"`
+	SensitivityLevel SensitivityLevel `json:"sensitivity_level"`
+	LastScanned      time.Time        `json:"last_scanned"`
+	ViolationCount   int              `json:"violation_count"`
 }

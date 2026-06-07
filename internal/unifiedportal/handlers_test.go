@@ -98,10 +98,10 @@ func TestAddWidget(t *testing.T) {
 	}, "user1")
 
 	reqBody := WidgetRequest{
-		Type:  WidgetSystemOverview,
-		Title: "系统概览",
-		Position: WidgetPosition{X: 0, Y: 0},
-		Size:     WidgetSize{Width: 6, Height: 4},
+		Type:       WidgetSystemOverview,
+		Title:      "系统概览",
+		Position:   WidgetPosition{X: 0, Y: 0},
+		Size:       WidgetSize{Width: 6, Height: 4},
 		RefreshSec: 30,
 	}
 	body, _ := json.Marshal(reqBody)
@@ -242,8 +242,8 @@ func TestWidgetCollision(t *testing.T) {
 
 	// 尝试添加位置冲突的Widget
 	reqBody := WidgetRequest{
-		Type:  WidgetStorageUsage,
-		Title: "Widget2",
+		Type:     WidgetStorageUsage,
+		Title:    "Widget2",
 		Position: WidgetPosition{X: 3, Y: 2},
 		Size:     WidgetSize{Width: 6, Height: 4},
 	}
@@ -335,10 +335,10 @@ func TestSearchDashboards(t *testing.T) {
 
 	// 创建测试仪表盘
 	pm.CreateDashboard(&DashboardRequest{
-		Name: "生产环境监控",
+		Name:        "生产环境监控",
 		Description: "生产环境系统监控",
-		Layout: LayoutGrid,
-		Tags: []string{"prod"},
+		Layout:      LayoutGrid,
+		Tags:        []string{"prod"},
 	}, "user1")
 
 	// 按关键词搜索
@@ -387,16 +387,16 @@ func TestDuplicateDashboard(t *testing.T) {
 
 	// 创建原始仪表盘
 	original, _ := pm.CreateDashboard(&DashboardRequest{
-		Name: "原始仪表盘",
+		Name:        "原始仪表盘",
 		Description: "用于测试复制",
-		Layout: LayoutGrid,
-		Tags: []string{"test"},
+		Layout:      LayoutGrid,
+		Tags:        []string{"test"},
 	}, "user1")
 
 	// 添加Widget
 	pm.AddWidget(original.ID, &WidgetRequest{
-		Type:  WidgetSystemOverview,
-		Title: "系统概览",
+		Type:     WidgetSystemOverview,
+		Title:    "系统概览",
 		Position: WidgetPosition{X: 0, Y: 0},
 		Size:     WidgetSize{Width: 6, Height: 4},
 	})
@@ -430,13 +430,13 @@ func TestToggleWidgetVisibility(t *testing.T) {
 
 	// 创建仪表盘和Widget
 	dashboard, _ := pm.CreateDashboard(&DashboardRequest{
-		Name: "可见性测试",
+		Name:   "可见性测试",
 		Layout: LayoutGrid,
 	}, "user1")
 
 	widget, _ := pm.AddWidget(dashboard.ID, &WidgetRequest{
-		Type:  WidgetSystemOverview,
-		Title: "隐藏测试",
+		Type:     WidgetSystemOverview,
+		Title:    "隐藏测试",
 		Position: WidgetPosition{X: 0, Y: 0},
 		Size:     WidgetSize{Width: 6, Height: 4},
 	})

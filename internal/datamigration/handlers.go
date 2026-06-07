@@ -107,12 +107,12 @@ func (h *Handler) GetProgress(c *gin.Context) {
 	}
 
 	progressData := gin.H{
-		"status":         migration.Status,
-		"progress":       migration.Progress,
-		"started_at":     migration.StartedAt,
-		"completed_at":   migration.CompletedAt,
-		"error":          migration.Error,
-		"elapsed":        0,
+		"status":       migration.Status,
+		"progress":     migration.Progress,
+		"started_at":   migration.StartedAt,
+		"completed_at": migration.CompletedAt,
+		"error":        migration.Error,
+		"elapsed":      0,
 	}
 	if migration.StartedAt != nil {
 		end := time.Now()

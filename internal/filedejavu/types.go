@@ -22,39 +22,39 @@ const (
 	KeepNewest  KeepStrategy = "newest"  // 保留最新修改时间
 	KeepOldest  KeepStrategy = "oldest"  // 保留最旧修改时间
 	KeepLargest KeepStrategy = "largest" // 保留最大文件
-	KeepFirst   KeepStrategy = "first"  // 保留路径字典序第一个
+	KeepFirst   KeepStrategy = "first"   // 保留路径字典序第一个
 )
 
 // DedupAction 去重动作类型
 type DedupAction string
 
 const (
-	ActionDelete      DedupAction = "delete"       // 直接删除
-	ActionRecycle     DedupAction = "recycle"       // 移到回收站
-	ActionSymlink     DedupAction = "symlink"       // 替换为符号链接
-	ActionHardlink    DedupAction = "hardlink"      // 替换为硬链接
-	ActionReport      DedupAction = "report"        // 仅报告，不操作
+	ActionDelete   DedupAction = "delete"   // 直接删除
+	ActionRecycle  DedupAction = "recycle"  // 移到回收站
+	ActionSymlink  DedupAction = "symlink"  // 替换为符号链接
+	ActionHardlink DedupAction = "hardlink" // 替换为硬链接
+	ActionReport   DedupAction = "report"   // 仅报告，不操作
 )
 
 // FileFingerprint 文件指纹
 type FileFingerprint struct {
-	Path         string    `json:"path"`         // 文件路径
-	Size         int64     `json:"size"`         // 文件大小（字节）
-	ModTime      time.Time `json:"modTime"`      // 修改时间
-	SHA256       string    `json:"sha256"`        // SHA-256 哈希
-	PerceptHash  string    `json:"perceptHash"`  // 感知哈希（pHash）
-	IsImage      bool      `json:"isImage"`      // 是否为图片文件
+	Path        string    `json:"path"`        // 文件路径
+	Size        int64     `json:"size"`        // 文件大小（字节）
+	ModTime     time.Time `json:"modTime"`     // 修改时间
+	SHA256      string    `json:"sha256"`      // SHA-256 哈希
+	PerceptHash string    `json:"perceptHash"` // 感知哈希（pHash）
+	IsImage     bool      `json:"isImage"`     // 是否为图片文件
 }
 
 // DuplicateGroup 重复文件组
 type DuplicateGroup struct {
-	ID        string            `json:"id"`        // 组 ID
-	Type      DuplicateType     `json:"type"`      // 重复类型
-	Hash      string            `json:"hash"`      // 内容哈希（exact 模式）
-	SimScore  float64           `json:"simScore"`  // 相似度分数（similar 模式，0-1）
+	ID        string             `json:"id"`        // 组 ID
+	Type      DuplicateType      `json:"type"`      // 重复类型
+	Hash      string             `json:"hash"`      // 内容哈希（exact 模式）
+	SimScore  float64            `json:"simScore"`  // 相似度分数（similar 模式，0-1）
 	Files     []*FileFingerprint `json:"files"`     // 重复文件列表
-	Savings   int64             `json:"savings"`   // 可节省空间（字节）
-	Recommend *FileFingerprint  `json:"recommend"` // 推荐保留的文件
+	Savings   int64              `json:"savings"`   // 可节省空间（字节）
+	Recommend *FileFingerprint   `json:"recommend"` // 推荐保留的文件
 }
 
 // ScanConfig 扫描配置
@@ -89,15 +89,15 @@ func DefaultScanConfig() *ScanConfig {
 type ScanResult struct {
 	mu sync.RWMutex
 
-	TotalFiles     int64             `json:"totalFiles"`     // 扫描文件总数
-	TotalSize      int64             `json:"totalSize"`      // 扫描文件总大小
-	Groups         []*DuplicateGroup `json:"groups"`         // 重复组列表
-	DuplicateCount int64             `json:"duplicateCount"` // 重复文件数
-	SavingsTotal   int64             `json:"savingsTotal"`   // 总可节省空间
-	StartTime      time.Time         `json:"startTime"`      // 扫描开始时间
-	EndTime        time.Time         `json:"endTime"`        // 扫描结束时间
-	Duration       time.Duration     `json:"duration"`       // 扫描耗时
-	Status         string            `json:"status"`         // 状态: running/completed/cancelled/error
+	TotalFiles     int64             `json:"totalFiles"`      // 扫描文件总数
+	TotalSize      int64             `json:"totalSize"`       // 扫描文件总大小
+	Groups         []*DuplicateGroup `json:"groups"`          // 重复组列表
+	DuplicateCount int64             `json:"duplicateCount"`  // 重复文件数
+	SavingsTotal   int64             `json:"savingsTotal"`    // 总可节省空间
+	StartTime      time.Time         `json:"startTime"`       // 扫描开始时间
+	EndTime        time.Time         `json:"endTime"`         // 扫描结束时间
+	Duration       time.Duration     `json:"duration"`        // 扫描耗时
+	Status         string            `json:"status"`          // 状态: running/completed/cancelled/error
 	Error          string            `json:"error,omitempty"` // 错误信息
 }
 
@@ -129,11 +129,11 @@ type BatchDedupRequest struct {
 
 // BatchDedupResult 批量去重结果
 type BatchDedupResult struct {
-	ProcessedGroups int      `json:"processedGroups"` // 处理的组数
-	DeletedFiles    int      `json:"deletedFiles"`    // 删除的文件数
-	SymlinkFiles    int      `json:"symlinkFiles"`    // 替换为符号链接的文件数
-	HardlinkFiles   int      `json:"hardlinkFiles"`   // 替换为硬链接的文件数
-	SavedBytes      int64    `json:"savedBytes"`      // 节省的空间
+	ProcessedGroups int      `json:"processedGroups"`  // 处理的组数
+	DeletedFiles    int      `json:"deletedFiles"`     // 删除的文件数
+	SymlinkFiles    int      `json:"symlinkFiles"`     // 替换为符号链接的文件数
+	HardlinkFiles   int      `json:"hardlinkFiles"`    // 替换为硬链接的文件数
+	SavedBytes      int64    `json:"savedBytes"`       // 节省的空间
 	Errors          []string `json:"errors,omitempty"` // 错误列表
 }
 

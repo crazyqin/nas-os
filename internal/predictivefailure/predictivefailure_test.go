@@ -38,13 +38,13 @@ func TestNewManager(t *testing.T) {
 
 func TestManagerStartStop(t *testing.T) {
 	cfg := &Config{
-		Enabled:             true,
-		ScanIntervalMinutes: 60,
-		AlertThreshold:      60,
-		TemperatureWarnThreshold:    50,
+		Enabled:                      true,
+		ScanIntervalMinutes:          60,
+		AlertThreshold:               60,
+		TemperatureWarnThreshold:     50,
 		TemperatureCriticalThreshold: 60,
-		CPUPercentWarnThreshold:     80,
-		MemoryPercentWarnThreshold:  85,
+		CPUPercentWarnThreshold:      80,
+		MemoryPercentWarnThreshold:   85,
 	}
 	m := NewManager(cfg)
 
@@ -78,9 +78,9 @@ func TestManagerStartStop(t *testing.T) {
 
 func TestScanDisk(t *testing.T) {
 	cfg := &Config{
-		Enabled:                  true,
-		ScanIntervalMinutes:      60,
-		TemperatureWarnThreshold: 50,
+		Enabled:                      true,
+		ScanIntervalMinutes:          60,
+		TemperatureWarnThreshold:     50,
 		TemperatureCriticalThreshold: 60,
 	}
 	m := NewManager(cfg)
@@ -125,8 +125,8 @@ func TestScanDisk(t *testing.T) {
 
 func TestScanMemory(t *testing.T) {
 	cfg := &Config{
-		Enabled:                  true,
-		ScanIntervalMinutes:      60,
+		Enabled:                    true,
+		ScanIntervalMinutes:        60,
 		MemoryPercentWarnThreshold: 85,
 	}
 	m := NewManager(cfg)
@@ -196,13 +196,13 @@ func TestScanCPU(t *testing.T) {
 
 func TestPredictFailure(t *testing.T) {
 	cfg := &Config{
-		Enabled:                     true,
-		ScanIntervalMinutes:         60,
-		AlertThreshold:              60,
-		TemperatureWarnThreshold:    50,
+		Enabled:                      true,
+		ScanIntervalMinutes:          60,
+		AlertThreshold:               60,
+		TemperatureWarnThreshold:     50,
 		TemperatureCriticalThreshold: 60,
-		CPUPercentWarnThreshold:     80,
-		MemoryPercentWarnThreshold:  85,
+		CPUPercentWarnThreshold:      80,
+		MemoryPercentWarnThreshold:   85,
 	}
 	m := NewManager(cfg)
 
@@ -277,13 +277,13 @@ func TestPredictFailure(t *testing.T) {
 
 func TestGetDashboard(t *testing.T) {
 	cfg := &Config{
-		Enabled:                     true,
-		ScanIntervalMinutes:         60,
-		AlertThreshold:              60,
-		TemperatureWarnThreshold:    50,
+		Enabled:                      true,
+		ScanIntervalMinutes:          60,
+		AlertThreshold:               60,
+		TemperatureWarnThreshold:     50,
 		TemperatureCriticalThreshold: 60,
-		CPUPercentWarnThreshold:     80,
-		MemoryPercentWarnThreshold:  85,
+		CPUPercentWarnThreshold:      80,
+		MemoryPercentWarnThreshold:   85,
 	}
 	m := NewManager(cfg)
 
@@ -331,13 +331,13 @@ func TestGetDashboard(t *testing.T) {
 
 func TestListPredictions(t *testing.T) {
 	cfg := &Config{
-		Enabled:                     true,
-		ScanIntervalMinutes:         60,
-		AlertThreshold:              60,
-		TemperatureWarnThreshold:    50,
+		Enabled:                      true,
+		ScanIntervalMinutes:          60,
+		AlertThreshold:               60,
+		TemperatureWarnThreshold:     50,
 		TemperatureCriticalThreshold: 60,
-		CPUPercentWarnThreshold:     80,
-		MemoryPercentWarnThreshold:  85,
+		CPUPercentWarnThreshold:      80,
+		MemoryPercentWarnThreshold:   85,
 	}
 	m := NewManager(cfg)
 
@@ -376,12 +376,12 @@ func TestListPredictions(t *testing.T) {
 
 func TestGetMaintenanceSuggestions(t *testing.T) {
 	cfg := &Config{
-		Enabled:                  true,
-		ScanIntervalMinutes:      60,
-		TemperatureWarnThreshold: 50,
+		Enabled:                      true,
+		ScanIntervalMinutes:          60,
+		TemperatureWarnThreshold:     50,
 		TemperatureCriticalThreshold: 60,
-		CPUPercentWarnThreshold:  80,
-		MemoryPercentWarnThreshold: 85,
+		CPUPercentWarnThreshold:      80,
+		MemoryPercentWarnThreshold:   85,
 	}
 	m := NewManager(cfg)
 
@@ -414,13 +414,13 @@ func TestGetMaintenanceSuggestions(t *testing.T) {
 
 func TestRunFullScan(t *testing.T) {
 	cfg := &Config{
-		Enabled:                     true,
-		ScanIntervalMinutes:         60,
-		AlertThreshold:              30,
-		TemperatureWarnThreshold:    35,
+		Enabled:                      true,
+		ScanIntervalMinutes:          60,
+		AlertThreshold:               30,
+		TemperatureWarnThreshold:     35,
 		TemperatureCriticalThreshold: 45,
-		CPUPercentWarnThreshold:     80,
-		MemoryPercentWarnThreshold:  85,
+		CPUPercentWarnThreshold:      80,
+		MemoryPercentWarnThreshold:   85,
 	}
 	m := NewManager(cfg)
 

@@ -7,18 +7,18 @@ import (
 
 func TestAnalyzerIngestAndStats(t *testing.T) {
 	analyzer := NewAnalyzer(nil)
-	
+
 	now := time.Now()
 	flows := []FlowRecord{
 		{Timestamp: now, SrcIP: "192.168.1.1", DstIP: "10.0.0.1", Protocol: "tcp", BytesIn: 1000, BytesOut: 500, Application: "web"},
 		{Timestamp: now.Add(time.Second), SrcIP: "192.168.1.2", DstIP: "10.0.0.1", Protocol: "tcp", BytesIn: 2000, BytesOut: 1000, Application: "ssh"},
 		{Timestamp: now.Add(2 * time.Second), SrcIP: "192.168.1.1", DstIP: "10.0.0.2", Protocol: "udp", BytesIn: 500, BytesOut: 200, Application: "dns"},
 	}
-	
+
 	for _, f := range flows {
 		analyzer.IngestFlow(f)
 	}
-	
+
 	stats := analyzer.GetStats()
 	if stats.TotalBytesIn != 3500 {
 		t.Errorf("TotalBytesIn = %d, want 3500", stats.TotalBytesIn)
@@ -31,11 +31,11 @@ func TestAnalyzerIngestAndStats(t *testing.T) {
 func TestProtocolDistribution(t *testing.T) {
 	analyzer := NewAnalyzer(nil)
 	now := time.Now()
-	
+
 	analyzer.IngestFlow(FlowRecord{Timestamp: now, Protocol: "tcp", BytesIn: 1000, BytesOut: 500})
 	analyzer.IngestFlow(FlowRecord{Timestamp: now, Protocol: "tcp", BytesIn: 2000, BytesOut: 1000})
 	analyzer.IngestFlow(FlowRecord{Timestamp: now, Protocol: "udp", BytesIn: 500, BytesOut: 200})
-	
+
 	stats := analyzer.GetStats()
 	if stats.ProtocolDist["tcp"] != 4500 {
 		t.Errorf("tcp total = %d, want 4500", stats.ProtocolDist["tcp"])
@@ -52,7 +52,7 @@ func TestAnomalyDetection(t *testing.T) {
 		SpikeThreshold: 2.0,
 		MaxFlows:       1000,
 	})
-	
+
 	// 测试 DDoS 检测
 	analyzer.IngestFlow(FlowRecord{
 		Timestamp: time.Now(),
@@ -61,7 +61,7 @@ func TestAnomalyDetection(t *testing.T) {
 		PacketsIn: 200,
 		BytesIn:   1000,
 	})
-	
+
 	anomalies := analyzer.GetAnomalies()
 	found := false
 	for _, a := range anomalies {
@@ -82,14 +82,14 @@ func TestExfiltrationDetection(t *testing.T) {
 		SpikeThreshold: 3.0,
 		MaxFlows:       1000,
 	})
-	
+
 	analyzer.IngestFlow(FlowRecord{
 		Timestamp: time.Now(),
 		SrcIP:     "10.0.0.1",
 		DstIP:     "192.168.1.100",
 		BytesOut:  1000,
 	})
-	
+
 	anomalies := analyzer.GetAnomalies()
 	found := false
 	for _, a := range anomalies {
@@ -106,11 +106,11 @@ func TestExfiltrationDetection(t *testing.T) {
 func TestTopApps(t *testing.T) {
 	analyzer := NewAnalyzer(nil)
 	now := time.Now()
-	
+
 	analyzer.IngestFlow(FlowRecord{Timestamp: now, Application: "web", BytesIn: 5000, BytesOut: 1000})
 	analyzer.IngestFlow(FlowRecord{Timestamp: now, Application: "ssh", BytesIn: 1000, BytesOut: 500})
 	analyzer.IngestFlow(FlowRecord{Timestamp: now, Application: "web", BytesIn: 3000, BytesOut: 800})
-	
+
 	stats := analyzer.GetStats()
 	if len(stats.TopApps) < 2 {
 		t.Fatalf("expected at least 2 apps, got %d", len(stats.TopApps))
@@ -130,7 +130,7 @@ func TestMaxFlowsLimit(t *testing.T) {
 	config := DefaultAnalyzerConfig()
 	config.MaxFlows = 5
 	analyzer := NewAnalyzer(config)
-	
+
 	now := time.Now()
 	for i := 0; i < 10; i++ {
 		analyzer.IngestFlow(FlowRecord{
@@ -138,7 +138,7 @@ func TestMaxFlowsLimit(t *testing.T) {
 			BytesIn:   100,
 		})
 	}
-	
+
 	stats := analyzer.GetStats()
 	// 应该只保留最后 5 条
 	if stats.TotalBytesIn != 500 {

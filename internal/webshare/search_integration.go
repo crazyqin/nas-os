@@ -150,21 +150,21 @@ func (wsi *WebShareSearchIntegration) RefreshIndex() {
 
 // UnifiedSearchRequest 统一搜索请求
 type UnifiedSearchRequest struct {
-	Query       string    `json:"query"`       // 搜索关键词
-	Paths       []string  `json:"paths"`       // 搜索路径限制
-	Extensions  []string  `json:"extensions"`  // 文件扩展名过滤
-	FileType    string    `json:"fileType"`    // 文件类型 (image, video, audio, document, code, archive)
-	MinSize     int64     `json:"minSize"`     // 最小文件大小
-	MaxSize     int64     `json:"maxSize"`     // 最大文件大小
-	FromDate    *time.Time `json:"fromDate"`   // 修改时间起始
-	ToDate      *time.Time `json:"toDate"`     // 修改时间结束
-	Content     bool      `json:"content"`     // 是否搜索内容
-	MaxResults  int       `json:"maxResults"`  // 最大结果数
-	Fuzzy       bool      `json:"fuzzy"`       // 模糊搜索
-	Highlight   bool      `json:"highlight"`   // 高亮匹配
-	ExactMatch  bool      `json:"exactMatch"`  // 精确匹配
-	CaseSense   bool      `json:"caseSense"`   // 大小写敏感
-	WithContext bool      `json:"withContext"` // 返回上下文
+	Query       string     `json:"query"`       // 搜索关键词
+	Paths       []string   `json:"paths"`       // 搜索路径限制
+	Extensions  []string   `json:"extensions"`  // 文件扩展名过滤
+	FileType    string     `json:"fileType"`    // 文件类型 (image, video, audio, document, code, archive)
+	MinSize     int64      `json:"minSize"`     // 最小文件大小
+	MaxSize     int64      `json:"maxSize"`     // 最大文件大小
+	FromDate    *time.Time `json:"fromDate"`    // 修改时间起始
+	ToDate      *time.Time `json:"toDate"`      // 修改时间结束
+	Content     bool       `json:"content"`     // 是否搜索内容
+	MaxResults  int        `json:"maxResults"`  // 最大结果数
+	Fuzzy       bool       `json:"fuzzy"`       // 模糊搜索
+	Highlight   bool       `json:"highlight"`   // 高亮匹配
+	ExactMatch  bool       `json:"exactMatch"`  // 精确匹配
+	CaseSense   bool       `json:"caseSense"`   // 大小写敏感
+	WithContext bool       `json:"withContext"` // 返回上下文
 }
 
 // UnifiedSearchResult 统一搜索结果
@@ -187,24 +187,24 @@ type UnifiedSearchResult struct {
 
 // UnifiedSearchResponse 统一搜索响应
 type UnifiedSearchResponse struct {
-	Query       string              `json:"query"`
-	Took        time.Duration       `json:"took"`
-	Total       int                 `json:"total"`
+	Query       string                `json:"query"`
+	Took        time.Duration         `json:"took"`
+	Total       int                   `json:"total"`
 	Results     []UnifiedSearchResult `json:"results"`
-	Truncated   bool                `json:"truncated"`
-	Suggestions []string            `json:"suggestions"`
-	Facets      map[string]int      `json:"facets"`
-	Stats       SearchStats         `json:"stats"`
+	Truncated   bool                  `json:"truncated"`
+	Suggestions []string              `json:"suggestions"`
+	Facets      map[string]int        `json:"facets"`
+	Stats       SearchStats           `json:"stats"`
 }
 
 // SearchStats 搜索统计
 type SearchStats struct {
-	FilesScanned   int     `json:"filesScanned"`
-	BytesScanned   int64   `json:"bytesScanned"`
-	IndexHitRatio  float64 `json:"indexHitRatio"`
-	AverageScore   float64 `json:"averageScore"`
-	ContentSearch  bool    `json:"contentSearch"`
-	NameSearch     bool    `json:"nameSearch"`
+	FilesScanned  int     `json:"filesScanned"`
+	BytesScanned  int64   `json:"bytesScanned"`
+	IndexHitRatio float64 `json:"indexHitRatio"`
+	AverageScore  float64 `json:"averageScore"`
+	ContentSearch bool    `json:"contentSearch"`
+	NameSearch    bool    `json:"nameSearch"`
 }
 
 // Search 执行统一搜索
@@ -213,9 +213,9 @@ func (wsi *WebShareSearchIntegration) Search(ctx context.Context, req UnifiedSea
 	startTime := time.Now()
 
 	response := &UnifiedSearchResponse{
-		Query:     req.Query,
-		Facets:    make(map[string]int),
-		Results:   make([]UnifiedSearchResult, 0),
+		Query:       req.Query,
+		Facets:      make(map[string]int),
+		Results:     make([]UnifiedSearchResult, 0),
 		Suggestions: make([]string, 0),
 	}
 

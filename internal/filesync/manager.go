@@ -13,19 +13,19 @@ import (
 
 // Manager 文件同步管理器
 type Manager struct {
-	mu            sync.RWMutex
-	engine        *SyncEngine
-	devices       map[string]*Device
-	folders       map[string]*SyncFolder
-	tasks         map[string]*SyncTask
-	conflicts     map[string]*SyncConflict
-	history       []FileHistory
-	transfers     map[string]*TransferInfo
-	bandwidth     map[string]*BandwidthLimit
-	rules         map[string]*SelectiveSyncRule
-	startedAt     time.Time
-	totalFiles    int
-	totalSize     int64
+	mu         sync.RWMutex
+	engine     *SyncEngine
+	devices    map[string]*Device
+	folders    map[string]*SyncFolder
+	tasks      map[string]*SyncTask
+	conflicts  map[string]*SyncConflict
+	history    []FileHistory
+	transfers  map[string]*TransferInfo
+	bandwidth  map[string]*BandwidthLimit
+	rules      map[string]*SelectiveSyncRule
+	startedAt  time.Time
+	totalFiles int
+	totalSize  int64
 }
 
 // NewManager 创建文件同步管理器
@@ -103,10 +103,10 @@ func (m *Manager) initSampleData() {
 		LocalPath: "/data/sync", RemotePath: "/sync",
 		Direction: DirectionBoth, Enabled: true,
 		ConflictPolicy: ConflictNewerWins,
-		FileCount: 42, TotalSize: 1024 * 1024 * 500,
+		FileCount:      42, TotalSize: 1024 * 1024 * 500,
 		LastSyncAt: &now, SyncedCount: 40,
-		DeviceIDs:  []string{"dev-local"},
-		CreatedAt:  now, UpdatedAt: now,
+		DeviceIDs: []string{"dev-local"},
+		CreatedAt: now, UpdatedAt: now,
 	}
 	m.folders[folder.ID] = folder
 	m.totalFiles = folder.FileCount
@@ -680,13 +680,13 @@ func (m *Manager) GetSyncStats() *SyncStats {
 	defer m.mu.RUnlock()
 
 	stats := &SyncStats{
-		TotalFolders: len(m.folders),
-		TotalDevices: len(m.devices),
-		TotalFiles:   m.totalFiles,
-		TotalSize:    m.totalSize,
+		TotalFolders:  len(m.folders),
+		TotalDevices:  len(m.devices),
+		TotalFiles:    m.totalFiles,
+		TotalSize:     m.totalSize,
 		TotalVersions: len(m.history),
-		EngineStatus: m.engine.Status,
-		Uptime:       int64(time.Since(m.startedAt).Seconds()),
+		EngineStatus:  m.engine.Status,
+		Uptime:        int64(time.Since(m.startedAt).Seconds()),
 	}
 
 	// 统计任务

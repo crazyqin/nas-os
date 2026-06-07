@@ -23,14 +23,14 @@ type Config = EnergyConfig
 
 // EnergyConfig represents energy manager configuration
 type EnergyConfig struct {
-	Enabled             bool    `json:"enabled"`
-	MonitoringInterval  int     `json:"monitoring_interval"`
-	ElectricityRate     float64 `json:"electricity_rate"`
-	Currency            string  `json:"currency"`
-	AlertThreshold      float64 `json:"alert_threshold"`
-	AlertThresholdW     float64 `json:"alert_threshold_w"`
-	CarbonFactor        float64 `json:"carbon_factor"`
-	AutoPowerSave       bool    `json:"auto_power_save"`
+	Enabled            bool    `json:"enabled"`
+	MonitoringInterval int     `json:"monitoring_interval"`
+	ElectricityRate    float64 `json:"electricity_rate"`
+	Currency           string  `json:"currency"`
+	AlertThreshold     float64 `json:"alert_threshold"`
+	AlertThresholdW    float64 `json:"alert_threshold_w"`
+	CarbonFactor       float64 `json:"carbon_factor"`
+	AutoPowerSave      bool    `json:"auto_power_save"`
 }
 
 // NewManager creates a new energy manager
@@ -263,7 +263,7 @@ func (m *Manager) GetStats() *EnergyStats {
 
 	stats := &EnergyStats{
 		CostPerKWh: m.config.ElectricityRate,
-		PowerState:  m.powerState,
+		PowerState: m.powerState,
 	}
 	if m.powerState == "" {
 		stats.PowerState = PowerNormal

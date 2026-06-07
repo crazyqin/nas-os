@@ -37,9 +37,9 @@ const (
 type ViewMode string
 
 const (
-	ViewBoard   ViewMode = "board"
-	ViewList    ViewMode = "list"
-	ViewGantt   ViewMode = "gantt"
+	ViewBoard    ViewMode = "board"
+	ViewList     ViewMode = "list"
+	ViewGantt    ViewMode = "gantt"
 	ViewCalendar ViewMode = "calendar"
 )
 
@@ -120,17 +120,17 @@ type Label struct {
 
 // Sprint 迭代。
 type Sprint struct {
-	ID          string    `json:"id"`
-	ProjectID   string    `json:"project_id"`
-	Name        string    `json:"name"`
-	Goal        string    `json:"goal,omitempty"`
-	StartDate   time.Time `json:"start_date"`
-	EndDate     time.Time `json:"end_date"`
-	Status      string    `json:"status"` // planned, active, completed
-	CardIDs     []string  `json:"card_ids,omitempty"`
-	Velocity    int       `json:"velocity"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID        string    `json:"id"`
+	ProjectID string    `json:"project_id"`
+	Name      string    `json:"name"`
+	Goal      string    `json:"goal,omitempty"`
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
+	Status    string    `json:"status"` // planned, active, completed
+	CardIDs   []string  `json:"card_ids,omitempty"`
+	Velocity  int       `json:"velocity"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // Milestone 里程碑。
@@ -169,19 +169,19 @@ type Transition struct {
 
 // AutomationRule 自动化规则。
 type AutomationRule struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Trigger   string    `json:"trigger"`   // card_moved, card_created, card_completed, etc.
-	Condition string    `json:"condition"` // 条件表达式
-	Actions   []string  `json:"actions"`   // 动作列表
-	Enabled   bool      `json:"enabled"`
+	ID        string   `json:"id"`
+	Name      string   `json:"name"`
+	Trigger   string   `json:"trigger"`   // card_moved, card_created, card_completed, etc.
+	Condition string   `json:"condition"` // 条件表达式
+	Actions   []string `json:"actions"`   // 动作列表
+	Enabled   bool     `json:"enabled"`
 }
 
 // TaskDependency 任务依赖。
 type TaskDependency struct {
-	FromID   string `json:"from_id"`
-	ToID     string `json:"to_id"`
-	Type     string `json:"type"` // finish_to_start, start_to_start, finish_to_finish, start_to_finish
+	FromID string `json:"from_id"`
+	ToID   string `json:"to_id"`
+	Type   string `json:"type"` // finish_to_start, start_to_start, finish_to_finish, start_to_finish
 }
 
 // TimeEntry 时间记录。
@@ -197,30 +197,30 @@ type TimeEntry struct {
 
 // ProjectStats 项目统计。
 type ProjectStats struct {
-	TotalCards    int            `json:"total_cards"`
-	ByStatus      map[string]int `json:"by_status"`
-	ByPriority    map[string]int `json:"by_priority"`
-	TotalPoints   int            `json:"total_points"`
-	CompletedPoints int          `json:"completed_points"`
-	TotalHours    float64        `json:"total_hours"`
-	SpentHours    float64        `json:"spent_hours"`
-	OverdueCards  int            `json:"overdue_cards"`
+	TotalCards      int            `json:"total_cards"`
+	ByStatus        map[string]int `json:"by_status"`
+	ByPriority      map[string]int `json:"by_priority"`
+	TotalPoints     int            `json:"total_points"`
+	CompletedPoints int            `json:"completed_points"`
+	TotalHours      float64        `json:"total_hours"`
+	SpentHours      float64        `json:"spent_hours"`
+	OverdueCards    int            `json:"overdue_cards"`
 }
 
 // BurndownPoint 燃尽图数据点。
 type BurndownPoint struct {
-	Date       time.Time `json:"date"`
-	Remaining  int       `json:"remaining"`
-	Ideal      int       `json:"ideal"`
-	Completed  int       `json:"completed"`
+	Date      time.Time `json:"date"`
+	Remaining int       `json:"remaining"`
+	Ideal     int       `json:"ideal"`
+	Completed int       `json:"completed"`
 }
 
 // VelocityData 速度数据。
 type VelocityData struct {
-	SprintID      string `json:"sprint_id"`
-	SprintName    string `json:"sprint_name"`
-	Committed     int    `json:"committed"`
-	Completed     int    `json:"completed"`
+	SprintID       string  `json:"sprint_id"`
+	SprintName     string  `json:"sprint_name"`
+	Committed      int     `json:"committed"`
+	Completed      int     `json:"completed"`
 	CompletionRate float64 `json:"completion_rate"`
 }
 

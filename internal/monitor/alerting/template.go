@@ -17,13 +17,13 @@ import (
 type TemplateType string
 
 const (
-	TemplateTypeEmail     TemplateType = "email"
-	TemplateTypeWebhook   TemplateType = "webhook"
-	TemplateTypeTelegram  TemplateType = "telegram"
-	TemplateTypeDingTalk   TemplateType = "dingtalk"
-	TemplateTypeWeChat    TemplateType = "wechat"
-	TemplateTypeSMS       TemplateType = "sms"
-	TemplateTypeSlack     TemplateType = "slack"
+	TemplateTypeEmail    TemplateType = "email"
+	TemplateTypeWebhook  TemplateType = "webhook"
+	TemplateTypeTelegram TemplateType = "telegram"
+	TemplateTypeDingTalk TemplateType = "dingtalk"
+	TemplateTypeWeChat   TemplateType = "wechat"
+	TemplateTypeSMS      TemplateType = "sms"
+	TemplateTypeSlack    TemplateType = "slack"
 )
 
 // AlertLevel 告警级别
@@ -38,7 +38,7 @@ const (
 
 // AlertVars 告警变量，用于模板渲染
 type AlertVars struct {
-	AlertID      string                 `json:"alertId"`
+	AlertID     string                 `json:"alertId"`
 	AlertName   string                 `json:"alertName"`
 	HostName    string                 `json:"hostName"`
 	HostIP      string                 `json:"hostIP"`
@@ -62,9 +62,9 @@ type AlertTemplate struct {
 	Description string       `json:"description"`
 	Type        TemplateType `json:"type"`
 	Level       AlertLevel   `json:"level"`
-	Subject     string       `json:"subject"`     // 邮件/消息标题模板
-	Body        string       `json:"body"`        // 正文模板
-	IsHTML      bool         `json:"isHTML"`      // 是否为HTML格式
+	Subject     string       `json:"subject"` // 邮件/消息标题模板
+	Body        string       `json:"body"`    // 正文模板
+	IsHTML      bool         `json:"isHTML"`  // 是否为HTML格式
 	Enabled     bool         `json:"enabled"`
 	CreatedAt   time.Time    `json:"createdAt"`
 	UpdatedAt   time.Time    `json:"updatedAt"`
@@ -570,15 +570,15 @@ type MonitorAlert interface {
 // RenderAlertVarsFromMonitor 从监控Alert转换为渲染变量
 func RenderAlertVarsFromMonitor(alert MonitorAlert, hostName, hostIP string, extra map[string]interface{}) *AlertVars {
 	vars := &AlertVars{
-		AlertID:    alert.GetID(),
-		AlertName:  alert.GetType(),
-		HostName:   hostName,
-		HostIP:     hostIP,
-		Level:      AlertLevel(alert.GetLevel()),
-		Message:    alert.GetMessage(),
-		Source:     alert.GetSource(),
-		Timestamp:  alert.GetTimestamp(),
-		Tags:       make(map[string]string),
+		AlertID:   alert.GetID(),
+		AlertName: alert.GetType(),
+		HostName:  hostName,
+		HostIP:    hostIP,
+		Level:     AlertLevel(alert.GetLevel()),
+		Message:   alert.GetMessage(),
+		Source:    alert.GetSource(),
+		Timestamp: alert.GetTimestamp(),
+		Tags:      make(map[string]string),
 		Extra:     extra,
 	}
 

@@ -225,8 +225,8 @@ func (h *Handler) handleReplicate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var req struct {
-		CID        string `json:"cid"`
-		MinCopies  int    `json:"minCopies"`
+		CID       string `json:"cid"`
+		MinCopies int    `json:"minCopies"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "invalid JSON: "+err.Error(), http.StatusBadRequest)
@@ -242,9 +242,9 @@ func (h *Handler) handleReplicate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"cid":           req.CID,
-		"replicaNodes":  nodes,
-		"replicaCount":  len(nodes),
+		"cid":          req.CID,
+		"replicaNodes": nodes,
+		"replicaCount": len(nodes),
 	})
 }
 
@@ -461,5 +461,3 @@ func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
 }
-
-

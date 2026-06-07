@@ -155,10 +155,10 @@ func TestSessionManager_TreeConnections(t *testing.T) {
 
 	// Add tree connection
 	tc := TreeConnState{
-		ID:         "tc-1",
-		ShareName:  "documents",
-		SharePath:  "/srv/documents",
-		AccessMask: 0x1F01FF,
+		ID:          "tc-1",
+		ShareName:   "documents",
+		SharePath:   "/srv/documents",
+		AccessMask:  0x1F01FF,
 		ConnectedAt: time.Now(),
 	}
 
@@ -312,8 +312,8 @@ func TestSessionManager_SerializeDeserialize(t *testing.T) {
 
 	session, _ := manager.GetSession("session-1")
 	session.AuthContext = &AuthContext{
-		AuthType: "NTLM",
-		UserSID:  "S-1-5-21-1234567890-1234567890-1234567890-1001",
+		AuthType:   "NTLM",
+		UserSID:    "S-1-5-21-1234567890-1234567890-1234567890-1001",
 		ExpiryTime: time.Now().Add(8 * time.Hour),
 	}
 

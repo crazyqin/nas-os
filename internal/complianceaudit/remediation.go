@@ -10,15 +10,15 @@ import (
 
 // Remediator 自动修复建议器
 type Remediator struct {
-	logger   *zap.Logger
+	logger     *zap.Logger
 	strategies map[CheckCategory]*RemediationStrategy
 }
 
 // RemediationStrategy 修复策略
 type RemediationStrategy struct {
-	Category    CheckCategory       `json:"category"`
-	AutoFixable bool                `json:"auto_fixable"`
-	Steps       []RemediationStep   `json:"steps"`
+	Category    CheckCategory     `json:"category"`
+	AutoFixable bool              `json:"auto_fixable"`
+	Steps       []RemediationStep `json:"steps"`
 }
 
 // RemediationStep 修复步骤

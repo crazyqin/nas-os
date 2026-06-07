@@ -10,9 +10,9 @@ import (
 type NodeStatus string
 
 const (
-	NodeOnline     NodeStatus = "online"
-	NodeOffline    NodeStatus = "offline"
-	NodeDegraded   NodeStatus = "degraded"
+	NodeOnline      NodeStatus = "online"
+	NodeOffline     NodeStatus = "offline"
+	NodeDegraded    NodeStatus = "degraded"
 	NodeMaintenance NodeStatus = "maintenance"
 )
 
@@ -45,58 +45,58 @@ type NASNode struct {
 
 // Alert 告警
 type Alert struct {
-	ID        string    `json:"id"`
-	NodeID    string    `json:"node_id"`
-	Severity  Severity  `json:"severity"`
-	Title     string    `json:"title"`
-	Message   string    `json:"message"`
-	Source    string    `json:"source"`
-	Acked     bool      `json:"acked"`
-	AckedBy   string    `json:"acked_by,omitempty"`
-	Resolved  bool      `json:"resolved"`
-	CreatedAt time.Time `json:"created_at"`
+	ID         string     `json:"id"`
+	NodeID     string     `json:"node_id"`
+	Severity   Severity   `json:"severity"`
+	Title      string     `json:"title"`
+	Message    string     `json:"message"`
+	Source     string     `json:"source"`
+	Acked      bool       `json:"acked"`
+	AckedBy    string     `json:"acked_by,omitempty"`
+	Resolved   bool       `json:"resolved"`
+	CreatedAt  time.Time  `json:"created_at"`
 	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
 }
 
 // HealthCheck 健康检查
 type HealthCheck struct {
-	NodeID    string            `json:"node_id"`
-	Checks    []CheckResult     `json:"checks"`
-	Score     float64           `json:"score"`
-	CheckedAt time.Time         `json:"checked_at"`
+	NodeID    string        `json:"node_id"`
+	Checks    []CheckResult `json:"checks"`
+	Score     float64       `json:"score"`
+	CheckedAt time.Time     `json:"checked_at"`
 }
 
 // CheckResult 单项检查结果
 type CheckResult struct {
-	Name    string  `json:"name"`
-	Status  string  `json:"status"`
-	Value   float64 `json:"value"`
+	Name      string  `json:"name"`
+	Status    string  `json:"status"`
+	Value     float64 `json:"value"`
 	Threshold float64 `json:"threshold"`
-	Message string  `json:"message"`
+	Message   string  `json:"message"`
 }
 
 // Dashboard 运维仪表盘
 type Dashboard struct {
-	TotalNodes    int            `json:"total_nodes"`
-	OnlineNodes   int            `json:"online_nodes"`
-	OfflineNodes  int            `json:"offline_nodes"`
-	TotalAlerts   int            `json:"total_alerts"`
-	CriticalAlerts int           `json:"critical_alerts"`
-	AvgCPU        float64        `json:"avg_cpu"`
-	AvgMemory     float64        `json:"avg_memory"`
-	TotalStorageTB float64       `json:"total_storage_tb"`
-	UsedStorageTB  float64       `json:"used_storage_tb"`
-	Nodes         []*NASNode     `json:"nodes"`
-	RecentAlerts  []*Alert       `json:"recent_alerts"`
+	TotalNodes     int        `json:"total_nodes"`
+	OnlineNodes    int        `json:"online_nodes"`
+	OfflineNodes   int        `json:"offline_nodes"`
+	TotalAlerts    int        `json:"total_alerts"`
+	CriticalAlerts int        `json:"critical_alerts"`
+	AvgCPU         float64    `json:"avg_cpu"`
+	AvgMemory      float64    `json:"avg_memory"`
+	TotalStorageTB float64    `json:"total_storage_tb"`
+	UsedStorageTB  float64    `json:"used_storage_tb"`
+	Nodes          []*NASNode `json:"nodes"`
+	RecentAlerts   []*Alert   `json:"recent_alerts"`
 }
 
 // Config 运维中心配置
 type Config struct {
-	Enabled          bool          `json:"enabled"`
-	HeartbeatSec     int           `json:"heartbeat_sec"`
-	AlertRetention   time.Duration `json:"alert_retention"`
-	MaxNodes         int           `json:"max_nodes"`
-	AutoHeal         bool          `json:"auto_heal"`
+	Enabled        bool          `json:"enabled"`
+	HeartbeatSec   int           `json:"heartbeat_sec"`
+	AlertRetention time.Duration `json:"alert_retention"`
+	MaxNodes       int           `json:"max_nodes"`
+	AutoHeal       bool          `json:"auto_heal"`
 }
 
 // DefaultConfig 默认配置

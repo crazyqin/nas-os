@@ -20,11 +20,11 @@ const (
 type BreachStatus string
 
 const (
-	BreachStatusDetected    BreachStatus = "detected"    // 已检测
-	BreachStatusContained   BreachStatus = "contained"   // 已遏制
+	BreachStatusDetected      BreachStatus = "detected"      // 已检测
+	BreachStatusContained     BreachStatus = "contained"     // 已遏制
 	BreachStatusInvestigating BreachStatus = "investigating" // 调查中
-	BreachStatusRemediating BreachStatus = "remediating" // 修复中
-	BreachStatusClosed      BreachStatus = "closed"      // 已关闭
+	BreachStatusRemediating   BreachStatus = "remediating"   // 修复中
+	BreachStatusClosed        BreachStatus = "closed"        // 已关闭
 )
 
 // BreachType 数据泄露类型.
@@ -42,21 +42,21 @@ const (
 
 // AffectedDataCategory 受影响数据类别.
 type AffectedDataCategory struct {
-	Category       CCPADataCategory `json:"category"`
-	Description    string           `json:"description"`
-	RecordCount    int              `json:"record_count"` // 受影响记录数
-	IsEncrypted    bool             `json:"is_encrypted"` // 数据是否加密
+	Category    CCPADataCategory `json:"category"`
+	Description string           `json:"description"`
+	RecordCount int              `json:"record_count"` // 受影响记录数
+	IsEncrypted bool             `json:"is_encrypted"` // 数据是否加密
 }
 
 // NotificationRecipient 通知接收方.
 type NotificationRecipient struct {
-	RecipientID   string    `json:"recipient_id"`
-	Name          string    `json:"name"`
-	Type          string    `json:"type"` // "authority", "individual", "partner"
-	Email         string    `json:"email"`
-	NotifiedAt    *time.Time `json:"notified_at,omitempty"`
-	NotifiedMethod string   `json:"notified_method,omitempty"` // "email", "letter", "phone", "portal"
-	Acknowledged  bool      `json:"acknowledged"`
+	RecipientID    string     `json:"recipient_id"`
+	Name           string     `json:"name"`
+	Type           string     `json:"type"` // "authority", "individual", "partner"
+	Email          string     `json:"email"`
+	NotifiedAt     *time.Time `json:"notified_at,omitempty"`
+	NotifiedMethod string     `json:"notified_method,omitempty"` // "email", "letter", "phone", "portal"
+	Acknowledged   bool       `json:"acknowledged"`
 }
 
 // BreachTimelineEvent 泄露事件时间线.
@@ -70,54 +70,54 @@ type BreachTimelineEvent struct {
 
 // BreachNotificationReport 数据泄露通知报告.
 type BreachNotificationReport struct {
-	ReportID           string                    `json:"report_id"`
-	BreachID           string                    `json:"breach_id"`
-	GeneratedAt        time.Time                 `json:"generated_at"`
-	Status             BreachStatus              `json:"status"`
-	Severity           BreachSeverity            `json:"severity"`
-	BreachType         BreachType                `json:"breach_type"`
-	Title              string                    `json:"title"`
-	Description        string                    `json:"description"`
-	DetectedAt         time.Time                 `json:"detected_at"`
-	OccurredAt         *time.Time                `json:"occurred_at,omitempty"` // 实际发生时间（如果已知）
-	ContainedAt        *time.Time                `json:"contained_at,omitempty"`
-	ClosedAt           *time.Time                `json:"closed_at,omitempty"`
+	ReportID    string         `json:"report_id"`
+	BreachID    string         `json:"breach_id"`
+	GeneratedAt time.Time      `json:"generated_at"`
+	Status      BreachStatus   `json:"status"`
+	Severity    BreachSeverity `json:"severity"`
+	BreachType  BreachType     `json:"breach_type"`
+	Title       string         `json:"title"`
+	Description string         `json:"description"`
+	DetectedAt  time.Time      `json:"detected_at"`
+	OccurredAt  *time.Time     `json:"occurred_at,omitempty"` // 实际发生时间（如果已知）
+	ContainedAt *time.Time     `json:"contained_at,omitempty"`
+	ClosedAt    *time.Time     `json:"closed_at,omitempty"`
 
 	// 影响范围
-	AffectedData       []AffectedDataCategory    `json:"affected_data"`
-	TotalRecordsAffected int                   `json:"total_records_affected"`
-	AffectedUserCount  int                       `json:"affected_user_count"`
-	AffectedRegions    []string                  `json:"affected_regions"`
+	AffectedData         []AffectedDataCategory `json:"affected_data"`
+	TotalRecordsAffected int                    `json:"total_records_affected"`
+	AffectedUserCount    int                    `json:"affected_user_count"`
+	AffectedRegions      []string               `json:"affected_regions"`
 
 	// 根因分析
-	RootCause          string                    `json:"root_cause"`
-	AttackVector       string                    `json:"attack_vector,omitempty"`
-	VulnerabilityRef   string                    `json:"vulnerability_ref,omitempty"` // CVE 等
+	RootCause        string `json:"root_cause"`
+	AttackVector     string `json:"attack_vector,omitempty"`
+	VulnerabilityRef string `json:"vulnerability_ref,omitempty"` // CVE 等
 
 	// 通知
-	Notifications      []NotificationRecipient   `json:"notifications"`
-	RegulatoryDeadline *time.Time                `json:"regulatory_deadline,omitempty"` // 法规通知截止
-	NotificationCompliant bool                  `json:"notification_compliant"` // 是否在期限内通知
+	Notifications         []NotificationRecipient `json:"notifications"`
+	RegulatoryDeadline    *time.Time              `json:"regulatory_deadline,omitempty"` // 法规通知截止
+	NotificationCompliant bool                    `json:"notification_compliant"`        // 是否在期限内通知
 
 	// 响应措施
-	Timeline           []BreachTimelineEvent     `json:"timeline"`
-	RemediationActions []string                  `json:"remediation_actions"`
-	PreventiveActions  []string                  `json:"preventive_actions"`
+	Timeline           []BreachTimelineEvent `json:"timeline"`
+	RemediationActions []string              `json:"remediation_actions"`
+	PreventiveActions  []string              `json:"preventive_actions"`
 
 	// 法规相关
-	ApplicableLaws     []string                  `json:"applicable_laws"` // GDPR, CCPA 等
-	AuthorityNotified  bool                      `json:"authority_notified"`
-	IndividualsNotified bool                     `json:"individuals_notified"`
+	ApplicableLaws      []string `json:"applicable_laws"` // GDPR, CCPA 等
+	AuthorityNotified   bool     `json:"authority_notified"`
+	IndividualsNotified bool     `json:"individuals_notified"`
 
-	Summary            BreachSummary             `json:"summary"`
+	Summary BreachSummary `json:"summary"`
 }
 
 // BreachSummary 泄露摘要.
 type BreachSummary struct {
-	TotalTimlineHours     float64  `json:"total_timeline_hours"` // 从发现到关闭的总小时数
-	ResponseTimeHours     float64  `json:"response_time_hours"`  // 从发现到遏制的小时数
+	TotalTimlineHours     float64  `json:"total_timeline_hours"`    // 从发现到关闭的总小时数
+	ResponseTimeHours     float64  `json:"response_time_hours"`     // 从发现到遏制的小时数
 	NotificationTimeHours float64  `json:"notification_time_hours"` // 从发现到通知的小时数
-	ComplianceRating      string   `json:"compliance_rating"`    // "excellent", "good", "needs_improvement", "poor"
+	ComplianceRating      string   `json:"compliance_rating"`       // "excellent", "good", "needs_improvement", "poor"
 	LessonsLearned        []string `json:"lessons_learned"`
 }
 
@@ -132,30 +132,30 @@ func NewBreachReportGenerator() *BreachReportGenerator {
 // GenerateBreachReport 生成数据泄露通知报告.
 func (g *BreachReportGenerator) GenerateBreachReport(config BreachReportConfig) *BreachNotificationReport {
 	report := &BreachNotificationReport{
-		ReportID:            GenerateID("breach"),
-		BreachID:            config.BreachID,
-		GeneratedAt:         time.Now(),
-		Status:              config.Status,
-		Severity:            config.Severity,
-		BreachType:          config.BreachType,
-		Title:               config.Title,
-		Description:         config.Description,
-		DetectedAt:          config.DetectedAt,
-		OccurredAt:          config.OccurredAt,
-		ContainedAt:         config.ContainedAt,
-		ClosedAt:            config.ClosedAt,
-		AffectedData:        config.AffectedData,
-		AffectedUserCount:   config.AffectedUserCount,
-		AffectedRegions:     config.AffectedRegions,
-		RootCause:           config.RootCause,
-		AttackVector:        config.AttackVector,
-		VulnerabilityRef:    config.VulnerabilityRef,
-		Notifications:       config.Notifications,
-		RegulatoryDeadline:  config.RegulatoryDeadline,
-		Timeline:            config.Timeline,
-		RemediationActions:  config.RemediationActions,
-		PreventiveActions:   config.PreventiveActions,
-		ApplicableLaws:      config.ApplicableLaws,
+		ReportID:           GenerateID("breach"),
+		BreachID:           config.BreachID,
+		GeneratedAt:        time.Now(),
+		Status:             config.Status,
+		Severity:           config.Severity,
+		BreachType:         config.BreachType,
+		Title:              config.Title,
+		Description:        config.Description,
+		DetectedAt:         config.DetectedAt,
+		OccurredAt:         config.OccurredAt,
+		ContainedAt:        config.ContainedAt,
+		ClosedAt:           config.ClosedAt,
+		AffectedData:       config.AffectedData,
+		AffectedUserCount:  config.AffectedUserCount,
+		AffectedRegions:    config.AffectedRegions,
+		RootCause:          config.RootCause,
+		AttackVector:       config.AttackVector,
+		VulnerabilityRef:   config.VulnerabilityRef,
+		Notifications:      config.Notifications,
+		RegulatoryDeadline: config.RegulatoryDeadline,
+		Timeline:           config.Timeline,
+		RemediationActions: config.RemediationActions,
+		PreventiveActions:  config.PreventiveActions,
+		ApplicableLaws:     config.ApplicableLaws,
 	}
 
 	// 计算受影响总记录数

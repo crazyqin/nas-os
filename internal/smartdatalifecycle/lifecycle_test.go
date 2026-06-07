@@ -229,9 +229,9 @@ func TestRetentionPolicy(t *testing.T) {
 	manager := NewManager(config, nil)
 
 	policy := &RetentionPolicy{
-		ID:              "test-policy-1",
-		Name:            "Test Policy",
-		RetentionDays:   365,
+		ID:               "test-policy-1",
+		Name:             "Test Policy",
+		RetentionDays:    365,
 		ExpirationAction: ActionArchive,
 	}
 

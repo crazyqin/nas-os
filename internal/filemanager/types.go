@@ -22,38 +22,38 @@ const (
 
 // FileNode 文件节点（树形结构）
 type FileNode struct {
-	Name         string     `json:"name"`
-	Path         string     `json:"path"`
-	Type         FileType   `json:"type"`
-	Size         int64      `json:"size"`
-	ModTime      time.Time  `json:"mod_time"`
-	CreateTime   time.Time  `json:"create_time,omitempty"`
-	AccessTime   time.Time  `json:"access_time,omitempty"`
-	Mode         string     `json:"mode"`
-	MIMEType     string     `json:"mime_type"`
-	Extension    string     `json:"extension,omitempty"`
-	IsHidden     bool       `json:"is_hidden"`
-	Children     []*FileNode `json:"children,omitempty"`
-	ChildrenCount int       `json:"children_count,omitempty"`
-	SymlinkTarget string   `json:"symlink_target,omitempty"`
+	Name          string      `json:"name"`
+	Path          string      `json:"path"`
+	Type          FileType    `json:"type"`
+	Size          int64       `json:"size"`
+	ModTime       time.Time   `json:"mod_time"`
+	CreateTime    time.Time   `json:"create_time,omitempty"`
+	AccessTime    time.Time   `json:"access_time,omitempty"`
+	Mode          string      `json:"mode"`
+	MIMEType      string      `json:"mime_type"`
+	Extension     string      `json:"extension,omitempty"`
+	IsHidden      bool        `json:"is_hidden"`
+	Children      []*FileNode `json:"children,omitempty"`
+	ChildrenCount int         `json:"children_count,omitempty"`
+	SymlinkTarget string      `json:"symlink_target,omitempty"`
 }
 
 // DirectoryListing 目录列表
 type DirectoryListing struct {
-	Path        string      `json:"path"`
-	Parent      string      `json:"parent,omitempty"`
-	Items       []*FileNode `json:"items"`
-	Total       int         `json:"total"`
-	TotalSize   int64       `json:"total_size"`
-	FreeSpace   int64       `json:"free_space"`
-	UsedSpace   int64       `json:"used_space"`
+	Path      string      `json:"path"`
+	Parent    string      `json:"parent,omitempty"`
+	Items     []*FileNode `json:"items"`
+	Total     int         `json:"total"`
+	TotalSize int64       `json:"total_size"`
+	FreeSpace int64       `json:"free_space"`
+	UsedSpace int64       `json:"used_space"`
 }
 
 // TreeOptions 树形目录选项
 type TreeOptions struct {
-	MaxDepth    int  `json:"max_depth"`     // 最大深度，默认3
-	ShowHidden  bool `json:"show_hidden"`   // 显示隐藏文件
-	IncludeSize bool `json:"include_size"`  // 包含大小信息
+	MaxDepth    int  `json:"max_depth"`    // 最大深度，默认3
+	ShowHidden  bool `json:"show_hidden"`  // 显示隐藏文件
+	IncludeSize bool `json:"include_size"` // 包含大小信息
 }
 
 // DefaultTreeOptions 默认树形选项
@@ -73,12 +73,12 @@ func DefaultTreeOptions() TreeOptions {
 type OperationType string
 
 const (
-	OpCopy      OperationType = "copy"
-	OpMove      OperationType = "move"
-	OpDelete    OperationType = "delete"
-	OpRename    OperationType = "rename"
-	OpCompress  OperationType = "compress"
-	OpExtract   OperationType = "extract"
+	OpCopy     OperationType = "copy"
+	OpMove     OperationType = "move"
+	OpDelete   OperationType = "delete"
+	OpRename   OperationType = "rename"
+	OpCompress OperationType = "compress"
+	OpExtract  OperationType = "extract"
 )
 
 // OperationStatus 操作状态
@@ -111,16 +111,16 @@ type FileOperation struct {
 
 // BatchOperation 批量操作请求
 type BatchOperation struct {
-	Operation OperationType `json:"operation" binding:"required"`
-	Sources   []string      `json:"sources" binding:"required,min=1"`
-	Destination string      `json:"destination,omitempty"`
-	Overwrite bool          `json:"overwrite"`
+	Operation   OperationType `json:"operation" binding:"required"`
+	Sources     []string      `json:"sources" binding:"required,min=1"`
+	Destination string        `json:"destination,omitempty"`
+	Overwrite   bool          `json:"overwrite"`
 }
 
 // CompressOptions 压缩选项
 type CompressOptions struct {
-	Format   string   `json:"format"`    // zip, tar.gz, tar.bz2, 7z
-	Level    int      `json:"level"`     // 压缩级别 1-9
+	Format   string   `json:"format"` // zip, tar.gz, tar.bz2, 7z
+	Level    int      `json:"level"`  // 压缩级别 1-9
 	Password string   `json:"password,omitempty"`
 	Sources  []string `json:"sources" binding:"required,min=1"`
 	Target   string   `json:"target" binding:"required"`
@@ -155,40 +155,40 @@ const (
 
 // PreviewInfo 预览信息
 type PreviewInfo struct {
-	Path        string      `json:"path"`
-	Name        string      `json:"name"`
-	Type        PreviewType `json:"type"`
-	MIMEType    string      `json:"mime_type"`
-	Size        int64       `json:"size"`
-	ModTime     time.Time   `json:"mod_time"`
+	Path     string      `json:"path"`
+	Name     string      `json:"name"`
+	Type     PreviewType `json:"type"`
+	MIMEType string      `json:"mime_type"`
+	Size     int64       `json:"size"`
+	ModTime  time.Time   `json:"mod_time"`
 
 	// 图片信息
-	Width       int         `json:"width,omitempty"`
-	Height      int         `json:"height,omitempty"`
+	Width  int `json:"width,omitempty"`
+	Height int `json:"height,omitempty"`
 
 	// 视频/音频信息
-	Duration    float64     `json:"duration,omitempty"` // 秒
-	Bitrate     int         `json:"bitrate,omitempty"`
-	Codec       string      `json:"codec,omitempty"`
+	Duration float64 `json:"duration,omitempty"` // 秒
+	Bitrate  int     `json:"bitrate,omitempty"`
+	Codec    string  `json:"codec,omitempty"`
 
 	// 文档信息
-	PageCount   int         `json:"page_count,omitempty"`
-	Author      string      `json:"author,omitempty"`
+	PageCount int    `json:"page_count,omitempty"`
+	Author    string `json:"author,omitempty"`
 
 	// 代码信息
-	Language    string      `json:"language,omitempty"`
-	LineCount   int         `json:"line_count,omitempty"`
+	Language  string `json:"language,omitempty"`
+	LineCount int    `json:"line_count,omitempty"`
 
 	// 缩略图
-	Thumbnail   string      `json:"thumbnail,omitempty"` // base64 或 URL
+	Thumbnail string `json:"thumbnail,omitempty"` // base64 或 URL
 }
 
 // ThumbnailConfig 缩略图配置
 type ThumbnailConfig struct {
 	Enabled     bool `json:"enabled"`
-	MaxWidth    int  `json:"max_width"`    // 默认 256
-	MaxHeight   int  `json:"max_height"`   // 默认 256
-	Quality     int  `json:"quality"`      // JPEG质量 1-100, 默认 80
+	MaxWidth    int  `json:"max_width"`     // 默认 256
+	MaxHeight   int  `json:"max_height"`    // 默认 256
+	Quality     int  `json:"quality"`       // JPEG质量 1-100, 默认 80
 	CacheMaxAge int  `json:"cache_max_age"` // 缓存时间（秒），默认 3600
 }
 
@@ -209,19 +209,19 @@ func DefaultThumbnailConfig() ThumbnailConfig {
 
 // ShareLink 分享链接
 type ShareLink struct {
-	ID          string     `json:"id"`
-	Path        string     `json:"path"`
-	Name        string     `json:"name"`
-	Token       string     `json:"token"`
-	Password    string     `json:"password,omitempty"` // 哈希后的密码
-	HasPassword bool       `json:"has_password"`
-	MaxDownloads int       `json:"max_downloads"` // 0=无限制
-	DownloadCount int      `json:"download_count"`
-	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
-	CreatedAt   time.Time  `json:"created_at"`
-	CreatedBy   string     `json:"created_by"`
-	Permission  string     `json:"permission"` // "view", "download"
-	Enabled     bool       `json:"enabled"`
+	ID            string     `json:"id"`
+	Path          string     `json:"path"`
+	Name          string     `json:"name"`
+	Token         string     `json:"token"`
+	Password      string     `json:"password,omitempty"` // 哈希后的密码
+	HasPassword   bool       `json:"has_password"`
+	MaxDownloads  int        `json:"max_downloads"` // 0=无限制
+	DownloadCount int        `json:"download_count"`
+	ExpiresAt     *time.Time `json:"expires_at,omitempty"`
+	CreatedAt     time.Time  `json:"created_at"`
+	CreatedBy     string     `json:"created_by"`
+	Permission    string     `json:"permission"` // "view", "download"
+	Enabled       bool       `json:"enabled"`
 }
 
 // CreateShareRequest 创建分享请求
@@ -247,27 +247,27 @@ type ShareStats struct {
 
 // SearchQuery 搜索查询
 type SearchQuery struct {
-	Keyword     string   `json:"keyword" binding:"required"`
-	Path        string   `json:"path"`          // 搜索根目录
-	Extensions  []string `json:"extensions"`    // 文件扩展名过滤
-	MinSize     *int64   `json:"min_size"`      // 最小文件大小
-	MaxSize     *int64   `json:"max_size"`      // 最大文件大小
-	ModAfter    *time.Time `json:"mod_after"`   // 修改时间起始
-	ModBefore   *time.Time `json:"mod_before"`  // 修改时间结束
-	FileType    FileType `json:"file_type"`     // 文件类型过滤
-	ContentSearch bool   `json:"content_search"` // 全文检索
-	MaxResults  int      `json:"max_results"`   // 最大结果数，默认100
-	SortBy      string   `json:"sort_by"`       // "name", "size", "mod_time"
-	SortOrder   string   `json:"sort_order"`    // "asc", "desc"
+	Keyword       string     `json:"keyword" binding:"required"`
+	Path          string     `json:"path"`           // 搜索根目录
+	Extensions    []string   `json:"extensions"`     // 文件扩展名过滤
+	MinSize       *int64     `json:"min_size"`       // 最小文件大小
+	MaxSize       *int64     `json:"max_size"`       // 最大文件大小
+	ModAfter      *time.Time `json:"mod_after"`      // 修改时间起始
+	ModBefore     *time.Time `json:"mod_before"`     // 修改时间结束
+	FileType      FileType   `json:"file_type"`      // 文件类型过滤
+	ContentSearch bool       `json:"content_search"` // 全文检索
+	MaxResults    int        `json:"max_results"`    // 最大结果数，默认100
+	SortBy        string     `json:"sort_by"`        // "name", "size", "mod_time"
+	SortOrder     string     `json:"sort_order"`     // "asc", "desc"
 }
 
 // SearchResult 搜索结果
 type SearchResult struct {
-	Items      []*FileNode `json:"items"`
-	Total      int         `json:"total"`
-	Truncated  bool        `json:"truncated"`
-	Query      SearchQuery `json:"query"`
-	Duration   int64       `json:"duration_ms"` // 搜索耗时（毫秒）
+	Items     []*FileNode `json:"items"`
+	Total     int         `json:"total"`
+	Truncated bool        `json:"truncated"`
+	Query     SearchQuery `json:"query"`
+	Duration  int64       `json:"duration_ms"` // 搜索耗时（毫秒）
 }
 
 // ============================================================
@@ -289,7 +289,7 @@ type FileVersion struct {
 // VersionConfig 版本管理配置
 type VersionConfig struct {
 	Enabled        bool `json:"enabled"`
-	MaxVersions    int  `json:"max_versions"`     // 每文件最大版本数，默认10
+	MaxVersions    int  `json:"max_versions"`      // 每文件最大版本数，默认10
 	MaxTotalSizeMB int  `json:"max_total_size_mb"` // 最大总大小(MB)，默认1024
 	AutoVersion    bool `json:"auto_version"`      // 自动版本管理
 }
@@ -345,34 +345,34 @@ type DragDropRequest struct {
 
 // FileAttributes 文件属性
 type FileAttributes struct {
-	Path         string    `json:"path"`
-	Name         string    `json:"name"`
-	Type         FileType  `json:"type"`
-	Size         int64     `json:"size"`
-	Mode         string    `json:"mode"`
-	ModeOctal    string    `json:"mode_octal"`
-	Owner        string    `json:"owner"`
-	Group        string    `json:"group"`
-	UID          int       `json:"uid"`
-	GID          int       `json:"gid"`
-	MIMEType     string    `json:"mime_type"`
-	Extension    string    `json:"extension"`
-	ModTime      time.Time `json:"mod_time"`
-	AccessTime   time.Time `json:"access_time"`
-	CreateTime   time.Time `json:"create_time"`
-	IsHidden     bool      `json:"is_hidden"`
-	IsSymlink    bool      `json:"is_symlink"`
-	SymlinkTarget string   `json:"symlink_target,omitempty"`
-	Inode        uint64    `json:"inode,omitempty"`
-	Links        uint64    `json:"links,omitempty"`
+	Path          string    `json:"path"`
+	Name          string    `json:"name"`
+	Type          FileType  `json:"type"`
+	Size          int64     `json:"size"`
+	Mode          string    `json:"mode"`
+	ModeOctal     string    `json:"mode_octal"`
+	Owner         string    `json:"owner"`
+	Group         string    `json:"group"`
+	UID           int       `json:"uid"`
+	GID           int       `json:"gid"`
+	MIMEType      string    `json:"mime_type"`
+	Extension     string    `json:"extension"`
+	ModTime       time.Time `json:"mod_time"`
+	AccessTime    time.Time `json:"access_time"`
+	CreateTime    time.Time `json:"create_time"`
+	IsHidden      bool      `json:"is_hidden"`
+	IsSymlink     bool      `json:"is_symlink"`
+	SymlinkTarget string    `json:"symlink_target,omitempty"`
+	Inode         uint64    `json:"inode,omitempty"`
+	Links         uint64    `json:"links,omitempty"`
 }
 
 // DiskUsage 磁盘使用情况
 type DiskUsage struct {
-	Path       string `json:"path"`
-	Total      int64  `json:"total"`
-	Free       int64  `json:"free"`
-	Used       int64  `json:"used"`
+	Path        string  `json:"path"`
+	Total       int64   `json:"total"`
+	Free        int64   `json:"free"`
+	Used        int64   `json:"used"`
 	UsedPercent float64 `json:"used_percent"`
 }
 
@@ -382,9 +382,9 @@ type DiskUsage struct {
 
 // Config 文件管理器配置
 type Config struct {
-	RootPath       string          `json:"root_path"`        // 根目录路径
-	MaxUploadSize  int64           `json:"max_upload_size"`  // 最大上传大小（字节）
-	TempDir        string          `json:"temp_dir"`         // 临时目录
+	RootPath       string          `json:"root_path"`       // 根目录路径
+	MaxUploadSize  int64           `json:"max_upload_size"` // 最大上传大小（字节）
+	TempDir        string          `json:"temp_dir"`        // 临时目录
 	Thumbnails     ThumbnailConfig `json:"thumbnails"`
 	Versions       VersionConfig   `json:"versions"`
 	AllowedExts    []string        `json:"allowed_extensions"` // 允许的扩展名，空=全部

@@ -82,17 +82,17 @@ type HybridPool struct {
 
 // TierConfig 存储层配置.
 type TierConfig struct {
-	Type       TierType `json:"type"`
-	Name       string   `json:"name"`
-	Devices    []string `json:"devices"`    // 设备列表
-	Path       string   `json:"path"`       // 挂载路径
-	Capacity   int64    `json:"capacity"`   // 总容量 (bytes)
-	Used       int64    `json:"used"`       // 已使用 (bytes)
-	Available  int64    `json:"available"`  // 可用 (bytes)
-	UsagePct   float64  `json:"usagePct"`   // 使用率 (%)
-	RAIDLevel  string   `json:"raidLevel"`  // RAID 级别
-	Enabled    bool     `json:"enabled"`
-	Healthy    bool     `json:"healthy"`
+	Type      TierType `json:"type"`
+	Name      string   `json:"name"`
+	Devices   []string `json:"devices"`   // 设备列表
+	Path      string   `json:"path"`      // 挂载路径
+	Capacity  int64    `json:"capacity"`  // 总容量 (bytes)
+	Used      int64    `json:"used"`      // 已使用 (bytes)
+	Available int64    `json:"available"` // 可用 (bytes)
+	UsagePct  float64  `json:"usagePct"`  // 使用率 (%)
+	RAIDLevel string   `json:"raidLevel"` // RAID 级别
+	Enabled   bool     `json:"enabled"`
+	Healthy   bool     `json:"healthy"`
 }
 
 // MigrationPolicy 数据迁移策略.
@@ -132,11 +132,11 @@ type PerformanceMetrics struct {
 	Timestamp time.Time `json:"timestamp"`
 
 	// IOPS
-	FlashIOPS   int64 `json:"flashIOPS"`
-	HDDIOPS     int64 `json:"hddIOPS"`
-	TotalIOPS   int64 `json:"totalIOPS"`
-	ReadIOPS    int64 `json:"readIOPS"`
-	WriteIOPS   int64 `json:"writeIOPS"`
+	FlashIOPS int64 `json:"flashIOPS"`
+	HDDIOPS   int64 `json:"hddIOPS"`
+	TotalIOPS int64 `json:"totalIOPS"`
+	ReadIOPS  int64 `json:"readIOPS"`
+	WriteIOPS int64 `json:"writeIOPS"`
 
 	// 吞吐量 (bytes/sec)
 	FlashThroughput int64 `json:"flashThroughput"`
@@ -188,17 +188,17 @@ type PoolStats struct {
 	Performance *PerformanceMetrics `json:"performance"`
 
 	// 迁移统计
-	PendingMigrations  int `json:"pendingMigrations"`
-	ActiveMigrations   int `json:"activeMigrations"`
+	PendingMigrations   int `json:"pendingMigrations"`
+	ActiveMigrations    int `json:"activeMigrations"`
 	CompletedMigrations int `json:"completedMigrations"`
 }
 
 // MigrationTask 迁移任务.
 type MigrationTask struct {
-	ID          string `json:"id"`
-	PoolID      string `json:"poolId"`
-	SourceTier  TierType `json:"sourceTier"`
-	TargetTier  TierType `json:"targetTier"`
+	ID         string   `json:"id"`
+	PoolID     string   `json:"poolId"`
+	SourceTier TierType `json:"sourceTier"`
+	TargetTier TierType `json:"targetTier"`
 
 	Status    string    `json:"status"`
 	CreatedAt time.Time `json:"createdAt"`
@@ -237,7 +237,7 @@ type CapacityPrediction struct {
 	CurrentUsagePct float64 `json:"currentUsagePct"`
 
 	// 预测
-	DaysUntilFull   int     `json:"daysUntilFull"`
+	DaysUntilFull     int       `json:"daysUntilFull"`
 	PredictedFullDate time.Time `json:"predictedFullDate"`
 
 	// 趋势
@@ -251,12 +251,12 @@ type CapacityPrediction struct {
 
 // DataMigrationRequest 数据迁移请求.
 type DataMigrationRequest struct {
-	SourceTier  TierType `json:"sourceTier"`
-	TargetTier  TierType `json:"targetTier"`
-	SourcePath  string   `json:"sourcePath,omitempty"`
-	TargetPath  string   `json:"targetPath,omitempty"`
-	DryRun      bool     `json:"dryRun"`
-	Verify      bool     `json:"verify"`
+	SourceTier TierType `json:"sourceTier"`
+	TargetTier TierType `json:"targetTier"`
+	SourcePath string   `json:"sourcePath,omitempty"`
+	TargetPath string   `json:"targetPath,omitempty"`
+	DryRun     bool     `json:"dryRun"`
+	Verify     bool     `json:"verify"`
 }
 
 // Response API 响应.

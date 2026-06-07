@@ -11,18 +11,18 @@ import (
 
 // ModelManager 模型管理器
 type ModelManager struct {
-	mu      sync.RWMutex
-	logger  *zap.Logger
-	engine  *Engine
-	models  map[string]*ModelRegistry
+	mu     sync.RWMutex
+	logger *zap.Logger
+	engine *Engine
+	models map[string]*ModelRegistry
 }
 
 // ModelRegistry 模型注册信息
 type ModelRegistry struct {
-	Model       *Model  `json:"model"`
-	LoadCount   int     `json:"load_count"`   // 加载次数
-	LastUsed    int64   `json:"last_used"`     // 上次使用时间戳（秒）
-	Popularity  float64 `json:"popularity"`    // 热度评分
+	Model      *Model  `json:"model"`
+	LoadCount  int     `json:"load_count"` // 加载次数
+	LastUsed   int64   `json:"last_used"`  // 上次使用时间戳（秒）
+	Popularity float64 `json:"popularity"` // 热度评分
 }
 
 // NewModelManager 创建模型管理器

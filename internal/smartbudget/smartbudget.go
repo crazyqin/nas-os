@@ -11,20 +11,20 @@ import (
 
 // Manager 智能预算管理器.
 type Manager struct {
-	mu          sync.RWMutex
-	plans       map[string]*BudgetPlan
-	costs       map[string][]CostBreakdown
+	mu            sync.RWMutex
+	plans         map[string]*BudgetPlan
+	costs         map[string][]CostBreakdown
 	optimizations []CostOptimization
-	alerts      []BudgetAlert
+	alerts        []BudgetAlert
 }
 
 // NewManager 创建管理器实例.
 func NewManager() *Manager {
 	return &Manager{
-		plans:       make(map[string]*BudgetPlan),
-		costs:       make(map[string][]CostBreakdown),
+		plans:         make(map[string]*BudgetPlan),
+		costs:         make(map[string][]CostBreakdown),
 		optimizations: make([]CostOptimization, 0),
-		alerts:      make([]BudgetAlert, 0),
+		alerts:        make([]BudgetAlert, 0),
 	}
 }
 
@@ -354,10 +354,10 @@ func (m *Manager) GenerateMonthlyReport(month string) *MonthlyReport {
 	defer m.mu.RUnlock()
 
 	report := &MonthlyReport{
-		Month:     month,
-		Breakdown: make([]CostBreakdown, 0),
-		Trends:    make([]CostTrend, 0),
-		Alerts:    make([]BudgetAlert, 0),
+		Month:         month,
+		Breakdown:     make([]CostBreakdown, 0),
+		Trends:        make([]CostTrend, 0),
+		Alerts:        make([]BudgetAlert, 0),
 		Optimizations: make([]CostOptimization, 0),
 	}
 

@@ -20,12 +20,12 @@ type SystemMetrics struct {
 
 // CPUUsage CPU 使用率.
 type CPUUsage struct {
-	TotalPercent float64   `json:"total_percent"`
-	PerCore      []float64 `json:"per_core"`
-	CoreCount    int       `json:"core_count"`
-	UserPercent  float64   `json:"user_percent"`
-	SystemPercent float64  `json:"system_percent"`
-	IdlePercent  float64   `json:"idle_percent"`
+	TotalPercent  float64   `json:"total_percent"`
+	PerCore       []float64 `json:"per_core"`
+	CoreCount     int       `json:"core_count"`
+	UserPercent   float64   `json:"user_percent"`
+	SystemPercent float64   `json:"system_percent"`
+	IdlePercent   float64   `json:"idle_percent"`
 }
 
 // MemoryUsage 内存使用.
@@ -55,13 +55,13 @@ type DiskUsage struct {
 
 // NetUsage 网络使用.
 type NetUsage struct {
-	Interface  string `json:"interface"`
-	RxBytes    uint64 `json:"rx_bytes"`
-	TxBytes    uint64 `json:"tx_bytes"`
-	RxPackets  uint64 `json:"rx_packets"`
-	TxPackets  uint64 `json:"tx_packets"`
-	RxRateBps  uint64 `json:"rx_rate_bps"`
-	TxRateBps  uint64 `json:"tx_rate_bps"`
+	Interface string `json:"interface"`
+	RxBytes   uint64 `json:"rx_bytes"`
+	TxBytes   uint64 `json:"tx_bytes"`
+	RxPackets uint64 `json:"rx_packets"`
+	TxPackets uint64 `json:"tx_packets"`
+	RxRateBps uint64 `json:"rx_rate_bps"`
+	TxRateBps uint64 `json:"tx_rate_bps"`
 }
 
 // AlertLevel 告警级别.
@@ -97,9 +97,9 @@ type AlertRule struct {
 
 // MonitorConfig 监控配置.
 type MonitorConfig struct {
-	CollectIntervalS int    `json:"collect_interval_s"`
-	HistoryRetention int    `json:"history_retention_hours"`
-	MaxHistoryPoints int    `json:"max_history_points"`
+	CollectIntervalS int     `json:"collect_interval_s"`
+	HistoryRetention int     `json:"history_retention_hours"`
+	MaxHistoryPoints int     `json:"max_history_points"`
 	TempThresholdC   float64 `json:"temp_threshold_c"`
 	CPUThresholdPct  float64 `json:"cpu_threshold_pct"`
 	MemThresholdPct  float64 `json:"mem_threshold_pct"`
@@ -108,11 +108,11 @@ type MonitorConfig struct {
 
 // Manager 资源监控管理器.
 type Manager struct {
-	mu        sync.RWMutex
-	config    *MonitorConfig
-	latest    *SystemMetrics
-	history   []SystemMetrics
-	alerts    []Alert
+	mu         sync.RWMutex
+	config     *MonitorConfig
+	latest     *SystemMetrics
+	history    []SystemMetrics
+	alerts     []Alert
 	alertRules []AlertRule
 	maxHistory int
 	maxAlerts  int

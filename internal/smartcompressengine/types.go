@@ -11,13 +11,13 @@ import (
 type CompressionAlgorithm string
 
 const (
-	AlgorithmGzip    CompressionAlgorithm = "gzip"
-	AlgorithmZstd    CompressionAlgorithm = "zstd"
-	AlgorithmLZ4     CompressionAlgorithm = "lz4"
-	AlgorithmBrotli  CompressionAlgorithm = "brotli"
-	AlgorithmSnappy  CompressionAlgorithm = "snappy"
-	AlgorithmXZ      CompressionAlgorithm = "xz"
-	AlgorithmZlib    CompressionAlgorithm = "zlib"
+	AlgorithmGzip   CompressionAlgorithm = "gzip"
+	AlgorithmZstd   CompressionAlgorithm = "zstd"
+	AlgorithmLZ4    CompressionAlgorithm = "lz4"
+	AlgorithmBrotli CompressionAlgorithm = "brotli"
+	AlgorithmSnappy CompressionAlgorithm = "snappy"
+	AlgorithmXZ     CompressionAlgorithm = "xz"
+	AlgorithmZlib   CompressionAlgorithm = "zlib"
 )
 
 // FileType 文件类型.
@@ -38,25 +38,25 @@ const (
 type CompressionLevel int
 
 const (
-	LevelFast    CompressionLevel = 1
+	LevelFast     CompressionLevel = 1
 	LevelBalanced CompressionLevel = 5
-	LevelMax     CompressionLevel = 9
+	LevelMax      CompressionLevel = 9
 )
 
 // CompressTask 压缩任务.
 type CompressTask struct {
-	ID            string             `json:"id"`
-	SourcePath    string             `json:"sourcePath"`
-	DestPath      string             `json:"destPath"`
-	Algorithm     CompressionAlgorithm `json:"algorithm"`
-	Level         CompressionLevel   `json:"level"`
-	Status        TaskStatus         `json:"status"`
-	OriginalSize  int64              `json:"originalSize"`
-	CompressedSize int64             `json:"compressedSize"`
-	Ratio         float64            `json:"ratio"`
-	StartTime     time.Time          `json:"startTime"`
-	EndTime       time.Time          `json:"endTime"`
-	Error         string             `json:"error,omitempty"`
+	ID             string               `json:"id"`
+	SourcePath     string               `json:"sourcePath"`
+	DestPath       string               `json:"destPath"`
+	Algorithm      CompressionAlgorithm `json:"algorithm"`
+	Level          CompressionLevel     `json:"level"`
+	Status         TaskStatus           `json:"status"`
+	OriginalSize   int64                `json:"originalSize"`
+	CompressedSize int64                `json:"compressedSize"`
+	Ratio          float64              `json:"ratio"`
+	StartTime      time.Time            `json:"startTime"`
+	EndTime        time.Time            `json:"endTime"`
+	Error          string               `json:"error,omitempty"`
 }
 
 // TaskStatus 任务状态.
@@ -71,13 +71,13 @@ const (
 
 // FileAnalysis 文件分析结果.
 type FileAnalysis struct {
-	FilePath     string             `json:"filePath"`
-	FileType     FileType           `json:"fileType"`
-	FileSize     int64              `json:"fileSize"`
-	Entropy      float64            `json:"entropy"`
-	Compressible bool               `json:"compressible"`
+	FilePath     string               `json:"filePath"`
+	FileType     FileType             `json:"fileType"`
+	FileSize     int64                `json:"fileSize"`
+	Entropy      float64              `json:"entropy"`
+	Compressible bool                 `json:"compressible"`
 	Recommended  CompressionAlgorithm `json:"recommended"`
-	EstRatio     float64            `json:"estRatio"`
+	EstRatio     float64              `json:"estRatio"`
 }
 
 // CompressionStats 压缩统计.

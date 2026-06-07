@@ -40,34 +40,34 @@ type OAuth2Service struct {
 
 // OAuth2Config OAuth2 配置.
 type OAuth2Config struct {
-	ProviderType   ProviderType `json:"providerType"`
-	ClientID       string       `json:"clientId"`
-	ClientSecret   string       `json:"-"` // 不序列化
-	AuthURL        string       `json:"authUrl"`
-	TokenURL       string       `json:"tokenUrl"`
-	RedirectURL    string       `json:"redirectUrl"`
-	Scopes         []string     `json:"scopes"`
-	ExtraParams    map[string]string `json:"extraParams,omitempty"`
+	ProviderType ProviderType      `json:"providerType"`
+	ClientID     string            `json:"clientId"`
+	ClientSecret string            `json:"-"` // 不序列化
+	AuthURL      string            `json:"authUrl"`
+	TokenURL     string            `json:"tokenUrl"`
+	RedirectURL  string            `json:"redirectUrl"`
+	Scopes       []string          `json:"scopes"`
+	ExtraParams  map[string]string `json:"extraParams,omitempty"`
 }
 
 // OAuth2Token OAuth2 令牌.
 type OAuth2Token struct {
-	ProviderID    string    `json:"providerId"`
-	ProviderType  ProviderType `json:"providerType"`
-	AccessToken   string    `json:"-"` // 加密存储
-	RefreshToken  string    `json:"-"` // 加密存储
-	TokenType     string    `json:"tokenType"`
-	ExpiresAt     time.Time `json:"expiresAt"`
-	CreatedAt     time.Time `json:"createdAt"`
-	UpdatedAt     time.Time `json:"updatedAt"`
+	ProviderID   string       `json:"providerId"`
+	ProviderType ProviderType `json:"providerType"`
+	AccessToken  string       `json:"-"` // 加密存储
+	RefreshToken string       `json:"-"` // 加密存储
+	TokenType    string       `json:"tokenType"`
+	ExpiresAt    time.Time    `json:"expiresAt"`
+	CreatedAt    time.Time    `json:"createdAt"`
+	UpdatedAt    time.Time    `json:"updatedAt"`
 }
 
 // OAuth2State OAuth2 状态（用于授权流程）.
 type OAuth2State struct {
-	State        string    `json:"state"`
+	State        string       `json:"state"`
 	ProviderType ProviderType `json:"providerType"`
-	ProviderID   string    `json:"providerId"`
-	CreatedAt    time.Time `json:"createdAt"`
+	ProviderID   string       `json:"providerId"`
+	CreatedAt    time.Time    `json:"createdAt"`
 }
 
 // NewOAuth2Service 创建 OAuth2 认证服务.

@@ -13,22 +13,22 @@ import (
 type FanMode string
 
 const (
-	FanModeAuto    FanMode = "auto"
-	FanModeManual  FanMode = "manual"
-	FanModeSilent  FanMode = "silent"
-	FanModePerf    FanMode = "performance"
-	FanModeCustom  FanMode = "custom"
+	FanModeAuto   FanMode = "auto"
+	FanModeManual FanMode = "manual"
+	FanModeSilent FanMode = "silent"
+	FanModePerf   FanMode = "performance"
+	FanModeCustom FanMode = "custom"
 )
 
 // FanProfile 风扇配置曲线
 type FanProfile struct {
-	ID        string     `json:"id"`
-	Name      string     `json:"name"`
-	Mode      FanMode    `json:"mode"`
+	ID        string       `json:"id"`
+	Name      string       `json:"name"`
+	Mode      FanMode      `json:"mode"`
 	Points    []CurvePoint `json:"points"`
-	MinRPM    int        `json:"min_rpm"`
-	MaxRPM    int        `json:"max_rpm"`
-	CreatedAt time.Time  `json:"created_at"`
+	MinRPM    int          `json:"min_rpm"`
+	MaxRPM    int          `json:"max_rpm"`
+	CreatedAt time.Time    `json:"created_at"`
 }
 
 // CurvePoint 温度-RPM曲线点
@@ -39,22 +39,22 @@ type CurvePoint struct {
 
 // FanStatus 风扇状态
 type FanStatus struct {
-	ID          string  `json:"id"`
-	Name        string  `json:"name"`
-	RPM         int     `json:"rpm"`
-	DutyPercent int     `json:"duty_percent"`
-	Mode        FanMode `json:"mode"`
-	Temperature float64 `json:"temperature"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	RPM         int       `json:"rpm"`
+	DutyPercent int       `json:"duty_percent"`
+	Mode        FanMode   `json:"mode"`
+	Temperature float64   `json:"temperature"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // TemperatureSensor 温度传感器
 type TemperatureSensor struct {
-	ID        string  `json:"id"`
-	Name      string  `json:"name"`
-	Temp      float64 `json:"temp"`
-	High      float64 `json:"high"`
-	Critical  float64 `json:"critical"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Temp      float64   `json:"temp"`
+	High      float64   `json:"high"`
+	Critical  float64   `json:"critical"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 

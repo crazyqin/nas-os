@@ -13,14 +13,14 @@ import (
 
 // Manager 文件锁管理器
 type Manager struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	policy   *LockPolicy
-	locks    map[string]*FileLock       // 锁ID -> 锁记录
-	fileLocks map[string][]string       // 文件路径 -> 锁ID列表
-	history  []*LockHistoryEntry
-	stopChan chan struct{}
-	running  bool
+	mu        sync.RWMutex
+	logger    *zap.Logger
+	policy    *LockPolicy
+	locks     map[string]*FileLock // 锁ID -> 锁记录
+	fileLocks map[string][]string  // 文件路径 -> 锁ID列表
+	history   []*LockHistoryEntry
+	stopChan  chan struct{}
+	running   bool
 }
 
 // NewManager 创建文件锁管理器

@@ -39,10 +39,10 @@ func TestRecordEnergy(t *testing.T) {
 	m := NewManager(nil)
 
 	record := &EnergyRecord{
-		Source:    SourceGrid,
-		Wh:        1000,
-		Service:   "nas",
-		Device:    "server",
+		Source:  SourceGrid,
+		Wh:      1000,
+		Service: "nas",
+		Device:  "server",
 	}
 
 	err := m.RecordEnergy(record)

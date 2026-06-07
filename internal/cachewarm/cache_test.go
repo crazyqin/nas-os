@@ -60,8 +60,8 @@ func TestLRUEviction(t *testing.T) {
 func TestLFUEviction(t *testing.T) {
 	cache := NewSmartCache(PolicyLFU, 128)
 	cache.Set("a", "1", 64, 0)
-	cache.Get("a") // freq=2
-	cache.Get("a") // freq=3
+	cache.Get("a")             // freq=2
+	cache.Get("a")             // freq=3
 	cache.Set("b", "2", 64, 0) // freq=1
 	cache.Set("c", "3", 64, 0) // should evict "b" (lowest freq)
 

@@ -33,11 +33,11 @@ const (
 type IndexStatus string
 
 const (
-	IndexStatusPending    IndexStatus = "pending"    // 待索引
-	IndexStatusIndexing   IndexStatus = "indexing"   // 索引中
-	IndexStatusIndexed    IndexStatus = "indexed"    // 已索引
-	IndexStatusFailed     IndexStatus = "failed"     // 索引失败
-	IndexStatusOutdated   IndexStatus = "outdated"   // 需要更新
+	IndexStatusPending  IndexStatus = "pending"  // 待索引
+	IndexStatusIndexing IndexStatus = "indexing" // 索引中
+	IndexStatusIndexed  IndexStatus = "indexed"  // 已索引
+	IndexStatusFailed   IndexStatus = "failed"   // 索引失败
+	IndexStatusOutdated IndexStatus = "outdated" // 需要更新
 )
 
 // SortOrder 排序方式
@@ -54,20 +54,20 @@ const (
 
 // SearchQuery 搜索查询
 type SearchQuery struct {
-	Keyword    string     `json:"keyword"`              // 搜索关键词
-	Mode       SearchMode `json:"mode"`                 // 搜索模式
-	FileTypes  []FileType `json:"fileTypes,omitempty"`   // 文件类型过滤
-	Tags       []string   `json:"tags,omitempty"`        // 标签过滤
-	DateFrom   *time.Time `json:"dateFrom,omitempty"`    // 起始日期
-	DateTo     *time.Time `json:"dateTo,omitempty"`      // 结束日期
-	SizeMin    *int64     `json:"sizeMin,omitempty"`     // 最小文件大小 (bytes)
-	SizeMax    *int64     `json:"sizeMax,omitempty"`     // 最大文件大小 (bytes)
-	Paths      []string   `json:"paths,omitempty"`       // 限定路径
-	Sort       SortOrder  `json:"sort"`                  // 排序方式
-	Page       int        `json:"page"`                  // 页码 (从 1 开始)
-	PageSize   int        `json:"pageSize"`              // 每页数量
-	Semantic   bool       `json:"semantic,omitempty"`    // 是否启用语义搜索
-	Vector     []float64  `json:"vector,omitempty"`      // 语义向量 (由引擎生成)
+	Keyword   string     `json:"keyword"`             // 搜索关键词
+	Mode      SearchMode `json:"mode"`                // 搜索模式
+	FileTypes []FileType `json:"fileTypes,omitempty"` // 文件类型过滤
+	Tags      []string   `json:"tags,omitempty"`      // 标签过滤
+	DateFrom  *time.Time `json:"dateFrom,omitempty"`  // 起始日期
+	DateTo    *time.Time `json:"dateTo,omitempty"`    // 结束日期
+	SizeMin   *int64     `json:"sizeMin,omitempty"`   // 最小文件大小 (bytes)
+	SizeMax   *int64     `json:"sizeMax,omitempty"`   // 最大文件大小 (bytes)
+	Paths     []string   `json:"paths,omitempty"`     // 限定路径
+	Sort      SortOrder  `json:"sort"`                // 排序方式
+	Page      int        `json:"page"`                // 页码 (从 1 开始)
+	PageSize  int        `json:"pageSize"`            // 每页数量
+	Semantic  bool       `json:"semantic,omitempty"`  // 是否启用语义搜索
+	Vector    []float64  `json:"vector,omitempty"`    // 语义向量 (由引擎生成)
 }
 
 // SearchResult 搜索结果
@@ -79,13 +79,13 @@ type SearchResult struct {
 	FileSize    int64             `json:"fileSize"`
 	ModifiedAt  time.Time         `json:"modifiedAt"`
 	CreatedAt   time.Time         `json:"createdAt"`
-	Score       float64           `json:"score"`           // 综合得分
-	Highlights  []Highlight       `json:"highlights"`      // 高亮片段
-	Snippet     string            `json:"snippet"`         // 内容摘要
+	Score       float64           `json:"score"`      // 综合得分
+	Highlights  []Highlight       `json:"highlights"` // 高亮片段
+	Snippet     string            `json:"snippet"`    // 内容摘要
 	Tags        []string          `json:"tags,omitempty"`
 	Metadata    map[string]string `json:"metadata,omitempty"`
-	VectorScore float64           `json:"vectorScore"`     // 语义相似度得分
-	TextScore   float64           `json:"textScore"`       // 全文检索得分
+	VectorScore float64           `json:"vectorScore"` // 语义相似度得分
+	TextScore   float64           `json:"textScore"`   // 全文检索得分
 }
 
 // Highlight 高亮片段
@@ -96,14 +96,14 @@ type Highlight struct {
 
 // SearchResponse 搜索响应
 type SearchResponse struct {
-	Query      string         `json:"query"`
-	Total      int            `json:"total"`
-	Page       int            `json:"page"`
-	PageSize   int            `json:"pageSize"`
-	Results    []SearchResult `json:"results"`
-	Suggestions []string      `json:"suggestions,omitempty"` // 搜索建议
-	Facets     *SearchFacets  `json:"facets,omitempty"`     // 分面统计
-	QueryTime  time.Duration  `json:"queryTime"`
+	Query       string         `json:"query"`
+	Total       int            `json:"total"`
+	Page        int            `json:"page"`
+	PageSize    int            `json:"pageSize"`
+	Results     []SearchResult `json:"results"`
+	Suggestions []string       `json:"suggestions,omitempty"` // 搜索建议
+	Facets      *SearchFacets  `json:"facets,omitempty"`      // 分面统计
+	QueryTime   time.Duration  `json:"queryTime"`
 }
 
 // SearchFacets 搜索分面统计
@@ -115,21 +115,21 @@ type SearchFacets struct {
 
 // SearchIndex 搜索索引条目
 type SearchIndex struct {
-	ID           string            `json:"id"`
-	FilePath     string            `json:"filePath"`
-	FileName     string            `json:"fileName"`
-	FileType     FileType          `json:"fileType"`
-	FileSize     int64             `json:"fileSize"`
-	ModifiedAt   time.Time         `json:"modifiedAt"`
-	CreatedAt    time.Time         `json:"createdAt"`
-	ContentHash  string            `json:"contentHash"`     // 内容哈希
-	Content      string            `json:"content"`         // 提取的文本内容
-	Tags         []string          `json:"tags,omitempty"`
-	Metadata     map[string]string `json:"metadata,omitempty"`
-	Vector       []float64         `json:"vector,omitempty"` // 语义向量
-	Status       IndexStatus       `json:"status"`
-	IndexedAt    *time.Time        `json:"indexedAt,omitempty"`
-	Error        string            `json:"error,omitempty"`
+	ID          string            `json:"id"`
+	FilePath    string            `json:"filePath"`
+	FileName    string            `json:"fileName"`
+	FileType    FileType          `json:"fileType"`
+	FileSize    int64             `json:"fileSize"`
+	ModifiedAt  time.Time         `json:"modifiedAt"`
+	CreatedAt   time.Time         `json:"createdAt"`
+	ContentHash string            `json:"contentHash"` // 内容哈希
+	Content     string            `json:"content"`     // 提取的文本内容
+	Tags        []string          `json:"tags,omitempty"`
+	Metadata    map[string]string `json:"metadata,omitempty"`
+	Vector      []float64         `json:"vector,omitempty"` // 语义向量
+	Status      IndexStatus       `json:"status"`
+	IndexedAt   *time.Time        `json:"indexedAt,omitempty"`
+	Error       string            `json:"error,omitempty"`
 }
 
 // SearchConfig 搜索引擎配置
@@ -170,11 +170,11 @@ type HotWord struct {
 
 // SearchHistory 搜索历史
 type SearchHistory struct {
-	ID        string    `json:"id"`
-	Keyword   string    `json:"keyword"`
-	Mode      SearchMode `json:"mode"`
-	ResultCount int     `json:"resultCount"`
-	SearchedAt time.Time `json:"searchedAt"`
+	ID          string     `json:"id"`
+	Keyword     string     `json:"keyword"`
+	Mode        SearchMode `json:"mode"`
+	ResultCount int        `json:"resultCount"`
+	SearchedAt  time.Time  `json:"searchedAt"`
 }
 
 // Suggestion 搜索建议
@@ -287,8 +287,8 @@ type FileInfo struct {
 
 // FileEvent 文件事件
 type FileEvent struct {
-	Type     string   `json:"type"` // create, modify, delete
-	FilePath string   `json:"filePath"`
+	Type     string    `json:"type"` // create, modify, delete
+	FilePath string    `json:"filePath"`
 	FileInfo *FileInfo `json:"fileInfo,omitempty"`
 }
 
@@ -312,17 +312,17 @@ type VectorEncoder interface {
 
 // CacheItem 缓存项
 type CacheItem struct {
-	Key       string        `json:"key"`
-	Value     interface{}   `json:"value"`
-	ExpiresAt time.Time     `json:"expiresAt"`
+	Key       string      `json:"key"`
+	Value     interface{} `json:"value"`
+	ExpiresAt time.Time   `json:"expiresAt"`
 }
 
 // SearchCache 搜索缓存
 type SearchCache struct {
-	mu       sync.RWMutex
-	items    map[string]*CacheItem
-	maxSize  int
-	ttl      time.Duration
-	hits     int64
-	misses   int64
+	mu      sync.RWMutex
+	items   map[string]*CacheItem
+	maxSize int
+	ttl     time.Duration
+	hits    int64
+	misses  int64
 }

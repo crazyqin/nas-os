@@ -179,9 +179,9 @@ func (tbl *TokenBucketLimiter) ResetAll() {
 
 // SlidingWindowLimiter 滑动窗口限流器
 type SlidingWindowLimiter struct {
-	config   RateLimitConfig
-	windows  map[string]*slidingWindow
-	mu       sync.RWMutex
+	config  RateLimitConfig
+	windows map[string]*slidingWindow
+	mu      sync.RWMutex
 }
 
 // slidingWindow 滑动窗口
@@ -418,10 +418,10 @@ func NewRateLimiter(config RateLimitConfig) RateLimiter {
 
 // IPRateLimiter IP限流器
 type IPRateLimiter struct {
-	limiter  RateLimiter
-	config   RateLimitConfig
+	limiter   RateLimiter
+	config    RateLimitConfig
 	blacklist map[string]time.Time
-	mu       sync.RWMutex
+	mu        sync.RWMutex
 }
 
 // NewIPRateLimiter 创建IP限流器

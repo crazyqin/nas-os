@@ -255,8 +255,8 @@ func TestSimulateTierPlan(t *testing.T) {
 				{Name: "dataset-2", Size: 500 * 1024 * 1024 * 1024, CurrentTier: TierHDD, AccessFrequency: "hot"},
 			},
 			TierAssignments: map[string]TierType{
-				"dataset-1": TierHDD,  // 冷数据移到HDD
-				"dataset-2": TierSSD,  // 热数据移到SSD
+				"dataset-1": TierHDD, // 冷数据移到HDD
+				"dataset-2": TierSSD, // 热数据移到SSD
 			},
 		}
 

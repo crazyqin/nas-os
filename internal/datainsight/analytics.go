@@ -15,11 +15,11 @@ import (
 type ReportType string
 
 const (
-	ReportTypeStorage   ReportType = "storage"   // 存储分析
-	ReportTypeUsage     ReportType = "usage"      // 使用分析
+	ReportTypeStorage     ReportType = "storage"     // 存储分析
+	ReportTypeUsage       ReportType = "usage"       // 使用分析
 	ReportTypePerformance ReportType = "performance" // 性能分析
-	ReportTypeSecurity  ReportType = "security"   // 安全分析
-	ReportTypeCustom    ReportType = "custom"     // 自定义报表
+	ReportTypeSecurity    ReportType = "security"    // 安全分析
+	ReportTypeCustom      ReportType = "custom"      // 自定义报表
 )
 
 // ChartType 图表类型
@@ -55,33 +55,33 @@ type DataSeries struct {
 
 // Query 数据查询
 type Query struct {
-	Metric    string            `json:"metric"`
-	Filters   map[string]string `json:"filters,omitempty"`
-	GroupBy   []string          `json:"group_by,omitempty"`
-	Aggregation string          `json:"aggregation"` // sum, avg, min, max, count
-	TimeRange TimeRange         `json:"time_range"`
-	Interval  time.Duration     `json:"interval,omitempty"`
+	Metric      string            `json:"metric"`
+	Filters     map[string]string `json:"filters,omitempty"`
+	GroupBy     []string          `json:"group_by,omitempty"`
+	Aggregation string            `json:"aggregation"` // sum, avg, min, max, count
+	TimeRange   TimeRange         `json:"time_range"`
+	Interval    time.Duration     `json:"interval,omitempty"`
 }
 
 // QueryResult 查询结果
 type QueryResult struct {
-	Query     Query       `json:"query"`
+	Query     Query        `json:"query"`
 	Series    []DataSeries `json:"series"`
-	Total     int64       `json:"total"`
-	StartTime time.Time   `json:"start_time"`
-	EndTime   time.Time   `json:"end_time"`
+	Total     int64        `json:"total"`
+	StartTime time.Time    `json:"start_time"`
+	EndTime   time.Time    `json:"end_time"`
 }
 
 // Widget 仪表盘组件
 type Widget struct {
-	ID          string            `json:"id"`
-	Title       string            `json:"title"`
-	Type        ChartType         `json:"type"`
-	Query       Query             `json:"query"`
-	Position    Position          `json:"position"`
-	Size        Size              `json:"size"`
+	ID          string                 `json:"id"`
+	Title       string                 `json:"title"`
+	Type        ChartType              `json:"type"`
+	Query       Query                  `json:"query"`
+	Position    Position               `json:"position"`
+	Size        Size                   `json:"size"`
 	Options     map[string]interface{} `json:"options,omitempty"`
-	RefreshRate time.Duration     `json:"refresh_rate,omitempty"`
+	RefreshRate time.Duration          `json:"refresh_rate,omitempty"`
 }
 
 // Position 位置
@@ -127,30 +127,30 @@ type Report struct {
 
 // AlertRule 告警规则
 type AlertRule struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	Query       Query       `json:"query"`
-	Condition   string      `json:"condition"` // above, below, equal, change
-	Threshold   float64     `json:"threshold"`
-	Duration    time.Duration `json:"duration"`
-	Severity    string      `json:"severity"` // critical, warning, info
-	Enabled     bool        `json:"enabled"`
-	LastTriggered *time.Time `json:"last_triggered,omitempty"`
-	CreatedAt   time.Time   `json:"created_at"`
+	ID            string        `json:"id"`
+	Name          string        `json:"name"`
+	Query         Query         `json:"query"`
+	Condition     string        `json:"condition"` // above, below, equal, change
+	Threshold     float64       `json:"threshold"`
+	Duration      time.Duration `json:"duration"`
+	Severity      string        `json:"severity"` // critical, warning, info
+	Enabled       bool          `json:"enabled"`
+	LastTriggered *time.Time    `json:"last_triggered,omitempty"`
+	CreatedAt     time.Time     `json:"created_at"`
 }
 
 // Alert 告警记录
 type Alert struct {
-	ID          string    `json:"id"`
-	RuleID      string    `json:"rule_id"`
-	RuleName    string    `json:"rule_name"`
-	Severity    string    `json:"severity"`
-	Message     string    `json:"message"`
-	Value       float64   `json:"value"`
-	Threshold   float64   `json:"threshold"`
-	Status      string    `json:"status"` // firing, resolved
-	StartedAt   time.Time `json:"started_at"`
-	ResolvedAt  *time.Time `json:"resolved_at,omitempty"`
+	ID         string     `json:"id"`
+	RuleID     string     `json:"rule_id"`
+	RuleName   string     `json:"rule_name"`
+	Severity   string     `json:"severity"`
+	Message    string     `json:"message"`
+	Value      float64    `json:"value"`
+	Threshold  float64    `json:"threshold"`
+	Status     string     `json:"status"` // firing, resolved
+	StartedAt  time.Time  `json:"started_at"`
+	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
 }
 
 // MetricCollector 指标收集器

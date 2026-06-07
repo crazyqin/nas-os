@@ -24,23 +24,23 @@ const (
 
 // App 应用信息
 type App struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Image       string            `json:"image"`
-	Version     string            `json:"version"`
-	State       AppState          `json:"state"`
-	Ports       map[string]string `json:"ports"`
-	Volumes     []string          `json:"volumes"`
-	Env         map[string]string `json:"env"`
-	Labels      map[string]string `json:"labels"`
-	HealthCheck string            `json:"health_check"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
-	StartedAt   *time.Time        `json:"started_at,omitempty"`
-	ErrorMsg     string            `json:"error_msg,omitempty"`
-	RestartCount int              `json:"restart_count"`
-	Backups      []BackupRecord   `json:"backups"`
-	ConfigHistory []ConfigSnapshot `json:"config_history"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Image         string            `json:"image"`
+	Version       string            `json:"version"`
+	State         AppState          `json:"state"`
+	Ports         map[string]string `json:"ports"`
+	Volumes       []string          `json:"volumes"`
+	Env           map[string]string `json:"env"`
+	Labels        map[string]string `json:"labels"`
+	HealthCheck   string            `json:"health_check"`
+	CreatedAt     time.Time         `json:"created_at"`
+	UpdatedAt     time.Time         `json:"updated_at"`
+	StartedAt     *time.Time        `json:"started_at,omitempty"`
+	ErrorMsg      string            `json:"error_msg,omitempty"`
+	RestartCount  int               `json:"restart_count"`
+	Backups       []BackupRecord    `json:"backups"`
+	ConfigHistory []ConfigSnapshot  `json:"config_history"`
 }
 
 // BackupRecord 备份记录

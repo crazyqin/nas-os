@@ -34,34 +34,34 @@ const (
 
 // TopologyConfig 拓扑配置
 type TopologyConfig struct {
-	ID             string           `json:"id"`
-	Name           string           `json:"name"`
-	Type           TopologyType     `json:"type"`
-	PrimaryNode    *TopologyNode    `json:"primaryNode,omitempty"`
-	SecondaryNodes []*TopologyNode  `json:"secondaryNodes,omitempty"`
-	CascadeOrder   []string         `json:"cascadeOrder,omitempty"` // 级联顺序
-	Encrypt        bool             `json:"encrypt"`
-	EncryptionKey  string           `json:"encryptionKey,omitempty"`
-	BandwidthLimit int              `json:"bandwidthLimit"` // MB/s
+	ID              string              `json:"id"`
+	Name            string              `json:"name"`
+	Type            TopologyType        `json:"type"`
+	PrimaryNode     *TopologyNode       `json:"primaryNode,omitempty"`
+	SecondaryNodes  []*TopologyNode     `json:"secondaryNodes,omitempty"`
+	CascadeOrder    []string            `json:"cascadeOrder,omitempty"` // 级联顺序
+	Encrypt         bool                `json:"encrypt"`
+	EncryptionKey   string              `json:"encryptionKey,omitempty"`
+	BandwidthLimit  int                 `json:"bandwidthLimit"` // MB/s
 	RetentionPolicy *GFSRetentionPolicy `json:"retentionPolicy"`
-	Enabled        bool             `json:"enabled"`
-	CreatedAt      time.Time        `json:"createdAt"`
-	UpdatedAt      time.Time        `json:"updatedAt"`
+	Enabled         bool                `json:"enabled"`
+	CreatedAt       time.Time           `json:"createdAt"`
+	UpdatedAt       time.Time           `json:"updatedAt"`
 }
 
 // TopologyNode 拓扑节点
 type TopologyNode struct {
-	NodeID      string     `json:"nodeId"`
-	Name        string     `json:"name"`
-	Address     string     `json:"address"`
-	Port        int        `json:"port"`
-	APIKey      string     `json:"apiKey"`
-	VolumeName  string     `json:"volumeName"`
-	Role        NodeRole   `json:"role"`
-	Status      NodeStatus `json:"status"`
-	LastSync    *time.Time `json:"lastSync,omitempty"`
-	SyncCount   int        `json:"syncCount"`
-	LatencyMs   int        `json:"latencyMs"` // 网络延迟(ms)
+	NodeID     string     `json:"nodeId"`
+	Name       string     `json:"name"`
+	Address    string     `json:"address"`
+	Port       int        `json:"port"`
+	APIKey     string     `json:"apiKey"`
+	VolumeName string     `json:"volumeName"`
+	Role       NodeRole   `json:"role"`
+	Status     NodeStatus `json:"status"`
+	LastSync   *time.Time `json:"lastSync,omitempty"`
+	SyncCount  int        `json:"syncCount"`
+	LatencyMs  int        `json:"latencyMs"` // 网络延迟(ms)
 }
 
 // NodeRole 节点角色
@@ -82,17 +82,17 @@ type GFSRetentionPolicy struct {
 	// Grandfather (月备份)
 	GrandfatherRetention int `json:"grandfatherRetention"` // 保留月数
 	GrandfatherDay       int `json:"grandfatherDay"`       // 每月第几天执行
-	
+
 	// Father (周备份)
 	FatherRetention int `json:"fatherRetention"` // 保留周数
 	FatherDay       int `json:"fatherDay"`       // 每周第几天执行 (0=周日)
-	
+
 	// Son (日备份)
 	SonRetention int `json:"sonRetention"` // 保留天数
-	
+
 	// Hourly (小时备份)
 	HourlyRetention int `json:"hourlyRetention"` // 保留小时数
-	
+
 	// Manual (手动快照)
 	ManualRetention int `json:"manualRetention"` // 保留数量
 }
@@ -100,13 +100,13 @@ type GFSRetentionPolicy struct {
 // DefaultGFSPolicy 默认GFS策略
 func DefaultGFSPolicy() *GFSRetentionPolicy {
 	return &GFSRetentionPolicy{
-		GrandfatherRetention: 12,  // 保留12个月
-		GrandfatherDay:       1,   // 每月1号
-		FatherRetention:      8,   // 保留8周
-		FatherDay:            0,   // 每周日
-		SonRetention:         31,  // 保留31天
-		HourlyRetention:      24,  // 保留24小时
-		ManualRetention:      10,  // 保留10个手动快照
+		GrandfatherRetention: 12, // 保留12个月
+		GrandfatherDay:       1,  // 每月1号
+		FatherRetention:      8,  // 保留8周
+		FatherDay:            0,  // 每周日
+		SonRetention:         31, // 保留31天
+		HourlyRetention:      24, // 保留24小时
+		ManualRetention:      10, // 保留10个手动快照
 	}
 }
 
@@ -158,13 +158,13 @@ type TopologyManager struct {
 
 // TopologyStatus 拓扑状态
 type TopologyStatus struct {
-	ConfigID        string              `json:"configId"`
-	OverallStatus   string              `json:"overallStatus"` // healthy, degraded, failed
-	NodeStatuses    map[string]*NodeStatusDetail `json:"nodeStatuses"`
-	LastFullSync    *time.Time          `json:"lastFullSync,omitempty"`
-	PendingSync     int                 `json:"pendingSync"` // 待同步快照数
-	TotalSynced     int                 `json:"totalSynced"`
-	Errors          []TopologyError     `json:"errors,omitempty"`
+	ConfigID      string                       `json:"configId"`
+	OverallStatus string                       `json:"overallStatus"` // healthy, degraded, failed
+	NodeStatuses  map[string]*NodeStatusDetail `json:"nodeStatuses"`
+	LastFullSync  *time.Time                   `json:"lastFullSync,omitempty"`
+	PendingSync   int                          `json:"pendingSync"` // 待同步快照数
+	TotalSynced   int                          `json:"totalSynced"`
+	Errors        []TopologyError              `json:"errors,omitempty"`
 }
 
 // NodeStatusDetail 节点状态详情
@@ -191,7 +191,7 @@ func NewTopologyManager() *TopologyManager {
 	return &TopologyManager{
 		configs:  make(map[string]*TopologyConfig),
 		statuses: make(map[string]*TopologyStatus),
-		client:   &http.Client{
+		client: &http.Client{
 			Timeout: 30 * time.Second,
 		},
 	}
@@ -351,20 +351,20 @@ func (m *TopologyManager) validateTopology(config *TopologyConfig) error {
 
 // ReplicationTask 复制任务
 type ReplicationTask struct {
-	ID          string           `json:"id"`
-	ConfigID    string           `json:"configId"`
-	SnapshotID  string           `json:"snapshotId"`
-	SnapshotTime time.Time       `json:"snapshotTime"`
-	GFSClass    GFSClassification `json:"gfsClass"`
-	SourceNode  string           `json:"sourceNode"`
-	TargetNodes []string         `json:"targetNodes"`
-	Status      TaskStatus       `json:"status"`
-	Progress    float64          `json:"progress"`
-	StartTime   time.Time        `json:"startTime"`
-	EndTime     *time.Time       `json:"endTime,omitempty"`
-	BytesTotal  uint64           `json:"bytesTotal"`
-	BytesSynced uint64           `json:"bytesSynced"`
-	Errors      []TaskError      `json:"errors,omitempty"`
+	ID           string            `json:"id"`
+	ConfigID     string            `json:"configId"`
+	SnapshotID   string            `json:"snapshotId"`
+	SnapshotTime time.Time         `json:"snapshotTime"`
+	GFSClass     GFSClassification `json:"gfsClass"`
+	SourceNode   string            `json:"sourceNode"`
+	TargetNodes  []string          `json:"targetNodes"`
+	Status       TaskStatus        `json:"status"`
+	Progress     float64           `json:"progress"`
+	StartTime    time.Time         `json:"startTime"`
+	EndTime      *time.Time        `json:"endTime,omitempty"`
+	BytesTotal   uint64            `json:"bytesTotal"`
+	BytesSynced  uint64            `json:"bytesSynced"`
+	Errors       []TaskError       `json:"errors,omitempty"`
 }
 
 // TaskStatus 任务状态
@@ -655,10 +655,10 @@ func (m *TopologyManager) sendToNode(ctx context.Context, node *TopologyNode, sn
 
 // ThrottledTransport 带宽限制传输
 type ThrottledTransport struct {
-	transport     *http.Transport
-	bytesPerSec   int64 // 每秒字节数
-	currentBytes  int64
-	lastReset     time.Time
+	transport    *http.Transport
+	bytesPerSec  int64 // 每秒字节数
+	currentBytes int64
+	lastReset    time.Time
 }
 
 // NewThrottledTransport 创建带宽限制传输
@@ -792,12 +792,12 @@ type TopologyAPIResponse struct {
 
 // ReplicationTaskListResponse 复制任务列表响应
 type ReplicationTaskListResponse struct {
-	Total   int              `json:"total"`
-	Tasks   []*ReplicationTask `json:"tasks"`
+	Total int                `json:"total"`
+	Tasks []*ReplicationTask `json:"tasks"`
 }
 
 // TopologyListResponse 拓扑列表响应
 type TopologyListResponse struct {
-	Total      int              `json:"total"`
+	Total      int               `json:"total"`
 	Topologies []*TopologyConfig `json:"topologies"`
 }

@@ -185,7 +185,7 @@ func TestExpansionProgress(t *testing.T) {
 	progress := &ExpansionProgress{
 		TaskID:         "test-001",
 		Percentage:     50.0,
-		BytesProcessed: 1024 * 1024 * 1024, // 1GB
+		BytesProcessed: 1024 * 1024 * 1024,     // 1GB
 		BytesTotal:     2 * 1024 * 1024 * 1024, // 2GB
 		SpeedMBps:      100.0,
 		ETA:            10 * time.Minute,
@@ -236,7 +236,7 @@ func TestExpansionEligibilityResult(t *testing.T) {
 		RAIDZLevel:      "raidz1",
 		CurrentWidth:    4,
 		NewWidth:        5,
-		CapacityGain:    1024 * 1024 * 1024 * 500, // 500GB
+		CapacityGain:    1024 * 1024 * 1024 * 500,  // 500GB
 		CurrentCapacity: 1024 * 1024 * 1024 * 2000, // 2TB
 		NewCapacity:     1024 * 1024 * 1024 * 2500, // 2.5TB
 		Warnings:        []string{},

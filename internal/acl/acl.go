@@ -19,7 +19,7 @@ const (
 // ACLRule represents a fine-grained access control rule.
 type ACLRule struct {
 	ID          string   `json:"id"`
-	Path        string   `json:"path"`        // file/folder path
+	Path        string   `json:"path"`         // file/folder path
 	Subject     string   `json:"subject"`      // user or group name
 	SubjectType string   `json:"subject_type"` // "user" or "group"
 	Permissions []string `json:"permissions"`  // read, write, execute, delete, share, admin

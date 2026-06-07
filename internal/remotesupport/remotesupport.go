@@ -63,24 +63,24 @@ const (
 
 // Session 远程支持会话.
 type Session struct {
-	ID           string        `json:"id"`            // 会话 ID
-	Token        string        `json:"token"`         // 一次性访问令牌
-	Status       SessionStatus `json:"status"`        // 会话状态
-	AccessLevel  AccessLevel   `json:"access_level"`  // 访问级别
-	ClientIP     string        `json:"client_ip"`     // 客户端 IP
-	ClientName   string        `json:"client_name"`   // 客户端名称
-	TargetHost   string        `json:"target_host"`   // 目标主机
-	TargetPort   int           `json:"target_port"`   // 目标端口
-	BandwidthKB  int           `json:"bandwidth_kb"`  // 带宽限制（KB/s）
-	MaxDuration  time.Duration `json:"max_duration"`  // 最大持续时间
-	StartedAt    time.Time     `json:"started_at"`    // 开始时间
-	EndedAt      *time.Time    `json:"ended_at"`      // 结束时间
-	ExpiresAt    time.Time     `json:"expires_at"`    // 过期时间
-	BytesUp      int64         `json:"bytes_up"`      // 上传字节数
-	BytesDown    int64         `json:"bytes_down"`    // 下载字节数
-	Recorded     bool          `json:"recorded"`      // 是否录制
-	RecordingPath string       `json:"recording_path"` // 录制文件路径
-	AuditLog     []AuditEntry  `json:"audit_log"`     // 审计日志
+	ID            string        `json:"id"`             // 会话 ID
+	Token         string        `json:"token"`          // 一次性访问令牌
+	Status        SessionStatus `json:"status"`         // 会话状态
+	AccessLevel   AccessLevel   `json:"access_level"`   // 访问级别
+	ClientIP      string        `json:"client_ip"`      // 客户端 IP
+	ClientName    string        `json:"client_name"`    // 客户端名称
+	TargetHost    string        `json:"target_host"`    // 目标主机
+	TargetPort    int           `json:"target_port"`    // 目标端口
+	BandwidthKB   int           `json:"bandwidth_kb"`   // 带宽限制（KB/s）
+	MaxDuration   time.Duration `json:"max_duration"`   // 最大持续时间
+	StartedAt     time.Time     `json:"started_at"`     // 开始时间
+	EndedAt       *time.Time    `json:"ended_at"`       // 结束时间
+	ExpiresAt     time.Time     `json:"expires_at"`     // 过期时间
+	BytesUp       int64         `json:"bytes_up"`       // 上传字节数
+	BytesDown     int64         `json:"bytes_down"`     // 下载字节数
+	Recorded      bool          `json:"recorded"`       // 是否录制
+	RecordingPath string        `json:"recording_path"` // 录制文件路径
+	AuditLog      []AuditEntry  `json:"audit_log"`      // 审计日志
 }
 
 // AuditEntry 审计日志条目.
@@ -93,12 +93,12 @@ type AuditEntry struct {
 
 // AccessToken 访问令牌.
 type AccessToken struct {
-	Token      string      `json:"token"`       // 令牌值
-	SessionID  string      `json:"session_id"`  // 关联会话
-	Used       bool        `json:"used"`        // 是否已使用
-	ExpiresAt  time.Time   `json:"expires_at"`  // 过期时间
-	CreatedAt  time.Time   `json:"created_at"`  // 创建时间
-	UsedAt     *time.Time  `json:"used_at"`     // 使用时间
+	Token     string     `json:"token"`      // 令牌值
+	SessionID string     `json:"session_id"` // 关联会话
+	Used      bool       `json:"used"`       // 是否已使用
+	ExpiresAt time.Time  `json:"expires_at"` // 过期时间
+	CreatedAt time.Time  `json:"created_at"` // 创建时间
+	UsedAt    *time.Time `json:"used_at"`    // 使用时间
 }
 
 // TunnelInfo 隧道信息.
@@ -132,15 +132,15 @@ type SessionUpdateRequest struct {
 
 // TokenValidateRequest 验证令牌请求.
 type TokenValidateRequest struct {
-	Token   string `json:"token" binding:"required"` // 令牌值
-	ClientIP string `json:"client_ip"`               // 客户端 IP
+	Token    string `json:"token" binding:"required"` // 令牌值
+	ClientIP string `json:"client_ip"`                // 客户端 IP
 }
 
 // SessionStats 会话统计.
 type SessionStats struct {
-	TotalSessions   int   `json:"total_sessions"`   // 总会话数
-	ActiveSessions  int   `json:"active_sessions"`  // 活跃会话数
-	TotalBytesUp    int64 `json:"total_bytes_up"`   // 总上传字节
-	TotalBytesDown  int64 `json:"total_bytes_down"` // 总下载字节
-	TotalAuditEntries int `json:"total_audit_entries"` // 总审计条目
+	TotalSessions     int   `json:"total_sessions"`      // 总会话数
+	ActiveSessions    int   `json:"active_sessions"`     // 活跃会话数
+	TotalBytesUp      int64 `json:"total_bytes_up"`      // 总上传字节
+	TotalBytesDown    int64 `json:"total_bytes_down"`    // 总下载字节
+	TotalAuditEntries int   `json:"total_audit_entries"` // 总审计条目
 }

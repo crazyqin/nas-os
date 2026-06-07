@@ -12,16 +12,16 @@ import (
 
 // HealthChecker performs health checks on cluster nodes
 type HealthChecker struct {
-	mu              sync.RWMutex
-	config          HealthConfig
-	logger          *zap.Logger
-	nodes           map[string]*HealthNode
-	localNodeID     string
-	checks          map[string]HealthCheckFunc
-	results         map[string]*HealthResult
-	running         bool
-	stopCh          chan struct{}
-	onHealthChange  func(nodeID string, healthy bool)
+	mu             sync.RWMutex
+	config         HealthConfig
+	logger         *zap.Logger
+	nodes          map[string]*HealthNode
+	localNodeID    string
+	checks         map[string]HealthCheckFunc
+	results        map[string]*HealthResult
+	running        bool
+	stopCh         chan struct{}
+	onHealthChange func(nodeID string, healthy bool)
 }
 
 // HealthConfig configures health checking
@@ -88,11 +88,11 @@ type HealthResult struct {
 
 // CheckDetail represents details of an individual check
 type CheckDetail struct {
-	Name      string        `json:"name"`
-	Healthy   bool          `json:"healthy"`
-	Latency   time.Duration `json:"latency"`
-	Message   string        `json:"message,omitempty"`
-	Error     error         `json:"error,omitempty"`
+	Name    string        `json:"name"`
+	Healthy bool          `json:"healthy"`
+	Latency time.Duration `json:"latency"`
+	Message string        `json:"message,omitempty"`
+	Error   error         `json:"error,omitempty"`
 }
 
 // HealthCheckFunc is a custom health check function
@@ -100,23 +100,23 @@ type HealthCheckFunc func(ctx context.Context, node *HealthNode) CheckDetail
 
 // HealthResponse represents the response from an HTTP health endpoint
 type HealthResponse struct {
-	Status    string            `json:"status"`
-	Timestamp time.Time         `json:"timestamp"`
-	Uptime    time.Duration     `json:"uptime"`
-	Version   string            `json:"version"`
-	Services  map[string]string `json:"services"`
+	Status    string                 `json:"status"`
+	Timestamp time.Time              `json:"timestamp"`
+	Uptime    time.Duration          `json:"uptime"`
+	Version   string                 `json:"version"`
+	Services  map[string]string      `json:"services"`
 	Metrics   map[string]interface{} `json:"metrics,omitempty"`
 }
 
 // NewHealthChecker creates a new health checker
 func NewHealthChecker(config HealthConfig, logger *zap.Logger) *HealthChecker {
 	return &HealthChecker{
-		config:   config,
-		logger:   logger,
-		nodes:    make(map[string]*HealthNode),
-		checks:   make(map[string]HealthCheckFunc),
-		results:  make(map[string]*HealthResult),
-		stopCh:   make(chan struct{}),
+		config:  config,
+		logger:  logger,
+		nodes:   make(map[string]*HealthNode),
+		checks:  make(map[string]HealthCheckFunc),
+		results: make(map[string]*HealthResult),
+		stopCh:  make(chan struct{}),
 	}
 }
 
@@ -133,13 +133,13 @@ func (hc *HealthChecker) AddNode(nodeID, hostname, address string, port int) {
 	defer hc.mu.Unlock()
 
 	hc.nodes[nodeID] = &HealthNode{
-		NodeID:   nodeID,
-		Hostname: hostname,
-		Address:  address,
-		Port:     port,
-		Healthy:  true,
+		NodeID:    nodeID,
+		Hostname:  hostname,
+		Address:   address,
+		Port:      port,
+		Healthy:   true,
 		LastCheck: time.Now(),
-		LastOK:   time.Now(),
+		LastOK:    time.Now(),
 	}
 
 	hc.logger.Info("health check node added",
@@ -633,9 +633,9 @@ func (hc *HealthChecker) GetHealthStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_checks":   totalChecks,
-		"total_failures": totalFailures,
-		"average_latency": avgLatency,
+		"total_checks":      totalChecks,
+		"total_failures":    totalFailures,
+		"average_latency":   avgLatency,
 		"registered_checks": len(hc.checks),
 	}
 }

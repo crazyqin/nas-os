@@ -52,10 +52,10 @@ type LogEntry struct {
 	ID        string                 `json:"id"`
 	Timestamp time.Time              `json:"timestamp"`
 	Level     string                 `json:"level"`
-	Source    string                 `json:"source"`    // 来源：system, app, docker 等
+	Source    string                 `json:"source"` // 来源：system, app, docker 等
 	Message   string                 `json:"message"`
-	Labels    map[string]string      `json:"labels"`    // 标签
-	Metadata  map[string]interface{} `json:"metadata"`  // 扩展元数据
+	Labels    map[string]string      `json:"labels"`     // 标签
+	Metadata  map[string]interface{} `json:"metadata"`   // 扩展元数据
 	PatternID string                 `json:"pattern_id"` // 匹配的模式ID
 	ClusterID string                 `json:"cluster_id"` // 所属聚类ID
 	RuleID    string                 `json:"rule_id"`    // 触发的规则ID
@@ -66,11 +66,11 @@ type LogPattern struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description,omitempty"`
-	Regex       string    `json:"regex"`          // 正则表达式
-	Keywords    []string  `json:"keywords"`       // 关键词列表
-	Level       string    `json:"level"`          // 匹配的日志级别
-	IsAnomaly   bool      `json:"is_anomaly"`     // 是否标记为异常模式
-	Severity    string    `json:"severity"`       // 严重程度
+	Regex       string    `json:"regex"`      // 正则表达式
+	Keywords    []string  `json:"keywords"`   // 关键词列表
+	Level       string    `json:"level"`      // 匹配的日志级别
+	IsAnomaly   bool      `json:"is_anomaly"` // 是否标记为异常模式
+	Severity    string    `json:"severity"`   // 严重程度
 	Enabled     bool      `json:"enabled"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
@@ -78,54 +78,54 @@ type LogPattern struct {
 
 // AnomalyRule 异常检测规则.
 type AnomalyRule struct {
-	ID             string        `json:"id"`
-	Name           string        `json:"name"`
-	Description    string        `json:"description,omitempty"`
-	Type           string        `json:"type"`            // frequency, pattern, time
-	Threshold      int           `json:"threshold"`       // 阈值
-	Window         time.Duration `json:"window"`          // 检测窗口
-	Level          string        `json:"level"`           // 匹配的日志级别
-	PatternID      string        `json:"pattern_id"`      // 关联的模式ID
-	TimeStart      string        `json:"time_start"`      // 异常时间段开始 (HH:MM)
-	TimeEnd        string        `json:"time_end"`        // 异常时间段结束 (HH:MM)
-	Enabled        bool          `json:"enabled"`
-	CreatedAt      time.Time     `json:"created_at"`
-	UpdatedAt      time.Time     `json:"updated_at"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description,omitempty"`
+	Type        string        `json:"type"`       // frequency, pattern, time
+	Threshold   int           `json:"threshold"`  // 阈值
+	Window      time.Duration `json:"window"`     // 检测窗口
+	Level       string        `json:"level"`      // 匹配的日志级别
+	PatternID   string        `json:"pattern_id"` // 关联的模式ID
+	TimeStart   string        `json:"time_start"` // 异常时间段开始 (HH:MM)
+	TimeEnd     string        `json:"time_end"`   // 异常时间段结束 (HH:MM)
+	Enabled     bool          `json:"enabled"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
 // Alert 告警.
 type Alert struct {
-	ID          string    `json:"id"`
-	RuleID      string    `json:"rule_id"`
-	RuleName    string    `json:"rule_name"`
-	Level       string    `json:"level"`       // low, medium, high, critical
-	Status      string    `json:"status"`      // active, resolved, silenced, escalated
-	Message     string    `json:"message"`
-	LogIDs      []string  `json:"log_ids"`     // 关联的日志ID
-	Count       int       `json:"count"`       // 触发次数
-	FirstSeen   time.Time `json:"first_seen"`
-	LastSeen    time.Time `json:"last_seen"`
-	ResolvedAt  *time.Time `json:"resolved_at,omitempty"`
-	Notes       string    `json:"notes,omitempty"`
+	ID         string     `json:"id"`
+	RuleID     string     `json:"rule_id"`
+	RuleName   string     `json:"rule_name"`
+	Level      string     `json:"level"`  // low, medium, high, critical
+	Status     string     `json:"status"` // active, resolved, silenced, escalated
+	Message    string     `json:"message"`
+	LogIDs     []string   `json:"log_ids"` // 关联的日志ID
+	Count      int        `json:"count"`   // 触发次数
+	FirstSeen  time.Time  `json:"first_seen"`
+	LastSeen   time.Time  `json:"last_seen"`
+	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
+	Notes      string     `json:"notes,omitempty"`
 }
 
 // LogCluster 日志聚类.
 type LogCluster struct {
-	ID          string    `json:"id"`
-	Pattern     string    `json:"pattern"`      // 聚类模式（模板化消息）
-	Count       int       `json:"count"`        // 日志数量
-	FirstSeen   time.Time `json:"first_seen"`
-	LastSeen    time.Time `json:"last_seen"`
-	SampleIDs   []string  `json:"sample_ids"`   // 样本日志ID
-	Level       string    `json:"level"`
-	Source      string    `json:"source"`
+	ID        string    `json:"id"`
+	Pattern   string    `json:"pattern"` // 聚类模式（模板化消息）
+	Count     int       `json:"count"`   // 日志数量
+	FirstSeen time.Time `json:"first_seen"`
+	LastSeen  time.Time `json:"last_seen"`
+	SampleIDs []string  `json:"sample_ids"` // 样本日志ID
+	Level     string    `json:"level"`
+	Source    string    `json:"source"`
 }
 
 // LogStream 日志流配置.
 type LogStream struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
-	Source    string    `json:"source"`    // 文件路径或日志源
+	Source    string    `json:"source"` // 文件路径或日志源
 	Enabled   bool      `json:"enabled"`
 	Running   bool      `json:"running"`
 	CreatedAt time.Time `json:"created_at"`
@@ -133,13 +133,13 @@ type LogStream struct {
 
 // RootCauseAnalysis 根因分析结果.
 type RootCauseAnalysis struct {
-	ID          string      `json:"id"`
-	AlertID     string      `json:"alert_id"`
-	RootCause   string      `json:"root_cause"`
-	Timeline    []TimelineEntry `json:"timeline"`      // 时间线
-	RelatedLogs []string    `json:"related_logs"`  // 关联日志ID
-	Suggestions []string    `json:"suggestions"`   // 建议
-	CreatedAt   time.Time   `json:"created_at"`
+	ID          string          `json:"id"`
+	AlertID     string          `json:"alert_id"`
+	RootCause   string          `json:"root_cause"`
+	Timeline    []TimelineEntry `json:"timeline"`     // 时间线
+	RelatedLogs []string        `json:"related_logs"` // 关联日志ID
+	Suggestions []string        `json:"suggestions"`  // 建议
+	CreatedAt   time.Time       `json:"created_at"`
 }
 
 // TimelineEntry 时间线条目.
@@ -175,9 +175,9 @@ type LogStats struct {
 
 // PatternStat 模式统计.
 type PatternStat struct {
-	PatternID   string `json:"pattern_id"`
-	PatternName string `json:"pattern_name"`
-	Count       int    `json:"count"`
+	PatternID   string    `json:"pattern_id"`
+	PatternName string    `json:"pattern_name"`
+	Count       int       `json:"count"`
 	LastSeen    time.Time `json:"last_seen"`
 }
 
@@ -192,16 +192,16 @@ type TrendPoint struct {
 
 // QueryLogsRequest 查询日志请求.
 type QueryLogsRequest struct {
-	StartTime  *time.Time `form:"start_time"`
-	EndTime    *time.Time `form:"end_time"`
-	Level      string     `form:"level"`
-	Source     string     `form:"source"`
-	Keyword    string     `form:"keyword"`
-	Regex      string     `form:"regex"`
-	PatternID  string     `form:"pattern_id"`
-	ClusterID  string     `form:"cluster_id"`
-	Page       int        `form:"page"`
-	PageSize   int        `form:"page_size"`
+	StartTime *time.Time `form:"start_time"`
+	EndTime   *time.Time `form:"end_time"`
+	Level     string     `form:"level"`
+	Source    string     `form:"source"`
+	Keyword   string     `form:"keyword"`
+	Regex     string     `form:"regex"`
+	PatternID string     `form:"pattern_id"`
+	ClusterID string     `form:"cluster_id"`
+	Page      int        `form:"page"`
+	PageSize  int        `form:"page_size"`
 }
 
 // CreatePatternRequest 创建模式请求.
@@ -274,11 +274,11 @@ type CreateRetentionPolicyRequest struct {
 
 // AnalysisResult 分析结果.
 type AnalysisResult struct {
-	TotalLogs   int            `json:"total_logs"`
-	Anomalies   int            `json:"anomalies"`
-	Patterns    []PatternStat  `json:"patterns"`
-	Clusters    []LogCluster   `json:"clusters"`
-	Summary     string         `json:"summary"`
+	TotalLogs int           `json:"total_logs"`
+	Anomalies int           `json:"anomalies"`
+	Patterns  []PatternStat `json:"patterns"`
+	Clusters  []LogCluster  `json:"clusters"`
+	Summary   string        `json:"summary"`
 }
 
 // StatsQueryRequest 统计查询请求.

@@ -13,13 +13,13 @@ import (
 
 // AdaptiveManager 自适应MFA管理器
 type AdaptiveManager struct {
-	mu               sync.RWMutex
-	config           *AdaptiveConfig
-	riskEngine       *RiskEngine
-	fingerprintGen   *FingerprintGenerator
-	trustedDevices   map[string][]*TrustedDevice // userID -> 信任设备列表
-	challenges       map[string]*AuthChallenge   // challengeID -> 挑战
-	configPath       string
+	mu             sync.RWMutex
+	config         *AdaptiveConfig
+	riskEngine     *RiskEngine
+	fingerprintGen *FingerprintGenerator
+	trustedDevices map[string][]*TrustedDevice // userID -> 信任设备列表
+	challenges     map[string]*AuthChallenge   // challengeID -> 挑战
+	configPath     string
 }
 
 // NewAdaptiveManager 创建自适应MFA管理器
@@ -60,7 +60,7 @@ func (am *AdaptiveManager) loadConfig() error {
 
 	var stored struct {
 		TrustedDevices map[string][]*TrustedDevice `json:"trusted_devices"`
-		Challenges     map[string]*AuthChallenge    `json:"challenges"`
+		Challenges     map[string]*AuthChallenge   `json:"challenges"`
 	}
 
 	if err := json.Unmarshal(data, &stored); err != nil {
@@ -89,7 +89,7 @@ func (am *AdaptiveManager) saveConfig() error {
 	am.mu.RLock()
 	stored := struct {
 		TrustedDevices map[string][]*TrustedDevice `json:"trusted_devices"`
-		Challenges     map[string]*AuthChallenge    `json:"challenges"`
+		Challenges     map[string]*AuthChallenge   `json:"challenges"`
 	}{
 		TrustedDevices: am.trustedDevices,
 		Challenges:     am.challenges,

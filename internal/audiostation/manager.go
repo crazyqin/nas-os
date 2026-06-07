@@ -14,19 +14,19 @@ import (
 
 // Manager 音乐中心管理器.
 type Manager struct {
-	mu             sync.RWMutex
-	tracks         map[string]*Track        // trackID -> Track
-	albums         map[string]*Album        // albumID -> Album
-	artists        map[string]*Artist       // artistID -> Artist
-	genres         map[string]*Genre        // genreID -> Genre
-	playlists      map[string]*Playlist     // playlistID -> Playlist
-	favorites      map[string]bool          // trackID -> isFavorite
-	recentPlayed   []string                 // 最近播放的trackID列表（按时间倒序）
-	playHistory    []*PlaybackStats         // 播放历史
-	dlnaDevices    map[string]*DLNADevice   // deviceID -> DLNADevice
-	scanStatus     *ScanStatus
-	configPath     string                   // 配置持久化路径
-	libraryPaths   []string                 // 音乐库扫描路径
+	mu           sync.RWMutex
+	tracks       map[string]*Track      // trackID -> Track
+	albums       map[string]*Album      // albumID -> Album
+	artists      map[string]*Artist     // artistID -> Artist
+	genres       map[string]*Genre      // genreID -> Genre
+	playlists    map[string]*Playlist   // playlistID -> Playlist
+	favorites    map[string]bool        // trackID -> isFavorite
+	recentPlayed []string               // 最近播放的trackID列表（按时间倒序）
+	playHistory  []*PlaybackStats       // 播放历史
+	dlnaDevices  map[string]*DLNADevice // deviceID -> DLNADevice
+	scanStatus   *ScanStatus
+	configPath   string   // 配置持久化路径
+	libraryPaths []string // 音乐库扫描路径
 }
 
 // NewManager 创建音乐中心管理器.

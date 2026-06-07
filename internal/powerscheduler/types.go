@@ -6,10 +6,10 @@ import (
 )
 
 var (
-	ErrScheduleNotFound    = errors.New("schedule not found")
-	ErrScheduleExists      = errors.New("schedule already exists")
-	ErrInvalidSchedule     = errors.New("invalid schedule config")
-	ErrManagerClosed       = errors.New("manager closed")
+	ErrScheduleNotFound = errors.New("schedule not found")
+	ErrScheduleExists   = errors.New("schedule already exists")
+	ErrInvalidSchedule  = errors.New("invalid schedule config")
+	ErrManagerClosed    = errors.New("manager closed")
 )
 
 // PowerAction 功耗动作
@@ -63,8 +63,8 @@ type PowerState struct {
 
 // ThrottleConfig 功耗节流配置
 type ThrottleConfig struct {
-	MaxCPUPercent   float64 `json:"max_cpu_percent"`
-	MaxMemoryMB     int64   `json:"max_memory_mb"`
-	SpinDownDisks   bool    `json:"spin_down_disks"`
-	ReduceNetworkQoS bool   `json:"reduce_network_qos"`
+	MaxCPUPercent    float64 `json:"max_cpu_percent"`
+	MaxMemoryMB      int64   `json:"max_memory_mb"`
+	SpinDownDisks    bool    `json:"spin_down_disks"`
+	ReduceNetworkQoS bool    `json:"reduce_network_qos"`
 }

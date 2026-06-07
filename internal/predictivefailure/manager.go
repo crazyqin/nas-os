@@ -199,15 +199,15 @@ func (m *Manager) RunFullScan() (*ScanResult, error) {
 	overallScore := calculateOverallRisk(diskPredictions, memPred, cpuPred)
 
 	scanResult := &ScanResult{
-		ID:                fmt.Sprintf("scan-%d", time.Now().UnixMilli()),
-		ScanTime:          start,
-		Duration:          time.Since(start),
-		DiskPredictions:   diskPredictions,
-		MemoryPrediction:  memPred,
-		CPUPrediction:     cpuPred,
-		Alerts:            scanAlerts,
-		OverallRiskScore:  overallScore,
-		OverallRiskLevel:  ScoreToRiskLevel(overallScore),
+		ID:               fmt.Sprintf("scan-%d", time.Now().UnixMilli()),
+		ScanTime:         start,
+		Duration:         time.Since(start),
+		DiskPredictions:  diskPredictions,
+		MemoryPrediction: memPred,
+		CPUPrediction:    cpuPred,
+		Alerts:           scanAlerts,
+		OverallRiskScore: overallScore,
+		OverallRiskLevel: ScoreToRiskLevel(overallScore),
 	}
 
 	// 存储预测和告警

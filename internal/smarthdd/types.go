@@ -8,53 +8,53 @@ import (
 
 // SmartHDDManager 磁盘健康管理器
 type SmartHDDManager struct {
-	mu       sync.RWMutex
-	disks    map[string]*DiskInfo
-	alerts   []*HealthAlert
-	config   *SmartConfig
+	mu     sync.RWMutex
+	disks  map[string]*DiskInfo
+	alerts []*HealthAlert
+	config *SmartConfig
 }
 
 // SmartConfig 配置
 type SmartConfig struct {
-	TempThreshold     int     `json:"temp_threshold_celsius"`
-	ReallocThreshold  int     `json:"realloc_threshold"`
-	PendingThreshold  int     `json:"pending_threshold"`
-	ScanInterval      int     `json:"scan_interval_hours"`
-	AlertEnabled      bool    `json:"alert_enabled"`
+	TempThreshold    int  `json:"temp_threshold_celsius"`
+	ReallocThreshold int  `json:"realloc_threshold"`
+	PendingThreshold int  `json:"pending_threshold"`
+	ScanInterval     int  `json:"scan_interval_hours"`
+	AlertEnabled     bool `json:"alert_enabled"`
 }
 
 // DiskInfo 磁盘信息
 type DiskInfo struct {
-	ID            string       `json:"id"`
-	Device        string       `json:"device"`
-	Model         string       `json:"model"`
-	Serial        string       `json:"serial"`
-	Size          int64        `json:"size_bytes"`
-	Health        HealthStatus `json:"health"`
-	Temperature   int          `json:"temperature_celsius"`
-	PowerOnHours  int64        `json:"power_on_hours"`
-	PowerCycles   int64        `json:"power_cycles"`
-	ReallocSectors int64       `json:"realloc_sectors"`
-	PendingSectors int64       `json:"pending_sectors"`
-	UNCorrectable  int64       `json:"uncorrectable_errors"`
-	SeekErrors    int64        `json:"seek_errors"`
-	ReadErrors    int64        `json:"read_errors"`
-	WriteErrors   int64        `json:"write_errors"`
-	SMARTPassed   bool         `json:"smart_passed"`
-	LastScan      time.Time    `json:"last_scan"`
-	LastSMART     time.Time    `json:"last_smart_check"`
-	Attributes    []*SMARTAttribute `json:"attributes"`
+	ID             string            `json:"id"`
+	Device         string            `json:"device"`
+	Model          string            `json:"model"`
+	Serial         string            `json:"serial"`
+	Size           int64             `json:"size_bytes"`
+	Health         HealthStatus      `json:"health"`
+	Temperature    int               `json:"temperature_celsius"`
+	PowerOnHours   int64             `json:"power_on_hours"`
+	PowerCycles    int64             `json:"power_cycles"`
+	ReallocSectors int64             `json:"realloc_sectors"`
+	PendingSectors int64             `json:"pending_sectors"`
+	UNCorrectable  int64             `json:"uncorrectable_errors"`
+	SeekErrors     int64             `json:"seek_errors"`
+	ReadErrors     int64             `json:"read_errors"`
+	WriteErrors    int64             `json:"write_errors"`
+	SMARTPassed    bool              `json:"smart_passed"`
+	LastScan       time.Time         `json:"last_scan"`
+	LastSMART      time.Time         `json:"last_smart_check"`
+	Attributes     []*SMARTAttribute `json:"attributes"`
 }
 
 // SMARTAttribute SMART属性
 type SMARTAttribute struct {
-	ID         int    `json:"id"`
-	Name       string `json:"name"`
-	Value      int    `json:"value"`
-	Worst      int    `json:"worst"`
-	Threshold  int    `json:"threshold"`
-	RawValue   int64  `json:"raw_value"`
-	Status     string `json:"status"`
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	Value     int    `json:"value"`
+	Worst     int    `json:"worst"`
+	Threshold int    `json:"threshold"`
+	RawValue  int64  `json:"raw_value"`
+	Status    string `json:"status"`
 }
 
 // HealthStatus 健康状态
@@ -69,15 +69,15 @@ const (
 
 // HealthAlert 健康告警
 type HealthAlert struct {
-	ID        string       `json:"id"`
-	DiskID    string       `json:"disk_id"`
-	Device    string       `json:"device"`
-	Level     AlertLevel   `json:"level"`
-	Message   string       `json:"message"`
-	Value     interface{}  `json:"value"`
-	Threshold interface{}  `json:"threshold"`
-	CreatedAt time.Time    `json:"created_at"`
-	Resolved  bool         `json:"resolved"`
+	ID         string      `json:"id"`
+	DiskID     string      `json:"disk_id"`
+	Device     string      `json:"device"`
+	Level      AlertLevel  `json:"level"`
+	Message    string      `json:"message"`
+	Value      interface{} `json:"value"`
+	Threshold  interface{} `json:"threshold"`
+	CreatedAt  time.Time   `json:"created_at"`
+	Resolved   bool        `json:"resolved"`
 	ResolvedAt *time.Time  `json:"resolved_at,omitempty"`
 }
 

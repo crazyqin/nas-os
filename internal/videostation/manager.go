@@ -254,11 +254,11 @@ func (m *Manager) PlayVideo(videoID string, userID string, req *PlayRequest) (*P
 
 	if session == nil {
 		session = &PlaySession{
-			ID:        generateID(),
-			VideoID:   videoID,
-			UserID:    userID,
+			ID:         generateID(),
+			VideoID:    videoID,
+			UserID:     userID,
 			DeviceType: "web",
-			CreatedAt: time.Now(),
+			CreatedAt:  time.Now(),
 		}
 		m.sessions[session.ID] = session
 	}
@@ -623,24 +623,24 @@ func (m *Manager) ScanLibrary(id string) (*ScanResult, error) {
 			ext := []string{".mp4", ".mkv", ".avi"}[rand.Intn(3)]
 			videoID := generateID()
 			newVideo := &Video{
-				ID:        videoID,
-				Title:     fmt.Sprintf("扫描发现的视频 %d", i+1),
-				FilePath:  filepath.Join(lib.Path, fmt.Sprintf("video_%d%s", i+1, ext)),
-				FileName:  fmt.Sprintf("video_%d%s", i+1, ext),
-				FileSize:  int64(100+rand.Intn(4900)) * 1024 * 1024,
-				Duration:  float64(600 + rand.Intn(7200)),
-				Width:     1920,
-				Height:    1080,
+				ID:         videoID,
+				Title:      fmt.Sprintf("扫描发现的视频 %d", i+1),
+				FilePath:   filepath.Join(lib.Path, fmt.Sprintf("video_%d%s", i+1, ext)),
+				FileName:   fmt.Sprintf("video_%d%s", i+1, ext),
+				FileSize:   int64(100+rand.Intn(4900)) * 1024 * 1024,
+				Duration:   float64(600 + rand.Intn(7200)),
+				Width:      1920,
+				Height:     1080,
 				VideoCodec: CodecH264,
 				AudioCodec: AACCodec,
-				Bitrate:   3000000,
-				Framerate: 30,
-				Container: ext[1:],
-				LibraryID: id,
-				Status:    VideoStatusReady,
-				CreatedAt: now,
-				UpdatedAt: now,
-				IndexedAt: &now,
+				Bitrate:    3000000,
+				Framerate:  30,
+				Container:  ext[1:],
+				LibraryID:  id,
+				Status:     VideoStatusReady,
+				CreatedAt:  now,
+				UpdatedAt:  now,
+				IndexedAt:  &now,
 			}
 			m.videos[videoID] = newVideo
 			lib.VideoCount++

@@ -174,8 +174,8 @@ func TestUpdateRule(t *testing.T) {
 
 	// 先创建规则
 	rule := SyncRule{
-		Name:     "Original Rule",
-		Enabled:  true,
+		Name:    "Original Rule",
+		Enabled: true,
 	}
 	created, _ := manager.CreateRule(rule)
 

@@ -15,10 +15,10 @@ import (
 type AccessProtocol string
 
 const (
-	ProtocolHTTPS AccessProtocol = "https"
-	ProtocolSSH   AccessProtocol = "ssh"
-	ProtocolVNC   AccessProtocol = "vnc"
-	ProtocolRDP   AccessProtocol = "rdp"
+	ProtocolHTTPS  AccessProtocol = "https"
+	ProtocolSSH    AccessProtocol = "ssh"
+	ProtocolVNC    AccessProtocol = "vnc"
+	ProtocolRDP    AccessProtocol = "rdp"
 	ProtocolWebDAV AccessProtocol = "webdav"
 )
 
@@ -34,122 +34,122 @@ const (
 
 // RemoteSession 远程会话
 type RemoteSession struct {
-	ID         string        `json:"id"`
-	UserID     string        `json:"user_id"`
-	DeviceName string        `json:"device_name"`
-	Protocol   AccessProtocol `json:"protocol"`
-	Status     SessionStatus `json:"status"`
-	StartTime  time.Time     `json:"start_time"`
-	EndTime    *time.Time    `json:"end_time,omitempty"`
-	ClientIP   string        `json:"client_ip"`
-	Bandwidth  int64         `json:"bandwidth"` // bytes per second
-	BytesSent  int64         `json:"bytes_sent"`
-	BytesRecv  int64         `json:"bytes_recv"`
+	ID         string            `json:"id"`
+	UserID     string            `json:"user_id"`
+	DeviceName string            `json:"device_name"`
+	Protocol   AccessProtocol    `json:"protocol"`
+	Status     SessionStatus     `json:"status"`
+	StartTime  time.Time         `json:"start_time"`
+	EndTime    *time.Time        `json:"end_time,omitempty"`
+	ClientIP   string            `json:"client_ip"`
+	Bandwidth  int64             `json:"bandwidth"` // bytes per second
+	BytesSent  int64             `json:"bytes_sent"`
+	BytesRecv  int64             `json:"bytes_recv"`
 	Metadata   map[string]string `json:"metadata,omitempty"`
 }
 
 // RemoteAccessConfig 远程访问配置
 type RemoteAccessConfig struct {
-	Enabled           bool              `json:"enabled"`
-	MaxSessions       int               `json:"max_sessions"`
-	SessionTimeout    time.Duration     `json:"session_timeout"`
-	IdleTimeout       time.Duration     `json:"idle_timeout"`
-	AllowedProtocols  []AccessProtocol  `json:"allowed_protocols"`
-	DDNSConfig        *DDNSConfig       `json:"ddns_config,omitempty"`
-	CertConfig        *CertConfig       `json:"cert_config,omitempty"`
-	P2PConfig         *P2PConfig        `json:"p2p_config,omitempty"`
-	RateLimit         *RateLimitConfig  `json:"rate_limit,omitempty"`
-	GeoFilter         *GeoFilterConfig  `json:"geo_filter,omitempty"`
-	PortMappings      []PortMapping     `json:"port_mappings,omitempty"`
+	Enabled          bool             `json:"enabled"`
+	MaxSessions      int              `json:"max_sessions"`
+	SessionTimeout   time.Duration    `json:"session_timeout"`
+	IdleTimeout      time.Duration    `json:"idle_timeout"`
+	AllowedProtocols []AccessProtocol `json:"allowed_protocols"`
+	DDNSConfig       *DDNSConfig      `json:"ddns_config,omitempty"`
+	CertConfig       *CertConfig      `json:"cert_config,omitempty"`
+	P2PConfig        *P2PConfig       `json:"p2p_config,omitempty"`
+	RateLimit        *RateLimitConfig `json:"rate_limit,omitempty"`
+	GeoFilter        *GeoFilterConfig `json:"geo_filter,omitempty"`
+	PortMappings     []PortMapping    `json:"port_mappings,omitempty"`
 }
 
 // DDNSConfig 动态DNS配置
 type DDNSConfig struct {
-	Provider     string        `json:"provider"`
-	Domain       string        `json:"domain"`
-	Username     string        `json:"username"`
-	Password     string        `json:"password"`
+	Provider       string        `json:"provider"`
+	Domain         string        `json:"domain"`
+	Username       string        `json:"username"`
+	Password       string        `json:"password"`
 	UpdateInterval time.Duration `json:"update_interval"`
-	LastUpdate   time.Time     `json:"last_update"`
-	CurrentIP    string        `json:"current_ip"`
-	Enabled      bool          `json:"enabled"`
+	LastUpdate     time.Time     `json:"last_update"`
+	CurrentIP      string        `json:"current_ip"`
+	Enabled        bool          `json:"enabled"`
 }
 
 // CertConfig SSL证书配置
 type CertConfig struct {
-	Provider      string    `json:"provider"` // letsencrypt, custom
-	Domain        string    `json:"domain"`
-	Email         string    `json:"email"`
-	CertPath      string    `json:"cert_path"`
-	KeyPath       string    `json:"key_path"`
-	AutoRenew     bool      `json:"auto_renew"`
-	RenewBefore   int       `json:"renew_before_days"`
-	ExpiryDate    time.Time `json:"expiry_date"`
-	LastRenewal   time.Time `json:"last_renewal"`
+	Provider    string    `json:"provider"` // letsencrypt, custom
+	Domain      string    `json:"domain"`
+	Email       string    `json:"email"`
+	CertPath    string    `json:"cert_path"`
+	KeyPath     string    `json:"key_path"`
+	AutoRenew   bool      `json:"auto_renew"`
+	RenewBefore int       `json:"renew_before_days"`
+	ExpiryDate  time.Time `json:"expiry_date"`
+	LastRenewal time.Time `json:"last_renewal"`
 }
 
 // P2PConfig P2P穿透配置
 type P2PConfig struct {
-	Enabled       bool          `json:"enabled"`
-	STUNServers   []string      `json:"stun_servers"`
-	TURNServer    string        `json:"turn_server,omitempty"`
-	TURNUsername   string        `json:"turn_username,omitempty"`
-	TURNPassword   string        `json:"turn_password,omitempty"`
-	RelayFallback bool          `json:"relay_fallback"`
-	RelayServer   string        `json:"relay_server,omitempty"`
+	Enabled       bool     `json:"enabled"`
+	STUNServers   []string `json:"stun_servers"`
+	TURNServer    string   `json:"turn_server,omitempty"`
+	TURNUsername  string   `json:"turn_username,omitempty"`
+	TURNPassword  string   `json:"turn_password,omitempty"`
+	RelayFallback bool     `json:"relay_fallback"`
+	RelayServer   string   `json:"relay_server,omitempty"`
 }
 
 // RateLimitConfig 速率限制配置
 type RateLimitConfig struct {
-	Enabled           bool  `json:"enabled"`
-	MaxConnectionsPerIP int `json:"max_connections_per_ip"`
-	ConnectionsPerMinute int `json:"connections_per_minute"`
-	BandwidthLimit    int64 `json:"bandwidth_limit"` // bytes per second
+	Enabled              bool  `json:"enabled"`
+	MaxConnectionsPerIP  int   `json:"max_connections_per_ip"`
+	ConnectionsPerMinute int   `json:"connections_per_minute"`
+	BandwidthLimit       int64 `json:"bandwidth_limit"` // bytes per second
 }
 
 // GeoFilterConfig 地理位置过滤配置
 type GeoFilterConfig struct {
-	Enabled       bool     `json:"enabled"`
-	Mode          string   `json:"mode"` // allowlist, denylist
+	Enabled          bool     `json:"enabled"`
+	Mode             string   `json:"mode"` // allowlist, denylist
 	AllowedCountries []string `json:"allowed_countries,omitempty"`
 	DeniedCountries  []string `json:"denied_countries,omitempty"`
 }
 
 // PortMapping 端口映射
 type PortMapping struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Protocol    AccessProtocol `json:"protocol"`
-	ExternalPort int          `json:"external_port"`
-	InternalPort int          `json:"internal_port"`
-	InternalHost string       `json:"internal_host"`
-	Enabled      bool         `json:"enabled"`
+	ID           string         `json:"id"`
+	Name         string         `json:"name"`
+	Protocol     AccessProtocol `json:"protocol"`
+	ExternalPort int            `json:"external_port"`
+	InternalPort int            `json:"internal_port"`
+	InternalHost string         `json:"internal_host"`
+	Enabled      bool           `json:"enabled"`
 }
 
 // AccessLogEntry 访问日志条目
 type AccessLogEntry struct {
-	ID        string        `json:"id"`
-	Timestamp time.Time     `json:"timestamp"`
-	UserID    string        `json:"user_id"`
-	ClientIP  string        `json:"client_ip"`
+	ID        string         `json:"id"`
+	Timestamp time.Time      `json:"timestamp"`
+	UserID    string         `json:"user_id"`
+	ClientIP  string         `json:"client_ip"`
 	Protocol  AccessProtocol `json:"protocol"`
-	Action    string        `json:"action"` // connect, disconnect, denied
-	Resource  string        `json:"resource,omitempty"`
-	Status    int           `json:"status"`
-	UserAgent string        `json:"user_agent,omitempty"`
-	Country   string        `json:"country,omitempty"`
-	Details   string        `json:"details,omitempty"`
+	Action    string         `json:"action"` // connect, disconnect, denied
+	Resource  string         `json:"resource,omitempty"`
+	Status    int            `json:"status"`
+	UserAgent string         `json:"user_agent,omitempty"`
+	Country   string         `json:"country,omitempty"`
+	Details   string         `json:"details,omitempty"`
 }
 
 // DDNSStatus DDNS状态
 type DDNSStatus struct {
-	Enabled       bool      `json:"enabled"`
-	Domain        string    `json:"domain"`
-	CurrentIP     string    `json:"current_ip"`
-	LastUpdate    time.Time `json:"last_update"`
-	NextUpdate    time.Time `json:"next_update"`
-	Status        string    `json:"status"` // ok, error, updating
-	ErrorMessage  string    `json:"error_message,omitempty"`
+	Enabled      bool      `json:"enabled"`
+	Domain       string    `json:"domain"`
+	CurrentIP    string    `json:"current_ip"`
+	LastUpdate   time.Time `json:"last_update"`
+	NextUpdate   time.Time `json:"next_update"`
+	Status       string    `json:"status"` // ok, error, updating
+	ErrorMessage string    `json:"error_message,omitempty"`
 }
 
 // CertificateInfo 证书信息
@@ -523,15 +523,15 @@ func (m *RemoteAccessManager) GetRemoteAccessStatus() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"enabled":         m.config.Enabled,
-		"running":         m.running,
-		"active_sessions": activeCount,
-		"idle_sessions":   idleCount,
-		"total_sessions":  len(m.sessions),
-		"max_sessions":    m.config.MaxSessions,
-		"protocols":       m.config.AllowedProtocols,
-		"ddns_enabled":    m.config.DDNSConfig != nil && m.config.DDNSConfig.Enabled,
-		"p2p_enabled":     m.config.P2PConfig != nil && m.config.P2PConfig.Enabled,
+		"enabled":            m.config.Enabled,
+		"running":            m.running,
+		"active_sessions":    activeCount,
+		"idle_sessions":      idleCount,
+		"total_sessions":     len(m.sessions),
+		"max_sessions":       m.config.MaxSessions,
+		"protocols":          m.config.AllowedProtocols,
+		"ddns_enabled":       m.config.DDNSConfig != nil && m.config.DDNSConfig.Enabled,
+		"p2p_enabled":        m.config.P2PConfig != nil && m.config.P2PConfig.Enabled,
 		"rate_limit_enabled": m.config.RateLimit != nil && m.config.RateLimit.Enabled,
 		"geo_filter_enabled": m.config.GeoFilter != nil && m.config.GeoFilter.Enabled,
 	}

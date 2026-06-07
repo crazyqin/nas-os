@@ -13,7 +13,7 @@ func TestRecordAndPredict(t *testing.T) {
 	for i := 0; i < 30; i++ {
 		p.RecordSnapshot("dataset1", &UsageSnapshot{
 			Timestamp:  baseTime.AddDate(0, 0, i),
-			TotalBytes: 1024 * 1024 * 1024 * 100, // 100GB
+			TotalBytes: 1024 * 1024 * 1024 * 100,                // 100GB
 			UsedBytes:  int64(1024*1024*1024) * (50 + int64(i)), // 每天增长1GB
 			FreeBytes:  int64(1024*1024*1024) * (50 - int64(i)),
 		})

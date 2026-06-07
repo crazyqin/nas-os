@@ -191,13 +191,13 @@ func (m *Manager) UpdateSMARTData(diskID string, data SMARTData) error {
 
 // SMARTData holds raw S.M.A.R.T. data.
 type SMARTData struct {
-	HealthOK         bool    `json:"healthOk"`
-	Temperature      float64 `json:"temperature"`
-	ReallocatedSectors int64 `json:"reallocatedSectors"`
-	PendingSectors   int64   `json:"pendingSectors"`
-	PowerOnHours     int64   `json:"powerOnHours"`
-	TotalBytesRead   int64   `json:"totalBytesRead"`
-	TotalBytesWrite  int64   `json:"totalBytesWrite"`
+	HealthOK           bool    `json:"healthOk"`
+	Temperature        float64 `json:"temperature"`
+	ReallocatedSectors int64   `json:"reallocatedSectors"`
+	PendingSectors     int64   `json:"pendingSectors"`
+	PowerOnHours       int64   `json:"powerOnHours"`
+	TotalBytesRead     int64   `json:"totalBytesRead"`
+	TotalBytesWrite    int64   `json:"totalBytesWrite"`
 }
 
 // RetireDisk marks a disk as retired.

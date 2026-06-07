@@ -239,9 +239,9 @@ func setupStorageCostTestHandler(t *testing.T) (*Handlers, *Manager, *gin.Engine
 	gin.SetMode(gin.TestMode)
 
 	config := &StorageCostConfig{
-		Currency:       "CNY",
-		BudgetLimit:    10000.0,
-		AlertThreshold: 80.0,
+		Currency:        "CNY",
+		BudgetLimit:     10000.0,
+		AlertThreshold:  80.0,
 		DefaultPriceSSD: 0.5,
 		DefaultPriceHDD: 0.1,
 	}

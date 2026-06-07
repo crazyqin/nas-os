@@ -314,17 +314,17 @@ func (s *Service) Chat(ctx context.Context, req ChatRequest, userID, username, i
 
 	// 构建审计条目
 	audit := &AuditEntry{
-		ID:           uuid.New().String(),
-		Timestamp:    startTime,
-		UserID:       userID,
-		Username:     username,
-		ModelID:      model.ID,
-		ModelName:    model.Name,
-		Action:       "chat",
-		Redacted:     redacted,
-		RedactCount:  totalRedactCount,
-		DurationMs:   duration.Milliseconds(),
-		IPAddress:    ip,
+		ID:          uuid.New().String(),
+		Timestamp:   startTime,
+		UserID:      userID,
+		Username:    username,
+		ModelID:     model.ID,
+		ModelName:   model.Name,
+		Action:      "chat",
+		Redacted:    redacted,
+		RedactCount: totalRedactCount,
+		DurationMs:  duration.Milliseconds(),
+		IPAddress:   ip,
 	}
 
 	// 请求/响应摘要（截断前 200 字符）

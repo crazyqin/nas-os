@@ -192,12 +192,12 @@ func (h *Handlers) ListApps(c *gin.Context) {
 
 func (h *Handlers) RegisterApp(c *gin.Context) {
 	var req struct {
-		Name         string          `json:"name"`
-		OwnerID      string          `json:"owner_id"`
-		Description  string          `json:"description"`
-		RedirectURIs []string        `json:"redirect_uris"`
+		Name         string           `json:"name"`
+		OwnerID      string           `json:"owner_id"`
+		Description  string           `json:"description"`
+		RedirectURIs []string         `json:"redirect_uris"`
 		GrantTypes   []OAuthGrantType `json:"grant_types"`
-		Scopes       []APIScope      `json:"scopes"`
+		Scopes       []APIScope       `json:"scopes"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": err.Error()})
@@ -232,10 +232,10 @@ func (h *Handlers) DeleteApp(c *gin.Context) {
 
 func (h *Handlers) IssueToken(c *gin.Context) {
 	var req struct {
-		ClientID     string        `json:"client_id"`
-		ClientSecret string        `json:"client_secret"`
+		ClientID     string         `json:"client_id"`
+		ClientSecret string         `json:"client_secret"`
 		GrantType    OAuthGrantType `json:"grant_type"`
-		Scopes       []APIScope    `json:"scopes"`
+		Scopes       []APIScope     `json:"scopes"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": err.Error()})

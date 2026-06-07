@@ -15,10 +15,10 @@ const base62Chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw
 
 // LinkManager 共享链接管理器
 type LinkManager struct {
-	mu        sync.RWMutex
-	links     map[string]*ShareLink
+	mu         sync.RWMutex
+	links      map[string]*ShareLink
 	shortCodes map[string]*ShareLink // 短码 -> 链接映射
-	config    *LinkConfig
+	config     *LinkConfig
 }
 
 // NewLinkManager 创建管理器

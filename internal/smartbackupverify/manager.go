@@ -15,12 +15,12 @@ import (
 type Manager struct {
 	mu           sync.RWMutex
 	logger       *zap.Logger
-	backups      map[string]*BackupInfo       // backupID -> BackupInfo
-	verifyTasks  map[string]*VerifyTask       // taskID -> VerifyTask
+	backups      map[string]*BackupInfo        // backupID -> BackupInfo
+	verifyTasks  map[string]*VerifyTask        // taskID -> VerifyTask
 	restoreTests map[string]*RestoreTestResult // testID -> RestoreTestResult
 	healthScores map[string]*HealthScore       // backupID -> HealthScore
-	reports      map[string]*VerifyReport     // reportID -> VerifyReport
-	alerts       map[string]*Alert            // alertID -> Alert
+	reports      map[string]*VerifyReport      // reportID -> VerifyReport
+	alerts       map[string]*Alert             // alertID -> Alert
 }
 
 // NewManager 创建备份智能验证管理器.
@@ -106,11 +106,11 @@ func (m *Manager) RunVerification(req VerifyRequest) (*VerifyTask, error) {
 
 	now := time.Now()
 	task := &VerifyTask{
-		ID:       generateID(),
-		BackupID: req.BackupID,
-		Status:   VerifyStatusRunning,
+		ID:        generateID(),
+		BackupID:  req.BackupID,
+		Status:    VerifyStatusRunning,
 		StartedAt: now,
-		Checks:   make([]CheckItem, 0),
+		Checks:    make([]CheckItem, 0),
 	}
 
 	m.verifyTasks[task.ID] = task

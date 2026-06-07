@@ -196,13 +196,13 @@ func TestIdleConfig(t *testing.T) {
 	m := NewManager()
 
 	config := IdleConfig{
-		Enabled:        true,
-		IdleTimeout:    30 * time.Minute,
-		IdleAction:     ActionSleep,
-		MonitorCPU:     true,
-		MonitorDisk:    true,
-		MonitorNetwork: true,
-		CPUThreshold:   10.0,
+		Enabled:         true,
+		IdleTimeout:     30 * time.Minute,
+		IdleAction:      ActionSleep,
+		MonitorCPU:      true,
+		MonitorDisk:     true,
+		MonitorNetwork:  true,
+		CPUThreshold:    10.0,
 		DiskIOThreshold: 1024,
 		NetIOThreshold:  512,
 	}
@@ -254,9 +254,9 @@ func TestExportImportConfig(t *testing.T) {
 	m := NewManager()
 
 	m.AddSchedule(PowerSchedule{
-		ID:   "s1",
-		Name: "Test",
-		Type: ScheduleDaily,
+		ID:     "s1",
+		Name:   "Test",
+		Type:   ScheduleDaily,
 		Action: ActionPowerOff,
 		Hour:   22,
 		Minute: 0,

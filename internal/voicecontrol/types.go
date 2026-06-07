@@ -10,11 +10,11 @@ import (
 type VoiceProvider string
 
 const (
-	ProviderSiri     VoiceProvider = "siri"
-	ProviderGoogle   VoiceProvider = "google"
-	ProviderAlexa    VoiceProvider = "alexa"
-	ProviderXiaoAI   VoiceProvider = "xiaoai"
-	ProviderCustom   VoiceProvider = "custom"
+	ProviderSiri   VoiceProvider = "siri"
+	ProviderGoogle VoiceProvider = "google"
+	ProviderAlexa  VoiceProvider = "alexa"
+	ProviderXiaoAI VoiceProvider = "xiaoai"
+	ProviderCustom VoiceProvider = "custom"
 )
 
 // CommandType 语音命令类型
@@ -35,25 +35,25 @@ const (
 
 // Intent 识别后的意图
 type Intent struct {
-	Command    CommandType          `json:"command"`
-	Parameters map[string]string    `json:"parameters"`
-	Confidence float64              `json:"confidence"`
-	RawText    string               `json:"raw_text"`
-	Language   string               `json:"language"`
+	Command    CommandType       `json:"command"`
+	Parameters map[string]string `json:"parameters"`
+	Confidence float64           `json:"confidence"`
+	RawText    string            `json:"raw_text"`
+	Language   string            `json:"language"`
 }
 
 // VoiceCommand 语音命令
 type VoiceCommand struct {
-	ID         string        `json:"id"`
-	UserID     string        `json:"user_id"`
-	Provider   VoiceProvider `json:"provider"`
-	RawAudio   string        `json:"raw_audio,omitempty"`
-	RawText    string        `json:"raw_text"`
-	Intent     Intent        `json:"intent"`
-	Processed  bool          `json:"processed"`
-	Result     *CommandResult `json:"result,omitempty"`
-	CreatedAt  time.Time     `json:"created_at"`
-	ProcessedAt *time.Time   `json:"processed_at,omitempty"`
+	ID          string         `json:"id"`
+	UserID      string         `json:"user_id"`
+	Provider    VoiceProvider  `json:"provider"`
+	RawAudio    string         `json:"raw_audio,omitempty"`
+	RawText     string         `json:"raw_text"`
+	Intent      Intent         `json:"intent"`
+	Processed   bool           `json:"processed"`
+	Result      *CommandResult `json:"result,omitempty"`
+	CreatedAt   time.Time      `json:"created_at"`
+	ProcessedAt *time.Time     `json:"processed_at,omitempty"`
 }
 
 // CommandResult 命令执行结果
@@ -66,32 +66,32 @@ type CommandResult struct {
 
 // VoiceResponse 语音响应
 type VoiceResponse struct {
-	Text       string `json:"text"`
-	AudioURL   string `json:"audio_url,omitempty"`
-	SSML       string `json:"ssml,omitempty"`
-	ShouldSpeak bool  `json:"should_speak"`
+	Text        string `json:"text"`
+	AudioURL    string `json:"audio_url,omitempty"`
+	SSML        string `json:"ssml,omitempty"`
+	ShouldSpeak bool   `json:"should_speak"`
 }
 
 // VoiceProfile 用户语音配置
 type VoiceProfile struct {
-	UserID       string        `json:"user_id"`
-	Language     string        `json:"language"`
-	VoicePrint   string        `json:"voice_print,omitempty"`
-	Provider     VoiceProvider `json:"provider"`
-	WakeWordEnabled bool       `json:"wake_word_enabled"`
-	WakeWord     string        `json:"wake_word,omitempty"`
-	CreatedAt    time.Time     `json:"created_at"`
-	UpdatedAt    time.Time     `json:"updated_at"`
+	UserID          string        `json:"user_id"`
+	Language        string        `json:"language"`
+	VoicePrint      string        `json:"voice_print,omitempty"`
+	Provider        VoiceProvider `json:"provider"`
+	WakeWordEnabled bool          `json:"wake_word_enabled"`
+	WakeWord        string        `json:"wake_word,omitempty"`
+	CreatedAt       time.Time     `json:"created_at"`
+	UpdatedAt       time.Time     `json:"updated_at"`
 }
 
 // ConversationTurn 对话轮次
 type ConversationTurn struct {
-	ID         string         `json:"id"`
-	UserID     string         `json:"user_id"`
-	Command    *VoiceCommand  `json:"command"`
-	Response   *VoiceResponse `json:"response"`
-	TurnIndex  int            `json:"turn_index"`
-	CreatedAt  time.Time      `json:"created_at"`
+	ID        string         `json:"id"`
+	UserID    string         `json:"user_id"`
+	Command   *VoiceCommand  `json:"command"`
+	Response  *VoiceResponse `json:"response"`
+	TurnIndex int            `json:"turn_index"`
+	CreatedAt time.Time      `json:"created_at"`
 }
 
 // Conversation 一次完整对话
@@ -114,12 +114,12 @@ type Permission struct {
 
 // Config 语音控制配置
 type Config struct {
-	Enabled           bool            `json:"enabled"`
-	DefaultProvider   VoiceProvider   `json:"default_provider"`
-	SupportedProviders []VoiceProvider `json:"supported_providers"`
-	WakeWordEnabled   bool            `json:"wake_word_enabled"`
-	DefaultLanguage   string          `json:"default_language"`
-	MaxAudioDurationSec int           `json:"max_audio_duration_sec"`
+	Enabled             bool            `json:"enabled"`
+	DefaultProvider     VoiceProvider   `json:"default_provider"`
+	SupportedProviders  []VoiceProvider `json:"supported_providers"`
+	WakeWordEnabled     bool            `json:"wake_word_enabled"`
+	DefaultLanguage     string          `json:"default_language"`
+	MaxAudioDurationSec int             `json:"max_audio_duration_sec"`
 }
 
 // DefaultConfig 返回默认配置

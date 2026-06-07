@@ -22,51 +22,51 @@ func NewDashboard(store *Store) *Dashboard {
 
 // OverviewStats 总览统计.
 type OverviewStats struct {
-	TotalRequests      int64         `json:"totalRequests"`
-	SuccessRequests    int64         `json:"successRequests"`
-	FailedRequests     int64         `json:"failedRequests"`
-	TotalTokens        int64         `json:"totalTokens"`
-	PromptTokens       int64         `json:"promptTokens"`
-	CompletionTokens   int64         `json:"completionTokens"`
-	AvgDurationMs      float64       `json:"avgDurationMs"`
-	ActiveModels       int           `json:"activeModels"`
-	TotalUsers         int           `json:"totalUsers"`
-	Uptime             time.Duration `json:"uptime"`
-	RedactedRequests   int64         `json:"redactedRequests"`
-	TotalRedactCount   int64         `json:"totalRedactCount"`
+	TotalRequests    int64         `json:"totalRequests"`
+	SuccessRequests  int64         `json:"successRequests"`
+	FailedRequests   int64         `json:"failedRequests"`
+	TotalTokens      int64         `json:"totalTokens"`
+	PromptTokens     int64         `json:"promptTokens"`
+	CompletionTokens int64         `json:"completionTokens"`
+	AvgDurationMs    float64       `json:"avgDurationMs"`
+	ActiveModels     int           `json:"activeModels"`
+	TotalUsers       int           `json:"totalUsers"`
+	Uptime           time.Duration `json:"uptime"`
+	RedactedRequests int64         `json:"redactedRequests"`
+	TotalRedactCount int64         `json:"totalRedactCount"`
 }
 
 // ModelUsageStats 模型使用统计.
 type ModelUsageStats struct {
-	ModelID            string  `json:"modelId"`
-	ModelName          string  `json:"modelName"`
-	Provider           string  `json:"provider"`
-	RequestCount       int64   `json:"requestCount"`
-	SuccessCount       int64   `json:"successCount"`
-	FailureCount       int64   `json:"failureCount"`
-	TotalTokens        int64   `json:"totalTokens"`
-	AvgDurationMs      float64 `json:"avgDurationMs"`
-	LastUsedAt         time.Time `json:"lastUsedAt"`
+	ModelID       string    `json:"modelId"`
+	ModelName     string    `json:"modelName"`
+	Provider      string    `json:"provider"`
+	RequestCount  int64     `json:"requestCount"`
+	SuccessCount  int64     `json:"successCount"`
+	FailureCount  int64     `json:"failureCount"`
+	TotalTokens   int64     `json:"totalTokens"`
+	AvgDurationMs float64   `json:"avgDurationMs"`
+	LastUsedAt    time.Time `json:"lastUsedAt"`
 }
 
 // UserUsageStats 用户使用统计.
 type UserUsageStats struct {
-	UserID             string  `json:"userId"`
-	Username           string  `json:"username"`
-	RequestCount       int64   `json:"requestCount"`
-	TotalTokens        int64   `json:"totalTokens"`
-	PromptTokens       int64   `json:"promptTokens"`
-	CompletionTokens   int64   `json:"completionTokens"`
-	LastUsedAt         time.Time `json:"lastUsedAt"`
+	UserID           string    `json:"userId"`
+	Username         string    `json:"username"`
+	RequestCount     int64     `json:"requestCount"`
+	TotalTokens      int64     `json:"totalTokens"`
+	PromptTokens     int64     `json:"promptTokens"`
+	CompletionTokens int64     `json:"completionTokens"`
+	LastUsedAt       time.Time `json:"lastUsedAt"`
 }
 
 // UsageTrend 使用趋势.
 type UsageTrend struct {
-	Date             string `json:"date"`
-	RequestCount     int64  `json:"requestCount"`
-	TotalTokens      int64  `json:"totalTokens"`
-	SuccessCount     int64  `json:"successCount"`
-	FailedCount      int64  `json:"failedCount"`
+	Date         string `json:"date"`
+	RequestCount int64  `json:"requestCount"`
+	TotalTokens  int64  `json:"totalTokens"`
+	SuccessCount int64  `json:"successCount"`
+	FailedCount  int64  `json:"failedCount"`
 }
 
 // GetOverview 获取总览统计.

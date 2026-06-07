@@ -294,7 +294,7 @@ func (ftf *FileTypeFilter) Apply(results []SearchResult) []SearchResult {
 
 // PathFilter 路径过滤器
 type PathFilter struct {
-	RootPath string
+	RootPath  string
 	Recursive bool
 }
 
@@ -332,8 +332,8 @@ func (pf *PathFilter) matchPath(filePath string) bool {
 
 // TagFilter 标签过滤器
 type TagFilter struct {
-	Tags    []string
-	Mode    string // any, all
+	Tags []string
+	Mode string // any, all
 }
 
 // NewTagFilter 创建标签过滤器

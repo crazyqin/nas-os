@@ -14,9 +14,9 @@ const (
 	ProviderB2       = ProviderType("b2")
 	ProviderOneDrive = ProviderType("onedrive")
 
-	DirectionUpload  = SyncDirection("upload")
+	DirectionUpload   = SyncDirection("upload")
 	DirectionDownload = SyncDirection("download")
-	DirectionBiSync  = SyncDirection("bisync")
+	DirectionBiSync   = SyncDirection("bisync")
 
 	StatusIdle     = TaskStatus("idle")
 	StatusSyncing  = TaskStatus("syncing")
@@ -48,24 +48,24 @@ const (
 
 // SyncConfig 同步任务配置.
 type SyncConfig struct {
-	ID               string         `json:"id"`
-	Name             string         `json:"name"`
-	Enabled          bool           `json:"enabled"`
-	Provider         ProviderType   `json:"provider"`
+	ID               string            `json:"id"`
+	Name             string            `json:"name"`
+	Enabled          bool              `json:"enabled"`
+	Provider         ProviderType      `json:"provider"`
 	ProviderConfig   map[string]string `json:"provider_config"` // 后端认证配置
-	LocalPath        string         `json:"local_path"`
-	RemotePath       string         `json:"remote_path"`
-	Direction        SyncDirection  `json:"direction"`
-	ConflictPolicy   ConflictPolicy `json:"conflict_policy"`
-	ScheduleMode     ScheduleMode   `json:"schedule_mode"`
-	ScheduleInterval time.Duration  `json:"schedule_interval_sec,omitempty"` // interval 模式（JSON 序列化为秒数）
-	ScheduleCron     string         `json:"schedule_cron,omitempty"`     // cron 模式
-	BandwidthLimit   int64          `json:"bandwidth_limit"`             // 字节/秒，0=不限
-	EncryptInTransit bool           `json:"encrypt_in_transit"`
-	FilterPatterns   []string       `json:"filter_patterns,omitempty"` // 排除模式
-	MaxRetries       int            `json:"max_retries"`
-	CreatedAt        time.Time      `json:"created_at"`
-	UpdatedAt        time.Time      `json:"updated_at"`
+	LocalPath        string            `json:"local_path"`
+	RemotePath       string            `json:"remote_path"`
+	Direction        SyncDirection     `json:"direction"`
+	ConflictPolicy   ConflictPolicy    `json:"conflict_policy"`
+	ScheduleMode     ScheduleMode      `json:"schedule_mode"`
+	ScheduleInterval time.Duration     `json:"schedule_interval_sec,omitempty"` // interval 模式（JSON 序列化为秒数）
+	ScheduleCron     string            `json:"schedule_cron,omitempty"`         // cron 模式
+	BandwidthLimit   int64             `json:"bandwidth_limit"`                 // 字节/秒，0=不限
+	EncryptInTransit bool              `json:"encrypt_in_transit"`
+	FilterPatterns   []string          `json:"filter_patterns,omitempty"` // 排除模式
+	MaxRetries       int               `json:"max_retries"`
+	CreatedAt        time.Time         `json:"created_at"`
+	UpdatedAt        time.Time         `json:"updated_at"`
 }
 
 // Validate 校验配置合法性.
@@ -108,26 +108,26 @@ func (c *SyncConfig) Validate() error {
 
 // SyncTask 运行中的同步任务.
 type SyncTask struct {
-	Config      SyncConfig    `json:"config"`
-	Status      TaskStatus    `json:"status"`
-	Progress    *SyncProgress `json:"progress,omitempty"`
-	Error       string        `json:"error,omitempty"`
-	LastSyncAt  *time.Time    `json:"last_sync_at,omitempty"`
-	NextSyncAt  *time.Time    `json:"next_sync_at,omitempty"`
+	Config     SyncConfig    `json:"config"`
+	Status     TaskStatus    `json:"status"`
+	Progress   *SyncProgress `json:"progress,omitempty"`
+	Error      string        `json:"error,omitempty"`
+	LastSyncAt *time.Time    `json:"last_sync_at,omitempty"`
+	NextSyncAt *time.Time    `json:"next_sync_at,omitempty"`
 }
 
 // SyncProgress 同步进度.
 type SyncProgress struct {
-	TotalFiles     int64     `json:"total_files"`
-	SyncedFiles    int64     `json:"synced_files"`
-	FailedFiles    int64     `json:"failed_files"`
-	SkippedFiles   int64     `json:"skipped_files"`
-	TotalBytes     int64     `json:"total_bytes"`
-	SyncedBytes    int64     `json:"synced_bytes"`
-	CurrentFile    string    `json:"current_file"`
-	TransferRate   float64   `json:"transfer_rate"` // 字节/秒
-	StartedAt      time.Time `json:"started_at"`
-	EstimatedETA   *time.Time `json:"estimated_eta,omitempty"`
+	TotalFiles   int64      `json:"total_files"`
+	SyncedFiles  int64      `json:"synced_files"`
+	FailedFiles  int64      `json:"failed_files"`
+	SkippedFiles int64      `json:"skipped_files"`
+	TotalBytes   int64      `json:"total_bytes"`
+	SyncedBytes  int64      `json:"synced_bytes"`
+	CurrentFile  string     `json:"current_file"`
+	TransferRate float64    `json:"transfer_rate"` // 字节/秒
+	StartedAt    time.Time  `json:"started_at"`
+	EstimatedETA *time.Time `json:"estimated_eta,omitempty"`
 }
 
 // Percent 返回同步完成百分比 (0-100).
@@ -150,15 +150,15 @@ type SyncStatus struct {
 
 // ConflictInfo 冲突信息.
 type ConflictInfo struct {
-	LocalPath    string    `json:"local_path"`
-	RemotePath   string    `json:"remote_path"`
-	LocalModTime time.Time `json:"local_mod_time"`
-	RemoteModTime time.Time `json:"remote_mod_time"`
-	LocalSize    int64     `json:"local_size"`
-	RemoteSize   int64     `json:"remote_size"`
-	DetectedAt   time.Time `json:"detected_at"`
-	Resolution   ConflictPolicy `json:"resolution,omitempty"`
-	Resolved     bool      `json:"resolved"`
+	LocalPath     string         `json:"local_path"`
+	RemotePath    string         `json:"remote_path"`
+	LocalModTime  time.Time      `json:"local_mod_time"`
+	RemoteModTime time.Time      `json:"remote_mod_time"`
+	LocalSize     int64          `json:"local_size"`
+	RemoteSize    int64          `json:"remote_size"`
+	DetectedAt    time.Time      `json:"detected_at"`
+	Resolution    ConflictPolicy `json:"resolution,omitempty"`
+	Resolved      bool           `json:"resolved"`
 }
 
 // SyncEvent 同步事件 (用于进度追踪和日志).

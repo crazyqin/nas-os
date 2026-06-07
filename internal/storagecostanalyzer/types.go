@@ -352,7 +352,7 @@ type OptimizationSuggestion struct {
 	Effort string `json:"effort"`
 }
 
-// ========== 存储方案对比 ==========  
+// ========== 存储方案对比 ==========
 
 // StorageOption 存储方案.
 type StorageOption struct {
@@ -631,7 +631,7 @@ type DiskPowerSpec struct {
 	// MaxPowerW 最大功耗（W）.
 	MaxPowerW float64 `json:"maxPowerW"`
 	// TypicalPowerW 典型功耗（W）.
-TypicalPowerW float64 `json:"typicalPowerW"`
+	TypicalPowerW float64 `json:"typicalPowerW"`
 }
 
 // EnergyConsumption 能耗分析结果.

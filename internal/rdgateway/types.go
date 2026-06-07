@@ -22,19 +22,19 @@ const (
 type SessionState string
 
 const (
-	StateConnecting SessionState = "connecting"
-	StateConnected  SessionState = "connected"
+	StateConnecting   SessionState = "connecting"
+	StateConnected    SessionState = "connected"
 	StateReconnecting SessionState = "reconnecting"
 	StateDisconnected SessionState = "disconnected"
-	StateError      SessionState = "error"
+	StateError        SessionState = "error"
 )
 
 // DisplayInfo 显示器信息.
 type DisplayInfo struct {
-	ID       int    `json:"id"`
-	Width    int    `json:"width"`
-	Height   int    `json:"height"`
-	IsPrimary bool  `json:"is_primary"`
+	ID        int  `json:"id"`
+	Width     int  `json:"width"`
+	Height    int  `json:"height"`
+	IsPrimary bool `json:"is_primary"`
 }
 
 // ClipboardPayload 剪贴板数据.
@@ -46,10 +46,10 @@ type ClipboardPayload struct {
 
 // FileTransferRequest 文件传输请求.
 type FileTransferRequest struct {
-	Filename    string `json:"filename"`
-	Size        int64  `json:"size"`
-	Direction   string `json:"direction"` // upload, download
-	Checksum    string `json:"checksum,omitempty"`
+	Filename  string `json:"filename"`
+	Size      int64  `json:"size"`
+	Direction string `json:"direction"` // upload, download
+	Checksum  string `json:"checksum,omitempty"`
 }
 
 // AuditEntry 审计日志条目.
@@ -81,13 +81,13 @@ type Session struct {
 
 // CreateSessionRequest 创建会话请求.
 type CreateSessionRequest struct {
-	UserID     string   `json:"user_id" binding:"required"`
-	Protocol   Protocol `json:"protocol" binding:"required"`
-	Host       string   `json:"host" binding:"required"`
-	Port       int      `json:"port"`
-	Username   string   `json:"username"`
-	Password   string   `json:"password"`
-	TLSEnabled bool     `json:"tls_enabled"`
+	UserID     string        `json:"user_id" binding:"required"`
+	Protocol   Protocol      `json:"protocol" binding:"required"`
+	Host       string        `json:"host" binding:"required"`
+	Port       int           `json:"port"`
+	Username   string        `json:"username"`
+	Password   string        `json:"password"`
+	TLSEnabled bool          `json:"tls_enabled"`
 	Displays   []DisplayInfo `json:"displays,omitempty"`
 }
 

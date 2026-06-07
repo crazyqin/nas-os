@@ -34,48 +34,46 @@ const (
 
 // IndexEntry 索引条目
 type IndexEntry struct {
-	Path         string            `json:"path"`
-	Name         string            `json:"name"`
-	Ext          string            `json:"ext"`
-	Size         int64             `json:"size"`
-	ModTime      time.Time         `json:"modTime"`
-	CreateTime   time.Time         `json:"createTime"`
-	IsDir        bool              `json:"isDir"`
-	MimeType     string            `json:"mimeType"`
-	Protocol     Protocol          `json:"protocol"`
-	Content      string            `json:"content,omitempty"`
-	Keywords     []string          `json:"keywords,omitempty"`
-	Attributes   map[string]string `json:"attributes,omitempty"`
-	Score        float64           `json:"score,omitempty"`
+	Path       string            `json:"path"`
+	Name       string            `json:"name"`
+	Ext        string            `json:"ext"`
+	Size       int64             `json:"size"`
+	ModTime    time.Time         `json:"modTime"`
+	CreateTime time.Time         `json:"createTime"`
+	IsDir      bool              `json:"isDir"`
+	MimeType   string            `json:"mimeType"`
+	Protocol   Protocol          `json:"protocol"`
+	Content    string            `json:"content,omitempty"`
+	Keywords   []string          `json:"keywords,omitempty"`
+	Attributes map[string]string `json:"attributes,omitempty"`
+	Score      float64           `json:"score,omitempty"`
 }
 
 // EngineSearchRequest 引擎搜索请求
 // 用于 macOS Spotlight 协议兼容的搜索
 // 与 types.go 中的 SearchRequest (Web API) 分开
 
-
-
 type EngineSearchRequest struct {
-	Query      string    `json:"query"`
-	Path       string    `json:"path,omitempty"`
-	Protocols  []Protocol `json:"protocols,omitempty"`
-	FileTypes  []string  `json:"fileTypes,omitempty"`
-	SizeMin    int64     `json:"sizeMin,omitempty"`
-	SizeMax    int64     `json:"sizeMax,omitempty"`
-	DateStart  time.Time `json:"dateStart,omitempty"`
-	DateEnd    time.Time `json:"dateEnd,omitempty"`
+	Query      string            `json:"query"`
+	Path       string            `json:"path,omitempty"`
+	Protocols  []Protocol        `json:"protocols,omitempty"`
+	FileTypes  []string          `json:"fileTypes,omitempty"`
+	SizeMin    int64             `json:"sizeMin,omitempty"`
+	SizeMax    int64             `json:"sizeMax,omitempty"`
+	DateStart  time.Time         `json:"dateStart,omitempty"`
+	DateEnd    time.Time         `json:"dateEnd,omitempty"`
 	Attributes map[string]string `json:"attributes,omitempty"`
-	Limit      int       `json:"limit,omitempty"`
-	Offset     int       `json:"offset,omitempty"`
+	Limit      int               `json:"limit,omitempty"`
+	Offset     int               `json:"offset,omitempty"`
 }
 
 // SearchResponse 搜索响应
 type SearchResponse struct {
-	Query       string        `json:"query"`
-	Results     []IndexEntry  `json:"results"`
-	Total       int           `json:"total"`
-	QueryTimeMs int64         `json:"queryTimeMs"`
-	Suggestions []string      `json:"suggestions,omitempty"`
+	Query       string       `json:"query"`
+	Results     []IndexEntry `json:"results"`
+	Total       int          `json:"total"`
+	QueryTimeMs int64        `json:"queryTimeMs"`
+	Suggestions []string     `json:"suggestions,omitempty"`
 }
 
 // EngineConfig 引擎配置
@@ -147,11 +145,11 @@ type Engine struct {
 	cache     *SearchCache
 	responder *MDNSResponder
 
-	mu       sync.RWMutex
-	status   EngineStatus
-	ctx      context.Context
-	cancel   context.CancelFunc
-	stats    EngineStats
+	mu     sync.RWMutex
+	status EngineStatus
+	ctx    context.Context
+	cancel context.CancelFunc
+	stats  EngineStats
 }
 
 // EngineStats 引擎统计
@@ -174,12 +172,12 @@ func NewEngine(config EngineConfig, logger *zap.Logger) (*Engine, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	e := &Engine{
-		config:  config,
-		logger:  logger,
-		status:  StatusIdle,
-		ctx:     ctx,
-		cancel:  cancel,
-		stats:   EngineStats{startTime: time.Now()},
+		config: config,
+		logger: logger,
+		status: StatusIdle,
+		ctx:    ctx,
+		cancel: cancel,
+		stats:  EngineStats{startTime: time.Now()},
 	}
 
 	// 初始化查询解析器

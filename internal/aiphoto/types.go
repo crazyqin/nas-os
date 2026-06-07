@@ -10,9 +10,9 @@ import (
 type TaskType string
 
 const (
-	TaskTypeDenoise  TaskType = "denoise"  // 去噪
-	TaskTypeUpscale  TaskType = "upscale"  // 超分辨率
-	TaskTypeRestore  TaskType = "restore"  // 修复
+	TaskTypeDenoise   TaskType = "denoise"   // 去噪
+	TaskTypeUpscale   TaskType = "upscale"   // 超分辨率
+	TaskTypeRestore   TaskType = "restore"   // 修复
 	TaskTypeSmartCrop TaskType = "smartcrop" // 智能裁剪
 )
 
@@ -29,9 +29,9 @@ const (
 
 // DenoiseOptions 去噪选项
 type DenoiseOptions struct {
-	Strength   float64 `json:"strength"`   // 去噪强度 0.0-1.0，默认 0.5
-	PreserveDetail bool `json:"preserveDetail"` // 是否保留细节，默认 true
-	Algorithm  string  `json:"algorithm"`  // 算法：nlm (Non-Local Means) / bilateral / bm3d，默认 nlm
+	Strength       float64 `json:"strength"`       // 去噪强度 0.0-1.0，默认 0.5
+	PreserveDetail bool    `json:"preserveDetail"` // 是否保留细节，默认 true
+	Algorithm      string  `json:"algorithm"`      // 算法：nlm (Non-Local Means) / bilateral / bm3d，默认 nlm
 }
 
 // UpscaleOptions 超分辨率选项
@@ -44,38 +44,38 @@ type UpscaleOptions struct {
 
 // RestoreOptions 修复选项
 type RestoreOptions struct {
-	RepairScratches  bool    `json:"repairScratches"`  // 修复划痕，默认 true
-	RepairStains     bool    `json:"repairStains"`     // 修复污渍，默认 true
-	Colorize         bool    `json:"colorize"`         // 黑白照片上色，默认 false
-	EnhanceFace      bool    `json:"enhanceFace"`      // 人脸增强，默认 true
-	Strength         float64 `json:"strength"`         // 修复强度 0.0-1.0，默认 0.7
-	RemoveWatermark  bool    `json:"removeWatermark"`  // 去水印，默认 false
+	RepairScratches bool    `json:"repairScratches"` // 修复划痕，默认 true
+	RepairStains    bool    `json:"repairStains"`    // 修复污渍，默认 true
+	Colorize        bool    `json:"colorize"`        // 黑白照片上色，默认 false
+	EnhanceFace     bool    `json:"enhanceFace"`     // 人脸增强，默认 true
+	Strength        float64 `json:"strength"`        // 修复强度 0.0-1.0，默认 0.7
+	RemoveWatermark bool    `json:"removeWatermark"` // 去水印，默认 false
 }
 
 // SmartCropOptions 智能裁剪选项
 type SmartCropOptions struct {
-	TargetWidth  int    `json:"targetWidth"`  // 目标宽度
-	TargetHeight int    `json:"targetHeight"` // 目标高度
-	Strategy     string `json:"strategy"`     // 策略：entropy / face / center / attention，默认 entropy
+	TargetWidth  int     `json:"targetWidth"`  // 目标宽度
+	TargetHeight int     `json:"targetHeight"` // 目标高度
+	Strategy     string  `json:"strategy"`     // 策略：entropy / face / center / attention，默认 entropy
 	PaddingRatio float64 `json:"paddingRatio"` // 边距比例 0.0-0.3，默认 0.05
-	MinFaceSize  int    `json:"minFaceSize"`  // 最小人脸尺寸（像素），默认 50
+	MinFaceSize  int     `json:"minFaceSize"`  // 最小人脸尺寸（像素），默认 50
 }
 
 // PhotoTask 照片处理任务
 type PhotoTask struct {
-	ID          string           `json:"id"`
-	Type        TaskType         `json:"type"`
-	Status      TaskStatus       `json:"status"`
-	InputPath   string           `json:"inputPath"`
-	OutputPath  string           `json:"outputPath"`
-	Options     interface{}      `json:"options"`
-	Progress    float64          `json:"progress"` // 0-100
-	Error       string           `json:"error,omitempty"`
-	CreatedAt   time.Time        `json:"createdAt"`
-	StartedAt   *time.Time       `json:"startedAt,omitempty"`
-	CompletedAt *time.Time       `json:"completedAt,omitempty"`
-	Duration    time.Duration    `json:"duration,omitempty"`
-	Metadata    *PhotoMetadata   `json:"metadata,omitempty"`
+	ID          string         `json:"id"`
+	Type        TaskType       `json:"type"`
+	Status      TaskStatus     `json:"status"`
+	InputPath   string         `json:"inputPath"`
+	OutputPath  string         `json:"outputPath"`
+	Options     interface{}    `json:"options"`
+	Progress    float64        `json:"progress"` // 0-100
+	Error       string         `json:"error,omitempty"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	StartedAt   *time.Time     `json:"startedAt,omitempty"`
+	CompletedAt *time.Time     `json:"completedAt,omitempty"`
+	Duration    time.Duration  `json:"duration,omitempty"`
+	Metadata    *PhotoMetadata `json:"metadata,omitempty"`
 }
 
 // PhotoMetadata 照片元数据
@@ -90,12 +90,12 @@ type PhotoMetadata struct {
 
 // ProcessResult 处理结果
 type ProcessResult struct {
-	TaskID       string         `json:"taskId"`
-	Success      bool           `json:"success"`
-	OutputPath   string         `json:"outputPath"`
-	InputMeta    *PhotoMetadata `json:"inputMeta"`
-	OutputMeta   *PhotoMetadata `json:"outputMeta"`
-	Duration     time.Duration  `json:"duration"`
+	TaskID       string             `json:"taskId"`
+	Success      bool               `json:"success"`
+	OutputPath   string             `json:"outputPath"`
+	InputMeta    *PhotoMetadata     `json:"inputMeta"`
+	OutputMeta   *PhotoMetadata     `json:"outputMeta"`
+	Duration     time.Duration      `json:"duration"`
 	Improvements map[string]float64 `json:"improvements,omitempty"` // 指标改善
 }
 

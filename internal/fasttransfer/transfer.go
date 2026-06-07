@@ -25,20 +25,20 @@ type Config struct {
 
 // Transfer 传输任务
 type Transfer struct {
-	ID             string        `json:"id"`
-	Name           string        `json:"name"`
-	SourcePath     string        `json:"source_path"`
-	DestPath       string        `json:"dest_path"`
-	Status         string        `json:"status"` // pending/running/completed/failed/paused
-	TotalBytes     int64         `json:"total_bytes"`
-	Transferred    int64         `json:"transferred"`
-	SpeedMBps      float64       `json:"speed_mbps"`
-	Compressed     bool          `json:"compressed"`
-	Encrypted      bool          `json:"encrypted"`
-	StartedAt      time.Time     `json:"started_at"`
-	CompletedAt    *time.Time    `json:"completed_at,omitempty"`
-	Elapsed        time.Duration `json:"elapsed"`
-	ErrorMsg       string        `json:"error_msg,omitempty"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	SourcePath  string        `json:"source_path"`
+	DestPath    string        `json:"dest_path"`
+	Status      string        `json:"status"` // pending/running/completed/failed/paused
+	TotalBytes  int64         `json:"total_bytes"`
+	Transferred int64         `json:"transferred"`
+	SpeedMBps   float64       `json:"speed_mbps"`
+	Compressed  bool          `json:"compressed"`
+	Encrypted   bool          `json:"encrypted"`
+	StartedAt   time.Time     `json:"started_at"`
+	CompletedAt *time.Time    `json:"completed_at,omitempty"`
+	Elapsed     time.Duration `json:"elapsed"`
+	ErrorMsg    string        `json:"error_msg,omitempty"`
 }
 
 // NewTransferManager 创建管理器
@@ -74,14 +74,14 @@ func (m *TransferManager) CreateTransfer(name, src, dst string) (*Transfer, erro
 	}
 
 	t := &Transfer{
-		ID:          fmt.Sprintf("xfer-%d", time.Now().UnixNano()),
-		Name:        name,
-		SourcePath:  src,
-		DestPath:    dst,
-		Status:      "pending",
-		Compressed:  m.config.CompressLevel > 0,
-		Encrypted:   m.config.EncryptAES,
-		StartedAt:   time.Now(),
+		ID:         fmt.Sprintf("xfer-%d", time.Now().UnixNano()),
+		Name:       name,
+		SourcePath: src,
+		DestPath:   dst,
+		Status:     "pending",
+		Compressed: m.config.CompressLevel > 0,
+		Encrypted:  m.config.EncryptAES,
+		StartedAt:  time.Now(),
 	}
 
 	m.transfers[t.ID] = t

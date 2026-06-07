@@ -9,14 +9,14 @@ import (
 type UpdateStatus string
 
 const (
-	StatusPending      UpdateStatus = "pending"
-	StatusDownloading  UpdateStatus = "downloading"
-	StatusStopping     UpdateStatus = "stopping"
-	StatusStarting     UpdateStatus = "starting"
-	StatusHealthCheck  UpdateStatus = "health_check"
-	StatusRolledBack   UpdateStatus = "rolled_back"
-	StatusSuccess      UpdateStatus = "success"
-	StatusFailed       UpdateStatus = "failed"
+	StatusPending     UpdateStatus = "pending"
+	StatusDownloading UpdateStatus = "downloading"
+	StatusStopping    UpdateStatus = "stopping"
+	StatusStarting    UpdateStatus = "starting"
+	StatusHealthCheck UpdateStatus = "health_check"
+	StatusRolledBack  UpdateStatus = "rolled_back"
+	StatusSuccess     UpdateStatus = "success"
+	StatusFailed      UpdateStatus = "failed"
 )
 
 // HealthStatus 健康状态.
@@ -31,20 +31,20 @@ const (
 
 // UpdatePolicy 更新策略.
 type UpdatePolicy struct {
-	ID                string    `json:"id"`
-	ContainerID       string    `json:"container_id"`
-	ContainerName     string    `json:"container_name"`
-	Enabled           bool      `json:"enabled"`
-	Schedule          string    `json:"schedule"`            // cron 表达式
-	MaxRetries        int       `json:"max_retries"`
-	RollbackOnFailure bool      `json:"rollback_on_failure"`
-	HealthCheckURL    string    `json:"health_check_url"`
-	HealthCheckTimeout int      `json:"health_check_timeout"` // 秒
-	PreUpdateHook     string    `json:"pre_update_hook"`
-	PostUpdateHook    string    `json:"post_update_hook"`
-	NotifyOnUpdate    bool      `json:"notify_on_update"`
-	NotifyOnFailure   bool      `json:"notify_on_failure"`
-	CreatedAt         time.Time `json:"created_at"`
+	ID                 string    `json:"id"`
+	ContainerID        string    `json:"container_id"`
+	ContainerName      string    `json:"container_name"`
+	Enabled            bool      `json:"enabled"`
+	Schedule           string    `json:"schedule"` // cron 表达式
+	MaxRetries         int       `json:"max_retries"`
+	RollbackOnFailure  bool      `json:"rollback_on_failure"`
+	HealthCheckURL     string    `json:"health_check_url"`
+	HealthCheckTimeout int       `json:"health_check_timeout"` // 秒
+	PreUpdateHook      string    `json:"pre_update_hook"`
+	PostUpdateHook     string    `json:"post_update_hook"`
+	NotifyOnUpdate     bool      `json:"notify_on_update"`
+	NotifyOnFailure    bool      `json:"notify_on_failure"`
+	CreatedAt          time.Time `json:"created_at"`
 }
 
 // UpdateRecord 更新记录.
@@ -76,15 +76,15 @@ type UpdateCheck struct {
 
 // ContainerHealth 容器健康状态.
 type ContainerHealth struct {
-	ContainerID        string       `json:"container_id"`
-	Status             HealthStatus `json:"status"`
-	LastCheck          time.Time    `json:"last_check"`
-	ConsecutiveFailures int         `json:"consecutive_failures"`
-	Uptime             int64        `json:"uptime"` // 秒
-	RestartCount       int          `json:"restart_count"`
-	CPU                float64      `json:"cpu"`         // 百分比
-	Memory             int64        `json:"memory"`      // 字节
-	NetworkIO          NetworkIO    `json:"network_io"`
+	ContainerID         string       `json:"container_id"`
+	Status              HealthStatus `json:"status"`
+	LastCheck           time.Time    `json:"last_check"`
+	ConsecutiveFailures int          `json:"consecutive_failures"`
+	Uptime              int64        `json:"uptime"` // 秒
+	RestartCount        int          `json:"restart_count"`
+	CPU                 float64      `json:"cpu"`    // 百分比
+	Memory              int64        `json:"memory"` // 字节
+	NetworkIO           NetworkIO    `json:"network_io"`
 }
 
 // NetworkIO 网络 IO 统计.
@@ -105,25 +105,25 @@ type UpdateStats struct {
 
 // RollbackConfig 回滚配置.
 type RollbackConfig struct {
-	MaxHistory     int           `json:"max_history"`
-	AutoRollback   bool          `json:"auto_rollback"`
-	RollbackDelay  time.Duration `json:"rollback_delay"`
+	MaxHistory    int           `json:"max_history"`
+	AutoRollback  bool          `json:"auto_rollback"`
+	RollbackDelay time.Duration `json:"rollback_delay"`
 }
 
 // SetPolicyRequest 设置策略请求.
 type SetPolicyRequest struct {
-	ContainerID       string `json:"container_id" binding:"required"`
-	ContainerName     string `json:"container_name"`
-	Enabled           bool   `json:"enabled"`
-	Schedule          string `json:"schedule"`
-	MaxRetries        int    `json:"max_retries"`
-	RollbackOnFailure bool   `json:"rollback_on_failure"`
-	HealthCheckURL    string `json:"health_check_url"`
-	HealthCheckTimeout int   `json:"health_check_timeout"`
-	PreUpdateHook     string `json:"pre_update_hook"`
-	PostUpdateHook    string `json:"post_update_hook"`
-	NotifyOnUpdate    bool   `json:"notify_on_update"`
-	NotifyOnFailure   bool   `json:"notify_on_failure"`
+	ContainerID        string `json:"container_id" binding:"required"`
+	ContainerName      string `json:"container_name"`
+	Enabled            bool   `json:"enabled"`
+	Schedule           string `json:"schedule"`
+	MaxRetries         int    `json:"max_retries"`
+	RollbackOnFailure  bool   `json:"rollback_on_failure"`
+	HealthCheckURL     string `json:"health_check_url"`
+	HealthCheckTimeout int    `json:"health_check_timeout"`
+	PreUpdateHook      string `json:"pre_update_hook"`
+	PostUpdateHook     string `json:"post_update_hook"`
+	NotifyOnUpdate     bool   `json:"notify_on_update"`
+	NotifyOnFailure    bool   `json:"notify_on_failure"`
 }
 
 // ApplyUpdateRequest 应用更新请求.

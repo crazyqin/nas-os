@@ -12,9 +12,9 @@ import (
 type AccessPatternManager struct {
 	mu       sync.RWMutex
 	config   AccessPatternConfig
-	records  map[string][]*AccessRecord    // file_path -> 访问记录
-	analyses map[string]*PatternAnalysis   // file_path -> 分析结果
-	stats    *AccessStats                  // 统计
+	records  map[string][]*AccessRecord  // file_path -> 访问记录
+	analyses map[string]*PatternAnalysis // file_path -> 分析结果
+	stats    *AccessStats                // 统计
 }
 
 // NewAccessPatternManager 创建管理器
@@ -648,10 +648,10 @@ func (m *AccessPatternManager) calculateHeatMapSummary(entries []HeatMapEntry) H
 // calculateTopFiles 计算热门文件
 func (m *AccessPatternManager) calculateTopFiles(limit int) []FileAccess {
 	type fileStats struct {
-		path        string
-		count       int
-		size        int64
-		lastAccess  time.Time
+		path       string
+		count      int
+		size       int64
+		lastAccess time.Time
 	}
 
 	stats := make(map[string]*fileStats)

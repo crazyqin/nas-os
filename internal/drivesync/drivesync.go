@@ -15,18 +15,18 @@ type SyncFile struct {
 	ID           string         `json:"id"`
 	TaskID       string         `json:"task_id"`
 	FilePath     string         `json:"file_path"`
-	Path         string         `json:"path,omitempty"`        // 兼容旧字段
-	Name         string         `json:"name,omitempty"`        // 文件名
+	Path         string         `json:"path,omitempty"` // 兼容旧字段
+	Name         string         `json:"name,omitempty"` // 文件名
 	LocalHash    string         `json:"local_hash"`
 	RemoteHash   string         `json:"remote_hash"`
-	Checksum     string         `json:"checksum,omitempty"`    // 文件校验和
+	Checksum     string         `json:"checksum,omitempty"` // 文件校验和
 	Size         int64          `json:"size"`
 	Status       FileSyncStatus `json:"status"`
 	LastSyncAt   time.Time      `json:"last_sync_at"`
 	ModifiedAt   time.Time      `json:"modified_at,omitempty"` // 修改时间
 	ConflictWith string         `json:"conflict_with,omitempty"`
-	OwnerID      string         `json:"owner_id,omitempty"`    // 文件所有者ID
-	IsFolder     bool           `json:"is_folder,omitempty"`   // 是否为文件夹
+	OwnerID      string         `json:"owner_id,omitempty"`  // 文件所有者ID
+	IsFolder     bool           `json:"is_folder,omitempty"` // 是否为文件夹
 }
 
 // DriveSyncManager Drive同步管理器
@@ -43,7 +43,7 @@ type DriveSyncConfig struct {
 	MaxVersions       int      `json:"max_versions"`
 	AutoSync          bool     `json:"auto_sync"`
 	SyncInterval      int      `json:"sync_interval"` // 分钟
-	MaxFileSize       int64    `json:"max_file_size"`  // 字节
+	MaxFileSize       int64    `json:"max_file_size"` // 字节
 	ExcludePatterns   []string `json:"exclude_patterns"`
 	EnableVersioning  bool     `json:"enable_versioning"`
 	EnableConflictLog bool     `json:"enable_conflict_log"`

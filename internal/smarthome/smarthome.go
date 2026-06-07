@@ -87,12 +87,12 @@ func (m *Manager) ExportConfig() ([]byte, error) {
 	defer m.mu.RUnlock()
 
 	config := struct {
-		Devices     map[string]*Device         `json:"devices"`
-		Rooms       map[string]*Room           `json:"rooms"`
-		Groups      map[string]*Group          `json:"groups"`
-		Scenes      map[string]*Scene          `json:"scenes"`
-		Tasks       map[string]*ScheduledTask  `json:"tasks"`
-		ExportedAt  time.Time                  `json:"exported_at"`
+		Devices    map[string]*Device        `json:"devices"`
+		Rooms      map[string]*Room          `json:"rooms"`
+		Groups     map[string]*Group         `json:"groups"`
+		Scenes     map[string]*Scene         `json:"scenes"`
+		Tasks      map[string]*ScheduledTask `json:"tasks"`
+		ExportedAt time.Time                 `json:"exported_at"`
 	}{
 		Devices:    m.devices,
 		Rooms:      m.rooms,
@@ -258,8 +258,8 @@ type DeviceAdapter interface {
 
 // adapterEntry 适配器注册项
 type adapterEntry struct {
-	adapter   DeviceAdapter
-	enabled   bool
+	adapter DeviceAdapter
+	enabled bool
 }
 
 // ============================================================
@@ -447,7 +447,7 @@ func (m *Manager) SyncDeviceState(deviceID string) error {
 
 // DeviceFilter 设备过滤条件
 type DeviceFilter struct {
-	Name     string       `json:"name,omitempty"`      // 模糊匹配
+	Name     string       `json:"name,omitempty"` // 模糊匹配
 	Type     DeviceType   `json:"type,omitempty"`
 	Protocol Protocol     `json:"protocol,omitempty"`
 	RoomID   string       `json:"room_id,omitempty"`

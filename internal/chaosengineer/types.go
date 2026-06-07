@@ -30,14 +30,14 @@ var (
 type FaultType string
 
 const (
-	FaultDiskFull       FaultType = "disk_full"        // 磁盘满
-	FaultNetworkLatency FaultType = "network_latency"   // 网络延迟
-	FaultNetworkLoss    FaultType = "network_loss"      // 网络丢包
-	FaultCPUStress      FaultType = "cpu_stress"        // CPU 压力
-	FaultMemoryStress   FaultType = "memory_stress"     // 内存压力
-	FaultIOStress       FaultType = "io_stress"         // IO 压力
-	FaultProcessKill    FaultType = "process_kill"      // 进程终止
-	FaultDiskIO         FaultType = "disk_io"           // 磁盘IO延迟
+	FaultDiskFull       FaultType = "disk_full"       // 磁盘满
+	FaultNetworkLatency FaultType = "network_latency" // 网络延迟
+	FaultNetworkLoss    FaultType = "network_loss"    // 网络丢包
+	FaultCPUStress      FaultType = "cpu_stress"      // CPU 压力
+	FaultMemoryStress   FaultType = "memory_stress"   // 内存压力
+	FaultIOStress       FaultType = "io_stress"       // IO 压力
+	FaultProcessKill    FaultType = "process_kill"    // 进程终止
+	FaultDiskIO         FaultType = "disk_io"         // 磁盘IO延迟
 )
 
 // Severity 严重程度
@@ -55,21 +55,21 @@ type ExperimentStatus string
 
 const (
 	StatusCreated   ExperimentStatus = "created"   // 已创建
-	StatusRunning   ExperimentStatus = "running"    // 运行中
-	StatusCompleted ExperimentStatus = "completed"  // 已完成
-	StatusFailed    ExperimentStatus = "failed"     // 失败
-	StatusCancelled ExperimentStatus = "cancelled"  // 已取消
-	StatusScheduled ExperimentStatus = "scheduled"  // 已调度
+	StatusRunning   ExperimentStatus = "running"   // 运行中
+	StatusCompleted ExperimentStatus = "completed" // 已完成
+	StatusFailed    ExperimentStatus = "failed"    // 失败
+	StatusCancelled ExperimentStatus = "cancelled" // 已取消
+	StatusScheduled ExperimentStatus = "scheduled" // 已调度
 )
 
 // RecoveryStatus 恢复状态
 type RecoveryStatus string
 
 const (
-	RecoveryPending  RecoveryStatus = "pending"   // 待恢复
-	RecoveryRunning  RecoveryStatus = "running"   // 恢复中
-	RecoverySuccess  RecoveryStatus = "success"   // 恢复成功
-	RecoveryFailed   RecoveryStatus = "failed"    // 恢复失败
+	RecoveryPending RecoveryStatus = "pending" // 待恢复
+	RecoveryRunning RecoveryStatus = "running" // 恢复中
+	RecoverySuccess RecoveryStatus = "success" // 恢复成功
+	RecoveryFailed  RecoveryStatus = "failed"  // 恢复失败
 )
 
 // TargetType 目标类型
@@ -98,32 +98,32 @@ const (
 
 // FaultConfig 故障注入配置
 type FaultConfig struct {
-	Type       FaultType      `json:"type"`                  // 故障类型
-	Target     string         `json:"target"`                // 目标（磁盘路径、网卡名等）
-	TargetType TargetType     `json:"target_type"`           // 目标类型
-	Severity   Severity       `json:"severity"`              // 严重程度
-	Parameters map[string]any `json:"parameters"`            // 故障参数
-	Duration   time.Duration  `json:"duration"`              // 持续时间
+	Type       FaultType      `json:"type"`        // 故障类型
+	Target     string         `json:"target"`      // 目标（磁盘路径、网卡名等）
+	TargetType TargetType     `json:"target_type"` // 目标类型
+	Severity   Severity       `json:"severity"`    // 严重程度
+	Parameters map[string]any `json:"parameters"`  // 故障参数
+	Duration   time.Duration  `json:"duration"`    // 持续时间
 }
 
 // SafetyBoundary 安全边界配置
 type SafetyBoundary struct {
-	MaxDuration       time.Duration `json:"max_duration"`        // 最大持续时间
-	MaxCPUUsage       float64       `json:"max_cpu_usage"`       // 最大 CPU 使用率 (0-100)
-	MaxMemoryUsage    float64       `json:"max_memory_usage"`    // 最大内存使用率 (0-100)
-	MaxDiskUsage      float64       `json:"max_disk_usage"`      // 最大磁盘使用率 (0-100)
-	ProtectedPaths    []string      `json:"protected_paths"`     // 受保护路径
-	ProtectedServices []string      `json:"protected_services"`  // 受保护服务
-	AutoRecover       bool          `json:"auto_recover"`        // 自动恢复
-	RequireConfirm    bool          `json:"require_confirm"`     // 需要确认
+	MaxDuration       time.Duration `json:"max_duration"`       // 最大持续时间
+	MaxCPUUsage       float64       `json:"max_cpu_usage"`      // 最大 CPU 使用率 (0-100)
+	MaxMemoryUsage    float64       `json:"max_memory_usage"`   // 最大内存使用率 (0-100)
+	MaxDiskUsage      float64       `json:"max_disk_usage"`     // 最大磁盘使用率 (0-100)
+	ProtectedPaths    []string      `json:"protected_paths"`    // 受保护路径
+	ProtectedServices []string      `json:"protected_services"` // 受保护服务
+	AutoRecover       bool          `json:"auto_recover"`       // 自动恢复
+	RequireConfirm    bool          `json:"require_confirm"`    // 需要确认
 }
 
 // Schedule 实验调度配置
 type Schedule struct {
-	Type      ScheduleType `json:"type"`                 // 调度类型
-	CronExpr  string       `json:"cron_expr,omitempty"`  // Cron 表达式
-	Interval  time.Duration `json:"interval,omitempty"`  // 间隔时间
-	StartTime *time.Time   `json:"start_time,omitempty"` // 开始时间
+	Type      ScheduleType  `json:"type"`                 // 调度类型
+	CronExpr  string        `json:"cron_expr,omitempty"`  // Cron 表达式
+	Interval  time.Duration `json:"interval,omitempty"`   // 间隔时间
+	StartTime *time.Time    `json:"start_time,omitempty"` // 开始时间
 }
 
 // Hypothesis 实验假设
@@ -141,11 +141,11 @@ type MetricPoint struct {
 
 // ResilienceScore 韧性评分
 type ResilienceScore struct {
-	Overall     float64            `json:"overall"`      // 总分 (0-100)
-	Recovery    float64            `json:"recovery"`     // 恢复能力
-	Stability   float64            `json:"stability"`    // 稳定性
-	Availability float64           `json:"availability"` // 可用性
-	Breakdown   map[string]float64 `json:"breakdown"`    // 分项评分
+	Overall      float64            `json:"overall"`      // 总分 (0-100)
+	Recovery     float64            `json:"recovery"`     // 恢复能力
+	Stability    float64            `json:"stability"`    // 稳定性
+	Availability float64            `json:"availability"` // 可用性
+	Breakdown    map[string]float64 `json:"breakdown"`    // 分项评分
 }
 
 // RecoveryResult 恢复结果
@@ -169,10 +169,10 @@ type RecoveryStep struct {
 
 // Observation 实验观察记录
 type Observation struct {
-	Timestamp time.Time `json:"timestamp"`
-	Phase     string    `json:"phase"`     // before/during/after
+	Timestamp time.Time          `json:"timestamp"`
+	Phase     string             `json:"phase"` // before/during/after
 	Metrics   map[string]float64 `json:"metrics"`
-	Notes     string    `json:"notes"`
+	Notes     string             `json:"notes"`
 }
 
 // Experiment 实验定义
@@ -188,12 +188,12 @@ type Experiment struct {
 	Tags        []string         `json:"tags,omitempty"`
 
 	// 运行时状态
-	StartTime     *time.Time       `json:"start_time,omitempty"`
-	EndTime       *time.Time       `json:"end_time,omitempty"`
-	Recovery      *RecoveryResult  `json:"recovery,omitempty"`
-	Resilience    *ResilienceScore `json:"resilience_score,omitempty"`
-	Observations  []Observation    `json:"observations,omitempty"`
-	ErrorMsg      string           `json:"error_message,omitempty"`
+	StartTime    *time.Time       `json:"start_time,omitempty"`
+	EndTime      *time.Time       `json:"end_time,omitempty"`
+	Recovery     *RecoveryResult  `json:"recovery,omitempty"`
+	Resilience   *ResilienceScore `json:"resilience_score,omitempty"`
+	Observations []Observation    `json:"observations,omitempty"`
+	ErrorMsg     string           `json:"error_message,omitempty"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -201,27 +201,27 @@ type Experiment struct {
 
 // ResilienceReport 韧性评估报告
 type ResilienceReport struct {
-	ID              string           `json:"id"`
-	GeneratedAt     time.Time        `json:"generated_at"`
-	TotalExperiments int             `json:"total_experiments"`
-	PassedExperiments int            `json:"passed_experiments"`
-	FailedExperiments int            `json:"failed_experiments"`
-	OverallScore    float64          `json:"overall_score"`
-	Score           *ResilienceScore `json:"score"`
-	Recommendations []string         `json:"recommendations"`
-	ExperimentIDs   []string         `json:"experiment_ids"`
+	ID                string           `json:"id"`
+	GeneratedAt       time.Time        `json:"generated_at"`
+	TotalExperiments  int              `json:"total_experiments"`
+	PassedExperiments int              `json:"passed_experiments"`
+	FailedExperiments int              `json:"failed_experiments"`
+	OverallScore      float64          `json:"overall_score"`
+	Score             *ResilienceScore `json:"score"`
+	Recommendations   []string         `json:"recommendations"`
+	ExperimentIDs     []string         `json:"experiment_ids"`
 }
 
 // Dashboard 仪表盘数据
 type Dashboard struct {
-	TotalExperiments  int              `json:"total_experiments"`
-	RunningExperiments int             `json:"running_experiments"`
-	CompletedExperiments int           `json:"completed_experiments"`
-	FailedExperiments int              `json:"failed_experiments"`
-	OverallResilience float64          `json:"overall_resilience"`
-	RecentExperiments []*Experiment    `json:"recent_experiments"`
-	FaultDistribution map[FaultType]int `json:"fault_distribution"`
-	UpdatedAt         time.Time        `json:"updated_at"`
+	TotalExperiments     int               `json:"total_experiments"`
+	RunningExperiments   int               `json:"running_experiments"`
+	CompletedExperiments int               `json:"completed_experiments"`
+	FailedExperiments    int               `json:"failed_experiments"`
+	OverallResilience    float64           `json:"overall_resilience"`
+	RecentExperiments    []*Experiment     `json:"recent_experiments"`
+	FaultDistribution    map[FaultType]int `json:"fault_distribution"`
+	UpdatedAt            time.Time         `json:"updated_at"`
 }
 
 // Manager 混沌工程管理器
@@ -237,10 +237,10 @@ type Manager struct {
 
 // Config 管理器配置
 type Config struct {
-	Enabled         bool            `json:"enabled"`
-	DefaultSafety   SafetyBoundary  `json:"default_safety"`
-	MaxConcurrent   int             `json:"max_concurrent"`
-	MetricsInterval time.Duration   `json:"metrics_interval"`
+	Enabled         bool           `json:"enabled"`
+	DefaultSafety   SafetyBoundary `json:"default_safety"`
+	MaxConcurrent   int            `json:"max_concurrent"`
+	MetricsInterval time.Duration  `json:"metrics_interval"`
 }
 
 // DefaultConfig 返回默认配置

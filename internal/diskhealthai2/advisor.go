@@ -197,10 +197,10 @@ func estimateReplacementCost(data *SMARTData) float64 {
 
 // DiskGroupManager 磁盘组管理
 type DiskGroupManager struct {
-	mu        sync.RWMutex
-	analyzer  *SMARTAnalyzer
-	scoreSys  *HealthScoreSystem
-	groups    map[string]*DiskGroup
+	mu       sync.RWMutex
+	analyzer *SMARTAnalyzer
+	scoreSys *HealthScoreSystem
+	groups   map[string]*DiskGroup
 }
 
 // NewDiskGroupManager 创建磁盘组管理器
@@ -330,11 +330,11 @@ func (g *DiskGroupManager) RemoveGroup(id string) error {
 
 // DiskHealthService 磁盘健康分析统一服务
 type DiskHealthService struct {
-	Analyzer   *SMARTAnalyzer
-	ScoreSys   *HealthScoreSystem
-	Predictor  *FailurePredictor
-	Advisor    *MaintenanceAdvisor
-	GroupMgr   *DiskGroupManager
+	Analyzer  *SMARTAnalyzer
+	ScoreSys  *HealthScoreSystem
+	Predictor *FailurePredictor
+	Advisor   *MaintenanceAdvisor
+	GroupMgr  *DiskGroupManager
 }
 
 // NewDiskHealthService 创建统一服务

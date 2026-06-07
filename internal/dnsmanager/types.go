@@ -40,36 +40,36 @@ const (
 // DNSRecord DNS 记录
 type DNSRecord struct {
 	ID        string        `json:"id"`
-	Name      string        `json:"name"`       // 域名
-	Type      DNSRecordType `json:"type"`       // A/AAAA/CNAME/MX/TXT/NS/SRV
-	Value     string        `json:"value"`      // 记录值
-	TTL       int           `json:"ttl"`        // TTL（秒）
-	Priority  int           `json:"priority"`   // 优先级（MX/SRV 使用）
+	Name      string        `json:"name"`     // 域名
+	Type      DNSRecordType `json:"type"`     // A/AAAA/CNAME/MX/TXT/NS/SRV
+	Value     string        `json:"value"`    // 记录值
+	TTL       int           `json:"ttl"`      // TTL（秒）
+	Priority  int           `json:"priority"` // 优先级（MX/SRV 使用）
 	CreatedAt time.Time     `json:"created_at"`
 	Enabled   bool          `json:"enabled"`
 }
 
 // DNSZone DNS 区域
 type DNSZone struct {
-	ID       string               `json:"id"`
-	Name     string               `json:"name"`     // 区域名称（如 example.com）
-	Records  map[string][]DNSRecord `json:"records"`  // 域名 -> 记录列表
-	Serial   uint32               `json:"serial"`   // SOA 序列号
-	Refresh  int                  `json:"refresh"`  // SOA 刷新间隔（秒）
-	Retry    int                  `json:"retry"`    // SOA 重试间隔（秒）
-	Expire   int                  `json:"expire"`   // SOA 过期时间（秒）
-	Minimum  int                  `json:"minimum"`  // SOA 最小 TTL（秒）
+	ID      string                 `json:"id"`
+	Name    string                 `json:"name"`    // 区域名称（如 example.com）
+	Records map[string][]DNSRecord `json:"records"` // 域名 -> 记录列表
+	Serial  uint32                 `json:"serial"`  // SOA 序列号
+	Refresh int                    `json:"refresh"` // SOA 刷新间隔（秒）
+	Retry   int                    `json:"retry"`   // SOA 重试间隔（秒）
+	Expire  int                    `json:"expire"`  // SOA 过期时间（秒）
+	Minimum int                    `json:"minimum"` // SOA 最小 TTL（秒）
 }
 
 // DNSRule DNS 过滤规则
 type DNSRule struct {
 	ID        string     `json:"id"`
-	Pattern   string     `json:"pattern"`    // 域名模式（支持通配符）
-	Action    RuleAction `json:"action"`     // block/allow/redirect
-	Target    string     `json:"target"`     // 重定向目标（redirect 时使用）
+	Pattern   string     `json:"pattern"` // 域名模式（支持通配符）
+	Action    RuleAction `json:"action"`  // block/allow/redirect
+	Target    string     `json:"target"`  // 重定向目标（redirect 时使用）
 	Enabled   bool       `json:"enabled"`
-	Category  string     `json:"category"`   // 规则分类（如 ads, malware, tracking）
-	HitCount  int64      `json:"hit_count"`  // 命中次数
+	Category  string     `json:"category"`  // 规则分类（如 ads, malware, tracking）
+	HitCount  int64      `json:"hit_count"` // 命中次数
 	CreatedAt time.Time  `json:"created_at"`
 }
 
@@ -86,12 +86,12 @@ type DNSQuery struct {
 
 // DNSStats DNS 统计信息
 type DNSStats struct {
-	TotalQueries   int64         `json:"total_queries"`
-	BlockedQueries int64         `json:"blocked_queries"`
-	AllowedQueries int64         `json:"allowed_queries"`
-	TopDomains     []DomainStat  `json:"top_domains"`
-	TopClients     []ClientStat  `json:"top_clients"`
-	TopBlocked     []DomainStat  `json:"top_blocked"`
+	TotalQueries   int64        `json:"total_queries"`
+	BlockedQueries int64        `json:"blocked_queries"`
+	AllowedQueries int64        `json:"allowed_queries"`
+	TopDomains     []DomainStat `json:"top_domains"`
+	TopClients     []ClientStat `json:"top_clients"`
+	TopBlocked     []DomainStat `json:"top_blocked"`
 }
 
 // DomainStat 域名统计
@@ -113,19 +113,19 @@ type UpstreamServer struct {
 	Port     int              `json:"port"`     // 端口号
 	Protocol UpstreamProtocol `json:"protocol"` // udp/tcp/doh/dot
 	Enabled  bool             `json:"enabled"`
-	Latency  int64            `json:"latency"`  // 延迟（毫秒）
+	Latency  int64            `json:"latency"` // 延迟（毫秒）
 }
 
 // ========== 请求/响应结构 ==========
 
 // CreateRecordRequest 创建记录请求
 type CreateRecordRequest struct {
-	Zone    string        `json:"zone" binding:"required"`
-	Name    string        `json:"name" binding:"required"`
-	Type    DNSRecordType `json:"type" binding:"required"`
-	Value   string        `json:"value" binding:"required"`
-	TTL     int           `json:"ttl"`
-	Priority int          `json:"priority"`
+	Zone     string        `json:"zone" binding:"required"`
+	Name     string        `json:"name" binding:"required"`
+	Type     DNSRecordType `json:"type" binding:"required"`
+	Value    string        `json:"value" binding:"required"`
+	TTL      int           `json:"ttl"`
+	Priority int           `json:"priority"`
 }
 
 // UpdateRecordRequest 更新记录请求

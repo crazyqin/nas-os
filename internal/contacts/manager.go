@@ -25,10 +25,10 @@ type Manager struct {
 
 // ContactsConfig 联系人配置
 type ContactsConfig struct {
-	MaxContacts     int    `json:"max_contacts"`
-	MaxGroups       int    `json:"max_groups"`
-	DefaultCountry  string `json:"default_country"`
-	DedupThreshold  float64 `json:"dedup_threshold"` // 去重阈值 0-1
+	MaxContacts    int     `json:"max_contacts"`
+	MaxGroups      int     `json:"max_groups"`
+	DefaultCountry string  `json:"default_country"`
+	DedupThreshold float64 `json:"dedup_threshold"` // 去重阈值 0-1
 }
 
 // DefaultContactsConfig 默认配置

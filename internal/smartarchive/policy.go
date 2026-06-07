@@ -28,53 +28,53 @@ type PolicyEngine struct {
 
 // FileMetadata 文件元数据.
 type FileMetadata struct {
-	Path         string    `json:"path"`
-	Size         int64     `json:"size"`
-	Extension    string    `json:"extension"`
-	MimeType     string    `json:"mimeType"`
-	CreatedAt    time.Time `json:"createdAt"`
-	ModifiedAt   time.Time `json:"modifiedAt"`
-	AccessedAt   time.Time `json:"accessedAt"`
-	AccessCount  int64     `json:"accessCount"`
-	IsDir        bool      `json:"isDir"`
-	Owner        string    `json:"owner"`
-	Tags         []string  `json:"tags,omitempty"`
-	CurrentTier  StorageTier `json:"currentTier"`
-	Checksum     string    `json:"checksum,omitempty"`
+	Path        string      `json:"path"`
+	Size        int64       `json:"size"`
+	Extension   string      `json:"extension"`
+	MimeType    string      `json:"mimeType"`
+	CreatedAt   time.Time   `json:"createdAt"`
+	ModifiedAt  time.Time   `json:"modifiedAt"`
+	AccessedAt  time.Time   `json:"accessedAt"`
+	AccessCount int64       `json:"accessCount"`
+	IsDir       bool        `json:"isDir"`
+	Owner       string      `json:"owner"`
+	Tags        []string    `json:"tags,omitempty"`
+	CurrentTier StorageTier `json:"currentTier"`
+	Checksum    string      `json:"checksum,omitempty"`
 }
 
 // PolicyStats 策略统计.
 type PolicyStats struct {
-	TotalEvaluations int64                  `json:"totalEvaluations"`
-	TotalMatches     int64                  `json:"totalMatches"`
+	TotalEvaluations int64                       `json:"totalEvaluations"`
+	TotalMatches     int64                       `json:"totalMatches"`
 	ByPolicy         map[string]*PolicyExecStats `json:"byPolicy"`
-	LastEvaluation   time.Time              `json:"lastEvaluation"`
+	LastEvaluation   time.Time                   `json:"lastEvaluation"`
 }
 
 // PolicyExecStats 策略执行统计.
 type PolicyExecStats struct {
-	PolicyID     string    `json:"policyId"`
-	PolicyName   string    `json:"policyName"`
-	Executions   int64     `json:"executions"`
-	Matches      int64     `json:"matches"`
-	Successes    int64     `json:"successes"`
-	Failures     int64     `json:"failures"`
-	TotalFiles   int64     `json:"totalFiles"`
-	TotalBytes   int64     `json:"totalBytes"`
-	LastExecTime time.Time `json:"lastExecTime"`
+	PolicyID     string        `json:"policyId"`
+	PolicyName   string        `json:"policyName"`
+	Executions   int64         `json:"executions"`
+	Matches      int64         `json:"matches"`
+	Successes    int64         `json:"successes"`
+	Failures     int64         `json:"failures"`
+	TotalFiles   int64         `json:"totalFiles"`
+	TotalBytes   int64         `json:"totalBytes"`
+	LastExecTime time.Time     `json:"lastExecTime"`
 	AvgExecTime  time.Duration `json:"avgExecTime"`
 }
 
 // PolicyMatch 策略匹配结果.
 type PolicyMatch struct {
-	PolicyID   string          `json:"policyId"`
-	PolicyName string          `json:"policyName"`
-	FilePath   string          `json:"filePath"`
-	MatchedAt  time.Time       `json:"matchedAt"`
-	Conditions []string        `json:"conditions"` // 匹配的条件
-	Action     ArchiveAction   `json:"action"`
-	TargetTier StorageTier     `json:"targetTier"`
-	Confidence float64         `json:"confidence"`
+	PolicyID   string        `json:"policyId"`
+	PolicyName string        `json:"policyName"`
+	FilePath   string        `json:"filePath"`
+	MatchedAt  time.Time     `json:"matchedAt"`
+	Conditions []string      `json:"conditions"` // 匹配的条件
+	Action     ArchiveAction `json:"action"`
+	TargetTier StorageTier   `json:"targetTier"`
+	Confidence float64       `json:"confidence"`
 }
 
 // NewPolicyEngine 创建策略引擎.

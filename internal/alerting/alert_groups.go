@@ -17,11 +17,11 @@ type AlertGroup struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
-	Category    AlertCategory     `json:"category"`    // 存储/网络/系统/安全
-	Priority    int               `json:"priority"`    // 显示优先级（1-10）
+	Category    AlertCategory     `json:"category"` // 存储/网络/系统/安全
+	Priority    int               `json:"priority"` // 显示优先级（1-10）
 	Enabled     bool              `json:"enabled"`
-	Rules       []string          `json:"rules"`       // 关联的规则 ID
-	Labels      map[string]string `json:"labels"`      // 分组标签
+	Rules       []string          `json:"rules"`  // 关联的规则 ID
+	Labels      map[string]string `json:"labels"` // 分组标签
 	CreatedAt   time.Time         `json:"created_at"`
 	UpdatedAt   time.Time         `json:"updated_at"`
 }
@@ -526,10 +526,10 @@ func (m *AlertGroupManager) GetCategorySummary() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	summary := map[string]interface{}{
-		"categories": make([]map[string]interface{}, 0),
-		"total_active":    0,
-		"total_critical":  0,
-		"health_score":    100, // 健康评分（100为完美）
+		"categories":     make([]map[string]interface{}, 0),
+		"total_active":   0,
+		"total_critical": 0,
+		"health_score":   100, // 健康评分（100为完美）
 	}
 
 	categories := summary["categories"].([]map[string]interface{})
@@ -688,9 +688,9 @@ func sortGroupsByPriority(groups []*AlertGroup) {
 // getCategoryName 获取分类名称
 func getCategoryName(category AlertCategory) string {
 	names := map[AlertCategory]string{
-		CategoryStorage: "存储",
-		CategoryNetwork: "网络",
-		CategorySystem:  "系统",
+		CategoryStorage:  "存储",
+		CategoryNetwork:  "网络",
+		CategorySystem:   "系统",
 		CategorySecurity: "安全",
 	}
 	return names[category]

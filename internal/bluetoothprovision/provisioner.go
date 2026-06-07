@@ -12,12 +12,12 @@ import (
 
 // DefaultProvisioner 实现默认配网引擎
 type DefaultProvisioner struct {
-	mu        sync.RWMutex
-	sessions  map[string]*ProvisionSession
-	history   []ProvisionHistory
+	mu         sync.RWMutex
+	sessions   map[string]*ProvisionSession
+	history    []ProvisionHistory
 	maxHistory int
-	timeout   time.Duration
-	onEvent   func(ProvisionEvent)
+	timeout    time.Duration
+	onEvent    func(ProvisionEvent)
 }
 
 // NewDefaultProvisioner 创建默认配网引擎

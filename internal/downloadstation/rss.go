@@ -504,9 +504,9 @@ type RSSItemXML struct {
 	Description string `xml:"description"`
 	PubDate     string `xml:"pubDate"`
 	Enclosure   struct {
-		URL  string `xml:"url,attr"`
-		Type string `xml:"type,attr"`
-		Length int64 `xml:"length,attr"`
+		URL    string `xml:"url,attr"`
+		Type   string `xml:"type,attr"`
+		Length int64  `xml:"length,attr"`
 	} `xml:"enclosure"`
 }
 
@@ -520,8 +520,8 @@ type Atom struct {
 
 // AtomEntry Atom 条目.
 type AtomEntry struct {
-	Title     string `xml:"title"`
-	Link      struct {
+	Title string `xml:"title"`
+	Link  struct {
 		Href string `xml:"href,attr"`
 	} `xml:"link"`
 	Summary   string `xml:"summary"`

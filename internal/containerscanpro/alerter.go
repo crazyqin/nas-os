@@ -13,13 +13,13 @@ import (
 
 // Alerter 告警器
 type Alerter struct {
-	mu           sync.RWMutex
-	config       *AlertConfig
-	alerts       []Alert
-	alertChan    chan Alert
-	stopCh       chan struct{}
-	lastAlerts   map[string]time.Time // key -> last alert time (for cooldown)
-	httpClient   *http.Client
+	mu         sync.RWMutex
+	config     *AlertConfig
+	alerts     []Alert
+	alertChan  chan Alert
+	stopCh     chan struct{}
+	lastAlerts map[string]time.Time // key -> last alert time (for cooldown)
+	httpClient *http.Client
 }
 
 // NewAlerter 创建告警器
@@ -261,12 +261,12 @@ func CreateVulnerabilityAlert(vuln ContainerVulnerability) Alert {
 		Message: fmt.Sprintf("Container %s has vulnerability %s (Score: %.1f)", vuln.ContainerID, vuln.CVE.ID, vuln.CVE.Score),
 		Source:  "cve-scanner",
 		Details: map[string]string{
-			"cve_id":        vuln.CVE.ID,
-			"severity":      string(vuln.CVE.Severity),
-			"score":         fmt.Sprintf("%.1f", vuln.CVE.Score),
-			"package":       vuln.Package.Name,
-			"container_id":  vuln.ContainerID,
-			"image_name":    vuln.ImageName,
+			"cve_id":       vuln.CVE.ID,
+			"severity":     string(vuln.CVE.Severity),
+			"score":        fmt.Sprintf("%.1f", vuln.CVE.Score),
+			"package":      vuln.Package.Name,
+			"container_id": vuln.ContainerID,
+			"image_name":   vuln.ImageName,
 		},
 	}
 }

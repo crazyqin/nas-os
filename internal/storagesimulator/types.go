@@ -22,10 +22,10 @@ const (
 type GrowthScenario string
 
 const (
-	ScenarioHigh    GrowthScenario = "high"    // 高增长
-	ScenarioMedium  GrowthScenario = "medium"  // 中等增长（基于历史趋势）
-	ScenarioLow     GrowthScenario = "low"     // 低增长
-	ScenarioStable  GrowthScenario = "stable"  // 稳定（无增长）
+	ScenarioHigh   GrowthScenario = "high"   // 高增长
+	ScenarioMedium GrowthScenario = "medium" // 中等增长（基于历史趋势）
+	ScenarioLow    GrowthScenario = "low"    // 低增长
+	ScenarioStable GrowthScenario = "stable" // 稳定（无增长）
 )
 
 // AlertLevel 告警级别
@@ -39,55 +39,55 @@ const (
 
 // StorageUsage 存储使用量记录
 type StorageUsage struct {
-	Timestamp    time.Time `json:"timestamp"`
-	UsedBytes    int64     `json:"used_bytes"`
-	TotalBytes   int64     `json:"total_bytes"`
-	UsedPercent  float64   `json:"used_percent"`
+	Timestamp   time.Time `json:"timestamp"`
+	UsedBytes   int64     `json:"used_bytes"`
+	TotalBytes  int64     `json:"total_bytes"`
+	UsedPercent float64   `json:"used_percent"`
 }
 
 // ForecastPoint 预测点
 type ForecastPoint struct {
-	Date        time.Time     `json:"date"`
-	UsedBytes   int64         `json:"used_bytes"`
-	UsedPercent float64       `json:"used_percent"`
+	Date        time.Time      `json:"date"`
+	UsedBytes   int64          `json:"used_bytes"`
+	UsedPercent float64        `json:"used_percent"`
 	Scenario    GrowthScenario `json:"scenario"`
 }
 
 // ForecastResult 预测结果
 type ForecastResult struct {
-	Period       ForecastPeriod    `json:"period"`
-	Points       []ForecastPoint   `json:"points"`
-	Scenario     GrowthScenario    `json:"scenario"`
-	TotalCapacity int64            `json:"total_capacity"`
-	GeneratedAt  time.Time         `json:"generated_at"`
+	Period        ForecastPeriod  `json:"period"`
+	Points        []ForecastPoint `json:"points"`
+	Scenario      GrowthScenario  `json:"scenario"`
+	TotalCapacity int64           `json:"total_capacity"`
+	GeneratedAt   time.Time       `json:"generated_at"`
 }
 
 // ScenarioConfig 场景配置
 type ScenarioConfig struct {
-	ID            string         `json:"id"`
-	Name          string         `json:"name"`
-	Description   string         `json:"description"`
-	GrowthRate    float64        `json:"growth_rate"`    // 日增长率（百分比）
-	GrowthType    string         `json:"growth_type"`    // linear, exponential
-	Period        ForecastPeriod `json:"period"`
-	Duration      int            `json:"duration"`       // 预测时长（按周期单位）
-	CreatedAt     time.Time      `json:"created_at"`
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	GrowthRate  float64        `json:"growth_rate"` // 日增长率（百分比）
+	GrowthType  string         `json:"growth_type"` // linear, exponential
+	Period      ForecastPeriod `json:"period"`
+	Duration    int            `json:"duration"` // 预测时长（按周期单位）
+	CreatedAt   time.Time      `json:"created_at"`
 }
 
 // ScenarioResult 场景模拟结果
 type ScenarioResult struct {
-	Config       ScenarioConfig   `json:"config"`
-	Forecasts    []ForecastPoint  `json:"forecasts"`
-	FullDate     *time.Time       `json:"full_date,omitempty"`     // 容量用尽日期
-	WarningDate  *time.Time       `json:"warning_date,omitempty"`  // 告警触发日期
-	GeneratedAt  time.Time        `json:"generated_at"`
+	Config      ScenarioConfig  `json:"config"`
+	Forecasts   []ForecastPoint `json:"forecasts"`
+	FullDate    *time.Time      `json:"full_date,omitempty"`    // 容量用尽日期
+	WarningDate *time.Time      `json:"warning_date,omitempty"` // 告警触发日期
+	GeneratedAt time.Time       `json:"generated_at"`
 }
 
 // CapacityAlert 容量告警
 type CapacityAlert struct {
 	ID           string     `json:"id"`
 	Name         string     `json:"name"`
-	Threshold    float64    `json:"threshold"`     // 使用率阈值（百分比）
+	Threshold    float64    `json:"threshold"` // 使用率阈值（百分比）
 	Level        AlertLevel `json:"level"`
 	Enabled      bool       `json:"enabled"`
 	NotifyMethod string     `json:"notify_method"` // email, webhook, sms
@@ -105,45 +105,45 @@ type AlertStatus struct {
 
 // CostEstimate 成本估算
 type CostEstimate struct {
-	CurrentUsedGB    float64            `json:"current_used_gb"`
-	TotalCapacityGB  float64            `json:"total_capacity_gb"`
-	CostPerGBPerMonth float64           `json:"cost_per_gb_per_month"`
-	CurrentMonthlyCost float64          `json:"current_monthly_cost"`
-	ProjectedCosts   []ProjectedCost    `json:"projected_costs"`
-	Currency         string             `json:"currency"`
-	GeneratedAt      time.Time          `json:"generated_at"`
+	CurrentUsedGB      float64         `json:"current_used_gb"`
+	TotalCapacityGB    float64         `json:"total_capacity_gb"`
+	CostPerGBPerMonth  float64         `json:"cost_per_gb_per_month"`
+	CurrentMonthlyCost float64         `json:"current_monthly_cost"`
+	ProjectedCosts     []ProjectedCost `json:"projected_costs"`
+	Currency           string          `json:"currency"`
+	GeneratedAt        time.Time       `json:"generated_at"`
 }
 
 // ProjectedCost 预测成本
 type ProjectedCost struct {
-	Date       time.Time `json:"date"`
-	UsedGB     float64   `json:"used_gb"`
-	MonthlyCost float64  `json:"monthly_cost"`
-	Scenario   string    `json:"scenario"`
+	Date        time.Time `json:"date"`
+	UsedGB      float64   `json:"used_gb"`
+	MonthlyCost float64   `json:"monthly_cost"`
+	Scenario    string    `json:"scenario"`
 }
 
 // CapacityReport 容量规划报告
 type CapacityReport struct {
-	Summary         ReportSummary      `json:"summary"`
-	CurrentUsage    StorageUsage       `json:"current_usage"`
-	Forecasts       []ForecastResult   `json:"forecasts"`
-	Scenarios       []ScenarioResult   `json:"scenarios"`
-	AlertStatuses   []AlertStatus      `json:"alert_statuses"`
-	CostEstimate    CostEstimate       `json:"cost_estimate"`
-	Recommendations []string           `json:"recommendations"`
-	GeneratedAt     time.Time          `json:"generated_at"`
+	Summary         ReportSummary    `json:"summary"`
+	CurrentUsage    StorageUsage     `json:"current_usage"`
+	Forecasts       []ForecastResult `json:"forecasts"`
+	Scenarios       []ScenarioResult `json:"scenarios"`
+	AlertStatuses   []AlertStatus    `json:"alert_statuses"`
+	CostEstimate    CostEstimate     `json:"cost_estimate"`
+	Recommendations []string         `json:"recommendations"`
+	GeneratedAt     time.Time        `json:"generated_at"`
 }
 
 // ReportSummary 报告摘要
 type ReportSummary struct {
-	TotalCapacityGB   float64   `json:"total_capacity_gb"`
-	UsedCapacityGB    float64   `json:"used_capacity_gb"`
-	AvailableGB       float64   `json:"available_gb"`
-	UsedPercent       float64   `json:"used_percent"`
-	DaysUntilFull     int       `json:"days_until_full"`
-	DaysUntilWarning  int       `json:"days_until_warning"`
-	GrowthRatePerDay  float64   `json:"growth_rate_per_day"`
-	HealthStatus      string    `json:"health_status"` // healthy, warning, critical
+	TotalCapacityGB  float64 `json:"total_capacity_gb"`
+	UsedCapacityGB   float64 `json:"used_capacity_gb"`
+	AvailableGB      float64 `json:"available_gb"`
+	UsedPercent      float64 `json:"used_percent"`
+	DaysUntilFull    int     `json:"days_until_full"`
+	DaysUntilWarning int     `json:"days_until_warning"`
+	GrowthRatePerDay float64 `json:"growth_rate_per_day"`
+	HealthStatus     string  `json:"health_status"` // healthy, warning, critical
 }
 
 // Manager 存储容量模拟器管理器

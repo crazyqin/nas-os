@@ -53,18 +53,18 @@ type CostBreakdown struct {
 
 // CostReport 成本报告
 type CostReport struct {
-	ID          string                  `json:"id"`
-	ReportName  string                  `json:"report_name"`
-	TotalCost   float64                 `json:"total_cost"`
-	Currency    string                  `json:"currency"`
-	Breakdowns  []*CostBreakdown        `json:"breakdowns"`
-	ByTier      map[StorageTier]float64 `json:"by_tier"`
-	ByPool      map[string]float64      `json:"by_pool"`
+	ID          string                   `json:"id"`
+	ReportName  string                   `json:"report_name"`
+	TotalCost   float64                  `json:"total_cost"`
+	Currency    string                   `json:"currency"`
+	Breakdowns  []*CostBreakdown         `json:"breakdowns"`
+	ByTier      map[StorageTier]float64  `json:"by_tier"`
+	ByPool      map[string]float64       `json:"by_pool"`
 	ByCategory  map[CostCategory]float64 `json:"by_category"`
-	Trend       *CostTrend              `json:"trend,omitempty"`
-	PeriodStart time.Time               `json:"period_start"`
-	PeriodEnd   time.Time               `json:"period_end"`
-	GeneratedAt time.Time               `json:"generated_at"`
+	Trend       *CostTrend               `json:"trend,omitempty"`
+	PeriodStart time.Time                `json:"period_start"`
+	PeriodEnd   time.Time                `json:"period_end"`
+	GeneratedAt time.Time                `json:"generated_at"`
 }
 
 // CostTrend 成本趋势
@@ -82,17 +82,17 @@ type DailyCost struct {
 
 // CostForecast 成本预测
 type CostForecast struct {
-	ID           string             `json:"id"`
-	ForecastName string             `json:"forecast_name"`
-	CurrentCost  float64            `json:"current_cost"`
-	ForecastCost float64            `json:"forecast_cost"`
-	Currency     string             `json:"currency"`
-	Months       int                `json:"months"`
-	GrowthRate   float64            `json:"growth_rate"`
-	Confidence   float64            `json:"confidence"`
-	MonthlyData  []MonthlyForecast  `json:"monthly_data"`
-	Assumptions  []string           `json:"assumptions"`
-	CreatedAt    time.Time          `json:"created_at"`
+	ID           string            `json:"id"`
+	ForecastName string            `json:"forecast_name"`
+	CurrentCost  float64           `json:"current_cost"`
+	ForecastCost float64           `json:"forecast_cost"`
+	Currency     string            `json:"currency"`
+	Months       int               `json:"months"`
+	GrowthRate   float64           `json:"growth_rate"`
+	Confidence   float64           `json:"confidence"`
+	MonthlyData  []MonthlyForecast `json:"monthly_data"`
+	Assumptions  []string          `json:"assumptions"`
+	CreatedAt    time.Time         `json:"created_at"`
 }
 
 // MonthlyForecast 月度预测
@@ -126,13 +126,13 @@ type OptimizationSuggestion struct {
 type StorageCostConfig struct {
 	Enabled         bool                    `json:"enabled"`
 	DefaultCurrency string                  `json:"default_currency"`
-	Currency        string                  `json:"currency"`        // 测试兼容字段
+	Currency        string                  `json:"currency"` // 测试兼容字段
 	TierPricing     map[StorageTier]float64 `json:"tier_pricing"`
 	TransferRate    float64                 `json:"transfer_rate"`
 	RequestRate     float64                 `json:"request_rate"`
 	AlertThreshold  float64                 `json:"alert_threshold"`
 	ForecastMonths  int                     `json:"forecast_months"`
-	BudgetLimit     float64                 `json:"budget_limit"`    // 测试兼容字段
+	BudgetLimit     float64                 `json:"budget_limit"`      // 测试兼容字段
 	DefaultPriceSSD float64                 `json:"default_price_ssd"` // 测试兼容字段
 	DefaultPriceHDD float64                 `json:"default_price_hdd"` // 测试兼容字段
 }

@@ -13,16 +13,16 @@ import (
 
 // EfficiencyStats holds storage efficiency statistics.
 type EfficiencyStats struct {
-	TotalSpace       int64   `json:"total_space"`
-	UsedSpace        int64   `json:"used_space"`
-	FreeSpace        int64   `json:"free_space"`
-	CompressionRatio float64 `json:"compression_ratio"`
-	DedupRatio       float64 `json:"dedup_ratio"`
-	ThinProvisioned  int64   `json:"thin_provisioned"`
-	SnapshotSpace    int64   `json:"snapshot_space"`
-	DataWritten      int64   `json:"data_written"`
-	DataRead         int64   `json:"data_read"`
-	OverallSaving    float64 `json:"overall_saving_percent"`
+	TotalSpace       int64     `json:"total_space"`
+	UsedSpace        int64     `json:"used_space"`
+	FreeSpace        int64     `json:"free_space"`
+	CompressionRatio float64   `json:"compression_ratio"`
+	DedupRatio       float64   `json:"dedup_ratio"`
+	ThinProvisioned  int64     `json:"thin_provisioned"`
+	SnapshotSpace    int64     `json:"snapshot_space"`
+	DataWritten      int64     `json:"data_written"`
+	DataRead         int64     `json:"data_read"`
+	OverallSaving    float64   `json:"overall_saving_percent"`
 	UpdatedAt        time.Time `json:"updated_at"`
 }
 

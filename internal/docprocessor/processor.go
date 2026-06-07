@@ -66,48 +66,48 @@ type Document struct {
 
 // AnalysisResult 文档分析结果
 type AnalysisResult struct {
-	DocumentID   string            `json:"document_id"`
-	Type         DocType           `json:"type"`
-	Size         int64             `json:"size"`
-	WordCount    int               `json:"word_count"`
-	LineCount    int               `json:"line_count"`
-	CharCount    int               `json:"char_count"`
-	Language     string            `json:"language"`
-	Encoding     string            `json:"encoding"`
-	Keywords     []string          `json:"keywords"`
-	Metadata     map[string]string `json:"metadata"`
-	Hash         string            `json:"hash"`
-	AnalyzedAt   time.Time         `json:"analyzed_at"`
+	DocumentID string            `json:"document_id"`
+	Type       DocType           `json:"type"`
+	Size       int64             `json:"size"`
+	WordCount  int               `json:"word_count"`
+	LineCount  int               `json:"line_count"`
+	CharCount  int               `json:"char_count"`
+	Language   string            `json:"language"`
+	Encoding   string            `json:"encoding"`
+	Keywords   []string          `json:"keywords"`
+	Metadata   map[string]string `json:"metadata"`
+	Hash       string            `json:"hash"`
+	AnalyzedAt time.Time         `json:"analyzed_at"`
 }
 
 // ClassifyResult 文档分类结果
 type ClassifyResult struct {
-	DocumentID   string   `json:"document_id"`
-	Category     string   `json:"category"`
-	SubCategory  string   `json:"sub_category"`
-	Confidence   float64  `json:"confidence"`
-	Tags         []string `json:"tags"`
-	Labels       []string `json:"labels"`
+	DocumentID  string   `json:"document_id"`
+	Category    string   `json:"category"`
+	SubCategory string   `json:"sub_category"`
+	Confidence  float64  `json:"confidence"`
+	Tags        []string `json:"tags"`
+	Labels      []string `json:"labels"`
 }
 
 // SummaryResult 文档摘要结果
 type SummaryResult struct {
-	DocumentID   string   `json:"document_id"`
-	Summary      string   `json:"summary"`
-	Keywords     []string `json:"keywords"`
-	WordCount    int      `json:"word_count"`
-	CompressionRatio float64 `json:"compression_ratio"`
+	DocumentID       string   `json:"document_id"`
+	Summary          string   `json:"summary"`
+	Keywords         []string `json:"keywords"`
+	WordCount        int      `json:"word_count"`
+	CompressionRatio float64  `json:"compression_ratio"`
 }
 
 // DiffResult 文档对比结果
 type DiffResult struct {
-	Doc1ID       string   `json:"doc1_id"`
-	Doc2ID       string   `json:"doc2_id"`
-	Additions    int      `json:"additions"`
-	Deletions    int      `json:"deletions"`
-	Changes      int      `json:"changes"`
-	Similarity   float64  `json:"similarity"`
-	DiffLines    []DiffLine `json:"diff_lines"`
+	Doc1ID     string     `json:"doc1_id"`
+	Doc2ID     string     `json:"doc2_id"`
+	Additions  int        `json:"additions"`
+	Deletions  int        `json:"deletions"`
+	Changes    int        `json:"changes"`
+	Similarity float64    `json:"similarity"`
+	DiffLines  []DiffLine `json:"diff_lines"`
 }
 
 // DiffLine 对比行

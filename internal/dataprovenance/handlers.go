@@ -108,8 +108,8 @@ func (h *Handlers) verifyChain(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"chain_id": chainID,
-		"valid":    valid,
+		"chain_id":    chainID,
+		"valid":       valid,
 		"verified_at": time.Now(),
 	})
 }
@@ -239,9 +239,9 @@ func (h *Handlers) getFileHistory(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"file_id":  fileID,
-		"history":  history,
-		"total":    len(history),
+		"file_id": fileID,
+		"history": history,
+		"total":   len(history),
 	})
 }
 
@@ -350,7 +350,7 @@ func (h *Handlers) updateRetentionPolicy(c *gin.Context) {
 func (h *Handlers) cleanupExpired(c *gin.Context) {
 	cleaned := h.engine.CleanupExpired()
 	c.JSON(http.StatusOK, gin.H{
-		"message":        "清理完成",
-		"cleaned_count":  cleaned,
+		"message":       "清理完成",
+		"cleaned_count": cleaned,
 	})
 }

@@ -857,17 +857,17 @@ func TestWithIsDirectory(t *testing.T) {
 
 func TestEnhancedAuditEntry_JSON(t *testing.T) {
 	entry := EnhancedAuditEntry{
-		ID:            "test-001",
-		Timestamp:     time.Date(2026, 4, 30, 10, 0, 0, 0, time.UTC),
-		Operation:     OpFileCreate,
-		IP:            "192.168.1.100",
-		Username:      "admin",
-		ShareName:     "documents",
-		FilePath:      "/share/test.txt",
-		Result:        "success",
-		Details:       "创建新文件",
-		FileSize:      1024,
-		IsDirectory:   false,
+		ID:          "test-001",
+		Timestamp:   time.Date(2026, 4, 30, 10, 0, 0, 0, time.UTC),
+		Operation:   OpFileCreate,
+		IP:          "192.168.1.100",
+		Username:    "admin",
+		ShareName:   "documents",
+		FilePath:    "/share/test.txt",
+		Result:      "success",
+		Details:     "创建新文件",
+		FileSize:    1024,
+		IsDirectory: false,
 	}
 
 	data, err := json.Marshal(entry)

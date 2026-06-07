@@ -538,7 +538,7 @@ func TestGetStats(t *testing.T) {
 	sb.AddAccount("user1", "张三", BudgetConfig{})
 	sb.AddAccount("user2", "李四", BudgetConfig{})
 
-	sb.RecordUsage("user1", ResourceStorage, 100)  // 10元
+	sb.RecordUsage("user1", ResourceStorage, 100)   // 10元
 	sb.RecordUsage("user1", ResourceBandwidth, 200) // 10元
 	sb.RecordUsage("user2", ResourceCPU, 10)        // 5元
 
@@ -658,7 +658,7 @@ func TestRecordUsageUpdatesTotalCost(t *testing.T) {
 	sb.AddAccount("user1", "张三", BudgetConfig{})
 
 	// 记录多次使用
-	sb.RecordUsage("user1", ResourceStorage, 100)  // 10元
+	sb.RecordUsage("user1", ResourceStorage, 100)   // 10元
 	sb.RecordUsage("user1", ResourceBandwidth, 200) // 10元
 	sb.RecordUsage("user1", ResourceCPU, 10)        // 5元
 

@@ -28,10 +28,10 @@ func (r Rating) Validate() bool {
 type FeedbackCategory string
 
 const (
-	CategoryBugReport     FeedbackCategory = "bug_report"
+	CategoryBugReport      FeedbackCategory = "bug_report"
 	CategoryFeatureRequest FeedbackCategory = "feature_request"
-	CategoryUsageIssue    FeedbackCategory = "usage_issue"
-	CategoryPraise        FeedbackCategory = "praise"
+	CategoryUsageIssue     FeedbackCategory = "usage_issue"
+	CategoryPraise         FeedbackCategory = "praise"
 )
 
 // ReportReason 举报原因
@@ -48,9 +48,9 @@ const (
 type SortOrder string
 
 const (
-	SortNewest    SortOrder = "newest"
-	SortHighest   SortOrder = "highest"
-	SortLowest    SortOrder = "lowest"
+	SortNewest      SortOrder = "newest"
+	SortHighest     SortOrder = "highest"
+	SortLowest      SortOrder = "lowest"
 	SortMostHelpful SortOrder = "most_helpful"
 )
 
@@ -74,40 +74,40 @@ type Feedback struct {
 
 // FeedbackReply 评论回复
 type FeedbackReply struct {
-	ID        string    `json:"id"`
-	FeedbackID string   `json:"feedback_id"`
-	UserID    string    `json:"user_id"`
-	IsDev     bool      `json:"is_dev"` // 是否为开发者回复
-	Content   string    `json:"content"`
-	CreatedAt time.Time `json:"created_at"`
+	ID         string    `json:"id"`
+	FeedbackID string    `json:"feedback_id"`
+	UserID     string    `json:"user_id"`
+	IsDev      bool      `json:"is_dev"` // 是否为开发者回复
+	Content    string    `json:"content"`
+	CreatedAt  time.Time `json:"created_at"`
 }
 
 // Vote 投票记录
 type Vote struct {
-	ID        string    `json:"id"`
-	FeedbackID string   `json:"feedback_id"`
-	UserID    string    `json:"user_id"`
-	IsHelpful bool      `json:"is_helpful"` // true=有用, false=无用
-	CreatedAt time.Time `json:"created_at"`
+	ID         string    `json:"id"`
+	FeedbackID string    `json:"feedback_id"`
+	UserID     string    `json:"user_id"`
+	IsHelpful  bool      `json:"is_helpful"` // true=有用, false=无用
+	CreatedAt  time.Time `json:"created_at"`
 }
 
 // Report 举报记录
 type Report struct {
-	ID        string       `json:"id"`
-	FeedbackID string      `json:"feedback_id"`
-	UserID    string       `json:"user_id"`
-	Reason    ReportReason `json:"reason"`
-	Details   string       `json:"details,omitempty"`
-	CreatedAt time.Time    `json:"created_at"`
+	ID         string       `json:"id"`
+	FeedbackID string       `json:"feedback_id"`
+	UserID     string       `json:"user_id"`
+	Reason     ReportReason `json:"reason"`
+	Details    string       `json:"details,omitempty"`
+	CreatedAt  time.Time    `json:"created_at"`
 }
 
 // RatingStats 评分统计
 type RatingStats struct {
-	AppID       string         `json:"app_id"`
-	TotalCount  int            `json:"total_count"`
-	Average     float64        `json:"average"`
-	Distribution map[int]int   `json:"distribution"` // 星级分布，key为1-5
-	Trend       []TrendPoint   `json:"trend,omitempty"` // 趋势数据
+	AppID        string       `json:"app_id"`
+	TotalCount   int          `json:"total_count"`
+	Average      float64      `json:"average"`
+	Distribution map[int]int  `json:"distribution"`    // 星级分布，key为1-5
+	Trend        []TrendPoint `json:"trend,omitempty"` // 趋势数据
 }
 
 // TrendPoint 趋势数据点
@@ -119,11 +119,11 @@ type TrendPoint struct {
 
 // CommentSummary 评论摘要
 type CommentSummary struct {
-	AppID       string   `json:"app_id"`
-	TotalCount  int      `json:"total_count"`
-	Keywords    []string `json:"keywords"`
-	Positive    []string `json:"positive"`
-	Negative    []string `json:"negative"`
+	AppID       string    `json:"app_id"`
+	TotalCount  int       `json:"total_count"`
+	Keywords    []string  `json:"keywords"`
+	Positive    []string  `json:"positive"`
+	Negative    []string  `json:"negative"`
 	GeneratedAt time.Time `json:"generated_at"`
 }
 

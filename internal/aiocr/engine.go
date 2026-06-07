@@ -41,7 +41,7 @@ func NewEngine(cfg *Config) (*Engine, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	engine := &Engine{
-		config:     cfg,
+		config:       cfg,
 		preprocessor: NewPreprocessor(cfg),
 		recognizer:   NewRecognizer(cfg),
 		extractor:    NewExtractor(cfg),
@@ -244,11 +244,11 @@ func (e *Engine) processBatch(task *BatchTask, files []string) {
 
 	for i, file := range files {
 		req := &OCRRequest{
-			ID:       uuid.New().String(),
-			FilePath: file,
-			Options:  task.Options,
-			BatchID:  task.ID,
-			Priority: 1,
+			ID:        uuid.New().String(),
+			FilePath:  file,
+			Options:   task.Options,
+			BatchID:   task.ID,
+			Priority:  1,
 			CreatedAt: time.Now(),
 		}
 
@@ -358,14 +358,14 @@ func DefaultConfig() *Config {
 		Workers:         4,
 		QueueSize:       100,
 		Desensitize: &DesensitizeConfig{
-			Enabled:        true,
-			IDCardPattern:  `\d{17}[\dXx]`,
+			Enabled:         true,
+			IDCardPattern:   `\d{17}[\dXx]`,
 			BankCardPattern: `\d{16,19}`,
-			PhonePattern:   `1[3-9]\d{9}`,
-			EmailPattern:   `[\w.]+@[\w.]+\.\w+`,
-			MaskChar:       "*",
-			KeepPrefix:     4,
-			KeepSuffix:     4,
+			PhonePattern:    `1[3-9]\d{9}`,
+			EmailPattern:    `[\w.]+@[\w.]+\.\w+`,
+			MaskChar:        "*",
+			KeepPrefix:      4,
+			KeepSuffix:      4,
 		},
 		ArchivePath:   "/var/nas-os/ocr/archive",
 		IndexEnabled:  true,

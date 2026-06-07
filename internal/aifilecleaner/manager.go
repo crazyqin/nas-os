@@ -14,18 +14,18 @@ import (
 
 // CleanTask 清理任务（manager内部使用，与types.go的CleanupTask区分）
 type CleanTask struct {
-	ID          string      `json:"id"`
-	Status      TaskStatus  `json:"status"`
-	Mode        DeleteMode  `json:"mode"`
-	Files       []string    `json:"files"`
-	TotalSize   int64       `json:"total_size"`
-	FreedSize   int64       `json:"freed_size"`
-	Processed   int         `json:"processed"`
-	Failed      int         `json:"failed"`
-	Errors      []string    `json:"errors,omitempty"`
-	StartedAt   time.Time   `json:"started_at"`
-	CompletedAt *time.Time  `json:"completed_at,omitempty"`
-	Progress    float64     `json:"progress"`
+	ID          string     `json:"id"`
+	Status      TaskStatus `json:"status"`
+	Mode        DeleteMode `json:"mode"`
+	Files       []string   `json:"files"`
+	TotalSize   int64      `json:"total_size"`
+	FreedSize   int64      `json:"freed_size"`
+	Processed   int        `json:"processed"`
+	Failed      int        `json:"failed"`
+	Errors      []string   `json:"errors,omitempty"`
+	StartedAt   time.Time  `json:"started_at"`
+	CompletedAt *time.Time `json:"completed_at,omitempty"`
+	Progress    float64    `json:"progress"`
 }
 
 // Manager AI文件清理管理器
@@ -41,10 +41,10 @@ type Manager struct {
 func NewManager(config *ScanConfig) *Manager {
 	if config == nil {
 		config = &ScanConfig{
-			RootPath:           "/",
+			RootPath:             "/",
 			LargeFileThresholdMB: 100,
-			StaleDays:          90,
-			MaxDepth:           10,
+			StaleDays:            90,
+			MaxDepth:             10,
 		}
 	}
 	return &Manager{
@@ -159,10 +159,10 @@ func (m *Manager) FindDuplicates(paths []string) (map[string][]*DuplicateGroup, 
 	for hash, files := range hashMap {
 		if len(files) > 1 {
 			group := &DuplicateGroup{
-				Hash:  hash,
-				Size:  files[0].Size,
-				Count: len(files),
-				Files: files,
+				Hash:        hash,
+				Size:        files[0].Size,
+				Count:       len(files),
+				Files:       files,
 				WastedBytes: int64(len(files)-1) * files[0].Size,
 			}
 			duplicates[hash] = append(duplicates[hash], group)

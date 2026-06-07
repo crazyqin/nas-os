@@ -431,16 +431,16 @@ func (h *Handlers) StopServer(c *gin.Context) {
 func (h *Handlers) GetConfig(c *gin.Context) {
 	cfg := h.server.config
 	c.JSON(http.StatusOK, ConfigResponse{
-		ListenAddr:       cfg.ListenAddr,
-		MaxConcurrent:    cfg.MaxConcurrent,
-		ChunkSize:        cfg.ChunkSize,
+		ListenAddr:        cfg.ListenAddr,
+		MaxConcurrent:     cfg.MaxConcurrent,
+		ChunkSize:         cfg.ChunkSize,
 		EnableCompression: cfg.EnableCompression,
-		CompressionLevel: cfg.CompressionLevel,
+		CompressionLevel:  cfg.CompressionLevel,
 		EnableEncryption:  cfg.EnableEncryption,
-		TransferTimeout:  cfg.TransferTimeout.String(),
-		SpeedLimit:       cfg.SpeedLimit,
-		StorageRoot:      cfg.StorageRoot,
-		EnableMTLS:       cfg.EnableMTLS,
+		TransferTimeout:   cfg.TransferTimeout.String(),
+		SpeedLimit:        cfg.SpeedLimit,
+		StorageRoot:       cfg.StorageRoot,
+		EnableMTLS:        cfg.EnableMTLS,
 	})
 }
 
@@ -550,16 +550,16 @@ type ServerStatusResponse struct {
 
 // ConfigResponse 配置响应
 type ConfigResponse struct {
-	ListenAddr       string `json:"listen_addr"`
-	MaxConcurrent    int    `json:"max_concurrent"`
-	ChunkSize        int    `json:"chunk_size"`
-	EnableCompression bool  `json:"enable_compression"`
-	CompressionLevel int    `json:"compression_level"`
-	EnableEncryption  bool  `json:"enable_encryption"`
-	TransferTimeout  string `json:"transfer_timeout"`
-	SpeedLimit       int64  `json:"speed_limit"`
-	StorageRoot      string `json:"storage_root"`
-	EnableMTLS       bool   `json:"enable_mtls"`
+	ListenAddr        string `json:"listen_addr"`
+	MaxConcurrent     int    `json:"max_concurrent"`
+	ChunkSize         int    `json:"chunk_size"`
+	EnableCompression bool   `json:"enable_compression"`
+	CompressionLevel  int    `json:"compression_level"`
+	EnableEncryption  bool   `json:"enable_encryption"`
+	TransferTimeout   string `json:"transfer_timeout"`
+	SpeedLimit        int64  `json:"speed_limit"`
+	StorageRoot       string `json:"storage_root"`
+	EnableMTLS        bool   `json:"enable_mtls"`
 }
 
 // CleanupResponse 清理响应

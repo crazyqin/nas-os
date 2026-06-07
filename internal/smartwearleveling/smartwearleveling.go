@@ -8,26 +8,26 @@ import (
 
 // SSDInfo SSD磁盘信息
 type SSDInfo struct {
-	ID              string         `json:"id"`
-	Device          string         `json:"device"`
-	Model           string         `json:"model"`
-	Serial          string         `json:"serial"`
-	Capacity        int64          `json:"capacity_bytes"`
-	TBWWritten      int64          `json:"tbw_written_bytes"`
-	TBWMax          int64          `json:"tbw_max_bytes"`
-	LifePercent     float64        `json:"life_percent"`
-	Temperature     int            `json:"temperature_celsius"`
-	PowerOnHours    int64          `json:"power_on_hours"`
-	TotalWritten    int64          `json:"total_written_bytes"`
-	TotalRead       int64          `json:"total_read_bytes"`
-	WearLevel       int            `json:"wear_level"`
-	PowerCycles     int64          `json:"power_cycles"`
-	UnsafeShutdowns int64          `json:"unsafe_shutdowns"`
-	MediaErrors     int64          `json:"media_errors"`
-	SMARTPassed     bool           `json:"smart_passed"`
-	Attributes      []*SMARTAttr   `json:"attributes"`
-	LastCheck       time.Time      `json:"last_check"`
-	Status          WearStatus     `json:"status"`
+	ID              string       `json:"id"`
+	Device          string       `json:"device"`
+	Model           string       `json:"model"`
+	Serial          string       `json:"serial"`
+	Capacity        int64        `json:"capacity_bytes"`
+	TBWWritten      int64        `json:"tbw_written_bytes"`
+	TBWMax          int64        `json:"tbw_max_bytes"`
+	LifePercent     float64      `json:"life_percent"`
+	Temperature     int          `json:"temperature_celsius"`
+	PowerOnHours    int64        `json:"power_on_hours"`
+	TotalWritten    int64        `json:"total_written_bytes"`
+	TotalRead       int64        `json:"total_read_bytes"`
+	WearLevel       int          `json:"wear_level"`
+	PowerCycles     int64        `json:"power_cycles"`
+	UnsafeShutdowns int64        `json:"unsafe_shutdowns"`
+	MediaErrors     int64        `json:"media_errors"`
+	SMARTPassed     bool         `json:"smart_passed"`
+	Attributes      []*SMARTAttr `json:"attributes"`
+	LastCheck       time.Time    `json:"last_check"`
+	Status          WearStatus   `json:"status"`
 }
 
 // SMARTAttr SMART属性
@@ -63,14 +63,14 @@ type MigrationPolicy struct {
 
 // MigrationJob 迁移任务
 type MigrationJob struct {
-	ID          string    `json:"id"`
-	SourceID    string    `json:"source_id"`
-	TargetID    string    `json:"target_id"`
-	Status      string    `json:"status"`
-	Progress    float64   `json:"progress"`
-	StartedAt   time.Time `json:"started_at"`
+	ID          string     `json:"id"`
+	SourceID    string     `json:"source_id"`
+	TargetID    string     `json:"target_id"`
+	Status      string     `json:"status"`
+	Progress    float64    `json:"progress"`
+	StartedAt   time.Time  `json:"started_at"`
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
-	Error       string    `json:"error,omitempty"`
+	Error       string     `json:"error,omitempty"`
 }
 
 // WearPrediction 磨损预测
@@ -94,13 +94,13 @@ type AlertConfig struct {
 
 // WearAlert 磨损告警
 type WearAlert struct {
-	ID        string    `json:"id"`
-	SSDID     string    `json:"ssd_id"`
-	Device    string    `json:"device"`
-	Level     string    `json:"level"`
-	Message   string    `json:"message"`
-	CreatedAt time.Time `json:"created_at"`
-	Resolved  bool      `json:"resolved"`
+	ID         string     `json:"id"`
+	SSDID      string     `json:"ssd_id"`
+	Device     string     `json:"device"`
+	Level      string     `json:"level"`
+	Message    string     `json:"message"`
+	CreatedAt  time.Time  `json:"created_at"`
+	Resolved   bool       `json:"resolved"`
 	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
 }
 
@@ -120,13 +120,13 @@ type WearStats struct {
 
 // SmartWearLevelingManager SSD磨损均衡管理器
 type SmartWearLevelingManager struct {
-	mu        sync.RWMutex
-	ssds      map[string]*SSDInfo
-	policies  []*MigrationPolicy
-	jobs      []*MigrationJob
-	alerts    []*WearAlert
-	alertCfg  *AlertConfig
-	dataPath  string
+	mu       sync.RWMutex
+	ssds     map[string]*SSDInfo
+	policies []*MigrationPolicy
+	jobs     []*MigrationJob
+	alerts   []*WearAlert
+	alertCfg *AlertConfig
+	dataPath string
 }
 
 // NewManager 创建磨损均衡管理器

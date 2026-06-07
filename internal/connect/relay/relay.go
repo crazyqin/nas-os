@@ -37,22 +37,22 @@ type RelayConfig struct {
 
 // RelayClient 中继客户端
 type RelayClient struct {
-	config     *RelayConfig
-	conn       *websocket.Conn
-	status     string
-	deviceID   string
-	publicURL  string
-	stats      *RelayStats
-	logger     *zap.Logger
-	
-	mu         sync.RWMutex
-	ctx        context.Context
-	cancel     context.CancelFunc
-	wg         sync.WaitGroup
-	
+	config    *RelayConfig
+	conn      *websocket.Conn
+	status    string
+	deviceID  string
+	publicURL string
+	stats     *RelayStats
+	logger    *zap.Logger
+
+	mu     sync.RWMutex
+	ctx    context.Context
+	cancel context.CancelFunc
+	wg     sync.WaitGroup
+
 	// 数据通道
 	tunnelData chan TunnelData
-	
+
 	// 回调
 	onConnect    func()
 	onDisconnect func(error)
@@ -91,11 +91,11 @@ type AuthPayload struct {
 
 // TunnelPayload 隧道载荷
 type TunnelPayload struct {
-	TunnelID string `json:"tunnel_id"`
-	Name     string `json:"name"`
-	Type     string `json:"type"`
-	LocalIP  string `json:"local_ip"`
-	LocalPort int   `json:"local_port"`
+	TunnelID  string `json:"tunnel_id"`
+	Name      string `json:"name"`
+	Type      string `json:"type"`
+	LocalIP   string `json:"local_ip"`
+	LocalPort int    `json:"local_port"`
 }
 
 // NewRelayClient 创建中继客户端
@@ -103,17 +103,17 @@ func NewRelayClient(config *RelayConfig, logger *zap.Logger) (*RelayClient, erro
 	if config.ServerURL == "" {
 		return nil, errors.New("relay server URL required")
 	}
-	
+
 	if config.Timeout == 0 {
 		config.Timeout = 30 * time.Second
 	}
-	
+
 	if config.PingInterval == 0 {
 		config.PingInterval = 30 * time.Second
 	}
-	
+
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	return &RelayClient{
 		config:     config,
 		status:     "disconnected",
@@ -134,12 +134,12 @@ func (r *RelayClient) Connect() error {
 	}
 	r.status = "connecting"
 	r.mu.Unlock()
-	
+
 	// WebSocket 连接
 	dialer := websocket.Dialer{
 		HandshakeTimeout: r.config.Timeout,
 	}
-	
+
 	wsURL := r.config.ServerURL
 	if !r.config.TLSEnabled {
 		// 替换 ws/wss
@@ -147,7 +147,7 @@ func (r *RelayClient) Connect() error {
 			wsURL = "ws://" + wsURL[6:]
 		}
 	}
-	
+
 	conn, _, err := dialer.Dial(wsURL+"/relay", nil)
 	if err != nil {
 		r.mu.Lock()
@@ -155,11 +155,11 @@ func (r *RelayClient) Connect() error {
 		r.mu.Unlock()
 		return fmt.Errorf("%w: %v", ErrRelayNotConnected, err)
 	}
-	
+
 	r.mu.Lock()
 	r.conn = conn
 	r.mu.Unlock()
-	
+
 	// 发送认证
 	if err := r.authenticate(); err != nil {
 		_ = conn.Close()
@@ -168,28 +168,28 @@ func (r *RelayClient) Connect() error {
 		r.mu.Unlock()
 		return err
 	}
-	
+
 	r.mu.Lock()
 	r.status = "connected"
 	r.stats.ConnectedAt = time.Now()
 	r.mu.Unlock()
-	
+
 	// 启动监听循环
 	r.wg.Add(1)
 	go r.readLoop()
-	
+
 	// 启动心跳
 	r.wg.Add(1)
 	go r.pingLoop()
-	
+
 	if r.onConnect != nil {
 		r.onConnect()
 	}
-	
+
 	r.logger.Info("Relay connected",
 		zap.String("device_id", r.deviceID),
 		zap.String("server", r.config.ServerURL))
-	
+
 	return nil
 }
 
@@ -204,39 +204,39 @@ func (r *RelayClient) authenticate() error {
 			Version:    "1.0",
 		}),
 	}
-	
+
 	if err := r.conn.WriteJSON(auth); err != nil {
 		return fmt.Errorf("%w: failed to send auth", ErrRelayAuthFailed)
 	}
-	
+
 	// 读取响应
 	var resp RelayMessage
 	if err := r.conn.ReadJSON(&resp); err != nil {
 		return fmt.Errorf("%w: failed to read auth response", ErrRelayAuthFailed)
 	}
-	
+
 	if resp.Type != "auth_resp" {
 		return ErrRelayAuthFailed
 	}
-	
+
 	var authResp struct {
 		Success   bool   `json:"success"`
 		DeviceID  string `json:"device_id"`
 		PublicURL string `json:"public_url"`
 		Error     string `json:"error,omitempty"`
 	}
-	
+
 	if err := json.Unmarshal(resp.Payload, &authResp); err != nil {
 		return ErrRelayAuthFailed
 	}
-	
+
 	if !authResp.Success {
 		return fmt.Errorf("%w: %s", ErrRelayAuthFailed, authResp.Error)
 	}
-	
+
 	r.deviceID = authResp.DeviceID
 	r.publicURL = authResp.PublicURL
-	
+
 	return nil
 }
 
@@ -244,7 +244,7 @@ func (r *RelayClient) authenticate() error {
 func (r *RelayClient) readLoop() {
 	defer r.wg.Done()
 	defer r.conn.Close()
-	
+
 	for {
 		select {
 		case <-r.ctx.Done():
@@ -259,7 +259,7 @@ func (r *RelayClient) readLoop() {
 				r.handleDisconnect(err)
 				return
 			}
-			
+
 			r.handleMessage(msg)
 		}
 	}
@@ -270,14 +270,14 @@ func (r *RelayClient) handleMessage(msg RelayMessage) {
 	r.mu.Lock()
 	r.stats.LastActivity = time.Now()
 	r.mu.Unlock()
-	
+
 	switch msg.Type {
 	case "pong":
 		// 心跳响应
 		r.mu.Lock()
 		r.stats.Latency = 0 // 已更新
 		r.mu.Unlock()
-		
+
 	case "data":
 		// 数据消息
 		var data TunnelData
@@ -285,11 +285,11 @@ func (r *RelayClient) handleMessage(msg RelayMessage) {
 			r.mu.Lock()
 			r.stats.BytesReceived += uint64(len(data.Data))
 			r.mu.Unlock()
-			
+
 			if r.onData != nil {
 				r.onData(data)
 			}
-			
+
 			// 发送到数据通道
 			select {
 			case r.tunnelData <- data:
@@ -297,7 +297,7 @@ func (r *RelayClient) handleMessage(msg RelayMessage) {
 				r.logger.Debug("Tunnel data channel full")
 			}
 		}
-		
+
 	case "tunnel_resp":
 		// 隧道响应
 		var resp struct {
@@ -310,7 +310,7 @@ func (r *RelayClient) handleMessage(msg RelayMessage) {
 				zap.String("tunnel_id", resp.TunnelID),
 				zap.Bool("success", resp.Success))
 		}
-		
+
 	case "close":
 		// 服务器关闭通知
 		r.handleDisconnect(errors.New("server closed connection"))
@@ -320,10 +320,10 @@ func (r *RelayClient) handleMessage(msg RelayMessage) {
 // pingLoop 心跳循环
 func (r *RelayClient) pingLoop() {
 	defer r.wg.Done()
-	
+
 	ticker := time.NewTicker(r.config.PingInterval)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-r.ctx.Done():
@@ -332,23 +332,23 @@ func (r *RelayClient) pingLoop() {
 			r.mu.RLock()
 			conn := r.conn
 			r.mu.RUnlock()
-			
+
 			if conn == nil {
 				continue
 			}
-			
+
 			ping := RelayMessage{
 				Type:    "ping",
 				Payload: []byte{},
 			}
-			
+
 			start := time.Now()
 			if err := conn.WriteJSON(ping); err != nil {
 				r.logger.Debug("Relay ping failed", zap.Error(err))
 				r.handleDisconnect(err)
 				return
 			}
-			
+
 			r.mu.Lock()
 			r.stats.Latency = int(time.Since(start).Milliseconds())
 			r.mu.Unlock()
@@ -369,11 +369,11 @@ func (r *RelayClient) handleDisconnect(err error) {
 		r.conn = nil
 	}
 	r.mu.Unlock()
-	
+
 	if r.onDisconnect != nil {
 		r.onDisconnect(err)
 	}
-	
+
 	r.logger.Info("Relay disconnected", zap.Error(err))
 }
 
@@ -382,25 +382,25 @@ func (r *RelayClient) SendData(data TunnelData) error {
 	r.mu.RLock()
 	conn := r.conn
 	r.mu.RUnlock()
-	
+
 	if conn == nil {
 		return ErrRelayNotConnected
 	}
-	
+
 	msg := RelayMessage{
 		Type:    "data",
 		Payload: mustMarshal(data),
 	}
-	
+
 	if err := conn.WriteJSON(msg); err != nil {
 		return err
 	}
-	
+
 	r.mu.Lock()
 	r.stats.BytesSent += uint64(len(data.Data))
 	r.stats.LastActivity = time.Now()
 	r.mu.Unlock()
-	
+
 	return nil
 }
 
@@ -409,16 +409,16 @@ func (r *RelayClient) CreateTunnel(tunnel TunnelPayload) error {
 	r.mu.RLock()
 	conn := r.conn
 	r.mu.RUnlock()
-	
+
 	if conn == nil {
 		return ErrRelayNotConnected
 	}
-	
+
 	msg := RelayMessage{
 		Type:    "tunnel",
 		Payload: mustMarshal(tunnel),
 	}
-	
+
 	return conn.WriteJSON(msg)
 }
 
@@ -426,17 +426,17 @@ func (r *RelayClient) CreateTunnel(tunnel TunnelPayload) error {
 func (r *RelayClient) Disconnect() error {
 	r.cancel()
 	r.wg.Wait()
-	
+
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	
+
 	if r.conn != nil {
 		_ = r.conn.Close()
 		r.conn = nil
 	}
-	
+
 	r.status = "disconnected"
-	
+
 	return nil
 }
 
@@ -508,19 +508,19 @@ func (r *RelayClient) ForwardLocalData(tunnelID, localIP string, localPort int, 
 		return err
 	}
 	defer conn.Close()
-	
+
 	// 发送数据
 	if _, err := conn.Write(data); err != nil {
 		return err
 	}
-	
+
 	// 读取响应
 	buf := make([]byte, 4096)
 	n, err := conn.Read(buf)
 	if err != nil && err != io.EOF {
 		return err
 	}
-	
+
 	if n > 0 {
 		// 发送响应回中继
 		return r.SendData(TunnelData{
@@ -528,6 +528,6 @@ func (r *RelayClient) ForwardLocalData(tunnelID, localIP string, localPort int, 
 			Data:     buf[:n],
 		})
 	}
-	
+
 	return nil
 }

@@ -134,10 +134,10 @@ func ValidateImage(path string) (*ValidateResult, error) {
 	}
 
 	return &ValidateResult{
-		Valid:        true,
-		Format:       format,
-		VirtualSize:  virtualSize,
-		FileSize:     info.Size(),
+		Valid:       true,
+		Format:      format,
+		VirtualSize: virtualSize,
+		FileSize:    info.Size(),
 	}, nil
 }
 

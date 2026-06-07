@@ -60,10 +60,10 @@ func TestLegalHoldBlocksDeletion(t *testing.T) {
 
 	// 注册一个30天前的文件
 	engine.RegisterFile(&FileRecord{
-		Path:    "/data/case-evidence.pdf",
-		Name:    "case-evidence.pdf",
-		Size:    1024 * 1024,
-		ModTime: time.Now().Add(-30 * 24 * time.Hour),
+		Path:     "/data/case-evidence.pdf",
+		Name:     "case-evidence.pdf",
+		Size:     1024 * 1024,
+		ModTime:  time.Now().Add(-30 * 24 * time.Hour),
 		FileType: ".pdf",
 	})
 

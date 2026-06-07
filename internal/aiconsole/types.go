@@ -87,7 +87,7 @@ type ChatMessage struct {
 
 // ChatRequest 聊天请求.
 type ChatRequest struct {
-	ModelID     string        `json:"modelId"`              // 使用已注册模型的 ID
+	ModelID     string        `json:"modelId"` // 使用已注册模型的 ID
 	Messages    []ChatMessage `json:"messages" binding:"required"`
 	Temperature float64       `json:"temperature,omitempty"`
 	MaxTokens   int           `json:"maxTokens,omitempty"`
@@ -96,16 +96,16 @@ type ChatRequest struct {
 
 // ChatResponse 聊天响应.
 type ChatResponse struct {
-	ID             string      `json:"id"`
-	ModelID        string      `json:"modelId"`
-	Content        string      `json:"content"`
-	FinishReason   string      `json:"finishReason,omitempty"`
-	PromptTokens   int         `json:"promptTokens"`
-	CompletionTokens int       `json:"completionTokens"`
-	TotalTokens    int         `json:"totalTokens"`
-	DurationMs     int64       `json:"durationMs"`
-	Redacted       bool        `json:"redacted"` // 是否经过脱敏处理
-	RedactCount    int         `json:"redactCount"`
+	ID               string `json:"id"`
+	ModelID          string `json:"modelId"`
+	Content          string `json:"content"`
+	FinishReason     string `json:"finishReason,omitempty"`
+	PromptTokens     int    `json:"promptTokens"`
+	CompletionTokens int    `json:"completionTokens"`
+	TotalTokens      int    `json:"totalTokens"`
+	DurationMs       int64  `json:"durationMs"`
+	Redacted         bool   `json:"redacted"` // 是否经过脱敏处理
+	RedactCount      int    `json:"redactCount"`
 }
 
 // ========== 脱敏规则 ==========
@@ -151,7 +151,7 @@ type RedactRule struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
 	PIIType     PIIType        `json:"piiType"`
-	Pattern     string         `json:"pattern"`               // 正则表达式
+	Pattern     string         `json:"pattern"` // 正则表达式
 	Strategy    RedactStrategy `json:"strategy"`
 	MaskChar    string         `json:"maskChar,omitempty"`    // 掩码字符，默认 *
 	ShowFirst   int            `json:"showFirst,omitempty"`   // 显示前 N 位
@@ -198,47 +198,47 @@ type UpdateRuleRequest struct {
 
 // RedactDetail 单次脱敏详情.
 type RedactDetail struct {
-	PIIType   PIIType        `json:"piiType"`
-	Start     int            `json:"start"`
-	End       int            `json:"end"`
-	Original  string         `json:"-"` // 不暴露原文
-	Replaced  string         `json:"replaced"`
-	Strategy  RedactStrategy `json:"strategy"`
-	RuleID    string         `json:"ruleId"`
-	RuleName  string         `json:"ruleName"`
+	PIIType  PIIType        `json:"piiType"`
+	Start    int            `json:"start"`
+	End      int            `json:"end"`
+	Original string         `json:"-"` // 不暴露原文
+	Replaced string         `json:"replaced"`
+	Strategy RedactStrategy `json:"strategy"`
+	RuleID   string         `json:"ruleId"`
+	RuleName string         `json:"ruleName"`
 }
 
 // RedactResult 脱敏结果.
 type RedactResult struct {
-	Processed      string         `json:"processed"`
-	RedactCount    int            `json:"redactCount"`
-	Redactions     []RedactDetail `json:"redactions,omitempty"`
-	HasRedaction   bool           `json:"hasRedaction"`
+	Processed    string         `json:"processed"`
+	RedactCount  int            `json:"redactCount"`
+	Redactions   []RedactDetail `json:"redactions,omitempty"`
+	HasRedaction bool           `json:"hasRedaction"`
 }
 
 // ========== 审计日志 ==========
 
 // AuditEntry 审计日志条目.
 type AuditEntry struct {
-	ID              string        `json:"id"`
-	Timestamp       time.Time     `json:"timestamp"`
-	UserID          string        `json:"userId"`
-	Username        string        `json:"username"`
-	ModelID         string        `json:"modelName"`
-	ModelName       string        `json:"modelNameDisplay"`
-	Action          string        `json:"action"`           // chat, model_add, model_delete, rule_change
-	RequestSummary  string        `json:"requestSummary"`   // 脱敏后的请求摘要（截断）
-	ResponseSummary string        `json:"responseSummary"`  // 脱敏后的响应摘要（截断）
-	PromptTokens    int           `json:"promptTokens"`
-	CompletionTokens int          `json:"completionTokens"`
-	TotalTokens     int           `json:"totalTokens"`
-	DurationMs      int64         `json:"durationMs"`
-	Success         bool          `json:"success"`
-	ErrorMessage    string        `json:"errorMessage,omitempty"`
-	Redacted        bool          `json:"redacted"`
-	RedactCount     int           `json:"redactCount"`
-	IPAddress       string        `json:"ipAddress,omitempty"`
-	Metadata        map[string]interface{} `json:"metadata,omitempty"`
+	ID               string                 `json:"id"`
+	Timestamp        time.Time              `json:"timestamp"`
+	UserID           string                 `json:"userId"`
+	Username         string                 `json:"username"`
+	ModelID          string                 `json:"modelName"`
+	ModelName        string                 `json:"modelNameDisplay"`
+	Action           string                 `json:"action"`          // chat, model_add, model_delete, rule_change
+	RequestSummary   string                 `json:"requestSummary"`  // 脱敏后的请求摘要（截断）
+	ResponseSummary  string                 `json:"responseSummary"` // 脱敏后的响应摘要（截断）
+	PromptTokens     int                    `json:"promptTokens"`
+	CompletionTokens int                    `json:"completionTokens"`
+	TotalTokens      int                    `json:"totalTokens"`
+	DurationMs       int64                  `json:"durationMs"`
+	Success          bool                   `json:"success"`
+	ErrorMessage     string                 `json:"errorMessage,omitempty"`
+	Redacted         bool                   `json:"redacted"`
+	RedactCount      int                    `json:"redactCount"`
+	IPAddress        string                 `json:"ipAddress,omitempty"`
+	Metadata         map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // AuditQueryFilter 审计日志查询过滤器.

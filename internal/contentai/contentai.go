@@ -12,14 +12,14 @@ import (
 type ContentType string
 
 const (
-	ContentTypeArticle    ContentType = "article"
-	ContentTypeBlog       ContentType = "blog"
-	ContentTypeSocial     ContentType = "social"
-	ContentTypeEmail      ContentType = "email"
-	ContentTypeProduct    ContentType = "product"
-	ContentTypeSEO        ContentType = "seo"
-	ContentTypeTechnical  ContentType = "technical"
-	ContentTypeCreative   ContentType = "creative"
+	ContentTypeArticle   ContentType = "article"
+	ContentTypeBlog      ContentType = "blog"
+	ContentTypeSocial    ContentType = "social"
+	ContentTypeEmail     ContentType = "email"
+	ContentTypeProduct   ContentType = "product"
+	ContentTypeSEO       ContentType = "seo"
+	ContentTypeTechnical ContentType = "technical"
+	ContentTypeCreative  ContentType = "creative"
 )
 
 // ContentStatus 内容状态
@@ -85,52 +85,52 @@ func DefaultConfig() *Config {
 
 // ContentTemplate 内容模板
 type ContentTemplate struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Type        ContentType       `json:"type"`
-	Language    Language          `json:"language"`
-	Style       WritingStyle      `json:"style"`
-	Template    string            `json:"template"`
-	Variables   []string          `json:"variables"`
-	Tags        []string          `json:"tags"`
-	IsDefault   bool              `json:"is_default"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	ID          string       `json:"id"`
+	Name        string       `json:"name"`
+	Description string       `json:"description"`
+	Type        ContentType  `json:"type"`
+	Language    Language     `json:"language"`
+	Style       WritingStyle `json:"style"`
+	Template    string       `json:"template"`
+	Variables   []string     `json:"variables"`
+	Tags        []string     `json:"tags"`
+	IsDefault   bool         `json:"is_default"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
 // ContentTask 内容任务
 type ContentTask struct {
-	ID          string            `json:"id"`
-	UserID      string            `json:"user_id"`
-	Type        ContentType       `json:"type"`
-	Prompt      string            `json:"prompt"`
-	TemplateID  string            `json:"template_id,omitempty"`
-	Language    Language          `json:"language"`
-	Style       WritingStyle      `json:"style"`
-	MaxLength   int               `json:"max_length"`
-	Keywords    []string          `json:"keywords,omitempty"`
+	ID          string                 `json:"id"`
+	UserID      string                 `json:"user_id"`
+	Type        ContentType            `json:"type"`
+	Prompt      string                 `json:"prompt"`
+	TemplateID  string                 `json:"template_id,omitempty"`
+	Language    Language               `json:"language"`
+	Style       WritingStyle           `json:"style"`
+	MaxLength   int                    `json:"max_length"`
+	Keywords    []string               `json:"keywords,omitempty"`
 	Params      map[string]interface{} `json:"params,omitempty"`
-	Status      ContentStatus     `json:"status"`
-	Result      *ContentResult    `json:"result,omitempty"`
-	Error       string            `json:"error,omitempty"`
-	CreatedAt   time.Time         `json:"created_at"`
-	CompletedAt *time.Time        `json:"completed_at,omitempty"`
+	Status      ContentStatus          `json:"status"`
+	Result      *ContentResult         `json:"result,omitempty"`
+	Error       string                 `json:"error,omitempty"`
+	CreatedAt   time.Time              `json:"created_at"`
+	CompletedAt *time.Time             `json:"completed_at,omitempty"`
 }
 
 // ContentResult 内容结果
 type ContentResult struct {
-	TaskID      string            `json:"task_id"`
-	Content     string            `json:"content"`
-	Title       string            `json:"title,omitempty"`
-	Summary     string            `json:"summary,omitempty"`
-	Keywords    []string          `json:"keywords,omitempty"`
-	WordCount   int               `json:"word_count"`
-	CharCount   int               `json:"char_count"`
-	Language    Language          `json:"language"`
-	Style       WritingStyle      `json:"style"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt   time.Time         `json:"created_at"`
+	TaskID    string                 `json:"task_id"`
+	Content   string                 `json:"content"`
+	Title     string                 `json:"title,omitempty"`
+	Summary   string                 `json:"summary,omitempty"`
+	Keywords  []string               `json:"keywords,omitempty"`
+	WordCount int                    `json:"word_count"`
+	CharCount int                    `json:"char_count"`
+	Language  Language               `json:"language"`
+	Style     WritingStyle           `json:"style"`
+	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	CreatedAt time.Time              `json:"created_at"`
 }
 
 // SEOSuggestion SEO建议
@@ -164,39 +164,39 @@ type KeywordDensity struct {
 
 // GrammarError 语法错误
 type GrammarError struct {
-	Start       int    `json:"start"`
-	End         int    `json:"end"`
-	ErrorText   string `json:"error_text"`
-	Message     string `json:"message"`
-	Suggestion  string `json:"suggestion"`
-	Severity    string `json:"severity"`
+	Start      int    `json:"start"`
+	End        int    `json:"end"`
+	ErrorText  string `json:"error_text"`
+	Message    string `json:"message"`
+	Suggestion string `json:"suggestion"`
+	Severity   string `json:"severity"`
 }
 
 // GrammarCheckResult 语法检查结果
 type GrammarCheckResult struct {
-	Text        string         `json:"text"`
-	Errors      []GrammarError `json:"errors"`
-	Score       int            `json:"score"`
-	CorrectedText string       `json:"corrected_text"`
-	CreatedAt   time.Time      `json:"created_at"`
+	Text          string         `json:"text"`
+	Errors        []GrammarError `json:"errors"`
+	Score         int            `json:"score"`
+	CorrectedText string         `json:"corrected_text"`
+	CreatedAt     time.Time      `json:"created_at"`
 }
 
 // TranslationResult 翻译结果
 type TranslationResult struct {
-	SourceText   string   `json:"source_text"`
-	TargetText   string   `json:"target_text"`
-	SourceLang   Language `json:"source_lang"`
-	TargetLang   Language `json:"target_lang"`
-	WordCount    int      `json:"word_count"`
-	CharCount    int      `json:"char_count"`
+	SourceText string   `json:"source_text"`
+	TargetText string   `json:"target_text"`
+	SourceLang Language `json:"source_lang"`
+	TargetLang Language `json:"target_lang"`
+	WordCount  int      `json:"word_count"`
+	CharCount  int      `json:"char_count"`
 }
 
 // SummaryResult 摘要结果
 type SummaryResult struct {
-	OriginalText string `json:"original_text"`
-	Summary      string `json:"summary"`
-	MaxLength    int    `json:"max_length"`
-	WordCount    int    `json:"word_count"`
+	OriginalText     string  `json:"original_text"`
+	Summary          string  `json:"summary"`
+	MaxLength        int     `json:"max_length"`
+	WordCount        int     `json:"word_count"`
 	CompressionRatio float64 `json:"compression_ratio"`
 }
 
@@ -236,13 +236,13 @@ type ContentStats struct {
 
 // ContentAI AI内容创作助手
 type ContentAI struct {
-	mu            sync.RWMutex
-	config        *Config
-	tasks         map[string]*ContentTask
-	templates     map[string]*ContentTemplate
-	isRunning     bool
-	stopCh        chan struct{}
-	taskCounter   int64
+	mu          sync.RWMutex
+	config      *Config
+	tasks       map[string]*ContentTask
+	templates   map[string]*ContentTemplate
+	isRunning   bool
+	stopCh      chan struct{}
+	taskCounter int64
 }
 
 // New 创建ContentAI实例
@@ -397,14 +397,14 @@ func (ca *ContentAI) GenerateContent(ctx context.Context, prompt string, templat
 
 	// 创建任务
 	task := &ContentTask{
-		ID:        ca.generateID("task"),
-		Type:      ContentTypeArticle,
-		Prompt:    prompt,
+		ID:         ca.generateID("task"),
+		Type:       ContentTypeArticle,
+		Prompt:     prompt,
 		TemplateID: templateID,
-		Language:  ca.config.Language,
-		MaxLength: ca.config.MaxTokens,
-		Status:    ContentStatusPending,
-		CreatedAt: time.Now(),
+		Language:   ca.config.Language,
+		MaxLength:  ca.config.MaxTokens,
+		Status:     ContentStatusPending,
+		CreatedAt:  time.Now(),
 	}
 
 	if tpl != nil {
@@ -561,10 +561,10 @@ func (ca *ContentAI) SummarizeContent(ctx context.Context, text string, maxLengt
 	summary := ca.mockSummarize(text, maxLength)
 
 	return &SummaryResult{
-		OriginalText: text,
-		Summary:      summary,
-		MaxLength:    maxLength,
-		WordCount:    len(strings.Fields(summary)),
+		OriginalText:     text,
+		Summary:          summary,
+		MaxLength:        maxLength,
+		WordCount:        len(strings.Fields(summary)),
 		CompressionRatio: float64(len(summary)) / float64(len(text)),
 	}, nil
 }

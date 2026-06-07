@@ -44,20 +44,20 @@ const (
 type DeviceType string
 
 const (
-	DeviceLight       DeviceType = "light"
-	DeviceSwitch      DeviceType = "switch"
-	DeviceThermostat  DeviceType = "thermostat"
-	DeviceLock        DeviceType = "lock"
-	DeviceCamera      DeviceType = "camera"
-	DeviceSensor      DeviceType = "sensor"
-	DevicePlug        DeviceType = "plug"
-	DeviceFan         DeviceType = "fan"
-	DeviceCurtain     DeviceType = "curtain"
-	DeviceSpeaker     DeviceType = "speaker"
-	DeviceTV          DeviceType = "tv"
-	DeviceAirCon      DeviceType = "aircon"
-	DeviceHumidifier  DeviceType = "humidifier"
-	DeviceUnknown     DeviceType = "unknown"
+	DeviceLight      DeviceType = "light"
+	DeviceSwitch     DeviceType = "switch"
+	DeviceThermostat DeviceType = "thermostat"
+	DeviceLock       DeviceType = "lock"
+	DeviceCamera     DeviceType = "camera"
+	DeviceSensor     DeviceType = "sensor"
+	DevicePlug       DeviceType = "plug"
+	DeviceFan        DeviceType = "fan"
+	DeviceCurtain    DeviceType = "curtain"
+	DeviceSpeaker    DeviceType = "speaker"
+	DeviceTV         DeviceType = "tv"
+	DeviceAirCon     DeviceType = "aircon"
+	DeviceHumidifier DeviceType = "humidifier"
+	DeviceUnknown    DeviceType = "unknown"
 )
 
 // DeviceStatus 设备状态
@@ -111,16 +111,16 @@ type DeviceState struct {
 
 // Condition 条件
 type Condition struct {
-	DeviceID string            `json:"device_id"`
-	Property string            `json:"property"`
+	DeviceID string             `json:"device_id"`
+	Property string             `json:"property"`
 	Operator ComparisonOperator `json:"operator"`
-	Value    string            `json:"value"`
+	Value    string             `json:"value"`
 }
 
 // ConditionGroup 条件组
 type ConditionGroup struct {
-	Logic      LogicalOperator `json:"logic"`
-	Conditions []Condition     `json:"conditions"`
+	Logic      LogicalOperator  `json:"logic"`
+	Conditions []Condition      `json:"conditions"`
 	Groups     []ConditionGroup `json:"groups,omitempty"`
 }
 
@@ -134,12 +134,12 @@ type Action struct {
 
 // Trigger 触发器
 type Trigger struct {
-	Type       TriggerType      `json:"type"`
-	DeviceID   string           `json:"device_id,omitempty"`
-	Property   string           `json:"property,omitempty"`
-	Schedule   string           `json:"schedule,omitempty"` // cron expression
-	EventName  string           `json:"event_name,omitempty"`
-	TimeWindow *TimeWindow      `json:"time_window,omitempty"`
+	Type       TriggerType `json:"type"`
+	DeviceID   string      `json:"device_id,omitempty"`
+	Property   string      `json:"property,omitempty"`
+	Schedule   string      `json:"schedule,omitempty"` // cron expression
+	EventName  string      `json:"event_name,omitempty"`
+	TimeWindow *TimeWindow `json:"time_window,omitempty"`
 }
 
 // TimeWindow 时间窗口
@@ -150,35 +150,35 @@ type TimeWindow struct {
 
 // AutomationRule 自动化规则
 type AutomationRule struct {
-	ID          string          `json:"id"`
-	Name        string          `json:"name"`
-	Description string          `json:"description"`
-	Status      RuleStatus      `json:"status"`
-	Trigger     Trigger         `json:"trigger"`
-	Conditions  ConditionGroup  `json:"conditions"`
-	Actions     []Action        `json:"actions"`
-	ElseActions []Action        `json:"else_actions,omitempty"`
-	MaxRetries  int             `json:"max_retries,omitempty"`
-	Cooldown    time.Duration   `json:"cooldown,omitempty"`
-	LastRun     *time.Time      `json:"last_run,omitempty"`
-	RunCount    int             `json:"run_count"`
-	CreatedAt   time.Time       `json:"created_at"`
-	UpdatedAt   time.Time       `json:"updated_at"`
-	CreatedBy   string          `json:"created_by"`
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Status      RuleStatus     `json:"status"`
+	Trigger     Trigger        `json:"trigger"`
+	Conditions  ConditionGroup `json:"conditions"`
+	Actions     []Action       `json:"actions"`
+	ElseActions []Action       `json:"else_actions,omitempty"`
+	MaxRetries  int            `json:"max_retries,omitempty"`
+	Cooldown    time.Duration  `json:"cooldown,omitempty"`
+	LastRun     *time.Time     `json:"last_run,omitempty"`
+	RunCount    int            `json:"run_count"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	CreatedBy   string         `json:"created_by"`
 }
 
 // Scene 场景
 type Scene struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Description string        `json:"description"`
-	Status      SceneStatus   `json:"status"`
-	Actions     []Action      `json:"actions"`
-	Icon        string        `json:"icon,omitempty"`
-	Order       int           `json:"order"`
-	CreatedAt   time.Time     `json:"created_at"`
-	UpdatedAt   time.Time     `json:"updated_at"`
-	CreatedBy   string        `json:"created_by"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Status      SceneStatus `json:"status"`
+	Actions     []Action    `json:"actions"`
+	Icon        string      `json:"icon,omitempty"`
+	Order       int         `json:"order"`
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
+	CreatedBy   string      `json:"created_by"`
 }
 
 // AutomationLog 自动化日志
@@ -196,12 +196,12 @@ type AutomationLog struct {
 
 // UsagePattern 使用模式
 type UsagePattern struct {
-	DeviceID   string    `json:"device_id"`
-	Action     string    `json:"action"`
-	DayOfWeek  int       `json:"day_of_week"`
-	Hour       int       `json:"hour"`
-	Frequency  int       `json:"frequency"`
-	LastUsed   time.Time `json:"last_used"`
+	DeviceID  string    `json:"device_id"`
+	Action    string    `json:"action"`
+	DayOfWeek int       `json:"day_of_week"`
+	Hour      int       `json:"hour"`
+	Frequency int       `json:"frequency"`
+	LastUsed  time.Time `json:"last_used"`
 }
 
 // Recommendation 智能推荐
@@ -230,33 +230,33 @@ type AutomationStats struct {
 
 // RuleStat 规则统计
 type RuleStat struct {
-	RuleID    string `json:"rule_id"`
-	RuleName  string `json:"rule_name"`
-	RunCount  int    `json:"run_count"`
-	LastRun   *time.Time `json:"last_run"`
+	RuleID   string     `json:"rule_id"`
+	RuleName string     `json:"rule_name"`
+	RunCount int        `json:"run_count"`
+	LastRun  *time.Time `json:"last_run"`
 }
 
 // SmartHomeAutomation 智能家居自动化引擎
 type SmartHomeAutomation struct {
-	mu             sync.RWMutex
-	devices        map[string]*Device
-	deviceStates   map[string][]*DeviceState
-	rules          map[string]*AutomationRule
-	scenes         map[string]*Scene
-	logs           []*AutomationLog
-	usagePatterns  map[string]*UsagePattern
+	mu              sync.RWMutex
+	devices         map[string]*Device
+	deviceStates    map[string][]*DeviceState
+	rules           map[string]*AutomationRule
+	scenes          map[string]*Scene
+	logs            []*AutomationLog
+	usagePatterns   map[string]*UsagePattern
 	recommendations map[string]*Recommendation
 }
 
 // NewSmartHomeAutomation 创建智能家居自动化引擎
 func NewSmartHomeAutomation() *SmartHomeAutomation {
 	return &SmartHomeAutomation{
-		devices:        make(map[string]*Device),
-		deviceStates:   make(map[string][]*DeviceState),
-		rules:          make(map[string]*AutomationRule),
-		scenes:         make(map[string]*Scene),
-		logs:           make([]*AutomationLog, 0),
-		usagePatterns:  make(map[string]*UsagePattern),
+		devices:         make(map[string]*Device),
+		deviceStates:    make(map[string][]*DeviceState),
+		rules:           make(map[string]*AutomationRule),
+		scenes:          make(map[string]*Scene),
+		logs:            make([]*AutomationLog, 0),
+		usagePatterns:   make(map[string]*UsagePattern),
 		recommendations: make(map[string]*Recommendation),
 	}
 }

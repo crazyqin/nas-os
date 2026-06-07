@@ -8,20 +8,20 @@ import (
 
 // Classifier 文档分类器.
 type Classifier struct {
-	config    *Config
-	rules     []*ClassificationRule
-	keywords  map[DocumentCategory][]string
+	config   *Config
+	rules    []*ClassificationRule
+	keywords map[DocumentCategory][]string
 }
 
 // ClassificationRule 分类规则.
 type ClassificationRule struct {
-	Name      string           `json:"name"`      // 规则名称
-	Category  DocumentCategory `json:"category"`  // 分类
-	Keywords  []string         `json:"keywords"`  // 关键词
-	Patterns  []string         `json:"patterns"`  // 正则模式
-	Priority  int              `json:"priority"`  // 优先级
-	Weight    float64          `json:"weight"`    // 权重
-	Enabled   bool             `json:"enabled"`   // 是否启用
+	Name     string           `json:"name"`     // 规则名称
+	Category DocumentCategory `json:"category"` // 分类
+	Keywords []string         `json:"keywords"` // 关键词
+	Patterns []string         `json:"patterns"` // 正则模式
+	Priority int              `json:"priority"` // 优先级
+	Weight   float64          `json:"weight"`   // 权重
+	Enabled  bool             `json:"enabled"`  // 是否启用
 }
 
 // NewClassifier 创建分类器.
@@ -179,9 +179,9 @@ func (c *Classifier) Classify(text string, pages []*PageResult) *ClassificationR
 	confidence := c.calculateConfidence(bestScore, scores)
 
 	result := &ClassificationResult{
-		Category:   bestCategory,
-		Confidence: confidence,
-		Labels:     c.generateLabels(text, bestCategory),
+		Category:    bestCategory,
+		Confidence:  confidence,
+		Labels:      c.generateLabels(text, bestCategory),
 		Suggestions: c.generateSuggestions(bestCategory),
 	}
 
@@ -245,10 +245,10 @@ func (c *Classifier) generateLabels(text string, category DocumentCategory) []st
 	lowerText := strings.ToLower(text)
 
 	labelPatterns := map[string][]string{
-		"important":  {"重要", "紧急", "机密", "保密"},
-		"financial":  {"财务", "会计", "报销", "付款"},
-		"legal":      {"法律", "法规", "合规", "条款"},
-		"official":   {"官方", "正式", "公章", "印章"},
+		"important": {"重要", "紧急", "机密", "保密"},
+		"financial": {"财务", "会计", "报销", "付款"},
+		"legal":     {"法律", "法规", "合规", "条款"},
+		"official":  {"官方", "正式", "公章", "印章"},
 	}
 
 	for label, keywords := range labelPatterns {

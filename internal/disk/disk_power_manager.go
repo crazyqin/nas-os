@@ -7,8 +7,8 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
-	"strings"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 )
@@ -43,16 +43,16 @@ type SleepPolicy struct {
 	// v2.387.0: 智能调度配置
 	BusinessPeriods  []BusinessPeriod `json:"business_periods,omitempty"` // 业务高峰时段
 	AllowSleepInPeak bool             `json:"allow_sleep_in_peak"`        // 是否允许在高峰时段休眠
-	MaxWakePerHour   int              `json:"max_wake_per_hour"`         // 每小时最大唤醒次数限制
+	MaxWakePerHour   int              `json:"max_wake_per_hour"`          // 每小时最大唤醒次数限制
 }
 
 // WakeRequest 按需唤醒请求
 type WakeRequest struct {
-	DiskID     string    `json:"disk_id"`
-	Reason     string    `json:"reason"`     // 唤醒原因
-	Priority   int       `json:"priority"`   // 请求优先级 (1-10)
-	Timestamp  time.Time `json:"timestamp"`
-	RequestedBy string   `json:"requested_by"` // 请求来源 (api/user/system)
+	DiskID      string    `json:"disk_id"`
+	Reason      string    `json:"reason"`   // 唤醒原因
+	Priority    int       `json:"priority"` // 请求优先级 (1-10)
+	Timestamp   time.Time `json:"timestamp"`
+	RequestedBy string    `json:"requested_by"` // 请求来源 (api/user/system)
 }
 
 // DiskPowerStatus represents disk power status.
@@ -62,17 +62,17 @@ type DiskPowerStatus struct {
 	LastActivity time.Time     `json:"last_activity"`
 	IdleDuration time.Duration `json:"idle_duration"`
 	Policy       *SleepPolicy  `json:"policy"`
-	WakeCount    int           `json:"wake_count"`    // 唤醒次数
-	SleepCount   int           `json:"sleep_count"`   // 休眠次数
-	EnergySaved  float64       `json:"energy_saved"`  // kWh节省
+	WakeCount    int           `json:"wake_count"`   // 唤醒次数
+	SleepCount   int           `json:"sleep_count"`  // 休眠次数
+	EnergySaved  float64       `json:"energy_saved"` // kWh节省
 
 	// v2.387.0: 智能电源管理增强
-	WakeRequests     []WakeRequest   `json:"wake_requests,omitempty"` // 待处理的唤醒请求
-	LastWakeReason   string          `json:"last_wake_reason"`        // 最近唤醒原因
-	WakeCountHour    int             `json:"wake_count_hour"`         // 当前小时唤醒次数
-	LastWakeHour     int             `json:"last_wake_hour"`          // 最近唤醒的小时
-	WakeCostSaved    float64         `json:"wake_cost_saved"`         // 避免唤醒节省的能耗(kWh)
-	PredictedNextWake time.Time      `json:"predicted_next_wake,omitempty"` // 预测下次唤醒时间
+	WakeRequests      []WakeRequest `json:"wake_requests,omitempty"`       // 待处理的唤醒请求
+	LastWakeReason    string        `json:"last_wake_reason"`              // 最近唤醒原因
+	WakeCountHour     int           `json:"wake_count_hour"`               // 当前小时唤醒次数
+	LastWakeHour      int           `json:"last_wake_hour"`                // 最近唤醒的小时
+	WakeCostSaved     float64       `json:"wake_cost_saved"`               // 避免唤醒节省的能耗(kWh)
+	PredictedNextWake time.Time     `json:"predicted_next_wake,omitempty"` // 预测下次唤醒时间
 }
 
 // PowerManager manages disk power states.
@@ -84,15 +84,15 @@ type PowerManager struct {
 	config      *PowerConfig
 
 	// v2.387.0: 按需唤醒 + 能耗统计
-	wakeQueue      map[string][]WakeRequest // 按需唤醒请求队列
-	energyStats    *EnergyStatistics         // 能耗统计
-	wakeQueueMu    sync.Mutex
-	pendingWakes   map[string]context.CancelFunc // 待取消的唤醒任务
-	businessHours  []BusinessPeriod             // 业务高峰时段配置
+	wakeQueue     map[string][]WakeRequest // 按需唤醒请求队列
+	energyStats   *EnergyStatistics        // 能耗统计
+	wakeQueueMu   sync.Mutex
+	pendingWakes  map[string]context.CancelFunc // 待取消的唤醒任务
+	businessHours []BusinessPeriod              // 业务高峰时段配置
 
 	// v2.399.0: 实际命令执行支持
-	executor       DiskPowerExecutor          // 磁盘电源命令执行器
-	executorMu     sync.RWMutex
+	executor   DiskPowerExecutor // 磁盘电源命令执行器
+	executorMu sync.RWMutex
 }
 
 // DiskPowerExecutor 磁盘电源状态转换命令执行接口
@@ -326,47 +326,47 @@ type PowerConfig struct {
 	EnableMonitoring bool          `json:"enable_monitoring"`
 
 	// v2.387.0: 新增配置
-	EnableWakeOnDemand      bool          `json:"enable_wake_on_demand"`       // 启用按需唤醒
-	EnableSmartScheduling   bool          `json:"enable_smart_scheduling"`     // 启用智能调度
-	EnergyTrackingInterval  time.Duration `json:"energy_tracking_interval"`    // 能耗统计间隔
-	DefaultDiskPowerWatts   float64       `json:"default_disk_power_watts"`    // 默认磁盘功耗(W)
-	WakePowerSpikeWatts     float64       `json:"wake_power_spike_watts"`      // 唤醒瞬时功耗(W)
-	WakeDurationSeconds     float64       `json:"wake_duration_seconds"`       // 唤醒持续时间(s)
+	EnableWakeOnDemand     bool          `json:"enable_wake_on_demand"`    // 启用按需唤醒
+	EnableSmartScheduling  bool          `json:"enable_smart_scheduling"`  // 启用智能调度
+	EnergyTrackingInterval time.Duration `json:"energy_tracking_interval"` // 能耗统计间隔
+	DefaultDiskPowerWatts  float64       `json:"default_disk_power_watts"` // 默认磁盘功耗(W)
+	WakePowerSpikeWatts    float64       `json:"wake_power_spike_watts"`   // 唤醒瞬时功耗(W)
+	WakeDurationSeconds    float64       `json:"wake_duration_seconds"`    // 唤醒持续时间(s)
 }
 
 // EnergyStatistics 能耗统计数据
 type EnergyStatistics struct {
-	mu             sync.RWMutex
-	StartTime      time.Time         `json:"start_time"`
-	TotalEnergyUsed    float64       `json:"total_energy_used"`     // kWh 总能耗
-	TotalEnergySaved   float64       `json:"total_energy_saved"`    // kWh 总节省
-	WakeEnergyCost     float64       `json:"wake_energy_cost"`      // kWh 唤醒能耗开销
-	SavedWakeCount     int           `json:"saved_wake_count"`      // 节省的唤醒次数
-	DiskStats          map[string]*DiskEnergyStat `json:"disk_stats"`
-	HourlyStats        []HourlyEnergyStat         `json:"hourly_stats"`
+	mu               sync.RWMutex
+	StartTime        time.Time                  `json:"start_time"`
+	TotalEnergyUsed  float64                    `json:"total_energy_used"`  // kWh 总能耗
+	TotalEnergySaved float64                    `json:"total_energy_saved"` // kWh 总节省
+	WakeEnergyCost   float64                    `json:"wake_energy_cost"`   // kWh 唤醒能耗开销
+	SavedWakeCount   int                        `json:"saved_wake_count"`   // 节省的唤醒次数
+	DiskStats        map[string]*DiskEnergyStat `json:"disk_stats"`
+	HourlyStats      []HourlyEnergyStat         `json:"hourly_stats"`
 }
 
 // DiskEnergyStat 单磁盘能耗统计
 type DiskEnergyStat struct {
 	DiskID          string    `json:"disk_id"`
-	ActiveHours     float64   `json:"active_hours"`     // 活跃时长(小时)
-	SleepHours      float64   `json:"sleep_hours"`      // 休眠时长(小时)
-	WakeCount       int       `json:"wake_count"`       // 唤醒次数
-	EnergyConsumed  float64   `json:"energy_consumed"`  // kWh 已消耗
-	EnergySaved     float64   `json:"energy_saved"`     // kWh 已节省
+	ActiveHours     float64   `json:"active_hours"`    // 活跃时长(小时)
+	SleepHours      float64   `json:"sleep_hours"`     // 休眠时长(小时)
+	WakeCount       int       `json:"wake_count"`      // 唤醒次数
+	EnergyConsumed  float64   `json:"energy_consumed"` // kWh 已消耗
+	EnergySaved     float64   `json:"energy_saved"`    // kWh 已节省
 	LastStateChange time.Time `json:"last_state_change"`
 }
 
 // HourlyEnergyStat 小时级能耗统计
 type HourlyEnergyStat struct {
-	Hour            int       `json:"hour"`             // 0-23
-	Date            time.Time `json:"date"`             // 日期
-	ActiveDisks     int       `json:"active_disks"`     // 活跃磁盘数
-	SleepingDisks   int       `json:"sleeping_disks"`   // 休眠磁盘数
-	EnergyUsed      float64   `json:"energy_used"`      // kWh
-	EnergySaved     float64   `json:"energy_saved"`     // kWh
-	WakeEvents      int       `json:"wake_events"`      // 唤醒事件数
-	SleepEvents     int       `json:"sleep_events"`     // 休眠事件数
+	Hour          int       `json:"hour"`           // 0-23
+	Date          time.Time `json:"date"`           // 日期
+	ActiveDisks   int       `json:"active_disks"`   // 活跃磁盘数
+	SleepingDisks int       `json:"sleeping_disks"` // 休眠磁盘数
+	EnergyUsed    float64   `json:"energy_used"`    // kWh
+	EnergySaved   float64   `json:"energy_saved"`   // kWh
+	WakeEvents    int       `json:"wake_events"`    // 唤醒事件数
+	SleepEvents   int       `json:"sleep_events"`   // 休眠事件数
 }
 
 // NewPowerManager creates a new power manager.
@@ -385,14 +385,14 @@ func NewPowerManager(cfg *PowerConfig) *PowerManager {
 		}
 	}
 	return &PowerManager{
-		statuses:       make(map[string]*DiskPowerStatus),
-		policies:       make(map[string]*SleepPolicy),
-		activityMon:    NewActivityMonitor(),
-		config:         cfg,
-		wakeQueue:      make(map[string][]WakeRequest),
-		pendingWakes:   make(map[string]context.CancelFunc),
-		businessHours:  DefaultBusinessPeriods(),
-		energyStats:    NewEnergyStatistics(),
+		statuses:      make(map[string]*DiskPowerStatus),
+		policies:      make(map[string]*SleepPolicy),
+		activityMon:   NewActivityMonitor(),
+		config:        cfg,
+		wakeQueue:     make(map[string][]WakeRequest),
+		pendingWakes:  make(map[string]context.CancelFunc),
+		businessHours: DefaultBusinessPeriods(),
+		energyStats:   NewEnergyStatistics(),
 	}
 }
 

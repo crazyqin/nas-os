@@ -24,12 +24,12 @@ type MDNSResponder struct {
 
 // MDNSEntry mDNS 条目
 type MDNSEntry struct {
-	Name     string            `json:"name"`
-	Type     string            `json:"type"`
-	Port     int               `json:"port"`
-	IPs      []net.IP          `json:"ips"`
-	TXT      map[string]string `json:"txt"`
-	TTL      uint32            `json:"ttl"`
+	Name string            `json:"name"`
+	Type string            `json:"type"`
+	Port int               `json:"port"`
+	IPs  []net.IP          `json:"ips"`
+	TXT  map[string]string `json:"txt"`
+	TTL  uint32            `json:"ttl"`
 }
 
 // NewMDNSResponder 创建 mDNS 响应器
@@ -115,8 +115,8 @@ func (r *MDNSResponder) registerSpotlightService() error {
 		Port: r.port,
 		IPs:  ips,
 		TXT: map[string]string{
-			"path":   "/api/v1/spotlight",
-			"server": "NAS-OS",
+			"path":    "/api/v1/spotlight",
+			"server":  "NAS-OS",
 			"version": "1.0",
 		},
 		TTL: 120,

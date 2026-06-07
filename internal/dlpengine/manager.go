@@ -15,13 +15,13 @@ import (
 
 // Manager DLP引擎管理器
 type Manager struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	config   *DLPConfig
-	policies map[string]*DLPPolicy
-	patterns map[string]*SensitivePattern
+	mu         sync.RWMutex
+	logger     *zap.Logger
+	config     *DLPConfig
+	policies   map[string]*DLPPolicy
+	patterns   map[string]*SensitivePattern
 	violations []*Violation
-	stats    *ScanStats
+	stats      *ScanStats
 }
 
 // NewManager 创建DLP引擎管理器
@@ -34,15 +34,15 @@ func NewManager(logger *zap.Logger, config *DLPConfig) *Manager {
 	}
 
 	m := &Manager{
-		logger:   logger,
-		config:   config,
-		policies: make(map[string]*DLPPolicy),
-		patterns: make(map[string]*SensitivePattern),
+		logger:     logger,
+		config:     config,
+		policies:   make(map[string]*DLPPolicy),
+		patterns:   make(map[string]*SensitivePattern),
 		violations: make([]*Violation, 0),
 		stats: &ScanStats{
-			ByLevel:    make(map[SensitivityLevel]int64),
-			ByChannel:  make(map[TransferProtocol]int64),
-			ByAction:   make(map[PolicyAction]int64),
+			ByLevel:     make(map[SensitivityLevel]int64),
+			ByChannel:   make(map[TransferProtocol]int64),
+			ByAction:    make(map[PolicyAction]int64),
 			TopPatterns: make([]PatternStat, 0),
 			TopUsers:    make([]UserStat, 0),
 		},
@@ -187,9 +187,9 @@ func (m *Manager) initDefaultPatterns() {
 func (m *Manager) ScanContent(req *ScanRequest) (*ScanResult, error) {
 	if !m.config.Enabled {
 		return &ScanResult{
-			ID:       generateID(),
-			ScanID:   req.ID,
-			Resource: req.Resource,
+			ID:        generateID(),
+			ScanID:    req.ID,
+			Resource:  req.Resource,
 			Timestamp: time.Now(),
 		}, nil
 	}
@@ -206,11 +206,11 @@ func (m *Manager) ScanContent(req *ScanRequest) (*ScanResult, error) {
 	}
 
 	result := &ScanResult{
-		ID:        generateID(),
-		ScanID:    req.ID,
-		Resource:  req.Resource,
-		Size:      int64(len(req.Content)),
-		Timestamp: start,
+		ID:         generateID(),
+		ScanID:     req.ID,
+		Resource:   req.Resource,
+		Size:       int64(len(req.Content)),
+		Timestamp:  start,
 		Violations: make([]*Violation, 0),
 	}
 

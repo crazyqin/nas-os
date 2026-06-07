@@ -14,11 +14,11 @@ import (
 type PoolStatus string
 
 const (
-	PoolStatusHealthy  PoolStatus = "healthy"
-	PoolStatusImbalanced PoolStatus = "imbalanced"
+	PoolStatusHealthy     PoolStatus = "healthy"
+	PoolStatusImbalanced  PoolStatus = "imbalanced"
 	PoolStatusRebalancing PoolStatus = "rebalancing"
-	PoolStatusDegraded PoolStatus = "degraded"
-	PoolStatusError    PoolStatus = "error"
+	PoolStatusDegraded    PoolStatus = "degraded"
+	PoolStatusError       PoolStatus = "error"
 )
 
 // DiskTier 磁盘层级
@@ -35,10 +35,10 @@ const (
 type RebalanceStrategy string
 
 const (
-	StrategyCapacity  RebalanceStrategy = "capacity"   // 按容量均衡
+	StrategyCapacity    RebalanceStrategy = "capacity"    // 按容量均衡
 	StrategyPerformance RebalanceStrategy = "performance" // 按性能均衡
-	StrategyHeatAware RebalanceStrategy = "heat_aware"  // 按数据热度均衡
-	StrategyHybrid    RebalanceStrategy = "hybrid"      // 混合策略
+	StrategyHeatAware   RebalanceStrategy = "heat_aware"  // 按数据热度均衡
+	StrategyHybrid      RebalanceStrategy = "hybrid"      // 混合策略
 )
 
 // StoragePool 存储池信息
@@ -64,7 +64,7 @@ type DiskInfo struct {
 	TotalBytes  uint64   `json:"total_bytes"`
 	UsedBytes   uint64   `json:"used_bytes"`
 	Utilization float64  `json:"utilization"`
-	Temperature int      `json:"temperature"` // 摄氏度
+	Temperature int      `json:"temperature"`  // 摄氏度
 	HealthScore float64  `json:"health_score"` // 0.0-1.0
 	ReadIOPS    float64  `json:"read_iops"`
 	WriteIOPS   float64  `json:"write_iops"`
@@ -99,40 +99,40 @@ const (
 
 // RebalancePolicy 再平衡策略配置
 type RebalancePolicy struct {
-	ID              string            `json:"id"`
-	Name            string            `json:"name"`
-	Enabled         bool              `json:"enabled"`
-	Strategy        RebalanceStrategy `json:"strategy"`
-	Threshold       float64           `json:"threshold"`       // 触发阈值 0.0-1.0
-	Schedule        string            `json:"schedule"`        // cron 表达式
-	MaxBandwidth    int64             `json:"max_bandwidth"`   // 最大带宽 bytes/s
-	MinFreeSpace    uint64            `json:"min_free_space"`  // 最小剩余空间
-	ExcludePools    []string          `json:"exclude_pools"`
-	ExcludeDisks    []string          `json:"exclude_disks"`
-	CreatedAt       time.Time         `json:"created_at"`
-	UpdatedAt       time.Time         `json:"updated_at"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	Enabled      bool              `json:"enabled"`
+	Strategy     RebalanceStrategy `json:"strategy"`
+	Threshold    float64           `json:"threshold"`      // 触发阈值 0.0-1.0
+	Schedule     string            `json:"schedule"`       // cron 表达式
+	MaxBandwidth int64             `json:"max_bandwidth"`  // 最大带宽 bytes/s
+	MinFreeSpace uint64            `json:"min_free_space"` // 最小剩余空间
+	ExcludePools []string          `json:"exclude_pools"`
+	ExcludeDisks []string          `json:"exclude_disks"`
+	CreatedAt    time.Time         `json:"created_at"`
+	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
 // RebalanceMetrics 再平衡指标
 type RebalanceMetrics struct {
-	TotalRebalances   int64         `json:"total_rebalances"`
-	TotalBytesMoved   uint64        `json:"total_bytes_moved"`
-	AvgDuration       time.Duration `json:"avg_duration"`
-	LastRebalance     *time.Time    `json:"last_rebalance,omitempty"`
-	CurrentImbalance  float64       `json:"current_imbalance"`
-	TargetImbalance   float64       `json:"target_imbalance"`
-	PoolsMonitored    int           `json:"pools_monitored"`
-	DisksMonitored    int           `json:"disks_monitored"`
+	TotalRebalances  int64         `json:"total_rebalances"`
+	TotalBytesMoved  uint64        `json:"total_bytes_moved"`
+	AvgDuration      time.Duration `json:"avg_duration"`
+	LastRebalance    *time.Time    `json:"last_rebalance,omitempty"`
+	CurrentImbalance float64       `json:"current_imbalance"`
+	TargetImbalance  float64       `json:"target_imbalance"`
+	PoolsMonitored   int           `json:"pools_monitored"`
+	DisksMonitored   int           `json:"disks_monitored"`
 }
 
 // Manager 智能再平衡管理器
 type Manager struct {
-	mu          sync.RWMutex
-	pools       map[string]*StoragePool
-	jobs        map[string]*RebalanceJob
-	policies    map[string]*RebalancePolicy
-	metrics     *RebalanceMetrics
-	cancelFunc  context.CancelFunc
+	mu         sync.RWMutex
+	pools      map[string]*StoragePool
+	jobs       map[string]*RebalanceJob
+	policies   map[string]*RebalancePolicy
+	metrics    *RebalanceMetrics
+	cancelFunc context.CancelFunc
 }
 
 // NewManager 创建再平衡管理器

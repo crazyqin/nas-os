@@ -12,11 +12,11 @@ import (
 
 // RemediationEngine 修复引擎.
 type RemediationEngine struct {
-	mu        sync.RWMutex
-	logger    *zap.Logger
-	scanner   *Scanner
-	records   map[string]*RemediationRecord
-	verified  map[string]bool
+	mu       sync.RWMutex
+	logger   *zap.Logger
+	scanner  *Scanner
+	records  map[string]*RemediationRecord
+	verified map[string]bool
 }
 
 // NewRemediationEngine 创建修复引擎.
@@ -130,9 +130,9 @@ func (re *RemediationEngine) AutoRemediate(ctx context.Context, result *ScanResu
 func (re *RemediationEngine) getFixFuncName(ruleID string) string {
 	// 映射规则ID到修复函数
 	fixMap := map[string]string{
-		"CIS-6.1.1":    "fixPasswdPermissions",
-		"CIS-6.1.2":    "fixShadowPermissions",
-		"CIS-3.1.1":    "disableIPForward",
+		"CIS-6.1.1":     "fixPasswdPermissions",
+		"CIS-6.1.2":     "fixShadowPermissions",
+		"CIS-3.1.1":     "disableIPForward",
 		"MLPS2-8.1.4.1": "fixPasswdPermissions",
 	}
 	if fn, ok := fixMap[ruleID]; ok {

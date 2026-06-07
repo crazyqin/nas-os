@@ -26,71 +26,71 @@ type RetentionManager struct {
 
 // FileRetentionStatus 文件保留状态.
 type FileRetentionStatus struct {
-	FilePath      string          `json:"filePath"`
-	RuleID        string          `json:"ruleId"`
-	RuleName      string          `json:"ruleName"`
+	FilePath      string           `json:"filePath"`
+	RuleID        string           `json:"ruleId"`
+	RuleName      string           `json:"ruleName"`
 	Status        ComplianceStatus `json:"status"`
-	RetainedUntil time.Time       `json:"retainedUntil"`
-	IsLocked      bool            `json:"isLocked"`
-	IsLegalHold   bool            `json:"isLegalHold"`
-	LastChecked   time.Time       `json:"lastChecked"`
-	Exemptions    []string        `json:"exemptions,omitempty"`
-	Notes         string          `json:"notes,omitempty"`
+	RetainedUntil time.Time        `json:"retainedUntil"`
+	IsLocked      bool             `json:"isLocked"`
+	IsLegalHold   bool             `json:"isLegalHold"`
+	LastChecked   time.Time        `json:"lastChecked"`
+	Exemptions    []string         `json:"exemptions,omitempty"`
+	Notes         string           `json:"notes,omitempty"`
 }
 
 // ComplianceResult 合规检查结果.
 type ComplianceResult struct {
-	ID             string          `json:"id"`
-	RuleID         string          `json:"ruleId"`
-	RuleName       string          `json:"ruleName"`
-	CheckedAt      time.Time       `json:"checkedAt"`
-	Status         ComplianceStatus `json:"status"`
-	TotalFiles     int64           `json:"totalFiles"`
-	Compliant      int64           `json:"compliant"`
-	NonCompliant   int64           `json:"nonCompliant"`
-	Warnings       int64           `json:"warnings"`
-	Exempted       int64           `json:"exempted"`
-	Expired        int64           `json:"expired"`
-	ComplianceRate float64         `json:"complianceRate"`
+	ID             string            `json:"id"`
+	RuleID         string            `json:"ruleId"`
+	RuleName       string            `json:"ruleName"`
+	CheckedAt      time.Time         `json:"checkedAt"`
+	Status         ComplianceStatus  `json:"status"`
+	TotalFiles     int64             `json:"totalFiles"`
+	Compliant      int64             `json:"compliant"`
+	NonCompliant   int64             `json:"nonCompliant"`
+	Warnings       int64             `json:"warnings"`
+	Exempted       int64             `json:"exempted"`
+	Expired        int64             `json:"expired"`
+	ComplianceRate float64           `json:"complianceRate"`
 	Issues         []ComplianceIssue `json:"issues,omitempty"`
-	NextCheck      time.Time       `json:"nextCheck"`
+	NextCheck      time.Time         `json:"nextCheck"`
 }
 
 // ComplianceIssue 合规问题.
 type ComplianceIssue struct {
-	FilePath    string          `json:"filePath"`
-	IssueType   string          `json:"issueType"` // expired/missing_tag/invalid_state
-	Severity    string          `json:"severity"`  // high/medium/low
-	Description string          `json:"description"`
-	Suggestion  string          `json:"suggestion"`
-	DetectedAt  time.Time       `json:"detectedAt"`
+	FilePath    string    `json:"filePath"`
+	IssueType   string    `json:"issueType"` // expired/missing_tag/invalid_state
+	Severity    string    `json:"severity"`  // high/medium/low
+	Description string    `json:"description"`
+	Suggestion  string    `json:"suggestion"`
+	DetectedAt  time.Time `json:"detectedAt"`
 }
 
 // RetentionStats 保留统计.
 type RetentionStats struct {
-	TotalRules       int64                `json:"totalRules"`
-	ActiveRules      int64                `json:"activeRules"`
-	TotalFiles       int64                `json:"totalFiles"`
-	RetainedFiles    int64                `json:"retainedFiles"`
-	ExpiredFiles     int64                `json:"expiredFiles"`
-	LockedFiles      int64                `json:"lockedFiles"`
-	LegalHoldFiles   int64                `json:"legalHoldFiles"`
-	LastComplianceCheck time.Time         `json:"lastComplianceCheck"`
-	ComplianceRate   float64              `json:"complianceRate"`
-	ByStatus         map[ComplianceStatus]int64 `json:"byStatus"`
+	TotalRules          int64                      `json:"totalRules"`
+	ActiveRules         int64                      `json:"activeRules"`
+	TotalFiles          int64                      `json:"totalFiles"`
+	RetainedFiles       int64                      `json:"retainedFiles"`
+	ExpiredFiles        int64                      `json:"expiredFiles"`
+	LockedFiles         int64                      `json:"lockedFiles"`
+	LegalHoldFiles      int64                      `json:"legalHoldFiles"`
+	LastComplianceCheck time.Time                  `json:"lastComplianceCheck"`
+	ComplianceRate      float64                    `json:"complianceRate"`
+	ByStatus            map[ComplianceStatus]int64 `json:"byStatus"`
 }
 
 // RetentionAction 执行保留动作.
 type RetentionActionResult struct {
-	RuleID      string          `json:"ruleId"`
-	RuleName    string          `json:"ruleName"`
-	Action      RetentionAction `json:"action"`
-	ExecutedAt  time.Time       `json:"executedAt"`
-	FilesProcessed int64        `json:"filesProcessed"`
-	FilesAffected  int64        `json:"filesAffected"`
-	Success     bool            `json:"success"`
-	Error       string          `json:"error,omitempty"`
-	Details     string          `json:"details,omitempty"`
+	RuleID         string          `json:"ruleId"`
+	RuleName       string          `json:"ruleName"`
+	Action         RetentionAction `json:"action"`
+	ExecutedAt     time.Time       `json:"executedAt"`
+	FilesProcessed int64           `json:"filesProcessed"`
+	FilesAffected  int64           `json:"filesAffected"`
+	Success        bool            `json:"success"`
+	Error          string          `json:"error,omitempty"`
+	Details        string          `json:"details,omitempty"`
 }
 
 // NewRetentionManager 创建保留管理器.
@@ -254,36 +254,36 @@ func (rm *RetentionManager) CheckRetention(filePath string, metadata *FileMetada
 
 // RetentionCheckResult 保留检查结果.
 type RetentionCheckResult struct {
-	FilePath      string                `json:"filePath"`
-	CheckedAt     time.Time             `json:"checkedAt"`
-	HasRetention  bool                  `json:"hasRetention"`
-	IsLocked      bool                  `json:"isLocked"`
-	IsLegalHold   bool                  `json:"isLegalHold"`
-	RetainedUntil time.Time             `json:"retainedUntil"`
-	CanDelete     bool                  `json:"canDelete"`
-	Rules         []RetentionRuleMatch  `json:"rules"`
+	FilePath      string               `json:"filePath"`
+	CheckedAt     time.Time            `json:"checkedAt"`
+	HasRetention  bool                 `json:"hasRetention"`
+	IsLocked      bool                 `json:"isLocked"`
+	IsLegalHold   bool                 `json:"isLegalHold"`
+	RetainedUntil time.Time            `json:"retainedUntil"`
+	CanDelete     bool                 `json:"canDelete"`
+	Rules         []RetentionRuleMatch `json:"rules"`
 }
 
 // RetentionRuleMatch 保留规则匹配.
 type RetentionRuleMatch struct {
-	RuleID            string          `json:"ruleId"`
-	RuleName          string          `json:"ruleName"`
-	Action            RetentionAction `json:"action"`
-	RetentionDuration time.Duration   `json:"retentionDuration"`
-	ComplianceRequired bool           `json:"complianceRequired"`
-	IsLegalHold       bool           `json:"isLegalHold"`
-	MatchedConditions []string        `json:"matchedConditions"`
+	RuleID             string          `json:"ruleId"`
+	RuleName           string          `json:"ruleName"`
+	Action             RetentionAction `json:"action"`
+	RetentionDuration  time.Duration   `json:"retentionDuration"`
+	ComplianceRequired bool            `json:"complianceRequired"`
+	IsLegalHold        bool            `json:"isLegalHold"`
+	MatchedConditions  []string        `json:"matchedConditions"`
 }
 
 // evaluateRule 评估规则.
 func (rm *RetentionManager) evaluateRule(rule *RetentionRule, metadata *FileMetadata) (RetentionRuleMatch, bool) {
 	match := RetentionRuleMatch{
-		RuleID:            rule.ID,
-		RuleName:          rule.Name,
-		Action:            rule.Action,
+		RuleID:             rule.ID,
+		RuleName:           rule.Name,
+		Action:             rule.Action,
 		ComplianceRequired: rule.ComplianceRequired,
-		IsLegalHold:       rule.LegalHold,
-		MatchedConditions: make([]string, 0),
+		IsLegalHold:        rule.LegalHold,
+		MatchedConditions:  make([]string, 0),
 	}
 
 	conditions := &rule.Conditions

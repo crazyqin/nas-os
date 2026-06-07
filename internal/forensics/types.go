@@ -35,12 +35,12 @@ import (
 
 // Manager is the central forensics manager.
 type Manager struct {
-	mu           sync.RWMutex
-	cases        map[string]*Case
-	timelines    map[string]*Timeline
-	evidence     map[string]*Evidence
-	config       Config
-	logger       Logger
+	mu        sync.RWMutex
+	cases     map[string]*Case
+	timelines map[string]*Timeline
+	evidence  map[string]*Evidence
+	config    Config
+	logger    Logger
 }
 
 // Logger interface for forensics logging.
@@ -53,30 +53,30 @@ type Logger interface {
 
 // Config holds forensics configuration.
 type Config struct {
-	StoragePath      string        `json:"storagePath"`      // Base path for forensic data
-	MaxCaseAge       time.Duration `json:"maxCaseAge"`       // Max age before archival
-	EvidenceHashAlgo string        `json:"evidenceHashAlgo"` // Hash algorithm (sha256, sha512)
-	TimelineMaxSize  int           `json:"timelineMaxSize"`  // Max events per timeline
-	EnableAutoCollect bool         `json:"enableAutoCollect"` // Auto-collect evidence on incidents
-	EncryptionKey    string        `json:"encryptionKey"`    // Key for evidence encryption
+	StoragePath       string        `json:"storagePath"`       // Base path for forensic data
+	MaxCaseAge        time.Duration `json:"maxCaseAge"`        // Max age before archival
+	EvidenceHashAlgo  string        `json:"evidenceHashAlgo"`  // Hash algorithm (sha256, sha512)
+	TimelineMaxSize   int           `json:"timelineMaxSize"`   // Max events per timeline
+	EnableAutoCollect bool          `json:"enableAutoCollect"` // Auto-collect evidence on incidents
+	EncryptionKey     string        `json:"encryptionKey"`     // Key for evidence encryption
 }
 
 // Case represents a forensic investigation case.
 type Case struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Description string        `json:"description"`
-	Status      CaseStatus    `json:"status"`
-	Priority    Priority      `json:"priority"`
-	CreatedAt   time.Time     `json:"createdAt"`
-	UpdatedAt   time.Time     `json:"updatedAt"`
-	ClosedAt    *time.Time    `json:"closedAt,omitempty"`
-	Investigator string       `json:"investigator"`
-	Tags        []string      `json:"tags"`
-	EvidenceIDs []string      `json:"evidenceIds"`
-	TimelineID  string        `json:"timelineId"`
-	Notes       []Note        `json:"notes"`
-	Findings    []Finding     `json:"findings"`
+	ID           string     `json:"id"`
+	Name         string     `json:"name"`
+	Description  string     `json:"description"`
+	Status       CaseStatus `json:"status"`
+	Priority     Priority   `json:"priority"`
+	CreatedAt    time.Time  `json:"createdAt"`
+	UpdatedAt    time.Time  `json:"updatedAt"`
+	ClosedAt     *time.Time `json:"closedAt,omitempty"`
+	Investigator string     `json:"investigator"`
+	Tags         []string   `json:"tags"`
+	EvidenceIDs  []string   `json:"evidenceIds"`
+	TimelineID   string     `json:"timelineId"`
+	Notes        []Note     `json:"notes"`
+	Findings     []Finding  `json:"findings"`
 }
 
 // CaseStatus represents the status of a forensic case.
@@ -120,21 +120,21 @@ type Finding struct {
 
 // Evidence represents collected forensic evidence.
 type Evidence struct {
-	ID            string         `json:"id"`
-	CaseID        string         `json:"caseId"`
-	Name          string         `json:"name"`
-	Description   string         `json:"description"`
-	Type          EvidenceType   `json:"type"`
-	Source        string         `json:"source"`
-	CollectedAt   time.Time      `json:"collectedAt"`
-	CollectedBy   string         `json:"collectedBy"`
-	Hash          string         `json:"hash"`
-	HashAlgorithm string         `json:"hashAlgorithm"`
-	Size          int64          `json:"size"`
-	FilePath      string         `json:"filePath"`
-	Metadata      map[string]interface{} `json:"metadata,omitempty"`
-	ChainOfCustody []CustodyEntry `json:"chainOfCustody"`
-	Tags          []string       `json:"tags"`
+	ID             string                 `json:"id"`
+	CaseID         string                 `json:"caseId"`
+	Name           string                 `json:"name"`
+	Description    string                 `json:"description"`
+	Type           EvidenceType           `json:"type"`
+	Source         string                 `json:"source"`
+	CollectedAt    time.Time              `json:"collectedAt"`
+	CollectedBy    string                 `json:"collectedBy"`
+	Hash           string                 `json:"hash"`
+	HashAlgorithm  string                 `json:"hashAlgorithm"`
+	Size           int64                  `json:"size"`
+	FilePath       string                 `json:"filePath"`
+	Metadata       map[string]interface{} `json:"metadata,omitempty"`
+	ChainOfCustody []CustodyEntry         `json:"chainOfCustody"`
+	Tags           []string               `json:"tags"`
 }
 
 // EvidenceType represents the type of evidence.
@@ -162,12 +162,12 @@ type CustodyEntry struct {
 
 // Timeline represents an incident timeline.
 type Timeline struct {
-	ID        string       `json:"id"`
-	CaseID    string       `json:"caseId"`
-	Name      string       `json:"name"`
-	Events    []Event      `json:"events"`
-	CreatedAt time.Time    `json:"createdAt"`
-	UpdatedAt time.Time    `json:"updatedAt"`
+	ID        string    `json:"id"`
+	CaseID    string    `json:"caseId"`
+	Name      string    `json:"name"`
+	Events    []Event   `json:"events"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // Event represents a timeline event.
@@ -189,74 +189,74 @@ type Event struct {
 type EventType string
 
 const (
-	EventFileAccess    EventType = "file_access"
-	EventFileModify    EventType = "file_modify"
-	EventFileDelete    EventType = "file_delete"
-	EventFileCreate    EventType = "file_create"
-	EventLogin         EventType = "login"
-	EventLogout        EventType = "logout"
-	EventLoginFail     EventType = "login_fail"
-	EventNetworkConn   EventType = "network_connection"
-	EventProcessStart  EventType = "process_start"
-	EventProcessStop   EventType = "process_stop"
-	EventConfigChange  EventType = "config_change"
-	EventPrivilegeEsc  EventType = "privilege_escalation"
-	EventDataExfil     EventType = "data_exfiltration"
-	EventMalware       EventType = "malware"
-	EventAnomaly       EventType = "anomaly"
+	EventFileAccess   EventType = "file_access"
+	EventFileModify   EventType = "file_modify"
+	EventFileDelete   EventType = "file_delete"
+	EventFileCreate   EventType = "file_create"
+	EventLogin        EventType = "login"
+	EventLogout       EventType = "logout"
+	EventLoginFail    EventType = "login_fail"
+	EventNetworkConn  EventType = "network_connection"
+	EventProcessStart EventType = "process_start"
+	EventProcessStop  EventType = "process_stop"
+	EventConfigChange EventType = "config_change"
+	EventPrivilegeEsc EventType = "privilege_escalation"
+	EventDataExfil    EventType = "data_exfiltration"
+	EventMalware      EventType = "malware"
+	EventAnomaly      EventType = "anomaly"
 )
 
 // ForensicReport represents a generated forensic report.
 type ForensicReport struct {
-	ID          string    `json:"id"`
-	CaseID      string    `json:"caseId"`
-	GeneratedAt time.Time `json:"generatedAt"`
-	GeneratedBy string    `json:"generatedBy"`
-	Summary     string    `json:"summary"`
-	Timeline    []Event   `json:"timeline"`
+	ID          string      `json:"id"`
+	CaseID      string      `json:"caseId"`
+	GeneratedAt time.Time   `json:"generatedAt"`
+	GeneratedBy string      `json:"generatedBy"`
+	Summary     string      `json:"summary"`
+	Timeline    []Event     `json:"timeline"`
 	Evidence    []*Evidence `json:"evidence"`
-	Findings    []Finding `json:"findings"`
-	Conclusion  string    `json:"conclusion"`
-	Format      string    `json:"format"` // json, html, pdf
-	FilePath    string    `json:"filePath"`
+	Findings    []Finding   `json:"findings"`
+	Conclusion  string      `json:"conclusion"`
+	Format      string      `json:"format"` // json, html, pdf
+	FilePath    string      `json:"filePath"`
 }
 
 // FileMetadata represents file system metadata for forensics.
 type FileMetadata struct {
-	Path         string    `json:"path"`
-	Name         string    `json:"name"`
-	Size         int64     `json:"size"`
-	IsDir        bool      `json:"isDir"`
-	ModTime      time.Time `json:"modTime"`
-	AccessTime   time.Time `json:"accessTime,omitempty"`
-	ChangeTime   time.Time `json:"changeTime,omitempty"`
-	Mode         string    `json:"mode"`
-	Owner        string    `json:"owner,omitempty"`
-	Group        string    `json:"group,omitempty"`
-	Inode        uint64    `json:"inode,omitempty"`
-	Hash         string    `json:"hash,omitempty"`
-	ContentType  string    `json:"contentType,omitempty"`
-	IsHidden     bool      `json:"isHidden"`
-	IsSymlink    bool      `json:"isSymlink"`
-	SymlinkTarget string  `json:"symlinkTarget,omitempty"`
+	Path          string    `json:"path"`
+	Name          string    `json:"name"`
+	Size          int64     `json:"size"`
+	IsDir         bool      `json:"isDir"`
+	ModTime       time.Time `json:"modTime"`
+	AccessTime    time.Time `json:"accessTime,omitempty"`
+	ChangeTime    time.Time `json:"changeTime,omitempty"`
+	Mode          string    `json:"mode"`
+	Owner         string    `json:"owner,omitempty"`
+	Group         string    `json:"group,omitempty"`
+	Inode         uint64    `json:"inode,omitempty"`
+	Hash          string    `json:"hash,omitempty"`
+	ContentType   string    `json:"contentType,omitempty"`
+	IsHidden      bool      `json:"isHidden"`
+	IsSymlink     bool      `json:"isSymlink"`
+	SymlinkTarget string    `json:"symlinkTarget,omitempty"`
 }
 
 // NetworkConnection represents a network connection for forensics.
 type NetworkConnection struct {
-	Timestamp    time.Time `json:"timestamp"`
-	Protocol     string    `json:"protocol"`
-	LocalAddr    string    `json:"localAddr"`
-	LocalPort    int       `json:"localPort"`
-	RemoteAddr   string    `json:"remoteAddr"`
-	RemotePort   int       `json:"remotePort"`
-	State        string    `json:"state"`
-	ProcessID    int       `json:"processId,omitempty"`
-	ProcessName  string    `json:"processName,omitempty"`
-	BytesSent    int64     `json:"bytesSent,omitempty"`
-	BytesRecv    int64     `json:"bytesRecv,omitempty"`
-	IsEncrypted  bool      `json:"isEncrypted"`
-	ThreatLevel  Priority  `json:"threatLevel,omitempty"`
-	GeoLocation  string    `json:"geoLocation,omitempty"`
+	Timestamp   time.Time `json:"timestamp"`
+	Protocol    string    `json:"protocol"`
+	LocalAddr   string    `json:"localAddr"`
+	LocalPort   int       `json:"localPort"`
+	RemoteAddr  string    `json:"remoteAddr"`
+	RemotePort  int       `json:"remotePort"`
+	State       string    `json:"state"`
+	ProcessID   int       `json:"processId,omitempty"`
+	ProcessName string    `json:"processName,omitempty"`
+	BytesSent   int64     `json:"bytesSent,omitempty"`
+	BytesRecv   int64     `json:"bytesRecv,omitempty"`
+	IsEncrypted bool      `json:"isEncrypted"`
+	ThreatLevel Priority  `json:"threatLevel,omitempty"`
+	GeoLocation string    `json:"geoLocation,omitempty"`
 }
 
 // ========== Manager Implementation ==========

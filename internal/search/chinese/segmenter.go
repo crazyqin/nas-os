@@ -10,23 +10,23 @@ import (
 // Segmenter 中文分词器
 // 实现基于词典的中文分词，支持正向最大匹配和逆向最大匹配算法
 type Segmenter struct {
-	dict      *Dictionary
+	dict       *Dictionary
 	maxWordLen int
-	logger    interface{} // 可注入zap.Logger
-	mu        sync.RWMutex
+	logger     interface{} // 可注入zap.Logger
+	mu         sync.RWMutex
 }
 
 // Dictionary 分词词典
 type Dictionary struct {
 	words    map[string]bool
-	weights  map[string]float64 // 词权重
+	weights  map[string]float64  // 词权重
 	synonyms map[string][]string // 同义词
 }
 
 // NewSegmenter 创建分词器
 func NewSegmenter() *Segmenter {
 	s := &Segmenter{
-		dict:      NewDefaultDictionary(),
+		dict:       NewDefaultDictionary(),
 		maxWordLen: 10, // 最大词长度
 	}
 

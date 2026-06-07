@@ -14,10 +14,10 @@ import (
 type PermissionLevel int
 
 const (
-	PermissionNone  PermissionLevel = iota // 无权限
-	PermissionRead                         // 只读
-	PermissionWrite                        // 读写
-	PermissionManage                       // 管理
+	PermissionNone   PermissionLevel = iota // 无权限
+	PermissionRead                          // 只读
+	PermissionWrite                         // 读写
+	PermissionManage                        // 管理
 )
 
 // String 权限级别字符串

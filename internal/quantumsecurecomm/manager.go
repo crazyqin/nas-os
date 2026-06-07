@@ -25,11 +25,11 @@ type Manager struct {
 
 // ManagerConfig 管理器配置
 type ManagerConfig struct {
-	DefaultAlgorithm  AlgorithmType
-	DefaultSecurity   SecurityLevel
-	MaxChannels       int
-	MaxHandshakes     int
-	AuditLogSize      int
+	DefaultAlgorithm AlgorithmType
+	DefaultSecurity  SecurityLevel
+	MaxChannels      int
+	MaxHandshakes    int
+	AuditLogSize     int
 }
 
 // NewManager 创建量子安全通信管理器

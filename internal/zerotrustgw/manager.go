@@ -14,16 +14,16 @@ import (
 
 // Manager 零信任网关管理器
 type Manager struct {
-	mu          sync.RWMutex
-	logger      *zap.Logger
-	config      *ZeroTrustConfig
-	policies    map[string]*TrustPolicy
-	sessions    map[string]*SessionInfo
-	auditLog    []*AuditEntry
+	mu             sync.RWMutex
+	logger         *zap.Logger
+	config         *ZeroTrustConfig
+	policies       map[string]*TrustPolicy
+	sessions       map[string]*SessionInfo
+	auditLog       []*AuditEntry
 	deviceProfiles map[string]*DeviceProfile
-	trustScores map[string]*TrustScore
-	stopChan    chan struct{}
-	running     bool
+	trustScores    map[string]*TrustScore
+	stopChan       chan struct{}
+	running        bool
 }
 
 // NewManager 创建零信任网关管理器
@@ -58,11 +58,11 @@ func generateID() string {
 func (m *Manager) EvaluateAccess(ctx context.Context, req *AccessRequest) (*VerificationResult, error) {
 	if !m.config.Enabled {
 		return &VerificationResult{
-			ID:        generateID(),
-			RequestID: req.ID,
-			Decision:  DecisionAllow,
+			ID:         generateID(),
+			RequestID:  req.ID,
+			Decision:   DecisionAllow,
 			TrustLevel: TrustLevelHigh,
-			Timestamp: time.Now(),
+			Timestamp:  time.Now(),
 		}, nil
 	}
 
@@ -767,13 +767,13 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_policies":    len(m.policies),
-		"total_devices":     len(m.deviceProfiles),
-		"active_sessions":   len(m.sessions),
-		"audit_entries":     len(m.auditLog),
-		"access_allowed":    allowed,
-		"access_denied":     denied,
-		"mfa_required":      mfaRequired,
-		"tracked_users":     len(m.trustScores),
+		"total_policies":  len(m.policies),
+		"total_devices":   len(m.deviceProfiles),
+		"active_sessions": len(m.sessions),
+		"audit_entries":   len(m.auditLog),
+		"access_allowed":  allowed,
+		"access_denied":   denied,
+		"mfa_required":    mfaRequired,
+		"tracked_users":   len(m.trustScores),
 	}
 }

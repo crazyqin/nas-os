@@ -67,7 +67,7 @@ type TaskFilter struct {
 	AssigneeID string         `form:"assignee_id"`
 	Labels     []string       `form:"labels"`
 	Search     string         `form:"search"`
-	OrderBy    string         `form:"order_by"`    // priority, due_date, status, created_at
+	OrderBy    string         `form:"order_by"` // priority, due_date, status, created_at
 	OrderDesc  bool           `form:"order_desc"`
 	Limit      int            `form:"limit"`
 	Offset     int            `form:"offset"`
@@ -75,11 +75,11 @@ type TaskFilter struct {
 
 // BoardStats 看板统计
 type BoardStats struct {
-	TotalTasks  int            `json:"total_tasks"`
-	AvgProgress float64        `json:"avg_progress"`
-	OverdueTasks int           `json:"overdue_tasks"`
-	ByStatus    map[string]int `json:"by_status"`
-	ByPriority  map[string]int `json:"by_priority"`
+	TotalTasks   int            `json:"total_tasks"`
+	AvgProgress  float64        `json:"avg_progress"`
+	OverdueTasks int            `json:"overdue_tasks"`
+	ByStatus     map[string]int `json:"by_status"`
+	ByPriority   map[string]int `json:"by_priority"`
 }
 
 // CreateBoardRequest 创建看板请求

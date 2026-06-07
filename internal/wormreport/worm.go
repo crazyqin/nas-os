@@ -25,51 +25,51 @@ const (
 type WORMStatus string
 
 const (
-	WORMProtected  WORMStatus = "protected"  // 已保护
-	WORMExpired    WORMStatus = "expired"    // 已过期
-	WORMPending    WORMStatus = "pending"    // 待保护
-	WORMBroken     WORMStatus = "broken"     // 保护被破坏
+	WORMProtected WORMStatus = "protected" // 已保护
+	WORMExpired   WORMStatus = "expired"   // 已过期
+	WORMPending   WORMStatus = "pending"   // 待保护
+	WORMBroken    WORMStatus = "broken"    // 保护被破坏
 )
 
 // WORMFile WORM文件记录
 type WORMFile struct {
-	ID             string         `json:"id"`
-	FilePath       string         `json:"filePath"`
-	FileHash       string         `json:"fileHash"`       // SHA-256
-	FileSize       int64          `json:"fileSize"`
-	Retention      RetentionLevel `json:"retention"`
-	Status         WORMStatus     `json:"status"`
-	LockedAt       time.Time      `json:"lockedAt"`
-	ExpiresAt      *time.Time     `json:"expiresAt,omitempty"` // nil = 永不过期
-	LockedBy       string         `json:"lockedBy"`
-	OriginalOwner  string         `json:"originalOwner"`
-	Tags           []string       `json:"tags,omitempty"`
-	VerifiedAt     time.Time      `json:"lastVerifiedAt"`
-	VerifyCount    int            `json:"verifyCount"`
-	IntegrityOK    bool           `json:"integrityOk"`
+	ID            string         `json:"id"`
+	FilePath      string         `json:"filePath"`
+	FileHash      string         `json:"fileHash"` // SHA-256
+	FileSize      int64          `json:"fileSize"`
+	Retention     RetentionLevel `json:"retention"`
+	Status        WORMStatus     `json:"status"`
+	LockedAt      time.Time      `json:"lockedAt"`
+	ExpiresAt     *time.Time     `json:"expiresAt,omitempty"` // nil = 永不过期
+	LockedBy      string         `json:"lockedBy"`
+	OriginalOwner string         `json:"originalOwner"`
+	Tags          []string       `json:"tags,omitempty"`
+	VerifiedAt    time.Time      `json:"lastVerifiedAt"`
+	VerifyCount   int            `json:"verifyCount"`
+	IntegrityOK   bool           `json:"integrityOk"`
 }
 
 // ComplianceReport 合规报告
 type ComplianceReport struct {
-	ID               string         `json:"id"`
-	GeneratedAt      time.Time      `json:"generatedAt"`
-	ReportType       string         `json:"reportType"` // daily|weekly|monthly|ad-hoc
-	TotalFiles       int            `json:"totalFiles"`
-	ProtectedFiles   int            `json:"protectedFiles"`
-	ExpiredFiles     int            `json:"expiredFiles"`
-	BrokenFiles      int            `json:"brokenFiles"`
-	TotalSizeBytes   int64          `json:"totalSizeBytes"`
+	ID               string                 `json:"id"`
+	GeneratedAt      time.Time              `json:"generatedAt"`
+	ReportType       string                 `json:"reportType"` // daily|weekly|monthly|ad-hoc
+	TotalFiles       int                    `json:"totalFiles"`
+	ProtectedFiles   int                    `json:"protectedFiles"`
+	ExpiredFiles     int                    `json:"expiredFiles"`
+	BrokenFiles      int                    `json:"brokenFiles"`
+	TotalSizeBytes   int64                  `json:"totalSizeBytes"`
 	FilesByRetention map[RetentionLevel]int `json:"filesByRetention"`
-	IntegrityScore   float64        `json:"integrityScore"` // 0-100
-	Violations       []Violation    `json:"violations"`
-	Summary          string         `json:"summary"`
+	IntegrityScore   float64                `json:"integrityScore"` // 0-100
+	Violations       []Violation            `json:"violations"`
+	Summary          string                 `json:"summary"`
 }
 
 // Violation 违规记录
 type Violation struct {
 	FileID      string    `json:"fileId"`
 	FilePath    string    `json:"filePath"`
-	Type        string    `json:"type"`     // integrity_break|unauthorized_access|retention_violation
+	Type        string    `json:"type"` // integrity_break|unauthorized_access|retention_violation
 	Description string    `json:"description"`
 	Severity    string    `json:"severity"` // high|medium|low
 	DetectedAt  time.Time `json:"detectedAt"`
@@ -109,18 +109,18 @@ func (m *WORMManager) Lock(filePath string, fileSize int64, retention RetentionL
 		expiresAt = &t
 	}
 	file := &WORMFile{
-		ID:            id,
-		FilePath:      filePath,
-		FileHash:      hex.EncodeToString(hash[:]),
-		FileSize:      fileSize,
-		Retention:     retention,
-		Status:        WORMProtected,
-		LockedAt:      time.Now(),
-		ExpiresAt:     expiresAt,
-		LockedBy:      lockedBy,
-		VerifiedAt:    time.Now(),
-		VerifyCount:   0,
-		IntegrityOK:   true,
+		ID:          id,
+		FilePath:    filePath,
+		FileHash:    hex.EncodeToString(hash[:]),
+		FileSize:    fileSize,
+		Retention:   retention,
+		Status:      WORMProtected,
+		LockedAt:    time.Now(),
+		ExpiresAt:   expiresAt,
+		LockedBy:    lockedBy,
+		VerifiedAt:  time.Now(),
+		VerifyCount: 0,
+		IntegrityOK: true,
 	}
 	m.files[id] = file
 	return file, nil

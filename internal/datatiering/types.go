@@ -20,9 +20,9 @@ const (
 
 // TierPolicy 分层策略
 type TierPolicy struct {
-	ID           string      `json:"id"`
-	Name         string      `json:"name"`
-	Enabled      bool        `json:"enabled"`
+	ID             string    `json:"id"`
+	Name           string    `json:"name"`
+	Enabled        bool      `json:"enabled"`
 	HotToWarmDays  int       `json:"hot_to_warm_days"`  // 热→温 天数阈值
 	WarmToColdDays int       `json:"warm_to_cold_days"` // 温→冷 天数阈值
 	MinFileSize    int64     `json:"min_file_size"`     // 最小文件大小
@@ -30,7 +30,7 @@ type TierPolicy struct {
 	IncludeExts    []string  `json:"include_exts"`      // 包含的扩展名
 	ExcludeExts    []string  `json:"exclude_exts"`      // 排除的扩展名
 	ExcludePaths   []string  `json:"exclude_paths"`     // 排除的路径
-	Schedule       string    `json:"schedule"`           // cron 表达式
+	Schedule       string    `json:"schedule"`          // cron 表达式
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 }
@@ -49,18 +49,18 @@ type TieredFile struct {
 
 // MigrationJob 迁移任务
 type MigrationJob struct {
-	ID          string       `json:"id"`
-	PolicyID    string       `json:"policy_id"`
-	Status      JobStatus    `json:"status"`
-	FromTier    StorageTier  `json:"from_tier"`
-	ToTier      StorageTier  `json:"to_tier"`
-	TotalFiles  int          `json:"total_files"`
-	TotalSize   int64        `json:"total_size"`
-	Migrated    int          `json:"migrated"`
-	Failed      int          `json:"failed"`
-	StartedAt   *time.Time   `json:"started_at,omitempty"`
-	CompletedAt *time.Time   `json:"completed_at,omitempty"`
-	Error       string       `json:"error,omitempty"`
+	ID          string      `json:"id"`
+	PolicyID    string      `json:"policy_id"`
+	Status      JobStatus   `json:"status"`
+	FromTier    StorageTier `json:"from_tier"`
+	ToTier      StorageTier `json:"to_tier"`
+	TotalFiles  int         `json:"total_files"`
+	TotalSize   int64       `json:"total_size"`
+	Migrated    int         `json:"migrated"`
+	Failed      int         `json:"failed"`
+	StartedAt   *time.Time  `json:"started_at,omitempty"`
+	CompletedAt *time.Time  `json:"completed_at,omitempty"`
+	Error       string      `json:"error,omitempty"`
 }
 
 // JobStatus 任务状态
@@ -76,11 +76,11 @@ const (
 
 // TierStats 分层统计
 type TierStats struct {
-	Tier       StorageTier `json:"tier"`
-	FileCount  int         `json:"file_count"`
-	TotalSize  int64       `json:"total_size"`
-	UsedPercent float64    `json:"used_percent"`
-	AvailableGB float64    `json:"available_gb"`
+	Tier        StorageTier `json:"tier"`
+	FileCount   int         `json:"file_count"`
+	TotalSize   int64       `json:"total_size"`
+	UsedPercent float64     `json:"used_percent"`
+	AvailableGB float64     `json:"available_gb"`
 }
 
 // TieringReport 分层报告

@@ -447,7 +447,7 @@ func (m *Manager) doFullBackup(_ context.Context, task *BackupTask) error {
 	// 全量备份 - 实际项目中会调用 tar/rsync 等
 	task.TotalFiles = 100
 	task.TotalSize = 1024 * 1024 * 100 // 100MB 估算
-	task.Speed = 1024 * 1024 * 10       // 10MB/s
+	task.Speed = 1024 * 1024 * 10      // 10MB/s
 	task.Progress = 100
 	return nil
 }
@@ -457,7 +457,7 @@ func (m *Manager) doIncrementalBackup(_ context.Context, task *BackupTask) error
 	// 增量备份 - 只备份自上次以来变更的数据
 	task.TotalFiles = 20
 	task.TotalSize = 1024 * 1024 * 10 // 10MB 估算
-	task.Speed = 1024 * 1024 * 20      // 20MB/s
+	task.Speed = 1024 * 1024 * 20     // 20MB/s
 	task.Progress = 100
 	return nil
 }
@@ -467,7 +467,7 @@ func (m *Manager) doDifferentialBackup(_ context.Context, task *BackupTask) erro
 	// 差异备份 - 备份自上次全量以来的所有变更
 	task.TotalFiles = 50
 	task.TotalSize = 1024 * 1024 * 50 // 50MB 估算
-	task.Speed = 1024 * 1024 * 15      // 15MB/s
+	task.Speed = 1024 * 1024 * 15     // 15MB/s
 	task.Progress = 100
 	return nil
 }
@@ -663,12 +663,12 @@ func (m *Manager) AssessRisk(configID string) *RiskAssessment {
 	m.mu.RUnlock()
 
 	assessment := &RiskAssessment{
-		Level:      RiskLow,
-		Score:      0,
-		SuccessRate: 95,
-		Factors:    []RiskFactor{},
+		Level:           RiskLow,
+		Score:           0,
+		SuccessRate:     95,
+		Factors:         []RiskFactor{},
 		Recommendations: []string{},
-		AssessedAt: time.Now(),
+		AssessedAt:      time.Now(),
 	}
 
 	if !hasCfg {
@@ -781,7 +781,7 @@ func (m *Manager) ForecastCapacity(configID string) (*CapacityForecast, error) {
 
 	// 模拟容量数据（实际项目中会查询文件系统）
 	forecast := &CapacityForecast{
-		CurrentUsage:    1024 * 1024 * 1024 * 50, // 50GB
+		CurrentUsage:    1024 * 1024 * 1024 * 50,  // 50GB
 		TotalCapacity:   1024 * 1024 * 1024 * 200, // 200GB
 		UsagePercent:    25.0,
 		PredictedGrowth: 1024 * 1024 * 1024 * 5, // 5GB/week

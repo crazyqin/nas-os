@@ -21,11 +21,11 @@ import (
 type SensorType string
 
 const (
-	SensorCPU     SensorType = "cpu"
-	SensorGPU     SensorType = "gpu"
-	SensorHDD     SensorType = "hdd"
+	SensorCPU         SensorType = "cpu"
+	SensorGPU         SensorType = "gpu"
+	SensorHDD         SensorType = "hdd"
 	SensorMotherboard SensorType = "motherboard"
-	SensorAmbient SensorType = "ambient"
+	SensorAmbient     SensorType = "ambient"
 )
 
 // ZoneStatus 温度区域状态
@@ -42,8 +42,8 @@ const (
 type CoolingMode string
 
 const (
-	CoolingSilent    CoolingMode = "silent"
-	CoolingBalanced  CoolingMode = "balanced"
+	CoolingSilent      CoolingMode = "silent"
+	CoolingBalanced    CoolingMode = "balanced"
 	CoolingPerformance CoolingMode = "performance"
 )
 
@@ -51,9 +51,9 @@ const (
 type FanMode string
 
 const (
-	FanPWM FanMode = "pwm"
+	FanPWM    FanMode = "pwm"
 	FanManual FanMode = "manual"
-	FanAuto FanMode = "auto"
+	FanAuto   FanMode = "auto"
 )
 
 // TemperatureZone 温度传感器区域
@@ -70,13 +70,13 @@ type TemperatureZone struct {
 
 // FanInfo 风扇信息
 type FanInfo struct {
-	ID         string  `json:"id"`
-	Name       string  `json:"name"`
-	Speed      int     `json:"speed"`
-	MaxSpeed   int     `json:"maxSpeed"`
-	Percent    float64 `json:"percent"`
-	Mode       FanMode `json:"mode"`
-	PWMValue   int     `json:"pwmValue"`
+	ID       string  `json:"id"`
+	Name     string  `json:"name"`
+	Speed    int     `json:"speed"`
+	MaxSpeed int     `json:"maxSpeed"`
+	Percent  float64 `json:"percent"`
+	Mode     FanMode `json:"mode"`
+	PWMValue int     `json:"pwmValue"`
 }
 
 // ThermalCurve 温控曲线点
@@ -87,12 +87,12 @@ type ThermalCurve struct {
 
 // CoolingProfile 散热配置
 type CoolingProfile struct {
-	Name        string        `json:"name"`
-	Mode        CoolingMode   `json:"mode"`
-	Curves      []ThermalCurve `json:"curves"`
-	WarmThresh  float64       `json:"warmThresh"`
-	HotThresh   float64       `json:"hotThresh"`
-	CritThresh  float64       `json:"critThresh"`
+	Name       string         `json:"name"`
+	Mode       CoolingMode    `json:"mode"`
+	Curves     []ThermalCurve `json:"curves"`
+	WarmThresh float64        `json:"warmThresh"`
+	HotThresh  float64        `json:"hotThresh"`
+	CritThresh float64        `json:"critThresh"`
 }
 
 // TemperatureRecord 温度记录
@@ -125,20 +125,20 @@ type ThermalStats struct {
 
 // Manager 温控管理器
 type Manager struct {
-	logger       *zap.Logger
-	mu           sync.RWMutex
-	ctx          context.Context
-	cancel       context.CancelFunc
-	zones        []TemperatureZone
-	fans         []FanInfo
-	profile      CoolingProfile
-	alerts       []ThermalAlert
-	history      []TemperatureRecord
-	maxHistory   int
-	maxAlerts    int
+	logger        *zap.Logger
+	mu            sync.RWMutex
+	ctx           context.Context
+	cancel        context.CancelFunc
+	zones         []TemperatureZone
+	fans          []FanInfo
+	profile       CoolingProfile
+	alerts        []ThermalAlert
+	history       []TemperatureRecord
+	maxHistory    int
+	maxAlerts     int
 	checkInterval time.Duration
-	sysfsBase    string
-	hwmonBase    string
+	sysfsBase     string
+	hwmonBase     string
 }
 
 // NewManager 创建温控管理器

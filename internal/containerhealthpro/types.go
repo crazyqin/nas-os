@@ -30,10 +30,10 @@ const (
 type RecoveryPolicy string
 
 const (
-	RecoveryRestart     RecoveryPolicy = "restart"
-	RecoveryRedeploy    RecoveryPolicy = "redeploy"
-	RecoveryFailover    RecoveryPolicy = "failover"
-	RecoveryNone        RecoveryPolicy = "none"
+	RecoveryRestart  RecoveryPolicy = "restart"
+	RecoveryRedeploy RecoveryPolicy = "redeploy"
+	RecoveryFailover RecoveryPolicy = "failover"
+	RecoveryNone     RecoveryPolicy = "none"
 )
 
 // AlertSeverity 告警级别
@@ -47,45 +47,45 @@ const (
 
 // HealthCheckConfig 健康检查配置
 type HealthCheckConfig struct {
-	Type            HealthCheckType `json:"type"`
-	Endpoint        string          `json:"endpoint,omitempty"`
-	Port            int             `json:"port,omitempty"`
-	Command         string          `json:"command,omitempty"`
-	ProcessName     string          `json:"process_name,omitempty"`
-	Interval        int             `json:"interval"`         // 检查间隔（秒）
-	Timeout         int             `json:"timeout"`          // 超时时间（秒）
-	MaxRetries      int             `json:"max_retries"`      // 最大重试次数
-	ExpectedStatus  int             `json:"expected_status"`  // HTTP期望状态码
-	Headers         map[string]string `json:"headers,omitempty"`
+	Type           HealthCheckType   `json:"type"`
+	Endpoint       string            `json:"endpoint,omitempty"`
+	Port           int               `json:"port,omitempty"`
+	Command        string            `json:"command,omitempty"`
+	ProcessName    string            `json:"process_name,omitempty"`
+	Interval       int               `json:"interval"`        // 检查间隔（秒）
+	Timeout        int               `json:"timeout"`         // 超时时间（秒）
+	MaxRetries     int               `json:"max_retries"`     // 最大重试次数
+	ExpectedStatus int               `json:"expected_status"` // HTTP期望状态码
+	Headers        map[string]string `json:"headers,omitempty"`
 }
 
 // ResourceLimits 资源限制
 type ResourceLimits struct {
-	CPUPercent    float64 `json:"cpu_percent"`     // CPU使用率上限
-	MemoryPercent float64 `json:"memory_percent"`  // 内存使用率上限
-	NetworkMbps   float64 `json:"network_mbps"`    // 网络带宽上限（Mbps）
-	DiskIOMBps    float64 `json:"disk_io_mbps"`    // 磁盘IO上限（MB/s）
+	CPUPercent    float64 `json:"cpu_percent"`    // CPU使用率上限
+	MemoryPercent float64 `json:"memory_percent"` // 内存使用率上限
+	NetworkMbps   float64 `json:"network_mbps"`   // 网络带宽上限（Mbps）
+	DiskIOMBps    float64 `json:"disk_io_mbps"`   // 磁盘IO上限（MB/s）
 }
 
 // ResourceUsage 资源使用情况
 type ResourceUsage struct {
-	CPUPercent    float64   `json:"cpu_percent"`
-	MemoryUsed    int64     `json:"memory_used"`     // 字节
-	MemoryTotal   int64     `json:"memory_total"`    // 字节
-	MemoryPercent float64   `json:"memory_percent"`
-	NetRxBytes    int64     `json:"net_rx_bytes"`
-	NetTxBytes    int64     `json:"net_tx_bytes"`
-	DiskReadBytes int64     `json:"disk_read_bytes"`
-	DiskWriteBytes int64    `json:"disk_write_bytes"`
-	Timestamp     time.Time `json:"timestamp"`
+	CPUPercent     float64   `json:"cpu_percent"`
+	MemoryUsed     int64     `json:"memory_used"`  // 字节
+	MemoryTotal    int64     `json:"memory_total"` // 字节
+	MemoryPercent  float64   `json:"memory_percent"`
+	NetRxBytes     int64     `json:"net_rx_bytes"`
+	NetTxBytes     int64     `json:"net_tx_bytes"`
+	DiskReadBytes  int64     `json:"disk_read_bytes"`
+	DiskWriteBytes int64     `json:"disk_write_bytes"`
+	Timestamp      time.Time `json:"timestamp"`
 }
 
 // ContainerDependency 容器依赖关系
 type ContainerDependency struct {
 	ContainerID string   `json:"container_id"`
-	DependsOn   []string `json:"depends_on"`   // 依赖的容器ID列表
-	RequiredBy  []string `json:"required_by"`  // 被依赖的容器ID列表
-	StartOrder  int      `json:"start_order"`  // 启动顺序
+	DependsOn   []string `json:"depends_on"`  // 依赖的容器ID列表
+	RequiredBy  []string `json:"required_by"` // 被依赖的容器ID列表
+	StartOrder  int      `json:"start_order"` // 启动顺序
 }
 
 // LogEntry 日志条目
@@ -108,13 +108,13 @@ type LogPattern struct {
 
 // PerformanceBaseline 性能基线
 type PerformanceBaseline struct {
-	CPUPercentAvg    float64 `json:"cpu_percent_avg"`
-	CPUPercentP95    float64 `json:"cpu_percent_p95"`
-	MemoryPercentAvg float64 `json:"memory_percent_avg"`
-	MemoryPercentP95 float64 `json:"memory_percent_p95"`
-	NetworkMbpsAvg   float64 `json:"network_mbps_avg"`
-	DiskIOMBpsAvg    float64 `json:"disk_io_mbps_avg"`
-	SampleCount      int     `json:"sample_count"`
+	CPUPercentAvg    float64   `json:"cpu_percent_avg"`
+	CPUPercentP95    float64   `json:"cpu_percent_p95"`
+	MemoryPercentAvg float64   `json:"memory_percent_avg"`
+	MemoryPercentP95 float64   `json:"memory_percent_p95"`
+	NetworkMbpsAvg   float64   `json:"network_mbps_avg"`
+	DiskIOMBpsAvg    float64   `json:"disk_io_mbps_avg"`
+	SampleCount      int       `json:"sample_count"`
 	LastUpdated      time.Time `json:"last_updated"`
 }
 
@@ -130,12 +130,12 @@ type PerformanceDeviation struct {
 
 // SecurityScanResult 安全扫描结果
 type SecurityScanResult struct {
-	ContainerID   string           `json:"container_id"`
-	ImageName     string           `json:"image_name"`
-	ScanTime      time.Time        `json:"scan_time"`
+	ContainerID     string          `json:"container_id"`
+	ImageName       string          `json:"image_name"`
+	ScanTime        time.Time       `json:"scan_time"`
 	Vulnerabilities []Vulnerability `json:"vulnerabilities"`
-	Score         float64          `json:"score"` // 0-100
-	Status        string           `json:"status"` // pass/fail/warning
+	Score           float64         `json:"score"`  // 0-100
+	Status          string          `json:"status"` // pass/fail/warning
 }
 
 // Vulnerability 漏洞信息
@@ -150,10 +150,10 @@ type Vulnerability struct {
 
 // HealthHistory 健康检查历史记录
 type HealthHistory struct {
-	Timestamp    time.Time     `json:"timestamp"`
+	Timestamp    time.Time       `json:"timestamp"`
 	Status       ContainerStatus `json:"status"`
-	ResponseTime time.Duration `json:"response_time"`
-	Error        string        `json:"error,omitempty"`
+	ResponseTime time.Duration   `json:"response_time"`
+	Error        string          `json:"error,omitempty"`
 }
 
 // HealthTrend 健康趋势
@@ -179,39 +179,39 @@ type Alert struct {
 
 // ContainerHealthPro 增强版容器健康信息
 type ContainerHealthPro struct {
-	ContainerID     string              `json:"container_id"`
-	Name            string              `json:"name"`
-	Image           string              `json:"image"`
-	Status          ContainerStatus     `json:"status"`
-	HealthCheck     HealthCheckConfig   `json:"health_check"`
-	ResourceLimits  ResourceLimits      `json:"resource_limits"`
-	ResourceUsage   ResourceUsage       `json:"resource_usage"`
-	Dependency      ContainerDependency `json:"dependency"`
-	Baseline        PerformanceBaseline `json:"baseline"`
-	Deviations      []PerformanceDeviation `json:"deviations,omitempty"`
-	SecurityScan    *SecurityScanResult `json:"security_scan,omitempty"`
-	Alerts          []Alert             `json:"alerts,omitempty"`
-	History         []HealthHistory     `json:"history,omitempty"`
-	LastCheck       time.Time           `json:"last_check"`
-	LastHealthy     time.Time           `json:"last_healthy"`
-	FailCount       int                 `json:"fail_count"`
-	RestartCount    int                 `json:"restart_count"`
-	AutoRestart     bool                `json:"auto_restart"`
-	RecoveryPolicy  RecoveryPolicy      `json:"recovery_policy"`
-	Uptime          time.Duration       `json:"uptime"`
-	ErrorMessage    string              `json:"error_message,omitempty"`
+	ContainerID    string                 `json:"container_id"`
+	Name           string                 `json:"name"`
+	Image          string                 `json:"image"`
+	Status         ContainerStatus        `json:"status"`
+	HealthCheck    HealthCheckConfig      `json:"health_check"`
+	ResourceLimits ResourceLimits         `json:"resource_limits"`
+	ResourceUsage  ResourceUsage          `json:"resource_usage"`
+	Dependency     ContainerDependency    `json:"dependency"`
+	Baseline       PerformanceBaseline    `json:"baseline"`
+	Deviations     []PerformanceDeviation `json:"deviations,omitempty"`
+	SecurityScan   *SecurityScanResult    `json:"security_scan,omitempty"`
+	Alerts         []Alert                `json:"alerts,omitempty"`
+	History        []HealthHistory        `json:"history,omitempty"`
+	LastCheck      time.Time              `json:"last_check"`
+	LastHealthy    time.Time              `json:"last_healthy"`
+	FailCount      int                    `json:"fail_count"`
+	RestartCount   int                    `json:"restart_count"`
+	AutoRestart    bool                   `json:"auto_restart"`
+	RecoveryPolicy RecoveryPolicy         `json:"recovery_policy"`
+	Uptime         time.Duration          `json:"uptime"`
+	ErrorMessage   string                 `json:"error_message,omitempty"`
 }
 
 // Manager 增强版容器健康管理器
 type Manager struct {
-	mu              sync.RWMutex
-	containers      map[string]*ContainerHealthPro
-	dependencies    map[string]*ContainerDependency
-	logPatterns     []LogPattern
-	alerts          map[string][]Alert
-	history         map[string][]HealthHistory
-	maxHistory      int
-	stopCh          chan struct{}
+	mu           sync.RWMutex
+	containers   map[string]*ContainerHealthPro
+	dependencies map[string]*ContainerDependency
+	logPatterns  []LogPattern
+	alerts       map[string][]Alert
+	history      map[string][]HealthHistory
+	maxHistory   int
+	stopCh       chan struct{}
 }
 
 // NewManager 创建增强版容器健康管理器

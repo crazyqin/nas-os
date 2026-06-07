@@ -243,7 +243,7 @@ func (m *Manager) GetHealthReport() (*HealthReport, error) {
 			Status: "healthy",
 			Value:  "120W",
 		},
-		Uptime:         86400,
+		Uptime:          86400,
 		Recommendations: []string{},
 	}
 

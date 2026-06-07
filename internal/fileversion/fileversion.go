@@ -94,17 +94,17 @@ type VersionDiff struct {
 
 // DiffChange 单行变更
 type DiffChange struct {
-	Type     string `json:"type"` // "add", "remove", "modify"
-	LineNum  int    `json:"line_num"`
-	Content  string `json:"content"`
+	Type       string `json:"type"` // "add", "remove", "modify"
+	LineNum    int    `json:"line_num"`
+	Content    string `json:"content"`
 	OldContent string `json:"old_content,omitempty"`
 }
 
 // VersionStats 版本统计信息
 type VersionStats struct {
-	TotalFiles    int   `json:"total_files"`
-	TotalVersions int   `json:"total_versions"`
-	TotalSize     int64 `json:"total_size"`
+	TotalFiles    int       `json:"total_files"`
+	TotalVersions int       `json:"total_versions"`
+	TotalSize     int64     `json:"total_size"`
 	OldestVersion time.Time `json:"oldest_version"`
 	NewestVersion time.Time `json:"newest_version"`
 }
@@ -113,12 +113,12 @@ type VersionStats struct {
 
 // Manager 版本控制管理器
 type Manager struct {
-	config    *VersionConfig
-	logger    *zap.Logger
-	mu        sync.RWMutex
-	versions  map[string][]*FileVersion // 文件路径 -> 版本列表
-	ctx       context.Context
-	cancel    context.CancelFunc
+	config   *VersionConfig
+	logger   *zap.Logger
+	mu       sync.RWMutex
+	versions map[string][]*FileVersion // 文件路径 -> 版本列表
+	ctx      context.Context
+	cancel   context.CancelFunc
 }
 
 // NewManager 创建版本控制管理器

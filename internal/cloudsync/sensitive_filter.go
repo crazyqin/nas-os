@@ -15,105 +15,105 @@ import (
 
 // SensitiveFileFilter 敏感文件过滤器
 type SensitiveFileFilter struct {
-	config      SensitiveFilterConfig
-	rules       []SensitiveFileRule
+	config       SensitiveFilterConfig
+	rules        []SensitiveFileRule
 	contentRules []ContentDetectionRule
-	auditLogger FilterAuditLogger
-	mu          sync.RWMutex
+	auditLogger  FilterAuditLogger
+	mu           sync.RWMutex
 }
 
 // SensitiveFilterConfig 敏感文件过滤配置
 type SensitiveFilterConfig struct {
-	Enabled               bool               `json:"enabled"`
-	DefaultAction         FilterAction       `json:"default_action"`         // block, warn, allow
-	LogBlocked            bool               `json:"log_blocked"`            // 记录被阻止的文件
-	AllowOverride         bool               `json:"allow_override"`         // 允许用户覆盖规则
-	MaxFileSizeToScan     int64              `json:"max_file_size_to_scan"`  // 内容扫描最大文件大小
-	ScanTimeout           time.Duration      `json:"scan_timeout"`           // 扫描超时时间
-	BaselinePatterns      []string           `json:"baseline_patterns"`      // 基础敏感文件模式
-	CustomPatterns        []string           `json:"custom_patterns"`        // 自定义敏感文件模式
-	ContentDetection      bool               `json:"content_detection"`      // 启用内容检测
-	AuditLevel            AuditLevel         `json:"audit_level"`            // 审计级别
-	NotifyOnBlock         bool               `json:"notify_on_block"`        // 阻止时通知
+	Enabled           bool          `json:"enabled"`
+	DefaultAction     FilterAction  `json:"default_action"`        // block, warn, allow
+	LogBlocked        bool          `json:"log_blocked"`           // 记录被阻止的文件
+	AllowOverride     bool          `json:"allow_override"`        // 允许用户覆盖规则
+	MaxFileSizeToScan int64         `json:"max_file_size_to_scan"` // 内容扫描最大文件大小
+	ScanTimeout       time.Duration `json:"scan_timeout"`          // 扫描超时时间
+	BaselinePatterns  []string      `json:"baseline_patterns"`     // 基础敏感文件模式
+	CustomPatterns    []string      `json:"custom_patterns"`       // 自定义敏感文件模式
+	ContentDetection  bool          `json:"content_detection"`     // 启用内容检测
+	AuditLevel        AuditLevel    `json:"audit_level"`           // 审计级别
+	NotifyOnBlock     bool          `json:"notify_on_block"`       // 阻止时通知
 }
 
 // FilterAction 过滤动作
 type FilterAction string
 
 const (
-	FilterBlock   FilterAction = "block"   // 阻止同步
-	FilterWarn    FilterAction = "warn"    // 警告但允许
-	FilterAllow   FilterAction = "allow"   // 允许
-	FilterReview  FilterAction = "review"  // 需人工审核
+	FilterBlock  FilterAction = "block"  // 阻止同步
+	FilterWarn   FilterAction = "warn"   // 警告但允许
+	FilterAllow  FilterAction = "allow"  // 允许
+	FilterReview FilterAction = "review" // 需人工审核
 )
 
 // AuditLevel 审计级别
 type AuditLevel string
 
 const (
-	AuditLevelMinimal AuditLevel = "minimal" // 最小审计
-	AuditLevelNormal  AuditLevel = "normal"  // 正常审计
+	AuditLevelMinimal  AuditLevel = "minimal"  // 最小审计
+	AuditLevelNormal   AuditLevel = "normal"   // 正常审计
 	AuditLevelDetailed AuditLevel = "detailed" // 详细审计
 )
 
 // SensitiveFileRule 敏感文件规则
 type SensitiveFileRule struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Description string       `json:"description"`
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
 	Category    SensitiveCategory `json:"category"`
-	Severity    SeverityLevel `json:"severity"`
-	Action      FilterAction `json:"action"`
-	Enabled     bool         `json:"enabled"`
-	
+	Severity    SeverityLevel     `json:"severity"`
+	Action      FilterAction      `json:"action"`
+	Enabled     bool              `json:"enabled"`
+
 	// 匹配规则
-	Extensions  []string `json:"extensions,omitempty"`  // 文件扩展名
-	Patterns    []string `json:"patterns,omitempty"`    // 文件名模式
-	ExactNames  []string `json:"exact_names,omitempty"` // 精确文件名
+	Extensions   []string `json:"extensions,omitempty"`    // 文件扩展名
+	Patterns     []string `json:"patterns,omitempty"`      // 文件名模式
+	ExactNames   []string `json:"exact_names,omitempty"`   // 精确文件名
 	PathPrefixes []string `json:"path_prefixes,omitempty"` // 路径前缀
-	
+
 	// 内容检测
 	ContentPatterns []string `json:"content_patterns,omitempty"` // 内容模式
-	
+
 	// 元数据
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	CreatedBy   string    `json:"created_by,omitempty"`
-	Override    bool      `json:"override,omitempty"` // 用户覆盖
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	CreatedBy string    `json:"created_by,omitempty"`
+	Override  bool      `json:"override,omitempty"` // 用户覆盖
 }
 
 // ContentDetectionRule 内容检测规则
 type ContentDetectionRule struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Description string       `json:"description"`
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
 	Category    SensitiveCategory `json:"category"`
-	Severity    SeverityLevel `json:"severity"`
-	
+	Severity    SeverityLevel     `json:"severity"`
+
 	// 正则匹配
-	Pattern     string       `json:"pattern"`
-	Regex       *regexp.Regexp `json:"-"`
-	
+	Pattern string         `json:"pattern"`
+	Regex   *regexp.Regexp `json:"-"`
+
 	// 上下文检测
-	ContextWords []string   `json:"context_words"` // 关键上下文词
-	
-	Enabled     bool        `json:"enabled"`
+	ContextWords []string `json:"context_words"` // 关键上下文词
+
+	Enabled bool `json:"enabled"`
 }
 
 // SensitiveCategory 敏感文件类别
 type SensitiveCategory string
 
 const (
-	CategoryCredential   SensitiveCategory = "credential"   // 凭证文件
-	CategoryPrivateKey   SensitiveCategory = "private_key"  // 私钥文件
-	CategoryEnvironment  SensitiveCategory = "environment"  // 环境配置
-	CategoryDatabase     SensitiveCategory = "database"     // 数据库文件
-	CategoryBackup       SensitiveCategory = "backup"       // 备份文件
-	CategoryLog          SensitiveCategory = "log"          // 日志文件
-	CategoryCertificate  SensitiveCategory = "certificate"  // 证书文件
-	CategoryConfig       SensitiveCategory = "config"       // 配置文件
-	CategoryPersonal     SensitiveCategory = "personal"     // 个人隐私
-	CategoryCustom       SensitiveCategory = "custom"       // 自定义
+	CategoryCredential  SensitiveCategory = "credential"  // 凭证文件
+	CategoryPrivateKey  SensitiveCategory = "private_key" // 私钥文件
+	CategoryEnvironment SensitiveCategory = "environment" // 环境配置
+	CategoryDatabase    SensitiveCategory = "database"    // 数据库文件
+	CategoryBackup      SensitiveCategory = "backup"      // 备份文件
+	CategoryLog         SensitiveCategory = "log"         // 日志文件
+	CategoryCertificate SensitiveCategory = "certificate" // 证书文件
+	CategoryConfig      SensitiveCategory = "config"      // 配置文件
+	CategoryPersonal    SensitiveCategory = "personal"    // 个人隐私
+	CategoryCustom      SensitiveCategory = "custom"      // 自定义
 )
 
 // SeverityLevel 严重程度
@@ -128,43 +128,43 @@ const (
 
 // FilterResult 过滤结果
 type FilterResult struct {
-	Path        string            `json:"path"`
-	Action      FilterAction      `json:"action"`
-	Reason      string            `json:"reason"`
-	Rule        *SensitiveFileRule `json:"rule,omitempty"`
-	ContentMatches []ContentMatch `json:"content_matches,omitempty"`
-	Severity    SeverityLevel     `json:"severity"`
-	Category    SensitiveCategory `json:"category"`
-	Reviewed    bool              `json:"reviewed"`
-	Reviewer    string            `json:"reviewer,omitempty"`
-	ReviewTime  *time.Time        `json:"review_time,omitempty"`
+	Path           string             `json:"path"`
+	Action         FilterAction       `json:"action"`
+	Reason         string             `json:"reason"`
+	Rule           *SensitiveFileRule `json:"rule,omitempty"`
+	ContentMatches []ContentMatch     `json:"content_matches,omitempty"`
+	Severity       SeverityLevel      `json:"severity"`
+	Category       SensitiveCategory  `json:"category"`
+	Reviewed       bool               `json:"reviewed"`
+	Reviewer       string             `json:"reviewer,omitempty"`
+	ReviewTime     *time.Time         `json:"review_time,omitempty"`
 }
 
 // ContentMatch 内容匹配结果
 type ContentMatch struct {
-	RuleID      string    `json:"rule_id"`
-	RuleName    string    `json:"rule_name"`
-	LineNumber  int       `json:"line_number"`
-	MatchText   string    `json:"match_text"`
-	Context     string    `json:"context"`
+	RuleID     string `json:"rule_id"`
+	RuleName   string `json:"rule_name"`
+	LineNumber int    `json:"line_number"`
+	MatchText  string `json:"match_text"`
+	Context    string `json:"context"`
 }
 
 // FilterAuditLog 过滤审计日志
 type FilterAuditLog struct {
-	ID           string            `json:"id"`
-	Timestamp    time.Time         `json:"timestamp"`
-	TaskID       string            `json:"task_id"`
-	Path         string            `json:"path"`
-	Action       FilterAction      `json:"action"`
-	Reason       string            `json:"reason"`
-	RuleID       string            `json:"rule_id,omitempty"`
-	RuleName     string            `json:"rule_name,omitempty"`
-	Severity     SeverityLevel     `json:"severity"`
-	Category     SensitiveCategory `json:"category"`
-	ContentHits  int               `json:"content_hits"`
-	FileSize     int64             `json:"file_size"`
-	DecisionBy   string            `json:"decision_by"` // system, user_override, manual_review
-	Details      map[string]interface{} `json:"details,omitempty"`
+	ID          string                 `json:"id"`
+	Timestamp   time.Time              `json:"timestamp"`
+	TaskID      string                 `json:"task_id"`
+	Path        string                 `json:"path"`
+	Action      FilterAction           `json:"action"`
+	Reason      string                 `json:"reason"`
+	RuleID      string                 `json:"rule_id,omitempty"`
+	RuleName    string                 `json:"rule_name,omitempty"`
+	Severity    SeverityLevel          `json:"severity"`
+	Category    SensitiveCategory      `json:"category"`
+	ContentHits int                    `json:"content_hits"`
+	FileSize    int64                  `json:"file_size"`
+	DecisionBy  string                 `json:"decision_by"` // system, user_override, manual_review
+	Details     map[string]interface{} `json:"details,omitempty"`
 }
 
 // FilterAuditLogger 过滤审计日志接口
@@ -348,29 +348,29 @@ func (f *SensitiveFileFilter) initDefaultRules() error {
 		},
 		// AWS凭证
 		{
-			ID:          "aws_credentials",
-			Name:        "AWS凭证文件",
-			Description: "AWS CLI凭证配置文件",
-			Category:    CategoryCredential,
-			Severity:    SeverityCritical,
-			Action:      FilterBlock,
-			Enabled:     true,
-			ExactNames:  []string{"credentials", "config"},
+			ID:           "aws_credentials",
+			Name:         "AWS凭证文件",
+			Description:  "AWS CLI凭证配置文件",
+			Category:     CategoryCredential,
+			Severity:     SeverityCritical,
+			Action:       FilterBlock,
+			Enabled:      true,
+			ExactNames:   []string{"credentials", "config"},
 			PathPrefixes: []string{".aws/"},
-			CreatedAt:   time.Now(),
+			CreatedAt:    time.Now(),
 		},
 		// Kubernetes secrets
 		{
-			ID:          "k8s_secrets",
-			Name:        "Kubernetes Secret",
-			Description: "Kubernetes Secret配置文件",
-			Category:    CategoryCredential,
-			Severity:    SeverityCritical,
-			Action:      FilterBlock,
-			Enabled:     true,
-			ExactNames:  []string{"secret.yaml", "secret.yml"},
+			ID:           "k8s_secrets",
+			Name:         "Kubernetes Secret",
+			Description:  "Kubernetes Secret配置文件",
+			Category:     CategoryCredential,
+			Severity:     SeverityCritical,
+			Action:       FilterBlock,
+			Enabled:      true,
+			ExactNames:   []string{"secret.yaml", "secret.yml"},
 			PathPrefixes: []string{"kubernetes/", "k8s/", "manifests/"},
-			CreatedAt:   time.Now(),
+			CreatedAt:    time.Now(),
 		},
 	}
 
@@ -384,31 +384,31 @@ func (f *SensitiveFileFilter) initContentRules() error {
 
 	// AWS Access Key Pattern
 	awsAccessKeyRegex := regexp.MustCompile(`AKIA[0-9A-Z]{16}`)
-	
+
 	// AWS Secret Key Pattern
 	awsSecretKeyRegex := regexp.MustCompile(`(?i)(aws_secret_access_key|secret_access_key|aws_secret_key)\s*[=:]\s*[A-Za-z0-9/+=]{40}`)
-	
+
 	// Private Key Pattern
 	privateKeyRegex := regexp.MustCompile(`-----BEGIN (RSA |DSA |ECDSA |OPENSSH )PRIVATE KEY-----`)
-	
+
 	// Generic Password Pattern
 	passwordRegex := regexp.MustCompile(`(?i)(password|passwd|pwd)\s*[=:]\s*[^\s]{8,}`)
-	
+
 	// API Key Pattern
 	apiKeyRegex := regexp.MustCompile(`(?i)(api[_-]?key|apikey|api_secret)\s*[=:]\s*[A-Za-z0-9_-]{20,}`)
-	
+
 	// Token Pattern
 	tokenRegex := regexp.MustCompile(`(?i)(access[_-]?token|auth[_-]?token|bearer)\s*[=:]\s*[A-Za-z0-9_-]{20,}`)
-	
+
 	// Database URL Pattern
 	dbURLRegex := regexp.MustCompile(`(?i)(mysql|postgres|mongodb|redis)://[^:]+:[^@]+@[^\s]+`)
-	
+
 	// JWT Pattern
 	jwtRegex := regexp.MustCompile(`eyJ[A-Za-z0-9_-]*\.eyJ[A-Za-z0-9_-]*\.[A-Za-z0-9_-]*`)
-	
+
 	// SSH authorized_keys
 	sshKeyRegex := regexp.MustCompile(`ssh-(rsa|dsa|ecdsa|ed25519) [A-Za-z0-9+/=]+`)
-	
+
 	// Email address
 	emailRegex := regexp.MustCompile(`[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`)
 
@@ -550,9 +550,9 @@ func (f *SensitiveFileFilter) CheckFile(ctx context.Context, filePath string, fi
 
 	if !f.config.Enabled {
 		return &FilterResult{
-			Path:    filePath,
-			Action:  FilterAllow,
-			Reason:  "过滤功能未启用",
+			Path:     filePath,
+			Action:   FilterAllow,
+			Reason:   "过滤功能未启用",
 			Severity: SeverityLow,
 		}
 	}
@@ -585,7 +585,7 @@ func (f *SensitiveFileFilter) CheckFile(ctx context.Context, filePath string, fi
 			contentMatches, err := f.scanFileContent(ctx, filePath)
 			if err == nil && len(contentMatches) > 0 {
 				result.ContentMatches = contentMatches
-				
+
 				// 根据内容匹配严重程度决定动作
 				maxSeverity := SeverityLow
 				for _, match := range contentMatches {
@@ -596,7 +596,7 @@ func (f *SensitiveFileFilter) CheckFile(ctx context.Context, filePath string, fi
 						}
 					}
 				}
-				
+
 				if maxSeverity >= SeverityHigh {
 					result.Action = FilterBlock
 					result.Severity = maxSeverity
@@ -714,7 +714,7 @@ func (f *SensitiveFileFilter) scanFileContent(ctx context.Context, filePath stri
 // CheckDirectory 检查目录中的所有文件
 func (f *SensitiveFileFilter) CheckDirectory(ctx context.Context, dirPath string, recursive bool) ([]*FilterResult, error) {
 	results := []*FilterResult{}
-	
+
 	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -745,10 +745,10 @@ func (f *SensitiveFileFilter) FilterSyncFiles(ctx context.Context, taskID string
 	for _, file := range files {
 		// 创建FileInfo
 		info := &fileInfoWrapper{
-			name: file.Path,
-			size: file.Size,
+			name:    file.Path,
+			size:    file.Size,
 			modTime: file.ModTime,
-			isDir: file.IsDir,
+			isDir:   file.IsDir,
 		}
 
 		result := f.CheckFile(ctx, file.Path, info)
@@ -756,15 +756,15 @@ func (f *SensitiveFileFilter) FilterSyncFiles(ctx context.Context, taskID string
 		// 记录审计日志
 		if f.config.AuditLevel != AuditLevelMinimal && f.auditLogger != nil {
 			auditLog := &FilterAuditLog{
-				ID:        generateAuditID(),
-				Timestamp: time.Now(),
-				TaskID:    taskID,
-				Path:      file.Path,
-				Action:    result.Action,
-				Reason:    result.Reason,
-				Severity:  result.Severity,
-				Category:  result.Category,
-				FileSize:  file.Size,
+				ID:         generateAuditID(),
+				Timestamp:  time.Now(),
+				TaskID:     taskID,
+				Path:       file.Path,
+				Action:     result.Action,
+				Reason:     result.Reason,
+				Severity:   result.Severity,
+				Category:   result.Category,
+				FileSize:   file.Size,
 				DecisionBy: "system",
 			}
 			if result.Rule != nil {
@@ -806,20 +806,20 @@ func (f *SensitiveFileFilter) GenerateFilterReport(taskID string, startTime, end
 	}
 
 	report := &FilterReport{
-		TaskID:     taskID,
-		StartTime:  startTime,
-		EndTime:    endTime,
-		GeneratedAt: time.Now(),
-		Statistics: FilterStatistics{},
-		ByCategory: make(map[SensitiveCategory]int),
-		BySeverity: make(map[SeverityLevel]int),
+		TaskID:       taskID,
+		StartTime:    startTime,
+		EndTime:      endTime,
+		GeneratedAt:  time.Now(),
+		Statistics:   FilterStatistics{},
+		ByCategory:   make(map[SensitiveCategory]int),
+		BySeverity:   make(map[SeverityLevel]int),
 		BlockedFiles: []BlockedFileInfo{},
 	}
 
 	// 统计
 	for _, log := range logs {
 		report.Statistics.TotalFiles++
-		
+
 		switch log.Action {
 		case FilterBlock:
 			report.Statistics.BlockedFiles++
@@ -853,14 +853,14 @@ func (f *SensitiveFileFilter) GenerateFilterReport(taskID string, startTime, end
 
 // FilterReport 过滤报告
 type FilterReport struct {
-	TaskID        string            `json:"task_id"`
-	StartTime     time.Time         `json:"start_time"`
-	EndTime       time.Time         `json:"end_time"`
-	GeneratedAt   time.Time         `json:"generated_at"`
-	Statistics    FilterStatistics  `json:"statistics"`
-	ByCategory    map[SensitiveCategory]int `json:"by_category"`
-	BySeverity    map[SeverityLevel]int `json:"by_severity"`
-	BlockedFiles  []BlockedFileInfo `json:"blocked_files"`
+	TaskID       string                    `json:"task_id"`
+	StartTime    time.Time                 `json:"start_time"`
+	EndTime      time.Time                 `json:"end_time"`
+	GeneratedAt  time.Time                 `json:"generated_at"`
+	Statistics   FilterStatistics          `json:"statistics"`
+	ByCategory   map[SensitiveCategory]int `json:"by_category"`
+	BySeverity   map[SeverityLevel]int     `json:"by_severity"`
+	BlockedFiles []BlockedFileInfo         `json:"blocked_files"`
 }
 
 // FilterStatistics 过滤统计
@@ -875,12 +875,12 @@ type FilterStatistics struct {
 
 // BlockedFileInfo 被阻止文件信息
 type BlockedFileInfo struct {
-	Path     string        `json:"path"`
-	Reason   string        `json:"reason"`
-	RuleName string        `json:"rule_name"`
-	Severity SeverityLevel `json:"severity"`
+	Path     string            `json:"path"`
+	Reason   string            `json:"reason"`
+	RuleName string            `json:"rule_name"`
+	Severity SeverityLevel     `json:"severity"`
 	Category SensitiveCategory `json:"category"`
-	Time     time.Time     `json:"time"`
+	Time     time.Time         `json:"time"`
 }
 
 // ==================== 规则管理 ====================

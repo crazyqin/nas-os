@@ -179,20 +179,20 @@ func TestDashboard_GetOverview(t *testing.T) {
 
 	// 创建一个审计条目
 	entry := &AuditEntry{
-		ID:              "test1",
-		Timestamp:       time.Now(),
-		UserID:          "user1",
-		Username:        "test",
-		ModelID:         "model1",
-		ModelName:       "gpt-4",
-		Action:          "chat",
-		TotalTokens:     100,
-		PromptTokens:    50,
+		ID:               "test1",
+		Timestamp:        time.Now(),
+		UserID:           "user1",
+		Username:         "test",
+		ModelID:          "model1",
+		ModelName:        "gpt-4",
+		Action:           "chat",
+		TotalTokens:      100,
+		PromptTokens:     50,
 		CompletionTokens: 50,
-		DurationMs:      1000,
-		Success:         true,
-		Redacted:        true,
-		RedactCount:     2,
+		DurationMs:       1000,
+		Success:          true,
+		Redacted:         true,
+		RedactCount:      2,
 	}
 	if err := store.CreateAuditEntry(entry); err != nil {
 		t.Fatalf("创建审计条目失败: %v", err)
@@ -227,16 +227,16 @@ func TestDashboard_GetModelStats(t *testing.T) {
 
 	// 创建审计条目
 	entry := &AuditEntry{
-		ID:              "test1",
-		Timestamp:       time.Now(),
-		UserID:          "user1",
-		Username:        "test",
-		ModelID:         "model1",
-		ModelName:       "gpt-4",
-		Action:          "chat",
-		TotalTokens:     100,
-		DurationMs:      1000,
-		Success:         true,
+		ID:          "test1",
+		Timestamp:   time.Now(),
+		UserID:      "user1",
+		Username:    "test",
+		ModelID:     "model1",
+		ModelName:   "gpt-4",
+		Action:      "chat",
+		TotalTokens: 100,
+		DurationMs:  1000,
+		Success:     true,
 	}
 	_ = store.CreateAuditEntry(entry)
 
@@ -277,17 +277,17 @@ func TestDashboard_GetUserStats(t *testing.T) {
 	dashboard := NewDashboard(store)
 
 	entry := &AuditEntry{
-		ID:              "test1",
-		Timestamp:       time.Now(),
-		UserID:          "user1",
-		Username:        "testuser",
-		ModelID:         "model1",
-		ModelName:       "gpt-4",
-		Action:          "chat",
-		TotalTokens:     100,
-		PromptTokens:    50,
+		ID:               "test1",
+		Timestamp:        time.Now(),
+		UserID:           "user1",
+		Username:         "testuser",
+		ModelID:          "model1",
+		ModelName:        "gpt-4",
+		Action:           "chat",
+		TotalTokens:      100,
+		PromptTokens:     50,
 		CompletionTokens: 50,
-		Success:         true,
+		Success:          true,
 	}
 	_ = store.CreateAuditEntry(entry)
 
@@ -328,15 +328,15 @@ func TestDashboard_GetUsageTrend(t *testing.T) {
 	dashboard := NewDashboard(store)
 
 	entry := &AuditEntry{
-		ID:              "test1",
-		Timestamp:       time.Now(),
-		UserID:          "user1",
-		Username:        "test",
-		ModelID:         "model1",
-		ModelName:       "gpt-4",
-		Action:          "chat",
-		TotalTokens:     100,
-		Success:         true,
+		ID:          "test1",
+		Timestamp:   time.Now(),
+		UserID:      "user1",
+		Username:    "test",
+		ModelID:     "model1",
+		ModelName:   "gpt-4",
+		Action:      "chat",
+		TotalTokens: 100,
+		Success:     true,
 	}
 	_ = store.CreateAuditEntry(entry)
 

@@ -9,12 +9,12 @@ import (
 
 // Manager GPU Direct Storage 管理器
 type Manager struct {
-	mu       sync.RWMutex
-	devices  map[string]*GPUDevice
-	buffers  map[string]*DirectBuffer
-	jobs     map[string]*TransferJob
-	config   GPUDSConfig
-	stats    TransferStats
+	mu      sync.RWMutex
+	devices map[string]*GPUDevice
+	buffers map[string]*DirectBuffer
+	jobs    map[string]*TransferJob
+	config  GPUDSConfig
+	stats   TransferStats
 }
 
 // NewManager 创建 GPU Direct Storage 管理器

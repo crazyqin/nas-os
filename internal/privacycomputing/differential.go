@@ -48,8 +48,8 @@ func (dm *DifferentialManager) SetConfig(config DifferentialPrivacyConfig) error
 	}
 
 	validMechanisms := map[string]bool{
-		"laplace":    true,
-		"gaussian":   true,
+		"laplace":     true,
+		"gaussian":    true,
 		"exponential": true,
 	}
 	if !validMechanisms[config.Mechanism] {

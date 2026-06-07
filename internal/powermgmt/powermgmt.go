@@ -13,11 +13,11 @@ import (
 type PowerState string
 
 const (
-	PowerOn      PowerState = "on"
-	PowerOff     PowerState = "off"
-	PowerSleep   PowerState = "sleep"
+	PowerOn        PowerState = "on"
+	PowerOff       PowerState = "off"
+	PowerSleep     PowerState = "sleep"
 	PowerHibernate PowerState = "hibernate"
-	PowerWaking  PowerState = "waking"
+	PowerWaking    PowerState = "waking"
 )
 
 // ScheduleType 调度类型
@@ -34,12 +34,12 @@ const (
 type ActionType string
 
 const (
-	ActionPowerOn      ActionType = "power_on"
-	ActionPowerOff     ActionType = "power_off"
-	ActionSleep        ActionType = "sleep"
-	ActionHibernate    ActionType = "hibernate"
-	ActionReboot       ActionType = "reboot"
-	ActionWakeOnLan    ActionType = "wake_on_lan"
+	ActionPowerOn   ActionType = "power_on"
+	ActionPowerOff  ActionType = "power_off"
+	ActionSleep     ActionType = "sleep"
+	ActionHibernate ActionType = "hibernate"
+	ActionReboot    ActionType = "reboot"
+	ActionWakeOnLan ActionType = "wake_on_lan"
 )
 
 // WakeTarget WOL 目标设备
@@ -54,21 +54,21 @@ type WakeTarget struct {
 
 // PowerSchedule 电源调度任务
 type PowerSchedule struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Type        ScheduleType `json:"type"`
-	Action      ActionType   `json:"action"`
-	Enabled     bool         `json:"enabled"`
-	Hour        int          `json:"hour"`
-	Minute      int          `json:"minute"`
-	Weekdays    []time.Weekday `json:"weekdays"`
-	MonthDay    int          `json:"month_day"`
-	NextRun     time.Time    `json:"next_run"`
-	LastRun     time.Time    `json:"last_run"`
-	RunCount    int          `json:"run_count"`
-	LastError   string       `json:"last_error"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	ID        string         `json:"id"`
+	Name      string         `json:"name"`
+	Type      ScheduleType   `json:"type"`
+	Action    ActionType     `json:"action"`
+	Enabled   bool           `json:"enabled"`
+	Hour      int            `json:"hour"`
+	Minute    int            `json:"minute"`
+	Weekdays  []time.Weekday `json:"weekdays"`
+	MonthDay  int            `json:"month_day"`
+	NextRun   time.Time      `json:"next_run"`
+	LastRun   time.Time      `json:"last_run"`
+	RunCount  int            `json:"run_count"`
+	LastError string         `json:"last_error"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
 }
 
 // PowerEvent 电源事件
@@ -85,39 +85,39 @@ type PowerEvent struct {
 
 // IdleConfig 空闲配置
 type IdleConfig struct {
-	Enabled          bool          `json:"enabled"`
-	IdleTimeout      time.Duration `json:"idle_timeout"`
-	IdleAction       ActionType    `json:"idle_action"`
-	MonitorCPU       bool          `json:"monitor_cpu"`
-	MonitorDisk      bool          `json:"monitor_disk"`
-	MonitorNetwork   bool          `json:"monitor_network"`
-	CPUThreshold     float64       `json:"cpu_threshold"`     // below this = idle
-	DiskIOThreshold  int64         `json:"disk_io_threshold"` // bytes/s
-	NetIOThreshold   int64         `json:"net_io_threshold"`  // bytes/s
+	Enabled         bool          `json:"enabled"`
+	IdleTimeout     time.Duration `json:"idle_timeout"`
+	IdleAction      ActionType    `json:"idle_action"`
+	MonitorCPU      bool          `json:"monitor_cpu"`
+	MonitorDisk     bool          `json:"monitor_disk"`
+	MonitorNetwork  bool          `json:"monitor_network"`
+	CPUThreshold    float64       `json:"cpu_threshold"`     // below this = idle
+	DiskIOThreshold int64         `json:"disk_io_threshold"` // bytes/s
+	NetIOThreshold  int64         `json:"net_io_threshold"`  // bytes/s
 }
 
 // Manager 电源管理器
 type Manager struct {
-	mu         sync.RWMutex
-	state      PowerState
-	schedules  map[string]*PowerSchedule
-	wakeTargets map[string]*WakeTarget
-	events     []PowerEvent
-	idleConfig IdleConfig
-	maxEvents  int
-	startTime  time.Time
+	mu            sync.RWMutex
+	state         PowerState
+	schedules     map[string]*PowerSchedule
+	wakeTargets   map[string]*WakeTarget
+	events        []PowerEvent
+	idleConfig    IdleConfig
+	maxEvents     int
+	startTime     time.Time
 	onStateChange func(PowerState, PowerState)
 }
 
 // NewManager 创建电源管理器
 func NewManager() *Manager {
 	return &Manager{
-		state:      PowerOn,
-		schedules:  make(map[string]*PowerSchedule),
+		state:       PowerOn,
+		schedules:   make(map[string]*PowerSchedule),
 		wakeTargets: make(map[string]*WakeTarget),
-		events:     make([]PowerEvent, 0),
-		maxEvents:  10000,
-		startTime:  time.Now(),
+		events:      make([]PowerEvent, 0),
+		maxEvents:   10000,
+		startTime:   time.Now(),
 	}
 }
 
@@ -361,7 +361,7 @@ func (m *Manager) ExportConfig() ([]byte, error) {
 	defer m.mu.RUnlock()
 
 	config := struct {
-		State       PowerState               `json:"state"`
+		State       PowerState                `json:"state"`
 		Schedules   map[string]*PowerSchedule `json:"schedules"`
 		WakeTargets map[string]*WakeTarget    `json:"wake_targets"`
 		IdleConfig  IdleConfig                `json:"idle_config"`

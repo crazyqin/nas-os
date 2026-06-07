@@ -416,12 +416,12 @@ func TestPoolRecommendations(t *testing.T) {
 	mgr := NewManager(DefaultAlertConfig())
 
 	pool := &PoolInfo{
-		Name:          "tank",
-		Status:        PoolStatusOnline,
-		UsedPercent:   90,
-		Fragmentation: 35,
-		ReadErrors:    5,
-		WriteErrors:   3,
+		Name:           "tank",
+		Status:         PoolStatusOnline,
+		UsedPercent:    90,
+		Fragmentation:  35,
+		ReadErrors:     5,
+		WriteErrors:    3,
 		ChecksumErrors: 2,
 	}
 	analysis := &PoolAnalysis{DailyGrowthBytes: 0}
@@ -557,10 +557,10 @@ func TestCapacityTrend(t *testing.T) {
 	capTrend := CapacityTrend{
 		Timestamp:     time.Now(),
 		TotalBytes:    1024 * 1024 * 1024 * 1024, // 1TB
-		UsedBytes:     500 * 1024 * 1024 * 1024,   // 500GB
-		FreeBytes:     524 * 1024 * 1024 * 1024,   // 524GB
+		UsedBytes:     500 * 1024 * 1024 * 1024,  // 500GB
+		FreeBytes:     524 * 1024 * 1024 * 1024,  // 524GB
 		UsedPercent:   48.8,
-		GrowthRateDay: 1024 * 1024 * 1024,         // 1GB/day
+		GrowthRateDay: 1024 * 1024 * 1024, // 1GB/day
 		DaysUntilFull: 524,
 	}
 

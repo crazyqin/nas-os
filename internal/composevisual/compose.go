@@ -317,7 +317,7 @@ func (m *Manager) GenerateTopology(projectID string) (*TopologyData, [][]string,
 			ID: name, Label: svc.Name, Type: ClassifyServiceType(svc.Image),
 			Image: svc.Image, Status: svc.Status,
 			Position: NodePosition{X: svc.Position.X, Y: svc.Position.Y, Width: svc.Position.Width, Height: svc.Position.Height},
-			Ports: svc.Ports, Tier: tier,
+			Ports:    svc.Ports, Tier: tier,
 		})
 	}
 	edgeID := 0

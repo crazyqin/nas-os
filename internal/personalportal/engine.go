@@ -13,13 +13,13 @@ import (
 
 // 错误定义。
 var (
-	ErrPortalNotFound      = errors.New("门户不存在")
-	ErrWidgetNotFound      = errors.New("小组件不存在")
-	ErrWidgetOverlap       = errors.New("小组件位置重叠")
-	ErrInvalidPosition     = errors.New("无效的位置")
-	ErrFeedConfigNotFound  = errors.New("信息流配置不存在")
+	ErrPortalNotFound       = errors.New("门户不存在")
+	ErrWidgetNotFound       = errors.New("小组件不存在")
+	ErrWidgetOverlap        = errors.New("小组件位置重叠")
+	ErrInvalidPosition      = errors.New("无效的位置")
+	ErrFeedConfigNotFound   = errors.New("信息流配置不存在")
 	ErrNotificationNotFound = errors.New("通知不存在")
-	ErrPreferencesNotFound = errors.New("偏好设置不存在")
+	ErrPreferencesNotFound  = errors.New("偏好设置不存在")
 )
 
 // PortalEngine 门户引擎。

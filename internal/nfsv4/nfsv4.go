@@ -30,82 +30,82 @@ const (
 type SecurityType string
 
 const (
-	SecuritySys    SecurityType = "sys"
-	SecurityKrb5   SecurityType = "krb5"
-	SecurityKrb5i  SecurityType = "krb5i"
-	SecurityKrb5p  SecurityType = "krb5p"
+	SecuritySys   SecurityType = "sys"
+	SecurityKrb5  SecurityType = "krb5"
+	SecurityKrb5i SecurityType = "krb5i"
+	SecurityKrb5p SecurityType = "krb5p"
 )
 
 // NFSExport NFS导出配置
 type NFSExport struct {
-	ID              string            `json:"id"`
-	Path            string            `json:"path"`
-	Alias           string            `json:"alias,omitempty"`
-	AllowedHosts    []string          `json:"allowed_hosts"`
-	DeniedHosts     []string          `json:"denied_hosts"`
-	Options         ExportOptions     `json:"options"`
-	Security        []SecurityType    `json:"security"`
-	State           ExportState       `json:"state"`
-	NFSVersion      NFSVersion        `json:"nfs_version"`
-	Protocol        []string          `json:"protocol"` // tcp, udp
-	Squash          SquashType        `json:"squash"`
-	AnonymousUID    int               `json:"anonymous_uid"`
-	AnonymousGID    int               `json:"anonymous_gid"`
-	ReadOnly        bool              `json:"read_only"`
-	Enabled         bool              `json:"enabled"`
-	Stats           *ExportStats      `json:"stats,omitempty"`
-	CreatedAt       time.Time         `json:"created_at"`
-	UpdatedAt       time.Time         `json:"updated_at"`
+	ID           string         `json:"id"`
+	Path         string         `json:"path"`
+	Alias        string         `json:"alias,omitempty"`
+	AllowedHosts []string       `json:"allowed_hosts"`
+	DeniedHosts  []string       `json:"denied_hosts"`
+	Options      ExportOptions  `json:"options"`
+	Security     []SecurityType `json:"security"`
+	State        ExportState    `json:"state"`
+	NFSVersion   NFSVersion     `json:"nfs_version"`
+	Protocol     []string       `json:"protocol"` // tcp, udp
+	Squash       SquashType     `json:"squash"`
+	AnonymousUID int            `json:"anonymous_uid"`
+	AnonymousGID int            `json:"anonymous_gid"`
+	ReadOnly     bool           `json:"read_only"`
+	Enabled      bool           `json:"enabled"`
+	Stats        *ExportStats   `json:"stats,omitempty"`
+	CreatedAt    time.Time      `json:"created_at"`
+	UpdatedAt    time.Time      `json:"updated_at"`
 }
 
 // ExportOptions 导出选项
 type ExportOptions struct {
 	// NFSv4.2 特性
-	SupportsLayouts      bool `json:"supports_layouts"`       // pNFS layout support
-	SupportsCopy         bool `json:"supports_copy"`          // Server-side copy
-	SupportsClone        bool `json:"supports_clone"`         // File cloning
-	SupportsSeek         bool `json:"supports_seek"`          // SEEK_HOLE/SEEK_DATA
-	SupportsAllocate     bool `json:"supports_allocate"`      // fallocate
-	SupportsDeallocate   bool `json:"supports_deallocate"`    // ftruncate/punch hole
-	SupportsXattr        bool `json:"supports_xattr"`         // Extended attributes
-	SupportsACL          bool `json:"supports_acl"`           // NFSv4 ACLs
-	SupportsFlock        bool `json:"supports_flock"`         // BSD file locks
-	SupportsPNFS         bool `json:"supports_pnfs"`          // Parallel NFS
-	
+	SupportsLayouts    bool `json:"supports_layouts"`    // pNFS layout support
+	SupportsCopy       bool `json:"supports_copy"`       // Server-side copy
+	SupportsClone      bool `json:"supports_clone"`      // File cloning
+	SupportsSeek       bool `json:"supports_seek"`       // SEEK_HOLE/SEEK_DATA
+	SupportsAllocate   bool `json:"supports_allocate"`   // fallocate
+	SupportsDeallocate bool `json:"supports_deallocate"` // ftruncate/punch hole
+	SupportsXattr      bool `json:"supports_xattr"`      // Extended attributes
+	SupportsACL        bool `json:"supports_acl"`        // NFSv4 ACLs
+	SupportsFlock      bool `json:"supports_flock"`      // BSD file locks
+	SupportsPNFS       bool `json:"supports_pnfs"`       // Parallel NFS
+
 	// 性能选项
-	ReadAhead            int  `json:"read_ahead,omitempty"`   // KB
-	WriteBehind          bool `json:"write_behind"`
-	AsyncWrites          bool `json:"async_writes"`
-	CacheTimeout         int  `json:"cache_timeout,omitempty"` // 秒
+	ReadAhead    int  `json:"read_ahead,omitempty"` // KB
+	WriteBehind  bool `json:"write_behind"`
+	AsyncWrites  bool `json:"async_writes"`
+	CacheTimeout int  `json:"cache_timeout,omitempty"` // 秒
 }
 
 // SquashType squash类型
 type SquashType string
 
 const (
-	SquashAll    SquashType = "all"
-	SquashRoot   SquashType = "root"
-	SquashNone   SquashType = "none"
-	SquashNoAll  SquashType = "no_all"
+	SquashAll   SquashType = "all"
+	SquashRoot  SquashType = "root"
+	SquashNone  SquashType = "none"
+	SquashNoAll SquashType = "no_all"
 )
 
 // ExportStats 导出统计
 type ExportStats struct {
-	ReadBytes      int64     `json:"read_bytes"`
-	WriteBytes     int64     `json:"write_bytes"`
-	ReadOps        int64     `json:"read_ops"`
-	WriteOps       int64     `json:"write_ops"`
-	ConnectedClients int    `json:"connected_clients"`
-	LastAccessAt   time.Time `json:"last_access_at"`
+	ReadBytes        int64     `json:"read_bytes"`
+	WriteBytes       int64     `json:"write_bytes"`
+	ReadOps          int64     `json:"read_ops"`
+	WriteOps         int64     `json:"write_ops"`
+	ConnectedClients int       `json:"connected_clients"`
+	LastAccessAt     time.Time `json:"last_access_at"`
 }
 
 // NFSv4Server NFSv4服务器
 type NFSv4Server struct {
-	mu          sync.RWMutex
-	exports     map[string]*NFSExport
-	clients     map[string]*NFSClient
-	config      *NFSv4Config
-	running     bool
+	mu      sync.RWMutex
+	exports map[string]*NFSExport
+	clients map[string]*NFSClient
+	config  *NFSv4Config
+	running bool
 }
 
 // NFSv4Config NFSv4配置
@@ -113,8 +113,8 @@ type NFSv4Config struct {
 	DefaultVersion    NFSVersion     `json:"default_version"`
 	SupportedVersions []NFSVersion   `json:"supported_versions"`
 	DefaultSecurity   []SecurityType `json:"default_security"`
-	GracePeriod       int            `json:"grace_period"`       // 秒
-	LeaseTime         int            `json:"lease_time"`         // 秒
+	GracePeriod       int            `json:"grace_period"` // 秒
+	LeaseTime         int            `json:"lease_time"`   // 秒
 	MaxClients        int            `json:"max_clients"`
 	EnablePNFS        bool           `json:"enable_pnfs"`
 	EnableCopy        bool           `json:"enable_copy"`
@@ -140,14 +140,14 @@ func DefaultNFSv4Config() *NFSv4Config {
 
 // NFSClient NFS客户端
 type NFSClient struct {
-	ID          string    `json:"id"`
-	Address     string    `json:"address"`
-	Hostname    string    `json:"hostname,omitempty"`
-	Version     NFSVersion `json:"version"`
+	ID          string       `json:"id"`
+	Address     string       `json:"address"`
+	Hostname    string       `json:"hostname,omitempty"`
+	Version     NFSVersion   `json:"version"`
 	Security    SecurityType `json:"security"`
-	ConnectedAt time.Time `json:"connected_at"`
-	LastActive  time.Time `json:"last_active"`
-	State       string    `json:"state"`
+	ConnectedAt time.Time    `json:"connected_at"`
+	LastActive  time.Time    `json:"last_active"`
+	State       string       `json:"state"`
 }
 
 // NewNFSv4Server 创建NFSv4服务器

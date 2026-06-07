@@ -94,7 +94,7 @@ type ResourceLimits struct {
 	CPUs         string               `json:"cpus,omitempty"`
 	Memory       string               `json:"memory,omitempty"`
 	MemorySwap   string               `json:"memorySwap,omitempty"`
-	Reservations *ResourceReservation  `json:"reservations,omitempty"`
+	Reservations *ResourceReservation `json:"reservations,omitempty"`
 }
 
 // ResourceReservation 资源预留

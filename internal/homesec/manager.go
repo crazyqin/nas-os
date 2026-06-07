@@ -13,14 +13,14 @@ import (
 
 // Manager 家庭安防管理器
 type Manager struct {
-	mu          sync.RWMutex
-	devices     map[string]*Device
-	zones       map[string]*Zone
-	events      []*Event
-	rules       map[string]*AlarmRule
-	schedules   map[string]*Schedule
-	panel       *Panel
-	armCode     string // 默认安防码
+	mu        sync.RWMutex
+	devices   map[string]*Device
+	zones     map[string]*Zone
+	events    []*Event
+	rules     map[string]*AlarmRule
+	schedules map[string]*Schedule
+	panel     *Panel
+	armCode   string // 默认安防码
 }
 
 // NewManager 创建家庭安防管理器
@@ -58,8 +58,8 @@ func generateID() string {
 func (m *Manager) initDefaultRules() {
 	defaultRules := []*AlarmRule{
 		{
-			ID:      "rule-intrusion",
-			Name:    "入侵报警",
+			ID:   "rule-intrusion",
+			Name: "入侵报警",
 			Conditions: []Condition{
 				{DeviceType: DeviceDoorWindow, Status: StatusTriggered},
 				{DeviceType: DeviceMotion, Status: StatusTriggered},
@@ -75,8 +75,8 @@ func (m *Manager) initDefaultRules() {
 			UpdatedAt: time.Now(),
 		},
 		{
-			ID:      "rule-fire",
-			Name:    "火灾报警",
+			ID:   "rule-fire",
+			Name: "火灾报警",
 			Conditions: []Condition{
 				{DeviceType: DeviceSmoke, Status: StatusTriggered},
 			},
@@ -91,8 +91,8 @@ func (m *Manager) initDefaultRules() {
 			UpdatedAt: time.Now(),
 		},
 		{
-			ID:      "rule-water",
-			Name:    "水浸报警",
+			ID:   "rule-water",
+			Name: "水浸报警",
 			Conditions: []Condition{
 				{DeviceType: DeviceWater, Status: StatusTriggered},
 			},

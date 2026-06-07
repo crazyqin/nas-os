@@ -7,8 +7,8 @@ import (
 
 // AuditManager manages audit logging
 type AuditManager struct {
-	zt        *ZTAccess
-	mu        sync.RWMutex
+	zt         *ZTAccess
+	mu         sync.RWMutex
 	maxEntries int
 }
 

@@ -205,10 +205,10 @@ func (h *Handlers) updateSuspicious(c *gin.Context) {
 // generateReport 生成报告
 func (h *Handlers) generateReport(c *gin.Context) {
 	var req struct {
-		Title       string      `json:"title"`
-		Type        string      `json:"type"`
+		Title       string       `json:"title"`
+		Type        string       `json:"type"`
 		Period      ReportPeriod `json:"period"`
-		GeneratedBy string      `json:"generated_by"`
+		GeneratedBy string       `json:"generated_by"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, response{

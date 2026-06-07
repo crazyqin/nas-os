@@ -36,14 +36,14 @@ type VirtualDesktop struct {
 	Type        DesktopType   `json:"type"`
 	Status      DesktopStatus `json:"status"`
 	Owner       string        `json:"owner"`
-	CPU         int           `json:"cpu"`         // vCPU数量
-	Memory      int64         `json:"memory"`       // 内存MB
-	Disk        int64         `json:"disk"`         // 磁盘GB
-	Resolution  string        `json:"resolution"`   // 分辨率
-	OSImage     string        `json:"os_image"`     // OS镜像
+	CPU         int           `json:"cpu"`        // vCPU数量
+	Memory      int64         `json:"memory"`     // 内存MB
+	Disk        int64         `json:"disk"`       // 磁盘GB
+	Resolution  string        `json:"resolution"` // 分辨率
+	OSImage     string        `json:"os_image"`   // OS镜像
 	IP          string        `json:"ip,omitempty"`
 	Port        int           `json:"port,omitempty"`
-	Protocol    string        `json:"protocol"`     // rdp, vnc, spice
+	Protocol    string        `json:"protocol"` // rdp, vnc, spice
 	Tags        []string      `json:"tags,omitempty"`
 	CreatedAt   time.Time     `json:"created_at"`
 	UpdatedAt   time.Time     `json:"updated_at"`
@@ -76,14 +76,14 @@ type Snapshot struct {
 
 // Session 会话
 type Session struct {
-	ID        string    `json:"id"`
-	DesktopID string    `json:"desktop_id"`
-	User      string    `json:"user"`
-	Protocol  string    `json:"protocol"`
-	IP        string    `json:"ip"`
-	StartTime time.Time `json:"start_time"`
+	ID        string     `json:"id"`
+	DesktopID string     `json:"desktop_id"`
+	User      string     `json:"user"`
+	Protocol  string     `json:"protocol"`
+	IP        string     `json:"ip"`
+	StartTime time.Time  `json:"start_time"`
 	EndTime   *time.Time `json:"end_time,omitempty"`
-	Active    bool      `json:"active"`
+	Active    bool       `json:"active"`
 }
 
 // VirtualDesktopManager 虚拟桌面管理器
@@ -103,7 +103,7 @@ func NewVirtualDesktopManager() *VirtualDesktopManager {
 		snapshots: make(map[string][]*Snapshot),
 		sessions:  make(map[string][]*Session),
 	}
-	
+
 	// 初始化默认模板
 	m.initDefaultTemplates()
 	return m
@@ -142,7 +142,7 @@ func (m *VirtualDesktopManager) initDefaultTemplates() {
 			DefaultDisk: 32,
 		},
 	}
-	
+
 	for _, tpl := range templates {
 		m.templates[tpl.ID] = tpl
 	}
@@ -152,20 +152,20 @@ func (m *VirtualDesktopManager) initDefaultTemplates() {
 func (m *VirtualDesktopManager) CreateDesktop(ctx context.Context, desktop *VirtualDesktop) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if desktop.ID == "" {
 		return fmt.Errorf("desktop ID required")
 	}
-	
+
 	desktop.Status = StatusCreating
 	desktop.CreatedAt = time.Now()
 	desktop.UpdatedAt = time.Now()
 	if desktop.Protocol == "" {
 		desktop.Protocol = "vnc"
 	}
-	
+
 	m.desktops[desktop.ID] = desktop
-	
+
 	// 模拟创建过程
 	go func() {
 		time.Sleep(2 * time.Second)
@@ -176,7 +176,7 @@ func (m *VirtualDesktopManager) CreateDesktop(ctx context.Context, desktop *Virt
 			d.UpdatedAt = time.Now()
 		}
 	}()
-	
+
 	return nil
 }
 
@@ -184,21 +184,21 @@ func (m *VirtualDesktopManager) CreateDesktop(ctx context.Context, desktop *Virt
 func (m *VirtualDesktopManager) StartDesktop(ctx context.Context, id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	desktop, ok := m.desktops[id]
 	if !ok {
 		return fmt.Errorf("desktop %s not found", id)
 	}
-	
+
 	if desktop.Status == StatusRunning {
 		return fmt.Errorf("desktop already running")
 	}
-	
+
 	desktop.Status = StatusRunning
 	now := time.Now()
 	desktop.StartedAt = &now
 	desktop.UpdatedAt = now
-	
+
 	return nil
 }
 
@@ -206,16 +206,16 @@ func (m *VirtualDesktopManager) StartDesktop(ctx context.Context, id string) err
 func (m *VirtualDesktopManager) StopDesktop(ctx context.Context, id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	desktop, ok := m.desktops[id]
 	if !ok {
 		return fmt.Errorf("desktop %s not found", id)
 	}
-	
+
 	desktop.Status = StatusStopped
 	desktop.StartedAt = nil
 	desktop.UpdatedAt = time.Now()
-	
+
 	return nil
 }
 
@@ -223,7 +223,7 @@ func (m *VirtualDesktopManager) StopDesktop(ctx context.Context, id string) erro
 func (m *VirtualDesktopManager) GetDesktop(ctx context.Context, id string) (*VirtualDesktop, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	desktop, ok := m.desktops[id]
 	if !ok {
 		return nil, fmt.Errorf("desktop %s not found", id)
@@ -235,7 +235,7 @@ func (m *VirtualDesktopManager) GetDesktop(ctx context.Context, id string) (*Vir
 func (m *VirtualDesktopManager) ListDesktops(ctx context.Context, owner string) []*VirtualDesktop {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	var result []*VirtualDesktop
 	for _, d := range m.desktops {
 		if owner != "" && d.Owner != owner {
@@ -250,15 +250,15 @@ func (m *VirtualDesktopManager) ListDesktops(ctx context.Context, owner string) 
 func (m *VirtualDesktopManager) DeleteDesktop(ctx context.Context, id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if _, ok := m.desktops[id]; !ok {
 		return fmt.Errorf("desktop %s not found", id)
 	}
-	
+
 	delete(m.desktops, id)
 	delete(m.snapshots, id)
 	delete(m.sessions, id)
-	
+
 	return nil
 }
 
@@ -266,18 +266,18 @@ func (m *VirtualDesktopManager) DeleteDesktop(ctx context.Context, id string) er
 func (m *VirtualDesktopManager) CreateSnapshot(ctx context.Context, desktopID, name string) (*Snapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if _, ok := m.desktops[desktopID]; !ok {
 		return nil, fmt.Errorf("desktop %s not found", desktopID)
 	}
-	
+
 	snapshot := &Snapshot{
 		ID:        fmt.Sprintf("snap_%d", time.Now().UnixNano()),
 		DesktopID: desktopID,
 		Name:      name,
 		CreatedAt: time.Now(),
 	}
-	
+
 	m.snapshots[desktopID] = append(m.snapshots[desktopID], snapshot)
 	return snapshot, nil
 }
@@ -286,7 +286,7 @@ func (m *VirtualDesktopManager) CreateSnapshot(ctx context.Context, desktopID, n
 func (m *VirtualDesktopManager) ListSnapshots(ctx context.Context, desktopID string) []*Snapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	return m.snapshots[desktopID]
 }
 
@@ -294,7 +294,7 @@ func (m *VirtualDesktopManager) ListSnapshots(ctx context.Context, desktopID str
 func (m *VirtualDesktopManager) ListTemplates(ctx context.Context) []*DesktopTemplate {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	var result []*DesktopTemplate
 	for _, tpl := range m.templates {
 		result = append(result, tpl)
@@ -306,16 +306,16 @@ func (m *VirtualDesktopManager) ListTemplates(ctx context.Context) []*DesktopTem
 func (m *VirtualDesktopManager) CreateSession(ctx context.Context, desktopID, user, protocol, ip string) (*Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	desktop, ok := m.desktops[desktopID]
 	if !ok {
 		return nil, fmt.Errorf("desktop %s not found", desktopID)
 	}
-	
+
 	if desktop.Status != StatusRunning {
 		return nil, fmt.Errorf("desktop not running")
 	}
-	
+
 	session := &Session{
 		ID:        fmt.Sprintf("sess_%d", time.Now().UnixNano()),
 		DesktopID: desktopID,
@@ -325,7 +325,7 @@ func (m *VirtualDesktopManager) CreateSession(ctx context.Context, desktopID, us
 		StartTime: time.Now(),
 		Active:    true,
 	}
-	
+
 	m.sessions[desktopID] = append(m.sessions[desktopID], session)
 	return session, nil
 }

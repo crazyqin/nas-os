@@ -299,8 +299,8 @@ func (h *CollabHandlers) addComment(c *gin.Context) {
 	docID := c.Param("docId")
 
 	var req struct {
-		Content string         `json:"content" binding:"required"`
-		Range   *CommentRange  `json:"range"`
+		Content string        `json:"content" binding:"required"`
+		Range   *CommentRange `json:"range"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的请求: " + err.Error()})

@@ -32,40 +32,40 @@ type PanelSize struct {
 
 // Panel represents a configurable monitoring panel in the dashboard.
 type Panel struct {
-	ID              string           `json:"id"`
-	Type            PanelType        `json:"type"`
-	Title           string           `json:"title"`
-	Position        PanelPosition    `json:"position"`
-	Size            PanelSize        `json:"size"`
-	RefreshInterval time.Duration    `json:"refresh_interval"`
-	Visible         bool             `json:"visible"`
+	ID              string            `json:"id"`
+	Type            PanelType         `json:"type"`
+	Title           string            `json:"title"`
+	Position        PanelPosition     `json:"position"`
+	Size            PanelSize         `json:"size"`
+	RefreshInterval time.Duration     `json:"refresh_interval"`
+	Visible         bool              `json:"visible"`
 	Config          map[string]string `json:"config,omitempty"`
 }
 
 // DashboardConfig represents the configuration for the health dashboard.
 type DashboardConfig struct {
-	ID               string        `json:"id"`
-	Name             string        `json:"name"`
-	Description      string        `json:"description"`
-	Panels           []*Panel      `json:"panels"`
-	RefreshInterval  time.Duration `json:"refresh_interval"`
-	RetentionDays    int           `json:"retention_days"`
-	AlertEnabled     bool          `json:"alert_enabled"`
+	ID               string           `json:"id"`
+	Name             string           `json:"name"`
+	Description      string           `json:"description"`
+	Panels           []*Panel         `json:"panels"`
+	RefreshInterval  time.Duration    `json:"refresh_interval"`
+	RetentionDays    int              `json:"retention_days"`
+	AlertEnabled     bool             `json:"alert_enabled"`
 	HealthThresholds HealthThresholds `json:"health_thresholds"`
 }
 
 // HealthThresholds defines threshold values for health scoring.
 type HealthThresholds struct {
-	CPUWarning     float64 `json:"cpu_warning"`
-	CPUCritical    float64 `json:"cpu_critical"`
-	MemWarning     float64 `json:"mem_warning"`
-	MemCritical    float64 `json:"mem_critical"`
-	DiskWarning    float64 `json:"disk_warning"`
-	DiskCritical   float64 `json:"disk_critical"`
-	NetWarning     float64 `json:"net_warning"`
-	NetCritical    float64 `json:"net_critical"`
-	TempWarning    float64 `json:"temp_warning"`
-	TempCritical   float64 `json:"temp_critical"`
+	CPUWarning   float64 `json:"cpu_warning"`
+	CPUCritical  float64 `json:"cpu_critical"`
+	MemWarning   float64 `json:"mem_warning"`
+	MemCritical  float64 `json:"mem_critical"`
+	DiskWarning  float64 `json:"disk_warning"`
+	DiskCritical float64 `json:"disk_critical"`
+	NetWarning   float64 `json:"net_warning"`
+	NetCritical  float64 `json:"net_critical"`
+	TempWarning  float64 `json:"temp_warning"`
+	TempCritical float64 `json:"temp_critical"`
 }
 
 // MetricPoint represents a single metric data point with tags.
@@ -79,11 +79,11 @@ type MetricPoint struct {
 type AlertOperator string
 
 const (
-	OpGreaterThan      AlertOperator = "gt"
-	OpLessThan         AlertOperator = "lt"
-	OpEqual            AlertOperator = "eq"
-	OpGreaterOrEqual   AlertOperator = "gte"
-	OpLessOrEqual      AlertOperator = "lte"
+	OpGreaterThan    AlertOperator = "gt"
+	OpLessThan       AlertOperator = "lt"
+	OpEqual          AlertOperator = "eq"
+	OpGreaterOrEqual AlertOperator = "gte"
+	OpLessOrEqual    AlertOperator = "lte"
 )
 
 // AlertSeverity represents the severity level of an alert.
@@ -110,26 +110,26 @@ type AlertRule struct {
 
 // HealthScoreDetail represents the health score for a specific component.
 type HealthScoreDetail struct {
-	Score     int    `json:"score"`
-	Status    string `json:"status"`
-	Message   string `json:"message"`
+	Score     int       `json:"score"`
+	Status    string    `json:"status"`
+	Message   string    `json:"message"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // DashboardHealthScore represents the overall system health score.
 type DashboardHealthScore struct {
-	Overall   int                `json:"overall"`
-	CPU       HealthScoreDetail  `json:"cpu"`
-	Memory    HealthScoreDetail  `json:"memory"`
-	Disk      HealthScoreDetail  `json:"disk"`
-	Network   HealthScoreDetail  `json:"network"`
-	Timestamp time.Time          `json:"timestamp"`
+	Overall   int               `json:"overall"`
+	CPU       HealthScoreDetail `json:"cpu"`
+	Memory    HealthScoreDetail `json:"memory"`
+	Disk      HealthScoreDetail `json:"disk"`
+	Network   HealthScoreDetail `json:"network"`
+	Timestamp time.Time         `json:"timestamp"`
 }
 
 // MetricStore stores metric data points with thread-safe access.
 type MetricStore struct {
-	mu       sync.RWMutex
-	metrics  map[string][]*MetricPoint
+	mu        sync.RWMutex
+	metrics   map[string][]*MetricPoint
 	maxPoints int
 }
 

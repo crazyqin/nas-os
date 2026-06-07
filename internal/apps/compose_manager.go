@@ -30,18 +30,18 @@ const (
 
 // ComposeProject Docker Compose项目
 type ComposeProject struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description,omitempty"`
-	YAMLContent string            `json:"yaml_content"`
-	FilePath    string            `json:"file_path"`
-	Status      ComposeStatus     `json:"status"`
-	Services    []ComposeServiceInfo  `json:"services"`
-	EnvVars     map[string]string `json:"env_vars,omitempty"`
-	Tags        []string          `json:"tags,omitempty"`
-	IsTemplate  bool              `json:"is_template"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	ID          string               `json:"id"`
+	Name        string               `json:"name"`
+	Description string               `json:"description,omitempty"`
+	YAMLContent string               `json:"yaml_content"`
+	FilePath    string               `json:"file_path"`
+	Status      ComposeStatus        `json:"status"`
+	Services    []ComposeServiceInfo `json:"services"`
+	EnvVars     map[string]string    `json:"env_vars,omitempty"`
+	Tags        []string             `json:"tags,omitempty"`
+	IsTemplate  bool                 `json:"is_template"`
+	CreatedAt   time.Time            `json:"created_at"`
+	UpdatedAt   time.Time            `json:"updated_at"`
 }
 
 // ComposeStatus 项目状态
@@ -72,27 +72,27 @@ type ComposeServiceInfo struct {
 
 // ComposeTemplate Compose模板
 type ComposeTemplate struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Category    string   `json:"category"`
-	Icon        string   `json:"icon,omitempty"`
-	YAMLContent string   `json:"yaml_content"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Category    string        `json:"category"`
+	Icon        string        `json:"icon,omitempty"`
+	YAMLContent string        `json:"yaml_content"`
 	Variables   []TemplateVar `json:"variables,omitempty"`
-	Tags        []string  `json:"tags"`
-	Downloads   int      `json:"downloads"`
-	Rating      float64  `json:"rating"`
-	Author      string   `json:"author"`
-	Version     string   `json:"version"`
+	Tags        []string      `json:"tags"`
+	Downloads   int           `json:"downloads"`
+	Rating      float64       `json:"rating"`
+	Author      string        `json:"author"`
+	Version     string        `json:"version"`
 }
 
 // TemplateVar 模板变量
 type TemplateVar struct {
-	Name         string `json:"name"`
-	Description  string `json:"description"`
-	Type         string `json:"type"` // string, int, bool, select
-	DefaultValue string `json:"default_value,omitempty"`
-	Required     bool   `json:"required"`
+	Name         string   `json:"name"`
+	Description  string   `json:"description"`
+	Type         string   `json:"type"` // string, int, bool, select
+	DefaultValue string   `json:"default_value,omitempty"`
+	Required     bool     `json:"required"`
 	Options      []string `json:"options,omitempty"` // 用于select类型
 }
 
@@ -566,8 +566,8 @@ volumes:
 				{Name: "db_password", Description: "数据库密码", Type: "string", Required: true},
 				{Name: "db_root_password", Description: "数据库root密码", Type: "string", Required: true},
 			},
-			Tags:  []string{"cloud", "storage", "sync"},
-			Author: "nas-os",
+			Tags:    []string{"cloud", "storage", "sync"},
+			Author:  "nas-os",
 			Version: "1.0.0",
 		},
 		{
@@ -588,8 +588,8 @@ services:
     restart: unless-stopped
 volumes:
   jellyfin_config:`,
-			Tags:  []string{"media", "streaming", "video"},
-			Author: "nas-os",
+			Tags:    []string{"media", "streaming", "video"},
+			Author:  "nas-os",
 			Version: "1.0.0",
 		},
 		{
@@ -615,8 +615,8 @@ volumes:
 			Variables: []TemplateVar{
 				{Name: "timezone", Description: "时区", Type: "string", DefaultValue: "Asia/Shanghai", Required: false},
 			},
-			Tags:  []string{"iot", "smart-home", "automation"},
-			Author: "nas-os",
+			Tags:    []string{"iot", "smart-home", "automation"},
+			Author:  "nas-os",
 			Version: "1.0.0",
 		},
 		{
@@ -654,8 +654,8 @@ volumes:
 			Variables: []TemplateVar{
 				{Name: "db_password", Description: "数据库密码", Type: "string", Required: true},
 			},
-			Tags:  []string{"photos", "backup", "ai"},
-			Author: "nas-os",
+			Tags:    []string{"photos", "backup", "ai"},
+			Author:  "nas-os",
 			Version: "1.0.0",
 		},
 		{
@@ -681,8 +681,8 @@ volumes:
 			Variables: []TemplateVar{
 				{Name: "admin_token", Description: "管理Token", Type: "string", Required: true},
 			},
-			Tags:  []string{"password", "security", "self-hosted"},
-			Author: "nas-os",
+			Tags:    []string{"password", "security", "self-hosted"},
+			Author:  "nas-os",
 			Version: "1.0.0",
 		},
 	}

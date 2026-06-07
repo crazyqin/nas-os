@@ -12,10 +12,10 @@ import (
 
 // EntropyAnalyzer 熵值分析器
 type EntropyAnalyzer struct {
-	mu              sync.RWMutex
-	threshold       float64
-	entropyCache    map[string]float64
-	stats           EntropyStats
+	mu           sync.RWMutex
+	threshold    float64
+	entropyCache map[string]float64
+	stats        EntropyStats
 }
 
 // NewEntropyAnalyzer 创建新的熵值分析器

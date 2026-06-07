@@ -32,12 +32,12 @@ const (
 
 // Scheduler GPU 调度器
 type Scheduler struct {
-	devices     map[string]*GPUDevice      // GPU 设备映射
-	allocations map[string]*GPUAllocation  // 分配记录映射
-	pools       map[string]*GPUPool        // GPU 资源池
-	policy      SchedulerPolicy            // 调度策略
-	mu          sync.RWMutex               // 读写锁
-	logger      *zap.Logger                // 日志
+	devices     map[string]*GPUDevice     // GPU 设备映射
+	allocations map[string]*GPUAllocation // 分配记录映射
+	pools       map[string]*GPUPool       // GPU 资源池
+	policy      SchedulerPolicy           // 调度策略
+	mu          sync.RWMutex              // 读写锁
+	logger      *zap.Logger               // 日志
 	ctx         context.Context
 	cancel      context.CancelFunc
 	stopCh      chan struct{}
@@ -51,12 +51,12 @@ func NewScheduler(logger *zap.Logger) *Scheduler {
 		allocations: make(map[string]*GPUAllocation),
 		pools:       make(map[string]*GPUPool),
 		policy: SchedulerPolicy{
-			Strategy:         StrategyLeastUsed,
+			Strategy:          StrategyLeastUsed,
 			PreemptionEnabled: false,
-			ReservedPercent:  DefaultReservedPercent,
-			OvercommitRatio:  DefaultOvercommitRatio,
-			MaxTemperature:   DefaultMaxTemperature,
-			UpdatedAt:        time.Now(),
+			ReservedPercent:   DefaultReservedPercent,
+			OvercommitRatio:   DefaultOvercommitRatio,
+			MaxTemperature:    DefaultMaxTemperature,
+			UpdatedAt:         time.Now(),
 		},
 		logger: logger,
 		ctx:    ctx,

@@ -24,10 +24,10 @@ type SharedLabel struct {
 
 // SharedLabelInput 创建/更新共享标签输入.
 type SharedLabelInput struct {
-	Name        string   `json:"name" binding:"required"`
-	Color       string   `json:"color"`
-	Description string   `json:"description"`
-	Owner       string   `json:"owner" binding:"required"`
+	Name        string `json:"name" binding:"required"`
+	Color       string `json:"color"`
+	Description string `json:"description"`
+	Owner       string `json:"owner" binding:"required"`
 }
 
 // ShareLabelInput 分享标签输入.
@@ -42,13 +42,13 @@ type AssignLabelInput struct {
 
 // 共享标签错误定义.
 var (
-	ErrSharedLabelNotFound = fmt.Errorf("共享标签不存在")
-	ErrSharedLabelExists   = fmt.Errorf("标签名称已存在")
-	ErrNotSharedOwner      = fmt.Errorf("非标签所有者")
-	ErrAlreadySharedWith   = fmt.Errorf("已经分享给该用户")
-	ErrNotSharedWith       = fmt.Errorf("未分享给该用户")
+	ErrSharedLabelNotFound  = fmt.Errorf("共享标签不存在")
+	ErrSharedLabelExists    = fmt.Errorf("标签名称已存在")
+	ErrNotSharedOwner       = fmt.Errorf("非标签所有者")
+	ErrAlreadySharedWith    = fmt.Errorf("已经分享给该用户")
+	ErrNotSharedWith        = fmt.Errorf("未分享给该用户")
 	ErrLabelAlreadyAssigned = fmt.Errorf("标签已分配给该文件")
-	ErrLabelNotAssigned    = fmt.Errorf("标签未分配给该文件")
+	ErrLabelNotAssigned     = fmt.Errorf("标签未分配给该文件")
 )
 
 // LabelManager 共享标签管理器.

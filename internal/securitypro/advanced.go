@@ -28,9 +28,9 @@ const (
 type ScanType string
 
 const (
-	ScanTypeFull    ScanType = "full"    // 全盘扫描
-	ScanTypeQuick   ScanType = "quick"   // 快速扫描
-	ScanTypeCustom  ScanType = "custom"  // 自定义扫描
+	ScanTypeFull     ScanType = "full"     // 全盘扫描
+	ScanTypeQuick    ScanType = "quick"    // 快速扫描
+	ScanTypeCustom   ScanType = "custom"   // 自定义扫描
 	ScanTypeRealtime ScanType = "realtime" // 实时监控
 )
 
@@ -76,35 +76,35 @@ type Threat struct {
 
 // ScanResult 扫描结果
 type ScanResult struct {
-	ID          string    `json:"id"`
-	ScanType    ScanType  `json:"scan_type"`
-	Status      ScanStatus `json:"status"`
-	StartedAt   time.Time `json:"started_at"`
-	EndedAt     time.Time `json:"ended_at,omitempty"`
-	FilesScanned int64    `json:"files_scanned"`
-	ThreatsFound int      `json:"threats_found"`
-	Threats      []*Threat `json:"threats"`
+	ID           string        `json:"id"`
+	ScanType     ScanType      `json:"scan_type"`
+	Status       ScanStatus    `json:"status"`
+	StartedAt    time.Time     `json:"started_at"`
+	EndedAt      time.Time     `json:"ended_at,omitempty"`
+	FilesScanned int64         `json:"files_scanned"`
+	ThreatsFound int           `json:"threats_found"`
+	Threats      []*Threat     `json:"threats"`
 	Duration     time.Duration `json:"duration"`
-	ErrorMessage string   `json:"error_message,omitempty"`
+	ErrorMessage string        `json:"error_message,omitempty"`
 }
 
 // SecurityPolicy 安全策略
 type SecurityPolicy struct {
-	ID              string    `json:"id"`
-	Name            string    `json:"name"`
-	Description     string    `json:"description"`
-	Enabled         bool      `json:"enabled"`
-	RealTimeScan    bool      `json:"realtime_scan"`
-	ScanSchedule    string    `json:"scan_schedule"` // cron expression
-	AutoQuarantine  bool      `json:"auto_quarantine"`
-	AutoRemove      bool      `json:"auto_remove"`
-	NotifyAdmin     bool      `json:"notify_admin"`
-	Whitelist       []string  `json:"whitelist,omitempty"`
-	Blacklist       []string  `json:"blacklist,omitempty"`
-	MaxFileSize     int64     `json:"max_file_size"` // bytes
-	ScanExtensions  []string  `json:"scan_extensions,omitempty"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID             string    `json:"id"`
+	Name           string    `json:"name"`
+	Description    string    `json:"description"`
+	Enabled        bool      `json:"enabled"`
+	RealTimeScan   bool      `json:"realtime_scan"`
+	ScanSchedule   string    `json:"scan_schedule"` // cron expression
+	AutoQuarantine bool      `json:"auto_quarantine"`
+	AutoRemove     bool      `json:"auto_remove"`
+	NotifyAdmin    bool      `json:"notify_admin"`
+	Whitelist      []string  `json:"whitelist,omitempty"`
+	Blacklist      []string  `json:"blacklist,omitempty"`
+	MaxFileSize    int64     `json:"max_file_size"` // bytes
+	ScanExtensions []string  `json:"scan_extensions,omitempty"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 // FirewallRule 防火墙规则
@@ -113,7 +113,7 @@ type FirewallRule struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Enabled     bool      `json:"enabled"`
-	Action      string    `json:"action"` // allow, deny, reject
+	Action      string    `json:"action"`   // allow, deny, reject
 	Protocol    string    `json:"protocol"` // tcp, udp, icmp, any
 	SourceIP    string    `json:"source_ip"`
 	SourcePort  string    `json:"source_port"`
@@ -128,26 +128,26 @@ type FirewallRule struct {
 
 // IntrusionDetection 入侵检测
 type IntrusionDetection struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Enabled     bool      `json:"enabled"`
-	Rules       []IDSRule `json:"rules"`
-	AlertLevel  ThreatLevel `json:"alert_level"`
-	AutoBlock   bool      `json:"auto_block"`
+	ID            string        `json:"id"`
+	Name          string        `json:"name"`
+	Description   string        `json:"description"`
+	Enabled       bool          `json:"enabled"`
+	Rules         []IDSRule     `json:"rules"`
+	AlertLevel    ThreatLevel   `json:"alert_level"`
+	AutoBlock     bool          `json:"auto_block"`
 	BlockDuration time.Duration `json:"block_duration"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedAt     time.Time     `json:"created_at"`
+	UpdatedAt     time.Time     `json:"updated_at"`
 }
 
 // IDSRule IDS 规则
 type IDSRule struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	Pattern     string      `json:"pattern"`
-	Level       ThreatLevel `json:"level"`
-	Action      string      `json:"action"` // alert, block, drop
-	Enabled     bool        `json:"enabled"`
+	ID      string      `json:"id"`
+	Name    string      `json:"name"`
+	Pattern string      `json:"pattern"`
+	Level   ThreatLevel `json:"level"`
+	Action  string      `json:"action"` // alert, block, drop
+	Enabled bool        `json:"enabled"`
 }
 
 // AccessLog 访问日志
@@ -166,47 +166,47 @@ type AccessLog struct {
 
 // SecurityEvent 安全事件
 type SecurityEvent struct {
-	ID          string      `json:"id"`
-	Timestamp   time.Time   `json:"timestamp"`
-	Type        string      `json:"type"` // login_failed, brute_force, malware, intrusion, etc.
-	Level       ThreatLevel `json:"level"`
-	Source      string      `json:"source"`
-	Description string      `json:"description"`
+	ID          string                 `json:"id"`
+	Timestamp   time.Time              `json:"timestamp"`
+	Type        string                 `json:"type"` // login_failed, brute_force, malware, intrusion, etc.
+	Level       ThreatLevel            `json:"level"`
+	Source      string                 `json:"source"`
+	Description string                 `json:"description"`
 	Details     map[string]interface{} `json:"details,omitempty"`
-	Resolved    bool        `json:"resolved"`
-	ResolvedAt  *time.Time  `json:"resolved_at,omitempty"`
-	ResolvedBy  string      `json:"resolved_by,omitempty"`
+	Resolved    bool                   `json:"resolved"`
+	ResolvedAt  *time.Time             `json:"resolved_at,omitempty"`
+	ResolvedBy  string                 `json:"resolved_by,omitempty"`
 }
 
 // Vulnerability 漏洞信息
 type Vulnerability struct {
-	ID          string    `json:"id"`
-	CVEID       string    `json:"cve_id"`
-	Package     string    `json:"package"`
-	Version     string    `json:"version"`
-	FixedVersion string   `json:"fixed_version,omitempty"`
-	Severity    ThreatLevel `json:"severity"`
-	Description string    `json:"description"`
-	References  []string  `json:"references,omitempty"`
-	DetectedAt  time.Time `json:"detected_at"`
-	Status      string    `json:"status"` // open, fixed, mitigated
+	ID           string      `json:"id"`
+	CVEID        string      `json:"cve_id"`
+	Package      string      `json:"package"`
+	Version      string      `json:"version"`
+	FixedVersion string      `json:"fixed_version,omitempty"`
+	Severity     ThreatLevel `json:"severity"`
+	Description  string      `json:"description"`
+	References   []string    `json:"references,omitempty"`
+	DetectedAt   time.Time   `json:"detected_at"`
+	Status       string      `json:"status"` // open, fixed, mitigated
 }
 
 // Manager 安全管理器
 type Manager struct {
-	mu           sync.RWMutex
-	threats      map[string]*Threat
-	scans        map[string]*ScanResult
-	policies     map[string]*SecurityPolicy
-	firewall     map[string]*FirewallRule
-	ids          map[string]*IntrusionDetection
-	accessLogs   []*AccessLog
-	events       []*SecurityEvent
-	vulns        map[string]*Vulnerability
-	logger       Logger
-	ctx          context.Context
-	cancel       context.CancelFunc
-	wg           sync.WaitGroup
+	mu         sync.RWMutex
+	threats    map[string]*Threat
+	scans      map[string]*ScanResult
+	policies   map[string]*SecurityPolicy
+	firewall   map[string]*FirewallRule
+	ids        map[string]*IntrusionDetection
+	accessLogs []*AccessLog
+	events     []*SecurityEvent
+	vulns      map[string]*Vulnerability
+	logger     Logger
+	ctx        context.Context
+	cancel     context.CancelFunc
+	wg         sync.WaitGroup
 }
 
 // Logger 日志接口
@@ -676,16 +676,16 @@ func (m *Manager) ScanVulnerabilities(ctx context.Context) ([]*Vulnerability, er
 	// 模拟漏洞扫描
 	vulns := []*Vulnerability{
 		{
-			ID:          generateVulnID(),
-			CVEID:       "CVE-2026-1234",
-			Package:     "openssl",
-			Version:     "1.1.1k",
+			ID:           generateVulnID(),
+			CVEID:        "CVE-2026-1234",
+			Package:      "openssl",
+			Version:      "1.1.1k",
 			FixedVersion: "1.1.1l",
-			Severity:    ThreatLevelHigh,
-			Description: "OpenSSL 缓冲区溢出漏洞",
-			References:  []string{"https://nvd.nist.gov/vuln/detail/CVE-2026-1234"},
-			DetectedAt:  time.Now(),
-			Status:      "open",
+			Severity:     ThreatLevelHigh,
+			Description:  "OpenSSL 缓冲区溢出漏洞",
+			References:   []string{"https://nvd.nist.gov/vuln/detail/CVE-2026-1234"},
+			DetectedAt:   time.Now(),
+			Status:       "open",
 		},
 	}
 

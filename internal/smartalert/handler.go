@@ -24,13 +24,14 @@ func NewHandler(engine *Engine, logger *zap.Logger) *Handler {
 // RegisterRoutes 注册路由到 gin.RouterGroup.
 //
 // 注册的路由：
-//   GET    /smartalert/list                   - 告警列表
-//   GET    /smartalert/:id/guide              - 获取告警处置引导
-//   POST   /smartalert/:id/acknowledge        - 确认告警
-//   POST   /smartalert/silence                - 创建静默规则
-//   GET    /smartalert/silence                - 列出静默规则
-//   DELETE /smartalert/silence/:id            - 删除静默规则
-//   POST   /smartalert/:id/resolve            - 解决告警
+//
+//	GET    /smartalert/list                   - 告警列表
+//	GET    /smartalert/:id/guide              - 获取告警处置引导
+//	POST   /smartalert/:id/acknowledge        - 确认告警
+//	POST   /smartalert/silence                - 创建静默规则
+//	GET    /smartalert/silence                - 列出静默规则
+//	DELETE /smartalert/silence/:id            - 删除静默规则
+//	POST   /smartalert/:id/resolve            - 解决告警
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	sa := r.Group("/smartalert")
 	{

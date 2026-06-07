@@ -97,24 +97,24 @@ type DiskInfo struct {
 
 // AgentRegistrationRequest Agent 注册请求.
 type AgentRegistrationRequest struct {
-	Name         string   `json:"name" binding:"required"`          // 主机名称
-	Hostname     string   `json:"hostname" binding:"required"`      // 主机名
-	IP           string   `json:"ip" binding:"required"`            // IP 地址
-	Platform     Platform `json:"platform" binding:"required"`      // 平台类型
-	OSVersion    string   `json:"os_version"`                       // 操作系统版本
-	AgentVersion string   `json:"agent_version"`                    // Agent 版本
-	MACAddress   string   `json:"mac_address" binding:"required"`   // MAC 地址
-	Fingerprint  string   `json:"fingerprint" binding:"required"`   // 设备指纹
-	CPU          string   `json:"cpu"`                              // CPU 信息
-	Memory       uint64   `json:"memory"`                           // 内存大小
-	Tags         []string `json:"tags"`                             // 标签
+	Name         string   `json:"name" binding:"required"`        // 主机名称
+	Hostname     string   `json:"hostname" binding:"required"`    // 主机名
+	IP           string   `json:"ip" binding:"required"`          // IP 地址
+	Platform     Platform `json:"platform" binding:"required"`    // 平台类型
+	OSVersion    string   `json:"os_version"`                     // 操作系统版本
+	AgentVersion string   `json:"agent_version"`                  // Agent 版本
+	MACAddress   string   `json:"mac_address" binding:"required"` // MAC 地址
+	Fingerprint  string   `json:"fingerprint" binding:"required"` // 设备指纹
+	CPU          string   `json:"cpu"`                            // CPU 信息
+	Memory       uint64   `json:"memory"`                         // 内存大小
+	Tags         []string `json:"tags"`                           // 标签
 }
 
 // AgentHeartbeatRequest Agent 心跳请求.
 type AgentHeartbeatRequest struct {
-	AgentID string     `json:"agent_id" binding:"required"` // Agent ID
-	Status  AgentStatus `json:"status"`                     // 当前状态
-	Disks   []DiskInfo  `json:"disks"`                      // 磁盘信息
+	AgentID string      `json:"agent_id" binding:"required"` // Agent ID
+	Status  AgentStatus `json:"status"`                      // 当前状态
+	Disks   []DiskInfo  `json:"disks"`                       // 磁盘信息
 }
 
 // AgentConfig Agent 配置下发.
@@ -199,39 +199,39 @@ const (
 
 // BackupTask 备份任务.
 type BackupTask struct {
-	ID              string           `json:"id"`               // 任务 ID
-	Name            string           `json:"name"`             // 任务名称
-	Description     string           `json:"description"`      // 任务描述
-	AgentID         string           `json:"agent_id"`         // 关联 Agent ID
-	BackupType      BackupType       `json:"backup_type"`      // 备份类型
-	Status          TaskStatus       `json:"status"`           // 任务状态
-	ScheduleType    ScheduleType     `json:"schedule_type"`    // 调度类型
-	Schedule        string           `json:"schedule"`         // Cron 表达式（定时调度时使用）
-	StoragePoolID   string           `json:"storage_pool_id"`  // 存储池 ID
-	Compression     CompressionType  `json:"compression"`      // 压缩类型
-	Encryption      EncryptionType   `json:"encryption"`       // 加密类型
-	EncryptionKey   string           `json:"-"`                // 加密密钥
-	RetentionDays   int              `json:"retention_days"`   // 保留天数
-	MaxVersions     int              `json:"max_versions"`     // 最大版本数
-	Enabled         bool             `json:"enabled"`          // 是否启用
-	IncludeVolumes  []string         `json:"include_volumes"`  // 包含的卷/分区
-	ExcludePatterns []string         `json:"exclude_patterns"` // 排除的文件模式
-	BandwidthLimit  uint64           `json:"bandwidth_limit"`  // 带宽限制（字节/秒）
-	PreScript       string           `json:"pre_script"`       // 备份前执行脚本
-	PostScript      string           `json:"post_script"`      // 备份后执行脚本
-	NotifyOnSuccess bool             `json:"notify_on_success"` // 成功时通知
-	NotifyOnFailure bool             `json:"notify_on_failure"` // 失败时通知
+	ID              string          `json:"id"`                // 任务 ID
+	Name            string          `json:"name"`              // 任务名称
+	Description     string          `json:"description"`       // 任务描述
+	AgentID         string          `json:"agent_id"`          // 关联 Agent ID
+	BackupType      BackupType      `json:"backup_type"`       // 备份类型
+	Status          TaskStatus      `json:"status"`            // 任务状态
+	ScheduleType    ScheduleType    `json:"schedule_type"`     // 调度类型
+	Schedule        string          `json:"schedule"`          // Cron 表达式（定时调度时使用）
+	StoragePoolID   string          `json:"storage_pool_id"`   // 存储池 ID
+	Compression     CompressionType `json:"compression"`       // 压缩类型
+	Encryption      EncryptionType  `json:"encryption"`        // 加密类型
+	EncryptionKey   string          `json:"-"`                 // 加密密钥
+	RetentionDays   int             `json:"retention_days"`    // 保留天数
+	MaxVersions     int             `json:"max_versions"`      // 最大版本数
+	Enabled         bool            `json:"enabled"`           // 是否启用
+	IncludeVolumes  []string        `json:"include_volumes"`   // 包含的卷/分区
+	ExcludePatterns []string        `json:"exclude_patterns"`  // 排除的文件模式
+	BandwidthLimit  uint64          `json:"bandwidth_limit"`   // 带宽限制（字节/秒）
+	PreScript       string          `json:"pre_script"`        // 备份前执行脚本
+	PostScript      string          `json:"post_script"`       // 备份后执行脚本
+	NotifyOnSuccess bool            `json:"notify_on_success"` // 成功时通知
+	NotifyOnFailure bool            `json:"notify_on_failure"` // 失败时通知
 
 	// 运行状态
-	LastRunAt    *time.Time   `json:"last_run_at,omitempty"`    // 最后运行时间
-	LastStatus   TaskStatus   `json:"last_status"`              // 最后运行状态
-	NextRunAt    *time.Time   `json:"next_run_at,omitempty"`    // 下次运行时间
-	Progress     float64      `json:"progress"`                 // 进度百分比 0-100
-	SpeedBytes   uint64       `json:"speed_bytes"`              // 备份速度（字节/秒）
-	Transferred  uint64       `json:"transferred"`              // 已传输字节数
-	TotalBytes   uint64       `json:"total_bytes"`              // 总字节数
-	ErrorMsg     string       `json:"error_msg,omitempty"`      // 错误信息
-	RestorePoint string       `json:"restore_point,omitempty"`  // 最新恢复点 ID
+	LastRunAt    *time.Time `json:"last_run_at,omitempty"`   // 最后运行时间
+	LastStatus   TaskStatus `json:"last_status"`             // 最后运行状态
+	NextRunAt    *time.Time `json:"next_run_at,omitempty"`   // 下次运行时间
+	Progress     float64    `json:"progress"`                // 进度百分比 0-100
+	SpeedBytes   uint64     `json:"speed_bytes"`             // 备份速度（字节/秒）
+	Transferred  uint64     `json:"transferred"`             // 已传输字节数
+	TotalBytes   uint64     `json:"total_bytes"`             // 总字节数
+	ErrorMsg     string     `json:"error_msg,omitempty"`     // 错误信息
+	RestorePoint string     `json:"restore_point,omitempty"` // 最新恢复点 ID
 
 	// 统计
 	TotalRuns   int       `json:"total_runs"`   // 总运行次数
@@ -243,47 +243,47 @@ type BackupTask struct {
 
 // CreateTaskRequest 创建任务请求.
 type CreateTaskRequest struct {
-	Name            string          `json:"name" binding:"required"`      // 任务名称
-	Description     string          `json:"description"`                  // 任务描述
-	AgentID         string          `json:"agent_id" binding:"required"`  // 关联 Agent ID
+	Name            string          `json:"name" binding:"required"`        // 任务名称
+	Description     string          `json:"description"`                    // 任务描述
+	AgentID         string          `json:"agent_id" binding:"required"`    // 关联 Agent ID
 	BackupType      BackupType      `json:"backup_type" binding:"required"` // 备份类型
-	ScheduleType    ScheduleType    `json:"schedule_type"`                // 调度类型
-	Schedule        string          `json:"schedule"`                     // Cron 表达式
-	StoragePoolID   string          `json:"storage_pool_id"`              // 存储池 ID
-	Compression     CompressionType `json:"compression"`                  // 压缩类型
-	Encryption      EncryptionType  `json:"encryption"`                   // 加密类型
-	EncryptionKey   string          `json:"encryption_key"`               // 加密密钥
-	RetentionDays   int             `json:"retention_days"`               // 保留天数
-	MaxVersions     int             `json:"max_versions"`                 // 最大版本数
-	Enabled         bool            `json:"enabled"`                      // 是否启用
-	IncludeVolumes  []string        `json:"include_volumes"`              // 包含卷
-	ExcludePatterns []string        `json:"exclude_patterns"`             // 排除模式
-	BandwidthLimit  uint64          `json:"bandwidth_limit"`              // 带宽限制
-	PreScript       string          `json:"pre_script"`                   // 前置脚本
-	PostScript      string          `json:"post_script"`                  // 后置脚本
-	NotifyOnSuccess bool            `json:"notify_on_success"`            // 成功通知
-	NotifyOnFailure bool            `json:"notify_on_failure"`            // 失败通知
+	ScheduleType    ScheduleType    `json:"schedule_type"`                  // 调度类型
+	Schedule        string          `json:"schedule"`                       // Cron 表达式
+	StoragePoolID   string          `json:"storage_pool_id"`                // 存储池 ID
+	Compression     CompressionType `json:"compression"`                    // 压缩类型
+	Encryption      EncryptionType  `json:"encryption"`                     // 加密类型
+	EncryptionKey   string          `json:"encryption_key"`                 // 加密密钥
+	RetentionDays   int             `json:"retention_days"`                 // 保留天数
+	MaxVersions     int             `json:"max_versions"`                   // 最大版本数
+	Enabled         bool            `json:"enabled"`                        // 是否启用
+	IncludeVolumes  []string        `json:"include_volumes"`                // 包含卷
+	ExcludePatterns []string        `json:"exclude_patterns"`               // 排除模式
+	BandwidthLimit  uint64          `json:"bandwidth_limit"`                // 带宽限制
+	PreScript       string          `json:"pre_script"`                     // 前置脚本
+	PostScript      string          `json:"post_script"`                    // 后置脚本
+	NotifyOnSuccess bool            `json:"notify_on_success"`              // 成功通知
+	NotifyOnFailure bool            `json:"notify_on_failure"`              // 失败通知
 }
 
 // UpdateTaskRequest 更新任务请求.
 type UpdateTaskRequest struct {
-	Name            *string          `json:"name"`             // 任务名称
-	Description     *string          `json:"description"`      // 任务描述
-	BackupType      *BackupType      `json:"backup_type"`      // 备份类型
-	ScheduleType    *ScheduleType    `json:"schedule_type"`    // 调度类型
-	Schedule        *string          `json:"schedule"`         // Cron 表达式
-	StoragePoolID   *string          `json:"storage_pool_id"`  // 存储池 ID
-	Compression     *CompressionType `json:"compression"`      // 压缩类型
-	Encryption      *EncryptionType  `json:"encryption"`       // 加密类型
-	EncryptionKey   *string          `json:"encryption_key"`   // 加密密钥
-	RetentionDays   *int             `json:"retention_days"`   // 保留天数
-	MaxVersions     *int             `json:"max_versions"`     // 最大版本数
-	Enabled         *bool            `json:"enabled"`          // 是否启用
-	IncludeVolumes  []string         `json:"include_volumes"`  // 包含卷
-	ExcludePatterns []string         `json:"exclude_patterns"` // 排除模式
-	BandwidthLimit  *uint64          `json:"bandwidth_limit"`  // 带宽限制
-	PreScript       *string          `json:"pre_script"`       // 前置脚本
-	PostScript      *string          `json:"post_script"`      // 后置脚本
+	Name            *string          `json:"name"`              // 任务名称
+	Description     *string          `json:"description"`       // 任务描述
+	BackupType      *BackupType      `json:"backup_type"`       // 备份类型
+	ScheduleType    *ScheduleType    `json:"schedule_type"`     // 调度类型
+	Schedule        *string          `json:"schedule"`          // Cron 表达式
+	StoragePoolID   *string          `json:"storage_pool_id"`   // 存储池 ID
+	Compression     *CompressionType `json:"compression"`       // 压缩类型
+	Encryption      *EncryptionType  `json:"encryption"`        // 加密类型
+	EncryptionKey   *string          `json:"encryption_key"`    // 加密密钥
+	RetentionDays   *int             `json:"retention_days"`    // 保留天数
+	MaxVersions     *int             `json:"max_versions"`      // 最大版本数
+	Enabled         *bool            `json:"enabled"`           // 是否启用
+	IncludeVolumes  []string         `json:"include_volumes"`   // 包含卷
+	ExcludePatterns []string         `json:"exclude_patterns"`  // 排除模式
+	BandwidthLimit  *uint64          `json:"bandwidth_limit"`   // 带宽限制
+	PreScript       *string          `json:"pre_script"`        // 前置脚本
+	PostScript      *string          `json:"post_script"`       // 后置脚本
 	NotifyOnSuccess *bool            `json:"notify_on_success"` // 成功通知
 	NotifyOnFailure *bool            `json:"notify_on_failure"` // 失败通知
 }
@@ -302,22 +302,22 @@ const (
 
 // RestorePoint 恢复点.
 type RestorePoint struct {
-	ID           string           `json:"id"`            // 恢复点 ID
-	TaskID       string           `json:"task_id"`       // 关联任务 ID
-	TaskName     string           `json:"task_name"`     // 任务名称
-	AgentID      string           `json:"agent_id"`      // 关联 Agent ID
-	AgentName    string           `json:"agent_name"`    // Agent 名称
-	Type         RestorePointType `json:"type"`          // 恢复点类型
-	Size         uint64           `json:"size"`          // 数据大小（字节）
-	CompressedSize uint64         `json:"compressed_size"` // 压缩后大小（字节）
-	Encrypted    bool             `json:"encrypted"`     // 是否加密
-	StoragePath  string           `json:"storage_path"`  // 存储路径
-	CreatedAt    time.Time        `json:"created_at"`    // 创建时间
-	ExpiresAt    *time.Time       `json:"expires_at,omitempty"` // 过期时间
-	BlockCount   int64            `json:"block_count"`   // 数据块数量
-	ParentID     string           `json:"parent_id,omitempty"` // 父恢复点 ID（增量链）
-	Volumes      []string         `json:"volumes"`       // 包含的卷
-	Checksum     string           `json:"checksum"`      // 校验和
+	ID             string           `json:"id"`                   // 恢复点 ID
+	TaskID         string           `json:"task_id"`              // 关联任务 ID
+	TaskName       string           `json:"task_name"`            // 任务名称
+	AgentID        string           `json:"agent_id"`             // 关联 Agent ID
+	AgentName      string           `json:"agent_name"`           // Agent 名称
+	Type           RestorePointType `json:"type"`                 // 恢复点类型
+	Size           uint64           `json:"size"`                 // 数据大小（字节）
+	CompressedSize uint64           `json:"compressed_size"`      // 压缩后大小（字节）
+	Encrypted      bool             `json:"encrypted"`            // 是否加密
+	StoragePath    string           `json:"storage_path"`         // 存储路径
+	CreatedAt      time.Time        `json:"created_at"`           // 创建时间
+	ExpiresAt      *time.Time       `json:"expires_at,omitempty"` // 过期时间
+	BlockCount     int64            `json:"block_count"`          // 数据块数量
+	ParentID       string           `json:"parent_id,omitempty"`  // 父恢复点 ID（增量链）
+	Volumes        []string         `json:"volumes"`              // 包含的卷
+	Checksum       string           `json:"checksum"`             // 校验和
 }
 
 // ========== 恢复请求类型 ==========
@@ -334,91 +334,91 @@ const (
 
 // RestoreRequest 恢复请求.
 type RestoreRequest struct {
-	RestorePointID string     `json:"restore_point_id" binding:"required"` // 恢复点 ID
-	TargetAgentID  string     `json:"target_agent_id"`                     // 目标 Agent ID（异机恢复）
-	RestoreType    RestoreType `json:"restore_type"`                        // 恢复类型
-	TargetDisk     string     `json:"target_disk"`                          // 目标磁盘（整机恢复）
-	TargetPath     string     `json:"target_path"`                          // 目标路径（文件恢复）
-	Files          []string   `json:"files"`                                // 恢复文件列表（文件恢复）
-	Options        RestoreOptions `json:"options"`                          // 恢复选项
+	RestorePointID string         `json:"restore_point_id" binding:"required"` // 恢复点 ID
+	TargetAgentID  string         `json:"target_agent_id"`                     // 目标 Agent ID（异机恢复）
+	RestoreType    RestoreType    `json:"restore_type"`                        // 恢复类型
+	TargetDisk     string         `json:"target_disk"`                         // 目标磁盘（整机恢复）
+	TargetPath     string         `json:"target_path"`                         // 目标路径（文件恢复）
+	Files          []string       `json:"files"`                               // 恢复文件列表（文件恢复）
+	Options        RestoreOptions `json:"options"`                             // 恢复选项
 }
 
 // RestoreOptions 恢复选项.
 type RestoreOptions struct {
-	OverwriteExisting bool `json:"overwrite_existing"` // 覆盖已存在文件
+	OverwriteExisting  bool `json:"overwrite_existing"`   // 覆盖已存在文件
 	VerifyAfterRestore bool `json:"verify_after_restore"` // 恢复后校验
 	RebootAfterRestore bool `json:"reboot_after_restore"` // 恢复后重启
-	SkipBootloader     bool `json:"skip_bootloader"`       // 跳过引导加载器
+	SkipBootloader     bool `json:"skip_bootloader"`      // 跳过引导加载器
 }
 
 // RestoreJob 恢复任务.
 type RestoreJob struct {
-	ID              string      `json:"id"`               // 恢复任务 ID
-	RestorePointID  string      `json:"restore_point_id"` // 恢复点 ID
-	AgentID         string      `json:"agent_id"`         // 目标 Agent ID
-	RestoreType     RestoreType `json:"restore_type"`     // 恢复类型
-	Status          TaskStatus  `json:"status"`           // 任务状态
-	Progress        float64     `json:"progress"`         // 进度百分比
-	Transferred     uint64      `json:"transferred"`      // 已传输字节数
-	TotalBytes      uint64      `json:"total_bytes"`      // 总字节数
-	SpeedBytes      uint64      `json:"speed_bytes"`      // 速度
-	ErrorMsg        string      `json:"error_msg,omitempty"` // 错误信息
-	StartedAt       time.Time   `json:"started_at"`       // 开始时间
-	CompletedAt     *time.Time  `json:"completed_at,omitempty"` // 完成时间
+	ID             string      `json:"id"`                     // 恢复任务 ID
+	RestorePointID string      `json:"restore_point_id"`       // 恢复点 ID
+	AgentID        string      `json:"agent_id"`               // 目标 Agent ID
+	RestoreType    RestoreType `json:"restore_type"`           // 恢复类型
+	Status         TaskStatus  `json:"status"`                 // 任务状态
+	Progress       float64     `json:"progress"`               // 进度百分比
+	Transferred    uint64      `json:"transferred"`            // 已传输字节数
+	TotalBytes     uint64      `json:"total_bytes"`            // 总字节数
+	SpeedBytes     uint64      `json:"speed_bytes"`            // 速度
+	ErrorMsg       string      `json:"error_msg,omitempty"`    // 错误信息
+	StartedAt      time.Time   `json:"started_at"`             // 开始时间
+	CompletedAt    *time.Time  `json:"completed_at,omitempty"` // 完成时间
 }
 
 // BrowseItem 浏览项.
 type BrowseItem struct {
-	Path         string    `json:"path"`          // 文件路径
-	Name         string    `json:"name"`          // 文件名
-	IsDir        bool      `json:"is_dir"`        // 是否目录
-	Size         uint64    `json:"size"`          // 文件大小
-	ModTime      time.Time `json:"mod_time"`      // 修改时间
-	Mode         string    `json:"mode"`          // 权限模式
+	Path    string    `json:"path"`     // 文件路径
+	Name    string    `json:"name"`     // 文件名
+	IsDir   bool      `json:"is_dir"`   // 是否目录
+	Size    uint64    `json:"size"`     // 文件大小
+	ModTime time.Time `json:"mod_time"` // 修改时间
+	Mode    string    `json:"mode"`     // 权限模式
 }
 
 // ========== 存储池类型 ==========
 
 // StoragePool 存储池.
 type StoragePool struct {
-	ID              string    `json:"id"`               // 存储池 ID
-	Name            string    `json:"name"`             // 存储池名称
-	Path            string    `json:"path"`             // 存储路径
-	TotalBytes      uint64    `json:"total_bytes"`      // 总容量（字节）
-	UsedBytes       uint64    `json:"used_bytes"`       // 已用空间（字节）
-	FreeBytes       uint64    `json:"free_bytes"`       // 可用空间（字节）
-	BackupCount     int       `json:"backup_count"`     // 备份数量
-	RestorePointCount int     `json:"restore_point_count"` // 恢复点数量
-	DedupEnabled    bool      `json:"dedup_enabled"`    // 是否启用去重
-	DedupRatio      float64   `json:"dedup_ratio"`      // 去重比
-	CreatedAt       time.Time `json:"created_at"`       // 创建时间
+	ID                string    `json:"id"`                  // 存储池 ID
+	Name              string    `json:"name"`                // 存储池名称
+	Path              string    `json:"path"`                // 存储路径
+	TotalBytes        uint64    `json:"total_bytes"`         // 总容量（字节）
+	UsedBytes         uint64    `json:"used_bytes"`          // 已用空间（字节）
+	FreeBytes         uint64    `json:"free_bytes"`          // 可用空间（字节）
+	BackupCount       int       `json:"backup_count"`        // 备份数量
+	RestorePointCount int       `json:"restore_point_count"` // 恢复点数量
+	DedupEnabled      bool      `json:"dedup_enabled"`       // 是否启用去重
+	DedupRatio        float64   `json:"dedup_ratio"`         // 去重比
+	CreatedAt         time.Time `json:"created_at"`          // 创建时间
 }
 
 // ========== 统计类型 ==========
 
 // BackupStats 备份统计.
 type BackupStats struct {
-	TotalAgents        int     `json:"total_agents"`         // Agent 总数
-	OnlineAgents       int     `json:"online_agents"`        // 在线 Agent 数
-	TotalTasks         int     `json:"total_tasks"`          // 任务总数
-	RunningTasks       int     `json:"running_tasks"`        // 运行中任务数
-	TotalRestorePoints int     `json:"total_restore_points"` // 恢复点总数
-	TotalDataBytes     uint64  `json:"total_data_bytes"`     // 总数据量
-	TotalStorageBytes  uint64  `json:"total_storage_bytes"`  // 总存储量
-	CompressionRatio   float64 `json:"compression_ratio"`    // 压缩比
-	DedupRatio         float64 `json:"dedup_ratio"`          // 去重比
-	SuccessRate        float64 `json:"success_rate"`         // 成功率
+	TotalAgents        int        `json:"total_agents"`             // Agent 总数
+	OnlineAgents       int        `json:"online_agents"`            // 在线 Agent 数
+	TotalTasks         int        `json:"total_tasks"`              // 任务总数
+	RunningTasks       int        `json:"running_tasks"`            // 运行中任务数
+	TotalRestorePoints int        `json:"total_restore_points"`     // 恢复点总数
+	TotalDataBytes     uint64     `json:"total_data_bytes"`         // 总数据量
+	TotalStorageBytes  uint64     `json:"total_storage_bytes"`      // 总存储量
+	CompressionRatio   float64    `json:"compression_ratio"`        // 压缩比
+	DedupRatio         float64    `json:"dedup_ratio"`              // 去重比
+	SuccessRate        float64    `json:"success_rate"`             // 成功率
 	LastBackupAt       *time.Time `json:"last_backup_at,omitempty"` // 最后备份时间
 }
 
 // StorageUsage 存储使用情况.
 type StorageUsage struct {
-	Pools         []StoragePool `json:"pools"`          // 存储池列表
-	TotalBytes    uint64        `json:"total_bytes"`    // 总容量
-	UsedBytes     uint64        `json:"used_bytes"`     // 已用空间
-	FreeBytes     uint64        `json:"free_bytes"`     // 可用空间
-	UsagePercent  float64       `json:"usage_percent"`  // 使用率
-	RetainedDays  int           `json:"retained_days"`  // 保留天数
-	OldestBackup  *time.Time    `json:"oldest_backup,omitempty"` // 最早备份时间
-	NewestBackup  *time.Time    `json:"newest_backup,omitempty"` // 最新备份时间
+	Pools        []StoragePool `json:"pools"`                   // 存储池列表
+	TotalBytes   uint64        `json:"total_bytes"`             // 总容量
+	UsedBytes    uint64        `json:"used_bytes"`              // 已用空间
+	FreeBytes    uint64        `json:"free_bytes"`              // 可用空间
+	UsagePercent float64       `json:"usage_percent"`           // 使用率
+	RetainedDays int           `json:"retained_days"`           // 保留天数
+	OldestBackup *time.Time    `json:"oldest_backup,omitempty"` // 最早备份时间
+	NewestBackup *time.Time    `json:"newest_backup,omitempty"` // 最新备份时间
 }

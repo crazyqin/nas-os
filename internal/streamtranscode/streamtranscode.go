@@ -13,7 +13,7 @@ import (
 
 // 分辨率常量
 const (
-	Resolution4K   = "3840x2160"
+	Resolution4K    = "3840x2160"
 	Resolution1080p = "1920x1080"
 	Resolution720p  = "1280x720"
 	Resolution480p  = "854x480"
@@ -52,12 +52,12 @@ const (
 )
 
 var (
-	ErrTaskNotFound     = errors.New("转码任务不存在")
-	ErrPresetNotFound   = errors.New("转码预设不存在")
-	ErrInvalidConfig    = errors.New("无效的转码配置")
+	ErrTaskNotFound       = errors.New("转码任务不存在")
+	ErrPresetNotFound     = errors.New("转码预设不存在")
+	ErrInvalidConfig      = errors.New("无效的转码配置")
 	ErrTaskNotCancellable = errors.New("任务无法取消")
-	ErrQueueFull        = errors.New("转码队列已满")
-	ErrDuplicatePreset  = errors.New("预设名称已存在")
+	ErrQueueFull          = errors.New("转码队列已满")
+	ErrDuplicatePreset    = errors.New("预设名称已存在")
 )
 
 // TranscodeConfig 转码配置
@@ -65,25 +65,25 @@ type TranscodeConfig struct {
 	Resolution   string `json:"resolution"`    // 分辨率
 	VideoCodec   string `json:"video_codec"`   // 视频编码
 	AudioCodec   string `json:"audio_codec"`   // 音频编码
-	VideoBitrate int    `json:"video_bitrate"`  // 视频码率 (kbps)
-	AudioBitrate int    `json:"audio_bitrate"`  // 音频码率 (kbps)
-	FPS          int    `json:"fps"`            // 帧率
+	VideoBitrate int    `json:"video_bitrate"` // 视频码率 (kbps)
+	AudioBitrate int    `json:"audio_bitrate"` // 音频码率 (kbps)
+	FPS          int    `json:"fps"`           // 帧率
 }
 
 // TranscodeTask 转码任务
 type TranscodeTask struct {
-	ID         string          `json:"id"`
-	InputFile  string          `json:"input_file"`
-	OutputFile string          `json:"output_file"`
-	Config     TranscodeConfig `json:"config"`
-	Preset     string          `json:"preset,omitempty"` // 使用的预设名称
-	Status     string          `json:"status"`
-	Priority   int             `json:"priority"`
-	Progress   float64         `json:"progress"` // 0-100
-	CreatedAt  time.Time       `json:"created_at"`
-	StartedAt  *time.Time      `json:"started_at,omitempty"`
-	CompletedAt *time.Time     `json:"completed_at,omitempty"`
-	Error      string          `json:"error,omitempty"`
+	ID          string          `json:"id"`
+	InputFile   string          `json:"input_file"`
+	OutputFile  string          `json:"output_file"`
+	Config      TranscodeConfig `json:"config"`
+	Preset      string          `json:"preset,omitempty"` // 使用的预设名称
+	Status      string          `json:"status"`
+	Priority    int             `json:"priority"`
+	Progress    float64         `json:"progress"` // 0-100
+	CreatedAt   time.Time       `json:"created_at"`
+	StartedAt   *time.Time      `json:"started_at,omitempty"`
+	CompletedAt *time.Time      `json:"completed_at,omitempty"`
+	Error       string          `json:"error,omitempty"`
 }
 
 // TranscodePreset 转码预设
@@ -96,13 +96,13 @@ type TranscodePreset struct {
 
 // TranscodeStats 转码统计
 type TranscodeStats struct {
-	TotalTasks     int            `json:"total_tasks"`
-	CompletedTasks int            `json:"completed_tasks"`
-	FailedTasks    int            `json:"failed_tasks"`
-	CancelledTasks int            `json:"cancelled_tasks"`
-	CompletionRate float64        `json:"completion_rate"`
-	AverageDuration float64       `json:"average_duration_ms"` // 平均耗时(毫秒)
-	FormatDist     map[string]int `json:"format_distribution"` // 格式分布
+	TotalTasks      int            `json:"total_tasks"`
+	CompletedTasks  int            `json:"completed_tasks"`
+	FailedTasks     int            `json:"failed_tasks"`
+	CancelledTasks  int            `json:"cancelled_tasks"`
+	CompletionRate  float64        `json:"completion_rate"`
+	AverageDuration float64        `json:"average_duration_ms"` // 平均耗时(毫秒)
+	FormatDist      map[string]int `json:"format_distribution"` // 格式分布
 }
 
 // ThumbnailInfo 缩略图信息
@@ -117,14 +117,14 @@ type ThumbnailInfo struct {
 
 // StreamTranscodeEngine 流媒体转码引擎
 type StreamTranscodeEngine struct {
-	mu              sync.RWMutex
-	tasks           map[string]*TranscodeTask
-	presets         map[string]*TranscodePreset
-	thumbnails      map[string][]*ThumbnailInfo // key: task ID
-	maxConcurrency  int
-	activeWorkers   int
-	maxQueueSize    int
-	taskOrder       []string // 按优先级排序的任务ID队列
+	mu             sync.RWMutex
+	tasks          map[string]*TranscodeTask
+	presets        map[string]*TranscodePreset
+	thumbnails     map[string][]*ThumbnailInfo // key: task ID
+	maxConcurrency int
+	activeWorkers  int
+	maxQueueSize   int
+	taskOrder      []string // 按优先级排序的任务ID队列
 }
 
 // NewEngine 创建转码引擎
@@ -668,13 +668,13 @@ func (e *StreamTranscodeEngine) GetQueueStatus() map[string]int {
 	defer e.mu.RUnlock()
 
 	status := map[string]int{
-		"pending":     0,
-		"processing":  0,
-		"completed":   0,
-		"failed":      0,
-		"cancelled":   0,
-		"total":       0,
-		"queue_depth": len(e.taskOrder),
+		"pending":         0,
+		"processing":      0,
+		"completed":       0,
+		"failed":          0,
+		"cancelled":       0,
+		"total":           0,
+		"queue_depth":     len(e.taskOrder),
 		"max_concurrency": e.maxConcurrency,
 		"active_workers":  e.activeWorkers,
 	}

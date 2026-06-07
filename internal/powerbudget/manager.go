@@ -289,9 +289,9 @@ func (m *Manager) checkBudgets() {
 // generateMockReadings 生成模拟读数
 func (m *Manager) generateMockReadings(deviceID string) []*PowerReading {
 	devices := []struct {
-		ID   string
-		Name string
-		Type string
+		ID        string
+		Name      string
+		Type      string
 		BaseWatts float64
 	}{
 		{"dev-001", "NAS 主机", "server", 150},
@@ -305,9 +305,9 @@ func (m *Manager) generateMockReadings(deviceID string) []*PowerReading {
 		for _, d := range devices {
 			if d.ID == deviceID {
 				devices = []struct {
-					ID   string
-					Name string
-					Type string
+					ID        string
+					Name      string
+					Type      string
 					BaseWatts float64
 				}{d}
 				break

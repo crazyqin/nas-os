@@ -8,11 +8,11 @@ import (
 
 // WORMManager WORM 合规管理器
 type WORMManager struct {
-	mu               sync.RWMutex
-	config           WORMConfig
-	policyManager    *PolicyManager
-	immutabilityMgr  *ImmutabilityManager
-	auditManager     *AuditManager
+	mu              sync.RWMutex
+	config          WORMConfig
+	policyManager   *PolicyManager
+	immutabilityMgr *ImmutabilityManager
+	auditManager    *AuditManager
 }
 
 // NewWORMManager 创建 WORM 管理器
@@ -269,10 +269,10 @@ func (wm *WORMManager) GenerateComplianceReport(regulationType RegulationType) (
 	recommendations := wm.generateRecommendations(regulationType, violations)
 
 	report := &ComplianceReport{
-		ID:              fmt.Sprintf("report-%s-%d", regulationType, time.Now().Unix()),
-		GeneratedAt:     time.Now(),
-		RegulationType:  regulationType,
-		Status:          status,
+		ID:             fmt.Sprintf("report-%s-%d", regulationType, time.Now().Unix()),
+		GeneratedAt:    time.Now(),
+		RegulationType: regulationType,
+		Status:         status,
 		Summary: ReportSummary{
 			TotalObjects:     totalObjects,
 			ProtectedObjects: protectedObjects,

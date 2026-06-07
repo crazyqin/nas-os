@@ -31,8 +31,8 @@ type APIResponse struct {
 
 // Handler handles compliance check HTTP requests
 type Handler struct {
-	mu          sync.RWMutex
-	lastReport  *ComplianceReport
+	mu           sync.RWMutex
+	lastReport   *ComplianceReport
 	lastScanTime time.Time
 }
 
@@ -251,11 +251,11 @@ func (h *Handler) handleFix(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, APIResponse{
 		Success: true,
 		Data: map[string]interface{}{
-			"issue_id":  found.ID,
-			"title":     found.Title,
-			"fix":       suggestion,
-			"path":      found.Path,
-			"severity":  found.Severity,
+			"issue_id": found.ID,
+			"title":    found.Title,
+			"fix":      suggestion,
+			"path":     found.Path,
+			"severity": found.Severity,
 		},
 	})
 }

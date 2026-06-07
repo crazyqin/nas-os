@@ -301,9 +301,9 @@ func TestQueryChecks(t *testing.T) {
 
 	// 添加规则并执行检查
 	rule := &ComplianceRule{
-		ID:       "rule-001",
-		Name:     "测试规则",
-		Enabled:  true,
+		ID:         "rule-001",
+		Name:       "测试规则",
+		Enabled:    true,
 		Conditions: []Condition{{Field: "value", Operator: "gte", Value: "10"}},
 	}
 	manager.AddRule(rule)
@@ -332,10 +332,10 @@ func TestGenerateReport(t *testing.T) {
 
 	// 添加规则并执行检查
 	rule := &ComplianceRule{
-		ID:       "rule-001",
-		Name:     "测试规则",
-		Enabled:  true,
-		Severity: SeverityHigh,
+		ID:         "rule-001",
+		Name:       "测试规则",
+		Enabled:    true,
+		Severity:   SeverityHigh,
 		Conditions: []Condition{{Field: "value", Operator: "gte", Value: "10"}},
 	}
 	manager.AddRule(rule)
@@ -418,9 +418,9 @@ func TestGetComplianceStats(t *testing.T) {
 
 	// 添加规则
 	rule := &ComplianceRule{
-		ID:       "rule-001",
-		Name:     "测试规则",
-		Enabled:  true,
+		ID:         "rule-001",
+		Name:       "测试规则",
+		Enabled:    true,
 		Conditions: []Condition{{Field: "value", Operator: "gte", Value: "10"}},
 	}
 	manager.AddRule(rule)

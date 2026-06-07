@@ -773,8 +773,8 @@ func (m *Manager) discoverUSB() ([]*UPSDevice, error) {
 	// 返回模拟的发现结果
 	devices := []*UPSDevice{
 		{
-			ID:          "ups-usb-1",
-			Name:        "USB UPS",
+			ID:           "ups-usb-1",
+			Name:         "USB UPS",
 			Model:        "APC Back-UPS BX650LI",
 			Manufacturer: "APC",
 			Protocol:     ProtocolUSBHID,

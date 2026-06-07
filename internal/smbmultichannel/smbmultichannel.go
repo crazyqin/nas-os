@@ -15,30 +15,30 @@ import (
 
 // MultiChannelSession 多通道会话
 type MultiChannelSession struct {
-	ID           string            `json:"id"`
-	ClientIP     string            `json:"client_ip"`
-	ServerIP     string            `json:"server_ip"`
-	Channels     []Channel         `json:"channels"`
-	State        SessionState      `json:"state"`
-	MaxChannels  int               `json:"max_channels"`
-	Algorithm    LoadBalanceAlgo   `json:"algorithm"`
-	Stats        SessionStats      `json:"stats"`
-	Metadata     map[string]string `json:"metadata,omitempty"`
-	CreatedAt    time.Time         `json:"created_at"`
-	LastActive   time.Time         `json:"last_active"`
+	ID          string            `json:"id"`
+	ClientIP    string            `json:"client_ip"`
+	ServerIP    string            `json:"server_ip"`
+	Channels    []Channel         `json:"channels"`
+	State       SessionState      `json:"state"`
+	MaxChannels int               `json:"max_channels"`
+	Algorithm   LoadBalanceAlgo   `json:"algorithm"`
+	Stats       SessionStats      `json:"stats"`
+	Metadata    map[string]string `json:"metadata,omitempty"`
+	CreatedAt   time.Time         `json:"created_at"`
+	LastActive  time.Time         `json:"last_active"`
 }
 
 // Channel 通道
 type Channel struct {
-	ID           string      `json:"id"`
-	LocalAddr    string      `json:"local_addr"`
-	RemoteAddr   string      `json:"remote_addr"`
-	Socket       int         `json:"socket"`
+	ID           string       `json:"id"`
+	LocalAddr    string       `json:"local_addr"`
+	RemoteAddr   string       `json:"remote_addr"`
+	Socket       int          `json:"socket"`
 	State        ChannelState `json:"state"`
-	Capabilities []string    `json:"capabilities"`
-	Speed        int64       `json:"speed"` // Mbps
+	Capabilities []string     `json:"capabilities"`
+	Speed        int64        `json:"speed"` // Mbps
 	Stats        ChannelStats `json:"stats"`
-	LastActive   time.Time   `json:"last_active"`
+	LastActive   time.Time    `json:"last_active"`
 }
 
 // SessionState 会话状态
@@ -65,11 +65,11 @@ const (
 type LoadBalanceAlgo string
 
 const (
-	LoadBalanceRoundRobin   LoadBalanceAlgo = "round_robin"
-	LoadBalanceLeastConn    LoadBalanceAlgo = "least_conn"
-	LoadBalanceBandwidth    LoadBalanceAlgo = "bandwidth"
-	LoadBalanceLatency      LoadBalanceAlgo = "latency"
-	LoadBalanceAdaptive     LoadBalanceAlgo = "adaptive"
+	LoadBalanceRoundRobin LoadBalanceAlgo = "round_robin"
+	LoadBalanceLeastConn  LoadBalanceAlgo = "least_conn"
+	LoadBalanceBandwidth  LoadBalanceAlgo = "bandwidth"
+	LoadBalanceLatency    LoadBalanceAlgo = "latency"
+	LoadBalanceAdaptive   LoadBalanceAlgo = "adaptive"
 )
 
 // SessionStats and ChannelStats are defined in types.go
@@ -86,19 +86,19 @@ type MultiChannelManager struct {
 
 // ManagerConfig 管理器配置
 type ManagerConfig struct {
-	Enabled           bool           `json:"enabled"`
-	MaxChannelsPerClient int        `json:"max_channels_per_client"`
-	MaxTotalChannels  int           `json:"max_total_channels"`
-	DefaultAlgorithm  LoadBalanceAlgo `json:"default_algorithm"`
-	HealthCheckInterval int         `json:"health_check_interval"` // 秒
-	FailoverEnabled   bool          `json:"failover_enabled"`
-	AutoRebalance     bool          `json:"auto_rebalance"`
-	RebalanceThreshold float64      `json:"rebalance_threshold"` // 负载不均衡阈值
-	EncryptionEnabled bool          `json:"encryption_enabled"`
-	CompressionEnabled bool         `json:"compression_enabled"`
-	SigningEnabled    bool          `json:"signing_enabled"`
-	MaxSMBVersion     string        `json:"max_smb_version"` // 2.0, 2.1, 3.0, 3.1.1
-	MinSMBVersion     string        `json:"min_smb_version"`
+	Enabled              bool            `json:"enabled"`
+	MaxChannelsPerClient int             `json:"max_channels_per_client"`
+	MaxTotalChannels     int             `json:"max_total_channels"`
+	DefaultAlgorithm     LoadBalanceAlgo `json:"default_algorithm"`
+	HealthCheckInterval  int             `json:"health_check_interval"` // 秒
+	FailoverEnabled      bool            `json:"failover_enabled"`
+	AutoRebalance        bool            `json:"auto_rebalance"`
+	RebalanceThreshold   float64         `json:"rebalance_threshold"` // 负载不均衡阈值
+	EncryptionEnabled    bool            `json:"encryption_enabled"`
+	CompressionEnabled   bool            `json:"compression_enabled"`
+	SigningEnabled       bool            `json:"signing_enabled"`
+	MaxSMBVersion        string          `json:"max_smb_version"` // 2.0, 2.1, 3.0, 3.1.1
+	MinSMBVersion        string          `json:"min_smb_version"`
 }
 
 // ManagerStats 管理器统计
@@ -524,9 +524,9 @@ func (m *MultiChannelManager) isImbalanced(session *MultiChannelSession) bool {
 
 // RebalanceResult 重平衡结果
 type RebalanceResult struct {
-	Timestamp       time.Time          `json:"timestamp"`
-	RebalancedCount int                `json:"rebalanced_count"`
-	Details         map[string]string  `json:"details"`
+	Timestamp       time.Time         `json:"timestamp"`
+	RebalancedCount int               `json:"rebalanced_count"`
+	Details         map[string]string `json:"details"`
 }
 
 // ========== 辅助方法 ==========
@@ -589,10 +589,10 @@ func (m *MultiChannelManager) DetectNetworkInterfaces() ([]NetworkInterface, err
 		}
 
 		ni := NetworkInterface{
-			Name:      iface.Name,
-			MTU:       iface.MTU,
+			Name:         iface.Name,
+			MTU:          iface.MTU,
 			HardwareAddr: iface.HardwareAddr.String(),
-			Addresses: make([]string, 0),
+			Addresses:    make([]string, 0),
 		}
 
 		for _, addr := range addrs {

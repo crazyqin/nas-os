@@ -9,12 +9,12 @@ import (
 
 // Manager 系统克隆管理器
 type Manager struct {
-	mu      sync.RWMutex
-	tasks   map[string]*DiskCloneTask
-	images  map[string]*BackupImage
+	mu       sync.RWMutex
+	tasks    map[string]*DiskCloneTask
+	images   map[string]*BackupImage
 	restores map[string]*RestoreTask
-	pxe     map[string]*PXEDeployConfig
-	stats   *CloneStats
+	pxe      map[string]*PXEDeployConfig
+	stats    *CloneStats
 }
 
 // NewManager 创建管理器

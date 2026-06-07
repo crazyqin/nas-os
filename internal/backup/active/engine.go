@@ -39,12 +39,12 @@ type TaskRun struct {
 
 // EngineEvent 引擎事件（供 dashboard 订阅）
 type EngineEvent struct {
-	Type      string     `json:"type"` // "task_start", "task_progress", "task_complete", "task_fail"
-	Timestamp time.Time  `json:"timestamp"`
-	JobID     string     `json:"job_id"`
-	TaskRunID string     `json:"task_run_id,omitempty"`
-	Progress  float64    `json:"progress,omitempty"`
-	Message   string     `json:"message,omitempty"`
+	Type      string    `json:"type"` // "task_start", "task_progress", "task_complete", "task_fail"
+	Timestamp time.Time `json:"timestamp"`
+	JobID     string    `json:"job_id"`
+	TaskRunID string    `json:"task_run_id,omitempty"`
+	Progress  float64   `json:"progress,omitempty"`
+	Message   string    `json:"message,omitempty"`
 }
 
 // EngineEventCallback 引擎事件回调函数
@@ -55,11 +55,11 @@ type Engine struct {
 	mu            sync.RWMutex
 	state         EngineState
 	manager       *BackupManager
-	dedupEngine   *CDCEngine        // CDC 全局去重
-	scheduler     *ScheduleManager   // 调度管理器
-	agentRegistry *AgentRegistry     // 远程代理注册表
+	dedupEngine   *CDCEngine       // CDC 全局去重
+	scheduler     *ScheduleManager // 调度管理器
+	agentRegistry *AgentRegistry   // 远程代理注册表
 	logger        *zap.Logger
-	taskRuns      map[string]*TaskRun   // taskRunID -> run
+	taskRuns      map[string]*TaskRun           // taskRunID -> run
 	running       map[string]context.CancelFunc // jobID -> cancel
 	maxConcurrent int
 	sem           chan struct{}
@@ -71,11 +71,11 @@ type Engine struct {
 // EngineConfig 引擎配置
 type EngineConfig struct {
 	MaxConcurrent   int    `json:"max_concurrent"`    // 最大并发任务数
-	DedupBlockSize  int    `json:"dedup_block_size"`   // 去重块大小（字节）
-	DedupMinSize    int    `json:"dedup_min_size"`     // CDC 最小块
-	DedupMaxSize    int    `json:"dedup_max_size"`     // CDC 最大块
-	AgentListenAddr string `json:"agent_listen_addr"`  // 代理监听地址
-	StoragePath     string `json:"storage_path"`       // 存储路径
+	DedupBlockSize  int    `json:"dedup_block_size"`  // 去重块大小（字节）
+	DedupMinSize    int    `json:"dedup_min_size"`    // CDC 最小块
+	DedupMaxSize    int    `json:"dedup_max_size"`    // CDC 最大块
+	AgentListenAddr string `json:"agent_listen_addr"` // 代理监听地址
+	StoragePath     string `json:"storage_path"`      // 存储路径
 }
 
 // DefaultEngineConfig 返回默认引擎配置
@@ -83,7 +83,7 @@ func DefaultEngineConfig() *EngineConfig {
 	return &EngineConfig{
 		MaxConcurrent:   4,
 		DedupBlockSize:  0,
-		DedupMinSize:    64 * 1024,    // 64KB
+		DedupMinSize:    64 * 1024,       // 64KB
 		DedupMaxSize:    8 * 1024 * 1024, // 8MB
 		AgentListenAddr: ":9843",
 		StoragePath:     "/var/lib/nas-os/backup/active",
@@ -352,15 +352,15 @@ func (e *Engine) GetStats() EngineStats {
 
 // EngineStats 引擎统计信息
 type EngineStats struct {
-	State                string `json:"state"`
-	MaxConcurrent        int    `json:"max_concurrent"`
-	ActiveTasks          int    `json:"active_tasks"`
-	TotalRuns            int    `json:"total_runs"`
-	CompletedRuns        int    `json:"completed_runs"`
-	FailedRuns           int    `json:"failed_runs"`
-	TotalBytesProcessed  int64  `json:"total_bytes_processed"`
-	TotalFilesProcessed  int    `json:"total_files_processed"`
-	Agents               int    `json:"agents"`
+	State               string `json:"state"`
+	MaxConcurrent       int    `json:"max_concurrent"`
+	ActiveTasks         int    `json:"active_tasks"`
+	TotalRuns           int    `json:"total_runs"`
+	CompletedRuns       int    `json:"completed_runs"`
+	FailedRuns          int    `json:"failed_runs"`
+	TotalBytesProcessed int64  `json:"total_bytes_processed"`
+	TotalFilesProcessed int    `json:"total_files_processed"`
+	Agents              int    `json:"agents"`
 }
 
 // executeTask 执行备份任务核心逻辑

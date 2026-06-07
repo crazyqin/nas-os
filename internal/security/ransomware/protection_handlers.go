@@ -102,9 +102,9 @@ func (h *ProtectionHandlers) GetStatus(c *gin.Context) {
 			"snapshotsCreated": status.SnapshotsCreated,
 			"alertsSent":       status.AlertsSent,
 			"honeyFiles": gin.H{
-				"total":    honeyStats.TotalFiles,
-				"active":   honeyStats.ActiveFiles,
-				"triggered": honeyStats.TriggeredFiles,
+				"total":        honeyStats.TotalFiles,
+				"active":       honeyStats.ActiveFiles,
+				"triggered":    honeyStats.TriggeredFiles,
 				"lastDeployed": honeyStats.LastDeployed,
 			},
 			"lastThreatTime":  status.LastThreatTime,
@@ -787,10 +787,10 @@ func (h *ProtectionHandlers) GetRealtimeStatus(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"status":           status.ProtectionStatus,
-			"startTime":        status.StartTime,
-			"uptime":           status.Uptime,
-			"monitoredPaths":   status.MonitoredPaths,
+			"status":             status.ProtectionStatus,
+			"startTime":          status.StartTime,
+			"uptime":             status.Uptime,
+			"monitoredPaths":     status.MonitoredPaths,
 			"writeOnceProtected": status.ProtectedByWriteOnce,
 		},
 	})
@@ -856,12 +856,12 @@ func (h *ProtectionHandlers) QuickScan(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"path":             result.Path,
-			"infectedFiles":    result.InfectedFiles,
-			"suspiciousFiles":  result.SuspiciousFiles,
-			"riskScore":        result.RiskScore,
-			"scannedAt":        result.ScannedAt,
-			"duration":         result.Duration.String(),
+			"path":            result.Path,
+			"infectedFiles":   result.InfectedFiles,
+			"suspiciousFiles": result.SuspiciousFiles,
+			"riskScore":       result.RiskScore,
+			"scannedAt":       result.ScannedAt,
+			"duration":        result.Duration.String(),
 		},
 	})
 }

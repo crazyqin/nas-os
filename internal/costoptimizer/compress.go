@@ -28,10 +28,10 @@ const (
 type CompressProfile struct {
 	Algorithm     CompressAlgorithm `json:"algorithm"`
 	Name          string            `json:"name"`
-	CompressRatio float64           `json:"compress_ratio"`  // 典型压缩比
-	SpeedMBps     int               `json:"speed_mbps"`      // 压缩速度 MB/s
-	CPUPercent    float64           `json:"cpu_percent"`     // CPU 使用率
-	Level         int               `json:"level"`           // 压缩级别
+	CompressRatio float64           `json:"compress_ratio"` // 典型压缩比
+	SpeedMBps     int               `json:"speed_mbps"`     // 压缩速度 MB/s
+	CPUPercent    float64           `json:"cpu_percent"`    // CPU 使用率
+	Level         int               `json:"level"`          // 压缩级别
 	Description   string            `json:"description"`
 }
 
@@ -78,33 +78,33 @@ var DataTypeCompressFactor = map[DataType]float64{
 
 // CompressResult 压缩分析结果
 type CompressResult struct {
-	TotalDataBytes       int64              `json:"total_data_bytes"`
-	ByAlgorithm          []CompressByAlgo   `json:"by_algorithm"`
-	ByDataType           []CompressByType   `json:"by_data_type"`
-	RecommendedAlgo      CompressAlgorithm  `json:"recommended_algo"`
-	RecommendedSavings   int64              `json:"recommended_savings_bytes"`
-	RecommendedCostSave  float64            `json:"recommended_savings_cost"`
-	Recommendations      []CompressRecommend `json:"recommendations"`
+	TotalDataBytes      int64               `json:"total_data_bytes"`
+	ByAlgorithm         []CompressByAlgo    `json:"by_algorithm"`
+	ByDataType          []CompressByType    `json:"by_data_type"`
+	RecommendedAlgo     CompressAlgorithm   `json:"recommended_algo"`
+	RecommendedSavings  int64               `json:"recommended_savings_bytes"`
+	RecommendedCostSave float64             `json:"recommended_savings_cost"`
+	Recommendations     []CompressRecommend `json:"recommendations"`
 }
 
 // CompressByAlgo 按算法的压缩分析
 type CompressByAlgo struct {
-	Algorithm    CompressAlgorithm `json:"algorithm"`
-	AlgorithmName string           `json:"algorithm_name"`
-	CompressRatio float64          `json:"compress_ratio"`
-	SavingsBytes  int64            `json:"savings_bytes"`
-	SavingsCost   float64          `json:"savings_cost"`
-	SpeedMBps     int              `json:"speed_mbps"`
-	CPUPercent    float64          `json:"cpu_percent"`
-	Score         float64          `json:"score"` // 综合评分
+	Algorithm     CompressAlgorithm `json:"algorithm"`
+	AlgorithmName string            `json:"algorithm_name"`
+	CompressRatio float64           `json:"compress_ratio"`
+	SavingsBytes  int64             `json:"savings_bytes"`
+	SavingsCost   float64           `json:"savings_cost"`
+	SpeedMBps     int               `json:"speed_mbps"`
+	CPUPercent    float64           `json:"cpu_percent"`
+	Score         float64           `json:"score"` // 综合评分
 }
 
 // CompressByType 按数据类型的压缩分析
 type CompressByType struct {
-	DataType      DataType `json:"data_type"`
-	TotalBytes    int64    `json:"total_bytes"`
-	CompressRatio float64  `json:"compress_ratio"`
-	SavingsBytes  int64    `json:"savings_bytes"`
+	DataType      DataType          `json:"data_type"`
+	TotalBytes    int64             `json:"total_bytes"`
+	CompressRatio float64           `json:"compress_ratio"`
+	SavingsBytes  int64             `json:"savings_bytes"`
 	Recommended   CompressAlgorithm `json:"recommended_algo"`
 }
 

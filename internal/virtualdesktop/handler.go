@@ -51,7 +51,7 @@ func (h *Handler) handleDesktop(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Desktop ID required", http.StatusBadRequest)
 		return
 	}
-	
+
 	switch r.Method {
 	case http.MethodGet:
 		desktop, err := h.manager.GetDesktop(r.Context(), id)
@@ -76,7 +76,7 @@ func (h *Handler) handleTemplates(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	templates := h.manager.ListTemplates(r.Context())
 	writeJSON(w, templates)
 }
@@ -86,7 +86,7 @@ func (h *Handler) handleSnapshots(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	desktopID := r.URL.Query().Get("desktop_id")
 	snapshots := h.manager.ListSnapshots(r.Context(), desktopID)
 	writeJSON(w, snapshots)

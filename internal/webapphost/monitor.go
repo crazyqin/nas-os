@@ -9,21 +9,21 @@ import (
 
 // Monitor 资源监控器
 type Monitor struct {
-	mu          sync.RWMutex
-	metrics     map[string]*AppMetrics
-	alerts      map[string]*AlertRule
+	mu           sync.RWMutex
+	metrics      map[string]*AppMetrics
+	alerts       map[string]*AlertRule
 	alertHistory []AlertEvent
-	manager     *WebAppManager
-	config      *MonitorConfig
-	stopCh      chan struct{}
+	manager      *WebAppManager
+	config       *MonitorConfig
+	stopCh       chan struct{}
 }
 
 // MonitorConfig 监控配置
 type MonitorConfig struct {
-	Enabled         bool          `json:"enabled"`
-	Interval        time.Duration `json:"interval"`
+	Enabled          bool          `json:"enabled"`
+	Interval         time.Duration `json:"interval"`
 	MetricsRetention time.Duration `json:"metrics_retention"`
-	AlertRetention  time.Duration `json:"alert_retention"`
+	AlertRetention   time.Duration `json:"alert_retention"`
 }
 
 // AlertEvent 告警事件
@@ -50,12 +50,12 @@ func NewMonitor(manager *WebAppManager, config *MonitorConfig) *Monitor {
 	}
 
 	return &Monitor{
-		metrics:     make(map[string]*AppMetrics),
-		alerts:      make(map[string]*AlertRule),
+		metrics:      make(map[string]*AppMetrics),
+		alerts:       make(map[string]*AlertRule),
 		alertHistory: make([]AlertEvent, 0),
-		manager:     manager,
-		config:      config,
-		stopCh:      make(chan struct{}),
+		manager:      manager,
+		config:       config,
+		stopCh:       make(chan struct{}),
 	}
 }
 
@@ -121,12 +121,12 @@ func (m *Monitor) collectAppMetrics(app *WebApp) *AppMetrics {
 
 	return &AppMetrics{
 		AppID:        app.ID,
-		CPUUsage:     15.5,                              // 模拟 CPU 使用率
-		MemoryUsage:  128 * 1024 * 1024,                  // 128MB
+		CPUUsage:     15.5,              // 模拟 CPU 使用率
+		MemoryUsage:  128 * 1024 * 1024, // 128MB
 		MemoryLimit:  int64(app.Resources.MemoryMB) * 1024 * 1024,
-		DiskUsage:    512 * 1024 * 1024,                  // 512MB
-		NetworkRx:    1024 * 1024,                        // 1MB
-		NetworkTx:    512 * 1024,                         // 512KB
+		DiskUsage:    512 * 1024 * 1024, // 512MB
+		NetworkRx:    1024 * 1024,       // 1MB
+		NetworkTx:    512 * 1024,        // 512KB
 		Uptime:       uptime,
 		RequestCount: 1000,
 		ErrorCount:   5,

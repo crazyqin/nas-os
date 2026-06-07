@@ -16,21 +16,21 @@ import (
 
 // Collector 系统指标采集器
 type Collector struct {
-	mu            sync.RWMutex
-	config        CollectorConfig
-	history       []SystemMetrics
-	lastCollect   time.Time
-	stopChan      chan struct{}
-	running       bool
-	subscribers   []chan SystemMetrics
+	mu          sync.RWMutex
+	config      CollectorConfig
+	history     []SystemMetrics
+	lastCollect time.Time
+	stopChan    chan struct{}
+	running     bool
+	subscribers []chan SystemMetrics
 }
 
 // NewCollector 创建采集器
 func NewCollector(cfg CollectorConfig) *Collector {
 	return &Collector{
-		config:  cfg,
-		history: make([]SystemMetrics, 0, cfg.HistorySize),
-		stopChan: make(chan struct{}),
+		config:      cfg,
+		history:     make([]SystemMetrics, 0, cfg.HistorySize),
+		stopChan:    make(chan struct{}),
 		subscribers: make([]chan SystemMetrics, 0),
 	}
 }

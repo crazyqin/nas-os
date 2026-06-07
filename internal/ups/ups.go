@@ -10,28 +10,28 @@ import (
 
 // UPSStatus represents the current state of a UPS device.
 type UPSStatus struct {
-	Name            string        `json:"name"`
-	Model           string        `json:"model"`
-	Status          string        `json:"status"` // online, on-battery, low-battery, charging, fault
-	BatteryLevel    int           `json:"battery_level"`    // 0-100
-	BatteryCharge   int           `json:"battery_charge"`   // percent
-	InputVoltage    float64       `json:"input_voltage"`    // volts
-	OutputVoltage   float64       `json:"output_voltage"`   // volts
-	LoadPercent     int           `json:"load_percent"`     // 0-100
-	RuntimeLeft     time.Duration `json:"runtime_left"`     // estimated minutes remaining
-	Temperature     float64       `json:"temperature"`      // celsius
-	LastUpdated     time.Time     `json:"last_updated"`
-	OnBattery       bool          `json:"on_battery"`
-	BatteryHealthy  bool          `json:"battery_health"`
+	Name           string        `json:"name"`
+	Model          string        `json:"model"`
+	Status         string        `json:"status"`         // online, on-battery, low-battery, charging, fault
+	BatteryLevel   int           `json:"battery_level"`  // 0-100
+	BatteryCharge  int           `json:"battery_charge"` // percent
+	InputVoltage   float64       `json:"input_voltage"`  // volts
+	OutputVoltage  float64       `json:"output_voltage"` // volts
+	LoadPercent    int           `json:"load_percent"`   // 0-100
+	RuntimeLeft    time.Duration `json:"runtime_left"`   // estimated minutes remaining
+	Temperature    float64       `json:"temperature"`    // celsius
+	LastUpdated    time.Time     `json:"last_updated"`
+	OnBattery      bool          `json:"on_battery"`
+	BatteryHealthy bool          `json:"battery_health"`
 }
 
 // UPSConfig holds UPS monitoring configuration.
 type UPSConfig struct {
-	Driver          string `json:"driver"`           // usbhid-ups, snmp-ups, etc.
-	Port            string `json:"port"`             // /dev/ttyUSB0, auto, or host:port for SNMP
-	LowBatteryPct   int    `json:"low_battery_pct"`  // trigger shutdown at this level
-	ShutdownDelay   int    `json:"shutdown_delay"`   // seconds to wait before shutdown
-	PollInterval    int    `json:"poll_interval"`    // seconds between status polls
+	Driver          string `json:"driver"`          // usbhid-ups, snmp-ups, etc.
+	Port            string `json:"port"`            // /dev/ttyUSB0, auto, or host:port for SNMP
+	LowBatteryPct   int    `json:"low_battery_pct"` // trigger shutdown at this level
+	ShutdownDelay   int    `json:"shutdown_delay"`  // seconds to wait before shutdown
+	PollInterval    int    `json:"poll_interval"`   // seconds between status polls
 	NotifyOnBattery bool   `json:"notify_on_battery"`
 	NotifyOnLow     bool   `json:"notify_on_low"`
 	Name            string `json:"name"`
@@ -53,12 +53,12 @@ func DefaultUPSConfig() UPSConfig {
 
 // Manager manages UPS monitoring.
 type Manager struct {
-	mu       sync.RWMutex
-	config   UPSConfig
-	status   UPSStatus
-	stopCh   chan struct{}
+	mu        sync.RWMutex
+	config    UPSConfig
+	status    UPSStatus
+	stopCh    chan struct{}
 	callbacks []func(UPSStatus)
-	running  bool
+	running   bool
 }
 
 // NewManager creates a new UPS manager.
@@ -206,7 +206,7 @@ func GetBatteryHealthScore(status UPSStatus) int {
 
 	// Battery age factor (if charge < 80% when "full", battery is degrading)
 	if status.BatteryCharge < 80 && !status.OnBattery {
-		score -= float64(80 - status.BatteryCharge) * 0.5
+		score -= float64(80-status.BatteryCharge) * 0.5
 	}
 
 	// Temperature factor (optimal: 20-25°C)

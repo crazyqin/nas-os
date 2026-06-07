@@ -99,14 +99,14 @@ func probeHost(ip string) *Asset {
 	assetType := guessAssetType(openPorts)
 
 	return &Asset{
-		ID:         fmt.Sprintf("asset-%s", ip),
-		Name:       fmt.Sprintf("设备-%s", ip),
-		Type:       assetType,
-		Status:     StatusOnline,
-		IPAddress:  ip,
-		Tags:       make(map[string]string),
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+		ID:        fmt.Sprintf("asset-%s", ip),
+		Name:      fmt.Sprintf("设备-%s", ip),
+		Type:      assetType,
+		Status:    StatusOnline,
+		IPAddress: ip,
+		Tags:      make(map[string]string),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 }
 

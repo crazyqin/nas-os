@@ -58,8 +58,8 @@ func TestCollectMetrics(t *testing.T) {
 		DeviceID:     "test-device",
 		MountPoint:   "/data",
 		TotalSpace:   1024 * 1024 * 1024 * 100, // 100GB
-		UsedSpace:    1024 * 1024 * 1024 * 60,   // 60GB
-		FreeSpace:    1024 * 1024 * 1024 * 40,   // 40GB
+		UsedSpace:    1024 * 1024 * 1024 * 60,  // 60GB
+		FreeSpace:    1024 * 1024 * 1024 * 40,  // 40GB
 		UsagePercent: 60.0,
 		ReadIOPS:     100,
 		WriteIOPS:    50,

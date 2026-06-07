@@ -8,21 +8,21 @@ import (
 
 // TrafficMonitor monitors and tracks VPN traffic statistics.
 type TrafficMonitor struct {
-	mu          sync.RWMutex
-	stats       map[string]*TrafficStats      // connectionID -> stats
-	history     map[string]*TrafficHistory    // profileID -> history
-	snapshots   map[string][]TrafficSnapshot  // profileID -> snapshots
-	alerts      map[string]*TrafficAlert      // alertID -> alert
-	limits      map[string]int64              // profileID -> limit bytes
-	startTime   time.Time
+	mu        sync.RWMutex
+	stats     map[string]*TrafficStats     // connectionID -> stats
+	history   map[string]*TrafficHistory   // profileID -> history
+	snapshots map[string][]TrafficSnapshot // profileID -> snapshots
+	alerts    map[string]*TrafficAlert     // alertID -> alert
+	limits    map[string]int64             // profileID -> limit bytes
+	startTime time.Time
 }
 
 // TrafficLimit represents a traffic limit configuration.
 type TrafficLimit struct {
 	ProfileID string `json:"profile_id"`
-	Limit     int64  `json:"limit"`     // bytes, 0 = unlimited
-	Period    string `json:"period"`    // "hour", "day", "month"
-	Action    string `json:"action"`    // "alert", "disconnect", "throttle"
+	Limit     int64  `json:"limit"`  // bytes, 0 = unlimited
+	Period    string `json:"period"` // "hour", "day", "month"
+	Action    string `json:"action"` // "alert", "disconnect", "throttle"
 }
 
 // NewTrafficMonitor creates a new traffic monitor.

@@ -28,10 +28,10 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	ErrEmptyMessage     = errors.New("消息不能为空")
-	ErrOllamaUnavail    = errors.New("Ollama 服务不可用")
-	ErrEmptyDiagnosis   = errors.New("诊断日志内容不能为空")
-	ErrSessionNotFound  = errors.New("会话不存在")
+	ErrEmptyMessage    = errors.New("消息不能为空")
+	ErrOllamaUnavail   = errors.New("Ollama 服务不可用")
+	ErrEmptyDiagnosis  = errors.New("诊断日志内容不能为空")
+	ErrSessionNotFound = errors.New("会话不存在")
 )
 
 // ========== 配置 ==========
@@ -68,7 +68,7 @@ func DefaultConfig() *Config {
 
 // Message 对话消息.
 type Message struct {
-	Role    string `json:"role"`    // system, user, assistant
+	Role    string `json:"role"` // system, user, assistant
 	Content string `json:"content"`
 }
 
@@ -103,43 +103,43 @@ type DiagnoseRequest struct {
 
 // DiagnoseResponse 故障诊断响应.
 type DiagnoseResponse struct {
-	Problem    string   `json:"problem"`
-	Cause      string   `json:"cause"`
-	Solutions  []string `json:"solutions"`
-	Severity   string   `json:"severity"` // critical, warning, info
-	Timestamp  time.Time `json:"timestamp"`
+	Problem   string    `json:"problem"`
+	Cause     string    `json:"cause"`
+	Solutions []string  `json:"solutions"`
+	Severity  string    `json:"severity"` // critical, warning, info
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // SystemContext 系统上下文信息.
 type SystemContext struct {
-	Hostname    string    `json:"hostname"`
-	OS          string    `json:"os"`
-	Arch        string    `json:"arch"`
-	CPUUsage    float64   `json:"cpu_usage"`
-	CPUCores    int       `json:"cpu_cores"`
-	MemTotal    uint64    `json:"mem_total"`
-	MemUsed     uint64    `json:"mem_used"`
-	MemUsage    float64   `json:"mem_usage"`
-	SwapTotal   uint64    `json:"swap_total"`
-	SwapUsed    uint64    `json:"swap_used"`
-	LoadAvg1    float64   `json:"load_avg_1"`
-	LoadAvg5    float64   `json:"load_avg_5"`
-	LoadAvg15   float64   `json:"load_avg_15"`
-	Uptime      uint64    `json:"uptime_seconds"`
-	Disks       []DiskInfo `json:"disks"`
-	Networks    []NetInfo  `json:"networks"`
-	Timestamp   time.Time `json:"timestamp"`
+	Hostname  string     `json:"hostname"`
+	OS        string     `json:"os"`
+	Arch      string     `json:"arch"`
+	CPUUsage  float64    `json:"cpu_usage"`
+	CPUCores  int        `json:"cpu_cores"`
+	MemTotal  uint64     `json:"mem_total"`
+	MemUsed   uint64     `json:"mem_used"`
+	MemUsage  float64    `json:"mem_usage"`
+	SwapTotal uint64     `json:"swap_total"`
+	SwapUsed  uint64     `json:"swap_used"`
+	LoadAvg1  float64    `json:"load_avg_1"`
+	LoadAvg5  float64    `json:"load_avg_5"`
+	LoadAvg15 float64    `json:"load_avg_15"`
+	Uptime    uint64     `json:"uptime_seconds"`
+	Disks     []DiskInfo `json:"disks"`
+	Networks  []NetInfo  `json:"networks"`
+	Timestamp time.Time  `json:"timestamp"`
 }
 
 // DiskInfo 磁盘信息.
 type DiskInfo struct {
-	Mountpoint  string  `json:"mountpoint"`
-	Device      string  `json:"device"`
-	FSType      string  `json:"fstype"`
-	Total       uint64  `json:"total"`
-	Used        uint64  `json:"used"`
-	Free        uint64  `json:"free"`
-	UsagePct    float64 `json:"usage_pct"`
+	Mountpoint string  `json:"mountpoint"`
+	Device     string  `json:"device"`
+	FSType     string  `json:"fstype"`
+	Total      uint64  `json:"total"`
+	Used       uint64  `json:"used"`
+	Free       uint64  `json:"free"`
+	UsagePct   float64 `json:"usage_pct"`
 }
 
 // NetInfo 网络接口信息.
@@ -155,9 +155,9 @@ type NetInfo struct {
 
 // ollamaRequest Ollama chat API 请求.
 type ollamaRequest struct {
-	Model    string    `json:"model"`
-	Messages []Message `json:"messages"`
-	Stream   bool      `json:"stream"`
+	Model    string        `json:"model"`
+	Messages []Message     `json:"messages"`
+	Stream   bool          `json:"stream"`
 	Options  ollamaOptions `json:"options,omitempty"`
 }
 
@@ -507,7 +507,7 @@ func (a *Advisor) buildDiagnoseMessages(req *DiagnoseRequest, sysCtx *SystemCont
 			Content: fmt.Sprintf("当前系统状态：%s", string(ctxJSON)),
 		},
 		{
-			Role: "user",
+			Role:    "user",
 			Content: fmt.Sprintf("请分析以下日志%s并给出诊断：\n\n%s", serviceHint, req.LogContent),
 		},
 	}

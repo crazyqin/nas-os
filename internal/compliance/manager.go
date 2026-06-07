@@ -11,15 +11,15 @@ import (
 
 // Manager 合规中心管理器
 type Manager struct {
-	mu               sync.RWMutex
-	logger           *zap.Logger
-	rules            map[string]*ComplianceRule
-	reports          map[string]*ComplianceReport
-	plans            map[string]*RemediationPlan
-	classifications  map[string]*DataClassification
-	scanResults      map[string]*ScanResult
-	categories       []DataCategory
-	regulations      []string
+	mu              sync.RWMutex
+	logger          *zap.Logger
+	rules           map[string]*ComplianceRule
+	reports         map[string]*ComplianceReport
+	plans           map[string]*RemediationPlan
+	classifications map[string]*DataClassification
+	scanResults     map[string]*ScanResult
+	categories      []DataCategory
+	regulations     []string
 }
 
 // NewManager 创建合规中心管理器
@@ -52,29 +52,29 @@ func (m *Manager) initDefaultRules() {
 			ID: "gdpr-001", Name: "个人数据加密存储", Regulation: "GDPR",
 			Category: "data-protection", Severity: "critical",
 			Description: "所有个人身份信息(PII)必须加密存储",
-			Condition: "data.type == 'PII' && !data.encrypted",
-			Action: "alert",
+			Condition:   "data.type == 'PII' && !data.encrypted",
+			Action:      "alert",
 		},
 		{
 			ID: "gdpr-002", Name: "数据保留期限", Regulation: "GDPR",
 			Category: "privacy", Severity: "high",
 			Description: "个人数据保留不得超过必要期限",
-			Condition: "data.age > data.retention_period",
-			Action: "delete",
+			Condition:   "data.age > data.retention_period",
+			Action:      "delete",
 		},
 		{
 			ID: "ccpa-001", Name: "数据删除请求处理", Regulation: "CCPA",
 			Category: "privacy", Severity: "high",
 			Description: "必须在45天内响应消费者数据删除请求",
-			Condition: "request.type == 'delete' && request.age > 45",
-			Action: "escalate",
+			Condition:   "request.type == 'delete' && request.age > 45",
+			Action:      "escalate",
 		},
 		{
 			ID: "ccpa-002", Name: "数据销售披露", Regulation: "CCPA",
 			Category: "privacy", Severity: "medium",
 			Description: "必须向消费者披露数据销售行为",
-			Condition: "data.sold && !disclosure.provided",
-			Action: "alert",
+			Condition:   "data.sold && !disclosure.provided",
+			Action:      "alert",
 		},
 	}
 

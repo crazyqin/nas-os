@@ -22,7 +22,7 @@ type UserTemplate struct {
 	Name            string       `json:"name"`
 	Description     string       `json:"description"`
 	Role            TemplateRole `json:"role"`
-	StorageQuota    int64        `json:"storage_quota"`              // 字节
+	StorageQuota    int64        `json:"storage_quota"` // 字节
 	AllowedServices []string     `json:"allowed_services,omitempty"`
 	DeniedServices  []string     `json:"denied_services,omitempty"`
 	Groups          []string     `json:"groups,omitempty"`
@@ -31,24 +31,24 @@ type UserTemplate struct {
 
 // QuickCreateRequest 快速创建用户请求.
 type QuickCreateRequest struct {
-	Username    string       `json:"username" binding:"required"`
-	Password    string       `json:"password" binding:"required,min=6"`
-	Email       string       `json:"email,omitempty"`
-	TemplateID  string       `json:"template_id,omitempty"`  // 使用模板 ID
+	Username     string       `json:"username" binding:"required"`
+	Password     string       `json:"password" binding:"required,min=6"`
+	Email        string       `json:"email,omitempty"`
+	TemplateID   string       `json:"template_id,omitempty"`   // 使用模板 ID
 	TemplateRole TemplateRole `json:"template_role,omitempty"` // 或使用角色模板
-	HomeDir     string       `json:"home_dir,omitempty"`
-	Quota       int64        `json:"quota,omitempty"` // 覆盖模板配额
-	Groups      []string     `json:"groups,omitempty"`
+	HomeDir      string       `json:"home_dir,omitempty"`
+	Quota        int64        `json:"quota,omitempty"` // 覆盖模板配额
+	Groups       []string     `json:"groups,omitempty"`
 }
 
 // QuickCreateResponse 快速创建用户响应.
 type QuickCreateResponse struct {
-	Username        string   `json:"username"`
-	Role            string   `json:"role"`
-	StorageQuota    int64    `json:"storage_quota"`
-	AllowedServices []string `json:"allowed_services,omitempty"`
-	Groups          []string `json:"groups,omitempty"`
-	HomeDir         string   `json:"home_dir"`
+	Username        string    `json:"username"`
+	Role            string    `json:"role"`
+	StorageQuota    int64     `json:"storage_quota"`
+	AllowedServices []string  `json:"allowed_services,omitempty"`
+	Groups          []string  `json:"groups,omitempty"`
+	HomeDir         string    `json:"home_dir"`
 	CreatedAt       time.Time `json:"created_at"`
 }
 
@@ -72,7 +72,7 @@ const (
 type BatchRequest struct {
 	Operation BatchOperationType `json:"operation" binding:"required"`
 	// 以下字段根据 operation 类型选择使用
-	Users       []string `json:"users,omitempty"`       // 目标用户名列表 (enable/disable/delete)
+	Users       []string             `json:"users,omitempty"`        // 目标用户名列表 (enable/disable/delete)
 	CreateItems []QuickCreateRequest `json:"create_items,omitempty"` // 批量创建的用户列表
 	Permission  *PermissionUpdate    `json:"permission,omitempty"`   // 权限更新配置
 }
@@ -80,7 +80,7 @@ type BatchRequest struct {
 // PermissionUpdate 权限更新.
 type PermissionUpdate struct {
 	Role            string   `json:"role,omitempty"`
-	StorageQuota    *int64   `json:"storage_quota,omitempty"`    // 使用指针以区分 0 和未设置
+	StorageQuota    *int64   `json:"storage_quota,omitempty"` // 使用指针以区分 0 和未设置
 	AllowedServices []string `json:"allowed_services,omitempty"`
 	DeniedServices  []string `json:"denied_services,omitempty"`
 	AddGroups       []string `json:"add_groups,omitempty"`
@@ -104,29 +104,29 @@ type BatchResponse struct {
 
 // UserProfile 用户画像.
 type UserProfile struct {
-	Username        string         `json:"username"`
-	Role            string         `json:"role"`
-	Email           string         `json:"email,omitempty"`
-	HomeDir         string         `json:"home_dir,omitempty"`
-	StorageUsed     int64          `json:"storage_used"`     // 已用存储 (字节)
-	StorageQuota    int64          `json:"storage_quota"`    // 存储配额 (字节)
-	QuotaUsagePct   float64        `json:"quota_usage_pct"`  // 配额使用率 %
-	Groups          []string       `json:"groups"`
-	AllowedServices []string       `json:"allowed_services,omitempty"`
-	DeniedServices  []string       `json:"denied_services,omitempty"`
-	Disabled        bool           `json:"disabled"`
-	CreatedAt       time.Time      `json:"created_at"`
-	LastLoginAt     *time.Time     `json:"last_login_at,omitempty"`
-	LastLoginIP     string         `json:"last_login_ip,omitempty"`
-	Activity        UserActivity   `json:"activity"`
+	Username        string       `json:"username"`
+	Role            string       `json:"role"`
+	Email           string       `json:"email,omitempty"`
+	HomeDir         string       `json:"home_dir,omitempty"`
+	StorageUsed     int64        `json:"storage_used"`    // 已用存储 (字节)
+	StorageQuota    int64        `json:"storage_quota"`   // 存储配额 (字节)
+	QuotaUsagePct   float64      `json:"quota_usage_pct"` // 配额使用率 %
+	Groups          []string     `json:"groups"`
+	AllowedServices []string     `json:"allowed_services,omitempty"`
+	DeniedServices  []string     `json:"denied_services,omitempty"`
+	Disabled        bool         `json:"disabled"`
+	CreatedAt       time.Time    `json:"created_at"`
+	LastLoginAt     *time.Time   `json:"last_login_at,omitempty"`
+	LastLoginIP     string       `json:"last_login_ip,omitempty"`
+	Activity        UserActivity `json:"activity"`
 }
 
 // UserActivity 用户活跃度信息.
 type UserActivity struct {
-	TotalLogins    int        `json:"total_logins"`
-	LastLoginAt    *time.Time `json:"last_login_at,omitempty"`
-	LastActiveIP   string     `json:"last_active_ip,omitempty"`
-	RecentLogins   int        `json:"recent_logins"`    // 最近 30 天登录次数
+	TotalLogins  int        `json:"total_logins"`
+	LastLoginAt  *time.Time `json:"last_login_at,omitempty"`
+	LastActiveIP string     `json:"last_active_ip,omitempty"`
+	RecentLogins int        `json:"recent_logins"` // 最近 30 天登录次数
 }
 
 // TemplateListResponse 模板列表响应.

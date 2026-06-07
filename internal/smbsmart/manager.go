@@ -33,12 +33,12 @@ var (
 
 // Manager SMB 多通道管理器
 type Manager struct {
-	mu          sync.RWMutex
-	channels    map[string]*SMBChannel    // channelID -> Channel
-	sessions    map[string]*SMBSession    // sessionID -> Session
-	bonds       map[string]*ChannelBond   // bondID -> Bond
-	failover    FailoverConfig
-	bwHistory   []BandwidthStats
+	mu           sync.RWMutex
+	channels     map[string]*SMBChannel  // channelID -> Channel
+	sessions     map[string]*SMBSession  // sessionID -> Session
+	bonds        map[string]*ChannelBond // bondID -> Bond
+	failover     FailoverConfig
+	bwHistory    []BandwidthStats
 	peakReadBps  int64
 	peakWriteBps int64
 }

@@ -179,8 +179,8 @@ func TestStartProject(t *testing.T) {
 	project, _ := m.CreateProject(CreateProjectRequest{
 		Name: "test",
 		Services: map[string]*ServiceConfig{
-			"web":  {Image: "nginx", DesiredCount: 2},
-			"db":   {Image: "postgres"},
+			"web":   {Image: "nginx", DesiredCount: 2},
+			"db":    {Image: "postgres"},
 			"redis": {Image: "redis"},
 		},
 	})
@@ -537,7 +537,7 @@ func TestEvaluateAutoScale(t *testing.T) {
 						Metrics: []ScalingMetric{
 							{Type: "cpu", Target: 70.0},
 						},
-						ScaleUp: &ScaleRules{StepSize: 2},
+						ScaleUp:   &ScaleRules{StepSize: 2},
 						ScaleDown: &ScaleRules{StepSize: 1},
 					},
 				},
@@ -765,13 +765,13 @@ func TestHandlersListProjects(t *testing.T) {
 	_, m := setupHandlers()
 
 	m.CreateProject(CreateProjectRequest{
-		Name: "project1",
+		Name:     "project1",
 		Services: map[string]*ServiceConfig{"web": {Image: "nginx"}},
 	})
 	m.CreateProject(CreateProjectRequest{
-		Name: "project2",
+		Name:      "project2",
 		Namespace: "ns1",
-		Services: map[string]*ServiceConfig{"web": {Image: "nginx"}},
+		Services:  map[string]*ServiceConfig{"web": {Image: "nginx"}},
 	})
 
 	projects := m.ListProjects("")
@@ -789,7 +789,7 @@ func TestHandlersUpdateProject(t *testing.T) {
 	_, m := setupHandlers()
 
 	project, _ := m.CreateProject(CreateProjectRequest{
-		Name: "old",
+		Name:     "old",
 		Services: map[string]*ServiceConfig{"web": {Image: "nginx"}},
 	})
 
@@ -807,7 +807,7 @@ func TestHandlersDeleteProject(t *testing.T) {
 	_, m := setupHandlers()
 
 	project, _ := m.CreateProject(CreateProjectRequest{
-		Name: "to-delete",
+		Name:     "to-delete",
 		Services: map[string]*ServiceConfig{"web": {Image: "nginx"}},
 	})
 
@@ -821,7 +821,7 @@ func TestHandlersStartStopProject(t *testing.T) {
 	_, m := setupHandlers()
 
 	project, _ := m.CreateProject(CreateProjectRequest{
-		Name: "lifecycle",
+		Name:     "lifecycle",
 		Services: map[string]*ServiceConfig{"web": {Image: "nginx"}},
 	})
 

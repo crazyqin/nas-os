@@ -69,10 +69,10 @@ func TestListPools(t *testing.T) {
 func TestCreatePolicy(t *testing.T) {
 	m := NewManager()
 	policy := &RebalancePolicy{
-		ID:       "policy-1",
-		Name:     "Default Policy",
-		Enabled:  true,
-		Strategy: StrategyHybrid,
+		ID:        "policy-1",
+		Name:      "Default Policy",
+		Enabled:   true,
+		Strategy:  StrategyHybrid,
 		Threshold: 0.2,
 	}
 

@@ -161,19 +161,19 @@ func TestCreateWorkflow(t *testing.T) {
 		ContentType: TypeDocument,
 		Stages: []Stage{
 			{
-				ID:   "draft",
-				Name: "Draft",
+				ID:     "draft",
+				Name:   "Draft",
 				Status: StatusDraft,
 			},
 			{
-				ID:   "review",
-				Name: "Review",
-				Status: StatusReview,
+				ID:        "review",
+				Name:      "Review",
+				Status:    StatusReview,
 				Assignees: []string{"editor"},
 			},
 			{
-				ID:   "publish",
-				Name: "Publish",
+				ID:     "publish",
+				Name:   "Publish",
 				Status: StatusPublished,
 			},
 		},

@@ -35,12 +35,12 @@ const (
 // Manager 虚拟机导入导出管理器.
 type Manager struct {
 	mu           sync.RWMutex
-	imports      map[string]*ImportTask  // importID -> ImportTask
-	exports      map[string]*ExportTask  // exportID -> ExportTask
-	images       map[string]*VMImage     // imageID -> VMImage
-	storagePath  string                  // 镜像存储路径
-	metadataPath string                  // 元数据存储路径
-	importSem    chan struct{}            // 导入并发控制
+	imports      map[string]*ImportTask        // importID -> ImportTask
+	exports      map[string]*ExportTask        // exportID -> ExportTask
+	images       map[string]*VMImage           // imageID -> VMImage
+	storagePath  string                        // 镜像存储路径
+	metadataPath string                        // 元数据存储路径
+	importSem    chan struct{}                 // 导入并发控制
 	cancelFuncs  map[string]context.CancelFunc // importID -> cancel func
 	exportCancel map[string]context.CancelFunc // exportID -> cancel func
 }

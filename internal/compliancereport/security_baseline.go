@@ -14,54 +14,54 @@ type SecurityBaselineStandard string
 
 const (
 	BaselineCIS  SecurityBaselineStandard = "cis"  // CIS Benchmark
-	BaselineNIST SecurityBaselineStandard = "nist"  // NIST SP 800-53
-	BaselineSTIG SecurityBaselineStandard = "stig"  // DISA STIG
+	BaselineNIST SecurityBaselineStandard = "nist" // NIST SP 800-53
+	BaselineSTIG SecurityBaselineStandard = "stig" // DISA STIG
 )
 
 // BaselineCategory 基线检查类别.
 type BaselineCategory string
 
 const (
-	BaselinePasswordPolicy  BaselineCategory = "password_policy"   // 密码策略
-	BaselineFilePermission  BaselineCategory = "file_permission"   // 文件权限
-	BaselineNetworkConfig   BaselineCategory = "network_config"    // 网络配置
-	BaselineServiceSecurity BaselineCategory = "service_security"  // 服务安全
-	BaselineSSHConfig       BaselineCategory = "ssh_config"        // SSH 配置
-	BaselineAuditLogging    BaselineCategory = "audit_logging"     // 审计日志
-	BaselineDiskEncryption  BaselineCategory = "disk_encryption"   // 磁盘加密
-	BaselineAccessControl   BaselineCategory = "access_control"    // 访问控制
+	BaselinePasswordPolicy  BaselineCategory = "password_policy"  // 密码策略
+	BaselineFilePermission  BaselineCategory = "file_permission"  // 文件权限
+	BaselineNetworkConfig   BaselineCategory = "network_config"   // 网络配置
+	BaselineServiceSecurity BaselineCategory = "service_security" // 服务安全
+	BaselineSSHConfig       BaselineCategory = "ssh_config"       // SSH 配置
+	BaselineAuditLogging    BaselineCategory = "audit_logging"    // 审计日志
+	BaselineDiskEncryption  BaselineCategory = "disk_encryption"  // 磁盘加密
+	BaselineAccessControl   BaselineCategory = "access_control"   // 访问控制
 )
 
 // BaselineCheckResult 基线检查结果.
 type BaselineCheckResult struct {
-	CheckID    string           `json:"check_id"`
-	Standard   SecurityBaselineStandard `json:"standard"`
-	Category   BaselineCategory `json:"category"`
-	Name       string           `json:"name"`
-	Status     CheckItemStatus  `json:"status"`
-	Severity   Severity         `json:"severity"`
-	Message    string           `json:"message"`
-	Details    string           `json:"details,omitempty"`
-	Reference  string           `json:"reference,omitempty"`  // CIS/NIST 参考编号
-	Remediation string          `json:"remediation,omitempty"`
-	Timestamp  time.Time        `json:"timestamp"`
+	CheckID     string                   `json:"check_id"`
+	Standard    SecurityBaselineStandard `json:"standard"`
+	Category    BaselineCategory         `json:"category"`
+	Name        string                   `json:"name"`
+	Status      CheckItemStatus          `json:"status"`
+	Severity    Severity                 `json:"severity"`
+	Message     string                   `json:"message"`
+	Details     string                   `json:"details,omitempty"`
+	Reference   string                   `json:"reference,omitempty"` // CIS/NIST 参考编号
+	Remediation string                   `json:"remediation,omitempty"`
+	Timestamp   time.Time                `json:"timestamp"`
 }
 
 // BaselineReport 安全基线检查报告.
 type BaselineReport struct {
-	ID           string                   `json:"id"`
-	Standard     SecurityBaselineStandard `json:"standard"`
-	Status       ScanStatus               `json:"status"`
-	Score        int                      `json:"score"`
-	TotalChecks  int                      `json:"total_checks"`
-	Passed       int                      `json:"passed"`
-	Failed       int                      `json:"failed"`
-	Warnings     int                      `json:"warnings"`
-	Skipped      int                      `json:"skipped"`
-	Results      []BaselineCheckResult    `json:"results"`
-	Summary      string                   `json:"summary"`
-	CreatedAt    time.Time                `json:"created_at"`
-	CompletedAt  *time.Time               `json:"completed_at,omitempty"`
+	ID          string                   `json:"id"`
+	Standard    SecurityBaselineStandard `json:"standard"`
+	Status      ScanStatus               `json:"status"`
+	Score       int                      `json:"score"`
+	TotalChecks int                      `json:"total_checks"`
+	Passed      int                      `json:"passed"`
+	Failed      int                      `json:"failed"`
+	Warnings    int                      `json:"warnings"`
+	Skipped     int                      `json:"skipped"`
+	Results     []BaselineCheckResult    `json:"results"`
+	Summary     string                   `json:"summary"`
+	CreatedAt   time.Time                `json:"created_at"`
+	CompletedAt *time.Time               `json:"completed_at,omitempty"`
 }
 
 // BaselineChecker 基线检查器接口.
@@ -233,10 +233,10 @@ func (s *SecurityBaselineScanner) registerDefaultCheckers() {
 
 type cisPasswordLengthChecker struct{}
 
-func (c *cisPasswordLengthChecker) Category() BaselineCategory   { return BaselinePasswordPolicy }
-func (c *cisPasswordLengthChecker) Name() string                 { return "密码最小长度" }
+func (c *cisPasswordLengthChecker) Category() BaselineCategory         { return BaselinePasswordPolicy }
+func (c *cisPasswordLengthChecker) Name() string                       { return "密码最小长度" }
 func (c *cisPasswordLengthChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisPasswordLengthChecker) Reference() string            { return "CIS 5.3.1" }
+func (c *cisPasswordLengthChecker) Reference() string                  { return "CIS 5.3.1" }
 func (c *cisPasswordLengthChecker) Check(ctx context.Context) BaselineCheckResult {
 	// 模拟检查：密码最小长度应 >= 14
 	minLength := 14
@@ -263,10 +263,10 @@ func (c *cisPasswordLengthChecker) Check(ctx context.Context) BaselineCheckResul
 
 type cisPasswordComplexityChecker struct{}
 
-func (c *cisPasswordComplexityChecker) Category() BaselineCategory   { return BaselinePasswordPolicy }
-func (c *cisPasswordComplexityChecker) Name() string                 { return "密码复杂度要求" }
+func (c *cisPasswordComplexityChecker) Category() BaselineCategory         { return BaselinePasswordPolicy }
+func (c *cisPasswordComplexityChecker) Name() string                       { return "密码复杂度要求" }
 func (c *cisPasswordComplexityChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisPasswordComplexityChecker) Reference() string            { return "CIS 5.3.2" }
+func (c *cisPasswordComplexityChecker) Reference() string                  { return "CIS 5.3.2" }
 func (c *cisPasswordComplexityChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "密码复杂度策略已启用：大小写字母+数字+特殊字符"
@@ -286,10 +286,10 @@ func (c *cisPasswordComplexityChecker) Check(ctx context.Context) BaselineCheckR
 
 type cisPasswordHistoryChecker struct{}
 
-func (c *cisPasswordHistoryChecker) Category() BaselineCategory   { return BaselinePasswordPolicy }
-func (c *cisPasswordHistoryChecker) Name() string                 { return "密码历史记录" }
+func (c *cisPasswordHistoryChecker) Category() BaselineCategory         { return BaselinePasswordPolicy }
+func (c *cisPasswordHistoryChecker) Name() string                       { return "密码历史记录" }
 func (c *cisPasswordHistoryChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisPasswordHistoryChecker) Reference() string            { return "CIS 5.3.3" }
+func (c *cisPasswordHistoryChecker) Reference() string                  { return "CIS 5.3.3" }
 func (c *cisPasswordHistoryChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "密码历史记录已配置，防止重复使用最近 5 个密码"
@@ -314,10 +314,10 @@ func (c *cisPasswordHistoryChecker) Check(ctx context.Context) BaselineCheckResu
 
 type cisAccountLockoutChecker struct{}
 
-func (c *cisAccountLockoutChecker) Category() BaselineCategory   { return BaselinePasswordPolicy }
-func (c *cisAccountLockoutChecker) Name() string                 { return "账户锁定策略" }
+func (c *cisAccountLockoutChecker) Category() BaselineCategory         { return BaselinePasswordPolicy }
+func (c *cisAccountLockoutChecker) Name() string                       { return "账户锁定策略" }
 func (c *cisAccountLockoutChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisAccountLockoutChecker) Reference() string            { return "CIS 5.3.4" }
+func (c *cisAccountLockoutChecker) Reference() string                  { return "CIS 5.3.4" }
 func (c *cisAccountLockoutChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "账户锁定策略已配置：5 次失败后锁定 15 分钟"
@@ -339,10 +339,10 @@ func (c *cisAccountLockoutChecker) Check(ctx context.Context) BaselineCheckResul
 
 type cisPasswdPermissionChecker struct{}
 
-func (c *cisPasswdPermissionChecker) Category() BaselineCategory   { return BaselineFilePermission }
-func (c *cisPasswdPermissionChecker) Name() string                 { return "/etc/passwd 权限" }
+func (c *cisPasswdPermissionChecker) Category() BaselineCategory         { return BaselineFilePermission }
+func (c *cisPasswdPermissionChecker) Name() string                       { return "/etc/passwd 权限" }
 func (c *cisPasswdPermissionChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisPasswdPermissionChecker) Reference() string            { return "CIS 6.1.2" }
+func (c *cisPasswdPermissionChecker) Reference() string                  { return "CIS 6.1.2" }
 func (c *cisPasswdPermissionChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "/etc/passwd 权限为 644，符合 CIS 要求"
@@ -367,10 +367,10 @@ func (c *cisPasswdPermissionChecker) Check(ctx context.Context) BaselineCheckRes
 
 type cisShadowPermissionChecker struct{}
 
-func (c *cisShadowPermissionChecker) Category() BaselineCategory   { return BaselineFilePermission }
-func (c *cisShadowPermissionChecker) Name() string                 { return "/etc/shadow 权限" }
+func (c *cisShadowPermissionChecker) Category() BaselineCategory         { return BaselineFilePermission }
+func (c *cisShadowPermissionChecker) Name() string                       { return "/etc/shadow 权限" }
 func (c *cisShadowPermissionChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisShadowPermissionChecker) Reference() string            { return "CIS 6.1.3" }
+func (c *cisShadowPermissionChecker) Reference() string                  { return "CIS 6.1.3" }
 func (c *cisShadowPermissionChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "/etc/shadow 权限为 640，符合 CIS 要求"
@@ -390,10 +390,10 @@ func (c *cisShadowPermissionChecker) Check(ctx context.Context) BaselineCheckRes
 
 type cisSSHKeyPermissionChecker struct{}
 
-func (c *cisSSHKeyPermissionChecker) Category() BaselineCategory   { return BaselineFilePermission }
-func (c *cisSSHKeyPermissionChecker) Name() string                 { return "SSH 密钥文件权限" }
+func (c *cisSSHKeyPermissionChecker) Category() BaselineCategory         { return BaselineFilePermission }
+func (c *cisSSHKeyPermissionChecker) Name() string                       { return "SSH 密钥文件权限" }
 func (c *cisSSHKeyPermissionChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisSSHKeyPermissionChecker) Reference() string            { return "CIS 6.2.1" }
+func (c *cisSSHKeyPermissionChecker) Reference() string                  { return "CIS 6.2.1" }
 func (c *cisSSHKeyPermissionChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "SSH 密钥文件权限正确：私钥 600，公钥 644"
@@ -418,10 +418,10 @@ func (c *cisSSHKeyPermissionChecker) Check(ctx context.Context) BaselineCheckRes
 
 type cisConfigFilePermissionChecker struct{}
 
-func (c *cisConfigFilePermissionChecker) Category() BaselineCategory   { return BaselineFilePermission }
-func (c *cisConfigFilePermissionChecker) Name() string                 { return "配置文件权限" }
+func (c *cisConfigFilePermissionChecker) Category() BaselineCategory         { return BaselineFilePermission }
+func (c *cisConfigFilePermissionChecker) Name() string                       { return "配置文件权限" }
 func (c *cisConfigFilePermissionChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisConfigFilePermissionChecker) Reference() string            { return "CIS 6.1.10" }
+func (c *cisConfigFilePermissionChecker) Reference() string                  { return "CIS 6.1.10" }
 func (c *cisConfigFilePermissionChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "关键配置文件权限已正确设置"
@@ -443,10 +443,10 @@ func (c *cisConfigFilePermissionChecker) Check(ctx context.Context) BaselineChec
 
 type cisIPForwardingChecker struct{}
 
-func (c *cisIPForwardingChecker) Category() BaselineCategory   { return BaselineNetworkConfig }
-func (c *cisIPForwardingChecker) Name() string                 { return "IP 转发配置" }
+func (c *cisIPForwardingChecker) Category() BaselineCategory         { return BaselineNetworkConfig }
+func (c *cisIPForwardingChecker) Name() string                       { return "IP 转发配置" }
 func (c *cisIPForwardingChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisIPForwardingChecker) Reference() string            { return "CIS 3.1.1" }
+func (c *cisIPForwardingChecker) Reference() string                  { return "CIS 3.1.1" }
 func (c *cisIPForwardingChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "IP 转发已禁用（除非作为路由器使用）"
@@ -466,10 +466,10 @@ func (c *cisIPForwardingChecker) Check(ctx context.Context) BaselineCheckResult 
 
 type cisICMPRedirectChecker struct{}
 
-func (c *cisICMPRedirectChecker) Category() BaselineCategory   { return BaselineNetworkConfig }
-func (c *cisICMPRedirectChecker) Name() string                 { return "ICMP 重定向" }
+func (c *cisICMPRedirectChecker) Category() BaselineCategory         { return BaselineNetworkConfig }
+func (c *cisICMPRedirectChecker) Name() string                       { return "ICMP 重定向" }
 func (c *cisICMPRedirectChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisICMPRedirectChecker) Reference() string            { return "CIS 3.2.1" }
+func (c *cisICMPRedirectChecker) Reference() string                  { return "CIS 3.2.1" }
 func (c *cisICMPRedirectChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "ICMP 重定向已禁用，防止路由欺骗攻击"
@@ -494,10 +494,10 @@ func (c *cisICMPRedirectChecker) Check(ctx context.Context) BaselineCheckResult 
 
 type cisFirewallStatusChecker struct{}
 
-func (c *cisFirewallStatusChecker) Category() BaselineCategory   { return BaselineNetworkConfig }
-func (c *cisFirewallStatusChecker) Name() string                 { return "防火墙状态" }
+func (c *cisFirewallStatusChecker) Category() BaselineCategory         { return BaselineNetworkConfig }
+func (c *cisFirewallStatusChecker) Name() string                       { return "防火墙状态" }
 func (c *cisFirewallStatusChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisFirewallStatusChecker) Reference() string            { return "CIS 3.5.1" }
+func (c *cisFirewallStatusChecker) Reference() string                  { return "CIS 3.5.1" }
 func (c *cisFirewallStatusChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "防火墙已启用，默认策略为拒绝"
@@ -517,10 +517,10 @@ func (c *cisFirewallStatusChecker) Check(ctx context.Context) BaselineCheckResul
 
 type cisNetworkBannerChecker struct{}
 
-func (c *cisNetworkBannerChecker) Category() BaselineCategory   { return BaselineNetworkConfig }
-func (c *cisNetworkBannerChecker) Name() string                 { return "网络登录横幅" }
+func (c *cisNetworkBannerChecker) Category() BaselineCategory         { return BaselineNetworkConfig }
+func (c *cisNetworkBannerChecker) Name() string                       { return "网络登录横幅" }
 func (c *cisNetworkBannerChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisNetworkBannerChecker) Reference() string            { return "CIS 1.7.1" }
+func (c *cisNetworkBannerChecker) Reference() string                  { return "CIS 1.7.1" }
 func (c *cisNetworkBannerChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "登录横幅已配置，显示法律警告信息"
@@ -547,10 +547,10 @@ func (c *cisNetworkBannerChecker) Check(ctx context.Context) BaselineCheckResult
 
 type cisSSHProtocolChecker struct{}
 
-func (c *cisSSHProtocolChecker) Category() BaselineCategory   { return BaselineServiceSecurity }
-func (c *cisSSHProtocolChecker) Name() string                 { return "SSH 协议版本" }
+func (c *cisSSHProtocolChecker) Category() BaselineCategory         { return BaselineServiceSecurity }
+func (c *cisSSHProtocolChecker) Name() string                       { return "SSH 协议版本" }
 func (c *cisSSHProtocolChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisSSHProtocolChecker) Reference() string            { return "CIS 5.2.2" }
+func (c *cisSSHProtocolChecker) Reference() string                  { return "CIS 5.2.2" }
 func (c *cisSSHProtocolChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "SSH 协议版本已设置为 2，禁用了不安全的 SSHv1"
@@ -570,10 +570,10 @@ func (c *cisSSHProtocolChecker) Check(ctx context.Context) BaselineCheckResult {
 
 type cisSSHRootLoginChecker struct{}
 
-func (c *cisSSHRootLoginChecker) Category() BaselineCategory   { return BaselineServiceSecurity }
-func (c *cisSSHRootLoginChecker) Name() string                 { return "SSH Root 登录" }
+func (c *cisSSHRootLoginChecker) Category() BaselineCategory         { return BaselineServiceSecurity }
+func (c *cisSSHRootLoginChecker) Name() string                       { return "SSH Root 登录" }
 func (c *cisSSHRootLoginChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisSSHRootLoginChecker) Reference() string            { return "CIS 5.2.8" }
+func (c *cisSSHRootLoginChecker) Reference() string                  { return "CIS 5.2.8" }
 func (c *cisSSHRootLoginChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "SSH Root 登录已禁用"
@@ -598,10 +598,10 @@ func (c *cisSSHRootLoginChecker) Check(ctx context.Context) BaselineCheckResult 
 
 type cisSSHMaxAuthTriesChecker struct{}
 
-func (c *cisSSHMaxAuthTriesChecker) Category() BaselineCategory   { return BaselineServiceSecurity }
-func (c *cisSSHMaxAuthTriesChecker) Name() string                 { return "SSH 最大认证尝试" }
+func (c *cisSSHMaxAuthTriesChecker) Category() BaselineCategory         { return BaselineServiceSecurity }
+func (c *cisSSHMaxAuthTriesChecker) Name() string                       { return "SSH 最大认证尝试" }
 func (c *cisSSHMaxAuthTriesChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisSSHMaxAuthTriesChecker) Reference() string            { return "CIS 5.2.6" }
+func (c *cisSSHMaxAuthTriesChecker) Reference() string                  { return "CIS 5.2.6" }
 func (c *cisSSHMaxAuthTriesChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "SSH 最大认证尝试次数已设置为 4"
@@ -621,10 +621,10 @@ func (c *cisSSHMaxAuthTriesChecker) Check(ctx context.Context) BaselineCheckResu
 
 type cisUnnecessaryServicesChecker struct{}
 
-func (c *cisUnnecessaryServicesChecker) Category() BaselineCategory   { return BaselineServiceSecurity }
-func (c *cisUnnecessaryServicesChecker) Name() string                 { return "不必要的服务" }
+func (c *cisUnnecessaryServicesChecker) Category() BaselineCategory         { return BaselineServiceSecurity }
+func (c *cisUnnecessaryServicesChecker) Name() string                       { return "不必要的服务" }
 func (c *cisUnnecessaryServicesChecker) Standard() SecurityBaselineStandard { return BaselineCIS }
-func (c *cisUnnecessaryServicesChecker) Reference() string            { return "CIS 2.1" }
+func (c *cisUnnecessaryServicesChecker) Reference() string                  { return "CIS 2.1" }
 func (c *cisUnnecessaryServicesChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "不必要的服务已禁用"
@@ -651,10 +651,10 @@ func (c *cisUnnecessaryServicesChecker) Check(ctx context.Context) BaselineCheck
 
 type nistAuditLogChecker struct{}
 
-func (c *nistAuditLogChecker) Category() BaselineCategory   { return BaselineAuditLogging }
-func (c *nistAuditLogChecker) Name() string                 { return "审计日志启用" }
+func (c *nistAuditLogChecker) Category() BaselineCategory         { return BaselineAuditLogging }
+func (c *nistAuditLogChecker) Name() string                       { return "审计日志启用" }
 func (c *nistAuditLogChecker) Standard() SecurityBaselineStandard { return BaselineNIST }
-func (c *nistAuditLogChecker) Reference() string            { return "NIST AU-2" }
+func (c *nistAuditLogChecker) Reference() string                  { return "NIST AU-2" }
 func (c *nistAuditLogChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "审计日志已全面启用，覆盖安全相关事件"
@@ -674,10 +674,10 @@ func (c *nistAuditLogChecker) Check(ctx context.Context) BaselineCheckResult {
 
 type nistLogRetentionChecker struct{}
 
-func (c *nistLogRetentionChecker) Category() BaselineCategory   { return BaselineAuditLogging }
-func (c *nistLogRetentionChecker) Name() string                 { return "日志保留策略" }
+func (c *nistLogRetentionChecker) Category() BaselineCategory         { return BaselineAuditLogging }
+func (c *nistLogRetentionChecker) Name() string                       { return "日志保留策略" }
 func (c *nistLogRetentionChecker) Standard() SecurityBaselineStandard { return BaselineNIST }
-func (c *nistLogRetentionChecker) Reference() string            { return "NIST AU-11" }
+func (c *nistLogRetentionChecker) Reference() string                  { return "NIST AU-11" }
 func (c *nistLogRetentionChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "日志保留期限设置为 180 天，符合 NIST 要求"
@@ -702,10 +702,10 @@ func (c *nistLogRetentionChecker) Check(ctx context.Context) BaselineCheckResult
 
 type nistLogIntegrityChecker struct{}
 
-func (c *nistLogIntegrityChecker) Category() BaselineCategory   { return BaselineAuditLogging }
-func (c *nistLogIntegrityChecker) Name() string                 { return "日志完整性保护" }
+func (c *nistLogIntegrityChecker) Category() BaselineCategory         { return BaselineAuditLogging }
+func (c *nistLogIntegrityChecker) Name() string                       { return "日志完整性保护" }
 func (c *nistLogIntegrityChecker) Standard() SecurityBaselineStandard { return BaselineNIST }
-func (c *nistLogIntegrityChecker) Reference() string            { return "NIST SI-7" }
+func (c *nistLogIntegrityChecker) Reference() string                  { return "NIST SI-7" }
 func (c *nistLogIntegrityChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "日志完整性校验已启用，使用哈希链保护日志不被篡改"
@@ -727,10 +727,10 @@ func (c *nistLogIntegrityChecker) Check(ctx context.Context) BaselineCheckResult
 
 type nistDiskEncryptionChecker struct{}
 
-func (c *nistDiskEncryptionChecker) Category() BaselineCategory   { return BaselineDiskEncryption }
-func (c *nistDiskEncryptionChecker) Name() string                 { return "磁盘加密状态" }
+func (c *nistDiskEncryptionChecker) Category() BaselineCategory         { return BaselineDiskEncryption }
+func (c *nistDiskEncryptionChecker) Name() string                       { return "磁盘加密状态" }
 func (c *nistDiskEncryptionChecker) Standard() SecurityBaselineStandard { return BaselineNIST }
-func (c *nistDiskEncryptionChecker) Reference() string            { return "NIST SC-28" }
+func (c *nistDiskEncryptionChecker) Reference() string                  { return "NIST SC-28" }
 func (c *nistDiskEncryptionChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "存储卷已使用 AES-256 加密"
@@ -755,10 +755,12 @@ func (c *nistDiskEncryptionChecker) Check(ctx context.Context) BaselineCheckResu
 
 type nistEncryptionKeyManagementChecker struct{}
 
-func (c *nistEncryptionKeyManagementChecker) Category() BaselineCategory   { return BaselineDiskEncryption }
-func (c *nistEncryptionKeyManagementChecker) Name() string                 { return "加密密钥管理" }
+func (c *nistEncryptionKeyManagementChecker) Category() BaselineCategory {
+	return BaselineDiskEncryption
+}
+func (c *nistEncryptionKeyManagementChecker) Name() string                       { return "加密密钥管理" }
 func (c *nistEncryptionKeyManagementChecker) Standard() SecurityBaselineStandard { return BaselineNIST }
-func (c *nistEncryptionKeyManagementChecker) Reference() string            { return "NIST SC-12" }
+func (c *nistEncryptionKeyManagementChecker) Reference() string                  { return "NIST SC-12" }
 func (c *nistEncryptionKeyManagementChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "加密密钥管理策略已实施，密钥定期轮换"
@@ -780,10 +782,10 @@ func (c *nistEncryptionKeyManagementChecker) Check(ctx context.Context) Baseline
 
 type nistAccessControlChecker struct{}
 
-func (c *nistAccessControlChecker) Category() BaselineCategory   { return BaselineAccessControl }
-func (c *nistAccessControlChecker) Name() string                 { return "访问控制策略" }
+func (c *nistAccessControlChecker) Category() BaselineCategory         { return BaselineAccessControl }
+func (c *nistAccessControlChecker) Name() string                       { return "访问控制策略" }
 func (c *nistAccessControlChecker) Standard() SecurityBaselineStandard { return BaselineNIST }
-func (c *nistAccessControlChecker) Reference() string            { return "NIST AC-3" }
+func (c *nistAccessControlChecker) Reference() string                  { return "NIST AC-3" }
 func (c *nistAccessControlChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "RBAC 访问控制已启用，最小权限原则已实施"
@@ -803,10 +805,10 @@ func (c *nistAccessControlChecker) Check(ctx context.Context) BaselineCheckResul
 
 type nistPrivilegeManagementChecker struct{}
 
-func (c *nistPrivilegeManagementChecker) Category() BaselineCategory   { return BaselineAccessControl }
-func (c *nistPrivilegeManagementChecker) Name() string                 { return "特权账户管理" }
+func (c *nistPrivilegeManagementChecker) Category() BaselineCategory         { return BaselineAccessControl }
+func (c *nistPrivilegeManagementChecker) Name() string                       { return "特权账户管理" }
 func (c *nistPrivilegeManagementChecker) Standard() SecurityBaselineStandard { return BaselineNIST }
-func (c *nistPrivilegeManagementChecker) Reference() string            { return "NIST AC-6" }
+func (c *nistPrivilegeManagementChecker) Reference() string                  { return "NIST AC-6" }
 func (c *nistPrivilegeManagementChecker) Check(ctx context.Context) BaselineCheckResult {
 	status := CheckItemPass
 	message := "特权账户已实施最小权限管理，sudo 使用已审计"

@@ -15,14 +15,14 @@ type QueryParser struct {
 
 // ParsedQuery 解析后的查询
 type ParsedQuery struct {
-	Raw       string      `json:"raw"`
-	Terms     []string    `json:"terms"`
-	Keywords  []string    `json:"keywords"`
-	Paths     []string    `json:"paths,omitempty"`
-	FileTypes []string    `json:"fileTypes,omitempty"`
-	SizeRange *SizeRange  `json:"sizeRange,omitempty"`
-	DateRange *DateRange  `json:"dateRange,omitempty"`
-	Operators []Operator  `json:"operators,omitempty"`
+	Raw       string     `json:"raw"`
+	Terms     []string   `json:"terms"`
+	Keywords  []string   `json:"keywords"`
+	Paths     []string   `json:"paths,omitempty"`
+	FileTypes []string   `json:"fileTypes,omitempty"`
+	SizeRange *SizeRange `json:"sizeRange,omitempty"`
+	DateRange *DateRange `json:"dateRange,omitempty"`
+	Operators []Operator `json:"operators,omitempty"`
 }
 
 // SizeRange 大小范围

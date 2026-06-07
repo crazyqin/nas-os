@@ -335,8 +335,8 @@ func (m *Manager) scanSMART(disk *DiskHealth) error {
 	disk.ReallocatedSectors = 0
 	disk.PendingSectors = 0
 	disk.UncorrectableErrors = 0
-	disk.TotalReads = 10 * 1024 * 1024 * 1024 * 1024  // 10TB
-	disk.TotalWrites = 5 * 1024 * 1024 * 1024 * 1024  // 5TB
+	disk.TotalReads = 10 * 1024 * 1024 * 1024 * 1024 // 10TB
+	disk.TotalWrites = 5 * 1024 * 1024 * 1024 * 1024 // 5TB
 
 	return nil
 }

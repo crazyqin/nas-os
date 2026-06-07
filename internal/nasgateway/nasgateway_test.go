@@ -176,7 +176,7 @@ func TestEngine_PolicyManagement(t *testing.T) {
 			Config: map[string]interface{}{
 				"circuit_breaker": map[string]interface{}{
 					"failure_threshold": 5,
-					"timeout":          30 * time.Second,
+					"timeout":           30 * time.Second,
 				},
 			},
 		}
@@ -712,9 +712,9 @@ func TestOAuthServer_AccessToken(t *testing.T) {
 	server := NewOAuthServer()
 
 	client := &OAuthClient{
-		ID:             "client1",
-		Secret:         "secret1",
-		AccessTokenTTL: time.Hour,
+		ID:              "client1",
+		Secret:          "secret1",
+		AccessTokenTTL:  time.Hour,
 		RefreshTokenTTL: 24 * time.Hour,
 	}
 	server.RegisterClient(client)
@@ -932,8 +932,8 @@ type testPlugin struct {
 	desc string
 }
 
-func (p *testPlugin) Name() string        { return p.name }
-func (p *testPlugin) Description() string  { return p.desc }
-func (p *testPlugin) Execute(ctx *PluginContext) error { return nil }
-func (p *testPlugin) OnRequest(req *http.Request) error  { return nil }
+func (p *testPlugin) Name() string                         { return p.name }
+func (p *testPlugin) Description() string                  { return p.desc }
+func (p *testPlugin) Execute(ctx *PluginContext) error     { return nil }
+func (p *testPlugin) OnRequest(req *http.Request) error    { return nil }
 func (p *testPlugin) OnResponse(resp *http.Response) error { return nil }

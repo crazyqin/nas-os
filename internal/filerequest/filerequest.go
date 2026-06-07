@@ -29,8 +29,8 @@ type Request struct {
 	CreatorID   string    `json:"creator_id"`
 	TargetPath  string    `json:"target_path"` // Where uploaded files land
 	Status      Status    `json:"status"`
-	MaxFiles    int       `json:"max_files"`    // 0 = unlimited
-	MaxSizeMB   int       `json:"max_size_mb"`  // 0 = unlimited
+	MaxFiles    int       `json:"max_files"`   // 0 = unlimited
+	MaxSizeMB   int       `json:"max_size_mb"` // 0 = unlimited
 	ExpiresAt   time.Time `json:"expires_at"`
 	CreatedAt   time.Time `json:"created_at"`
 	UploadCount int       `json:"upload_count"`

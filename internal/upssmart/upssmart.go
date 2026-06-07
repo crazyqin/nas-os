@@ -32,56 +32,56 @@ type PowerEvent string
 const (
 	EventPowerOut      PowerEvent = "power_out"      // 停电
 	EventPowerRestore  PowerEvent = "power_restore"  // 来电
-	EventVoltageSag    PowerEvent = "voltage_sag"     // 电压过低
-	EventVoltageSwell  PowerEvent = "voltage_swell"   // 电压过高
-	EventFreqDeviation PowerEvent = "freq_deviation"  // 频率异常
-	EventBatteryLow    PowerEvent = "battery_low"     // 电池电量低
-	EventOverload      PowerEvent = "overload"        // 过载
-	EventFault         PowerEvent = "fault"           // 故障
+	EventVoltageSag    PowerEvent = "voltage_sag"    // 电压过低
+	EventVoltageSwell  PowerEvent = "voltage_swell"  // 电压过高
+	EventFreqDeviation PowerEvent = "freq_deviation" // 频率异常
+	EventBatteryLow    PowerEvent = "battery_low"    // 电池电量低
+	EventOverload      PowerEvent = "overload"       // 过载
+	EventFault         PowerEvent = "fault"          // 故障
 )
 
 // UPSDevice 表示单个 UPS 设备
 type UPSDevice struct {
-	ID              string        `json:"id"`               // 设备唯一标识
-	Name            string        `json:"name"`             // 设备名称
-	Model           string        `json:"model"`            // 设备型号
-	SerialNumber    string        `json:"serial_number"`    // 序列号
-	Protocol        UPSProtocol   `json:"protocol"`         // 通信协议
-	Address         string        `json:"address"`          // 设备地址（端口或IP）
-	Role            UPSRole       `json:"role"`             // 角色（主/从）
-	Status          UPSStatus     `json:"status"`           // 当前状态
-	HealthScore     int           `json:"health_score"`     // 健康评分 0-100
-	LastTestTime    time.Time     `json:"last_test_time"`   // 上次测试时间
-	LastTestResult  string        `json:"last_test_result"` // 上次测试结果
-	InstalledDate   time.Time     `json:"installed_date"`   // 安装日期
-	BatteryAge      int           `json:"battery_age"`      // 电池年龄（月）
+	ID             string      `json:"id"`               // 设备唯一标识
+	Name           string      `json:"name"`             // 设备名称
+	Model          string      `json:"model"`            // 设备型号
+	SerialNumber   string      `json:"serial_number"`    // 序列号
+	Protocol       UPSProtocol `json:"protocol"`         // 通信协议
+	Address        string      `json:"address"`          // 设备地址（端口或IP）
+	Role           UPSRole     `json:"role"`             // 角色（主/从）
+	Status         UPSStatus   `json:"status"`           // 当前状态
+	HealthScore    int         `json:"health_score"`     // 健康评分 0-100
+	LastTestTime   time.Time   `json:"last_test_time"`   // 上次测试时间
+	LastTestResult string      `json:"last_test_result"` // 上次测试结果
+	InstalledDate  time.Time   `json:"installed_date"`   // 安装日期
+	BatteryAge     int         `json:"battery_age"`      // 电池年龄（月）
 }
 
 // UPSStatus UPS 实时状态
 type UPSStatus struct {
-	BatteryLevel    int           `json:"battery_level"`    // 电池电量 0-100%
-	BatteryVoltage  float64       `json:"battery_voltage"`  // 电池电压 V
-	LoadPercent     int           `json:"load_percent"`     // 负载百分比 0-100%
-	InputVoltage    float64       `json:"input_voltage"`    // 输入电压 V
-	OutputVoltage   float64       `json:"output_voltage"`   // 输出电压 V
-	InputFrequency  float64       `json:"input_frequency"`  // 输入频率 Hz
-	Temperature     float64       `json:"temperature"`      // 温度 ℃
-	RuntimeLeft     time.Duration `json:"runtime_left"`     // 剩余运行时间
-	OnBattery       bool          `json:"on_battery"`       // 是否使用电池
-	Charging        bool          `json:"charging"`         // 是否充电中
-	BatteryHealthy  bool          `json:"battery_healthy"`  // 电池健康状态
-	Overloaded      bool          `json:"overloaded"`       // 是否过载
-	LastUpdated     time.Time     `json:"last_updated"`     // 最后更新时间
+	BatteryLevel   int           `json:"battery_level"`   // 电池电量 0-100%
+	BatteryVoltage float64       `json:"battery_voltage"` // 电池电压 V
+	LoadPercent    int           `json:"load_percent"`    // 负载百分比 0-100%
+	InputVoltage   float64       `json:"input_voltage"`   // 输入电压 V
+	OutputVoltage  float64       `json:"output_voltage"`  // 输出电压 V
+	InputFrequency float64       `json:"input_frequency"` // 输入频率 Hz
+	Temperature    float64       `json:"temperature"`     // 温度 ℃
+	RuntimeLeft    time.Duration `json:"runtime_left"`    // 剩余运行时间
+	OnBattery      bool          `json:"on_battery"`      // 是否使用电池
+	Charging       bool          `json:"charging"`        // 是否充电中
+	BatteryHealthy bool          `json:"battery_healthy"` // 电池健康状态
+	Overloaded     bool          `json:"overloaded"`      // 是否过载
+	LastUpdated    time.Time     `json:"last_updated"`    // 最后更新时间
 }
 
 // PowerEventRecord 电源事件记录
 type PowerEventRecord struct {
-	ID        string      `json:"id"`
-	UPSID     string      `json:"ups_id"`
-	Event     PowerEvent  `json:"event"`
-	Timestamp time.Time   `json:"timestamp"`
-	Details   string      `json:"details"`
-	Resolved  bool        `json:"resolved"`
+	ID         string     `json:"id"`
+	UPSID      string     `json:"ups_id"`
+	Event      PowerEvent `json:"event"`
+	Timestamp  time.Time  `json:"timestamp"`
+	Details    string     `json:"details"`
+	Resolved   bool       `json:"resolved"`
 	ResovledAt time.Time  `json:"resolved_at,omitempty"`
 }
 
@@ -105,14 +105,14 @@ func DefaultUPSManagerConfig() UPSManagerConfig {
 
 // UPSManager UPS 智能管理器
 type UPSManager struct {
-	mu          sync.RWMutex
-	config      UPSManagerConfig
-	devices     map[string]*UPSDevice  // 设备列表，key 为设备 ID
-	events      []PowerEventRecord     // 电源事件记录
-	eventCh     chan PowerEventRecord   // 事件通知通道
-	stopCh      chan struct{}
-	running     bool
-	onEvent     func(PowerEventRecord) // 事件回调
+	mu      sync.RWMutex
+	config  UPSManagerConfig
+	devices map[string]*UPSDevice // 设备列表，key 为设备 ID
+	events  []PowerEventRecord    // 电源事件记录
+	eventCh chan PowerEventRecord // 事件通知通道
+	stopCh  chan struct{}
+	running bool
+	onEvent func(PowerEventRecord) // 事件回调
 }
 
 // NewUPSManager 创建新的 UPS 管理器

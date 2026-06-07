@@ -233,8 +233,8 @@ func (h *Handlers) getDeliveryByID(c *gin.Context) {
 func (h *Handlers) updateDeliveryStatus(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
-		Status    DeliveryStatus `json:"status" binding:"required"`
-		Error     string         `json:"error,omitempty"`
+		Status DeliveryStatus `json:"status" binding:"required"`
+		Error  string         `json:"error,omitempty"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {

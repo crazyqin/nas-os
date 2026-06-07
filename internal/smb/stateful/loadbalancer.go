@@ -28,9 +28,9 @@ type SMBClientLoadBalancer struct {
 	strategy StrategyType
 
 	mu       sync.RWMutex
-	weights  map[string]int           // nodeID -> weight
-	counters map[string]*int64        // nodeID -> active connection counter (atomic)
-	rrIndex  uint64                   // round-robin atomic counter
+	weights  map[string]int    // nodeID -> weight
+	counters map[string]*int64 // nodeID -> active connection counter (atomic)
+	rrIndex  uint64            // round-robin atomic counter
 }
 
 // NewSMBClientLoadBalancer 创建负载均衡器
@@ -267,11 +267,11 @@ func (lb *SMBClientLoadBalancer) GetConnCount(nodeID string) int64 {
 
 // DistributionStats 会话分布统计
 type DistributionStats struct {
-	NodeID       string `json:"node_id"`
-	Weight       int    `json:"weight"`
-	ActiveConns  int64  `json:"active_conns"`
-	Sessions     int    `json:"sessions"`
-	Status       NodeStatus `json:"status"`
+	NodeID      string     `json:"node_id"`
+	Weight      int        `json:"weight"`
+	ActiveConns int64      `json:"active_conns"`
+	Sessions    int        `json:"sessions"`
+	Status      NodeStatus `json:"status"`
 }
 
 // GetDistributionStats 获取会话分布统计

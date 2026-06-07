@@ -14,31 +14,31 @@ import (
 
 // AuditLogger logs failover events for auditing
 type AuditLogger struct {
-	mu           sync.RWMutex
-	config       AuditConfig
-	logger       *zap.Logger
-	auditLogger  *zap.Logger
-	events       []AuditEvent
-	fileWriter   *os.File
-	jsonEncoder  *json.Encoder
-	running      bool
-	stopCh       chan struct{}
+	mu          sync.RWMutex
+	config      AuditConfig
+	logger      *zap.Logger
+	auditLogger *zap.Logger
+	events      []AuditEvent
+	fileWriter  *os.File
+	jsonEncoder *json.Encoder
+	running     bool
+	stopCh      chan struct{}
 }
 
 // AuditConfig configures audit logging
 type AuditConfig struct {
-	LogDir           string        `json:"log_dir"`
-	LogFile          string        `json:"log_file"`
-	MaxSizeMB        int           `json:"max_size_mb"`
-	MaxBackups       int           `json:"max_backups"`
-	MaxAge           int           `json:"max_age_days"`
-	Compress         bool          `json:"compress"`
-	EnableJSON       bool          `json:"enable_json"`
-	EnableConsole    bool          `json:"enable_console"`
-	RetentionPeriod  time.Duration `json:"retention_period"`
-	FlushInterval    time.Duration `json:"flush_interval"`
-	BufferSize       int           `json:"buffer_size"`
-	EnableMetrics    bool          `json:"enable_metrics"`
+	LogDir          string        `json:"log_dir"`
+	LogFile         string        `json:"log_file"`
+	MaxSizeMB       int           `json:"max_size_mb"`
+	MaxBackups      int           `json:"max_backups"`
+	MaxAge          int           `json:"max_age_days"`
+	Compress        bool          `json:"compress"`
+	EnableJSON      bool          `json:"enable_json"`
+	EnableConsole   bool          `json:"enable_console"`
+	RetentionPeriod time.Duration `json:"retention_period"`
+	FlushInterval   time.Duration `json:"flush_interval"`
+	BufferSize      int           `json:"buffer_size"`
+	EnableMetrics   bool          `json:"enable_metrics"`
 }
 
 // DefaultAuditConfig returns sensible defaults
@@ -81,39 +81,39 @@ const (
 
 // AuditEvent represents an auditable event
 type AuditEvent struct {
-	ID          string                 `json:"id"`
-	EventType   AuditEventType         `json:"event_type"`
-	Timestamp   time.Time              `json:"timestamp"`
-	Source      string                 `json:"source"`
-	Target      string                 `json:"target,omitempty"`
-	NodeID      string                 `json:"node_id,omitempty"`
-	SessionID   string                 `json:"session_id,omitempty"`
-	Message     string                 `json:"message"`
-	Details     map[string]interface{} `json:"details,omitempty"`
-	Success     bool                   `json:"success"`
-	Error       string                 `json:"error,omitempty"`
-	Duration    time.Duration          `json:"duration,omitempty"`
-	UserID      string                 `json:"user_id,omitempty"`
-	ClientIP    string                 `json:"client_ip,omitempty"`
+	ID        string                 `json:"id"`
+	EventType AuditEventType         `json:"event_type"`
+	Timestamp time.Time              `json:"timestamp"`
+	Source    string                 `json:"source"`
+	Target    string                 `json:"target,omitempty"`
+	NodeID    string                 `json:"node_id,omitempty"`
+	SessionID string                 `json:"session_id,omitempty"`
+	Message   string                 `json:"message"`
+	Details   map[string]interface{} `json:"details,omitempty"`
+	Success   bool                   `json:"success"`
+	Error     string                 `json:"error,omitempty"`
+	Duration  time.Duration          `json:"duration,omitempty"`
+	UserID    string                 `json:"user_id,omitempty"`
+	ClientIP  string                 `json:"client_ip,omitempty"`
 }
 
 // AuditMetrics tracks audit logging metrics
 type AuditMetrics struct {
-	mu              sync.RWMutex
-	TotalEvents     int64                    `json:"total_events"`
-	EventsByType    map[AuditEventType]int64 `json:"events_by_type"`
-	LastEventTime   time.Time                `json:"last_event_time"`
-	FailedEvents    int64                    `json:"failed_events"`
-	BufferedEvents  int                      `json:"buffered_events"`
+	mu             sync.RWMutex
+	TotalEvents    int64                    `json:"total_events"`
+	EventsByType   map[AuditEventType]int64 `json:"events_by_type"`
+	LastEventTime  time.Time                `json:"last_event_time"`
+	FailedEvents   int64                    `json:"failed_events"`
+	BufferedEvents int                      `json:"buffered_events"`
 }
 
 // NewAuditLogger creates a new audit logger
 func NewAuditLogger(config AuditConfig, logger *zap.Logger) (*AuditLogger, error) {
 	al := &AuditLogger{
-		config:  config,
-		logger:  logger,
-		events:  make([]AuditEvent, 0, config.BufferSize),
-		stopCh:  make(chan struct{}),
+		config: config,
+		logger: logger,
+		events: make([]AuditEvent, 0, config.BufferSize),
+		stopCh: make(chan struct{}),
 	}
 
 	// Create log directory
@@ -400,9 +400,9 @@ func (al *AuditLogger) LogFailoverEnd(event *FailoverEvent) {
 		Message: fmt.Sprintf("Failover %s: %s -> %s (%d sessions, %v)",
 			eventType, event.FromNode, event.ToNode, event.Sessions, event.Duration),
 		Details: map[string]interface{}{
-			"event_id":           event.ID,
+			"event_id":             event.ID,
 			"sessions_transferred": event.Sessions,
-			"reason":             event.Reason,
+			"reason":               event.Reason,
 		},
 	})
 }
@@ -562,8 +562,8 @@ func (al *AuditLogger) GetMetrics() *AuditMetrics {
 	defer al.mu.RUnlock()
 
 	metrics := &AuditMetrics{
-		TotalEvents:   int64(len(al.events)),
-		EventsByType:  make(map[AuditEventType]int64),
+		TotalEvents:    int64(len(al.events)),
+		EventsByType:   make(map[AuditEventType]int64),
 		BufferedEvents: len(al.events),
 	}
 

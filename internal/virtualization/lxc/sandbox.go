@@ -29,21 +29,21 @@ const (
 
 // SandboxMountPoint 沙箱挂载点配置
 type SandboxMountPoint struct {
-	Source      string `json:"source"`       // 宿主机路径
-	Destination string `json:"destination"`  // 沙箱内路径
-	ReadOnly    bool   `json:"read_only"`    // 是否只读
-	FSType      string `json:"fstype"`       // 文件系统类型（默认 bind）
+	Source      string `json:"source"`      // 宿主机路径
+	Destination string `json:"destination"` // 沙箱内路径
+	ReadOnly    bool   `json:"read_only"`   // 是否只读
+	FSType      string `json:"fstype"`      // 文件系统类型（默认 bind）
 }
 
 // SandboxResourceLimits 沙箱资源限制配置
 type SandboxResourceLimits struct {
-	CPUShares   int    `json:"cpu_shares"`    // CPU 权重（相对值）
-	CPUPeriod   int    `json:"cpu_period"`    // CPU 调度周期（微秒）
-	CPUQuota    int    `json:"cpu_quota"`     // CPU 配额（微秒）
-	MemoryLimit int64  `json:"memory_limit"`  // 内存上限（字节）
-	MemorySwap  int64  `json:"memory_swap"`   // 内存+Swap 上限（字节）
-	DiskLimit   int64  `json:"disk_limit"`    // 磁盘配额（字节）
-	IOWeight    int    `json:"io_weight"`     // I/O 权重（10-1000）
+	CPUShares   int   `json:"cpu_shares"`   // CPU 权重（相对值）
+	CPUPeriod   int   `json:"cpu_period"`   // CPU 调度周期（微秒）
+	CPUQuota    int   `json:"cpu_quota"`    // CPU 配额（微秒）
+	MemoryLimit int64 `json:"memory_limit"` // 内存上限（字节）
+	MemorySwap  int64 `json:"memory_swap"`  // 内存+Swap 上限（字节）
+	DiskLimit   int64 `json:"disk_limit"`   // 磁盘配额（字节）
+	IOWeight    int   `json:"io_weight"`    // I/O 权重（10-1000）
 }
 
 // SandboxNetworkConfig 沙箱网络配置
@@ -64,39 +64,39 @@ type SandboxNetworkConfig struct {
 
 // SandboxConfig 沙箱配置
 type SandboxConfig struct {
-	Name           string                 `json:"name"`             // 沙箱名称
-	Hostname       string                 `json:"hostname"`         // 主机名
-	Distribution   string                 `json:"distribution"`     // 发行版（如 debian, ubuntu, alpine）
-	Release        string                 `json:"release"`          // 版本号（如 bookworm, 22.04）
-	Arch           string                 `json:"arch"`             // 架构（amd64, arm64）
-	Network        SandboxNetworkConfig   `json:"network_config"`   // 网络配置
-	Resources      SandboxResourceLimits  `json:"resource_limits"`  // 资源限制
-	MountPoints    []SandboxMountPoint    `json:"mount_points"`     // 挂载点列表
-	Privileged     bool                   `json:"privileged"`       // 特权模式
-	Labels         map[string]string      `json:"labels"`           // 自定义标签
-	TemplateURL    string                 `json:"template_url"`     // 自定义模板 URL
+	Name         string                `json:"name"`            // 沙箱名称
+	Hostname     string                `json:"hostname"`        // 主机名
+	Distribution string                `json:"distribution"`    // 发行版（如 debian, ubuntu, alpine）
+	Release      string                `json:"release"`         // 版本号（如 bookworm, 22.04）
+	Arch         string                `json:"arch"`            // 架构（amd64, arm64）
+	Network      SandboxNetworkConfig  `json:"network_config"`  // 网络配置
+	Resources    SandboxResourceLimits `json:"resource_limits"` // 资源限制
+	MountPoints  []SandboxMountPoint   `json:"mount_points"`    // 挂载点列表
+	Privileged   bool                  `json:"privileged"`      // 特权模式
+	Labels       map[string]string     `json:"labels"`          // 自定义标签
+	TemplateURL  string                `json:"template_url"`    // 自定义模板 URL
 }
 
 // Sandbox 沙箱实例
 type Sandbox struct {
-	ID            string                 `json:"id"`
-	Name          string                 `json:"name"`
-	Hostname      string                 `json:"hostname"`
-	Distribution  string                 `json:"distribution"`
-	Release       string                 `json:"release"`
-	Arch          string                 `json:"arch"`
-	Status        SandboxStatus          `json:"status"`
-	PID           int                    `json:"pid"`            // 容器 init 进程 PID
-	RootFS        string                 `json:"rootfs"`         // 根文件系统路径
-	Network       SandboxNetworkConfig   `json:"network_config"`
-	Resources     SandboxResourceLimits  `json:"resources"`
-	MountPoints   []SandboxMountPoint    `json:"mount_points"`
-	Privileged    bool                   `json:"privileged"`
-	Labels        map[string]string      `json:"labels"`
-	CreatedAt     time.Time              `json:"created_at"`
-	StartedAt     *time.Time             `json:"started_at,omitempty"`
-	StoppedAt     *time.Time             `json:"stopped_at,omitempty"`
-	ErrorMsg      string                 `json:"error_msg,omitempty"`
+	ID           string                `json:"id"`
+	Name         string                `json:"name"`
+	Hostname     string                `json:"hostname"`
+	Distribution string                `json:"distribution"`
+	Release      string                `json:"release"`
+	Arch         string                `json:"arch"`
+	Status       SandboxStatus         `json:"status"`
+	PID          int                   `json:"pid"`    // 容器 init 进程 PID
+	RootFS       string                `json:"rootfs"` // 根文件系统路径
+	Network      SandboxNetworkConfig  `json:"network_config"`
+	Resources    SandboxResourceLimits `json:"resources"`
+	MountPoints  []SandboxMountPoint   `json:"mount_points"`
+	Privileged   bool                  `json:"privileged"`
+	Labels       map[string]string     `json:"labels"`
+	CreatedAt    time.Time             `json:"created_at"`
+	StartedAt    *time.Time            `json:"started_at,omitempty"`
+	StoppedAt    *time.Time            `json:"stopped_at,omitempty"`
+	ErrorMsg     string                `json:"error_msg,omitempty"`
 }
 
 // SandboxManagerConfig 沙箱管理器配置
@@ -179,19 +179,19 @@ func (m *SandboxManager) Create(ctx context.Context, cfg SandboxConfig) (*Sandbo
 	now := time.Now()
 
 	sandbox := &Sandbox{
-		ID:            id,
-		Name:          cfg.Name,
-		Hostname:      cfg.Hostname,
-		Distribution:  cfg.Distribution,
-		Release:       cfg.Release,
-		Arch:          cfg.Arch,
-		Status:        SandboxStatusCreating,
-		Network:       cfg.Network,
-		Resources:     cfg.Resources,
-		MountPoints:   cfg.MountPoints,
-		Privileged:    cfg.Privileged,
-		Labels:        cfg.Labels,
-		CreatedAt:     now,
+		ID:           id,
+		Name:         cfg.Name,
+		Hostname:     cfg.Hostname,
+		Distribution: cfg.Distribution,
+		Release:      cfg.Release,
+		Arch:         cfg.Arch,
+		Status:       SandboxStatusCreating,
+		Network:      cfg.Network,
+		Resources:    cfg.Resources,
+		MountPoints:  cfg.MountPoints,
+		Privileged:   cfg.Privileged,
+		Labels:       cfg.Labels,
+		CreatedAt:    now,
 	}
 
 	// 准备根文件系统
@@ -459,8 +459,8 @@ func (m *SandboxManager) loadConfig() error {
 	}
 
 	var cfg struct {
-		Sandboxes map[string]*Sandbox         `json:"sandboxes"`
-		Config    *SandboxManagerConfig       `json:"config"`
+		Sandboxes map[string]*Sandbox   `json:"sandboxes"`
+		Config    *SandboxManagerConfig `json:"config"`
 	}
 
 	if err := json.Unmarshal(data, &cfg); err != nil {

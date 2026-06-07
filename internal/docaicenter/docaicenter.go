@@ -20,14 +20,14 @@ import (
 // ========== 常量 ==========
 
 const (
-	Version           = "1.0.0"
-	MaxDocuments      = 50000
-	MaxSummaryLength  = 500
-	MaxKeywords       = 20
-	MaxOCRPages       = 1000
-	ProcessTimeout    = 5 * time.Minute
-	BatchProcessSize  = 10
-	MinTextLength     = 10
+	Version             = "1.0.0"
+	MaxDocuments        = 50000
+	MaxSummaryLength    = 500
+	MaxKeywords         = 20
+	MaxOCRPages         = 1000
+	ProcessTimeout      = 5 * time.Minute
+	BatchProcessSize    = 10
+	MinTextLength       = 10
 	ConfidenceThreshold = 0.7
 )
 
@@ -37,17 +37,17 @@ const (
 type DocumentType string
 
 const (
-	DocTypePDF      DocumentType = "pdf"
-	DocTypeWord     DocumentType = "word"
-	DocTypeExcel    DocumentType = "excel"
+	DocTypePDF        DocumentType = "pdf"
+	DocTypeWord       DocumentType = "word"
+	DocTypeExcel      DocumentType = "excel"
 	DocTypePowerPoint DocumentType = "powerpoint"
-	DocTypeText     DocumentType = "text"
-	DocTypeMarkdown DocumentType = "markdown"
-	DocTypeHTML     DocumentType = "html"
-	DocTypeImage    DocumentType = "image"
-	DocTypeEPUB     DocumentType = "epub"
-	DocTypeCode    DocumentType = "code"
-	DocTypeUnknown  DocumentType = "unknown"
+	DocTypeText       DocumentType = "text"
+	DocTypeMarkdown   DocumentType = "markdown"
+	DocTypeHTML       DocumentType = "html"
+	DocTypeImage      DocumentType = "image"
+	DocTypeEPUB       DocumentType = "epub"
+	DocTypeCode       DocumentType = "code"
+	DocTypeUnknown    DocumentType = "unknown"
 )
 
 // ProcessingStatus 处理状态
@@ -85,19 +85,19 @@ type Document struct {
 
 // OCRResult OCR结果
 type OCRResult struct {
-	PageNum    int     `json:"page_num"`
-	Text       string  `json:"text"`
-	Confidence float64 `json:"confidence"`
-	Language   string  `json:"language"`
-	BoundingBox []int  `json:"bounding_box,omitempty"`
+	PageNum     int     `json:"page_num"`
+	Text        string  `json:"text"`
+	Confidence  float64 `json:"confidence"`
+	Language    string  `json:"language"`
+	BoundingBox []int   `json:"bounding_box,omitempty"`
 }
 
 // SearchResult 文档搜索结果
 type SearchResult struct {
-	Document   *Document `json:"document"`
-	Score      float64   `json:"score"`
-	MatchType  string    `json:"match_type"`
-	Highlight  string    `json:"highlight"`
+	Document  *Document `json:"document"`
+	Score     float64   `json:"score"`
+	MatchType string    `json:"match_type"`
+	Highlight string    `json:"highlight"`
 }
 
 // DocStats 文档统计
@@ -114,29 +114,29 @@ type DocStats struct {
 
 // ConversionTask 转换任务
 type ConversionTask struct {
-	ID          string    `json:"id"`
-	SourcePath  string    `json:"source_path"`
-	TargetPath  string    `json:"target_path"`
-	TargetType  string    `json:"target_type"`
+	ID          string           `json:"id"`
+	SourcePath  string           `json:"source_path"`
+	TargetPath  string           `json:"target_path"`
+	TargetType  string           `json:"target_type"`
 	Status      ProcessingStatus `json:"status"`
-	Progress    int       `json:"progress"`
-	Error       string    `json:"error,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
-	CompletedAt *time.Time `json:"completed_at,omitempty"`
+	Progress    int              `json:"progress"`
+	Error       string           `json:"error,omitempty"`
+	CreatedAt   time.Time        `json:"created_at"`
+	CompletedAt *time.Time       `json:"completed_at,omitempty"`
 }
 
 // ========== 核心管理器 ==========
 
 // Manager 文档AI管理器
 type Manager struct {
-	mu           sync.RWMutex
-	documents    map[string]*Document
-	conversions  map[string]*ConversionTask
-	dataDir      string
-	ctx          context.Context
-	cancel       context.CancelFunc
-	docCounter   int64
-	convCounter  int64
+	mu          sync.RWMutex
+	documents   map[string]*Document
+	conversions map[string]*ConversionTask
+	dataDir     string
+	ctx         context.Context
+	cancel      context.CancelFunc
+	docCounter  int64
+	convCounter int64
 }
 
 // NewManager 创建管理器
@@ -381,7 +381,7 @@ func (m *Manager) detectDocType(filePath string) DocumentType {
 		".txt": DocTypeText, ".md": DocTypeMarkdown,
 		".html": DocTypeHTML, ".htm": DocTypeHTML,
 		".epub": DocTypeEPUB,
-		".jpg": DocTypeImage, ".png": DocTypeImage, ".bmp": DocTypeImage,
+		".jpg":  DocTypeImage, ".png": DocTypeImage, ".bmp": DocTypeImage,
 	}
 	if t, ok := typeMap[ext]; ok {
 		return t
@@ -574,8 +574,8 @@ func (m *Manager) GetStats() *DocStats {
 	defer m.mu.RUnlock()
 
 	stats := &DocStats{
-		TotalDocs: len(m.documents),
-		ByType:    make(map[string]int),
+		TotalDocs:  len(m.documents),
+		ByType:     make(map[string]int),
 		ByLanguage: make(map[string]int),
 	}
 

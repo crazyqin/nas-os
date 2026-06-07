@@ -110,10 +110,10 @@ func (h *Handler) breakdown(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"file_type_stats":   report.FileTypeStats,
-		"top_directories":   report.TopDirectories,
-		"size_distribution": report.SizeDist,
-		"age_distribution":  report.AgeDist,
+		"file_type_stats":     report.FileTypeStats,
+		"top_directories":     report.TopDirectories,
+		"size_distribution":   report.SizeDist,
+		"age_distribution":    report.AgeDist,
 		"access_distribution": report.AccessDist,
 	})
 }

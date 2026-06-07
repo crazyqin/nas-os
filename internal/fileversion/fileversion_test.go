@@ -71,8 +71,8 @@ func TestNewManager(t *testing.T) {
 	t.Run("with custom config", func(t *testing.T) {
 		logger := zap.NewNop()
 		config := &VersionConfig{
-			StoragePath:  "/tmp/test",
-			MaxVersions:  10,
+			StoragePath:   "/tmp/test",
+			MaxVersions:   10,
 			RetentionDays: 7,
 		}
 
@@ -504,8 +504,8 @@ func TestIntegration_Persistence(t *testing.T) {
 
 	tempDir := t.TempDir()
 	config := &VersionConfig{
-		StoragePath: filepath.Join(tempDir, "versions"),
-		MaxVersions: 10,
+		StoragePath:   filepath.Join(tempDir, "versions"),
+		MaxVersions:   10,
 		RetentionDays: 90,
 	}
 

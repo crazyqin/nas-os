@@ -209,15 +209,15 @@ type ListLocksRequest struct {
 // DefaultLockPolicy 默认锁定策略
 func DefaultLockPolicy() *LockPolicy {
 	return &LockPolicy{
-		Enabled:                true,
-		DefaultLockType:        LockTypeExclusive,
+		Enabled:                  true,
+		DefaultLockType:          LockTypeExclusive,
 		ExclusiveLockMaxDuration: 480,  // 8小时
 		SharedLockMaxDuration:    1440, // 24小时
-		AllowRenewal:           true,
-		MaxRenewals:            3,
-		AllowForceRelease:      true,
-		CleanupInterval:        5,     // 5分钟
-		HistoryRetentionDays:   90,
-		MaxLocksPerUser:        10,
+		AllowRenewal:             true,
+		MaxRenewals:              3,
+		AllowForceRelease:        true,
+		CleanupInterval:          5, // 5分钟
+		HistoryRetentionDays:     90,
+		MaxLocksPerUser:          10,
 	}
 }

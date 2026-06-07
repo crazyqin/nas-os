@@ -67,27 +67,27 @@ const (
 
 // SMARTAttribute S.M.A.R.T 属性
 type SMARTAttribute struct {
-	ID         int     `json:"id"`         // 属性ID
-	Name       string  `json:"name"`       // 属性名称
-	Value      int     `json:"value"`      // 当前值
-	Worst      int     `json:"worst"`      // 最差值
-	Threshold  int     `json:"threshold"`  // 阈值
-	RawValue   int64   `json:"rawValue"`   // 原始值
-	Failed     bool    `json:"failed"`     // 是否失败
-	Critical   bool    `json:"critical"`   // 是否关键属性
+	ID        int    `json:"id"`        // 属性ID
+	Name      string `json:"name"`      // 属性名称
+	Value     int    `json:"value"`     // 当前值
+	Worst     int    `json:"worst"`     // 最差值
+	Threshold int    `json:"threshold"` // 阈值
+	RawValue  int64  `json:"rawValue"`  // 原始值
+	Failed    bool   `json:"failed"`    // 是否失败
+	Critical  bool   `json:"critical"`  // 是否关键属性
 }
 
 // DiskInfo 磁盘信息
 type DiskInfo struct {
-	Device      string    `json:"device"`      // 设备路径 /dev/sda
-	Model       string    `json:"model"`       // 型号
-	Serial      string    `json:"serial"`      // 序列号
-	Type        DiskType  `json:"type"`        // 磁盘类型
-	Capacity    int64     `json:"capacity"`    // 容量 (bytes)
-	Temperature int       `json:"temperature"` // 温度 (°C)
-	PowerOn     int64     `json:"powerOn"`     // 通电时间 (小时)
-	Health      int       `json:"health"`      // 健康评分 0-100
-	SMARTPassed bool      `json:"smartPassed"` // S.M.A.R.T 自检通过
+	Device      string   `json:"device"`      // 设备路径 /dev/sda
+	Model       string   `json:"model"`       // 型号
+	Serial      string   `json:"serial"`      // 序列号
+	Type        DiskType `json:"type"`        // 磁盘类型
+	Capacity    int64    `json:"capacity"`    // 容量 (bytes)
+	Temperature int      `json:"temperature"` // 温度 (°C)
+	PowerOn     int64    `json:"powerOn"`     // 通电时间 (小时)
+	Health      int      `json:"health"`      // 健康评分 0-100
+	SMARTPassed bool     `json:"smartPassed"` // S.M.A.R.T 自检通过
 }
 
 // HealthReport 健康报告
@@ -105,7 +105,7 @@ type HealthReport struct {
 
 // Prediction 故障预测
 type Prediction struct {
-	Type      string    `json:"type"`      // 预测类型: failure, degradation, temperature
+	Type        string  `json:"type"`        // 预测类型: failure, degradation, temperature
 	Probability float64 `json:"probability"` // 概率 0-1
 	TimeToEvent string  `json:"timeToEvent"` // 预计时间: "30 days", "6 months"
 	Confidence  float64 `json:"confidence"`  // 置信度 0-1
@@ -156,12 +156,12 @@ type Manager struct {
 
 // DiskHealthTracker 磁盘健康追踪器
 type DiskHealthTracker struct {
-	Device       string
-	Info         DiskInfo
-	LastCheck    time.Time
-	SMARTData    []SMARTAttribute
-	HealthScore  int
-	Status       HealthStatus
+	Device           string
+	Info             DiskInfo
+	LastCheck        time.Time
+	SMARTData        []SMARTAttribute
+	HealthScore      int
+	Status           HealthStatus
 	ConsecutiveFails int
 }
 
@@ -331,14 +331,14 @@ func (m *Manager) calculateHealthScore(attrs []SMARTAttribute, info DiskInfo) in
 
 	// 权重配置
 	weights := map[string]float64{
-		"Reallocated_Sector_Ct":   20.0,
-		"Current_Pending_Sector":  15.0,
-		"Offline_Uncorrectable":   15.0,
-		"UDMA_CRC_Error_Count":    10.0,
-		"Spin_Retry_Count":        10.0,
-		"Temperature_Celsius":     10.0,
-		"Power_On_Hours":          10.0,
-		"Wear_Leveling_Count":     10.0, // SSD
+		"Reallocated_Sector_Ct":  20.0,
+		"Current_Pending_Sector": 15.0,
+		"Offline_Uncorrectable":  15.0,
+		"UDMA_CRC_Error_Count":   10.0,
+		"Spin_Retry_Count":       10.0,
+		"Temperature_Celsius":    10.0,
+		"Power_On_Hours":         10.0,
+		"Wear_Leveling_Count":    10.0, // SSD
 	}
 
 	for _, attr := range attrs {

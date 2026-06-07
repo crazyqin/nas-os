@@ -337,9 +337,9 @@ func TestUpdateThermalZone_NotFound(t *testing.T) {
 
 func TestCheckThermalAlerts(t *testing.T) {
 	pm := NewPowerManager(nil)
-	pm.AddThermalZone("CPU", 45, 70, 85)     // 未超阈值
-	pm.AddThermalZone("HDD", 75, 70, 85)     // 超阈值
-	pm.AddThermalZone("System", 80, 70, 85)  // 超阈值
+	pm.AddThermalZone("CPU", 45, 70, 85)    // 未超阈值
+	pm.AddThermalZone("HDD", 75, 70, 85)    // 超阈值
+	pm.AddThermalZone("System", 80, 70, 85) // 超阈值
 
 	alerts := pm.CheckThermalAlerts()
 	if len(alerts) != 2 {
@@ -359,8 +359,8 @@ func TestCheckThermalAlerts_None(t *testing.T) {
 
 func TestCheckCriticalThermal(t *testing.T) {
 	pm := NewPowerManager(nil)
-	pm.AddThermalZone("CPU", 45, 70, 85)   // 正常
-	pm.AddThermalZone("GPU", 90, 70, 85)   // 超临界
+	pm.AddThermalZone("CPU", 45, 70, 85) // 正常
+	pm.AddThermalZone("GPU", 90, 70, 85) // 超临界
 
 	critical := pm.CheckCriticalThermal()
 	if len(critical) != 1 {

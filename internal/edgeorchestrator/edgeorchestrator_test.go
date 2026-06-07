@@ -143,9 +143,9 @@ func TestScheduleAndStartTask(t *testing.T) {
 
 	// 提交任务
 	task, _ := manager.SubmitTask(&SubmitTaskRequest{
-		Name:           "test-task",
-		Image:          "nginx:latest",
-		CPURequest:     1.0,
+		Name:            "test-task",
+		Image:           "nginx:latest",
+		CPURequest:      1.0,
 		MemoryRequestMB: 512,
 	})
 
@@ -192,9 +192,9 @@ func TestCompleteTask(t *testing.T) {
 	})
 
 	task, _ := manager.SubmitTask(&SubmitTaskRequest{
-		Name:           "test-task",
-		Image:          "nginx:latest",
-		CPURequest:     1.0,
+		Name:            "test-task",
+		Image:           "nginx:latest",
+		CPURequest:      1.0,
 		MemoryRequestMB: 512,
 	})
 
@@ -223,9 +223,9 @@ func TestCancelTask(t *testing.T) {
 	r := setupTestRouter(manager)
 
 	task, _ := manager.SubmitTask(&SubmitTaskRequest{
-		Name:           "test-task",
-		Image:          "nginx:latest",
-		CPURequest:     1.0,
+		Name:            "test-task",
+		Image:           "nginx:latest",
+		CPURequest:      1.0,
 		MemoryRequestMB: 512,
 	})
 
@@ -367,9 +367,9 @@ func TestSchedulingStrategies(t *testing.T) {
 
 			// 提交任务
 			task, _ := manager.SubmitTask(&SubmitTaskRequest{
-				Name:           "test-task",
-				Image:          "nginx:latest",
-				CPURequest:     1.0,
+				Name:            "test-task",
+				Image:           "nginx:latest",
+				CPURequest:      1.0,
 				MemoryRequestMB: 512,
 			})
 
@@ -401,9 +401,9 @@ func TestAffinityRules(t *testing.T) {
 
 	// 提交带亲和性规则的任务
 	task, _ := manager.SubmitTask(&SubmitTaskRequest{
-		Name:           "affinity-task",
-		Image:          "nginx:latest",
-		CPURequest:     1.0,
+		Name:            "affinity-task",
+		Image:           "nginx:latest",
+		CPURequest:      1.0,
 		MemoryRequestMB: 512,
 		Affinity: &AffinityRule{
 			RequiredZones:  []string{"zone-a"},
@@ -492,9 +492,9 @@ func TestAutoScheduler(t *testing.T) {
 
 	// 提交任务（应该在下一个调度周期自动调度）
 	task, _ := manager.SubmitTask(&SubmitTaskRequest{
-		Name:           "auto-task",
-		Image:          "nginx:latest",
-		CPURequest:     1.0,
+		Name:            "auto-task",
+		Image:           "nginx:latest",
+		CPURequest:      1.0,
 		MemoryRequestMB: 512,
 	})
 

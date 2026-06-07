@@ -13,45 +13,45 @@ import (
 
 // Registry 容器镜像仓库.
 type Registry struct {
-	mu       sync.RWMutex
-	config   *RegistryConfig
-	images   map[string]*Image
+	mu        sync.RWMutex
+	config    *RegistryConfig
+	images    map[string]*Image
 	manifests map[string]*Manifest
-	blobs    map[string]*Blob
-	stats    *RegistryStats
+	blobs     map[string]*Blob
+	stats     *RegistryStats
 }
 
 // RegistryConfig 仓库配置.
 type RegistryConfig struct {
-	StorageRoot    string        `json:"storageRoot"`    // 存储根目录
-	MaxBlobSize    int64         `json:"maxBlobSize"`    // 单层最大大小（字节）
-	MaxImageSize   int64         `json:"maxImageSize"`   // 镜像最大大小
-	GCInterval     time.Duration `json:"gcInterval"`     // GC间隔
-	GCRetention    time.Duration `json:"gcRetention"`    // GC保留时间
-	EnableAuth     bool          `json:"enableAuth"`     // 启用认证
-	AnonymousRead  bool          `json:"anonymousRead"`  // 允许匿名读取
-	DefaultDomain  string        `json:"defaultDomain"`  // 默认域名
+	StorageRoot   string        `json:"storageRoot"`   // 存储根目录
+	MaxBlobSize   int64         `json:"maxBlobSize"`   // 单层最大大小（字节）
+	MaxImageSize  int64         `json:"maxImageSize"`  // 镜像最大大小
+	GCInterval    time.Duration `json:"gcInterval"`    // GC间隔
+	GCRetention   time.Duration `json:"gcRetention"`   // GC保留时间
+	EnableAuth    bool          `json:"enableAuth"`    // 启用认证
+	AnonymousRead bool          `json:"anonymousRead"` // 允许匿名读取
+	DefaultDomain string        `json:"defaultDomain"` // 默认域名
 }
 
 // Image 镜像信息.
 type Image struct {
-	Name         string            `json:"name"`         // 镜像名（如 library/nginx）
-	Tags         map[string]string `json:"tags"`         // tag -> digest
-	LastUpdated  time.Time         `json:"lastUpdated"`  // 最后更新
-	TotalSize    int64             `json:"totalSize"`    // 总大小
-	PullCount    int64             `json:"pullCount"`    // 拉取次数
-	Labels       map[string]string `json:"labels"`       // 标签
+	Name        string            `json:"name"`        // 镜像名（如 library/nginx）
+	Tags        map[string]string `json:"tags"`        // tag -> digest
+	LastUpdated time.Time         `json:"lastUpdated"` // 最后更新
+	TotalSize   int64             `json:"totalSize"`   // 总大小
+	PullCount   int64             `json:"pullCount"`   // 拉取次数
+	Labels      map[string]string `json:"labels"`      // 标签
 }
 
 // Manifest 镜像清单.
 type Manifest struct {
-	Digest      string    `json:"digest"`      // 内容摘要
-	SchemaVersion int     `json:"schemaVersion"` // Schema版本
-	MediaType   string    `json:"mediaType"`   // 媒体类型
-	Config      *Descriptor `json:"config"`    // 配置描述
-	Layers      []*Descriptor `json:"layers"`  // 层描述
-	Size        int64     `json:"size"`        // 总大小
-	CreatedAt   time.Time `json:"createdAt"`   // 创建时间
+	Digest        string        `json:"digest"`        // 内容摘要
+	SchemaVersion int           `json:"schemaVersion"` // Schema版本
+	MediaType     string        `json:"mediaType"`     // 媒体类型
+	Config        *Descriptor   `json:"config"`        // 配置描述
+	Layers        []*Descriptor `json:"layers"`        // 层描述
+	Size          int64         `json:"size"`          // 总大小
+	CreatedAt     time.Time     `json:"createdAt"`     // 创建时间
 }
 
 // Descriptor 描述符.
@@ -72,22 +72,22 @@ type Blob struct {
 
 // RegistryStats 仓库统计.
 type RegistryStats struct {
-	mu           sync.RWMutex
-	TotalImages  int       `json:"totalImages"`  // 总镜像数
-	TotalBlobs   int       `json:"totalBlobs"`   // 总层数
-	TotalSize    int64     `json:"totalSize"`    // 总大小
-	TotalPulls   int64     `json:"totalPulls"`   // 总拉取次数
-	TotalPushes  int64     `json:"totalPushes"`  // 总推送次数
-	LastGC       time.Time `json:"lastGC"`       // 上次GC时间
-	GCCleaned    int64     `json:"gcCleaned"`    // GC清理大小
+	mu          sync.RWMutex
+	TotalImages int       `json:"totalImages"` // 总镜像数
+	TotalBlobs  int       `json:"totalBlobs"`  // 总层数
+	TotalSize   int64     `json:"totalSize"`   // 总大小
+	TotalPulls  int64     `json:"totalPulls"`  // 总拉取次数
+	TotalPushes int64     `json:"totalPushes"` // 总推送次数
+	LastGC      time.Time `json:"lastGC"`      // 上次GC时间
+	GCCleaned   int64     `json:"gcCleaned"`   // GC清理大小
 }
 
 // GarbageCollectionResult GC结果.
 type GarbageCollectionResult struct {
-	BlobsDeleted   int   `json:"blobsDeleted"`   // 删除的层数
-	SpaceFreed     int64 `json:"spaceFreed"`     // 释放空间
-	OrphansRemoved int   `json:"orphansRemoved"` // 移除的孤儿
-	Duration       time.Duration `json:"duration"` // 耗时
+	BlobsDeleted   int           `json:"blobsDeleted"`   // 删除的层数
+	SpaceFreed     int64         `json:"spaceFreed"`     // 释放空间
+	OrphansRemoved int           `json:"orphansRemoved"` // 移除的孤儿
+	Duration       time.Duration `json:"duration"`       // 耗时
 }
 
 // NewRegistry 创建新的镜像仓库.
@@ -95,7 +95,7 @@ func NewRegistry(config *RegistryConfig) *Registry {
 	if config == nil {
 		config = &RegistryConfig{
 			StorageRoot:   "/var/lib/nas-registry",
-			MaxBlobSize:   1 << 30, // 1GB
+			MaxBlobSize:   1 << 30,  // 1GB
 			MaxImageSize:  10 << 30, // 10GB
 			GCInterval:    24 * time.Hour,
 			GCRetention:   7 * 24 * time.Hour,

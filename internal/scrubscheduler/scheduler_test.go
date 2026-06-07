@@ -17,16 +17,16 @@ import (
 
 // mockExecutor 用于测试的 mock ZFS 执行器
 type mockExecutor struct {
-	mu            sync.Mutex
-	startCalled   int
-	stopCalled    int
-	progress      float64
-	state         ScrubState
-	startErr      error
-	stopErr       error
-	progressErr   error
-	startedPools  []string
-	stoppedPools  []string
+	mu           sync.Mutex
+	startCalled  int
+	stopCalled   int
+	progress     float64
+	state        ScrubState
+	startErr     error
+	stopErr      error
+	progressErr  error
+	startedPools []string
+	stoppedPools []string
 }
 
 func newMockExecutor() *mockExecutor {

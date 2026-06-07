@@ -14,11 +14,11 @@ import (
 
 // SnapshotTimeline 快照时间线管理器
 type SnapshotTimeline struct {
-	mu       sync.RWMutex
-	snaps    map[string]*SnapshotEntry // id -> entry
-	logger   *zap.Logger
-	ctx      context.Context
-	cancel   context.CancelFunc
+	mu     sync.RWMutex
+	snaps  map[string]*SnapshotEntry // id -> entry
+	logger *zap.Logger
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
 // SnapshotEntry 快照条目
@@ -51,9 +51,9 @@ type TimelineRequest struct {
 
 // TimelineResponse 时间线查询响应
 type TimelineResponse struct {
-	Total   int              `json:"total"`
-	Snaps   []*SnapshotEntry `json:"snaps"`
-	Took    time.Duration    `json:"took"`
+	Total int              `json:"total"`
+	Snaps []*SnapshotEntry `json:"snaps"`
+	Took  time.Duration    `json:"took"`
 }
 
 // CompareRequest 快照对比请求
@@ -64,23 +64,23 @@ type CompareRequest struct {
 
 // CompareResult 快照对比结果
 type CompareResult struct {
-	Snap1        *SnapshotEntry     `json:"snap1"`
-	Snap2        *SnapshotEntry     `json:"snap2"`
-	DiffFiles    int                `json:"diffFiles"`
-	AddedFiles   int                `json:"addedFiles"`
-	RemovedFiles int                `json:"removedFiles"`
-	SizeDelta    int64              `json:"sizeDelta"`
-	Details      []*FileDiff        `json:"details,omitempty"`
+	Snap1        *SnapshotEntry `json:"snap1"`
+	Snap2        *SnapshotEntry `json:"snap2"`
+	DiffFiles    int            `json:"diffFiles"`
+	AddedFiles   int            `json:"addedFiles"`
+	RemovedFiles int            `json:"removedFiles"`
+	SizeDelta    int64          `json:"sizeDelta"`
+	Details      []*FileDiff    `json:"details,omitempty"`
 }
 
 // FileDiff 文件差异
 type FileDiff struct {
-	Path      string    `json:"path"`
-	Type      string    `json:"type"` // added, removed, modified
-	Size1     int64     `json:"size1,omitempty"`
-	Size2     int64     `json:"size2,omitempty"`
-	ModTime1  time.Time `json:"modTime1,omitempty"`
-	ModTime2  time.Time `json:"modTime2,omitempty"`
+	Path     string    `json:"path"`
+	Type     string    `json:"type"` // added, removed, modified
+	Size1    int64     `json:"size1,omitempty"`
+	Size2    int64     `json:"size2,omitempty"`
+	ModTime1 time.Time `json:"modTime1,omitempty"`
+	ModTime2 time.Time `json:"modTime2,omitempty"`
 }
 
 // NewSnapshotTimeline 创建快照时间线管理器

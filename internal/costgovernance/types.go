@@ -115,10 +115,10 @@ type Budget struct {
 	Spent  float64      `json:"spent"`
 	Period BudgetPeriod `json:"period"`
 	// AlertThresholds 告警阈值百分比列表，如 [50, 80, 100].
-	AlertThresholds []float64   `json:"alert_thresholds"`
-	StartDate       time.Time   `json:"start_date"`
-	EndDate         time.Time   `json:"end_date"`
-	CreatedAt       time.Time   `json:"created_at"`
+	AlertThresholds []float64 `json:"alert_thresholds"`
+	StartDate       time.Time `json:"start_date"`
+	EndDate         time.Time `json:"end_date"`
+	CreatedAt       time.Time `json:"created_at"`
 }
 
 // CostAlert 成本告警.
@@ -174,7 +174,7 @@ type CostReport struct {
 	// ByResourceType 按资源类型分类成本.
 	ByResourceType map[ResourceType]float64 `json:"by_resource_type"`
 	// OptimizationSavings 优化建议可节省金额（元）.
-	OptimizationSavings float64 `json:"optimization_savings"`
+	OptimizationSavings float64   `json:"optimization_savings"`
 	GeneratedAt         time.Time `json:"generated_at"`
 }
 
@@ -187,11 +187,11 @@ type CostTrend struct {
 
 // AnomalyDetection 异常检测结果.
 type AnomalyDetection struct {
-	ResourceID  string    `json:"resource_id"`
-	ResourceName string   `json:"resource_name"`
-	DetectedAt  time.Time `json:"detected_at"`
-	ExpectedCost float64  `json:"expected_cost"`
-	ActualCost   float64  `json:"actual_cost"`
-	Deviation    float64  `json:"deviation"` // 偏差百分比
-	Description  string   `json:"description"`
+	ResourceID   string    `json:"resource_id"`
+	ResourceName string    `json:"resource_name"`
+	DetectedAt   time.Time `json:"detected_at"`
+	ExpectedCost float64   `json:"expected_cost"`
+	ActualCost   float64   `json:"actual_cost"`
+	Deviation    float64   `json:"deviation"` // 偏差百分比
+	Description  string    `json:"description"`
 }

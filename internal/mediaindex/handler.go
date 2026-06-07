@@ -9,8 +9,8 @@ import (
 
 // Handlers 媒体索引 HTTP 处理器.
 type Handlers struct {
-	indexer  *Indexer
-	search   *SearchEngine
+	indexer *Indexer
+	search  *SearchEngine
 }
 
 // NewHandlers 创建处理器.

@@ -40,7 +40,7 @@ func TestRingBuffer_CircularOverwrite(t *testing.T) {
 	for i := 0; i < 4; i++ {
 		snap := ResourceSnapshot{
 			Timestamp: time.Now().Add(time.Duration(i) * time.Second),
-			CPU: CPUInfo{UsagePercent: float64(i * 10)},
+			CPU:       CPUInfo{UsagePercent: float64(i * 10)},
 		}
 		rb.Push(snap)
 	}

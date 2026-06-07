@@ -31,10 +31,10 @@ func (e *Embedder) Embed(ctx context.Context, text string) ([]float64, error) {
 		return vector, nil
 	}
 	e.mu.RUnlock()
-	
+
 	// 生成向量（简化实现）
 	vector := e.generateVector(text)
-	
+
 	// 缓存结果
 	e.mu.Lock()
 	if len(e.cache) >= e.cacheMax {
@@ -43,7 +43,7 @@ func (e *Embedder) Embed(ctx context.Context, text string) ([]float64, error) {
 	}
 	e.cache[text] = vector
 	e.mu.Unlock()
-	
+
 	return vector, nil
 }
 

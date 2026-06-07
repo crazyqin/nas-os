@@ -13,28 +13,28 @@ import (
 
 // IntegrityCheckResult 完整性检查结果
 type IntegrityCheckResult struct {
-	PoolName        string    `json:"pool_name"`
-	CheckType       string    `json:"check_type"` // scrub, checksum, file_integrity
-	StartTime       time.Time `json:"start_time"`
-	EndTime         time.Time `json:"end_time"`
-	Duration        string    `json:"duration"`
-	Status          string    `json:"status"` // passed, failed, warning
-	TotalChecked    int64     `json:"total_checked"`
-	ErrorsFound     int64     `json:"errors_found"`
-	RepairsMade     int64     `json:"repairs_made"`
-	UncorrectableErrors int64 `json:"uncorrectable_errors"`
-	Details         string    `json:"details,omitempty"`
+	PoolName            string    `json:"pool_name"`
+	CheckType           string    `json:"check_type"` // scrub, checksum, file_integrity
+	StartTime           time.Time `json:"start_time"`
+	EndTime             time.Time `json:"end_time"`
+	Duration            string    `json:"duration"`
+	Status              string    `json:"status"` // passed, failed, warning
+	TotalChecked        int64     `json:"total_checked"`
+	ErrorsFound         int64     `json:"errors_found"`
+	RepairsMade         int64     `json:"repairs_made"`
+	UncorrectableErrors int64     `json:"uncorrectable_errors"`
+	Details             string    `json:"details,omitempty"`
 }
 
 // ScrubScheduleConfig Scrub调度配置
 type ScrubScheduleConfig struct {
-	Enabled         bool    `json:"enabled"`
-	IntervalDays    int     `json:"interval_days"`
-	PreferredHour   int     `json:"preferred_hour"`
-	IOPSThreshold   int     `json:"iops_threshold"`
-	AutoPauseOnLoad bool    `json:"auto_pause_on_load"`
-	MaxErrorCount   int     `json:"max_error_count"`
-	AutoRepair      bool    `json:"auto_repair"`
+	Enabled         bool `json:"enabled"`
+	IntervalDays    int  `json:"interval_days"`
+	PreferredHour   int  `json:"preferred_hour"`
+	IOPSThreshold   int  `json:"iops_threshold"`
+	AutoPauseOnLoad bool `json:"auto_pause_on_load"`
+	MaxErrorCount   int  `json:"max_error_count"`
+	AutoRepair      bool `json:"auto_repair"`
 }
 
 // DefaultIntegrityConfig 默认完整性配置
@@ -52,17 +52,17 @@ func DefaultIntegrityConfig() ScrubScheduleConfig {
 
 // IntegrityChecker 完整性检查器
 type IntegrityChecker struct {
-	poolManager *PoolManager
-	config      ScrubScheduleConfig
-	lastCheck   time.Time
+	poolManager  *PoolManager
+	config       ScrubScheduleConfig
+	lastCheck    time.Time
 	checkHistory []IntegrityCheckResult
 }
 
 // NewIntegrityChecker 创建完整性检查器
 func NewIntegrityChecker(pm *PoolManager, config ScrubScheduleConfig) *IntegrityChecker {
 	return &IntegrityChecker{
-		poolManager: pm,
-		config:      config,
+		poolManager:  pm,
+		config:       config,
 		checkHistory: make([]IntegrityCheckResult, 0),
 	}
 }
@@ -258,18 +258,18 @@ func (ic *IntegrityChecker) GetPoolIntegritySummary(ctx context.Context, poolNam
 	}
 
 	summary := map[string]interface{}{
-		"pool_name":         poolName,
-		"status":            string(pool.Status),
-		"health":            pool.Health,
-		"read_errors":       pool.ReadErrors,
-		"write_errors":      pool.WriteErrors,
-		"checksum_errors":   pool.ChecksumErrors,
-		"scan_status":       pool.ScanStatus,
-		"scan_progress":     pool.ScanProgress,
-		"total_disks":       len(pool.Disks),
-		"spare_disks":       len(pool.Spares),
-		"last_check":        ic.lastCheck,
-		"check_count":       len(ic.checkHistory),
+		"pool_name":       poolName,
+		"status":          string(pool.Status),
+		"health":          pool.Health,
+		"read_errors":     pool.ReadErrors,
+		"write_errors":    pool.WriteErrors,
+		"checksum_errors": pool.ChecksumErrors,
+		"scan_status":     pool.ScanStatus,
+		"scan_progress":   pool.ScanProgress,
+		"total_disks":     len(pool.Disks),
+		"spare_disks":     len(pool.Spares),
+		"last_check":      ic.lastCheck,
+		"check_count":     len(ic.checkHistory),
 	}
 
 	// 计算错误率

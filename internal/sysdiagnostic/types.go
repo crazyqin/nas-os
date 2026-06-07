@@ -68,7 +68,7 @@ const (
 type DiagnosticReport struct {
 	ID          string           `json:"id"`
 	Status      DiagnosticStatus `json:"status"`
-	Score       int              `json:"score"`       // 0-100
+	Score       int              `json:"score"` // 0-100
 	GeneratedAt time.Time        `json:"generatedAt"`
 	Duration    time.Duration    `json:"duration"`
 
@@ -99,28 +99,28 @@ type SystemCheck struct {
 // SystemOverview 系统概览.
 type SystemOverview struct {
 	// CPU
-	CPUUsage    float64 `json:"cpuUsage"`    // CPU 使用率 (%)
-	CPUCores    int     `json:"cpuCores"`    // CPU 核心数
-	CPUModel    string  `json:"cpuModel"`    // CPU 型号
-	CPUTemp     float64 `json:"cpuTemp"`     // CPU 温度 (°C)
-	LoadAvg1    float64 `json:"loadAvg1"`    // 1 分钟负载
-	LoadAvg5    float64 `json:"loadAvg5"`    // 5 分钟负载
-	LoadAvg15   float64 `json:"loadAvg15"`   // 15 分钟负载
+	CPUUsage  float64 `json:"cpuUsage"`  // CPU 使用率 (%)
+	CPUCores  int     `json:"cpuCores"`  // CPU 核心数
+	CPUModel  string  `json:"cpuModel"`  // CPU 型号
+	CPUTemp   float64 `json:"cpuTemp"`   // CPU 温度 (°C)
+	LoadAvg1  float64 `json:"loadAvg1"`  // 1 分钟负载
+	LoadAvg5  float64 `json:"loadAvg5"`  // 5 分钟负载
+	LoadAvg15 float64 `json:"loadAvg15"` // 15 分钟负载
 
 	// 内存
-	MemoryTotal     int64   `json:"memoryTotal"`     // 总内存 (bytes)
-	MemoryUsed      int64   `json:"memoryUsed"`      // 已用内存 (bytes)
-	MemoryFree      int64   `json:"memoryFree"`      // 空闲内存 (bytes)
-	MemoryUsagePct  float64 `json:"memoryUsagePct"`  // 内存使用率 (%)
-	SwapTotal       int64   `json:"swapTotal"`       // 总 Swap (bytes)
-	SwapUsed        int64   `json:"swapUsed"`        // 已用 Swap (bytes)
+	MemoryTotal    int64   `json:"memoryTotal"`    // 总内存 (bytes)
+	MemoryUsed     int64   `json:"memoryUsed"`     // 已用内存 (bytes)
+	MemoryFree     int64   `json:"memoryFree"`     // 空闲内存 (bytes)
+	MemoryUsagePct float64 `json:"memoryUsagePct"` // 内存使用率 (%)
+	SwapTotal      int64   `json:"swapTotal"`      // 总 Swap (bytes)
+	SwapUsed       int64   `json:"swapUsed"`       // 已用 Swap (bytes)
 
 	// 磁盘
 	Disks []DiskOverview `json:"disks"`
 
 	// 网络
 	NetworkInterfaces []NetworkInterface `json:"networkInterfaces"`
-	NetworkIO         *NetworkIO        `json:"networkIO"`
+	NetworkIO         *NetworkIO         `json:"networkIO"`
 
 	// 服务
 	Services []ServiceStatus `json:"services"`
@@ -136,14 +136,14 @@ type SystemOverview struct {
 
 // DiskOverview 磁盘概览.
 type DiskOverview struct {
-	Device      string  `json:"device"`
-	MountPoint  string  `json:"mountPoint"`
-	FileSystem  string  `json:"fileSystem"`
-	Total       int64   `json:"total"`
-	Used        int64   `json:"used"`
-	Available   int64   `json:"available"`
-	UsagePct    float64 `json:"usagePct"`
-	Health      string  `json:"health"`
+	Device     string  `json:"device"`
+	MountPoint string  `json:"mountPoint"`
+	FileSystem string  `json:"fileSystem"`
+	Total      int64   `json:"total"`
+	Used       int64   `json:"used"`
+	Available  int64   `json:"available"`
+	UsagePct   float64 `json:"usagePct"`
+	Health     string  `json:"health"`
 }
 
 // NetworkInterface 网络接口.
@@ -151,8 +151,8 @@ type NetworkInterface struct {
 	Name      string   `json:"name"`
 	IP        []string `json:"ip"`
 	MAC       string   `json:"mac"`
-	Speed     string   `json:"speed"`     // 1Gbps, 10Gbps 等
-	Status    string   `json:"status"`    // up/down
+	Speed     string   `json:"speed"`  // 1Gbps, 10Gbps 等
+	Status    string   `json:"status"` // up/down
 	MTU       int      `json:"mtu"`
 	RxBytes   int64    `json:"rxBytes"`
 	TxBytes   int64    `json:"txBytes"`
@@ -205,16 +205,16 @@ type Issue struct {
 
 // RepairGuide 修复指南.
 type RepairGuide struct {
-	ID          string         `json:"id"`
-	IssueID     string         `json:"issueId"`
-	Title       string         `json:"title"`
-	Description string         `json:"description"`
-	Difficulty  string         `json:"difficulty"` // easy/medium/hard
+	ID            string       `json:"id"`
+	IssueID       string       `json:"issueId"`
+	Title         string       `json:"title"`
+	Description   string       `json:"description"`
+	Difficulty    string       `json:"difficulty"` // easy/medium/hard
 	EstimatedTime string       `json:"estimatedTime"`
 	Prerequisites []string     `json:"prerequisites,omitempty"`
-	Steps       []RepairStep   `json:"steps"`
-	Warnings    []string       `json:"warnings,omitempty"`
-	References  []string       `json:"references,omitempty"`
+	Steps         []RepairStep `json:"steps"`
+	Warnings      []string     `json:"warnings,omitempty"`
+	References    []string     `json:"references,omitempty"`
 }
 
 // RepairStep 修复步骤.
@@ -257,23 +257,23 @@ type QuickHealthCheckResult struct {
 	Duration  time.Duration    `json:"duration"`
 
 	// 快速概览
-	CPUStatus    string `json:"cpuStatus"`
-	MemoryStatus string `json:"memoryStatus"`
-	DiskStatus   string `json:"diskStatus"`
+	CPUStatus     string `json:"cpuStatus"`
+	MemoryStatus  string `json:"memoryStatus"`
+	DiskStatus    string `json:"diskStatus"`
 	NetworkStatus string `json:"networkStatus"`
 	ServiceStatus string `json:"serviceStatus"`
 
 	// 摘要
-	TotalIssues int `json:"totalIssues"`
+	TotalIssues    int `json:"totalIssues"`
 	CriticalIssues int `json:"criticalIssues"`
 	WarningIssues  int `json:"warningIssues"`
 }
 
 // DiagnosticRequest 诊断请求.
 type DiagnosticRequest struct {
-	Categories []CheckCategory `json:"categories,omitempty"` // 为空则检查所有
-	IncludeDetails bool        `json:"includeDetails"`
-	Force          bool        `json:"force"`
+	Categories     []CheckCategory `json:"categories,omitempty"` // 为空则检查所有
+	IncludeDetails bool            `json:"includeDetails"`
+	Force          bool            `json:"force"`
 }
 
 // Response API 响应.

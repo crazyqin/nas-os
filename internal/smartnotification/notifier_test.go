@@ -10,7 +10,7 @@ import (
 
 // mockHandler 模拟通知处理器
 type mockHandler struct {
-	sendCount int
+	sendCount  int
 	shouldFail bool
 }
 

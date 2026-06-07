@@ -96,8 +96,8 @@ func NewFilterProcessor(config map[string]interface{}) (Processor, error) {
 	}
 
 	return &FilterProcessor{
-		name:   name,
-		config: config,
+		name:      name,
+		config:    config,
 		condition: cond,
 	}, nil
 }
@@ -197,8 +197,8 @@ func (p *FilterProcessor) GetName() string {
 
 // TransformProcessor 转换器处理器
 type TransformProcessor struct {
-	name      string
-	config    map[string]interface{}
+	name       string
+	config     map[string]interface{}
 	transforms []TransformRule
 }
 
@@ -335,9 +335,9 @@ func (p *TransformProcessor) GetName() string {
 
 // AggregateProcessor 聚合器处理器
 type AggregateProcessor struct {
-	name      string
-	config    map[string]interface{}
-	groupBy   []string
+	name       string
+	config     map[string]interface{}
+	groupBy    []string
 	aggregates []AggregateRule
 }
 
@@ -540,7 +540,7 @@ type EnrichmentProcessor struct {
 // EnrichmentField 富化字段
 type EnrichmentField struct {
 	Field    string      `json:"field"`
-	Source   string      `json:"source"`   // static, computed, lookup
+	Source   string      `json:"source"` // static, computed, lookup
 	Value    interface{} `json:"value"`
 	Template string      `json:"template"`
 }
@@ -883,16 +883,16 @@ func (p *DeduplicatorProcessor) GetName() string {
 
 // RouterProcessor 路由器处理器
 type RouterProcessor struct {
-	name    string
-	config  map[string]interface{}
-	routes  []RouteRule
+	name   string
+	config map[string]interface{}
+	routes []RouteRule
 }
 
 // RouteRule 路由规则
 type RouteRule struct {
-	Name      string        `json:"name"`
+	Name      string          `json:"name"`
 	Condition FilterCondition `json:"condition"`
-	OutputKey string        `json:"outputKey"`
+	OutputKey string          `json:"outputKey"`
 }
 
 // NewRouterProcessor 创建路由器处理器

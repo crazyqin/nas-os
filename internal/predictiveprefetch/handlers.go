@@ -121,7 +121,7 @@ func (h *Handler) HandlePrefetch(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":  "预取成功",
+		"message":    "预取成功",
 		"prefetched": len(req.Candidates),
 	})
 }

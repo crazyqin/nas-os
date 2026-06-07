@@ -232,11 +232,11 @@ func TestMgrGenerateReport(t *testing.T) {
 func TestGapAnalysis(t *testing.T) {
 	m := NewManager(EngineConfig{})
 	m.CreateRule(ComplianceRule{
-		Standard:    StandardGDPR,
-		Category:    CategoryDataProtection,
-		Severity:    SeverityCritical,
-		Title:       "数据加密",
-		Enabled:     true,
+		Standard: StandardGDPR,
+		Category: CategoryDataProtection,
+		Severity: SeverityCritical,
+		Title:    "数据加密",
+		Enabled:  true,
 	})
 
 	analysis, err := m.PerformGapAnalysis([]ComplianceStandard{StandardGDPR})

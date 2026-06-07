@@ -37,24 +37,24 @@ type FleetManager struct {
 
 // FleetConfig 舰队配置
 type FleetConfig struct {
-	ClusterName       string        `json:"clusterName"`       // 集群名称
-	FleetID           string        `json:"fleetId"`           // 舰队ID
-	ControllerNode    string        `json:"controllerNode"`    // 控制节点地址
-	DataDir           string        `json:"dataDir"`           // 数据目录
-	HeartbeatTimeout  time.Duration `json:"heartbeatTimeout"`  // 心跳超时
-	SyncInterval      time.Duration `json:"syncInterval"`      // 同步间隔
-	MaxNodes          int           `json:"maxNodes"`          // 最大节点数
-	EnableAutoDiscover bool         `json:"enableAutoDiscover"` // 启用自动发现
+	ClusterName        string        `json:"clusterName"`        // 集群名称
+	FleetID            string        `json:"fleetId"`            // 舰队ID
+	ControllerNode     string        `json:"controllerNode"`     // 控制节点地址
+	DataDir            string        `json:"dataDir"`            // 数据目录
+	HeartbeatTimeout   time.Duration `json:"heartbeatTimeout"`   // 心跳超时
+	SyncInterval       time.Duration `json:"syncInterval"`       // 同步间隔
+	MaxNodes           int           `json:"maxNodes"`           // 最大节点数
+	EnableAutoDiscover bool          `json:"enableAutoDiscover"` // 启用自动发现
 }
 
 // DefaultFleetConfig 默认舰队配置
 func DefaultFleetConfig() FleetConfig {
 	return FleetConfig{
-		ClusterName:       "nas-fleet",
-		DataDir:           "/var/lib/nas-os/fleet",
-		HeartbeatTimeout:  30 * time.Second,
-		SyncInterval:      60 * time.Second,
-		MaxNodes:          100,
+		ClusterName:        "nas-fleet",
+		DataDir:            "/var/lib/nas-os/fleet",
+		HeartbeatTimeout:   30 * time.Second,
+		SyncInterval:       60 * time.Second,
+		MaxNodes:           100,
 		EnableAutoDiscover: true,
 	}
 }
@@ -166,16 +166,16 @@ type NodeRegistrationRequest struct {
 
 // NodeRegistrationResponse 节点注册响应
 type NodeRegistrationResponse struct {
-	DeviceID        string    `json:"deviceId"`        // 设备ID
-	RegisterToken   string    `json:"registerToken"`   // 注册确认令牌
-	ControllerAddr  string    `json:"controllerAddr"`  // 控制器地址
-	HeartbeatURL    string    `json:"heartbeatUrl"`    // 心跳URL
-	StatusURL       string    `json:"statusUrl"`       // 状态上报URL
-	TaskPollURL     string    `json:"taskPollUrl"`     // 任务拉取URL
-	ExpiresAt       time.Time `json:"expiresAt"`       // 令牌过期时间
-	ClusterName     string    `json:"clusterName"`     // 集群名称
-	Success         bool      `json:"success"`         // 是否成功
-	Message         string    `json:"message"`         // 消息
+	DeviceID       string    `json:"deviceId"`       // 设备ID
+	RegisterToken  string    `json:"registerToken"`  // 注册确认令牌
+	ControllerAddr string    `json:"controllerAddr"` // 控制器地址
+	HeartbeatURL   string    `json:"heartbeatUrl"`   // 心跳URL
+	StatusURL      string    `json:"statusUrl"`      // 状态上报URL
+	TaskPollURL    string    `json:"taskPollUrl"`    // 任务拉取URL
+	ExpiresAt      time.Time `json:"expiresAt"`      // 令牌过期时间
+	ClusterName    string    `json:"clusterName"`    // 集群名称
+	Success        bool      `json:"success"`        // 是否成功
+	Message        string    `json:"message"`        // 消息
 }
 
 // RegisterNode 注册新节点
@@ -341,12 +341,12 @@ func (fm *FleetManager) CancelTask(taskID string) error {
 
 // HeartbeatRequest 心跳请求
 type HeartbeatRequest struct {
-	DeviceID   string                 `json:"deviceId"`
-	Token      string                 `json:"token"`
-	Metrics    map[string]interface{} `json:"metrics"`
-	Status     DeviceStatus           `json:"status"`
-	Tasks      []TaskProgress         `json:"tasks"`
-	Timestamp  time.Time              `json:"timestamp"`
+	DeviceID  string                 `json:"deviceId"`
+	Token     string                 `json:"token"`
+	Metrics   map[string]interface{} `json:"metrics"`
+	Status    DeviceStatus           `json:"status"`
+	Tasks     []TaskProgress         `json:"tasks"`
+	Timestamp time.Time              `json:"timestamp"`
 }
 
 // TaskProgress 任务进度
@@ -507,9 +507,9 @@ func (fm *FleetManager) loadState() error {
 // saveState 保存状态
 func (fm *FleetManager) saveState() {
 	state := map[string]interface{}{
-		"fleetId":    fm.config.FleetID,
+		"fleetId":     fm.config.FleetID,
 		"clusterName": fm.config.ClusterName,
-		"timestamp":  time.Now(),
+		"timestamp":   time.Now(),
 	}
 
 	data, err := json.MarshalIndent(state, "", "  ")

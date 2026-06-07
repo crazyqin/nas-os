@@ -393,7 +393,7 @@ func (h *Handlers) importOPML(c *gin.Context) {
 		Code:    0,
 		Message: "导入成功",
 		Data: gin.H{
-			"total":        len(feeds),
+			"total":          len(feeds),
 			"imported_feeds": feeds,
 		},
 	})

@@ -17,24 +17,24 @@ import (
 
 // NVMeHandlers NVMe硬件监控处理器
 type NVMeHandlers struct {
-	monitor   *nvme.NVMeMonitor
-	alerts    []nvme.Alert
-	alertsMu  sync.RWMutex
+	monitor  *nvme.NVMeMonitor
+	alerts   []nvme.Alert
+	alertsMu sync.RWMutex
 }
 
 // NewNVMeHandlers 创建NVMe处理器
 func NewNVMeHandlers() *NVMeHandlers {
 	cfg := nvme.DefaultAlertConfig()
 	monitor := nvme.NewNVMeMonitor(cfg)
-	
+
 	h := &NVMeHandlers{
 		monitor: monitor,
 		alerts:  make([]nvme.Alert, 0),
 	}
-	
+
 	// 启动告警收集
 	go h.collectAlerts()
-	
+
 	return h
 }
 
@@ -57,22 +57,22 @@ func (h *NVMeHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	{
 		// 获取所有NVMe设备状态
 		nvmeGroup.GET("", h.getDashboard)
-		
+
 		// 获取单个设备详情
 		nvmeGroup.GET("/:device", h.getDeviceHealth)
-		
+
 		// 获取告警列表
 		nvmeGroup.GET("/alerts", h.getAlerts)
-		
+
 		// 刷新数据
 		nvmeGroup.POST("/refresh", h.refreshData)
-		
+
 		// 配置告警阈值
 		nvmeGroup.PUT("/config", h.updateConfig)
-		
+
 		// Prometheus指标导出
 		nvmeGroup.GET("/metrics", h.getMetrics)
-		
+
 		// 历史数据（保留7天）
 		nvmeGroup.GET("/history", h.getHistory)
 	}
@@ -91,15 +91,15 @@ func (h *NVMeHandlers) RegisterRoutes(r *gin.RouterGroup) {
 func (h *NVMeHandlers) getDashboard(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
 	defer cancel()
-	
+
 	// 检查所有设备健康状态
 	_, err := h.monitor.CheckAllHealth(ctx)
 	if err != nil {
 		// 即使检查失败，也返回缓存数据
 	}
-	
+
 	dashboard := h.monitor.GetDashboard()
-	
+
 	api.OK(c, dashboard)
 }
 
@@ -121,19 +121,19 @@ func (h *NVMeHandlers) getDeviceHealth(c *gin.Context) {
 		api.BadRequest(c, "设备名称不能为空")
 		return
 	}
-	
+
 	// 构建完整设备路径
 	devicePath := "/dev/" + device
-	
+
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
 	defer cancel()
-	
+
 	status, err := h.monitor.CheckHealth(ctx, devicePath)
 	if err != nil {
 		api.InternalError(c, "获取SMART数据失败: "+err.Error())
 		return
 	}
-	
+
 	api.OK(c, status)
 }
 
@@ -155,12 +155,12 @@ func (h *NVMeHandlers) getAlerts(c *gin.Context) {
 			limit = n
 		}
 	}
-	
+
 	severity := c.Query("severity")
-	
+
 	h.alertsMu.RLock()
 	alerts := make([]nvme.Alert, 0)
-	
+
 	// 过滤告警
 	for i := len(h.alerts) - 1; i >= 0 && len(alerts) < limit; i-- {
 		alert := h.alerts[i]
@@ -169,7 +169,7 @@ func (h *NVMeHandlers) getAlerts(c *gin.Context) {
 		}
 	}
 	h.alertsMu.RUnlock()
-	
+
 	api.OK(c, alerts)
 }
 
@@ -186,13 +186,13 @@ func (h *NVMeHandlers) getAlerts(c *gin.Context) {
 func (h *NVMeHandlers) refreshData(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 30*time.Second)
 	defer cancel()
-	
+
 	results, err := h.monitor.CheckAllHealth(ctx)
 	if err != nil {
 		api.InternalError(c, "刷新NVMe数据失败: "+err.Error())
 		return
 	}
-	
+
 	api.OKWithMessage(c, "NVMe数据已刷新", gin.H{
 		"devices_checked": len(results),
 		"timestamp":       time.Now(),
@@ -216,7 +216,7 @@ func (h *NVMeHandlers) updateConfig(c *gin.Context) {
 		api.BadRequest(c, "配置格式错误: "+err.Error())
 		return
 	}
-	
+
 	// 验证配置范围
 	if config.TemperatureThreshold < 50 || config.TemperatureThreshold > 100 {
 		api.BadRequest(c, "温度阈值应在50-100°C之间")
@@ -230,10 +230,10 @@ func (h *NVMeHandlers) updateConfig(c *gin.Context) {
 		api.BadRequest(c, "备用空间阈值应在5-50%之间")
 		return
 	}
-	
+
 	// 更新monitor配置（需要重新创建monitor）
 	h.monitor = nvme.NewNVMeMonitor(config)
-	
+
 	api.OKWithMessage(c, "告警配置已更新", config)
 }
 
@@ -247,7 +247,7 @@ func (h *NVMeHandlers) updateConfig(c *gin.Context) {
 // @Router /hardware/nvme/metrics [get]
 func (h *NVMeHandlers) getMetrics(c *gin.Context) {
 	metrics := h.monitor.ExportMetrics()
-	
+
 	c.Data(http.StatusOK, "text/plain; charset=utf-8", []byte(metrics))
 }
 
@@ -263,10 +263,10 @@ func (h *NVMeHandlers) getMetrics(c *gin.Context) {
 // @Security BearerAuth
 func (h *NVMeHandlers) getHistory(c *gin.Context) {
 	duration := c.DefaultQuery("duration", "24h")
-	
+
 	// 返回当前状态作为历史数据（简化实现，实际需要持久化存储）
 	status := h.monitor.GetAllStatus()
-	
+
 	history := make([]map[string]interface{}, 0)
 	for device, health := range status {
 		if health != nil {
@@ -279,7 +279,7 @@ func (h *NVMeHandlers) getHistory(c *gin.Context) {
 			})
 		}
 	}
-	
+
 	api.OK(c, gin.H{
 		"duration":    duration,
 		"data_points": len(history),

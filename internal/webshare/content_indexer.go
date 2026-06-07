@@ -35,13 +35,13 @@ type ContentIndexer struct {
 
 // FileMetadata 文件元数据
 type FileMetadata struct {
-	Path        string            `json:"path"`
-	Name        string            `json:"name"`
-	Ext         string            `json:"ext"`
-	Size        int64             `json:"size"`
-	ModTime     time.Time         `json:"modTime"`
-	ContentType string            `json:"contentType"`
-	FileType    string            `json:"fileType"` // image, video, audio, document, code, archive, other
+	Path        string    `json:"path"`
+	Name        string    `json:"name"`
+	Ext         string    `json:"ext"`
+	Size        int64     `json:"size"`
+	ModTime     time.Time `json:"modTime"`
+	ContentType string    `json:"contentType"`
+	FileType    string    `json:"fileType"` // image, video, audio, document, code, archive, other
 
 	// 内容信息
 	TextContent string   `json:"textContent,omitempty"` // 提取的文本内容
@@ -49,7 +49,7 @@ type FileMetadata struct {
 	Keywords    []string `json:"keywords,omitempty"`    // 关键词
 	WordCount   int      `json:"wordCount,omitempty"`   // 词数
 	LineCount   int      `json:"lineCount,omitempty"`   // 行数
-	Language    string   `json:"language,omitempty"`     // 语言
+	Language    string   `json:"language,omitempty"`    // 语言
 
 	// 图片 EXIF 信息
 	EXIF *EXIFData `json:"exif,omitempty"`
@@ -64,43 +64,43 @@ type FileMetadata struct {
 
 // EXIFData EXIF 元数据
 type EXIFData struct {
-	CameraMake     string    `json:"cameraMake,omitempty"`
-	CameraModel    string    `json:"cameraModel,omitempty"`
-	DateTime       time.Time `json:"dateTime,omitempty"`
+	CameraMake       string    `json:"cameraMake,omitempty"`
+	CameraModel      string    `json:"cameraModel,omitempty"`
+	DateTime         time.Time `json:"dateTime,omitempty"`
 	DateTimeOriginal time.Time `json:"dateTimeOriginal,omitempty"`
-	Width          int       `json:"width,omitempty"`
-	Height         int       `json:"height,omitempty"`
-	Orientation    int       `json:"orientation,omitempty"`
-	ExposureTime   string    `json:"exposureTime,omitempty"`
-	FNumber        float64   `json:"fNumber,omitempty"`
-	ISO            int       `json:"iso,omitempty"`
-	FocalLength    float64   `json:"focalLength,omitempty"`
-	GPSLatitude    float64   `json:"gpsLatitude,omitempty"`
-	GPSLongitude   float64   `json:"gpsLongitude,omitempty"`
-	Software       string    `json:"software,omitempty"`
-	Artist         string    `json:"artist,omitempty"`
-	Copyright      string    `json:"copyright,omitempty"`
-	Description    string    `json:"description,omitempty"`
+	Width            int       `json:"width,omitempty"`
+	Height           int       `json:"height,omitempty"`
+	Orientation      int       `json:"orientation,omitempty"`
+	ExposureTime     string    `json:"exposureTime,omitempty"`
+	FNumber          float64   `json:"fNumber,omitempty"`
+	ISO              int       `json:"iso,omitempty"`
+	FocalLength      float64   `json:"focalLength,omitempty"`
+	GPSLatitude      float64   `json:"gpsLatitude,omitempty"`
+	GPSLongitude     float64   `json:"gpsLongitude,omitempty"`
+	Software         string    `json:"software,omitempty"`
+	Artist           string    `json:"artist,omitempty"`
+	Copyright        string    `json:"copyright,omitempty"`
+	Description      string    `json:"description,omitempty"`
 }
 
 // IndexerStats 索引器统计
 type IndexerStats struct {
-	TotalFiles    int64     `json:"totalFiles"`
-	IndexedFiles  int64     `json:"indexedFiles"`
-	FailedFiles   int64     `json:"failedFiles"`
-	TotalBytes    int64     `json:"totalBytes"`
-	IndexedBytes  int64     `json:"indexedBytes"`
-	LastIndexed   time.Time `json:"lastIndexed"`
-	IndexDuration time.Duration `json:"indexDuration"`
+	TotalFiles    int64            `json:"totalFiles"`
+	IndexedFiles  int64            `json:"indexedFiles"`
+	FailedFiles   int64            `json:"failedFiles"`
+	TotalBytes    int64            `json:"totalBytes"`
+	IndexedBytes  int64            `json:"indexedBytes"`
+	LastIndexed   time.Time        `json:"lastIndexed"`
+	IndexDuration time.Duration    `json:"indexDuration"`
 	FilesByType   map[string]int64 `json:"filesByType"`
 }
 
 // IndexRequest 索引请求
 type IndexRequest struct {
-	Path       string `json:"path"`       // 索引路径
-	Recursive  bool   `json:"recursive"`  // 递归索引
-	ForceReindex bool `json:"forceReindex"` // 强制重新索引
-	MaxDepth   int    `json:"maxDepth"`   // 最大深度
+	Path         string `json:"path"`         // 索引路径
+	Recursive    bool   `json:"recursive"`    // 递归索引
+	ForceReindex bool   `json:"forceReindex"` // 强制重新索引
+	MaxDepth     int    `json:"maxDepth"`     // 最大深度
 }
 
 // IndexResponse 索引响应
@@ -289,12 +289,12 @@ func (ci *ContentIndexer) indexFile(ctx context.Context, filePath string, forceR
 
 	// 重置元数据
 	*metadata = FileMetadata{
-		Path:        relPath,
-		Name:        info.Name(),
-		Ext:         strings.ToLower(filepath.Ext(info.Name())),
-		Size:        info.Size(),
-		ModTime:     info.ModTime(),
-		IndexedAt:   time.Now(),
+		Path:         relPath,
+		Name:         info.Name(),
+		Ext:          strings.ToLower(filepath.Ext(info.Name())),
+		Size:         info.Size(),
+		ModTime:      info.ModTime(),
+		IndexedAt:    time.Now(),
 		IndexVersion: 1,
 	}
 
@@ -617,11 +617,11 @@ func (ci *ContentIndexer) getContentType(ext string) string {
 		".m4a": "audio/mp4", ".ape": "audio/ape",
 		".pdf": "application/pdf", ".doc": "application/msword",
 		".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-		".xls": "application/vnd.ms-excel",
+		".xls":  "application/vnd.ms-excel",
 		".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-		".ppt": "application/vnd.ms-powerpoint",
+		".ppt":  "application/vnd.ms-powerpoint",
 		".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-		".txt": "text/plain", ".rtf": "application/rtf",
+		".txt":  "text/plain", ".rtf": "application/rtf",
 		".zip": "application/zip", ".rar": "application/vnd.rar",
 		".7z": "application/x-7z-compressed", ".tar": "application/x-tar",
 		".gz": "application/gzip", ".bz2": "application/x-bzip2",
@@ -670,7 +670,7 @@ func (ci *ContentIndexer) GetStats() IndexerStats {
 func (ci *ContentIndexer) GetAllMetadata() map[string]*FileMetadata {
 	ci.mu.RLock()
 	defer ci.mu.RUnlock()
-	
+
 	result := make(map[string]*FileMetadata, len(ci.index))
 	for k, v := range ci.index {
 		result[k] = v

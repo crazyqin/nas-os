@@ -1810,55 +1810,55 @@ var RAIDCostConfigs = map[RAIDLevel]RAIDCostConfig{
 
 // PoolCostBreakdown 存储池成本分解（v2.211.0新增）.
 type PoolCostBreakdown struct {
-	PoolID             string    `json:"pool_id"`
-	PoolName           string    `json:"pool_name"`
-	RAIDLevel          RAIDLevel `json:"raid_level"`
-	DeviceCount        int       `json:"device_count"`
-	FaultTolerance     int       `json:"fault_tolerance"`
+	PoolID         string    `json:"pool_id"`
+	PoolName       string    `json:"pool_name"`
+	RAIDLevel      RAIDLevel `json:"raid_level"`
+	DeviceCount    int       `json:"device_count"`
+	FaultTolerance int       `json:"fault_tolerance"`
 
 	// 容量成本分解
-	RawCapacityGB      float64   `json:"raw_capacity_gb"`       // 原始物理容量
-	UsableCapacityGB   float64   `json:"usable_capacity_gb"`    // 可用逻辑容量
-	RedundancySpaceGB  float64   `json:"redundancy_space_gb"`   // 冗余占用空间
-	UsedCapacityGB     float64   `json:"used_capacity_gb"`      // 实际使用量
-	FreeCapacityGB     float64   `json:"free_capacity_gb"`      // 可用空闲
+	RawCapacityGB     float64 `json:"raw_capacity_gb"`     // 原始物理容量
+	UsableCapacityGB  float64 `json:"usable_capacity_gb"`  // 可用逻辑容量
+	RedundancySpaceGB float64 `json:"redundancy_space_gb"` // 冗余占用空间
+	UsedCapacityGB    float64 `json:"used_capacity_gb"`    // 实际使用量
+	FreeCapacityGB    float64 `json:"free_capacity_gb"`    // 可用空闲
 
 	// 成本分解
-	HardwareCost       float64   `json:"hardware_cost"`         // 硬件成本（月）
-	RedundancyCost     float64   `json:"redundancy_cost"`       // 冗余成本（月）
-	EffectiveCost      float64   `json:"effective_cost"`        // 有效成本（月）
-	CostPerUsableGB    float64   `json:"cost_per_usable_gb"`    // 每可用GB成本
+	HardwareCost    float64 `json:"hardware_cost"`      // 硬件成本（月）
+	RedundancyCost  float64 `json:"redundancy_cost"`    // 冗余成本（月）
+	EffectiveCost   float64 `json:"effective_cost"`     // 有效成本（月）
+	CostPerUsableGB float64 `json:"cost_per_usable_gb"` // 每可用GB成本
 
 	// 效率指标
-	RAIDEfficiency     float64   `json:"raid_efficiency"`       // RAID效率 (usable/raw)
-	CostEfficiency     float64   `json:"cost_efficiency"`       // 成本效率评分
-	UtilizationRate    float64   `json:"utilization_rate"`      // 使用率
+	RAIDEfficiency  float64 `json:"raid_efficiency"`  // RAID效率 (usable/raw)
+	CostEfficiency  float64 `json:"cost_efficiency"`  // 成本效率评分
+	UtilizationRate float64 `json:"utilization_rate"` // 使用率
 
 	// 存储类型
-	StorageType        string    `json:"storage_type"`          // ssd/hdd/archive
+	StorageType string `json:"storage_type"` // ssd/hdd/archive
 }
 
 // CompressionSavings 压缩节省统计（v2.211.0新增）.
 type CompressionSavings struct {
-	Enabled            bool                `json:"enabled"`
-	Algorithm          string              `json:"algorithm"`
-	CompressedFiles    int64               `json:"compressed_files"`
-	TotalFiles         int64               `json:"total_files"`
-	OriginalBytes      int64               `json:"original_bytes"`
-	CompressedBytes    int64               `json:"compressed_bytes"`
-	SavedBytes         int64               `json:"saved_bytes"`
-	SavedGB            float64             `json:"saved_gb"`
-	CompressionRatio   float64             `json:"compression_ratio"`
-	ByAlgorithm        map[string]RatioStats `json:"by_algorithm"`
+	Enabled          bool                  `json:"enabled"`
+	Algorithm        string                `json:"algorithm"`
+	CompressedFiles  int64                 `json:"compressed_files"`
+	TotalFiles       int64                 `json:"total_files"`
+	OriginalBytes    int64                 `json:"original_bytes"`
+	CompressedBytes  int64                 `json:"compressed_bytes"`
+	SavedBytes       int64                 `json:"saved_bytes"`
+	SavedGB          float64               `json:"saved_gb"`
+	CompressionRatio float64               `json:"compression_ratio"`
+	ByAlgorithm      map[string]RatioStats `json:"by_algorithm"`
 
 	// 成本节省
-	SavingsMonthly     float64             `json:"savings_monthly"`
-	SavingsYearly      float64             `json:"savings_yearly"`
-	CostBefore         float64             `json:"cost_before"`
-	CostAfter          float64             `json:"cost_after"`
+	SavingsMonthly float64 `json:"savings_monthly"`
+	SavingsYearly  float64 `json:"savings_yearly"`
+	CostBefore     float64 `json:"cost_before"`
+	CostAfter      float64 `json:"cost_after"`
 
 	// 压缩率分布
-	RatioDistribution  RatioDistribution   `json:"ratio_distribution"`
+	RatioDistribution RatioDistribution `json:"ratio_distribution"`
 }
 
 // RatioStats 压缩率统计.
@@ -1871,193 +1871,193 @@ type RatioStats struct {
 
 // RatioDistribution 压缩率分布.
 type RatioDistribution struct {
-	HighRatio   int     `json:"high_ratio"`   // 压缩率 > 50%
-	MediumRatio int     `json:"medium_ratio"` // 压缩率 30-50%
-	LowRatio    int     `json:"low_ratio"`    // 压缩率 < 30%
-	NoEffect    int     `json:"no_effect"`    // 无压缩效果
+	HighRatio   int `json:"high_ratio"`   // 压缩率 > 50%
+	MediumRatio int `json:"medium_ratio"` // 压缩率 30-50%
+	LowRatio    int `json:"low_ratio"`    // 压缩率 < 30%
+	NoEffect    int `json:"no_effect"`    // 无压缩效果
 }
 
 // DeduplicationSavings 去重节省统计（v2.211.0新增）.
 type DeduplicationSavings struct {
-	Enabled              bool    `json:"enabled"`
-	TotalFiles           int64   `json:"total_files"`
-	TotalSize            int64   `json:"total_size"`
-	DuplicateFiles       int64   `json:"duplicate_files"`
-	DuplicateSize        int64   `json:"duplicate_size"`
+	Enabled        bool  `json:"enabled"`
+	TotalFiles     int64 `json:"total_files"`
+	TotalSize      int64 `json:"total_size"`
+	DuplicateFiles int64 `json:"duplicate_files"`
+	DuplicateSize  int64 `json:"duplicate_size"`
 
 	// 块级别去重
-	ChunksStored         int     `json:"chunks_stored"`
-	ChunkDataSize        int64   `json:"chunk_data_size"`
-	SharedChunks         int     `json:"shared_chunks"`
-	SharedDataSize       int64   `json:"shared_data_size"`
+	ChunksStored   int   `json:"chunks_stored"`
+	ChunkDataSize  int64 `json:"chunk_data_size"`
+	SharedChunks   int   `json:"shared_chunks"`
+	SharedDataSize int64 `json:"shared_data_size"`
 
 	// 节省统计
-	SavingsPotential     int64   `json:"savings_potential"`     // 潜在节省（字节）
-	SavingsPotentialGB   float64 `json:"savings_potential_gb"`
-	SavingsActual        int64   `json:"savings_actual"`        // 实际节省（字节）
-	SavingsActualGB      float64 `json:"savings_actual_gb"`
+	SavingsPotential   int64   `json:"savings_potential"` // 潜在节省（字节）
+	SavingsPotentialGB float64 `json:"savings_potential_gb"`
+	SavingsActual      int64   `json:"savings_actual"` // 实际节省（字节）
+	SavingsActualGB    float64 `json:"savings_actual_gb"`
 
 	// 成本节省
-	SavingsMonthly       float64 `json:"savings_monthly"`
-	SavingsYearly        float64 `json:"savings_yearly"`
-	DedupRate            float64 `json:"dedup_rate"`            // 去重率
+	SavingsMonthly float64 `json:"savings_monthly"`
+	SavingsYearly  float64 `json:"savings_yearly"`
+	DedupRate      float64 `json:"dedup_rate"` // 去重率
 
 	// 跨用户去重
-	CrossUserSavings     int64   `json:"cross_user_savings"`
-	CrossUserSavingsGB   float64 `json:"cross_user_savings_gb"`
-	UserCount            int     `json:"user_count"`
+	CrossUserSavings   int64   `json:"cross_user_savings"`
+	CrossUserSavingsGB float64 `json:"cross_user_savings_gb"`
+	UserCount          int     `json:"user_count"`
 }
 
 // CostTrendPrediction 成本趋势预测（v2.211.0新增）.
 type CostTrendPrediction struct {
 	// 历史数据
-	HistoricalData      []CostTrendDataPoint `json:"historical_data"`
-	DataPoints          int                  `json:"data_points"`
-	AnalysisPeriodDays  int                  `json:"analysis_period_days"`
+	HistoricalData     []CostTrendDataPoint `json:"historical_data"`
+	DataPoints         int                  `json:"data_points"`
+	AnalysisPeriodDays int                  `json:"analysis_period_days"`
 
 	// 增长率分析
-	GrowthRate          float64              `json:"growth_rate"`          // 月增长率(%)
-	LinearGrowth        float64              `json:"linear_growth"`        // 线性增长率
-	ExponentialGrowth   float64              `json:"exponential_growth"`   // 指数增长率
-	GrowthTrend         string               `json:"growth_trend"`         // increasing/stable/decreasing
+	GrowthRate        float64 `json:"growth_rate"`        // 月增长率(%)
+	LinearGrowth      float64 `json:"linear_growth"`      // 线性增长率
+	ExponentialGrowth float64 `json:"exponential_growth"` // 指数增长率
+	GrowthTrend       string  `json:"growth_trend"`       // increasing/stable/decreasing
 
 	// 预测结果
-	Predictions         []CostPrediction     `json:"predictions"`
-	NextMonthCost       float64              `json:"next_month_cost"`
-	NextQuarterCost     float64              `json:"next_quarter_cost"`
-	NextYearCost        float64              `json:"next_year_cost"`
+	Predictions     []CostPrediction `json:"predictions"`
+	NextMonthCost   float64          `json:"next_month_cost"`
+	NextQuarterCost float64          `json:"next_quarter_cost"`
+	NextYearCost    float64          `json:"next_year_cost"`
 
 	// 容量预测
-	PredictedCapacityGB float64              `json:"predicted_capacity_gb"`
-	DaysToCapacityLimit int                  `json:"days_to_capacity_limit"` // 预计多少天到容量上限
-	CapacityWarning     bool                 `json:"capacity_warning"`
+	PredictedCapacityGB float64 `json:"predicted_capacity_gb"`
+	DaysToCapacityLimit int     `json:"days_to_capacity_limit"` // 预计多少天到容量上限
+	CapacityWarning     bool    `json:"capacity_warning"`
 
 	// 成本预测置信度
-	Confidence          float64              `json:"confidence"`           // 预测置信度(0-1)
-	Method              string               `json:"method"`               // linear/exponential/average
+	Confidence float64 `json:"confidence"` // 预测置信度(0-1)
+	Method     string  `json:"method"`     // linear/exponential/average
 
 	// 预算预警
-	BudgetLimit         float64              `json:"budget_limit"`
-	BudgetExhaustDays   int                  `json:"budget_exhaust_days"`  // 预算耗尽天数
-	BudgetWarningLevel  string               `json:"budget_warning_level"` // none/warning/critical
+	BudgetLimit        float64 `json:"budget_limit"`
+	BudgetExhaustDays  int     `json:"budget_exhaust_days"`  // 预算耗尽天数
+	BudgetWarningLevel string  `json:"budget_warning_level"` // none/warning/critical
 }
 
 // CostPrediction 成本预测.
 type CostPrediction struct {
-	Date              time.Time `json:"date"`
-	PredictedCost     float64   `json:"predicted_cost"`
-	PredictedUsedGB   float64   `json:"predicted_used_gb"`
-	Confidence        float64   `json:"confidence"`
-	LowerBound        float64   `json:"lower_bound"`    // 下限
-	UpperBound        float64   `json:"upper_bound"`    // 上限
+	Date            time.Time `json:"date"`
+	PredictedCost   float64   `json:"predicted_cost"`
+	PredictedUsedGB float64   `json:"predicted_used_gb"`
+	Confidence      float64   `json:"confidence"`
+	LowerBound      float64   `json:"lower_bound"` // 下限
+	UpperBound      float64   `json:"upper_bound"` // 上限
 }
 
 // CostOptimizationRecommendationEnhanced 成本优化建议（v2.211.0增强）.
 type CostOptimizationRecommendationEnhanced struct {
-	ID                  string    `json:"id"`
-	Type                string    `json:"type"`             // raid_optimize/compress_enable/dedup_enable/tier_migration/cleanup/expand/shrink
-	Priority            int       `json:"priority"`         // 1-10
-	Severity            string    `json:"severity"`         // low/medium/high/critical
-	Title               string    `json:"title"`
-	Description         string    `json:"description"`
-	Target              string    `json:"target"`           // 目标池/卷
+	ID          string `json:"id"`
+	Type        string `json:"type"`     // raid_optimize/compress_enable/dedup_enable/tier_migration/cleanup/expand/shrink
+	Priority    int    `json:"priority"` // 1-10
+	Severity    string `json:"severity"` // low/medium/high/critical
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Target      string `json:"target"` // 目标池/卷
 
 	// 成本影响
-	CurrentCost         float64   `json:"current_cost"`
-	OptimizedCost       float64   `json:"optimized_cost"`
-	SavingsMonthly      float64   `json:"savings_monthly"`
-	SavingsYearly       float64   `json:"savings_yearly"`
-	SavingsPercent      float64   `json:"savings_percent"`
+	CurrentCost    float64 `json:"current_cost"`
+	OptimizedCost  float64 `json:"optimized_cost"`
+	SavingsMonthly float64 `json:"savings_monthly"`
+	SavingsYearly  float64 `json:"savings_yearly"`
+	SavingsPercent float64 `json:"savings_percent"`
 
 	// 容量影响
-	CapacityChangeGB    float64   `json:"capacity_change_gb"`
-	PerformanceImpact   string    `json:"performance_impact"` // positive/neutral/negative
+	CapacityChangeGB  float64 `json:"capacity_change_gb"`
+	PerformanceImpact string  `json:"performance_impact"` // positive/neutral/negative
 
 	// 实施信息
-	Implementation      string    `json:"implementation"`   // easy/medium/hard
-	EstimatedTime       string    `json:"estimated_time"`
-	ROIMonths           int       `json:"roi_months"`
-	Risk                string    `json:"risk"`             // low/medium/high
+	Implementation string `json:"implementation"` // easy/medium/hard
+	EstimatedTime  string `json:"estimated_time"`
+	ROIMonths      int    `json:"roi_months"`
+	Risk           string `json:"risk"` // low/medium/high
 
 	// 实施步骤
-	Steps               []string  `json:"steps"`
-	Prerequisites       []string  `json:"prerequisites"`
-	PotentialRisks      []string  `json:"potential_risks"`
-	Benefits            []string  `json:"benefits"`
+	Steps          []string `json:"steps"`
+	Prerequisites  []string `json:"prerequisites"`
+	PotentialRisks []string `json:"potential_risks"`
+	Benefits       []string `json:"benefits"`
 
 	// 状态
-	Status              string    `json:"status"`           // pending/implementing/completed/dismissed
-	CreatedAt           time.Time `json:"created_at"`
+	Status    string    `json:"status"` // pending/implementing/completed/dismissed
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // EnhancedStorageCostReport 增强存储成本报告（v2.211.0）.
 type EnhancedStorageCostReport struct {
 	// 报告基本信息
-	ID                  string              `json:"id"`
-	Name                string              `json:"name"`
-	GeneratedAt         time.Time           `json:"generated_at"`
-	Period              ReportPeriod        `json:"period"`
+	ID          string       `json:"id"`
+	Name        string       `json:"name"`
+	GeneratedAt time.Time    `json:"generated_at"`
+	Period      ReportPeriod `json:"period"`
 
 	// 成本汇总
-	TotalCost           float64             `json:"total_cost"`
-	HardwareCost        float64             `json:"hardware_cost"`
-	RedundancyCost      float64             `json:"redundancy_cost"`
-	EffectiveCost       float64             `json:"effective_cost"`
-	Currency            string              `json:"currency"`
+	TotalCost      float64 `json:"total_cost"`
+	HardwareCost   float64 `json:"hardware_cost"`
+	RedundancyCost float64 `json:"redundancy_cost"`
+	EffectiveCost  float64 `json:"effective_cost"`
+	Currency       string  `json:"currency"`
 
 	// 存储池成本分解
-	PoolBreakdown       []PoolCostBreakdown `json:"pool_breakdown"`
+	PoolBreakdown []PoolCostBreakdown `json:"pool_breakdown"`
 
 	// 节省统计
-	CompressionSavings  *CompressionSavings `json:"compression_savings,omitempty"`
+	CompressionSavings  *CompressionSavings   `json:"compression_savings,omitempty"`
 	DedupSavings        *DeduplicationSavings `json:"dedup_savings,omitempty"`
-	TotalSavingsMonthly float64             `json:"total_savings_monthly"`
+	TotalSavingsMonthly float64               `json:"total_savings_monthly"`
 
 	// 趋势预测
-	TrendPrediction     *CostTrendPrediction `json:"trend_prediction,omitempty"`
+	TrendPrediction *CostTrendPrediction `json:"trend_prediction,omitempty"`
 
 	// 优化建议
-	Recommendations     []CostOptimizationRecommendationEnhanced `json:"recommendations"`
+	Recommendations []CostOptimizationRecommendationEnhanced `json:"recommendations"`
 
 	// 执行摘要
-	ExecutiveSummary    EnhancedCostSummary `json:"executive_summary"`
+	ExecutiveSummary EnhancedCostSummary `json:"executive_summary"`
 }
 
 // EnhancedCostSummary 增强成本摘要.
 type EnhancedCostSummary struct {
 	// 基础统计
-	TotalRawCapacityGB     float64   `json:"total_raw_capacity_gb"`
-	TotalUsableCapacityGB  float64   `json:"total_usable_capacity_gb"`
-	TotalUsedGB            float64   `json:"total_used_gb"`
-	AvgUtilization         float64   `json:"avg_utilization"`
+	TotalRawCapacityGB    float64 `json:"total_raw_capacity_gb"`
+	TotalUsableCapacityGB float64 `json:"total_usable_capacity_gb"`
+	TotalUsedGB           float64 `json:"total_used_gb"`
+	AvgUtilization        float64 `json:"avg_utilization"`
 
 	// 成本指标
-	TotalMonthlyCost       float64   `json:"total_monthly_cost"`
-	TotalRedundancyCost    float64   `json:"total_redundancy_cost"`
-	CostPerUsableGB        float64   `json:"cost_per_usable_gb"`
+	TotalMonthlyCost    float64 `json:"total_monthly_cost"`
+	TotalRedundancyCost float64 `json:"total_redundancy_cost"`
+	CostPerUsableGB     float64 `json:"cost_per_usable_gb"`
 
 	// 效率指标
-	RAIDEfficiency         float64   `json:"raid_efficiency"`
-	CompressionEfficiency  float64   `json:"compression_efficiency"`
-	DedupEfficiency        float64   `json:"dedup_efficiency"`
-	OverallEfficiency      float64   `json:"overall_efficiency"`
+	RAIDEfficiency        float64 `json:"raid_efficiency"`
+	CompressionEfficiency float64 `json:"compression_efficiency"`
+	DedupEfficiency       float64 `json:"dedup_efficiency"`
+	OverallEfficiency     float64 `json:"overall_efficiency"`
 
 	// 节省统计
-	SavingsFromCompression float64   `json:"savings_from_compression"`
-	SavingsFromDedup       float64   `json:"savings_from_dedup"`
-	TotalSavingsPotential  float64   `json:"total_savings_potential"`
+	SavingsFromCompression float64 `json:"savings_from_compression"`
+	SavingsFromDedup       float64 `json:"savings_from_dedup"`
+	TotalSavingsPotential  float64 `json:"total_savings_potential"`
 
 	// 健康评分
-	HealthScore            int       `json:"health_score"`
-	OptimizationScore      int       `json:"optimization_score"`
+	HealthScore       int `json:"health_score"`
+	OptimizationScore int `json:"optimization_score"`
 
 	// 关键发现
-	KeyFindings            []string  `json:"key_findings"`
-	TopRecommendations     []string  `json:"top_recommendations"`
+	KeyFindings        []string `json:"key_findings"`
+	TopRecommendations []string `json:"top_recommendations"`
 
 	// 告警
-	CriticalAlerts         int       `json:"critical_alerts"`
-	WarningAlerts          int       `json:"warning_alerts"`
+	CriticalAlerts int `json:"critical_alerts"`
+	WarningAlerts  int `json:"warning_alerts"`
 }
 
 // ========== 导出功能 v2.45.0 ==========

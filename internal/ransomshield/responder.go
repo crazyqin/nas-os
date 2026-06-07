@@ -45,75 +45,75 @@ type Responder struct {
 	networkRules []NetworkRule
 
 	// callbacks 回调函数
-	onSnapshot    func(path string) (string, error)
-	onIsolate     func(pid int) error
+	onSnapshot     func(path string) (string, error)
+	onIsolate      func(pid int) error
 	onNetworkBlock func(ip string, port int) error
 
 	// stats 统计
 	stats ResponseStats
 
 	// running 运行状态
-	running bool
+	running  bool
 	stopChan chan struct{}
 }
 
 // ResponsePolicy 响应策略
 type ResponsePolicy struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Level       ThreatLevel   `json:"level"`
-	Actions     []ActionType  `json:"actions"`
-	Priority    int           `json:"priority"`
-	CooldownSec int           `json:"cooldown_sec"`
-	Enabled     bool          `json:"enabled"`
+	ID          string       `json:"id"`
+	Name        string       `json:"name"`
+	Level       ThreatLevel  `json:"level"`
+	Actions     []ActionType `json:"actions"`
+	Priority    int          `json:"priority"`
+	CooldownSec int          `json:"cooldown_sec"`
+	Enabled     bool         `json:"enabled"`
 }
 
 // ResponseAction 响应动作记录
 type ResponseAction struct {
-	ID          string      `json:"id"`
-	Type        ActionType  `json:"type"`
-	ThreatID    string      `json:"threat_id"`
-	Target      string      `json:"target"`
-	Status      string      `json:"status"` // pending, executing, completed, failed
-	Result      string      `json:"result"`
-	Error       string      `json:"error,omitempty"`
-	StartTime   time.Time   `json:"start_time"`
-	EndTime     *time.Time  `json:"end_time,omitempty"`
-	DurationMs  int64       `json:"duration_ms"`
+	ID         string     `json:"id"`
+	Type       ActionType `json:"type"`
+	ThreatID   string     `json:"threat_id"`
+	Target     string     `json:"target"`
+	Status     string     `json:"status"` // pending, executing, completed, failed
+	Result     string     `json:"result"`
+	Error      string     `json:"error,omitempty"`
+	StartTime  time.Time  `json:"start_time"`
+	EndTime    *time.Time `json:"end_time,omitempty"`
+	DurationMs int64      `json:"duration_ms"`
 }
 
 // BlockedProcess 已阻断的进程
 type BlockedProcess struct {
-	PID         int       `json:"pid"`
-	Name        string    `json:"name"`
-	BlockedAt   time.Time `json:"blocked_at"`
-	Reason      string    `json:"reason"`
-	ThreatID    string    `json:"threat_id"`
-	AutoUnblock bool      `json:"auto_unblock"`
+	PID         int        `json:"pid"`
+	Name        string     `json:"name"`
+	BlockedAt   time.Time  `json:"blocked_at"`
+	Reason      string     `json:"reason"`
+	ThreatID    string     `json:"threat_id"`
+	AutoUnblock bool       `json:"auto_unblock"`
 	UnblockAt   *time.Time `json:"unblock_at,omitempty"`
 }
 
 // NetworkRule 网络阻断规则
 type NetworkRule struct {
-	ID        string    `json:"id"`
-	Type      string    `json:"type"` // block-ip, block-port, block-process
-	Target    string    `json:"target"`
-	Port      int       `json:"port,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        string     `json:"id"`
+	Type      string     `json:"type"` // block-ip, block-port, block-process
+	Target    string     `json:"target"`
+	Port      int        `json:"port,omitempty"`
+	CreatedAt time.Time  `json:"created_at"`
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 }
 
 // ResponseStats 响应统计
 type ResponseStats struct {
-	TotalActions     int64     `json:"total_actions"`
-	SuccessfulActions int64   `json:"successful_actions"`
-	FailedActions    int64     `json:"failed_actions"`
-	SnapshotsTaken   int64     `json:"snapshots_taken"`
-	ProcessesKilled  int64     `json:"processes_killed"`
-	IPsBlocked       int64     `json:"ips_blocked"`
-	FilesQuarantined int64     `json:"files_quarantined"`
-	LastResponseTime time.Time `json:"last_response_time"`
-	AvgResponseMs    int64     `json:"avg_response_ms"`
+	TotalActions      int64     `json:"total_actions"`
+	SuccessfulActions int64     `json:"successful_actions"`
+	FailedActions     int64     `json:"failed_actions"`
+	SnapshotsTaken    int64     `json:"snapshots_taken"`
+	ProcessesKilled   int64     `json:"processes_killed"`
+	IPsBlocked        int64     `json:"ips_blocked"`
+	FilesQuarantined  int64     `json:"files_quarantined"`
+	LastResponseTime  time.Time `json:"last_response_time"`
+	AvgResponseMs     int64     `json:"avg_response_ms"`
 }
 
 // ============================================================
@@ -141,28 +141,28 @@ func (r *Responder) initDefaultPolicies() {
 	r.policies[ThreatLevelCritical] = []ResponsePolicy{
 		{
 			ID: "critical-auto", Name: "严重威胁自动响应", Level: ThreatLevelCritical,
-			Actions: []ActionType{ActionTypeSnapshot, ActionTypeKillProcess, ActionTypeQuarantine, ActionTypeLockdown},
+			Actions:  []ActionType{ActionTypeSnapshot, ActionTypeKillProcess, ActionTypeQuarantine, ActionTypeLockdown},
 			Priority: 1, CooldownSec: 10, Enabled: true,
 		},
 	}
 	r.policies[ThreatLevelHigh] = []ResponsePolicy{
 		{
 			ID: "high-auto", Name: "高威胁自动响应", Level: ThreatLevelHigh,
-			Actions: []ActionType{ActionTypeSnapshot, ActionTypeBlock, ActionTypeAlert},
+			Actions:  []ActionType{ActionTypeSnapshot, ActionTypeBlock, ActionTypeAlert},
 			Priority: 2, CooldownSec: 30, Enabled: true,
 		},
 	}
 	r.policies[ThreatLevelMedium] = []ResponsePolicy{
 		{
 			ID: "medium-auto", Name: "中等威胁自动响应", Level: ThreatLevelMedium,
-			Actions: []ActionType{ActionTypeSnapshot, ActionTypeAlert},
+			Actions:  []ActionType{ActionTypeSnapshot, ActionTypeAlert},
 			Priority: 3, CooldownSec: 60, Enabled: true,
 		},
 	}
 	r.policies[ThreatLevelLow] = []ResponsePolicy{
 		{
 			ID: "low-auto", Name: "低威胁自动响应", Level: ThreatLevelLow,
-			Actions: []ActionType{ActionTypeAlert},
+			Actions:  []ActionType{ActionTypeAlert},
 			Priority: 4, CooldownSec: 300, Enabled: true,
 		},
 	}

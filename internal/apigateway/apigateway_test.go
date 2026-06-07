@@ -34,11 +34,11 @@ func TestAddRoute(t *testing.T) {
 	m := setupTestManager(t)
 
 	route := &Route{
-		Name:     "test-route",
-		Path:     "/api/test",
-		Methods:  []string{"GET", "POST"},
+		Name:       "test-route",
+		Path:       "/api/test",
+		Methods:    []string{"GET", "POST"},
 		UpstreamID: "upstream-1",
-		Enabled:  true,
+		Enabled:    true,
 	}
 
 	err := m.AddRoute(route)
@@ -146,11 +146,11 @@ func TestMatchRoute(t *testing.T) {
 	m := setupTestManager(t)
 
 	m.AddRoute(&Route{
-		Name:     "api-users",
-		Path:     "/api/users",
-		Methods:  []string{"GET", "POST"},
+		Name:       "api-users",
+		Path:       "/api/users",
+		Methods:    []string{"GET", "POST"},
 		UpstreamID: "upstream-1",
-		Enabled:  true,
+		Enabled:    true,
 	})
 
 	// 匹配成功

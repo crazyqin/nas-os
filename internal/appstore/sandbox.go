@@ -13,7 +13,7 @@ import (
 
 // SandboxManager 应用沙箱管理器
 type SandboxManager struct {
-	mu       sync.RWMutex
+	mu        sync.RWMutex
 	sandboxes map[string]*Sandbox
 	config    *SandboxConfig
 }
@@ -52,28 +52,28 @@ func DefaultSandboxConfig() *SandboxConfig {
 
 // Sandbox 应用沙箱实例
 type Sandbox struct {
-	ID            string            `json:"id"`
-	AppID         string            `json:"appId"`
-	ContainerIDs  []string          `json:"containerIds"`
-	State         SandboxState      `json:"state"`
-	ResourceLimits *ResourceLimits  `json:"resourceLimits"`
-	NetworkPolicy *NetworkPolicy    `json:"networkPolicy,omitempty"`
-	SecurityCtx   *SecurityContext  `json:"securityContext,omitempty"`
-	CreatedAt     time.Time         `json:"createdAt"`
-	UpdatedAt     time.Time         `json:"updatedAt"`
-	Violations    []ResourceViolation `json:"violations,omitempty"`
+	ID             string              `json:"id"`
+	AppID          string              `json:"appId"`
+	ContainerIDs   []string            `json:"containerIds"`
+	State          SandboxState        `json:"state"`
+	ResourceLimits *ResourceLimits     `json:"resourceLimits"`
+	NetworkPolicy  *NetworkPolicy      `json:"networkPolicy,omitempty"`
+	SecurityCtx    *SecurityContext    `json:"securityContext,omitempty"`
+	CreatedAt      time.Time           `json:"createdAt"`
+	UpdatedAt      time.Time           `json:"updatedAt"`
+	Violations     []ResourceViolation `json:"violations,omitempty"`
 }
 
 // SandboxState 沙箱状态
 type SandboxState string
 
 const (
-	SandboxStateCreating  SandboxState = "creating"
-	SandboxStateRunning   SandboxState = "running"
-	SandboxStatePaused    SandboxState = "paused"
-	SandboxStateStopping  SandboxState = "stopping"
-	SandboxStateStopped   SandboxState = "stopped"
-	SandboxStateError     SandboxState = "error"
+	SandboxStateCreating SandboxState = "creating"
+	SandboxStateRunning  SandboxState = "running"
+	SandboxStatePaused   SandboxState = "paused"
+	SandboxStateStopping SandboxState = "stopping"
+	SandboxStateStopped  SandboxState = "stopped"
+	SandboxStateError    SandboxState = "error"
 )
 
 // NetworkPolicy 网络策略
@@ -89,23 +89,23 @@ type NetworkPolicy struct {
 
 // SecurityContext 安全上下文
 type SecurityContext struct {
-	Privileged    bool     `json:"privileged"`    // 特权模式
-	ReadOnlyRoot  bool     `json:"readOnlyRoot"`  // 只读根文件系统
-	NoNewPrivs    bool     `json:"noNewPrivs"`    // 禁止提权
-	DropCaps      []string `json:"dropCaps"`      // 移除的Linux capabilities
-	AddCaps       []string `json:"addCaps"`       // 添加的Linux capabilities
-	SeccompProfile string  `json:"seccompProfile"` // seccomp配置
-	AppArmorProfile string `json:"appArmorProfile"` // AppArmor配置
-	UserNS        bool     `json:"userNs"`        // 用户命名空间隔离
+	Privileged      bool     `json:"privileged"`      // 特权模式
+	ReadOnlyRoot    bool     `json:"readOnlyRoot"`    // 只读根文件系统
+	NoNewPrivs      bool     `json:"noNewPrivs"`      // 禁止提权
+	DropCaps        []string `json:"dropCaps"`        // 移除的Linux capabilities
+	AddCaps         []string `json:"addCaps"`         // 添加的Linux capabilities
+	SeccompProfile  string   `json:"seccompProfile"`  // seccomp配置
+	AppArmorProfile string   `json:"appArmorProfile"` // AppArmor配置
+	UserNS          bool     `json:"userNs"`          // 用户命名空间隔离
 }
 
 // ResourceViolation 资源违规记录
 type ResourceViolation struct {
 	Timestamp   time.Time `json:"timestamp"`
-	Resource    string    `json:"resource"`    // "cpu", "memory", "disk", "network"
+	Resource    string    `json:"resource"` // "cpu", "memory", "disk", "network"
 	Limit       string    `json:"limit"`
 	Actual      string    `json:"actual"`
-	Action      string    `json:"action"`      // "warn", "throttle", "kill"
+	Action      string    `json:"action"` // "warn", "throttle", "kill"
 	Description string    `json:"description"`
 }
 
@@ -297,12 +297,12 @@ func (sm *SandboxManager) GetResourceUsage(sandboxID string) (*ResourceUsage, er
 // ResourceUsage 资源使用情况
 type ResourceUsage struct {
 	SandboxID string    `json:"sandboxId"`
-	CPUUsage  float64   `json:"cpuUsage"`   // CPU使用率 (0-1)
-	MemoryMB  int64     `json:"memoryMB"`   // 内存使用 (MB)
-	DiskMB    int64     `json:"diskMB"`     // 磁盘使用 (MB)
-	NetRxMB   int64     `json:"netRxMB"`    // 网络接收 (MB)
-	NetTxMB   int64     `json:"netTxMB"`    // 网络发送 (MB)
-	PIDCount  int       `json:"pidCount"`   // 进程数
+	CPUUsage  float64   `json:"cpuUsage"` // CPU使用率 (0-1)
+	MemoryMB  int64     `json:"memoryMB"` // 内存使用 (MB)
+	DiskMB    int64     `json:"diskMB"`   // 磁盘使用 (MB)
+	NetRxMB   int64     `json:"netRxMB"`  // 网络接收 (MB)
+	NetTxMB   int64     `json:"netTxMB"`  // 网络发送 (MB)
+	PIDCount  int       `json:"pidCount"` // 进程数
 	Timestamp time.Time `json:"timestamp"`
 }
 

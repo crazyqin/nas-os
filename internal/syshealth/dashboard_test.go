@@ -19,7 +19,7 @@ type MockSubsystemChecker struct {
 }
 
 func (m *MockSubsystemChecker) Name() string { return m.name }
-func (m *MockSubsystemChecker) Type() string  { return m.typ }
+func (m *MockSubsystemChecker) Type() string { return m.typ }
 func (m *MockSubsystemChecker) Check() SubsystemStatus {
 	return m.status
 }
@@ -574,7 +574,7 @@ func TestDashboardHistory(t *testing.T) {
 		{Timestamp: today.AddDate(0, 0, -5), OverallScore: 90},  // 5天前
 		{Timestamp: today.AddDate(0, 0, -3), OverallScore: 85},  // 3天前
 		{Timestamp: today.AddDate(0, 0, -1), OverallScore: 80},  // 1天前
-		{Timestamp: today, OverallScore: 75},                     // 今天
+		{Timestamp: today, OverallScore: 75},                    // 今天
 	}
 	d.mu.Unlock()
 

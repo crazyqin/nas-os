@@ -11,10 +11,10 @@ import (
 
 // Manager 路由管理器
 type Manager struct {
-	routes   sync.Map // routeID -> *RouteConfig
-	metrics  sync.Map // modelID -> *modelMetricsData
-	stats    sync.Map // routeID -> *routeStatsData
-	mu       sync.RWMutex
+	routes  sync.Map // routeID -> *RouteConfig
+	metrics sync.Map // modelID -> *modelMetricsData
+	stats   sync.Map // routeID -> *routeStatsData
+	mu      sync.RWMutex
 }
 
 type modelMetricsData struct {
@@ -24,9 +24,9 @@ type modelMetricsData struct {
 }
 
 type routeStatsData struct {
-	stats            RouteStats
+	stats             RouteStats
 	modelDistribution map[string]int64
-	mu               sync.Mutex
+	mu                sync.Mutex
 }
 
 // NewManager 创建路由管理器

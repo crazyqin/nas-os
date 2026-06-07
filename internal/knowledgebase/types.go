@@ -22,12 +22,12 @@ type Document struct {
 
 // Note 笔记条目.
 type Note struct {
-	ID         string    `json:"id"`
-	DocID      string    `json:"doc_id"`
-	Content    string    `json:"content"`
-	Author     string    `json:"author"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID        string    `json:"id"`
+	DocID     string    `json:"doc_id"`
+	Content   string    `json:"content"`
+	Author    string    `json:"author"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // Tag 标签.
@@ -68,17 +68,17 @@ type SearchQuery struct {
 
 // SearchResult 搜索结果.
 type SearchResult struct {
-	Doc      Document `json:"doc"`
-	Score    float64  `json:"score"`
-	Snippet  string   `json:"snippet"`
+	Doc     Document `json:"doc"`
+	Score   float64  `json:"score"`
+	Snippet string   `json:"snippet"`
 }
 
 // GraphNode 知识图谱节点.
 type GraphNode struct {
-	ID       string `json:"id"`
-	Title    string `json:"title"`
-	Group    string `json:"group,omitempty"`
-	Size     int    `json:"size"`
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	Group string `json:"group,omitempty"`
+	Size  int    `json:"size"`
 }
 
 // GraphEdge 知识图谱边.
@@ -155,8 +155,8 @@ type ImportRequest struct {
 
 // ExportRequest 导出请求.
 type ExportRequest struct {
-	DocIDs   []string `json:"doc_ids" binding:"required"`
-	Format   string   `json:"format" binding:"required"` // markdown, json, html
+	DocIDs []string `json:"doc_ids" binding:"required"`
+	Format string   `json:"format" binding:"required"` // markdown, json, html
 }
 
 // TagStat 标签统计.
@@ -167,8 +167,8 @@ type TagStat struct {
 
 // RefStat 引用统计.
 type RefStat struct {
-	DocID      string `json:"doc_id"`
-	Title      string `json:"title"`
-	RefCount   int    `json:"ref_count"`
-	BackCount  int    `json:"back_count"`
+	DocID     string `json:"doc_id"`
+	Title     string `json:"title"`
+	RefCount  int    `json:"ref_count"`
+	BackCount int    `json:"back_count"`
 }

@@ -468,15 +468,15 @@ func TestHPADefaultValues(t *testing.T) {
 	mgr, _, _ := setupTest(t)
 
 	hpa := mgr.CreateHPA(CreateHPARequest{
-		Name:       "default-hpa",
-		Namespace:  "default",
-		TargetName: "my-app",
+		Name:        "default-hpa",
+		Namespace:   "default",
+		TargetName:  "my-app",
 		MaxReplicas: 5,
 	})
 
 	assert.Equal(t, "Deployment", hpa.TargetKind) // 默认值
 	assert.Equal(t, 1, hpa.MinReplicas)           // 默认值
-	assert.Len(t, hpa.Metrics, 1)                  // 默认 CPU 指标
+	assert.Len(t, hpa.Metrics, 1)                 // 默认 CPU 指标
 }
 
 // ========== 应用商店集成测试 ==========

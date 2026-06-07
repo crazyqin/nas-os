@@ -42,28 +42,28 @@ const (
 
 // 错误定义
 var (
-	ErrHoneypotNotFound  = errors.New("蜜罐不存在")
-	ErrHoneypotExists    = errors.New("蜜罐已存在")
-	ErrInvalidPath       = errors.New("无效路径")
-	ErrPolicyNotFound    = errors.New("策略不存在")
-	ErrAlreadyTriggered  = errors.New("已触发告警")
+	ErrHoneypotNotFound = errors.New("蜜罐不存在")
+	ErrHoneypotExists   = errors.New("蜜罐已存在")
+	ErrInvalidPath      = errors.New("无效路径")
+	ErrPolicyNotFound   = errors.New("策略不存在")
+	ErrAlreadyTriggered = errors.New("已触发告警")
 )
 
 // HoneypotFile 蜜罐文件
 type HoneypotFile struct {
-	ID          string    `json:"id"`           // 蜜罐ID
-	Path        string    `json:"path"`         // 文件路径
-	Type        string    `json:"type"`         // 蜜罐类型
-	FileName    string    `json:"file_name"`    // 文件名
-	FileSize    int64     `json:"file_size"`    // 文件大小
-	ContentHash string    `json:"content_hash"` // 内容哈希
-	Enabled     bool      `json:"enabled"`      // 是否启用
-	ShareName   string    `json:"share_name"`   // 所属共享名
-	Tags        []string  `json:"tags"`         // 标签
-	CreatedAt   time.Time `json:"created_at"`   // 创建时间
-	UpdatedAt   time.Time `json:"updated_at"`   // 更新时间
-	LastChecked time.Time `json:"last_checked"` // 最后检查时间
-	TriggerCount int64    `json:"trigger_count"` // 触发次数
+	ID           string    `json:"id"`            // 蜜罐ID
+	Path         string    `json:"path"`          // 文件路径
+	Type         string    `json:"type"`          // 蜜罐类型
+	FileName     string    `json:"file_name"`     // 文件名
+	FileSize     int64     `json:"file_size"`     // 文件大小
+	ContentHash  string    `json:"content_hash"`  // 内容哈希
+	Enabled      bool      `json:"enabled"`       // 是否启用
+	ShareName    string    `json:"share_name"`    // 所属共享名
+	Tags         []string  `json:"tags"`          // 标签
+	CreatedAt    time.Time `json:"created_at"`    // 创建时间
+	UpdatedAt    time.Time `json:"updated_at"`    // 更新时间
+	LastChecked  time.Time `json:"last_checked"`  // 最后检查时间
+	TriggerCount int64     `json:"trigger_count"` // 触发次数
 }
 
 // ThreatEvent 威胁事件
@@ -88,43 +88,43 @@ type ThreatEvent struct {
 
 // ProtectionPolicy 防护策略
 type ProtectionPolicy struct {
-	ID                  string   `json:"id"`                    // 策略ID
-	Name                string   `json:"name"`                  // 策略名称
-	Description         string   `json:"description"`           // 描述
-	Enabled             bool     `json:"enabled"`               // 是否启用
-	EntropyThreshold    float64  `json:"entropy_threshold"`     // 熵值阈值（检测加密行为）
-	FileChangeRateMax   int      `json:"file_change_rate_max"`  // 每分钟最大文件变更数
-	BatchOperationSize  int      `json:"batch_operation_size"`  // 批量操作阈值
-	MonitorExtensions   []string `json:"monitor_extensions"`    // 监控的文件扩展名
-	ExemptUsers         []string `json:"exempt_users"`          // 豁免用户
-	ExemptIPs           []string `json:"exempt_ips"`            // 豁免IP
-	DefaultAction       string   `json:"default_action"`        // 默认动作
-	AutoResponse        bool     `json:"auto_response"`         // 自动响应
-	AlertChannels       []string `json:"alert_channels"`        // 告警通道
-	QuarantinePath      string   `json:"quarantine_path"`       // 隔离路径
-	BackupOnTrigger     bool     `json:"backup_on_trigger"`     // 触发时自动备份
-	RecoveryPointLimit  int      `json:"recovery_point_limit"`  // 恢复点保留数量
-	CreatedAt           time.Time `json:"created_at"`
-	UpdatedAt           time.Time `json:"updated_at"`
+	ID                 string    `json:"id"`                   // 策略ID
+	Name               string    `json:"name"`                 // 策略名称
+	Description        string    `json:"description"`          // 描述
+	Enabled            bool      `json:"enabled"`              // 是否启用
+	EntropyThreshold   float64   `json:"entropy_threshold"`    // 熵值阈值（检测加密行为）
+	FileChangeRateMax  int       `json:"file_change_rate_max"` // 每分钟最大文件变更数
+	BatchOperationSize int       `json:"batch_operation_size"` // 批量操作阈值
+	MonitorExtensions  []string  `json:"monitor_extensions"`   // 监控的文件扩展名
+	ExemptUsers        []string  `json:"exempt_users"`         // 豁免用户
+	ExemptIPs          []string  `json:"exempt_ips"`           // 豁免IP
+	DefaultAction      string    `json:"default_action"`       // 默认动作
+	AutoResponse       bool      `json:"auto_response"`        // 自动响应
+	AlertChannels      []string  `json:"alert_channels"`       // 告警通道
+	QuarantinePath     string    `json:"quarantine_path"`      // 隔离路径
+	BackupOnTrigger    bool      `json:"backup_on_trigger"`    // 触发时自动备份
+	RecoveryPointLimit int       `json:"recovery_point_limit"` // 恢复点保留数量
+	CreatedAt          time.Time `json:"created_at"`
+	UpdatedAt          time.Time `json:"updated_at"`
 }
 
 // DetectionStats 检测统计
 type DetectionStats struct {
-	TotalHoneypots    int     `json:"total_honeypots"`    // 蜜罐总数
-	ActiveHoneypots   int     `json:"active_honeypots"`   // 活跃蜜罐数
-	TotalEvents       int64   `json:"total_events"`       // 总事件数
-	BlockedAttacks    int64   `json:"blocked_attacks"`    // 拦截攻击数
-	LastDetection     *time.Time `json:"last_detection"`  // 最近检测时间
-	AvgResponseTimeMs float64 `json:"avg_response_time"` // 平均响应时间
-	TopThreatSources  []ThreatSource `json:"top_sources"`  // 主要威胁来源
+	TotalHoneypots    int            `json:"total_honeypots"`   // 蜜罐总数
+	ActiveHoneypots   int            `json:"active_honeypots"`  // 活跃蜜罐数
+	TotalEvents       int64          `json:"total_events"`      // 总事件数
+	BlockedAttacks    int64          `json:"blocked_attacks"`   // 拦截攻击数
+	LastDetection     *time.Time     `json:"last_detection"`    // 最近检测时间
+	AvgResponseTimeMs float64        `json:"avg_response_time"` // 平均响应时间
+	TopThreatSources  []ThreatSource `json:"top_sources"`       // 主要威胁来源
 }
 
 // ThreatSource 威胁来源
 type ThreatSource struct {
-	IP        string    `json:"ip"`
-	Count     int64     `json:"count"`
-	LastSeen  time.Time `json:"last_seen"`
-	Level     string    `json:"level"`
+	IP       string    `json:"ip"`
+	Count    int64     `json:"count"`
+	LastSeen time.Time `json:"last_seen"`
+	Level    string    `json:"level"`
 }
 
 // HoneypotManager 蜜罐管理器

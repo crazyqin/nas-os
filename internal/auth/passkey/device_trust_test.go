@@ -51,7 +51,7 @@ func TestTrustDeviceMissingFingerprint(t *testing.T) {
 
 	req := TrustRequest{
 		DeviceInfo: DeviceInfo{
-			DeviceName: "Test",
+			DeviceName:  "Test",
 			Fingerprint: "",
 		},
 	}

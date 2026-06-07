@@ -25,14 +25,14 @@ type SmartEnergyForecast struct {
 
 // Config 配置
 type Config struct {
-	ForecastWindow    time.Duration `json:"forecast_window"`    // 预测窗口
-	HistoryDepth      time.Duration `json:"history_depth"`      // 历史深度
-	AnomalyThreshold  float64       `json:"anomaly_threshold"`  // 异常阈值（标准差倍数）
-	BudgetAlertRatio  float64       `json:"budget_alert_ratio"` // 预算告警比例
-	MinDataPoints     int           `json:"min_data_points"`    // 最小数据点数
-	SmoothingFactor   float64       `json:"smoothing_factor"`   // 平滑因子（0-1）
-	UpdateInterval    time.Duration `json:"update_interval"`    // 更新间隔
-	DefaultPricePerKwh float64      `json:"default_price_per_kwh"` // 默认电价
+	ForecastWindow     time.Duration `json:"forecast_window"`       // 预测窗口
+	HistoryDepth       time.Duration `json:"history_depth"`         // 历史深度
+	AnomalyThreshold   float64       `json:"anomaly_threshold"`     // 异常阈值（标准差倍数）
+	BudgetAlertRatio   float64       `json:"budget_alert_ratio"`    // 预算告警比例
+	MinDataPoints      int           `json:"min_data_points"`       // 最小数据点数
+	SmoothingFactor    float64       `json:"smoothing_factor"`      // 平滑因子（0-1）
+	UpdateInterval     time.Duration `json:"update_interval"`       // 更新间隔
+	DefaultPricePerKwh float64       `json:"default_price_per_kwh"` // 默认电价
 }
 
 // DefaultConfig 默认配置
@@ -52,57 +52,57 @@ func DefaultConfig() *Config {
 // EnergyReading 能耗读数
 type EnergyReading struct {
 	Timestamp   time.Time `json:"timestamp"`
-	Consumption float64   `json:"consumption"` // 千瓦时
-	Device      string    `json:"device"`      // 设备名称
-	Category    string    `json:"category"`    // 类别
+	Consumption float64   `json:"consumption"`  // 千瓦时
+	Device      string    `json:"device"`       // 设备名称
+	Category    string    `json:"category"`     // 类别
 	PowerFactor float64   `json:"power_factor"` // 功率因数
-	Voltage     float64   `json:"voltage"`     // 电压
-	Current     float64   `json:"current"`     // 电流
+	Voltage     float64   `json:"voltage"`      // 电压
+	Current     float64   `json:"current"`      // 电流
 }
 
 // EnergyForecast 能耗预测
 type EnergyForecast struct {
-	Timestamp     time.Time `json:"timestamp"`
-	Period        time.Duration `json:"period"`
-	Expected      float64   `json:"expected"`       // 预期能耗（kWh）
-	Lower         float64   `json:"lower"`          // 下限
-	Upper         float64   `json:"upper"`          // 上限
-	Confidence    float64   `json:"confidence"`     // 置信度
-	Trend         string    `json:"trend"`          // 趋势：rising/stable/falling
-	GeneratedAt   time.Time `json:"generated_at"`
+	Timestamp   time.Time     `json:"timestamp"`
+	Period      time.Duration `json:"period"`
+	Expected    float64       `json:"expected"`   // 预期能耗（kWh）
+	Lower       float64       `json:"lower"`      // 下限
+	Upper       float64       `json:"upper"`      // 上限
+	Confidence  float64       `json:"confidence"` // 置信度
+	Trend       string        `json:"trend"`      // 趋势：rising/stable/falling
+	GeneratedAt time.Time     `json:"generated_at"`
 }
 
 // EnergyAnomaly 能耗异常
 type EnergyAnomaly struct {
-	Timestamp    time.Time `json:"timestamp"`
-	Reading      *EnergyReading `json:"reading"`
-	Expected     float64   `json:"expected"`
-	Actual       float64   `json:"actual"`
-	Deviation    float64   `json:"deviation"`    // 偏差百分比
-	Severity     string    `json:"severity"`     // high/medium/low
-	Description  string    `json:"description"`
-	DetectedAt   time.Time `json:"detected_at"`
+	Timestamp   time.Time      `json:"timestamp"`
+	Reading     *EnergyReading `json:"reading"`
+	Expected    float64        `json:"expected"`
+	Actual      float64        `json:"actual"`
+	Deviation   float64        `json:"deviation"` // 偏差百分比
+	Severity    string         `json:"severity"`  // high/medium/low
+	Description string         `json:"description"`
+	DetectedAt  time.Time      `json:"detected_at"`
 }
 
 // EnergyOptimization 节能优化建议
 type EnergyOptimization struct {
-	ID           string    `json:"id"`
-	Category     string    `json:"category"`     // 类别
-	Title        string    `json:"title"`
-	Description  string    `json:"description"`
-	Savings      float64   `json:"savings"`      // 预计节省（kWh）
-	CostSaving   float64   `json:"cost_saving"`  // 预计节省费用
-	Priority     string    `json:"priority"`     // high/medium/low
-	Device       string    `json:"device"`       // 相关设备
-	CreatedAt    time.Time `json:"created_at"`
+	ID          string    `json:"id"`
+	Category    string    `json:"category"` // 类别
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Savings     float64   `json:"savings"`     // 预计节省（kWh）
+	CostSaving  float64   `json:"cost_saving"` // 预计节省费用
+	Priority    string    `json:"priority"`    // high/medium/low
+	Device      string    `json:"device"`      // 相关设备
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 // EnergyBudget 能耗预算
 type EnergyBudget struct {
-	DailyBudget   float64   `json:"daily_budget"`   // 每日预算（kWh）
-	WeeklyBudget  float64   `json:"weekly_budget"`  // 每周预算
-	MonthlyBudget float64   `json:"monthly_budget"` // 每月预算
-	PricePerKwh   float64   `json:"price_per_kwh"`  // 电价
+	DailyBudget   float64 `json:"daily_budget"`   // 每日预算（kWh）
+	WeeklyBudget  float64 `json:"weekly_budget"`  // 每周预算
+	MonthlyBudget float64 `json:"monthly_budget"` // 每月预算
+	PricePerKwh   float64 `json:"price_per_kwh"`  // 电价
 }
 
 // BudgetStatus 预算状态
@@ -121,14 +121,14 @@ type BudgetStatus struct {
 
 // DailyReport 每日报告
 type DailyReport struct {
-	Date           time.Time `json:"date"`
-	TotalConsumed  float64   `json:"total_consumed"`
-	AvgConsumption float64   `json:"avg_consumption"`
-	PeakConsumption float64  `json:"peak_consumption"`
-	PeakTime       time.Time `json:"peak_time"`
+	Date            time.Time          `json:"date"`
+	TotalConsumed   float64            `json:"total_consumed"`
+	AvgConsumption  float64            `json:"avg_consumption"`
+	PeakConsumption float64            `json:"peak_consumption"`
+	PeakTime        time.Time          `json:"peak_time"`
 	DeviceBreakdown map[string]float64 `json:"device_breakdown"`
-	AnomaliesCount int       `json:"anomalies_count"`
-	CostEstimate   float64   `json:"cost_estimate"`
+	AnomaliesCount  int                `json:"anomalies_count"`
+	CostEstimate    float64            `json:"cost_estimate"`
 }
 
 // WeeklyTrend 每周趋势
@@ -228,11 +228,11 @@ func (s *SmartEnergyForecast) Forecast(ctx context.Context, duration time.Durati
 
 	// 计算历史统计
 	stats := s.calculateStats()
-	
+
 	// 生成预测
 	forecasts := make([]*EnergyForecast, 0)
 	now := time.Now()
-	
+
 	// 按小时生成预测
 	hours := int(duration.Hours())
 	if hours == 0 {
@@ -241,10 +241,10 @@ func (s *SmartEnergyForecast) Forecast(ctx context.Context, duration time.Durati
 
 	for h := 1; h <= hours; h++ {
 		forecastTime := now.Add(time.Duration(h) * time.Hour)
-		
+
 		// 使用指数平滑预测
 		expected := s.exponentialSmoothing(stats, h)
-		
+
 		// 计算置信区间
 		stdDev := stats.StdDev
 		lower := expected - 1.96*stdDev
@@ -252,10 +252,10 @@ func (s *SmartEnergyForecast) Forecast(ctx context.Context, duration time.Durati
 			lower = 0
 		}
 		upper := expected + 1.96*stdDev
-		
+
 		// 计算置信度（随时间衰减）
-		confidence := math.Max(0.5, 1.0 - float64(h)*0.02)
-		
+		confidence := math.Max(0.5, 1.0-float64(h)*0.02)
+
 		// 判断趋势
 		trend := s.determineTrend(stats)
 
@@ -297,7 +297,7 @@ func (s *SmartEnergyForecast) DetectAnomalies(ctx context.Context) ([]*EnergyAno
 		}
 
 		deviation := math.Abs(reading.Consumption-stats.Mean) / stats.StdDev
-		
+
 		if deviation > threshold {
 			severity := "low"
 			if deviation > threshold*2 {
@@ -531,14 +531,14 @@ func (s *SmartEnergyForecast) calculateStats() *stats {
 // exponentialSmoothing 指数平滑预测
 func (s *SmartEnergyForecast) exponentialSmoothing(stats *stats, stepsAhead int) float64 {
 	alpha := s.config.SmoothingFactor
-	
+
 	// 使用历史数据进行指数平滑
 	smoothed := stats.Mean
 	for i := 1; i <= stepsAhead; i++ {
 		// 简化：使用均值作为新观测值
 		smoothed = alpha*stats.Mean + (1-alpha)*smoothed
 	}
-	
+
 	return smoothed
 }
 
@@ -616,7 +616,7 @@ func (s *SmartEnergyForecast) generateOptimizations() {
 	id := 1
 	for device, consumption := range deviceConsumption {
 		avgConsumption := consumption / float64(len(deviceReadings[device]))
-		
+
 		// 检查高能耗设备
 		if avgConsumption > 1.0 { // 超过1kWh
 			s.optimizations = append(s.optimizations, &EnergyOptimization{

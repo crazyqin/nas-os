@@ -156,9 +156,9 @@ type lfuCache struct {
 
 // lfuItem LFU 缓存条目
 type lfuItem struct {
-	key     string
-	entry   *CacheEntry
-	freq    int
+	key      string
+	entry    *CacheEntry
+	freq     int
 	freqElem *list.Element // 在频率链表中的位置
 }
 
@@ -388,22 +388,22 @@ func (c *lfuCache) Keys() []string {
 
 // hybridCache LRU/LFU 混合缓存
 type hybridCache struct {
-	mu          sync.RWMutex
-	capacity    int
-	lruWeight   float64
-	lfuWeight   float64
-	items       map[string]*hybridItem
-	order       *list.List // 按混合分数排序
+	mu        sync.RWMutex
+	capacity  int
+	lruWeight float64
+	lfuWeight float64
+	items     map[string]*hybridItem
+	order     *list.List // 按混合分数排序
 }
 
 // hybridItem 混合缓存条目
 type hybridItem struct {
-	key       string
-	entry     *CacheEntry
-	lruScore  float64 // LRU 分数
-	lfuScore  float64 // LFU 分数
-	score     float64 // 混合分数
-	elem      *list.Element
+	key      string
+	entry    *CacheEntry
+	lruScore float64 // LRU 分数
+	lfuScore float64 // LFU 分数
+	score    float64 // 混合分数
+	elem     *list.Element
 }
 
 // newHybridCache 创建混合缓存

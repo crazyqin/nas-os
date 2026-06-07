@@ -16,10 +16,10 @@ import (
 type AuthType string
 
 const (
-	AuthWPA2PSK       AuthType = "WPA2-PSK"
-	AuthWPA3PSK       AuthType = "WPA3-PSK"
+	AuthWPA2PSK        AuthType = "WPA2-PSK"
+	AuthWPA3PSK        AuthType = "WPA3-PSK"
 	AuthWPA2Enterprise AuthType = "WPA2-Enterprise"
-	AuthOpen          AuthType = "Open"
+	AuthOpen           AuthType = "Open"
 )
 
 // BandType 频段类型
@@ -33,52 +33,52 @@ const (
 
 // WiFiNetwork WiFi 网络
 type WiFiNetwork struct {
-	SSID       string   `json:"ssid"`
-	BSSID      string   `json:"bssid"`
-	Signal     int      `json:"signal"`     // dBm
-	Frequency  float64  `json:"frequency"`  // MHz
-	AuthType   AuthType `json:"authType"`
-	IsSaved    bool     `json:"isSaved"`
-	Channel    int      `json:"channel"`
-	Band       BandType `json:"band"`
-	LastSeen   time.Time `json:"lastSeen"`
+	SSID      string    `json:"ssid"`
+	BSSID     string    `json:"bssid"`
+	Signal    int       `json:"signal"`    // dBm
+	Frequency float64   `json:"frequency"` // MHz
+	AuthType  AuthType  `json:"authType"`
+	IsSaved   bool      `json:"isSaved"`
+	Channel   int       `json:"channel"`
+	Band      BandType  `json:"band"`
+	LastSeen  time.Time `json:"lastSeen"`
 }
 
 // WiFiProfile WiFi 配置
 type WiFiProfile struct {
-	ID           string   `json:"id"`
-	SSID         string   `json:"ssid"`
-	Password     string   `json:"password,omitempty"`
-	AuthType     AuthType `json:"authType"`
-	AutoConnect  bool     `json:"autoConnect"`
-	Priority     int      `json:"priority"` // 越高越优先
-	Band         BandType `json:"band"`
-	CreatedAt    time.Time `json:"createdAt"`
+	ID          string    `json:"id"`
+	SSID        string    `json:"ssid"`
+	Password    string    `json:"password,omitempty"`
+	AuthType    AuthType  `json:"authType"`
+	AutoConnect bool      `json:"autoConnect"`
+	Priority    int       `json:"priority"` // 越高越优先
+	Band        BandType  `json:"band"`
+	CreatedAt   time.Time `json:"createdAt"`
 }
 
 // WiFiStatus WiFi 状态
 type WiFiStatus struct {
-	Connected    bool      `json:"connected"`
-	SSID         string    `json:"ssid,omitempty"`
-	IP           string    `json:"ip,omitempty"`
-	Signal       int       `json:"signal,omitempty"`
-	LinkSpeed    float64   `json:"linkSpeed,omitempty"` // Mbps
-	Frequency    float64   `json:"frequency,omitempty"`
-	Band         BandType  `json:"band,omitempty"`
-	Gateway      string    `json:"gateway,omitempty"`
-	DNS          []string  `json:"dns,omitempty"`
-	ConnectedAt  time.Time `json:"connectedAt,omitempty"`
+	Connected   bool      `json:"connected"`
+	SSID        string    `json:"ssid,omitempty"`
+	IP          string    `json:"ip,omitempty"`
+	Signal      int       `json:"signal,omitempty"`
+	LinkSpeed   float64   `json:"linkSpeed,omitempty"` // Mbps
+	Frequency   float64   `json:"frequency,omitempty"`
+	Band        BandType  `json:"band,omitempty"`
+	Gateway     string    `json:"gateway,omitempty"`
+	DNS         []string  `json:"dns,omitempty"`
+	ConnectedAt time.Time `json:"connectedAt,omitempty"`
 }
 
 // HotspotConfig 热点配置
 type HotspotConfig struct {
-	SSID         string   `json:"ssid"`
-	Password     string   `json:"password,omitempty"`
-	Band         BandType `json:"band"`
-	MaxClients   int      `json:"maxClients"`
-	Enabled      bool     `json:"enabled"`
-	Channel      int      `json:"channel"`
-	Hidden       bool     `json:"hidden"`
+	SSID       string   `json:"ssid"`
+	Password   string   `json:"password,omitempty"`
+	Band       BandType `json:"band"`
+	MaxClients int      `json:"maxClients"`
+	Enabled    bool     `json:"enabled"`
+	Channel    int      `json:"channel"`
+	Hidden     bool     `json:"hidden"`
 }
 
 // SignalHistory 信号历史
@@ -92,24 +92,24 @@ type SignalHistory struct {
 
 // Manager WiFi 管理器
 type Manager struct {
-	mu             sync.RWMutex
-	networks       []WiFiNetwork
-	profiles       map[string]*WiFiProfile
-	status         WiFiStatus
-	hotspot        HotspotConfig
-	hotspotEnabled bool
-	connectedClients int
-	signalHistory  []SignalHistory
-	autoReconnect  bool
+	mu                sync.RWMutex
+	networks          []WiFiNetwork
+	profiles          map[string]*WiFiProfile
+	status            WiFiStatus
+	hotspot           HotspotConfig
+	hotspotEnabled    bool
+	connectedClients  int
+	signalHistory     []SignalHistory
+	autoReconnect     bool
 	reconnectStrategy string
-	scanInterval   time.Duration
+	scanInterval      time.Duration
 }
 
 // NewManager 创建管理器
 func NewManager() *Manager {
 	m := &Manager{
-		profiles:       make(map[string]*WiFiProfile),
-		scanInterval:   30 * time.Second,
+		profiles:          make(map[string]*WiFiProfile),
+		scanInterval:      30 * time.Second,
 		reconnectStrategy: "exponential",
 	}
 	m.initDefaults()

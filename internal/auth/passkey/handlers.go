@@ -64,8 +64,8 @@ type AuthFinishRequest struct {
 
 // AuthFinishResponse is returned after successful authentication.
 type AuthFinishResponse struct {
-	UserID     string `json:"userId"`
-	Username   string `json:"username"`
+	UserID      string `json:"userId"`
+	Username    string `json:"username"`
 	NewAuthTime string `json:"newAuthTime"`
 	DeviceType  string `json:"deviceType"`
 }

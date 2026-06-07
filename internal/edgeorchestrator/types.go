@@ -20,29 +20,29 @@ const (
 
 // EdgeNode 边缘计算节点
 type EdgeNode struct {
-	ID               string            `json:"id"`
-	Name             string            `json:"name"`
-	IPAddress        string            `json:"ip_address"`
-	Region           string            `json:"region"`
-	Zone             string            `json:"zone"`
-	Status           EdgeNodeStatus    `json:"status"`
-	CPUCores         int               `json:"cpu_cores"`
-	MemoryMB         int64             `json:"memory_mb"`
-	DiskGB           int64             `json:"disk_gb"`
-	GPUCount         int               `json:"gpu_count"`
-	GPUModel         string            `json:"gpu_model,omitempty"`
-	Labels           map[string]string `json:"labels,omitempty"`
-	Taints           []Taint           `json:"taints,omitempty"`
-	Capabilities     []string          `json:"capabilities,omitempty"`
-	CurrentCPUUsage  float64           `json:"current_cpu_usage"`
-	CurrentMemUsage  float64           `json:"current_mem_usage"`
-	RunningTasks     int               `json:"running_tasks"`
-	MaxTasks         int               `json:"max_tasks"`
-	LastHeartbeat    time.Time         `json:"last_heartbeat"`
-	RegisteredAt     time.Time         `json:"registered_at"`
-	OperatingSystem  string            `json:"operating_system,omitempty"`
-	Architecture     string            `json:"architecture,omitempty"`
-	EndpointURL      string            `json:"endpoint_url,omitempty"`
+	ID              string            `json:"id"`
+	Name            string            `json:"name"`
+	IPAddress       string            `json:"ip_address"`
+	Region          string            `json:"region"`
+	Zone            string            `json:"zone"`
+	Status          EdgeNodeStatus    `json:"status"`
+	CPUCores        int               `json:"cpu_cores"`
+	MemoryMB        int64             `json:"memory_mb"`
+	DiskGB          int64             `json:"disk_gb"`
+	GPUCount        int               `json:"gpu_count"`
+	GPUModel        string            `json:"gpu_model,omitempty"`
+	Labels          map[string]string `json:"labels,omitempty"`
+	Taints          []Taint           `json:"taints,omitempty"`
+	Capabilities    []string          `json:"capabilities,omitempty"`
+	CurrentCPUUsage float64           `json:"current_cpu_usage"`
+	CurrentMemUsage float64           `json:"current_mem_usage"`
+	RunningTasks    int               `json:"running_tasks"`
+	MaxTasks        int               `json:"max_tasks"`
+	LastHeartbeat   time.Time         `json:"last_heartbeat"`
+	RegisteredAt    time.Time         `json:"registered_at"`
+	OperatingSystem string            `json:"operating_system,omitempty"`
+	Architecture    string            `json:"architecture,omitempty"`
+	EndpointURL     string            `json:"endpoint_url,omitempty"`
 }
 
 // Taint 节点污点
@@ -78,31 +78,31 @@ const (
 
 // EdgeTask 边缘计算任务
 type EdgeTask struct {
-	ID               string            `json:"id"`
-	Name             string            `json:"name"`
-	Description      string            `json:"description,omitempty"`
-	Type             TaskType          `json:"type"`
-	Status           TaskStatus        `json:"status"`
-	Priority         TaskPriority      `json:"priority"`
-	AssignedNodeID   string            `json:"assigned_node_id,omitempty"`
-	Image            string            `json:"image"`
-	Command          []string          `json:"command,omitempty"`
-	Args             []string          `json:"args,omitempty"`
-	Env              map[string]string `json:"env,omitempty"`
-	CPURequest       float64           `json:"cpu_request"`
-	MemoryRequestMB  int64             `json:"memory_request_mb"`
-	GPURequest       int               `json:"gpu_request,omitempty"`
-	Timeout          time.Duration     `json:"timeout"`
-	RetryCount       int               `json:"retry_count"`
-	MaxRetries       int               `json:"max_retries"`
-	NodeSelector     map[string]string `json:"node_selector,omitempty"`
-	Affinity         *AffinityRule     `json:"affinity,omitempty"`
-	Result           *TaskResult       `json:"result,omitempty"`
-	CreatedAt        time.Time         `json:"created_at"`
-	ScheduledAt      *time.Time        `json:"scheduled_at,omitempty"`
-	StartedAt        *time.Time        `json:"started_at,omitempty"`
-	CompletedAt      *time.Time        `json:"completed_at,omitempty"`
-	Labels           map[string]string `json:"labels,omitempty"`
+	ID              string            `json:"id"`
+	Name            string            `json:"name"`
+	Description     string            `json:"description,omitempty"`
+	Type            TaskType          `json:"type"`
+	Status          TaskStatus        `json:"status"`
+	Priority        TaskPriority      `json:"priority"`
+	AssignedNodeID  string            `json:"assigned_node_id,omitempty"`
+	Image           string            `json:"image"`
+	Command         []string          `json:"command,omitempty"`
+	Args            []string          `json:"args,omitempty"`
+	Env             map[string]string `json:"env,omitempty"`
+	CPURequest      float64           `json:"cpu_request"`
+	MemoryRequestMB int64             `json:"memory_request_mb"`
+	GPURequest      int               `json:"gpu_request,omitempty"`
+	Timeout         time.Duration     `json:"timeout"`
+	RetryCount      int               `json:"retry_count"`
+	MaxRetries      int               `json:"max_retries"`
+	NodeSelector    map[string]string `json:"node_selector,omitempty"`
+	Affinity        *AffinityRule     `json:"affinity,omitempty"`
+	Result          *TaskResult       `json:"result,omitempty"`
+	CreatedAt       time.Time         `json:"created_at"`
+	ScheduledAt     *time.Time        `json:"scheduled_at,omitempty"`
+	StartedAt       *time.Time        `json:"started_at,omitempty"`
+	CompletedAt     *time.Time        `json:"completed_at,omitempty"`
+	Labels          map[string]string `json:"labels,omitempty"`
 }
 
 // TaskType 任务类型
@@ -119,21 +119,21 @@ const (
 
 // AffinityRule 亲和性规则
 type AffinityRule struct {
-	PreferredNodes  []string          `json:"preferred_nodes,omitempty"`
-	RequiredLabels  map[string]string `json:"required_labels,omitempty"`
-	RequiredZones   []string          `json:"required_zones,omitempty"`
-	AntiAffinity    []string          `json:"anti_affinity,omitempty"`
-	SpreadAcrossZones bool            `json:"spread_across_zones,omitempty"`
+	PreferredNodes    []string          `json:"preferred_nodes,omitempty"`
+	RequiredLabels    map[string]string `json:"required_labels,omitempty"`
+	RequiredZones     []string          `json:"required_zones,omitempty"`
+	AntiAffinity      []string          `json:"anti_affinity,omitempty"`
+	SpreadAcrossZones bool              `json:"spread_across_zones,omitempty"`
 }
 
 // TaskResult 任务执行结果
 type TaskResult struct {
-	ExitCode   int             `json:"exit_code"`
-	Output     string          `json:"output,omitempty"`
-	Error      string          `json:"error,omitempty"`
-	Artifacts  []Artifact      `json:"artifacts,omitempty"`
-	Metrics    *TaskMetrics    `json:"metrics,omitempty"`
-	CompletedAt time.Time      `json:"completed_at"`
+	ExitCode    int          `json:"exit_code"`
+	Output      string       `json:"output,omitempty"`
+	Error       string       `json:"error,omitempty"`
+	Artifacts   []Artifact   `json:"artifacts,omitempty"`
+	Metrics     *TaskMetrics `json:"metrics,omitempty"`
+	CompletedAt time.Time    `json:"completed_at"`
 }
 
 // Artifact 任务产物
@@ -146,30 +146,30 @@ type Artifact struct {
 
 // TaskMetrics 任务运行指标
 type TaskMetrics struct {
-	CPUUsageAvg    float64       `json:"cpu_usage_avg"`
-	MemUsageAvgMB  float64       `json:"mem_usage_avg_mb"`
-	GPUUsageAvg    float64       `json:"gpu_usage_avg,omitempty"`
-	NetworkInBytes int64         `json:"network_in_bytes"`
-	NetworkOutBytes int64        `json:"network_out_bytes"`
-	Duration       time.Duration `json:"duration"`
+	CPUUsageAvg     float64       `json:"cpu_usage_avg"`
+	MemUsageAvgMB   float64       `json:"mem_usage_avg_mb"`
+	GPUUsageAvg     float64       `json:"gpu_usage_avg,omitempty"`
+	NetworkInBytes  int64         `json:"network_in_bytes"`
+	NetworkOutBytes int64         `json:"network_out_bytes"`
+	Duration        time.Duration `json:"duration"`
 }
 
 // ========== AI 推理任务类型 ==========
 
 // AIInferenceTask AI推理任务
 type AIInferenceTask struct {
-	TaskID        string             `json:"task_id"`
-	ModelName     string             `json:"model_name"`
-	ModelVersion  string             `json:"model_version"`
-	Framework     string             `json:"framework"` // onnx, tensorflow, pytorch, tensorrt
-	InputType     string             `json:"input_type"` // image, text, audio, video
-	InputData     []byte             `json:"input_data,omitempty"`
-	InputURL      string             `json:"input_url,omitempty"`
-	Parameters    map[string]interface{} `json:"parameters,omitempty"`
-	BatchSize     int                `json:"batch_size"`
-	Priority      TaskPriority       `json:"priority"`
-	MaxLatency    time.Duration      `json:"max_latency"`
-	ResultChan    chan *InferenceResult `json:"-"`
+	TaskID       string                 `json:"task_id"`
+	ModelName    string                 `json:"model_name"`
+	ModelVersion string                 `json:"model_version"`
+	Framework    string                 `json:"framework"`  // onnx, tensorflow, pytorch, tensorrt
+	InputType    string                 `json:"input_type"` // image, text, audio, video
+	InputData    []byte                 `json:"input_data,omitempty"`
+	InputURL     string                 `json:"input_url,omitempty"`
+	Parameters   map[string]interface{} `json:"parameters,omitempty"`
+	BatchSize    int                    `json:"batch_size"`
+	Priority     TaskPriority           `json:"priority"`
+	MaxLatency   time.Duration          `json:"max_latency"`
+	ResultChan   chan *InferenceResult  `json:"-"`
 }
 
 // InferenceResult 推理结果
@@ -184,9 +184,9 @@ type InferenceResult struct {
 
 // Prediction 单个预测结果
 type Prediction struct {
-	Label      string             `json:"label"`
-	Confidence float64            `json:"confidence"`
-	BBox       *BoundingBox       `json:"bbox,omitempty"`
+	Label      string                 `json:"label"`
+	Confidence float64                `json:"confidence"`
+	BBox       *BoundingBox           `json:"bbox,omitempty"`
 	Attributes map[string]interface{} `json:"attributes,omitempty"`
 }
 
@@ -211,56 +211,56 @@ type ModelInfo struct {
 
 // SchedulerConfig 调度器配置
 type SchedulerConfig struct {
-	Strategy           SchedulingStrategy `json:"strategy"`
-	MaxTasksPerNode    int                `json:"max_tasks_per_node"`
-	HeartbeatTimeout   time.Duration      `json:"heartbeat_timeout"`
-	HealthCheckInterval time.Duration     `json:"health_check_interval"`
-	EnableGPU          bool               `json:"enable_gpu"`
-	EnableAffinity     bool               `json:"enable_affinity"`
-	EnableTaints       bool               `json:"enable_taints"`
+	Strategy            SchedulingStrategy `json:"strategy"`
+	MaxTasksPerNode     int                `json:"max_tasks_per_node"`
+	HeartbeatTimeout    time.Duration      `json:"heartbeat_timeout"`
+	HealthCheckInterval time.Duration      `json:"health_check_interval"`
+	EnableGPU           bool               `json:"enable_gpu"`
+	EnableAffinity      bool               `json:"enable_affinity"`
+	EnableTaints        bool               `json:"enable_taints"`
 }
 
 // SchedulingStrategy 调度策略
 type SchedulingStrategy string
 
 const (
-	StrategyRoundRobin  SchedulingStrategy = "round_robin"
-	StrategyLeastLoad   SchedulingStrategy = "least_load"
-	StrategyRandom      SchedulingStrategy = "random"
-	StrategyBinPack     SchedulingStrategy = "bin_pack"
-	StrategySpread      SchedulingStrategy = "spread"
+	StrategyRoundRobin SchedulingStrategy = "round_robin"
+	StrategyLeastLoad  SchedulingStrategy = "least_load"
+	StrategyRandom     SchedulingStrategy = "random"
+	StrategyBinPack    SchedulingStrategy = "bin_pack"
+	StrategySpread     SchedulingStrategy = "spread"
 )
 
 // ========== 同步和监控类型 ==========
 
 // SyncStatus 同步状态
 type SyncStatus struct {
-	NodeID          string    `json:"node_id"`
-	LastSyncTime    time.Time `json:"last_sync_time"`
-	SyncedTasks     int       `json:"synced_tasks"`
-	PendingSyncs    int       `json:"pending_syncs"`
-	FailedSyncs     int       `json:"failed_syncs"`
-	SyncLatencyMs   float64   `json:"sync_latency_ms"`
+	NodeID        string    `json:"node_id"`
+	LastSyncTime  time.Time `json:"last_sync_time"`
+	SyncedTasks   int       `json:"synced_tasks"`
+	PendingSyncs  int       `json:"pending_syncs"`
+	FailedSyncs   int       `json:"failed_syncs"`
+	SyncLatencyMs float64   `json:"sync_latency_ms"`
 }
 
 // ClusterMetrics 集群指标
 type ClusterMetrics struct {
-	TotalNodes      int       `json:"total_nodes"`
-	OnlineNodes     int       `json:"online_nodes"`
-	OfflineNodes    int       `json:"offline_nodes"`
-	TotalTasks      int       `json:"total_tasks"`
-	RunningTasks    int       `json:"running_tasks"`
-	PendingTasks    int       `json:"pending_tasks"`
-	CompletedTasks  int       `json:"completed_tasks"`
-	FailedTasks     int       `json:"failed_tasks"`
-	TotalCPUCores   int       `json:"total_cpu_cores"`
-	UsedCPUCores    float64   `json:"used_cpu_cores"`
-	TotalMemoryMB   int64     `json:"total_memory_mb"`
-	UsedMemoryMB    int64     `json:"used_memory_mb"`
-	TotalGPUs       int       `json:"total_gpus"`
-	UsedGPUs        int       `json:"used_gpus"`
-	AvgTaskLatency  float64   `json:"avg_task_latency_ms"`
-	Timestamp       time.Time `json:"timestamp"`
+	TotalNodes     int       `json:"total_nodes"`
+	OnlineNodes    int       `json:"online_nodes"`
+	OfflineNodes   int       `json:"offline_nodes"`
+	TotalTasks     int       `json:"total_tasks"`
+	RunningTasks   int       `json:"running_tasks"`
+	PendingTasks   int       `json:"pending_tasks"`
+	CompletedTasks int       `json:"completed_tasks"`
+	FailedTasks    int       `json:"failed_tasks"`
+	TotalCPUCores  int       `json:"total_cpu_cores"`
+	UsedCPUCores   float64   `json:"used_cpu_cores"`
+	TotalMemoryMB  int64     `json:"total_memory_mb"`
+	UsedMemoryMB   int64     `json:"used_memory_mb"`
+	TotalGPUs      int       `json:"total_gpus"`
+	UsedGPUs       int       `json:"used_gpus"`
+	AvgTaskLatency float64   `json:"avg_task_latency_ms"`
+	Timestamp      time.Time `json:"timestamp"`
 }
 
 // NodeHealth 节点健康状态

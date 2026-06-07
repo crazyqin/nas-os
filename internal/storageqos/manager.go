@@ -97,11 +97,11 @@ func (tm *TargetManager) GetTargetsByType(targetType string) []*QoSTarget {
 
 // MetricsCollector 指标采集器
 type MetricsCollector struct {
-	mu          sync.RWMutex
-	metrics     map[string]*QoSMetrics
-	lastStats   map[string]*DiskStats
-	stopCh      chan struct{}
-	interval    time.Duration
+	mu        sync.RWMutex
+	metrics   map[string]*QoSMetrics
+	lastStats map[string]*DiskStats
+	stopCh    chan struct{}
+	interval  time.Duration
 }
 
 // DiskStats 磁盘统计信息
@@ -303,12 +303,12 @@ func readDiskStats() (map[string]*DiskStats, error) {
 
 // ViolationDetector 违规检测器
 type ViolationDetector struct {
-	mu          sync.RWMutex
-	violations  []*QoSViolation
-	manager     *QoSManager
-	collector   *MetricsCollector
-	alertFunc   func(violation *QoSViolation)
-	stopCh      chan struct{}
+	mu         sync.RWMutex
+	violations []*QoSViolation
+	manager    *QoSManager
+	collector  *MetricsCollector
+	alertFunc  func(violation *QoSViolation)
+	stopCh     chan struct{}
 }
 
 // NewViolationDetector 创建违规检测器
@@ -493,16 +493,16 @@ func (vd *ViolationDetector) ResolveViolation(id string) error {
 
 // IOController IO控制器
 type IOController struct {
-	mu       sync.RWMutex
-	limits   map[string]*IOLimit
+	mu     sync.RWMutex
+	limits map[string]*IOLimit
 }
 
 // IOLimit IO限制
 type IOLimit struct {
-	TargetID    string
-	DevicePath  string
-	CGroupPath  string
-	MaxIOPS     int64
+	TargetID     string
+	DevicePath   string
+	CGroupPath   string
+	MaxIOPS      int64
 	MaxBandwidth int64
 }
 
@@ -659,10 +659,10 @@ func getDeviceNumber(devicePath string) (string, error) {
 
 // AdaptiveQoS 自适应QoS
 type AdaptiveQoS struct {
-	mu          sync.RWMutex
-	manager     *QoSManager
-	collector   *MetricsCollector
-	stopCh      chan struct{}
+	mu        sync.RWMutex
+	manager   *QoSManager
+	collector *MetricsCollector
+	stopCh    chan struct{}
 }
 
 // NewAdaptiveQoS 创建自适应QoS

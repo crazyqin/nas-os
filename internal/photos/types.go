@@ -222,7 +222,7 @@ type TimelineGroup struct {
 	Period      string     `json:"period"`      // 2026-03, 2026-03-12 (兼容旧字段)
 	DisplayTime string     `json:"displayTime"` // 显示时间
 	PhotoCount  int        `json:"photoCount"`
-	Count       int        `json:"count"`       // 兼容旧字段
+	Count       int        `json:"count"` // 兼容旧字段
 	Photos      []*Photo   `json:"photos,omitempty"`
 	StartTime   time.Time  `json:"startTime"`
 	EndTime     time.Time  `json:"endTime"`
@@ -291,27 +291,28 @@ type SearchQuery struct {
 	PageSize   int      `json:"pageSize,omitempty"`   // 每页数量
 	SortOrder  string   `json:"sortOrder,omitempty"`  // 排序方向
 
-	DateFrom   *time.Time `json:"dateFrom,omitempty"`   // 开始日期
-	DateTo     *time.Time `json:"dateTo,omitempty"`     // 结束日期
-	Rating     int      `json:"rating,omitempty"`     // 评分筛选
-	IsFavorite *bool    `json:"isFavorite,omitempty"` // 收藏筛选
-	DeviceModel string  `json:"deviceModel,omitempty"` // 设备型号筛选
+	DateFrom    *time.Time `json:"dateFrom,omitempty"`    // 开始日期
+	DateTo      *time.Time `json:"dateTo,omitempty"`      // 结束日期
+	Rating      int        `json:"rating,omitempty"`      // 评分筛选
+	IsFavorite  *bool      `json:"isFavorite,omitempty"`  // 收藏筛选
+	DeviceModel string     `json:"deviceModel,omitempty"` // 设备型号筛选
 }
+
 // SearchResult 搜索结果
 type SearchResult struct {
-	Photos     []Photo `json:"photos"`               // 照片列表
-	Total      int     `json:"total"`                // 总数
-	Page       int     `json:"page"`                 // 当前页
-	PageSize   int     `json:"pageSize"`             // 每页数量
-	TotalPages int     `json:"totalPages"`           // 总页数
+	Photos     []Photo `json:"photos"`     // 照片列表
+	Total      int     `json:"total"`      // 总数
+	Page       int     `json:"page"`       // 当前页
+	PageSize   int     `json:"pageSize"`   // 每页数量
+	TotalPages int     `json:"totalPages"` // 总页数
 }
 
 // PhotoConfig 相册配置
 type PhotoConfig struct {
-	MaxUploadSize    int64           `json:"max_upload_size"`
-	Enabled          bool            `json:"enabled"`
-	StoragePath      string          `json:"storage_path"`
-	EnableAI         bool            `json:"enable_ai"`
-	SupportedFormats []string        `json:"supported_formats"`
+	MaxUploadSize    int64            `json:"max_upload_size"`
+	Enabled          bool             `json:"enabled"`
+	StoragePath      string           `json:"storage_path"`
+	EnableAI         bool             `json:"enable_ai"`
+	SupportedFormats []string         `json:"supported_formats"`
 	ThumbnailConfig  *ThumbnailConfig `json:"thumbnail_config,omitempty"`
 }

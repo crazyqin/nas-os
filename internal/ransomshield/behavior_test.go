@@ -219,11 +219,11 @@ func TestPatternDetectors_Name(t *testing.T) {
 	}
 
 	expectedNames := map[string]bool{
-		"encryption-burst":       false,
-		"mass-rename":            false,
-		"entropy-spike":          false,
-		"shadow-copy-deletion":   false,
-		"extension-storm":        false,
+		"encryption-burst":     false,
+		"mass-rename":          false,
+		"entropy-spike":        false,
+		"shadow-copy-deletion": false,
+		"extension-storm":      false,
 	}
 
 	for _, d := range detectors {

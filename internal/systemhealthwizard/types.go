@@ -106,39 +106,39 @@ const (
 
 // StepResult 单步检查结果。
 type StepResult struct {
-	Step      CheckStep    `json:"step"`
-	Status    ResultStatus `json:"status"`
-	Message   string       `json:"message"`
-	Details   []string     `json:"details,omitempty"`
-	FixAction string       `json:"fix_action,omitempty"`
+	Step      CheckStep     `json:"step"`
+	Status    ResultStatus  `json:"status"`
+	Message   string        `json:"message"`
+	Details   []string      `json:"details,omitempty"`
+	FixAction string        `json:"fix_action,omitempty"`
 	Duration  time.Duration `json:"duration"`
-	Timestamp time.Time    `json:"timestamp"`
+	Timestamp time.Time     `json:"timestamp"`
 }
 
 // WizardSession 向导会话。
 type WizardSession struct {
-	ID        string                `json:"id"`
-	Steps     []CheckStep           `json:"steps"`
+	ID        string                    `json:"id"`
+	Steps     []CheckStep               `json:"steps"`
 	Results   map[CheckStep]*StepResult `json:"results"`
-	Current   int                   `json:"current"`
-	Status    string                `json:"status"`
-	StartedAt time.Time             `json:"started_at"`
-	EndedAt   *time.Time            `json:"ended_at,omitempty"`
-	Score     float64               `json:"score"`
+	Current   int                       `json:"current"`
+	Status    string                    `json:"status"`
+	StartedAt time.Time                 `json:"started_at"`
+	EndedAt   *time.Time                `json:"ended_at,omitempty"`
+	Score     float64                   `json:"score"`
 }
 
 // WizardReport 向导报告。
 type WizardReport struct {
-	SessionID    string         `json:"session_id"`
-	TotalSteps   int            `json:"total_steps"`
-	PassedSteps  int            `json:"passed_steps"`
-	WarnSteps    int            `json:"warn_steps"`
-	FailedSteps  int            `json:"failed_steps"`
-	SkippedSteps int            `json:"skipped_steps"`
-	OverallScore float64        `json:"overall_score"`
-	Results      []*StepResult  `json:"results"`
-	Recommendations []string    `json:"recommendations"`
-	StartedAt    time.Time      `json:"started_at"`
-	EndedAt      time.Time      `json:"ended_at"`
-	Duration     time.Duration  `json:"duration"`
+	SessionID       string        `json:"session_id"`
+	TotalSteps      int           `json:"total_steps"`
+	PassedSteps     int           `json:"passed_steps"`
+	WarnSteps       int           `json:"warn_steps"`
+	FailedSteps     int           `json:"failed_steps"`
+	SkippedSteps    int           `json:"skipped_steps"`
+	OverallScore    float64       `json:"overall_score"`
+	Results         []*StepResult `json:"results"`
+	Recommendations []string      `json:"recommendations"`
+	StartedAt       time.Time     `json:"started_at"`
+	EndedAt         time.Time     `json:"ended_at"`
+	Duration        time.Duration `json:"duration"`
 }

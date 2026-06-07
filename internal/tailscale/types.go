@@ -46,41 +46,41 @@ type TailscaleNode struct {
 
 // ACLPolicy ACL 策略
 type ACLPolicy struct {
-	Version  int       `json:"version"`  // 策略版本
-	ACLs     []ACLRule `json:"acls"`     // ACL 规则列表
+	Version   int       `json:"version"`   // 策略版本
+	ACLs      []ACLRule `json:"acls"`      // ACL 规则列表
 	UpdatedAt time.Time `json:"updatedAt"` // 更新时间
 }
 
 // ACLRule ACL 规则
 type ACLRule struct {
-	Sources     []string `json:"sources"`     // 源地址/标签
+	Sources      []string `json:"sources"`      // 源地址/标签
 	Destinations []string `json:"destinations"` // 目标地址/端口
-	Action      string   `json:"action"`      // 动作 (accept/deny)
-	Description string   `json:"description"` // 描述
+	Action       string   `json:"action"`       // 动作 (accept/deny)
+	Description  string   `json:"description"`  // 描述
 }
 
 // ========== 子网路由 ==========
 
 // SubnetRoute 子网路由
 type SubnetRoute struct {
-	ID      string `json:"id"`      // 路由 ID
-	CIDR    string `json:"cidr"`    // 路由 CIDR
-	NodeID  string `json:"nodeId"`  // 节点 ID
-	Enabled bool   `json:"enabled"` // 是否启用
-	Advertised bool `json:"advertised"` // 是否已通告
+	ID         string `json:"id"`         // 路由 ID
+	CIDR       string `json:"cidr"`       // 路由 CIDR
+	NodeID     string `json:"nodeId"`     // 节点 ID
+	Enabled    bool   `json:"enabled"`    // 是否启用
+	Advertised bool   `json:"advertised"` // 是否已通告
 }
 
 // ========== Exit Node ==========
 
 // ExitNode 出口节点
 type ExitNode struct {
-	ID        string    `json:"id"`        // 节点 ID
-	IP        string    `json:"ip"`        // IP 地址
-	HostName  string    `json:"hostName"`  // 主机名
-	IsCurrent bool      `json:"isCurrent"` // 是否当前使用
-	Latency   int       `json:"latency"`   // 延迟 (ms)
-	Online    bool      `json:"online"`    // 是否在线
-	Country   string    `json:"country"`   // 国家/地区
+	ID        string `json:"id"`        // 节点 ID
+	IP        string `json:"ip"`        // IP 地址
+	HostName  string `json:"hostName"`  // 主机名
+	IsCurrent bool   `json:"isCurrent"` // 是否当前使用
+	Latency   int    `json:"latency"`   // 延迟 (ms)
+	Online    bool   `json:"online"`    // 是否在线
+	Country   string `json:"country"`   // 国家/地区
 }
 
 // ========== DNS 配置 ==========
@@ -97,15 +97,15 @@ type DNSConfig struct {
 
 // AuthKey 认证密钥
 type AuthKey struct {
-	ID         string     `json:"id"`         // 密钥 ID
-	Key        string     `json:"key"`        // 密钥值
-	Description string    `json:"description"` // 描述
-	CreatedAt  time.Time  `json:"createdAt"`  // 创建时间
-	ExpiresAt  *time.Time `json:"expiresAt"`  // 过期时间 (nil 表示不过期)
-	Reusable   bool       `json:"reusable"`   // 是否可重复使用
-	Ephemeral  bool       `json:"ephemeral"`  // 是否临时节点
-	Revoked    bool       `json:"revoked"`    // 是否已撤销
-	UsedCount  int        `json:"usedCount"`  // 使用次数
+	ID          string     `json:"id"`          // 密钥 ID
+	Key         string     `json:"key"`         // 密钥值
+	Description string     `json:"description"` // 描述
+	CreatedAt   time.Time  `json:"createdAt"`   // 创建时间
+	ExpiresAt   *time.Time `json:"expiresAt"`   // 过期时间 (nil 表示不过期)
+	Reusable    bool       `json:"reusable"`    // 是否可重复使用
+	Ephemeral   bool       `json:"ephemeral"`   // 是否临时节点
+	Revoked     bool       `json:"revoked"`     // 是否已撤销
+	UsedCount   int        `json:"usedCount"`   // 使用次数
 }
 
 // ========== 流量统计 ==========

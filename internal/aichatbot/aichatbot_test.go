@@ -198,8 +198,8 @@ func TestProcessMessage(t *testing.T) {
 	// 安装一个测试插件
 	installed := false
 	bot.InstallPlugin(&Plugin{
-		ID:   "test-plugin",
-		Name: "Test Plugin",
+		ID:      "test-plugin",
+		Name:    "Test Plugin",
 		Intents: []IntentType{IntentSystemStatus},
 		Handler: func(ctx *PluginContext) (*PluginResponse, error) {
 			installed = true
@@ -451,8 +451,8 @@ func TestPluginExecution(t *testing.T) {
 
 	executed := false
 	bot.InstallPlugin(&Plugin{
-		ID:   "disk-plugin",
-		Name: "Disk Plugin",
+		ID:      "disk-plugin",
+		Name:    "Disk Plugin",
 		Intents: []IntentType{IntentDiskUsage},
 		Handler: func(ctx *PluginContext) (*PluginResponse, error) {
 			executed = true

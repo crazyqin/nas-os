@@ -53,12 +53,12 @@ func (h *Handlers) ListSnapshots(c *gin.Context) {
 // CreateSnapshot POST /api/v1/immutable-snapshots
 func (h *Handlers) CreateSnapshot(c *gin.Context) {
 	var req struct {
-		DatasetName   string   `json:"dataset_name" binding:"required"`
-		SourcePath    string   `json:"source_path"`
-		StoragePath   string   `json:"storage_path"`
-		RetentionHours int    `json:"retention_hours"`
-		Tags          []string `json:"tags"`
-		AutoLock      bool     `json:"auto_lock"` // 创建后立即锁定
+		DatasetName    string   `json:"dataset_name" binding:"required"`
+		SourcePath     string   `json:"source_path"`
+		StoragePath    string   `json:"storage_path"`
+		RetentionHours int      `json:"retention_hours"`
+		Tags           []string `json:"tags"`
+		AutoLock       bool     `json:"auto_lock"` // 创建后立即锁定
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})

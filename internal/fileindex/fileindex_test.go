@@ -15,14 +15,14 @@ func setupTestDir(t *testing.T) string {
 
 	// 创建测试文件
 	files := map[string]string{
-		"readme.md":          "# Hello World\nThis is a test project.",
-		"main.go":            "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfmt.Println(\"hello\")\n}\n",
-		"config.yaml":        "server:\n  port: 8080\n  host: localhost\n",
-		"docs/guide.txt":     "User guide content\nStep 1: Install\nStep 2: Configure\n",
-		"src/app.js":         "const express = require('express');\nconst app = express();\n",
+		"readme.md":           "# Hello World\nThis is a test project.",
+		"main.go":             "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfmt.Println(\"hello\")\n}\n",
+		"config.yaml":         "server:\n  port: 8080\n  host: localhost\n",
+		"docs/guide.txt":      "User guide content\nStep 1: Install\nStep 2: Configure\n",
+		"src/app.js":          "const express = require('express');\nconst app = express();\n",
 		"src/utils/helper.js": "function add(a, b) { return a + b; }\nmodule.exports = { add };\n",
-		"data.csv":           "name,age\nAlice,30\nBob,25\n",
-		".git/config":        "[core]\n\trepositoryformatversion = 0\n",
+		"data.csv":            "name,age\nAlice,30\nBob,25\n",
+		".git/config":         "[core]\n\trepositoryformatversion = 0\n",
 	}
 
 	for name, content := range files {

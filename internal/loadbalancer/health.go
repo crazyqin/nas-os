@@ -259,7 +259,8 @@ func (hc *HealthChecker) updateBackend(backend *Backend, result HealthCheckResul
 // parseCounter 解析计数器
 func parseCounter(s string) int {
 	if s == "" {
-		return 0}
+		return 0
+	}
 	n := 0
 	fmt.Sscanf(s, "%d", &n)
 	return n

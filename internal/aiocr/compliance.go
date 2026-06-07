@@ -9,8 +9,8 @@ import (
 
 // Compliance 合规处理器.
 type Compliance struct {
-	config    *DesensitizeConfig
-	patterns  map[string]*regexp.Regexp
+	config   *DesensitizeConfig
+	patterns map[string]*regexp.Regexp
 }
 
 // NewCompliance 创建合规处理器.

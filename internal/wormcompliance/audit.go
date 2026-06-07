@@ -12,10 +12,10 @@ import (
 
 // AuditManager 审计管理器
 type AuditManager struct {
-	mu          sync.RWMutex
-	entries     []*AuditEntry
-	hashChain   string // 审计哈希链头
-	maxRetention int   // 最大保留天数
+	mu           sync.RWMutex
+	entries      []*AuditEntry
+	hashChain    string // 审计哈希链头
+	maxRetention int    // 最大保留天数
 }
 
 // NewAuditManager 创建审计管理器
@@ -211,12 +211,12 @@ func (am *AuditManager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_records":   total,
-		"successful":      successful,
-		"failed":          failed,
-		"unique_actors":   len(actors),
-		"unique_actions":  len(actions),
-		"actor_breakdown": actors,
+		"total_records":    total,
+		"successful":       successful,
+		"failed":           failed,
+		"unique_actors":    len(actors),
+		"unique_actions":   len(actions),
+		"actor_breakdown":  actors,
 		"action_breakdown": actions,
 	}
 }

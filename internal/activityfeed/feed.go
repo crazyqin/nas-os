@@ -201,7 +201,7 @@ func (f *Feed) GetSummary(period string, startTime, endTime time.Time) (Activity
 	var errorSummary string
 	errorCount := bySeverity[SeverityError] + bySeverity[SeverityCritical]
 	if errorCount > 0 {
-		errorSummary = fmt.Sprintf("共 %d 个错误和 %d 个关键事件", 
+		errorSummary = fmt.Sprintf("共 %d 个错误和 %d 个关键事件",
 			bySeverity[SeverityError], bySeverity[SeverityCritical])
 	}
 
@@ -342,7 +342,7 @@ func (f *Feed) correlateActivities(newActivity Activity) Activity {
 
 	for i := len(f.activities) - 1; i >= 0; i-- {
 		act := f.activities[i]
-		
+
 		// 超出时间窗口则停止
 		if newActivity.Timestamp.Sub(act.Timestamp) > window {
 			break

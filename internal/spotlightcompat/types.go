@@ -37,32 +37,32 @@ type SpotlightIndex struct {
 
 // SpotlightSearchRequest 搜索请求
 type SpotlightSearchRequest struct {
-	Query      string            `json:"query"`
-	FileType   string            `json:"fileType,omitempty"`
-	Extensions []string          `json:"extensions,omitempty"`
-	DateFrom   *time.Time        `json:"dateFrom,omitempty"`
-	DateTo     *time.Time        `json:"dateTo,omitempty"`
-	MinSize    *int64            `json:"minSize,omitempty"`
-	MaxSize    *int64            `json:"maxSize,omitempty"`
-	Tags       []string          `json:"tags,omitempty"`
-	SortBy     string            `json:"sortBy,omitempty"`    // name/date/size/relevance
-	SortOrder  string            `json:"sortOrder,omitempty"` // asc/desc
-	Page       int               `json:"page"`
-	PageSize   int               `json:"pageSize"`
-	Filters    map[string]string `json:"filters,omitempty"`
-	SharePath  string            `json:"sharePath,omitempty"`
-	ContentSearch bool           `json:"contentSearch,omitempty"`
+	Query         string            `json:"query"`
+	FileType      string            `json:"fileType,omitempty"`
+	Extensions    []string          `json:"extensions,omitempty"`
+	DateFrom      *time.Time        `json:"dateFrom,omitempty"`
+	DateTo        *time.Time        `json:"dateTo,omitempty"`
+	MinSize       *int64            `json:"minSize,omitempty"`
+	MaxSize       *int64            `json:"maxSize,omitempty"`
+	Tags          []string          `json:"tags,omitempty"`
+	SortBy        string            `json:"sortBy,omitempty"`    // name/date/size/relevance
+	SortOrder     string            `json:"sortOrder,omitempty"` // asc/desc
+	Page          int               `json:"page"`
+	PageSize      int               `json:"pageSize"`
+	Filters       map[string]string `json:"filters,omitempty"`
+	SharePath     string            `json:"sharePath,omitempty"`
+	ContentSearch bool              `json:"contentSearch,omitempty"`
 }
 
 // SpotlightSearchResponse 搜索响应
 type SpotlightSearchResponse struct {
-	Results      []SpotlightResult `json:"results"`
-	TotalCount   int               `json:"totalCount"`
-	Page         int               `json:"page"`
-	PageSize     int               `json:"pageSize"`
-	QueryTimeMs  int64             `json:"queryTimeMs"`
-	Suggestions  []string          `json:"suggestions,omitempty"`
-	Facets       map[string]int    `json:"facets,omitempty"`
+	Results     []SpotlightResult `json:"results"`
+	TotalCount  int               `json:"totalCount"`
+	Page        int               `json:"page"`
+	PageSize    int               `json:"pageSize"`
+	QueryTimeMs int64             `json:"queryTimeMs"`
+	Suggestions []string          `json:"suggestions,omitempty"`
+	Facets      map[string]int    `json:"facets,omitempty"`
 }
 
 // SpotlightResult 搜索结果
@@ -79,8 +79,8 @@ type SpotlightStatus struct {
 	TotalIndexed   int       `json:"totalIndexed"`
 	IndexSizeMB    float64   `json:"indexSizeMB"`
 	LastIndexedAt  time.Time `json:"lastIndexedAt"`
-	IndexingRate   float64   `json:"indexingRate"`   // 文件/秒
-	QueryRate      float64   `json:"queryRate"`      // 查询/分钟
+	IndexingRate   float64   `json:"indexingRate"` // 文件/秒
+	QueryRate      float64   `json:"queryRate"`    // 查询/分钟
 	AvgQueryMs     int64     `json:"avgQueryMs"`
 	Uptime         string    `json:"uptime"`
 	ProtocolCompat string    `json:"protocolCompat"` // SMB2/SMB3/Spotlight
@@ -90,32 +90,32 @@ type SpotlightStatus struct {
 
 // SpotlightStats 统计信息
 type SpotlightStats struct {
-	TotalSearches    int64            `json:"totalSearches"`
-	AvgResponseMs    int64            `json:"avgResponseMs"`
-	P95ResponseMs    int64            `json:"p95ResponseMs"`
-	P99ResponseMs    int64            `json:"p99ResponseMs"`
-	TopQueries       []QueryStat      `json:"topQueries"`
-	IndexStats       IndexStats       `json:"indexStats"`
-	ProtocolStats    ProtocolStats    `json:"protocolStats"`
-	HourlySearches   []int64          `json:"hourlySearches"`
+	TotalSearches  int64         `json:"totalSearches"`
+	AvgResponseMs  int64         `json:"avgResponseMs"`
+	P95ResponseMs  int64         `json:"p95ResponseMs"`
+	P99ResponseMs  int64         `json:"p99ResponseMs"`
+	TopQueries     []QueryStat   `json:"topQueries"`
+	IndexStats     IndexStats    `json:"indexStats"`
+	ProtocolStats  ProtocolStats `json:"protocolStats"`
+	HourlySearches []int64       `json:"hourlySearches"`
 }
 
 // QueryStat 查询统计
 type QueryStat struct {
-	Query     string `json:"query"`
-	Count     int64  `json:"count"`
-	AvgMs     int64  `json:"avgMs"`
-	LastUsed  time.Time `json:"lastUsed"`
+	Query    string    `json:"query"`
+	Count    int64     `json:"count"`
+	AvgMs    int64     `json:"avgMs"`
+	LastUsed time.Time `json:"lastUsed"`
 }
 
 // IndexStats 索引统计
 type IndexStats struct {
-	TotalFiles     int     `json:"totalFiles"`
-	TotalDirs      int     `json:"totalDirs"`
-	TotalSizeMB    float64 `json:"totalSizeMB"`
-	FileTypeDist   map[string]int `json:"fileTypeDist"`
-	LastFullIndex  time.Time `json:"lastFullIndex"`
-	IndexErrors    int     `json:"indexErrors"`
+	TotalFiles    int            `json:"totalFiles"`
+	TotalDirs     int            `json:"totalDirs"`
+	TotalSizeMB   float64        `json:"totalSizeMB"`
+	FileTypeDist  map[string]int `json:"fileTypeDist"`
+	LastFullIndex time.Time      `json:"lastFullIndex"`
+	IndexErrors   int            `json:"indexErrors"`
 }
 
 // ProtocolStats 协议统计
@@ -128,12 +128,12 @@ type ProtocolStats struct {
 
 // IndexTask 索引任务
 type IndexTask struct {
-	ID        string    `json:"id"`
-	SharePath string    `json:"sharePath"`
-	Status    string    `json:"status"` // pending/running/completed/failed
-	Progress  float64   `json:"progress"`
-	StartedAt time.Time `json:"startedAt"`
-	FilesDone int       `json:"filesDone"`
-	FilesTotal int      `json:"filesTotal"`
-	Error     string    `json:"error,omitempty"`
+	ID         string    `json:"id"`
+	SharePath  string    `json:"sharePath"`
+	Status     string    `json:"status"` // pending/running/completed/failed
+	Progress   float64   `json:"progress"`
+	StartedAt  time.Time `json:"startedAt"`
+	FilesDone  int       `json:"filesDone"`
+	FilesTotal int       `json:"filesTotal"`
+	Error      string    `json:"error,omitempty"`
 }

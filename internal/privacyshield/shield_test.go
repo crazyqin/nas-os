@@ -17,12 +17,12 @@ func TestNewShield(t *testing.T) {
 
 	// 检查是否包含预定义的模式
 	expectedCategories := map[string]bool{
-		"phone":          false,
-		"id_card":        false,
-		"email":          false,
-		"bank_card":      false,
-		"ip_address":     false,
-		"passport":       false,
+		"phone":           false,
+		"id_card":         false,
+		"email":           false,
+		"bank_card":       false,
+		"ip_address":      false,
+		"passport":        false,
 		"social_security": false,
 	}
 
@@ -603,8 +603,8 @@ func TestConcurrentAccess(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		go func() {
 			shield.AddPattern(SensitivePattern{
-				Name:    "并发测试",
-				Pattern: `TEST-\d+`,
+				Name:     "并发测试",
+				Pattern:  `TEST-\d+`,
 				Category: "concurrent",
 			})
 			done <- true

@@ -167,11 +167,11 @@ func (r *ReportGenerator) GenerateMultiDimensionReport(period string) (*MultiDim
 	// 时间序列数据（简化：单点）
 	var timeSeries []TimeSeriesPoint
 	timeSeries = append(timeSeries, TimeSeriesPoint{
-		Date:        now,
-		Cost:        totalCost,
-		CapacityTB:  totalCapacity,
-		UsedTB:      totalUsed,
-		CostPerTB:   avgCostPerTB,
+		Date:       now,
+		Cost:       totalCost,
+		CapacityTB: totalCapacity,
+		UsedTB:     totalUsed,
+		CostPerTB:  avgCostPerTB,
 	})
 
 	// 优化影响分析
@@ -198,16 +198,16 @@ func (r *ReportGenerator) GenerateMultiDimensionReport(period string) (*MultiDim
 	}
 
 	return &MultiDimensionReport{
-		ID:                 id,
-		Title:              fmt.Sprintf("%s 多维度成本报表", period),
-		GeneratedAt:        now,
-		PeriodStart:        periodStart,
-		PeriodEnd:          periodEnd,
-		Summary:            summary,
-		TierBreakdown:      tierBreakdown,
-		CategoryBreakdown:  categoryBreakdown,
-		ProviderBreakdown:  providerBreakdown,
-		TimeSeries:         timeSeries,
+		ID:                id,
+		Title:             fmt.Sprintf("%s 多维度成本报表", period),
+		GeneratedAt:       now,
+		PeriodStart:       periodStart,
+		PeriodEnd:         periodEnd,
+		Summary:           summary,
+		TierBreakdown:     tierBreakdown,
+		CategoryBreakdown: categoryBreakdown,
+		ProviderBreakdown: providerBreakdown,
+		TimeSeries:        timeSeries,
 		OptimizationImpact: OptimizationImpact{
 			PotentialSavings: potentialSavings,
 		},
@@ -416,12 +416,12 @@ func (r *ReportGenerator) GenerateTrendReport(months int) (*TrendReport, error) 
 	}
 
 	return &TrendReport{
-		GeneratedAt:             now,
-		AnalysisMonths:          months,
-		MonthlyTrends:           monthlyTrends,
-		CostTrend:               costTrend,
-		UtilizationTrend:        utilizationTrend,
-		AvgCostGrowthRate:       avgCostGrowthRate,
+		GeneratedAt:              now,
+		AnalysisMonths:           months,
+		MonthlyTrends:            monthlyTrends,
+		CostTrend:                costTrend,
+		UtilizationTrend:         utilizationTrend,
+		AvgCostGrowthRate:        avgCostGrowthRate,
 		AvgUtilizationGrowthRate: avgUtilizationGrowthRate,
 	}, nil
 }

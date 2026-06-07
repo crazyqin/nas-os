@@ -12,22 +12,22 @@ import (
 type DownloadStatus string
 
 const (
-	StatusPending    DownloadStatus = "pending"
-	StatusQueued     DownloadStatus = "queued"
+	StatusPending     DownloadStatus = "pending"
+	StatusQueued      DownloadStatus = "queued"
 	StatusDownloading DownloadStatus = "downloading"
-	StatusPaused     DownloadStatus = "paused"
-	StatusCompleted  DownloadStatus = "completed"
-	StatusFailed     DownloadStatus = "failed"
-	StatusCancelled  DownloadStatus = "cancelled"
+	StatusPaused      DownloadStatus = "paused"
+	StatusCompleted   DownloadStatus = "completed"
+	StatusFailed      DownloadStatus = "failed"
+	StatusCancelled   DownloadStatus = "cancelled"
 )
 
 // DownloadProtocol 下载协议
 type DownloadProtocol string
 
 const (
-	ProtocolHTTP  DownloadProtocol = "http"
-	ProtocolHTTPS DownloadProtocol = "https"
-	ProtocolFTP   DownloadProtocol = "ftp"
+	ProtocolHTTP   DownloadProtocol = "http"
+	ProtocolHTTPS  DownloadProtocol = "https"
+	ProtocolFTP    DownloadProtocol = "ftp"
 	ProtocolMagnet DownloadProtocol = "magnet"
 )
 
@@ -55,35 +55,35 @@ const (
 
 // SpeedLimit 限速规则
 type SpeedLimit struct {
-	StartTime  string `json:"start_time"`  // HH:MM 格式
-	EndTime    string `json:"end_time"`    // HH:MM 格式
-	MaxSpeed   int64  `json:"max_speed"`   // 字节/秒
-	Enabled    bool   `json:"enabled"`
+	StartTime string `json:"start_time"` // HH:MM 格式
+	EndTime   string `json:"end_time"`   // HH:MM 格式
+	MaxSpeed  int64  `json:"max_speed"`  // 字节/秒
+	Enabled   bool   `json:"enabled"`
 }
 
 // DownloadTask 下载任务
 type DownloadTask struct {
-	ID            string           `json:"id"`
-	URL           string           `json:"url"`
-	Protocol      DownloadProtocol `json:"protocol"`
-	Filename      string           `json:"filename"`
-	SavePath      string           `json:"save_path"`
-	Category      FileCategory     `json:"category"`
-	Status        DownloadStatus   `json:"status"`
-	Priority      DownloadPriority `json:"priority"`
-	TotalSize     int64            `json:"total_size"`
-	DownloadedSize int64           `json:"downloaded_size"`
-	Progress      float64          `json:"progress"` // 0-100
-	Speed         int64            `json:"speed"`    // 当前速度 字节/秒
-	MaxSpeed      int64            `json:"max_speed"` // 限速 字节/秒，0=无限制
-	ErrorMsg      string           `json:"error_msg,omitempty"`
-	RetryCount    int              `json:"retry_count"`
-	MaxRetries    int              `json:"max_retries"`
-	ResumeSupport bool             `json:"resume_support"` // 是否支持断点续传
-	CreatedAt     time.Time        `json:"created_at"`
-	UpdatedAt     time.Time        `json:"updated_at"`
-	StartedAt     *time.Time       `json:"started_at,omitempty"`
-	CompletedAt   *time.Time       `json:"completed_at,omitempty"`
+	ID             string           `json:"id"`
+	URL            string           `json:"url"`
+	Protocol       DownloadProtocol `json:"protocol"`
+	Filename       string           `json:"filename"`
+	SavePath       string           `json:"save_path"`
+	Category       FileCategory     `json:"category"`
+	Status         DownloadStatus   `json:"status"`
+	Priority       DownloadPriority `json:"priority"`
+	TotalSize      int64            `json:"total_size"`
+	DownloadedSize int64            `json:"downloaded_size"`
+	Progress       float64          `json:"progress"`  // 0-100
+	Speed          int64            `json:"speed"`     // 当前速度 字节/秒
+	MaxSpeed       int64            `json:"max_speed"` // 限速 字节/秒，0=无限制
+	ErrorMsg       string           `json:"error_msg,omitempty"`
+	RetryCount     int              `json:"retry_count"`
+	MaxRetries     int              `json:"max_retries"`
+	ResumeSupport  bool             `json:"resume_support"` // 是否支持断点续传
+	CreatedAt      time.Time        `json:"created_at"`
+	UpdatedAt      time.Time        `json:"updated_at"`
+	StartedAt      *time.Time       `json:"started_at,omitempty"`
+	CompletedAt    *time.Time       `json:"completed_at,omitempty"`
 }
 
 // DownloadStats 下载统计
@@ -99,14 +99,14 @@ type DownloadStats struct {
 
 // DownloadManager 智能下载管理器
 type DownloadManager struct {
-	mu             sync.RWMutex
-	tasks          map[string]*DownloadTask
-	queue          []string           // 按优先级排序的任务ID队列
-	maxConcurrent  int                // 最大并发下载数
-	activeCount    int                // 当前活跃下载数
-	speedLimits    []SpeedLimit       // 限速规则
-	downloadPath   string             // 默认下载路径
-	categories     map[FileCategory]string // 分类对应的子目录
+	mu            sync.RWMutex
+	tasks         map[string]*DownloadTask
+	queue         []string                // 按优先级排序的任务ID队列
+	maxConcurrent int                     // 最大并发下载数
+	activeCount   int                     // 当前活跃下载数
+	speedLimits   []SpeedLimit            // 限速规则
+	downloadPath  string                  // 默认下载路径
+	categories    map[FileCategory]string // 分类对应的子目录
 }
 
 // NewDownloadManager 创建下载管理器

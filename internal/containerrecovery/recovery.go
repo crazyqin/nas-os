@@ -13,20 +13,20 @@ import (
 
 // Engine 容器自动恢复引擎.
 type Engine struct {
-	config          EngineConfig
-	containers      map[string]*ContainerConfig
-	depGraph        *DependencyGraph
-	store           Store
-	alertSender     AlertSender
-	operator        ContainerOperator
-	logger          *zap.Logger
-	hooks           map[string][]RecoveryHook // container -> hooks
-	mu              sync.RWMutex
-	stopChan        chan struct{}
-	running         bool
-	recoverySem     chan struct{} // 并发控制
-	stats           *RecoveryStats
-	statsMu         sync.RWMutex
+	config      EngineConfig
+	containers  map[string]*ContainerConfig
+	depGraph    *DependencyGraph
+	store       Store
+	alertSender AlertSender
+	operator    ContainerOperator
+	logger      *zap.Logger
+	hooks       map[string][]RecoveryHook // container -> hooks
+	mu          sync.RWMutex
+	stopChan    chan struct{}
+	running     bool
+	recoverySem chan struct{} // 并发控制
+	stats       *RecoveryStats
+	statsMu     sync.RWMutex
 }
 
 // NewEngine 创建恢复引擎.

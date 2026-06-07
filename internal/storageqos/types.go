@@ -24,83 +24,83 @@ const (
 
 // QoSPolicy QoS策略
 type QoSPolicy struct {
-	ID            string    `json:"id"`
-	Name          string    `json:"name"`
-	Description   string    `json:"description,omitempty"`
-	Level         QoSLevel  `json:"level"`
-	TargetType    string    `json:"target_type"`    // volume, share, container
-	TargetID      string    `json:"target_id"`
-	MinIOPS       int64     `json:"min_iops"`       // IOPS下限
-	MaxIOPS       int64     `json:"max_iops"`       // IOPS上限
-	MinBandwidth  int64     `json:"min_bandwidth"`  // 带宽下限 (MB/s)
-	MaxBandwidth  int64     `json:"max_bandwidth"`  // 带宽上限 (MB/s)
-	LatencyMax    int64     `json:"latency_max"`    // 最大延迟阈值 (ms)
-	Enabled       bool      `json:"enabled"`
-	Adaptive      bool      `json:"adaptive"`       // 自适应QoS
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	ID           string    `json:"id"`
+	Name         string    `json:"name"`
+	Description  string    `json:"description,omitempty"`
+	Level        QoSLevel  `json:"level"`
+	TargetType   string    `json:"target_type"` // volume, share, container
+	TargetID     string    `json:"target_id"`
+	MinIOPS      int64     `json:"min_iops"`      // IOPS下限
+	MaxIOPS      int64     `json:"max_iops"`      // IOPS上限
+	MinBandwidth int64     `json:"min_bandwidth"` // 带宽下限 (MB/s)
+	MaxBandwidth int64     `json:"max_bandwidth"` // 带宽上限 (MB/s)
+	LatencyMax   int64     `json:"latency_max"`   // 最大延迟阈值 (ms)
+	Enabled      bool      `json:"enabled"`
+	Adaptive     bool      `json:"adaptive"` // 自适应QoS
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 // QoSTarget QoS目标对象
 type QoSTarget struct {
-	ID          string `json:"id"`
-	Type        string `json:"type"`        // volume, share, container
-	Name        string `json:"name"`
-	Path        string `json:"path"`
-	DevicePath  string `json:"device_path"` // 设备路径，如 /dev/sda1
-	CGroupPath  string `json:"cgroup_path"` // cgroup路径
+	ID         string `json:"id"`
+	Type       string `json:"type"` // volume, share, container
+	Name       string `json:"name"`
+	Path       string `json:"path"`
+	DevicePath string `json:"device_path"` // 设备路径，如 /dev/sda1
+	CGroupPath string `json:"cgroup_path"` // cgroup路径
 }
 
 // QoSMetrics 实时指标
 type QoSMetrics struct {
 	TargetID    string    `json:"target_id"`
-	IOPS        int64     `json:"iops"`         // 当前IOPS
-	ReadIOPS    int64     `json:"read_iops"`    // 读IOPS
-	WriteIOPS   int64     `json:"write_iops"`   // 写IOPS
-	Bandwidth   int64     `json:"bandwidth"`    // 当前带宽 (MB/s)
-	ReadBW      int64     `json:"read_bw"`      // 读带宽
-	WriteBW     int64     `json:"write_bw"`     // 写带宽
-	Latency     int64     `json:"latency"`      // 当前延迟 (ms)
-	QueueDepth  int64     `json:"queue_depth"`  // 队列深度
-	Utilization float64   `json:"utilization"`  // 设备利用率 (%)
+	IOPS        int64     `json:"iops"`        // 当前IOPS
+	ReadIOPS    int64     `json:"read_iops"`   // 读IOPS
+	WriteIOPS   int64     `json:"write_iops"`  // 写IOPS
+	Bandwidth   int64     `json:"bandwidth"`   // 当前带宽 (MB/s)
+	ReadBW      int64     `json:"read_bw"`     // 读带宽
+	WriteBW     int64     `json:"write_bw"`    // 写带宽
+	Latency     int64     `json:"latency"`     // 当前延迟 (ms)
+	QueueDepth  int64     `json:"queue_depth"` // 队列深度
+	Utilization float64   `json:"utilization"` // 设备利用率 (%)
 	Timestamp   time.Time `json:"timestamp"`
 }
 
 // QoSViolation 违规记录
 type QoSViolation struct {
-	ID          string    `json:"id"`
-	PolicyID    string    `json:"policy_id"`
-	PolicyName  string    `json:"policy_name"`
-	TargetID    string    `json:"target_id"`
-	Type        string    `json:"type"`        // iops_exceeded, bandwidth_exceeded, latency_exceeded
-	Threshold   int64     `json:"threshold"`
-	Actual      int64     `json:"actual"`
-	Message     string    `json:"message"`
-	Severity    string    `json:"severity"`    // warning, critical
-	Resolved    bool      `json:"resolved"`
-	Timestamp   time.Time `json:"timestamp"`
-	ResolvedAt  *time.Time `json:"resolved_at,omitempty"`
+	ID         string     `json:"id"`
+	PolicyID   string     `json:"policy_id"`
+	PolicyName string     `json:"policy_name"`
+	TargetID   string     `json:"target_id"`
+	Type       string     `json:"type"` // iops_exceeded, bandwidth_exceeded, latency_exceeded
+	Threshold  int64      `json:"threshold"`
+	Actual     int64      `json:"actual"`
+	Message    string     `json:"message"`
+	Severity   string     `json:"severity"` // warning, critical
+	Resolved   bool       `json:"resolved"`
+	Timestamp  time.Time  `json:"timestamp"`
+	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
 }
 
 // QoSManager 存储QoS管理器
 // 负责QoS策略的生命周期管理，包括创建、更新、删除、查询等操作
 // 支持策略模板、批量操作、策略冲突检测等高级功能
 type QoSManager struct {
-	mu          sync.RWMutex
-	policies    map[string]*QoSPolicy
-	templates   map[string]*QoSPolicyTemplate
-	config      *QoSConfig
-	stopCh      chan struct{}
+	mu        sync.RWMutex
+	policies  map[string]*QoSPolicy
+	templates map[string]*QoSPolicyTemplate
+	config    *QoSConfig
+	stopCh    chan struct{}
 }
 
 // QoSConfig QoS配置
 type QoSConfig struct {
-	Enabled           bool `json:"enabled"`
-	MetricsInterval   int  `json:"metrics_interval"`   // 指标采集间隔（秒）
-	ViolationHistory  int  `json:"violation_history"`   // 违规历史保留数量
-	AdaptiveEnabled   bool `json:"adaptive_enabled"`    // 启用自适应QoS
-	AlertEnabled      bool `json:"alert_enabled"`       // 启用告警
-	MaxPolicies       int  `json:"max_policies"`        // 最大策略数量
+	Enabled          bool `json:"enabled"`
+	MetricsInterval  int  `json:"metrics_interval"`  // 指标采集间隔（秒）
+	ViolationHistory int  `json:"violation_history"` // 违规历史保留数量
+	AdaptiveEnabled  bool `json:"adaptive_enabled"`  // 启用自适应QoS
+	AlertEnabled     bool `json:"alert_enabled"`     // 启用告警
+	MaxPolicies      int  `json:"max_policies"`      // 最大策略数量
 }
 
 // QoSPolicyTemplate 策略模板
@@ -616,12 +616,12 @@ func (m *QoSManager) GetPolicyStats() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"total":      len(m.policies),
-		"enabled":    0,
-		"disabled":   0,
-		"by_level":   map[QoSLevel]int{},
-		"by_type":    map[string]int{},
-		"adaptive":   0,
+		"total":    len(m.policies),
+		"enabled":  0,
+		"disabled": 0,
+		"by_level": map[QoSLevel]int{},
+		"by_type":  map[string]int{},
+		"adaptive": 0,
 	}
 
 	for _, policy := range m.policies {
@@ -680,10 +680,10 @@ func (m *QoSManager) ExportPolicies() ([]byte, error) {
 	defer m.mu.RUnlock()
 
 	export := map[string]interface{}{
-		"version":   "1.0",
+		"version":     "1.0",
 		"exported_at": time.Now(),
-		"policies":   m.ListPolicies(),
-		"config":     m.config,
+		"policies":    m.ListPolicies(),
+		"config":      m.config,
 	}
 
 	return json.Marshal(export)

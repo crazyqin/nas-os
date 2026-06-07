@@ -526,7 +526,7 @@ func (h *xxHash64Hash) Reset() {
 	h.total = 0
 }
 
-func (h *xxHash64Hash) Size() int     { return 8 }
+func (h *xxHash64Hash) Size() int      { return 8 }
 func (h *xxHash64Hash) BlockSize() int { return 32 }
 
 // ========== Blake3 后备实现 ==========
@@ -548,6 +548,5 @@ func (h *blake3Hash) Reset() {
 	h.inner.Reset()
 }
 
-func (h *blake3Hash) Size() int     { return 32 }
+func (h *blake3Hash) Size() int      { return 32 }
 func (h *blake3Hash) BlockSize() int { return 64 }
-

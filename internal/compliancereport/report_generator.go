@@ -10,12 +10,12 @@ import (
 
 // ReportGenerator 合规报告生成器.
 type ReportGenerator struct {
-	scanner       *Scanner
-	remediation   *RemediationGenerator
-	standards     *StandardsManager
-	reports       map[string]*ComplianceReport
-	reportsByStd  map[ComplianceStandard][]string
-	mu            sync.RWMutex
+	scanner      *Scanner
+	remediation  *RemediationGenerator
+	standards    *StandardsManager
+	reports      map[string]*ComplianceReport
+	reportsByStd map[ComplianceStandard][]string
+	mu           sync.RWMutex
 }
 
 // NewReportGenerator 创建合规报告生成器.
@@ -39,10 +39,10 @@ func (g *ReportGenerator) GenerateReport(ctx context.Context, req ScanRequest) (
 	// 创建报告
 	reportID := GenerateID("cr")
 	report := &ComplianceReport{
-		ID:       reportID,
-		Standard: req.Standard,
-		Status:   ScanStatusRunning,
-		Format:   FormatJSON,
+		ID:        reportID,
+		Standard:  req.Standard,
+		Status:    ScanStatusRunning,
+		Format:    FormatJSON,
 		CreatedAt: time.Now(),
 	}
 

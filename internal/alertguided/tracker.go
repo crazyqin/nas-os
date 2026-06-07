@@ -29,29 +29,29 @@ func NewRepairTracker(logger *zap.Logger) *RepairTracker {
 
 // RepairRecord 修复记录
 type RepairRecord struct {
-	AlertID        string               `json:"alertId"`
-	KnowledgeID    string               `json:"knowledgeId"`
-	Title          string               `json:"title"`
-	Status         RepairStatus         `json:"status"`
-	TotalSteps     int                  `json:"totalSteps"`
-	CurrentStep    int                  `json:"currentStep"`
-	StepRecords    map[int]*StepRecord  `json:"stepRecords"`
-	Assignee       string               `json:"assignee,omitempty"`
-	StartedAt      time.Time            `json:"startedAt"`
-	UpdatedAt      time.Time            `json:"updatedAt"`
-	CompletedAt    *time.Time           `json:"completedAt,omitempty"`
-	Notes          []RepairNote         `json:"notes,omitempty"`
+	AlertID     string              `json:"alertId"`
+	KnowledgeID string              `json:"knowledgeId"`
+	Title       string              `json:"title"`
+	Status      RepairStatus        `json:"status"`
+	TotalSteps  int                 `json:"totalSteps"`
+	CurrentStep int                 `json:"currentStep"`
+	StepRecords map[int]*StepRecord `json:"stepRecords"`
+	Assignee    string              `json:"assignee,omitempty"`
+	StartedAt   time.Time           `json:"startedAt"`
+	UpdatedAt   time.Time           `json:"updatedAt"`
+	CompletedAt *time.Time          `json:"completedAt,omitempty"`
+	Notes       []RepairNote        `json:"notes,omitempty"`
 }
 
 // StepRecord 步骤记录
 type StepRecord struct {
-	Order      int        `json:"order"`
-	Title      string     `json:"title"`
-	Status     StepStatus `json:"status"`
-	StartedAt  *time.Time `json:"startedAt,omitempty"`
+	Order       int        `json:"order"`
+	Title       string     `json:"title"`
+	Status      StepStatus `json:"status"`
+	StartedAt   *time.Time `json:"startedAt,omitempty"`
 	CompletedAt *time.Time `json:"completedAt,omitempty"`
-	Output     string     `json:"output,omitempty"`
-	Error      string     `json:"error,omitempty"`
+	Output      string     `json:"output,omitempty"`
+	Error       string     `json:"error,omitempty"`
 }
 
 // RepairNote 修复备注

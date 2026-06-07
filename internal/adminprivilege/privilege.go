@@ -12,9 +12,9 @@ import (
 type PrivilegeLevel int
 
 const (
-	PrivilegeViewer   PrivilegeLevel = 1 // 只读查看
-	PrivilegeOperator PrivilegeLevel = 2 // 基本操作
-	PrivilegeAdmin    PrivilegeLevel = 3 // 管理员
+	PrivilegeViewer     PrivilegeLevel = 1 // 只读查看
+	PrivilegeOperator   PrivilegeLevel = 2 // 基本操作
+	PrivilegeAdmin      PrivilegeLevel = 3 // 管理员
 	PrivilegeSuperAdmin PrivilegeLevel = 4 // 超级管理员
 )
 
@@ -42,17 +42,17 @@ const (
 
 // AdminUser 管理员用户
 type AdminUser struct {
-	ID           string          `json:"id"`
-	Username     string          `json:"username"`
-	DisplayName  string          `json:"display_name"`
-	Level        PrivilegeLevel  `json:"level"`
-	Permissions  []Permission    `json:"permissions"`
-	Enabled      bool            `json:"enabled"`
-	CreatedAt    time.Time       `json:"created_at"`
-	LastLogin    *time.Time      `json:"last_login,omitempty"`
-	FailedLogins int             `json:"failed_logins"`
-	TwoFactor    bool            `json:"two_factor"`
-	IPWhitelist  []string        `json:"ip_whitelist,omitempty"`
+	ID           string         `json:"id"`
+	Username     string         `json:"username"`
+	DisplayName  string         `json:"display_name"`
+	Level        PrivilegeLevel `json:"level"`
+	Permissions  []Permission   `json:"permissions"`
+	Enabled      bool           `json:"enabled"`
+	CreatedAt    time.Time      `json:"created_at"`
+	LastLogin    *time.Time     `json:"last_login,omitempty"`
+	FailedLogins int            `json:"failed_logins"`
+	TwoFactor    bool           `json:"two_factor"`
+	IPWhitelist  []string       `json:"ip_whitelist,omitempty"`
 }
 
 // AuditAction 审计动作

@@ -17,16 +17,16 @@ import (
 
 // Manager 开发者门户管理器
 type Manager struct {
-	mu           sync.RWMutex
-	apiKeys      map[string]*APIKey
-	webhooks     map[string]*WebhookEndpoint
-	deliveries   []*WebhookDelivery
-	apps         map[string]*DeveloperApp
-	tokens       map[string]*OAuthToken
-	usage        map[string][]*UsageRecord // ownerID -> records
-	spec         *OpenAPISpec
-	config       *DevPortalConfig
-	dataFile     string
+	mu         sync.RWMutex
+	apiKeys    map[string]*APIKey
+	webhooks   map[string]*WebhookEndpoint
+	deliveries []*WebhookDelivery
+	apps       map[string]*DeveloperApp
+	tokens     map[string]*OAuthToken
+	usage      map[string][]*UsageRecord // ownerID -> records
+	spec       *OpenAPISpec
+	config     *DevPortalConfig
+	dataFile   string
 }
 
 // NewManager 创建管理器
@@ -1020,26 +1020,26 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_api_keys":     len(m.apiKeys),
-		"active_api_keys":    activeKeys,
-		"total_api_calls":    totalCalls,
-		"total_webhooks":     len(m.webhooks),
-		"active_webhooks":    activeWebhooks,
-		"total_deliveries":   len(m.deliveries),
-		"total_apps":         len(m.apps),
-		"total_tokens":       len(m.tokens),
+		"total_api_keys":   len(m.apiKeys),
+		"active_api_keys":  activeKeys,
+		"total_api_calls":  totalCalls,
+		"total_webhooks":   len(m.webhooks),
+		"active_webhooks":  activeWebhooks,
+		"total_deliveries": len(m.deliveries),
+		"total_apps":       len(m.apps),
+		"total_tokens":     len(m.tokens),
 	}
 }
 
 // ==================== 持久化 ====================
 
 type storedData struct {
-	APIKeys    map[string]*APIKey         `json:"api_keys"`
+	APIKeys    map[string]*APIKey          `json:"api_keys"`
 	Webhooks   map[string]*WebhookEndpoint `json:"webhooks"`
-	Deliveries []*WebhookDelivery         `json:"deliveries"`
-	Apps       map[string]*DeveloperApp   `json:"apps"`
-	Tokens     map[string]*OAuthToken     `json:"tokens"`
-	Usage      map[string][]*UsageRecord  `json:"usage"`
+	Deliveries []*WebhookDelivery          `json:"deliveries"`
+	Apps       map[string]*DeveloperApp    `json:"apps"`
+	Tokens     map[string]*OAuthToken      `json:"tokens"`
+	Usage      map[string][]*UsageRecord   `json:"usage"`
 }
 
 func (m *Manager) load() error {

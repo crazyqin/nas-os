@@ -17,20 +17,20 @@ import (
 
 // Manager 流量分类管理器
 type Manager struct {
-	mu             sync.RWMutex
-	logger         *zap.Logger
-	config         *ClassifierConfig
-	flows          map[string]*TrafficFlow
-	stats          *TrafficStats
-	anomalies      map[string]*AnomalyAlert
-	rules          map[string]*ClassificationRule
+	mu                sync.RWMutex
+	logger            *zap.Logger
+	config            *ClassifierConfig
+	flows             map[string]*TrafficFlow
+	stats             *TrafficStats
+	anomalies         map[string]*AnomalyAlert
+	rules             map[string]*ClassificationRule
 	bandwidthPolicies map[string]*BandwidthPolicy
-	mirrorConfigs  map[string]*MirrorConfig
-	qosRules       map[string]*QoSRule
-	dpiSignatures  []DPISignature
-	reports        []*TrafficReport
-	stopChan       chan struct{}
-	running        bool
+	mirrorConfigs     map[string]*MirrorConfig
+	qosRules          map[string]*QoSRule
+	dpiSignatures     []DPISignature
+	reports           []*TrafficReport
+	stopChan          chan struct{}
+	running           bool
 }
 
 // NewManager 创建流量分类管理器
@@ -786,13 +786,13 @@ func (m *Manager) GenerateReport(req *ReportRequest) *TrafficReport {
 	defer m.mu.RUnlock()
 
 	report := &TrafficReport{
-		ID:              generateID(),
-		Title:           req.Title,
-		StartTime:       req.StartTime,
-		EndTime:         req.EndTime,
-		Stats:           m.GetStats(),
-		BandwidthUsage:  make(map[TrafficType]float64),
-		GeneratedAt:     time.Now(),
+		ID:             generateID(),
+		Title:          req.Title,
+		StartTime:      req.StartTime,
+		EndTime:        req.EndTime,
+		Stats:          m.GetStats(),
+		BandwidthUsage: make(map[TrafficType]float64),
+		GeneratedAt:    time.Now(),
 	}
 
 	if report.Title == "" {

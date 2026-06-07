@@ -23,20 +23,20 @@ const (
 
 // TunnelConfig represents tunnel configuration
 type TunnelConfig struct {
-	ID           string      `json:"id"`
-	Name         string      `json:"name"`
-	Type         TunnelType  `json:"type"`
-	Status       TunnelStatus `json:"status"`
-	LocalPort    int         `json:"local_port"`
-	RemotePort   int         `json:"remote_port,omitempty"`
-	RemoteAddr   string      `json:"remote_addr,omitempty"`
-	PublicURL    string      `json:"public_url,omitempty"`
-	ServerAddr   string      `json:"server_addr,omitempty"`
-	ServerPort   int         `json:"server_port,omitempty"`
-	Token        string      `json:"token,omitempty"` // Authentication token
-	EnableHTTPS  bool        `json:"enable_https"`
-	CreatedAt    int64       `json:"created_at"`
-	UpdatedAt    int64       `json:"updated_at"`
+	ID          string       `json:"id"`
+	Name        string       `json:"name"`
+	Type        TunnelType   `json:"type"`
+	Status      TunnelStatus `json:"status"`
+	LocalPort   int          `json:"local_port"`
+	RemotePort  int          `json:"remote_port,omitempty"`
+	RemoteAddr  string       `json:"remote_addr,omitempty"`
+	PublicURL   string       `json:"public_url,omitempty"`
+	ServerAddr  string       `json:"server_addr,omitempty"`
+	ServerPort  int          `json:"server_port,omitempty"`
+	Token       string       `json:"token,omitempty"` // Authentication token
+	EnableHTTPS bool         `json:"enable_https"`
+	CreatedAt   int64        `json:"created_at"`
+	UpdatedAt   int64        `json:"updated_at"`
 }
 
 // TunnelService defines tunnel service interface
@@ -76,11 +76,11 @@ func (m *TunnelManager) CreateTunnel(config TunnelConfig) error {
 	config.CreatedAt = currentTime()
 	config.UpdatedAt = config.CreatedAt
 	config.Status = StatusDisconnected
-	
+
 	if err := m.service.Create(config); err != nil {
 		return err
 	}
-	
+
 	m.tunnels[config.ID] = &config
 	return nil
 }

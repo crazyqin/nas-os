@@ -9,8 +9,8 @@ import (
 
 // TemplateManager 模板管理器
 type TemplateManager struct {
-	mu        sync.RWMutex
-	templates map[string]*AppTemplate
+	mu         sync.RWMutex
+	templates  map[string]*AppTemplate
 	categories map[string]*MarketCategory
 }
 
@@ -345,15 +345,15 @@ func (tm *TemplateManager) ListTemplates(opts *TemplateListOptions) []*AppTempla
 
 // TemplateListOptions 模板列表选项
 type TemplateListOptions struct {
-	Category  string `json:"category,omitempty"`
-	Type      string `json:"type,omitempty"`
-	Official  bool   `json:"official,omitempty"`
-	Featured  bool   `json:"featured,omitempty"`
-	Search    string `json:"search,omitempty"`
-	SortBy    string `json:"sort_by,omitempty"` // name, downloads, rating
-	SortDesc  bool   `json:"sort_desc,omitempty"`
-	Limit     int    `json:"limit,omitempty"`
-	Offset    int    `json:"offset,omitempty"`
+	Category string `json:"category,omitempty"`
+	Type     string `json:"type,omitempty"`
+	Official bool   `json:"official,omitempty"`
+	Featured bool   `json:"featured,omitempty"`
+	Search   string `json:"search,omitempty"`
+	SortBy   string `json:"sort_by,omitempty"` // name, downloads, rating
+	SortDesc bool   `json:"sort_desc,omitempty"`
+	Limit    int    `json:"limit,omitempty"`
+	Offset   int    `json:"offset,omitempty"`
 }
 
 // sortTemplates 排序模板

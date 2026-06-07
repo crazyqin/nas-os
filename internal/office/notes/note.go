@@ -31,7 +31,7 @@ type Note struct {
 	ID         string     `json:"id"`          // 笔记ID
 	Title      string     `json:"title"`       // 标题
 	Content    string     `json:"content"`     // 内容
-	Format     NoteFormat `json:"format"`       // 内容格式
+	Format     NoteFormat `json:"format"`      // 内容格式
 	NotebookID string     `json:"notebook_id"` // 所属笔记本ID
 	Tags       []string   `json:"tags"`        // 标签
 	Pinned     bool       `json:"pinned"`      // 是否置顶
@@ -59,16 +59,16 @@ type NoteInput struct {
 
 // Notebook 笔记本.
 type Notebook struct {
-	ID          string    `json:"id"`           // 笔记本ID
-	Name        string    `json:"name"`         // 名称
-	Description string    `json:"description"`  // 描述
-	Color       string    `json:"color"`        // 颜色标识
-	Icon        string    `json:"icon"`         // 图标
-	OwnerID     string    `json:"owner_id"`     // 所有者ID
-	NoteCount   int       `json:"note_count"`   // 笔记数
-	SortOrder   int       `json:"sort_order"`   // 排序顺序
-	CreatedAt   time.Time `json:"created_at"`   // 创建时间
-	UpdatedAt   time.Time `json:"updated_at"`   // 更新时间
+	ID          string    `json:"id"`          // 笔记本ID
+	Name        string    `json:"name"`        // 名称
+	Description string    `json:"description"` // 描述
+	Color       string    `json:"color"`       // 颜色标识
+	Icon        string    `json:"icon"`        // 图标
+	OwnerID     string    `json:"owner_id"`    // 所有者ID
+	NoteCount   int       `json:"note_count"`  // 笔记数
+	SortOrder   int       `json:"sort_order"`  // 排序顺序
+	CreatedAt   time.Time `json:"created_at"`  // 创建时间
+	UpdatedAt   time.Time `json:"updated_at"`  // 更新时间
 }
 
 // NotebookInput 创建/更新笔记本输入.
@@ -84,17 +84,17 @@ type NotebookInput struct {
 
 // NoteShare 笔记分享.
 type NoteShare struct {
-	ID         string     `json:"id"`          // 分享ID
-	NoteID     string     `json:"note_id"`     // 笔记ID
-	Token      string     `json:"token"`       // 分享Token（公开链接用）
-	Password   string     `json:"password"`    // 访问密码（加密存储）
-	HasPassword bool      `json:"has_password"` // 是否有密码保护
-	Permission string     `json:"permission"`  // 权限: view, edit
-	ExpiresAt  *time.Time `json:"expires_at"`  // 过期时间
-	MaxViews   int        `json:"max_views"`   // 最大访问次数
-	ViewCount  int        `json:"view_count"`  // 已访问次数
-	CreatorID  string     `json:"creator_id"`  // 创建者ID
-	CreatedAt  time.Time  `json:"created_at"`  // 创建时间
+	ID          string     `json:"id"`           // 分享ID
+	NoteID      string     `json:"note_id"`      // 笔记ID
+	Token       string     `json:"token"`        // 分享Token（公开链接用）
+	Password    string     `json:"password"`     // 访问密码（加密存储）
+	HasPassword bool       `json:"has_password"` // 是否有密码保护
+	Permission  string     `json:"permission"`   // 权限: view, edit
+	ExpiresAt   *time.Time `json:"expires_at"`   // 过期时间
+	MaxViews    int        `json:"max_views"`    // 最大访问次数
+	ViewCount   int        `json:"view_count"`   // 已访问次数
+	CreatorID   string     `json:"creator_id"`   // 创建者ID
+	CreatedAt   time.Time  `json:"created_at"`   // 创建时间
 }
 
 // ShareInput 创建分享输入.
@@ -109,16 +109,16 @@ type ShareInput struct {
 
 // SearchQuery 搜索查询.
 type SearchQuery struct {
-	Keyword    string   `json:"keyword"`      // 关键词
-	NotebookID string   `json:"notebook_id"` // 笔记本过滤
-	Tags       []string `json:"tags"`         // 标签过滤
-	Format     NoteFormat `json:"format"`     // 格式过滤
-	Pinned     *bool    `json:"pinned"`       // 置顶过滤
-	Favorite   *bool    `json:"favorite"`     // 收藏过滤
-	Limit      int      `json:"limit"`        // 返回数量
-	Offset     int      `json:"offset"`       // 偏移量
-	SortBy     string   `json:"sort_by"`      // 排序字段: updated_at, created_at, title
-	SortOrder  string   `json:"sort_order"`   // 排序顺序: asc, desc
+	Keyword    string     `json:"keyword"`     // 关键词
+	NotebookID string     `json:"notebook_id"` // 笔记本过滤
+	Tags       []string   `json:"tags"`        // 标签过滤
+	Format     NoteFormat `json:"format"`      // 格式过滤
+	Pinned     *bool      `json:"pinned"`      // 置顶过滤
+	Favorite   *bool      `json:"favorite"`    // 收藏过滤
+	Limit      int        `json:"limit"`       // 返回数量
+	Offset     int        `json:"offset"`      // 偏移量
+	SortBy     string     `json:"sort_by"`     // 排序字段: updated_at, created_at, title
+	SortOrder  string     `json:"sort_order"`  // 排序顺序: asc, desc
 }
 
 // SearchResult 搜索结果.

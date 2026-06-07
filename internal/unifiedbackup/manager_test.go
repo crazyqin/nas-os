@@ -25,8 +25,8 @@ func TestCreateTask(t *testing.T) {
 			Name: "本地文件系统",
 			Path: "/data",
 		},
-		Mode:     BackupModeFull,
-		Enabled:  true,
+		Mode:    BackupModeFull,
+		Enabled: true,
 		Retention: RetentionPolicy{
 			Mode:     RetentionByCount,
 			MaxCount: 10,

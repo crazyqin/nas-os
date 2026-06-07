@@ -8,13 +8,13 @@ import (
 
 // DiskHealth 磁盘健康状态
 type DiskHealth struct {
-	DiskID       string    `json:"disk_id"`
-	Temperature  int       `json:"temperature"`
-	PowerOnHours int64     `json:"power_on_hours"`
-	SpinUpCount  int64     `json:"spin_up_count"`
-	HealthScore  int       `json:"health_score"` // 0-100
-	PredictedLife string   `json:"predicted_life"`
-	LastCheck    time.Time `json:"last_check"`
+	DiskID        string    `json:"disk_id"`
+	Temperature   int       `json:"temperature"`
+	PowerOnHours  int64     `json:"power_on_hours"`
+	SpinUpCount   int64     `json:"spin_up_count"`
+	HealthScore   int       `json:"health_score"` // 0-100
+	PredictedLife string    `json:"predicted_life"`
+	LastCheck     time.Time `json:"last_check"`
 }
 
 // PowerSaving 节能统计
@@ -29,13 +29,13 @@ type PowerSaving struct {
 
 // ScheduleRule 调度规则
 type ScheduleRule struct {
-	ID        string    `json:"id"`
-	DiskID    string    `json:"disk_id"`
-	StartTime string    `json:"start_time"` // HH:MM
-	EndTime   string    `json:"end_time"`   // HH:MM
-	Action    string    `json:"action"`     // hibernate, wake
-	Days      []int     `json:"days"`       // 0=Sunday, 6=Saturday
-	Enabled   bool      `json:"enabled"`
+	ID        string `json:"id"`
+	DiskID    string `json:"disk_id"`
+	StartTime string `json:"start_time"` // HH:MM
+	EndTime   string `json:"end_time"`   // HH:MM
+	Action    string `json:"action"`     // hibernate, wake
+	Days      []int  `json:"days"`       // 0=Sunday, 6=Saturday
+	Enabled   bool   `json:"enabled"`
 }
 
 // CalculatePowerSaving 计算节能效果

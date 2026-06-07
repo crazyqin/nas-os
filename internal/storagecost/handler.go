@@ -32,6 +32,9 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		cost.GET("/config", h.getConfig)
 		cost.PUT("/config", h.updateConfig)
 	}
+
+	// 注册存储成本相关路由
+	h.RegisterStorageCostRoutes(r)
 }
 
 // response 标准响应

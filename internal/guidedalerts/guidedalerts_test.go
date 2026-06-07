@@ -234,10 +234,10 @@ func TestRuleEngineEvaluateAll(t *testing.T) {
 
 func TestEvalThreshold(t *testing.T) {
 	tests := []struct {
-		op       string
+		op        string
 		threshold float64
-		value    float64
-		expected bool
+		value     float64
+		expected  bool
 	}{
 		{"gt", 80, 85, true},
 		{"gt", 80, 75, false},
@@ -652,9 +652,9 @@ func TestSilenceRuleManagement(t *testing.T) {
 	defer am.Stop()
 
 	rule := &SilenceRule{
-		ID:      "s1",
-		Name:    "Test",
-		Enabled: true,
+		ID:       "s1",
+		Name:     "Test",
+		Enabled:  true,
 		StartsAt: time.Now().Add(-1 * time.Hour),
 		EndsAt:   time.Now().Add(1 * time.Hour),
 	}

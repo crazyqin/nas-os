@@ -15,13 +15,13 @@ import (
 
 // HealthStatus NVMe健康状态 (从 internal/hardware/nvme 复制以避免循环导入)
 type HealthStatus struct {
-	Device          string    // 设备路径
-	Temperature     int       // 温度 (摄氏度)
-	PercentUsed     float64   // 已用寿命百分比
-	AvailableSpare  float64   // 可用备用空间百分比
-	CriticalWarning int       // 关键警告标志
-	DataUnitsWrite  uint64    // 写入数据单位
-	MediaErrors     uint64    // 媒体错误数
+	Device          string  // 设备路径
+	Temperature     int     // 温度 (摄氏度)
+	PercentUsed     float64 // 已用寿命百分比
+	AvailableSpare  float64 // 可用备用空间百分比
+	CriticalWarning int     // 关键警告标志
+	DataUnitsWrite  uint64  // 写入数据单位
+	MediaErrors     uint64  // 媒体错误数
 }
 
 // PredictedLife 预测寿命结果
@@ -61,12 +61,12 @@ const (
 
 // LifePredictor NVMe寿命预测器
 type LifePredictor struct {
-	config          *PredictionConfig
-	history         map[string][]*HistoryPoint
-	models          map[string]*PredictionModel
-	mu              sync.RWMutex
-	minSamples      int
-	optimalSamples  int
+	config         *PredictionConfig
+	history        map[string][]*HistoryPoint
+	models         map[string]*PredictionModel
+	mu             sync.RWMutex
+	minSamples     int
+	optimalSamples int
 }
 
 // PredictionConfig 预测配置
@@ -91,13 +91,13 @@ func DefaultPredictionConfig() *PredictionConfig {
 
 // HistoryPoint 历史数据点
 type HistoryPoint struct {
-	Timestamp    time.Time `json:"timestamp"`
-	PercentUsed  float64   `json:"percentUsed"`
-	AvailableSpare float64 `json:"availableSpare"`
-	Temperature  int       `json:"temperature"`
-	TotalWrites  uint64    `json:"totalWrites"`
-	MediaErrors  uint64    `json:"mediaErrors"`
-	HealthScore  float64   `json:"healthScore"`
+	Timestamp      time.Time `json:"timestamp"`
+	PercentUsed    float64   `json:"percentUsed"`
+	AvailableSpare float64   `json:"availableSpare"`
+	Temperature    int       `json:"temperature"`
+	TotalWrites    uint64    `json:"totalWrites"`
+	MediaErrors    uint64    `json:"mediaErrors"`
+	HealthScore    float64   `json:"healthScore"`
 }
 
 // PredictionModel 预测模型
@@ -129,12 +129,12 @@ func (p *LifePredictor) AddHistoryPoint(device string, health *HealthStatus) {
 	defer p.mu.Unlock()
 
 	point := &HistoryPoint{
-		Timestamp:     time.Now(),
-		PercentUsed:   health.PercentUsed,
+		Timestamp:      time.Now(),
+		PercentUsed:    health.PercentUsed,
 		AvailableSpare: health.AvailableSpare,
-		Temperature:   health.Temperature,
-		TotalWrites:   health.DataUnitsWrite,
-		MediaErrors:   health.MediaErrors,
+		Temperature:    health.Temperature,
+		TotalWrites:    health.DataUnitsWrite,
+		MediaErrors:    health.MediaErrors,
 	}
 
 	point.HealthScore = CalculateHealthScore(health)
@@ -301,13 +301,13 @@ const (
 
 // Anomaly 异常事件
 type Anomaly struct {
-	Device      string      `json:"device"`
-	Type        AnomalyType `json:"type"`
+	Device      string       `json:"device"`
+	Type        AnomalyType  `json:"type"`
 	Severity    AnomalyLevel `json:"severity"`
-	Value       interface{} `json:"value"`
-	Baseline    interface{} `json:"baseline"`
-	Description string      `json:"description"`
-	Timestamp   time.Time   `json:"timestamp"`
+	Value       interface{}  `json:"value"`
+	Baseline    interface{}  `json:"baseline"`
+	Description string       `json:"description"`
+	Timestamp   time.Time    `json:"timestamp"`
 }
 
 // AnomalyDetector 异常检测器
@@ -517,7 +517,7 @@ type ComprehensiveHealth struct {
 	AlertLevel      AlertLevel       `json:"alertLevel"`
 	AlertMessage    string           `json:"alertMessage"`
 	PredictedLife   *PredictedLife   `json:"predictedLife"`
-	Anomalies      []*Anomaly       `json:"anomalies"`
+	Anomalies       []*Anomaly       `json:"anomalies"`
 	RiskFactors     []string         `json:"riskFactors"`
 	Recommendations []string         `json:"recommendations"`
 	Timestamp       time.Time        `json:"timestamp"`
@@ -525,15 +525,15 @@ type ComprehensiveHealth struct {
 
 // ThresholdConfig 阈值配置
 type ThresholdConfig struct {
-	LifespanWarning    float64 `json:"lifespanWarning"`
-	LifespanCritical   float64 `json:"lifespanCritical"`
-	LifespanEmergency  float64 `json:"lifespanEmergency"`
-	TemperatureWarning int     `json:"temperatureWarning"`
-	TemperatureCritical int    `json:"temperatureCritical"`
-	SpareWarning       float64 `json:"spareWarning"`
-	SpareCritical      float64 `json:"spareCritical"`
-	DaysWarning        int     `json:"daysWarning"`
-	DaysCritical       int     `json:"daysCritical"`
+	LifespanWarning     float64 `json:"lifespanWarning"`
+	LifespanCritical    float64 `json:"lifespanCritical"`
+	LifespanEmergency   float64 `json:"lifespanEmergency"`
+	TemperatureWarning  int     `json:"temperatureWarning"`
+	TemperatureCritical int     `json:"temperatureCritical"`
+	SpareWarning        float64 `json:"spareWarning"`
+	SpareCritical       float64 `json:"spareCritical"`
+	DaysWarning         int     `json:"daysWarning"`
+	DaysCritical        int     `json:"daysCritical"`
 }
 
 // DefaultThresholdConfig 默认阈值配置

@@ -320,16 +320,16 @@ func categorizeFile(filename string) string {
 	ext := strings.ToLower(filepath.Ext(filename))
 
 	categories := map[string][]string{
-		"图片":    {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".svg", ".ico", ".tiff", ".heic"},
-		"视频":    {".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".m4v", ".ts"},
-		"音频":    {".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".opus"},
-		"文档":    {".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt", ".rtf", ".odt"},
-		"压缩包":  {".zip", ".rar", ".7z", ".tar", ".gz", ".bz2", ".xz", ".tar.gz", ".tar.bz2"},
-		"代码":    {".go", ".py", ".js", ".ts", ".java", ".c", ".cpp", ".h", ".rs", ".rb", ".php"},
-		"可执行":  {".exe", ".msi", ".bin", ".sh", ".bat", ".cmd", ".ps1"},
-		"数据库":  {".db", ".sqlite", ".sql", ".mdb", ".accdb"},
-		"配置":    {".json", ".yaml", ".yml", ".toml", ".ini", ".xml", ".conf", ".cfg"},
-		"日志":    {".log", ".out", ".err"},
+		"图片":  {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".svg", ".ico", ".tiff", ".heic"},
+		"视频":  {".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".m4v", ".ts"},
+		"音频":  {".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".opus"},
+		"文档":  {".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt", ".rtf", ".odt"},
+		"压缩包": {".zip", ".rar", ".7z", ".tar", ".gz", ".bz2", ".xz", ".tar.gz", ".tar.bz2"},
+		"代码":  {".go", ".py", ".js", ".ts", ".java", ".c", ".cpp", ".h", ".rs", ".rb", ".php"},
+		"可执行": {".exe", ".msi", ".bin", ".sh", ".bat", ".cmd", ".ps1"},
+		"数据库": {".db", ".sqlite", ".sql", ".mdb", ".accdb"},
+		"配置":  {".json", ".yaml", ".yml", ".toml", ".ini", ".xml", ".conf", ".cfg"},
+		"日志":  {".log", ".out", ".err"},
 	}
 
 	for category, exts := range categories {
@@ -394,7 +394,7 @@ func statfs(path string, stat *syscallStatfs) error {
 	// 为简化实现，使用 os.Stat 获取磁盘空间
 	// 实际项目中应使用 golang.org/x/sys/unix 或 syscall
 	var fs syscallStatfs
-	
+
 	// 模拟实现 - 实际应使用 syscall.Statfs
 	// 为保持代码可编译，返回模拟数据
 	*stat = syscallStatfs{
@@ -402,7 +402,7 @@ func statfs(path string, stat *syscallStatfs) error {
 		Bsize:  4096,
 		Bavail: 500000000, // 约 500GB 可用
 	}
-	
+
 	_ = fs
 	return nil
 }

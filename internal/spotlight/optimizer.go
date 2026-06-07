@@ -25,7 +25,7 @@ type IndexOptimizer struct {
 	ctx     context.Context
 	cancel  context.CancelFunc
 
-	stats   OptimizerStats
+	stats OptimizerStats
 }
 
 // OptimizerStats 优化器统计

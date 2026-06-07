@@ -32,10 +32,10 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 
 func (h *Handlers) CreateTask(c *gin.Context) {
 	var req struct {
-		Name       string        `json:"name" binding:"required"`
-		SourcePath string        `json:"source_path" binding:"required"`
-		DestPath   string        `json:"dest_path" binding:"required"`
-		Type       MigrateType   `json:"type"`
+		Name       string          `json:"name" binding:"required"`
+		SourcePath string          `json:"source_path" binding:"required"`
+		DestPath   string          `json:"dest_path" binding:"required"`
+		Type       MigrateType     `json:"type"`
 		Options    *MigrateOptions `json:"options"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {

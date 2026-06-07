@@ -19,22 +19,22 @@ type WireGuardClient struct {
 
 // KeyPair represents a WireGuard key pair.
 type KeyPair struct {
-	PublicKey  string `json:"public_key"`
-	PrivateKey string `json:"private_key"`
+	PublicKey  string    `json:"public_key"`
+	PrivateKey string    `json:"private_key"`
 	CreatedAt  time.Time `json:"created_at"`
 }
 
 // Peer represents a WireGuard peer configuration.
 type Peer struct {
-	PublicKey    string   `json:"public_key"`
-	Endpoint     string   `json:"endpoint,omitempty"`
-	AllowedIPs   []string `json:"allowed_ips"`
-	Keepalive    int      `json:"keepalive,omitempty"`
-	PresharedKey string   `json:"preshared_key,omitempty"`
-	Name         string   `json:"name,omitempty"`
-	Enabled      bool     `json:"enabled"`
-	LastHandshake time.Time `json:"last_handshake,omitempty"`
-	Traffic      TrafficStats `json:"traffic"`
+	PublicKey     string       `json:"public_key"`
+	Endpoint      string       `json:"endpoint,omitempty"`
+	AllowedIPs    []string     `json:"allowed_ips"`
+	Keepalive     int          `json:"keepalive,omitempty"`
+	PresharedKey  string       `json:"preshared_key,omitempty"`
+	Name          string       `json:"name,omitempty"`
+	Enabled       bool         `json:"enabled"`
+	LastHandshake time.Time    `json:"last_handshake,omitempty"`
+	Traffic       TrafficStats `json:"traffic"`
 }
 
 // NewWireGuardClient creates a new WireGuard client manager.

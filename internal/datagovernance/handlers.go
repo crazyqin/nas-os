@@ -69,11 +69,11 @@ func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	stats := h.manager.GetStats()
 	writeJSON(w, map[string]interface{}{
-		"running":            h.manager.IsRunning(),
-		"totalAssets":        stats.TotalAssets,
-		"totalPolicies":      stats.TotalPolicies,
-		"activePolicies":     stats.ActivePolicies,
-		"totalAuditRecords":  stats.TotalAuditRecords,
+		"running":             h.manager.IsRunning(),
+		"totalAssets":         stats.TotalAssets,
+		"totalPolicies":       stats.TotalPolicies,
+		"activePolicies":      stats.ActivePolicies,
+		"totalAuditRecords":   stats.TotalAuditRecords,
 		"residencyViolations": stats.ResidencyViolations,
 	})
 }
@@ -166,9 +166,9 @@ func (h *Handler) handleClassifyAsset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var req struct {
-		AssetID      string          `json:"assetId"`
+		AssetID      string           `json:"assetId"`
 		Sensitivity  SensitivityLevel `json:"sensitivity"`
-		ClassifiedBy string          `json:"classifiedBy"`
+		ClassifiedBy string           `json:"classifiedBy"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
@@ -438,10 +438,10 @@ func (h *Handler) handleListReports(w http.ResponseWriter, r *http.Request) {
 	}
 	reports, total := h.manager.ListReports(framework, page, pageSize)
 	writeJSON(w, map[string]interface{}{
-		"reports":   reports,
-		"total":     total,
-		"page":      page,
-		"pageSize":  pageSize,
+		"reports":  reports,
+		"total":    total,
+		"page":     page,
+		"pageSize": pageSize,
 	})
 }
 

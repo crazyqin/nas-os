@@ -7,23 +7,23 @@ import (
 )
 
 var (
-	ErrNotFound       = errors.New("not found")
-	ErrInvalidStatus  = errors.New("invalid status transition")
-	ErrAlreadyExists  = errors.New("already exists")
-	ErrUnauthorized   = errors.New("unauthorized")
+	ErrNotFound      = errors.New("not found")
+	ErrInvalidStatus = errors.New("invalid status transition")
+	ErrAlreadyExists = errors.New("already exists")
+	ErrUnauthorized  = errors.New("unauthorized")
 )
 
 // NewPortal 创建新的自助门户实例
 func NewPortal() *Portal {
 	return &Portal{
-		quotaRequests:    make(map[string]*QuotaRequest),
-		permRequests:     make(map[string]*PermissionRequest),
-		restoreRequests:  make(map[string]*RestoreRequest),
-		issueTickets:     make(map[string]*IssueTicket),
-		approvals:        make(map[string][]*Approval),
-		notifications:    make(map[string][]*Notification),
-		restorePoints:    make(map[string][]*RestorePoint),
-		userStats:        make(map[string]*UserStats),
+		quotaRequests:   make(map[string]*QuotaRequest),
+		permRequests:    make(map[string]*PermissionRequest),
+		restoreRequests: make(map[string]*RestoreRequest),
+		issueTickets:    make(map[string]*IssueTicket),
+		approvals:       make(map[string][]*Approval),
+		notifications:   make(map[string][]*Notification),
+		restorePoints:   make(map[string][]*RestorePoint),
+		userStats:       make(map[string]*UserStats),
 		autoApprovalRules: []*AutoApprovalRule{
 			{
 				ID:                  "rule-1",

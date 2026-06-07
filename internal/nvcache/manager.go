@@ -72,15 +72,15 @@ func (m *Manager) RegisterDevice(req *RegisterDeviceRequest) (*CacheDevice, erro
 	}
 
 	device := &CacheDevice{
-		ID:           generateID(),
-		Name:         req.Name,
-		Path:         req.Path,
-		Role:         req.Role,
-		CapacityGB:   req.CapacityGB,
-		IsActive:     true,
+		ID:            generateID(),
+		Name:          req.Name,
+		Path:          req.Path,
+		Role:          req.Role,
+		CapacityGB:    req.CapacityGB,
+		IsActive:      true,
 		HealthPercent: 100,
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
 	}
 
 	m.devices[device.ID] = device
@@ -198,16 +198,16 @@ func (m *Manager) CreatePool(req *CreatePoolRequest) (*CachePool, error) {
 	}
 
 	pool := &CachePool{
-		ID:               generateID(),
-		Name:             req.Name,
-		Devices:          devices,
-		RAIDLevel:        req.RAIDLevel,
-		TotalCapacityGB:  totalCapacity,
-		Policy:           req.Policy,
-		EvictionPolicy:   req.EvictionPolicy,
-		Status:           StatusActive,
-		CreatedAt:        time.Now(),
-		UpdatedAt:        time.Now(),
+		ID:              generateID(),
+		Name:            req.Name,
+		Devices:         devices,
+		RAIDLevel:       req.RAIDLevel,
+		TotalCapacityGB: totalCapacity,
+		Policy:          req.Policy,
+		EvictionPolicy:  req.EvictionPolicy,
+		Status:          StatusActive,
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 
 	m.pools[pool.ID] = pool
@@ -590,14 +590,14 @@ func (m *Manager) CreateWarmupTask(req *CreateWarmupRequest) (*WarmupTask, error
 	}
 
 	task := &WarmupTask{
-		ID:           generateID(),
-		Name:         req.Name,
-		CachePoolID:  req.CachePoolID,
-		SourcePath:   req.SourcePath,
-		FilePattern:  req.FilePattern,
-		Status:       StatusActive,
-		StartedAt:    time.Now(),
-		CreatedAt:    time.Now(),
+		ID:          generateID(),
+		Name:        req.Name,
+		CachePoolID: req.CachePoolID,
+		SourcePath:  req.SourcePath,
+		FilePattern: req.FilePattern,
+		Status:      StatusActive,
+		StartedAt:   time.Now(),
+		CreatedAt:   time.Now(),
 	}
 
 	m.warmupTasks[task.ID] = task
@@ -706,11 +706,11 @@ func (m *Manager) StartConsistencyCheck(poolID string) (*ConsistencyCheck, error
 	}
 
 	check := &ConsistencyCheck{
-		ID:           generateID(),
-		CachePoolID:  poolID,
-		Status:       StatusActive,
-		TotalBlocks:  pool.TotalCapacityGB * 1024 * 4, // 模拟块数
-		StartedAt:    time.Now(),
+		ID:          generateID(),
+		CachePoolID: poolID,
+		Status:      StatusActive,
+		TotalBlocks: pool.TotalCapacityGB * 1024 * 4, // 模拟块数
+		StartedAt:   time.Now(),
 	}
 
 	m.consistChecks[check.ID] = check

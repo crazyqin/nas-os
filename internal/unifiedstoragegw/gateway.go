@@ -56,51 +56,51 @@ type ProtocolEndpoint struct {
 	Status      ProtocolStatus `json:"status"`
 	Connections int            `json:"connections"`
 	StartedAt   *time.Time     `json:"startedAt,omitempty"`
-	ErrorMsg     string         `json:"errorMsg,omitempty"`
+	ErrorMsg    string         `json:"errorMsg,omitempty"`
 }
 
 // ShareDefinition 共享定义
 type ShareDefinition struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Path        string   `json:"path"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Path        string     `json:"path"`
 	Protocols   []Protocol `json:"protocols"`
-	ReadOnly    bool     `json:"readOnly"`
-	GuestAccess bool     `json:"guestAccess"`
+	ReadOnly    bool       `json:"readOnly"`
+	GuestAccess bool       `json:"guestAccess"`
 	ACL         []ACLEntry `json:"acl,omitempty"`
-	Browseable  bool     `json:"browseable"`
-	Comment     string   `json:"comment,omitempty"`
-	CreatedAt   time.Time `json:"createdAt"`
+	Browseable  bool       `json:"browseable"`
+	Comment     string     `json:"comment,omitempty"`
+	CreatedAt   time.Time  `json:"createdAt"`
 }
 
 // ACLEntry ACL 条目
 type ACLEntry struct {
-	Principal string `json:"principal"` // user:xxx 或 group:xxx
+	Principal  string `json:"principal"`  // user:xxx 或 group:xxx
 	Permission string `json:"permission"` // read, write, admin
 }
 
 // ClientConnection 客户端连接
 type ClientConnection struct {
-	ID         string    `json:"id"`
-	Protocol   Protocol  `json:"protocol"`
-	ClientAddr string    `json:"clientAddr"`
-	ShareName  string    `json:"shareName"`
-	UserName   string    `json:"userName,omitempty"`
+	ID          string    `json:"id"`
+	Protocol    Protocol  `json:"protocol"`
+	ClientAddr  string    `json:"clientAddr"`
+	ShareName   string    `json:"shareName"`
+	UserName    string    `json:"userName,omitempty"`
 	ConnectedAt time.Time `json:"connectedAt"`
-	BytesRead  int64     `json:"bytesRead"`
-	BytesWrite int64     `json:"bytesWrite"`
+	BytesRead   int64     `json:"bytesRead"`
+	BytesWrite  int64     `json:"bytesWrite"`
 }
 
 // ProtocolStats 协议统计
 type ProtocolStats struct {
-	Protocol       Protocol `json:"protocol"`
-	TotalConns     int64    `json:"totalConns"`
-	ActiveConns    int      `json:"activeConns"`
-	BytesRead      int64    `json:"bytesRead"`
-	BytesWritten   int64    `json:"bytesWritten"`
-	ErrorCount     int64    `json:"errorCount"`
-	AvgLatencyMs   float64  `json:"avgLatencyMs"`
-	UptimeSeconds  int64    `json:"uptimeSeconds"`
+	Protocol      Protocol `json:"protocol"`
+	TotalConns    int64    `json:"totalConns"`
+	ActiveConns   int      `json:"activeConns"`
+	BytesRead     int64    `json:"bytesRead"`
+	BytesWritten  int64    `json:"bytesWritten"`
+	ErrorCount    int64    `json:"errorCount"`
+	AvgLatencyMs  float64  `json:"avgLatencyMs"`
+	UptimeSeconds int64    `json:"uptimeSeconds"`
 }
 
 // GatewayStatus 网关状态

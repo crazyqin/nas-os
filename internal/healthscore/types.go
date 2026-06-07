@@ -6,12 +6,12 @@ import "time"
 type ComponentType string
 
 const (
-	ComponentDisk      ComponentType = "disk"
-	ComponentCPU       ComponentType = "cpu"
-	ComponentMemory    ComponentType = "memory"
-	ComponentNetwork   ComponentType = "network"
-	ComponentRAID      ComponentType = "raid"
-	ComponentService   ComponentType = "service"
+	ComponentDisk        ComponentType = "disk"
+	ComponentCPU         ComponentType = "cpu"
+	ComponentMemory      ComponentType = "memory"
+	ComponentNetwork     ComponentType = "network"
+	ComponentRAID        ComponentType = "raid"
+	ComponentService     ComponentType = "service"
 	ComponentTemperature ComponentType = "temperature"
 )
 
@@ -29,8 +29,8 @@ const (
 // ComponentScore represents the score of a single component
 type ComponentScore struct {
 	Type        ComponentType `json:"type"`
-	Score       float64       `json:"score"`       // 0-100
-	Weight      float64       `json:"weight"`      // 0-1
+	Score       float64       `json:"score"`  // 0-100
+	Weight      float64       `json:"weight"` // 0-1
 	Status      HealthStatus  `json:"status"`
 	Message     string        `json:"message"`
 	Details     interface{}   `json:"details,omitempty"`
@@ -58,9 +58,9 @@ type Recommendation struct {
 
 // ScoreHistory represents historical score data
 type ScoreHistory struct {
-	Timestamp    time.Time `json:"timestamp"`
-	Score        float64   `json:"score"`
-	Status       HealthStatus `json:"status"`
+	Timestamp       time.Time                 `json:"timestamp"`
+	Score           float64                   `json:"score"`
+	Status          HealthStatus              `json:"status"`
 	ComponentScores map[ComponentType]float64 `json:"component_scores"`
 }
 

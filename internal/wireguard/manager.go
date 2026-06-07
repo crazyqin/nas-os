@@ -12,9 +12,9 @@ import (
 
 // Manager manages WireGuard interface and peers
 type Manager struct {
-	mu        sync.RWMutex
-	iface     WireGuardInterface
-	peers     map[string]WireGuardPeer
+	mu         sync.RWMutex
+	iface      WireGuardInterface
+	peers      map[string]WireGuardPeer
 	privateKey string
 }
 
@@ -31,28 +31,28 @@ func NewManager() *Manager {
 			MTU:        1420,
 		},
 	}
-	
+
 	// Generate mock keys
 	pub, priv, _ := m.GenerateKeyPair()
 	m.iface.PublicKey = pub
 	m.privateKey = priv
-	
+
 	// Add some mock peers
 	m.addMockPeers()
-	
+
 	return m
 }
 
 func (m *Manager) addMockPeers() {
 	mockPeers := []struct {
-		name      string
+		name       string
 		allowedIPs string
 	}{
 		{"phone", "10.0.0.2/32"},
 		{"laptop", "10.0.0.3/32"},
 		{"tablet", "10.0.0.4/32"},
 	}
-	
+
 	for _, mp := range mockPeers {
 		pub, _, _ := m.GenerateKeyPair()
 		peer := WireGuardPeer{
@@ -74,16 +74,16 @@ func (m *Manager) addMockPeers() {
 func (m *Manager) GetInterface() (*WireGuardInterface, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	iface := m.iface
 	iface.PrivateKey = m.privateKey
-	
+
 	// Include peers
 	iface.Peers = make([]WireGuardPeer, 0, len(m.peers))
 	for _, p := range m.peers {
 		iface.Peers = append(iface.Peers, p)
 	}
-	
+
 	return &iface, nil
 }
 
@@ -91,7 +91,7 @@ func (m *Manager) GetInterface() (*WireGuardInterface, error) {
 func (m *Manager) ConfigureInterface(cfg InterfaceConfigRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if cfg.Name != nil {
 		m.iface.Name = *cfg.Name
 	}
@@ -121,7 +121,7 @@ func (m *Manager) ConfigureInterface(cfg InterfaceConfigRequest) error {
 	if cfg.Enabled != nil {
 		m.iface.Enabled = *cfg.Enabled
 	}
-	
+
 	return nil
 }
 
@@ -129,7 +129,7 @@ func (m *Manager) ConfigureInterface(cfg InterfaceConfigRequest) error {
 func (m *Manager) ListPeers() ([]WireGuardPeer, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	peers := make([]WireGuardPeer, 0, len(m.peers))
 	for _, p := range m.peers {
 		peers = append(peers, p)
@@ -141,7 +141,7 @@ func (m *Manager) ListPeers() ([]WireGuardPeer, error) {
 func (m *Manager) GetPeer(id string) (*WireGuardPeer, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	peer, ok := m.peers[id]
 	if !ok {
 		return nil, fmt.Errorf("peer not found: %s", id)
@@ -153,14 +153,14 @@ func (m *Manager) GetPeer(id string) (*WireGuardPeer, error) {
 func (m *Manager) CreatePeer(req CreatePeerRequest) (*WireGuardPeer, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	// Check for duplicate public key
 	for _, p := range m.peers {
 		if p.PublicKey == req.PublicKey {
 			return nil, fmt.Errorf("peer with public key already exists")
 		}
 	}
-	
+
 	peer := WireGuardPeer{
 		ID:                  uuid.New().String(),
 		PublicKey:           req.PublicKey,
@@ -170,11 +170,11 @@ func (m *Manager) CreatePeer(req CreatePeerRequest) (*WireGuardPeer, error) {
 		Enabled:             true,
 		CreatedAt:           time.Now(),
 	}
-	
+
 	if req.Enabled != nil {
 		peer.Enabled = *req.Enabled
 	}
-	
+
 	m.peers[peer.ID] = peer
 	return &peer, nil
 }
@@ -183,12 +183,12 @@ func (m *Manager) CreatePeer(req CreatePeerRequest) (*WireGuardPeer, error) {
 func (m *Manager) UpdatePeer(id string, req UpdatePeerRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	peer, ok := m.peers[id]
 	if !ok {
 		return fmt.Errorf("peer not found: %s", id)
 	}
-	
+
 	if req.PublicKey != nil {
 		// Check for duplicate
 		for pid, p := range m.peers {
@@ -210,7 +210,7 @@ func (m *Manager) UpdatePeer(id string, req UpdatePeerRequest) error {
 	if req.Enabled != nil {
 		peer.Enabled = *req.Enabled
 	}
-	
+
 	m.peers[id] = peer
 	return nil
 }
@@ -219,11 +219,11 @@ func (m *Manager) UpdatePeer(id string, req UpdatePeerRequest) error {
 func (m *Manager) DeletePeer(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if _, ok := m.peers[id]; !ok {
 		return fmt.Errorf("peer not found: %s", id)
 	}
-	
+
 	delete(m.peers, id)
 	return nil
 }
@@ -232,11 +232,11 @@ func (m *Manager) DeletePeer(id string) error {
 func (m *Manager) GetStats() (*WireGuardStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	stats := &WireGuardStats{
 		TotalPeers: len(m.peers),
 	}
-	
+
 	for _, p := range m.peers {
 		stats.TotalBytesRx += p.BytesRx
 		stats.TotalBytesTx += p.BytesTx
@@ -244,7 +244,7 @@ func (m *Manager) GetStats() (*WireGuardStats, error) {
 			stats.ActivePeers++
 		}
 	}
-	
+
 	return stats, nil
 }
 
@@ -252,7 +252,7 @@ func (m *Manager) GetStats() (*WireGuardStats, error) {
 func (m *Manager) EnableInterface() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	m.iface.Enabled = true
 	return nil
 }
@@ -261,7 +261,7 @@ func (m *Manager) EnableInterface() error {
 func (m *Manager) DisableInterface() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	m.iface.Enabled = false
 	return nil
 }
@@ -274,13 +274,13 @@ func (m *Manager) GenerateKeyPair() (publicKey, privateKey string, err error) {
 		return "", "", fmt.Errorf("failed to generate private key: %w", err)
 	}
 	privateKey = base64.StdEncoding.EncodeToString(privBytes)
-	
+
 	pubBytes := make([]byte, 32)
 	if _, err := rand.Read(pubBytes); err != nil {
 		return "", "", fmt.Errorf("failed to generate public key: %w", err)
 	}
 	publicKey = base64.StdEncoding.EncodeToString(pubBytes)
-	
+
 	return publicKey, privateKey, nil
 }
 
@@ -288,11 +288,11 @@ func (m *Manager) GenerateKeyPair() (publicKey, privateKey string, err error) {
 func (m *Manager) GeneratePeerConfig(peer *WireGuardPeer) (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	if peer == nil {
 		return "", fmt.Errorf("peer cannot be nil")
 	}
-	
+
 	config := fmt.Sprintf(`[Interface]
 PrivateKey = <PRIVATE_KEY>
 Address = %s
@@ -304,6 +304,6 @@ Endpoint = <SERVER_ADDRESS>:%d
 AllowedIPs = 0.0.0.0/0
 PersistentKeepalive = %d
 `, peer.AllowedIPs, m.iface.DNS, m.iface.PublicKey, m.iface.ListenPort, peer.PersistentKeepalive)
-	
+
 	return config, nil
 }

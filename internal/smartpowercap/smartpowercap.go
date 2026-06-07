@@ -15,10 +15,10 @@ import (
 type PowerMode string
 
 const (
-	PowerModeEco        PowerMode = "eco"        // 节能模式
-	PowerModeBalanced   PowerMode = "balanced"   // 均衡模式
+	PowerModeEco         PowerMode = "eco"         // 节能模式
+	PowerModeBalanced    PowerMode = "balanced"    // 均衡模式
 	PowerModePerformance PowerMode = "performance" // 性能模式
-	PowerModeCustom     PowerMode = "custom"     // 自定义模式
+	PowerModeCustom      PowerMode = "custom"      // 自定义模式
 )
 
 // PowerState 电源状态
@@ -33,36 +33,36 @@ const (
 
 // PowerReading 功耗读数
 type PowerReading struct {
-	Timestamp   time.Time `json:"timestamp"`
-	TotalPower  float64   `json:"totalPower"`  // 总功耗 (W)
-	CPUPower    float64   `json:"cpuPower"`     // CPU功耗
-	GPUPower    float64   `json:"gpuPower"`     // GPU功耗
-	DrivePower  float64   `json:"drivePower"`   // 硬盘功耗
-	FanPower    float64   `json:"fanPower"`     // 风扇功耗
-	OtherPower  float64   `json:"otherPower"`   // 其他功耗
+	Timestamp  time.Time `json:"timestamp"`
+	TotalPower float64   `json:"totalPower"` // 总功耗 (W)
+	CPUPower   float64   `json:"cpuPower"`   // CPU功耗
+	GPUPower   float64   `json:"gpuPower"`   // GPU功耗
+	DrivePower float64   `json:"drivePower"` // 硬盘功耗
+	FanPower   float64   `json:"fanPower"`   // 风扇功耗
+	OtherPower float64   `json:"otherPower"` // 其他功耗
 }
 
 // PowerBudget 功耗预算
 type PowerBudget struct {
-	ID          string    `json:"id"`          // 预算ID
-	Name        string    `json:"name"`        // 预算名称
-	MaxPower    float64   `json:"maxPower"`    // 最大功耗 (W)
-	CurrentPower float64  `json:"currentPower"` // 当前功耗
-	UsedPercent float64   `json:"usedPercent"` // 使用率 (%)
-	StartTime   time.Time `json:"startTime"`   // 开始时间
-	EndTime     time.Time `json:"endTime"`     // 结束时间
-	Enabled     bool      `json:"enabled"`     // 是否启用
+	ID           string    `json:"id"`           // 预算ID
+	Name         string    `json:"name"`         // 预算名称
+	MaxPower     float64   `json:"maxPower"`     // 最大功耗 (W)
+	CurrentPower float64   `json:"currentPower"` // 当前功耗
+	UsedPercent  float64   `json:"usedPercent"`  // 使用率 (%)
+	StartTime    time.Time `json:"startTime"`    // 开始时间
+	EndTime      time.Time `json:"endTime"`      // 结束时间
+	Enabled      bool      `json:"enabled"`      // 是否启用
 }
 
 // PowerLimit 功耗限制
 type PowerLimit struct {
-	ID         string    `json:"id"`         // 限制ID
-	Name       string    `json:"name"`       // 限制名称
-	PeakPower  float64   `json:"peakPower"`  // 峰值功耗限制 (W)
-	Sustained  float64   `json:"sustained"`  // 持续功耗限制 (W)
-	Duration   int       `json:"duration"`   // 持续时间 (秒)
-	Enabled    bool      `json:"enabled"`    // 是否启用
-	UpdatedAt  time.Time `json:"updatedAt"`
+	ID        string    `json:"id"`        // 限制ID
+	Name      string    `json:"name"`      // 限制名称
+	PeakPower float64   `json:"peakPower"` // 峰值功耗限制 (W)
+	Sustained float64   `json:"sustained"` // 持续功耗限制 (W)
+	Duration  int       `json:"duration"`  // 持续时间 (秒)
+	Enabled   bool      `json:"enabled"`   // 是否启用
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // PowerPolicy 节能策略
@@ -80,15 +80,15 @@ type PowerPolicy struct {
 
 // PowerReport 功耗报表
 type PowerReport struct {
-	Timestamp     time.Time       `json:"timestamp"`
-	Period        string          `json:"period"`        // 报表周期
-	TotalEnergy   float64         `json:"totalEnergy"`   // 总能耗 (Wh)
-	AvgPower      float64         `json:"avgPower"`      // 平均功耗 (W)
-	PeakPower     float64         `json:"peakPower"`     // 峰值功耗 (W)
-	MinPower      float64         `json:"minPower"`      // 最低功耗 (W)
-	Readings      []PowerReading  `json:"readings"`      // 功耗读数
-	BudgetUsage   float64         `json:"budgetUsage"`   // 预算使用率 (%)
-	EstimatedCost float64         `json:"estimatedCost"` // 预估电费
+	Timestamp     time.Time      `json:"timestamp"`
+	Period        string         `json:"period"`        // 报表周期
+	TotalEnergy   float64        `json:"totalEnergy"`   // 总能耗 (Wh)
+	AvgPower      float64        `json:"avgPower"`      // 平均功耗 (W)
+	PeakPower     float64        `json:"peakPower"`     // 峰值功耗 (W)
+	MinPower      float64        `json:"minPower"`      // 最低功耗 (W)
+	Readings      []PowerReading `json:"readings"`      // 功耗读数
+	BudgetUsage   float64        `json:"budgetUsage"`   // 预算使用率 (%)
+	EstimatedCost float64        `json:"estimatedCost"` // 预估电费
 }
 
 // PowerTrend 功耗趋势
@@ -101,12 +101,12 @@ type PowerTrend struct {
 
 // PowerAlert 功耗告警
 type PowerAlert struct {
-	ID        string      `json:"id"`
-	Type      string      `json:"type"`      // 告警类型 (over_budget/throttled/critical)
-	Message   string      `json:"message"`
-	Value     float64     `json:"value"`
-	Threshold float64     `json:"threshold"`
-	Timestamp time.Time   `json:"timestamp"`
+	ID        string    `json:"id"`
+	Type      string    `json:"type"` // 告警类型 (over_budget/throttled/critical)
+	Message   string    `json:"message"`
+	Value     float64   `json:"value"`
+	Threshold float64   `json:"threshold"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // ========== Manager ==========
@@ -162,9 +162,9 @@ func (m *Manager) initDefaults() {
 	m.limits["peak"] = &PowerLimit{
 		ID:        "peak",
 		Name:      "峰值限制",
-		PeakPower: 300,  // 300W
-		Sustained: 250,  // 250W
-		Duration:  10,   // 10秒
+		PeakPower: 300, // 300W
+		Sustained: 250, // 250W
+		Duration:  10,  // 10秒
 		Enabled:   true,
 	}
 

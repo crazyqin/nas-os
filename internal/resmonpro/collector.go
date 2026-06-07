@@ -27,8 +27,8 @@ type Collector struct {
 
 // NetIOCounters 网络 IO 计数器
 type NetIOCounters struct {
-	BytesIn  int64
-	BytesOut int64
+	BytesIn    int64
+	BytesOut   int64
 	PacketsIn  int64
 	PacketsOut int64
 }
@@ -44,11 +44,11 @@ type DiskIOCounters struct {
 // NewCollector 创建采集器
 func NewCollector() *Collector {
 	return &Collector{
-		procPath:  "/proc",
-		sysPath:   "/sys",
-		nvidiaSmi: "nvidia-smi",
-		prevCPU:   make(map[string]int64),
-		prevNetIO: make(map[string]NetIOCounters),
+		procPath:   "/proc",
+		sysPath:    "/sys",
+		nvidiaSmi:  "nvidia-smi",
+		prevCPU:    make(map[string]int64),
+		prevNetIO:  make(map[string]NetIOCounters),
 		prevDiskIO: make(map[string]DiskIOCounters),
 	}
 }
@@ -330,7 +330,7 @@ func (c *Collector) DiagnoseBottlenecks() ([]BottleneckDiagnosis, error) {
 	// 检查 CPU
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)
-	
+
 	// 简单诊断逻辑
 	procs, err := c.CollectProcesses()
 	if err == nil {

@@ -884,9 +884,9 @@ type SecurityEvent struct {
 }
 
 type SecurityAlert struct {
-	ID        string   `json:"id"`
-	EventID   string   `json:"event_id"`
-	Severity  Severity `json:"severity"`
+	ID        string    `json:"id"`
+	EventID   string    `json:"event_id"`
+	Severity  Severity  `json:"severity"`
 	Timestamp time.Time `json:"timestamp"`
 }
 
@@ -1016,9 +1016,9 @@ func (ztm *ZeroTrustManager) ProcessAccessRequest(req ZTAccessRequest) PolicyDec
 // ==================== Compliance Reporter ====================
 
 type ComplianceReport struct {
-	Title          string
-	Sections       []ReportSection
-	Summary        ReportSummaryData
+	Title           string
+	Sections        []ReportSection
+	Summary         ReportSummaryData
 	Recommendations []string
 }
 

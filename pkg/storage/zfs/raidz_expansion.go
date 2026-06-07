@@ -633,8 +633,8 @@ func (m *RAIDZExpansionManager) GetDiskInfo(ctx context.Context, diskPath string
 type DiskInfo struct {
 	Path        string `json:"path"`
 	Size        uint64 `json:"size"`
-	Type        string `json:"type"`        // disk, part, rom
-	Rotational  bool   `json:"rotational"`  // 是否旋转盘
+	Type        string `json:"type"`       // disk, part, rom
+	Rotational  bool   `json:"rotational"` // 是否旋转盘
 	Model       string `json:"model"`
 	Serial      string `json:"serial"`
 	InUse       bool   `json:"inUse"`       // 是否在 ZFS 中使用
@@ -781,15 +781,15 @@ func (m *RAIDZExpansionManager) GetExpansionPreview(ctx context.Context, poolNam
 
 	// 计算扩展后的容量
 	preview := &ExpansionPreview{
-		PoolName:        poolName,
-		NewDisk:         newDisk,
-		DiskInfo:        diskInfo,
-		OriginalSize:    poolInfo.TotalSize,
-		OriginalWidth:   0,
-		NewWidth:        0,
+		PoolName:          poolName,
+		NewDisk:           newDisk,
+		DiskInfo:          diskInfo,
+		OriginalSize:      poolInfo.TotalSize,
+		OriginalWidth:     0,
+		NewWidth:          0,
 		OriginalDataDisks: 0,
-		NewDataDisks:    0,
-		Warnings:        []string{},
+		NewDataDisks:      0,
+		Warnings:          []string{},
 	}
 
 	// 计算宽度变化
@@ -850,22 +850,22 @@ func (m *RAIDZExpansionManager) GetExpansionPreview(ctx context.Context, poolNam
 
 // ExpansionPreview 扩展预览
 type ExpansionPreview struct {
-	PoolName           string                  `json:"poolName"`
-	NewDisk            string                  `json:"newDisk"`
-	DiskInfo           *DiskInfo               `json:"diskInfo"`
-	OriginalSize       uint64                  `json:"originalSize"`
-	EstimatedNewSize   uint64                  `json:"estimatedNewSize"`
-	CapacityGain       uint64                  `json:"capacityGain"`
-	OriginalWidth      int                     `json:"originalWidth"`
-	NewWidth           int                     `json:"newWidth"`
-	OriginalDataDisks  int                     `json:"originalDataDisks"`
-	NewDataDisks       int                     `json:"newDataDisks"`
-	ParityDisks        int                     `json:"parityDisks"`
-	RAIDZLevel         string                  `json:"raidzLevel"`
-	OriginalEfficiency float64                 `json:"originalEfficiency"`
-	NewEfficiency      float64                 `json:"newEfficiency"`
-	EstimatedDuration  time.Duration           `json:"estimatedDuration"`
-	Warnings           []string                `json:"warnings"`
+	PoolName                  string                     `json:"poolName"`
+	NewDisk                   string                     `json:"newDisk"`
+	DiskInfo                  *DiskInfo                  `json:"diskInfo"`
+	OriginalSize              uint64                     `json:"originalSize"`
+	EstimatedNewSize          uint64                     `json:"estimatedNewSize"`
+	CapacityGain              uint64                     `json:"capacityGain"`
+	OriginalWidth             int                        `json:"originalWidth"`
+	NewWidth                  int                        `json:"newWidth"`
+	OriginalDataDisks         int                        `json:"originalDataDisks"`
+	NewDataDisks              int                        `json:"newDataDisks"`
+	ParityDisks               int                        `json:"parityDisks"`
+	RAIDZLevel                string                     `json:"raidzLevel"`
+	OriginalEfficiency        float64                    `json:"originalEfficiency"`
+	NewEfficiency             float64                    `json:"newEfficiency"`
+	EstimatedDuration         time.Duration              `json:"estimatedDuration"`
+	Warnings                  []string                   `json:"warnings"`
 	EfficiencyRecoveryOptions []EfficiencyRecoveryOption `json:"efficiencyRecoveryOptions"`
 }
 

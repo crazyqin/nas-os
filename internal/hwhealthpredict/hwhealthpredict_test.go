@@ -106,10 +106,10 @@ func TestRecordSMARTData(t *testing.T) {
 	_ = p.RegisterDevice(&Device{ID: "disk-001", Type: DeviceTypeSSD})
 
 	data := &SMARTData{
-		DeviceID:    "disk-001",
-		Temperature: 45,
+		DeviceID:     "disk-001",
+		Temperature:  45,
 		PowerOnHours: 10000,
-		SSDLifeLeft: 85,
+		SSDLifeLeft:  85,
 	}
 
 	err := p.RecordSMARTData(data)
@@ -184,10 +184,10 @@ func TestCalculateHealthScoreSSD(t *testing.T) {
 	_ = p.RegisterDevice(&Device{ID: "ssd-001", Type: DeviceTypeSSD})
 
 	_ = p.RecordSMARTData(&SMARTData{
-		DeviceID:    "ssd-001",
-		Temperature: 35,
+		DeviceID:     "ssd-001",
+		Temperature:  35,
 		PowerOnHours: 5000,
-		SSDLifeLeft: 90,
+		SSDLifeLeft:  90,
 	})
 
 	score, err := p.CalculateHealthScore("ssd-001")
@@ -367,9 +367,9 @@ func TestPredictLifespan(t *testing.T) {
 	// 录入多条递减数据
 	for i := 0; i < 10; i++ {
 		_ = p.RecordSMARTData(&SMARTData{
-			DeviceID:    "ssd-001",
-			Temperature: 35,
-			SSDLifeLeft: 95 - i*5,
+			DeviceID:     "ssd-001",
+			Temperature:  35,
+			SSDLifeLeft:  95 - i*5,
 			PowerOnHours: int64(1000 + i*1000),
 		})
 	}

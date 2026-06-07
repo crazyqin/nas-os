@@ -72,14 +72,14 @@ type Recommendation struct {
 
 // UsageTrend 使用趋势
 type UsageTrend struct {
-	ID        string        `json:"id"`
-	Category  string        `json:"category"`
-	Current   float64       `json:"current"`
-	Previous  float64       `json:"previous"`
-	Unit      string        `json:"unit"`
-	Direction string        `json:"direction"` // up, down, stable
-	ChangePct float64       `json:"change_pct"`
-	TrendData []TrendPoint  `json:"trend_data,omitempty"`
+	ID        string       `json:"id"`
+	Category  string       `json:"category"`
+	Current   float64      `json:"current"`
+	Previous  float64      `json:"previous"`
+	Unit      string       `json:"unit"`
+	Direction string       `json:"direction"` // up, down, stable
+	ChangePct float64      `json:"change_pct"`
+	TrendData []TrendPoint `json:"trend_data,omitempty"`
 }
 
 // TrendPoint 趋势数据点
@@ -90,15 +90,15 @@ type TrendPoint struct {
 
 // CostAnalysis 成本分析
 type CostAnalysis struct {
-	ID               string         `json:"id"`
-	StorageUsedGB    float64        `json:"storage_used_gb"`
-	StorageTotalGB   float64        `json:"storage_total_gb"`
-	CostPerGB        float64        `json:"cost_per_gb"`
-	CurrentCost      float64        `json:"current_cost"`
-	ProjectedCost    float64        `json:"projected_cost"`
-	SavingsPotential float64        `json:"savings_potential"`
-	Breakdown        []CostItem     `json:"breakdown"`
-	CreatedAt        time.Time      `json:"created_at"`
+	ID               string     `json:"id"`
+	StorageUsedGB    float64    `json:"storage_used_gb"`
+	StorageTotalGB   float64    `json:"storage_total_gb"`
+	CostPerGB        float64    `json:"cost_per_gb"`
+	CurrentCost      float64    `json:"current_cost"`
+	ProjectedCost    float64    `json:"projected_cost"`
+	SavingsPotential float64    `json:"savings_potential"`
+	Breakdown        []CostItem `json:"breakdown"`
+	CreatedAt        time.Time  `json:"created_at"`
 }
 
 // CostItem 成本明细项
@@ -122,16 +122,16 @@ type Anomaly struct {
 
 // InsightReport 系统洞察报告
 type InsightReport struct {
-	ID              string           `json:"id"`
-	Title           string           `json:"title"`
-	Summary         string           `json:"summary"`
-	HealthScore     float64          `json:"health_score"`
-	Insights        []*Insight       `json:"insights"`
+	ID              string            `json:"id"`
+	Title           string            `json:"title"`
+	Summary         string            `json:"summary"`
+	HealthScore     float64           `json:"health_score"`
+	Insights        []*Insight        `json:"insights"`
 	Recommendations []*Recommendation `json:"recommendations"`
-	Trends          []*UsageTrend    `json:"trends"`
-	Anomalies       []*Anomaly       `json:"anomalies"`
-	Cost            *CostAnalysis    `json:"cost,omitempty"`
-	GeneratedAt     time.Time        `json:"generated_at"`
+	Trends          []*UsageTrend     `json:"trends"`
+	Anomalies       []*Anomaly        `json:"anomalies"`
+	Cost            *CostAnalysis     `json:"cost,omitempty"`
+	GeneratedAt     time.Time         `json:"generated_at"`
 }
 
 // StatsOverview 系统统计概览

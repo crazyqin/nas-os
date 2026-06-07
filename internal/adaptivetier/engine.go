@@ -20,35 +20,35 @@ const (
 
 // AccessPattern 访问模式
 type AccessPattern struct {
-	LastAccess    time.Time `json:"last_access"`
-	AccessCount   int       `json:"access_count"`
-	AvgInterval   float64   `json:"avg_interval_hours"`
-	RecentAccess  int       `json:"recent_access_7d"`
-	AccessFreq    float64   `json:"access_freq_per_day"`
+	LastAccess   time.Time `json:"last_access"`
+	AccessCount  int       `json:"access_count"`
+	AvgInterval  float64   `json:"avg_interval_hours"`
+	RecentAccess int       `json:"recent_access_7d"`
+	AccessFreq   float64   `json:"access_freq_per_day"`
 }
 
 // TierRule 分层规则
 type TierRule struct {
-	ID           string        `json:"id"`
-	Name         string        `json:"name"`
-	FromTier     Tier          `json:"from_tier"`
-	ToTier       Tier          `json:"to_tier"`
-	IdleDays     int           `json:"idle_days"`
-	MinFileSize  int64         `json:"min_file_size"`
-	MaxFileSize  int64         `json:"max_file_size"`
-	Extensions   []string      `json:"extensions"`
-	Enabled      bool          `json:"enabled"`
-	Priority     int           `json:"priority"`
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	FromTier    Tier     `json:"from_tier"`
+	ToTier      Tier     `json:"to_tier"`
+	IdleDays    int      `json:"idle_days"`
+	MinFileSize int64    `json:"min_file_size"`
+	MaxFileSize int64    `json:"max_file_size"`
+	Extensions  []string `json:"extensions"`
+	Enabled     bool     `json:"enabled"`
+	Priority    int      `json:"priority"`
 }
 
 // FileTierInfo 文件分层信息
 type FileTierInfo struct {
-	Path      string        `json:"path"`
-	Current   Tier          `json:"current_tier"`
-	Size      int64         `json:"size"`
-	Pattern   AccessPattern `json:"access_pattern"`
-	MigratedAt *time.Time   `json:"migrated_at,omitempty"`
-	NextCheck  time.Time    `json:"next_check"`
+	Path       string        `json:"path"`
+	Current    Tier          `json:"current_tier"`
+	Size       int64         `json:"size"`
+	Pattern    AccessPattern `json:"access_pattern"`
+	MigratedAt *time.Time    `json:"migrated_at,omitempty"`
+	NextCheck  time.Time     `json:"next_check"`
 }
 
 // MigrationJob 迁移任务

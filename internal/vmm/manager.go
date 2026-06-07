@@ -13,27 +13,27 @@ import (
 
 // VirtualMachine 虚拟机
 type VirtualMachine struct {
-	ID           string        `json:"id"`
-	Name         string        `json:"name"`
-	Description  string        `json:"description"`
-	Status       string        `json:"status"` // running, stopped, paused, suspended, error
-	OSType       string        `json:"os_type"` // linux, windows, macos
-	OSVersion    string        `json:"os_version"`
-	CPU          CPUConfig     `json:"cpu"`
-	Memory       MemoryConfig  `json:"memory"`
-	Disks        []DiskConfig  `json:"disks"`
-	Networks     []NetConfig   `json:"networks"`
-	Display      DisplayConfig `json:"display"`
-	BootOrder    []string      `json:"boot_order"`
-	AutoStart    bool          `json:"auto_start"`
-	CreatedAt    time.Time     `json:"created_at"`
-	StartedAt    time.Time     `json:"started_at,omitempty"`
-	StoppedAt    time.Time     `json:"stopped_at,omitempty"`
-	Template     string        `json:"template,omitempty"`
-	Labels       map[string]string `json:"labels"`
-	OwnerID      string        `json:"owner_id"`
-	Snapshots    []Snapshot    `json:"snapshots"`
-	CurrentSnapID string       `json:"current_snapshot_id,omitempty"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Description   string            `json:"description"`
+	Status        string            `json:"status"`  // running, stopped, paused, suspended, error
+	OSType        string            `json:"os_type"` // linux, windows, macos
+	OSVersion     string            `json:"os_version"`
+	CPU           CPUConfig         `json:"cpu"`
+	Memory        MemoryConfig      `json:"memory"`
+	Disks         []DiskConfig      `json:"disks"`
+	Networks      []NetConfig       `json:"networks"`
+	Display       DisplayConfig     `json:"display"`
+	BootOrder     []string          `json:"boot_order"`
+	AutoStart     bool              `json:"auto_start"`
+	CreatedAt     time.Time         `json:"created_at"`
+	StartedAt     time.Time         `json:"started_at,omitempty"`
+	StoppedAt     time.Time         `json:"stopped_at,omitempty"`
+	Template      string            `json:"template,omitempty"`
+	Labels        map[string]string `json:"labels"`
+	OwnerID       string            `json:"owner_id"`
+	Snapshots     []Snapshot        `json:"snapshots"`
+	CurrentSnapID string            `json:"current_snapshot_id,omitempty"`
 }
 
 // CPUConfig CPU 配置
@@ -47,23 +47,23 @@ type CPUConfig struct {
 
 // MemoryConfig 内存配置
 type MemoryConfig struct {
-	Size     int64  `json:"size"` // bytes
-	MaxSize  int64  `json:"max_size"`
-	Balloon  bool   `json:"balloon"` // 内存气球
+	Size      int64 `json:"size"` // bytes
+	MaxSize   int64 `json:"max_size"`
+	Balloon   bool  `json:"balloon"` // 内存气球
 	HugePages bool  `json:"huge_pages"`
 }
 
 // DiskConfig 磁盘配置
 type DiskConfig struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	Size       int64  `json:"size"`
-	Format     string `json:"format"` // qcow2, raw, vmdk
-	Bus        string `json:"bus"`    // virtio, ide, scsi
-	CacheMode  string `json:"cache_mode"` // none, writeback, writethrough
-	BootOrder  int    `json:"boot_order"`
-	IsCDROM    bool   `json:"is_cdrom"`
-	ImagePath  string `json:"image_path,omitempty"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Size      int64  `json:"size"`
+	Format    string `json:"format"`     // qcow2, raw, vmdk
+	Bus       string `json:"bus"`        // virtio, ide, scsi
+	CacheMode string `json:"cache_mode"` // none, writeback, writethrough
+	BootOrder int    `json:"boot_order"`
+	IsCDROM   bool   `json:"is_cdrom"`
+	ImagePath string `json:"image_path,omitempty"`
 }
 
 // NetConfig 网络配置
@@ -100,14 +100,14 @@ type Snapshot struct {
 
 // Network 虚拟网络
 type Network struct {
-	ID         string   `json:"id"`
-	Name       string   `json:"name"`
-	Type       string   `json:"type"` // bridge, nat, isolated
-	Bridge     string   `json:"bridge"`
-	Subnet     string   `json:"subnet"`
-	Gateway    string   `json:"gateway"`
-	DHCP       DHCPConfig `json:"dhcp"`
-	Connected  []string `json:"connected_vms"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Type      string     `json:"type"` // bridge, nat, isolated
+	Bridge    string     `json:"bridge"`
+	Subnet    string     `json:"subnet"`
+	Gateway   string     `json:"gateway"`
+	DHCP      DHCPConfig `json:"dhcp"`
+	Connected []string   `json:"connected_vms"`
 }
 
 // DHCPConfig DHCP 配置

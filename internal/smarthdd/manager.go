@@ -140,7 +140,7 @@ func (m *SmartHDDManager) GetDiskIOStats(diskID string) (*DiskIOStats, error) {
 	return &DiskIOStats{
 		DiskID:      diskID,
 		Device:      disk.Device,
-		ReadBytes:   1024 * 1024 * 100,  // 模拟数据
+		ReadBytes:   1024 * 1024 * 100, // 模拟数据
 		WriteBytes:  1024 * 1024 * 50,
 		ReadOps:     1000,
 		WriteOps:    500,
@@ -205,11 +205,11 @@ func (m *SmartHDDManager) ExportReport() *HealthReport {
 
 	for _, disk := range m.disks {
 		diskReport := &DiskReport{
-			Device:      disk.Device,
-			Model:       disk.Model,
-			Size:        disk.Size,
-			Health:      string(disk.Health),
-			Temperature: disk.Temperature,
+			Device:       disk.Device,
+			Model:        disk.Model,
+			Size:         disk.Size,
+			Health:       string(disk.Health),
+			Temperature:  disk.Temperature,
 			PowerOnHours: disk.PowerOnHours,
 		}
 		report.Disks = append(report.Disks, diskReport)

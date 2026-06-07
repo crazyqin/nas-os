@@ -1061,9 +1061,9 @@ services:
 			},
 			Environment: map[string]string{
 				"MYSQL_ROOT_PASSWORD": "changeme",
-				"MYSQL_DATABASE":       "appdb",
-				"MYSQL_USER":           "appuser",
-				"MYSQL_PASSWORD":       "changeme",
+				"MYSQL_DATABASE":      "appdb",
+				"MYSQL_USER":          "appuser",
+				"MYSQL_PASSWORD":      "changeme",
 			},
 			Compose: `version: '3'
 services:

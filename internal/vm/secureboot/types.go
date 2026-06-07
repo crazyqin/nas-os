@@ -62,11 +62,11 @@ const (
 
 // SecureBootConfig 安全启动配置。
 type SecureBootConfig struct {
-	Enabled         bool           `json:"enabled"`
-	Mode            SecureBootMode `json:"mode"`
-	AllowedKeys     []string       `json:"allowed_keys"`
+	Enabled         bool            `json:"enabled"`
+	Mode            SecureBootMode  `json:"mode"`
+	AllowedKeys     []string        `json:"allowed_keys"`
 	SecureBootState SecureBootState `json:"secure_boot_state"`
-	TPMEnabled      bool           `json:"tpm_enabled"`
+	TPMEnabled      bool            `json:"tpm_enabled"`
 }
 
 // SecureBootPolicy 安全启动策略。
@@ -88,58 +88,58 @@ type SecureBootStatus struct {
 
 // UEFIVariable UEFI 安全变量。
 type UEFIVariable struct {
-	Name        string    `json:"name"`
-	GUID        string    `json:"guid"`
-	Attributes  uint32    `json:"attributes"`
-	Data        []byte    `json:"data"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	Name       string    `json:"name"`
+	GUID       string    `json:"guid"`
+	Attributes uint32    `json:"attributes"`
+	Data       []byte    `json:"data"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // KeyEntry 密钥条目。
 type KeyEntry struct {
-	Type        SignatureType `json:"type"`
-	KeyType     KeyType       `json:"key_type"`
+	Type        SignatureType     `json:"type"`
+	KeyType     KeyType           `json:"key_type"`
 	Certificate *x509.Certificate `json:"-"`
-	Hash        [32]byte      `json:"hash"`
-	Description string        `json:"description"`
-	OwnerGUID   string        `json:"owner_guid"`
-	AddedAt     time.Time     `json:"added_at"`
-	RevokedAt   *time.Time    `json:"revoked_at,omitempty"`
+	Hash        [32]byte          `json:"hash"`
+	Description string            `json:"description"`
+	OwnerGUID   string            `json:"owner_guid"`
+	AddedAt     time.Time         `json:"added_at"`
+	RevokedAt   *time.Time        `json:"revoked_at,omitempty"`
 }
 
 // SignatureEntry 签名数据库条目。
 type SignatureEntry struct {
-	Type      SignatureType `json:"type"`
-	OwnerGUID string        `json:"owner_guid"`
+	Type      SignatureType     `json:"type"`
+	OwnerGUID string            `json:"owner_guid"`
 	Cert      *x509.Certificate `json:"-"`
-	Hash      [32]byte      `json:"hash"`
+	Hash      [32]byte          `json:"hash"`
 }
 
 // VerificationResult 验证结果。
 type VerificationResult struct {
-	Valid       bool          `json:"valid"`
-	Reason      string        `json:"reason,omitempty"`
-	Chain       []string      `json:"chain,omitempty"`
-	VerifiedAt  time.Time     `json:"verified_at"`
-	SignerCN    string        `json:"signer_cn,omitempty"`
-	TrustedRoot bool          `json:"trusted_root"`
+	Valid       bool      `json:"valid"`
+	Reason      string    `json:"reason,omitempty"`
+	Chain       []string  `json:"chain,omitempty"`
+	VerifiedAt  time.Time `json:"verified_at"`
+	SignerCN    string    `json:"signer_cn,omitempty"`
+	TrustedRoot bool      `json:"trusted_root"`
 }
 
 // BootComponent 启动组件。
 type BootComponent struct {
-	Name      string `json:"name"`
-	Path      string `json:"path"`
-	Data      []byte `json:"-"`
-	Signature []byte `json:"-"`
+	Name      string   `json:"name"`
+	Path      string   `json:"path"`
+	Data      []byte   `json:"-"`
+	Signature []byte   `json:"-"`
 	Hash      [32]byte `json:"hash"`
 }
 
 // BootChainResult 启动链验证结果。
 type BootChainResult struct {
-	Valid      bool                   `json:"valid"`
-	Components []ComponentResult      `json:"components"`
-	VerifiedAt time.Time              `json:"verified_at"`
-	OverallOK  bool                   `json:"overall_ok"`
+	Valid      bool              `json:"valid"`
+	Components []ComponentResult `json:"components"`
+	VerifiedAt time.Time         `json:"verified_at"`
+	OverallOK  bool              `json:"overall_ok"`
 }
 
 // ComponentResult 单个组件验证结果。

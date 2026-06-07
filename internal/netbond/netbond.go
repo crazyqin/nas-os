@@ -15,13 +15,13 @@ import (
 type BondMode string
 
 const (
-	BondModeRoundRobin    BondMode = "round_robin"
-	BondModeActiveBackup  BondMode = "active_backup"
-	BondModeXOR           BondMode = "xor"
-	BondModeBroadcast     BondMode = "broadcast"
-	BondMode8023AD        BondMode = "802.3ad" // LACP
-	BondModeBalanceTLB    BondMode = "balance_tlb"
-	BondModeBalanceALB    BondMode = "balance_alb"
+	BondModeRoundRobin   BondMode = "round_robin"
+	BondModeActiveBackup BondMode = "active_backup"
+	BondModeXOR          BondMode = "xor"
+	BondModeBroadcast    BondMode = "broadcast"
+	BondMode8023AD       BondMode = "802.3ad" // LACP
+	BondModeBalanceTLB   BondMode = "balance_tlb"
+	BondModeBalanceALB   BondMode = "balance_alb"
 )
 
 // BondState 绑定状态
@@ -38,80 +38,80 @@ const (
 type SlaveState string
 
 const (
-	SlaveStateActive   SlaveState = "active"
-	SlaveStateBackup   SlaveState = "backup"
-	SlaveStateDown     SlaveState = "down"
-	SlaveStateError    SlaveState = "error"
+	SlaveStateActive SlaveState = "active"
+	SlaveStateBackup SlaveState = "backup"
+	SlaveStateDown   SlaveState = "down"
+	SlaveStateError  SlaveState = "error"
 )
 
 // IPConfig IP 配置
 type IPConfig struct {
-	IPv4      string `json:"ipv4"`
-	Netmask   string `json:"netmask"`
-	Gateway   string `json:"gateway"`
-	DNS       []string `json:"dns"`
-	IPv6      string `json:"ipv6"`
-	IPv6Prefix int    `json:"ipv6_prefix"`
-	DHCP      bool   `json:"dhcp"`
+	IPv4       string   `json:"ipv4"`
+	Netmask    string   `json:"netmask"`
+	Gateway    string   `json:"gateway"`
+	DNS        []string `json:"dns"`
+	IPv6       string   `json:"ipv6"`
+	IPv6Prefix int      `json:"ipv6_prefix"`
+	DHCP       bool     `json:"dhcp"`
 }
 
 // SlaveInterface 从接口
 type SlaveInterface struct {
-	Name      string      `json:"name"`
-	MAC       string      `json:"mac"`
-	State     SlaveState  `json:"state"`
-	Speed     int         `json:"speed"` // Mbps
-	LinkUp    bool        `json:"link_up"`
-	RxBytes   int64       `json:"rx_bytes"`
-	TxBytes   int64       `json:"tx_bytes"`
-	RxPackets int64       `json:"rx_packets"`
-	TxPackets int64       `json:"tx_packets"`
-	Errors    int64       `json:"errors"`
-	UpdatedAt time.Time   `json:"updated_at"`
+	Name      string     `json:"name"`
+	MAC       string     `json:"mac"`
+	State     SlaveState `json:"state"`
+	Speed     int        `json:"speed"` // Mbps
+	LinkUp    bool       `json:"link_up"`
+	RxBytes   int64      `json:"rx_bytes"`
+	TxBytes   int64      `json:"tx_bytes"`
+	RxPackets int64      `json:"rx_packets"`
+	TxPackets int64      `json:"tx_packets"`
+	Errors    int64      `json:"errors"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 // BondInterface 绑定接口
 type BondInterface struct {
-	Name       string           `json:"name"`
-	Mode       BondMode         `json:"mode"`
-	State      BondState        `json:"state"`
-	Slaves     []SlaveInterface `json:"slaves"`
-	IP         IPConfig         `json:"ip"`
-	MTU        int              `json:"mtu"`
-	MAC        string           `json:"mac"`
-	ActiveSlave string          `json:"active_slave"`
-	TransmitHash string         `json:"transmit_hash"` // for XOR/LACP
-	MIIMonitor int              `json:"mii_monitor"`   // ms
-	UpDelay    int              `json:"up_delay"`      // ms
-	DownDelay  int              `json:"down_delay"`    // ms
-	TotalRxBytes int64          `json:"total_rx_bytes"`
-	TotalTxBytes int64          `json:"total_tx_bytes"`
-	CreatedAt  time.Time        `json:"created_at"`
-	UpdatedAt  time.Time        `json:"updated_at"`
+	Name         string           `json:"name"`
+	Mode         BondMode         `json:"mode"`
+	State        BondState        `json:"state"`
+	Slaves       []SlaveInterface `json:"slaves"`
+	IP           IPConfig         `json:"ip"`
+	MTU          int              `json:"mtu"`
+	MAC          string           `json:"mac"`
+	ActiveSlave  string           `json:"active_slave"`
+	TransmitHash string           `json:"transmit_hash"` // for XOR/LACP
+	MIIMonitor   int              `json:"mii_monitor"`   // ms
+	UpDelay      int              `json:"up_delay"`      // ms
+	DownDelay    int              `json:"down_delay"`    // ms
+	TotalRxBytes int64            `json:"total_rx_bytes"`
+	TotalTxBytes int64            `json:"total_tx_bytes"`
+	CreatedAt    time.Time        `json:"created_at"`
+	UpdatedAt    time.Time        `json:"updated_at"`
 }
 
 // VLANConfig VLAN 配置
 type VLANConfig struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	Parent    string `json:"parent"`
-	IP        IPConfig `json:"ip"`
-	Enabled   bool   `json:"enabled"`
+	ID      int      `json:"id"`
+	Name    string   `json:"name"`
+	Parent  string   `json:"parent"`
+	IP      IPConfig `json:"ip"`
+	Enabled bool     `json:"enabled"`
 }
 
 // NetworkStats 网络统计
 type NetworkStats struct {
-	Interface  string    `json:"interface"`
-	RxBytes    int64     `json:"rx_bytes"`
-	TxBytes    int64     `json:"tx_bytes"`
-	RxPackets  int64     `json:"rx_packets"`
-	TxPackets  int64     `json:"tx_packets"`
-	RxErrors   int64     `json:"rx_errors"`
-	TxErrors   int64     `json:"tx_errors"`
-	RxDropped  int64     `json:"rx_dropped"`
-	TxDropped  int64     `json:"tx_dropped"`
-	Speed      int       `json:"speed"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	Interface string    `json:"interface"`
+	RxBytes   int64     `json:"rx_bytes"`
+	TxBytes   int64     `json:"tx_bytes"`
+	RxPackets int64     `json:"rx_packets"`
+	TxPackets int64     `json:"tx_packets"`
+	RxErrors  int64     `json:"rx_errors"`
+	TxErrors  int64     `json:"tx_errors"`
+	RxDropped int64     `json:"rx_dropped"`
+	TxDropped int64     `json:"tx_dropped"`
+	Speed     int       `json:"speed"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // Manager 网络管理器

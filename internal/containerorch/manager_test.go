@@ -107,8 +107,8 @@ func TestMgrUpdateProject(t *testing.T) {
 	m := NewManager()
 
 	project, _ := m.CreateProject(CreateProjectRequest{
-		Name:       "original",
-		Services:   map[string]*ServiceConfig{"web": {Image: "nginx"}},
+		Name:     "original",
+		Services: map[string]*ServiceConfig{"web": {Image: "nginx"}},
 	})
 
 	newName := "updated"
@@ -127,8 +127,8 @@ func TestMgrDeleteProject(t *testing.T) {
 	m := NewManager()
 
 	project, _ := m.CreateProject(CreateProjectRequest{
-		Name:      "to-delete",
-		Services:  map[string]*ServiceConfig{"web": {Image: "nginx"}},
+		Name:     "to-delete",
+		Services: map[string]*ServiceConfig{"web": {Image: "nginx"}},
 	})
 
 	err := m.DeleteProject(project.ID, false)
@@ -427,7 +427,7 @@ func TestMgrEvaluateAutoScale(t *testing.T) {
 
 	// CPU 超标，应该扩容
 	event, err := m.EvaluateAutoScale(project.ID, "web", &ContainerMetrics{
-		CPU: CPUMetrics{Percent: 95.0},
+		CPU:    CPUMetrics{Percent: 95.0},
 		Memory: MemoryMetrics{Percent: 30.0},
 	})
 	if err != nil {

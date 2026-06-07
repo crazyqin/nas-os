@@ -41,10 +41,10 @@ func (h *Handlers) listContainers(c *gin.Context) {
 // registerContainer 注册容器到健康监控
 func (h *Handlers) registerContainer(c *gin.Context) {
 	var req struct {
-		ContainerID string           `json:"container_id" binding:"required"`
-		Name        string           `json:"name" binding:"required"`
+		ContainerID string            `json:"container_id" binding:"required"`
+		Name        string            `json:"name" binding:"required"`
 		Config      HealthCheckConfig `json:"config" binding:"required"`
-		AutoRestart bool             `json:"auto_restart"`
+		AutoRestart bool              `json:"auto_restart"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})

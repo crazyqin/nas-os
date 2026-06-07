@@ -10,13 +10,13 @@ import (
 
 // Scorer 智能健康评分引擎。
 type Scorer struct {
-	mu         sync.RWMutex
-	config     *Config
-	lastScore  *HealthScore
-	trends     []HealthTrend
-	alerts     []Alert
-	maxTrends  int
-	maxAlerts  int
+	mu        sync.RWMutex
+	config    *Config
+	lastScore *HealthScore
+	trends    []HealthTrend
+	alerts    []Alert
+	maxTrends int
+	maxAlerts int
 }
 
 // NewScorer 创建评分引擎，使用默认配置。

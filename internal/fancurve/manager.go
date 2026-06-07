@@ -33,11 +33,11 @@ type CurvePoint struct {
 
 // FanChannel 风扇通道
 type FanChannel struct {
-	ID         string  `json:"id"`
-	Name       string  `json:"name"`
-	CurrentRPM int     `json:"currentRpm"`
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	CurrentRPM  int     `json:"currentRpm"`
 	CurrentDuty float64 `json:"currentDuty"`
-	MaxRPM     int     `json:"maxRpm"`
+	MaxRPM      int     `json:"maxRpm"`
 }
 
 // TempSource 温度源
@@ -50,7 +50,7 @@ type TempSource struct {
 
 // HysteresisConfig 滞后配置
 type HysteresisConfig struct {
-	TempDelta    float64 `json:"tempDelta"`    // 温度滞后值 (°C)
+	TempDelta     float64 `json:"tempDelta"`     // 温度滞后值 (°C)
 	ResponseDelay float64 `json:"responseDelay"` // 响应延迟 (秒)
 }
 
@@ -82,7 +82,7 @@ type Manager struct {
 	profiles        map[string]*CurveProfile
 	channels        map[string]*FanChannel
 	tempSources     map[string]*TempSource
-	activeProfiles  map[string]string       // channelID -> profileID
+	activeProfiles  map[string]string // channelID -> profileID
 	hysteresis      HysteresisConfig
 	smoothing       SmoothingConfig
 	weightedSensors map[string][]WeightedSensor // channelID -> sensors

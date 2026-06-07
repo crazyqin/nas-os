@@ -5,9 +5,9 @@ import (
 	"os"
 	"testing"
 
-	_ "modernc.org/sqlite"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	_ "modernc.org/sqlite"
 )
 
 func setupTestLabelManager(t *testing.T) (*LabelManager, func()) {

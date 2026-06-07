@@ -33,22 +33,22 @@ const (
 // DRPlan 灾备计划.
 type DRPlan struct {
 	mu            sync.RWMutex
-	ID            string        `json:"id"`
-	Name          string        `json:"name"`
-	Description   string        `json:"description"`
-	Tier          RecoveryTier  `json:"tier"`
-	State         DRState       `json:"state"`
-	PrimarySite   *Site         `json:"primarySite"`
-	SecondarySite *Site         `json:"secondarySite"`
-	RTO           time.Duration `json:"rto"`           // 恢复时间目标
-	RPO           time.Duration `json:"rpo"`           // 恢复点目标
-	Resources     []*Resource   `json:"resources"`
+	ID            string          `json:"id"`
+	Name          string          `json:"name"`
+	Description   string          `json:"description"`
+	Tier          RecoveryTier    `json:"tier"`
+	State         DRState         `json:"state"`
+	PrimarySite   *Site           `json:"primarySite"`
+	SecondarySite *Site           `json:"secondarySite"`
+	RTO           time.Duration   `json:"rto"` // 恢复时间目标
+	RPO           time.Duration   `json:"rpo"` // 恢复点目标
+	Resources     []*Resource     `json:"resources"`
 	Steps         []*RecoveryStep `json:"steps"`
-	LastTest      time.Time     `json:"lastTest"`
-	LastTestOK    bool          `json:"lastTestOk"`
-	LastFailover  time.Time     `json:"lastFailover"`
-	CreatedAt     time.Time     `json:"createdAt"`
-	UpdatedAt     time.Time     `json:"updatedAt"`
+	LastTest      time.Time       `json:"lastTest"`
+	LastTestOK    bool            `json:"lastTestOk"`
+	LastFailover  time.Time       `json:"lastFailover"`
+	CreatedAt     time.Time       `json:"createdAt"`
+	UpdatedAt     time.Time       `json:"updatedAt"`
 }
 
 // Site 站点.
@@ -65,11 +65,11 @@ type Resource struct {
 	ID         string        `json:"id"`
 	Name       string        `json:"name"`
 	Type       string        `json:"type"` // vm, container, volume, database
-	SourceSite  string       `json:"sourceSite"`
-	TargetSite  string       `json:"targetSite"`
+	SourceSite string        `json:"sourceSite"`
+	TargetSite string        `json:"targetSite"`
 	RPOActual  time.Duration `json:"rpoActual"`
 	LastSync   time.Time     `json:"lastSync"`
-	SyncStatus  string       `json:"syncStatus"`
+	SyncStatus string        `json:"syncStatus"`
 	Size       int64         `json:"size"`
 }
 
@@ -99,15 +99,15 @@ type FailoverResult struct {
 
 // DRTestResult DR测试结果.
 type DRTestResult struct {
-	PlanID      string        `json:"planId"`
-	TestType    string        `json:"testType"`
-	Success     bool          `json:"success"`
-	RTOActual   time.Duration `json:"rtoActual"`
-	RPOActual   time.Duration `json:"rpoActual"`
-	RTOok       bool          `json:"rtoOk"`
-	RPOok       bool          `json:"rpoOk"`
-	Details     string        `json:"details"`
-	TestedAt    time.Time     `json:"testedAt"`
+	PlanID    string        `json:"planId"`
+	TestType  string        `json:"testType"`
+	Success   bool          `json:"success"`
+	RTOActual time.Duration `json:"rtoActual"`
+	RPOActual time.Duration `json:"rpoActual"`
+	RTOok     bool          `json:"rtoOk"`
+	RPOok     bool          `json:"rpoOk"`
+	Details   string        `json:"details"`
+	TestedAt  time.Time     `json:"testedAt"`
 }
 
 // DRManager 灾备管理器.

@@ -204,23 +204,23 @@ func TestCreatePolicy(t *testing.T) {
 	mgr := setupTestManager()
 
 	req := CreatePolicyRequest{
-		Name:     "每周Scrub",
-		PoolID:   "pool1",
-		Schedule: ScheduleWeekly,
-		WeekDay:  0, // 周日
-		Hour:     2,
-		Minute:   0,
-		Priority: PriorityNormal,
-		Enabled:  true,
+		Name:      "每周Scrub",
+		PoolID:    "pool1",
+		Schedule:  ScheduleWeekly,
+		WeekDay:   0, // 周日
+		Hour:      2,
+		Minute:    0,
+		Priority:  PriorityNormal,
+		Enabled:   true,
 		AvoidPeak: true,
 		PeakWindows: []PeakWindow{
 			{DayOfWeek: -1, StartHour: 9, StartMin: 0, EndHour: 18, EndMin: 0},
 		},
 		IOThreshold: IOThreshold{
-			IOPSMax:     1000,
+			IOPSMax:      1000,
 			BandwidthMax: 200.0,
-			LatencyMax:  10.0,
-			ResumeRatio: 0.7,
+			LatencyMax:   10.0,
+			ResumeRatio:  0.7,
 		},
 	}
 

@@ -16,37 +16,37 @@ import (
 type SharedTag struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
-	Color       string    `json:"color"`        // 标签颜色 #RRGGBB
+	Color       string    `json:"color"` // 标签颜色 #RRGGBB
 	Description string    `json:"description"`
-	CreatedBy   string    `json:"created_by"`   // 创建用户
+	CreatedBy   string    `json:"created_by"` // 创建用户
 	CreatedAt   time.Time `json:"created_at"`
-	IsPublic    bool      `json:"is_public"`    // 是否公开标签
-	FileCount   int       `json:"file_count"`   // 关联文件数
+	IsPublic    bool      `json:"is_public"`  // 是否公开标签
+	FileCount   int       `json:"file_count"` // 关联文件数
 }
 
 // FileTagAssociation 文件-标签关联
 type FileTagAssociation struct {
 	FileID    string    `json:"file_id"`
 	TagID     string    `json:"tag_id"`
-	UserID    string    `json:"user_id"`     // 标记用户
+	UserID    string    `json:"user_id"` // 标记用户
 	CreatedAt time.Time `json:"created_at"`
 	Note      string    `json:"note,omitempty"` // 备注
 }
 
 // SharedTagService 共享标签服务
 type SharedTagService struct {
-	tags        map[string]*SharedTag         // tagID -> tag
+	tags         map[string]*SharedTag            // tagID -> tag
 	associations map[string][]*FileTagAssociation // fileID -> associations
-	userTags    map[string][]string          // userID -> tagIDs (私有标签)
-	mu          sync.RWMutex
+	userTags     map[string][]string              // userID -> tagIDs (私有标签)
+	mu           sync.RWMutex
 }
 
 // NewSharedTagService 创建服务
 func NewSharedTagService() *SharedTagService {
 	return &SharedTagService{
-		tags:        make(map[string]*SharedTag),
+		tags:         make(map[string]*SharedTag),
 		associations: make(map[string][]*FileTagAssociation),
-		userTags:    make(map[string][]string),
+		userTags:     make(map[string][]string),
 	}
 }
 
@@ -157,7 +157,7 @@ func (s *SharedTagService) UntagFile(ctx context.Context, fileID, tagID, userID 
 		if assoc.TagID == tagID {
 			// 移除关联
 			s.associations[fileID] = append(assocs[:i], assocs[i+1:]...)
-			
+
 			// 更新计数
 			if tag, ok := s.tags[tagID]; ok {
 				tag.FileCount--

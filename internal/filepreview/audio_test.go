@@ -132,10 +132,10 @@ func TestAudioPreviewer_Downsample(t *testing.T) {
 	previewer := NewAudioPreviewer(nil)
 
 	tests := []struct {
-		name       string
-		data       []float64
-		targetLen  int
-		wantLen    int
+		name      string
+		data      []float64
+		targetLen int
+		wantLen   int
 	}{
 		{
 			name:      "downsample",

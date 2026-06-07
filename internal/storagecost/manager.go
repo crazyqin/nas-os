@@ -13,10 +13,10 @@ import (
 
 // Manager 存储成本管理器
 type Manager struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	config   *StorageCostConfig
-	reports  map[string]*CostReport
+	mu        sync.RWMutex
+	logger    *zap.Logger
+	config    *StorageCostConfig
+	reports   map[string]*CostReport
 	forecasts map[string]*CostForecast
 }
 

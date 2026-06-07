@@ -58,7 +58,7 @@ func (idx *Indexer) Search(query SearchQuery) ([]ContentIndex, int, error) {
 
 	for _, keyword := range keywords {
 		keyword = strings.ToLower(keyword)
-		
+
 		// 精确匹配
 		if fileIDs, ok := idx.tokens[keyword]; ok {
 			for _, fileID := range fileIDs {
@@ -126,7 +126,7 @@ func (idx *Indexer) IndexDocument(path, title, content string, tags []string, la
 		item.Tags = tags
 		item.Language = language
 		item.IndexedAt = time.Now()
-		
+
 		// 重新建立token索引
 		idx.reindexTokens(fileID, title, content, tags)
 		return fileID

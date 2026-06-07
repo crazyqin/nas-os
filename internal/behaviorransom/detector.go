@@ -13,10 +13,10 @@ import (
 
 // BehaviorDetector 行为模式检测器
 type BehaviorDetector struct {
-	mu         sync.RWMutex
-	config     DetectorConfig
-	patterns   []BehaviorPattern
-	entropy    *EntropyAnalyzer
+	mu       sync.RWMutex
+	config   DetectorConfig
+	patterns []BehaviorPattern
+	entropy  *EntropyAnalyzer
 }
 
 // NewBehaviorDetector 创建新的行为检测器
@@ -113,18 +113,18 @@ func (bd *BehaviorDetector) DetectPatterns(activities []FileActivity) []ThreatEv
 
 // activityStats 活动统计
 type activityStats struct {
-	totalCount    int
-	modifyCount   int
-	deleteCount   int
-	renameCount   int
-	createCount   int
-	suspExtCount  int
-	extChangeCount int
+	totalCount       int
+	modifyCount      int
+	deleteCount      int
+	renameCount      int
+	createCount      int
+	suspExtCount     int
+	extChangeCount   int
 	highEntropyCount int
-	avgEntropy    float64
-	maxEntropy    float64
-	processCounts map[string]int
-	userCounts    map[string]int
+	avgEntropy       float64
+	maxEntropy       float64
+	processCounts    map[string]int
+	userCounts       map[string]int
 }
 
 // calculateStats 计算活动统计

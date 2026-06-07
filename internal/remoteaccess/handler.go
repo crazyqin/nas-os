@@ -99,8 +99,8 @@ func (h *Handler) handleConnect(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		UserID     string        `json:"user_id"`
-		DeviceName string        `json:"device_name"`
+		UserID     string         `json:"user_id"`
+		DeviceName string         `json:"device_name"`
 		Protocol   AccessProtocol `json:"protocol"`
 	}
 

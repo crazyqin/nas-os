@@ -9,10 +9,10 @@ import (
 
 // OpenVPNClient manages OpenVPN client connections and configurations.
 type OpenVPNClient struct {
-	mu       sync.RWMutex
-	configs  map[string]*OpenVPNConfig
+	mu          sync.RWMutex
+	configs     map[string]*OpenVPNConfig
 	connections map[string]*VPNConnection
-	profiles map[string]*VPNProfile
+	profiles    map[string]*VPNProfile
 }
 
 // NewOpenVPNClient creates a new OpenVPN client manager.

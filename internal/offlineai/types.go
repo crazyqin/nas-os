@@ -78,22 +78,22 @@ const (
 
 // Config 离线AI引擎配置
 type Config struct {
-	Enabled         bool          `json:"enabled"`
-	EngineType      EngineType    `json:"engine_type"`
-	ModelDir        string        `json:"model_dir"`        // 模型存放目录
-	DefaultModel    string        `json:"default_model"`    // 默认模型名称
-	ContextSize     int           `json:"context_size"`     // 上下文窗口大小
-	MaxTokens       int           `json:"max_tokens"`       // 单次生成最大 token 数
-	Temperature     float64       `json:"temperature"`      // 采样温度
-	TopP            float64       `json:"top_p"`            // Top-P 采样
-	TopK            int           `json:"top_k"`            // Top-K 采样
-	RepeatPenalty   float64       `json:"repeat_penalty"`   // 重复惩罚
-	GPUEnabled      bool          `json:"gpu_enabled"`      // 是否启用 GPU
-	GPULayers       int           `json:"gpu_layers"`       // GPU 卸载层数
-	Threads         int           `json:"threads"`          // CPU 线程数
-	MaxConcurrent   int           `json:"max_concurrent"`   // 最大并发推理数
-	MaxHistory      int           `json:"max_history"`      // 最大对话历史条数
-	SchedulerWorkers int          `json:"scheduler_workers"` // 调度器工作线程数
+	Enabled          bool       `json:"enabled"`
+	EngineType       EngineType `json:"engine_type"`
+	ModelDir         string     `json:"model_dir"`         // 模型存放目录
+	DefaultModel     string     `json:"default_model"`     // 默认模型名称
+	ContextSize      int        `json:"context_size"`      // 上下文窗口大小
+	MaxTokens        int        `json:"max_tokens"`        // 单次生成最大 token 数
+	Temperature      float64    `json:"temperature"`       // 采样温度
+	TopP             float64    `json:"top_p"`             // Top-P 采样
+	TopK             int        `json:"top_k"`             // Top-K 采样
+	RepeatPenalty    float64    `json:"repeat_penalty"`    // 重复惩罚
+	GPUEnabled       bool       `json:"gpu_enabled"`       // 是否启用 GPU
+	GPULayers        int        `json:"gpu_layers"`        // GPU 卸载层数
+	Threads          int        `json:"threads"`           // CPU 线程数
+	MaxConcurrent    int        `json:"max_concurrent"`    // 最大并发推理数
+	MaxHistory       int        `json:"max_history"`       // 最大对话历史条数
+	SchedulerWorkers int        `json:"scheduler_workers"` // 调度器工作线程数
 }
 
 // DefaultConfig 默认配置
@@ -124,12 +124,12 @@ type Model struct {
 	Path        string      `json:"path"`
 	Format      ModelFormat `json:"format"`
 	QuantType   QuantType   `json:"quant_type"`
-	Size        int64       `json:"size"`         // 模型文件大小（字节）
-	Parameters  int64       `json:"parameters"`   // 参数量
-	VRAMUsage   int64       `json:"vram_usage"`   // 显存占用（字节）
+	Size        int64       `json:"size"`       // 模型文件大小（字节）
+	Parameters  int64       `json:"parameters"` // 参数量
+	VRAMUsage   int64       `json:"vram_usage"` // 显存占用（字节）
 	Status      ModelStatus `json:"status"`
-	GPUSupport  bool        `json:"gpu_support"`  // 是否支持 GPU
-	MaxContext  int         `json:"max_context"`  // 模型最大上下文长度
+	GPUSupport  bool        `json:"gpu_support"` // 是否支持 GPU
+	MaxContext  int         `json:"max_context"` // 模型最大上下文长度
 	LoadedAt    time.Time   `json:"loaded_at"`
 	Description string      `json:"description,omitempty"`
 }
@@ -138,9 +138,9 @@ type Model struct {
 type GPUInfo struct {
 	Available   bool   `json:"available"`
 	Name        string `json:"name"`
-	VRAMTotal   int64  `json:"vram_total"`   // 总显存（字节）
-	VRAMUsed    int64  `json:"vram_used"`     // 已用显存
-	VRAMFree    int64  `json:"vram_free"`     // 可用显存
+	VRAMTotal   int64  `json:"vram_total"` // 总显存（字节）
+	VRAMUsed    int64  `json:"vram_used"`  // 已用显存
+	VRAMFree    int64  `json:"vram_free"`  // 可用显存
 	Driver      string `json:"driver"`
 	CUDAVersion string `json:"cuda_version,omitempty"`
 }
@@ -150,29 +150,29 @@ type Message struct {
 	ID        string    `json:"id"`
 	Role      Role      `json:"role"`
 	Content   string    `json:"content"`
-	Tokens    int       `json:"tokens"`    // 消耗的 token 数
+	Tokens    int       `json:"tokens"` // 消耗的 token 数
 	Timestamp time.Time `json:"timestamp"`
 }
 
 // Conversation 对话会话
 type Conversation struct {
-	ID         string    `json:"id"`
-	Messages   []Message `json:"messages"`
-	ModelName  string    `json:"model_name"`
-	TotalTokens int     `json:"total_tokens"` // 总消耗 token
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID          string    `json:"id"`
+	Messages    []Message `json:"messages"`
+	ModelName   string    `json:"model_name"`
+	TotalTokens int       `json:"total_tokens"` // 总消耗 token
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // InferRequest 推理请求
 type InferRequest struct {
-	Prompt      string  `json:"prompt" binding:"required"`
-	ModelName   string  `json:"model_name,omitempty"`
-	MaxTokens   int     `json:"max_tokens,omitempty"`
-	Temperature float64 `json:"temperature,omitempty"`
-	TopP        float64 `json:"top_p,omitempty"`
-	TopK        int     `json:"top_k,omitempty"`
-	Stream      bool    `json:"stream,omitempty"`      // 是否流式输出
+	Prompt      string   `json:"prompt" binding:"required"`
+	ModelName   string   `json:"model_name,omitempty"`
+	MaxTokens   int      `json:"max_tokens,omitempty"`
+	Temperature float64  `json:"temperature,omitempty"`
+	TopP        float64  `json:"top_p,omitempty"`
+	TopK        int      `json:"top_k,omitempty"`
+	Stream      bool     `json:"stream,omitempty"`     // 是否流式输出
 	StopWords   []string `json:"stop_words,omitempty"` // 停止词
 }
 
@@ -189,11 +189,11 @@ type InferResponse struct {
 type Task struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
-	Type        string       `json:"type"`        // infer, batch, scheduled
+	Type        string       `json:"type"` // infer, batch, scheduled
 	Status      TaskStatus   `json:"status"`
 	Priority    TaskPriority `json:"priority"`
-	Payload     interface{}  `json:"payload"`      // 任务负载
-	Result      interface{}  `json:"result"`       // 任务结果
+	Payload     interface{}  `json:"payload"` // 任务负载
+	Result      interface{}  `json:"result"`  // 任务结果
 	Error       string       `json:"error,omitempty"`
 	Attempts    int          `json:"attempts"`
 	MaxAttempts int          `json:"max_attempts"`
@@ -214,15 +214,15 @@ type ChatRequest struct {
 
 // ChatResponse 对话响应
 type ChatResponse struct {
-	ConversationID string `json:"conversation_id"`
-	Reply          string `json:"reply"`
-	TokensUsed     int    `json:"tokens_used"`
+	ConversationID string        `json:"conversation_id"`
+	Reply          string        `json:"reply"`
+	TokensUsed     int           `json:"tokens_used"`
 	Duration       time.Duration `json:"duration"`
 }
 
 // StreamChunk 流式输出块
 type StreamChunk struct {
-	Text     string `json:"text"`
-	Done     bool   `json:"done"`
-	TokenID  int    `json:"token_id,omitempty"`
+	Text    string `json:"text"`
+	Done    bool   `json:"done"`
+	TokenID int    `json:"token_id,omitempty"`
 }

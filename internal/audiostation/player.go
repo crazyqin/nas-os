@@ -10,9 +10,9 @@ import (
 type Player struct {
 	mu    sync.Mutex
 	mgr   *Manager
-	queue []string   // trackID 列表
-	index int        // 当前播放索引
-	mode  PlayMode   // 播放模式
+	queue []string // trackID 列表
+	index int      // 当前播放索引
+	mode  PlayMode // 播放模式
 }
 
 // NewPlayer 创建播放队列管理器.

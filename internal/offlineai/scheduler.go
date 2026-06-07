@@ -15,15 +15,15 @@ import (
 
 // Scheduler 任务调度器
 type Scheduler struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	tasks    map[string]*Task
-	queue    *taskHeap
-	workers  int
-	stopCh   chan struct{}
-	running  bool
-	taskCh   chan *Task
-	handler  TaskHandler
+	mu      sync.RWMutex
+	logger  *zap.Logger
+	tasks   map[string]*Task
+	queue   *taskHeap
+	workers int
+	stopCh  chan struct{}
+	running bool
+	taskCh  chan *Task
+	handler TaskHandler
 }
 
 // TaskHandler 任务处理函数

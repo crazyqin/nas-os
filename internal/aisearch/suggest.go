@@ -10,11 +10,11 @@ import (
 
 // Suggester 搜索建议器
 type Suggester struct {
-	mu          sync.RWMutex
-	trie        *Trie
-	history     []SearchHistory
-	hotWords    map[string]int64
-	maxHistory  int
+	mu             sync.RWMutex
+	trie           *Trie
+	history        []SearchHistory
+	hotWords       map[string]int64
+	maxHistory     int
 	maxSuggestions int
 }
 
@@ -280,8 +280,8 @@ func extractKeywords(content string) []string {
 
 	// 简单分词：按空格和标点分割
 	words := strings.FieldsFunc(content, func(r rune) bool {
-		return r == ' ' || r == '\t' || r == '\n' || r == '\r' || 
-			r == ',' || r == '.' || r == '!' || r == '?' || 
+		return r == ' ' || r == '\t' || r == '\n' || r == '\r' ||
+			r == ',' || r == '.' || r == '!' || r == '?' ||
 			r == ';' || r == ':' || r == '"' || r == '\'' ||
 			r == '(' || r == ')' || r == '[' || r == ']' ||
 			r == '{' || r == '}' || r == '/' || r == '\\' ||

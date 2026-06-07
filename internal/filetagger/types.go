@@ -31,11 +31,11 @@ const (
 type Tag struct {
 	ID        string       `json:"id"`
 	Name      string       `json:"name"`
-	Category  FileCategory `json:"category"`          // 标签所属分类
+	Category  FileCategory `json:"category"`           // 标签所属分类
 	ParentID  string       `json:"parentId,omitempty"` // 父标签ID，用于层级关系
 	Color     string       `json:"color,omitempty"`
 	Icon      string       `json:"icon,omitempty"`
-	IsAuto    bool         `json:"isAuto"`            // 是否自动标签
+	IsAuto    bool         `json:"isAuto"`             // 是否自动标签
 	AutoRule  string       `json:"autoRule,omitempty"` // 生成该标签的规则ID
 	CreatedAt time.Time    `json:"createdAt"`
 	UpdatedAt time.Time    `json:"updatedAt"`
@@ -54,7 +54,7 @@ type FileTag struct {
 	FilePath  string    `json:"filePath"`
 	TagID     string    `json:"tagId"`
 	TagName   string    `json:"tagName"`
-	IsAuto    bool      `json:"isAuto"`   // 是否由规则自动生成
+	IsAuto    bool      `json:"isAuto"` // 是否由规则自动生成
 	RuleID    string    `json:"ruleId,omitempty"`
 	AppliedAt time.Time `json:"appliedAt"`
 }
@@ -101,10 +101,10 @@ type AutoRule struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description,omitempty"`
 	Enabled     bool      `json:"enabled"`
-	Priority    int       `json:"priority"`    // 优先级，数字越大越先执行
-	Type        RuleType  `json:"type"`        // 规则类型
-	TagIDs      []string  `json:"tagIds"`      // 匹配后应用的标签ID列表
-	Conditions  Condition `json:"conditions"`  // 匹配条件
+	Priority    int       `json:"priority"`   // 优先级，数字越大越先执行
+	Type        RuleType  `json:"type"`       // 规则类型
+	TagIDs      []string  `json:"tagIds"`     // 匹配后应用的标签ID列表
+	Conditions  Condition `json:"conditions"` // 匹配条件
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
@@ -121,8 +121,8 @@ type Condition struct {
 	PathPatterns []string `json:"pathPatterns,omitempty"` // 如 ["/photos/**", "*/backup/*"]
 
 	// 正则表达式匹配
-	PathRegex   string `json:"pathRegex,omitempty"`   // 正则表达式
-	NameRegex   string `json:"nameRegex,omitempty"`   // 文件名正则
+	PathRegex string `json:"pathRegex,omitempty"` // 正则表达式
+	NameRegex string `json:"nameRegex,omitempty"` // 文件名正则
 
 	// 文件大小条件
 	SizeOp     Operator `json:"sizeOp,omitempty"`     // 比较操作
@@ -195,29 +195,29 @@ type CategoryStat struct {
 
 // OverallStats 总体统计.
 type OverallStats struct {
-	TotalFiles    int64          `json:"totalFiles"`
-	TotalTags     int64          `json:"totalTags"`
-	TotalRules    int64          `json:"totalRules"`
-	TotalSize     int64          `json:"totalSize"`
-	ByCategory    []CategoryStat `json:"byCategory"`
-	TopTags       []TagStat      `json:"topTags"`
-	LastScanTime  time.Time      `json:"lastScanTime"`
+	TotalFiles   int64          `json:"totalFiles"`
+	TotalTags    int64          `json:"totalTags"`
+	TotalRules   int64          `json:"totalRules"`
+	TotalSize    int64          `json:"totalSize"`
+	ByCategory   []CategoryStat `json:"byCategory"`
+	TopTags      []TagStat      `json:"topTags"`
+	LastScanTime time.Time      `json:"lastScanTime"`
 }
 
 // ========== 搜索相关 ==========
 
 // SearchQuery 搜索查询.
 type SearchQuery struct {
-	Tags       []string     `json:"tags,omitempty"`       // 标签ID列表 (AND 逻辑)
-	AnyTags    []string     `json:"anyTags,omitempty"`    // 标签ID列表 (OR 逻辑)
-	ExcludeTags []string    `json:"excludeTags,omitempty"` // 排除的标签
-	Category   FileCategory `json:"category,omitempty"`   // 文件分类
-	PathPrefix string       `json:"pathPrefix,omitempty"` // 路径前缀
-	MinSize    int64        `json:"minSize,omitempty"`    // 最小文件大小
-	MaxSize    int64        `json:"maxSize,omitempty"`    // 最大文件大小
-	IsAuto     *bool        `json:"isAuto,omitempty"`     // 是否自动标签
-	Page       int          `json:"page"`                 // 页码
-	PageSize   int          `json:"pageSize"`             // 每页数量
+	Tags        []string     `json:"tags,omitempty"`        // 标签ID列表 (AND 逻辑)
+	AnyTags     []string     `json:"anyTags,omitempty"`     // 标签ID列表 (OR 逻辑)
+	ExcludeTags []string     `json:"excludeTags,omitempty"` // 排除的标签
+	Category    FileCategory `json:"category,omitempty"`    // 文件分类
+	PathPrefix  string       `json:"pathPrefix,omitempty"`  // 路径前缀
+	MinSize     int64        `json:"minSize,omitempty"`     // 最小文件大小
+	MaxSize     int64        `json:"maxSize,omitempty"`     // 最大文件大小
+	IsAuto      *bool        `json:"isAuto,omitempty"`      // 是否自动标签
+	Page        int          `json:"page"`                  // 页码
+	PageSize    int          `json:"pageSize"`              // 每页数量
 }
 
 // SearchResult 搜索结果.
@@ -232,11 +232,11 @@ type SearchResult struct {
 
 // ExportData 导出数据格式.
 type ExportData struct {
-	Version   string     `json:"version"`
-	ExportedAt time.Time `json:"exportedAt"`
-	Tags      []Tag      `json:"tags"`
-	Rules     []AutoRule `json:"rules"`
-	FileTags  []FileTag  `json:"fileTags"`
+	Version    string     `json:"version"`
+	ExportedAt time.Time  `json:"exportedAt"`
+	Tags       []Tag      `json:"tags"`
+	Rules      []AutoRule `json:"rules"`
+	FileTags   []FileTag  `json:"fileTags"`
 }
 
 // ========== 引擎配置 ==========
@@ -265,10 +265,10 @@ func DefaultConfig() Config {
 
 // compiledRule 编译后的规则（内部使用）.
 type compiledRule struct {
-	rule        AutoRule
-	pathRegex   *regexp.Regexp
-	nameRegex   *regexp.Regexp
-	pathGlobs   []globPattern
+	rule      AutoRule
+	pathRegex *regexp.Regexp
+	nameRegex *regexp.Regexp
+	pathGlobs []globPattern
 }
 
 // globPattern 编译后的glob模式.
@@ -279,27 +279,27 @@ type globPattern struct {
 
 // Engine 标签引擎核心结构.
 type Engine struct {
-	config       Config
-	mu           sync.RWMutex
-	tags         map[string]*Tag       // tagID -> Tag
-	rules        map[string]*compiledRule // ruleID -> compiledRule
-	fileTags     map[string][]FileTag  // filePath -> []FileTag
-	tagChildren  map[string][]string   // parentID -> []childID
+	config      Config
+	mu          sync.RWMutex
+	tags        map[string]*Tag          // tagID -> Tag
+	rules       map[string]*compiledRule // ruleID -> compiledRule
+	fileTags    map[string][]FileTag     // filePath -> []FileTag
+	tagChildren map[string][]string      // parentID -> []childID
 }
 
 // ScanRequest 扫描请求.
 type ScanRequest struct {
-	Paths   []string `json:"paths" binding:"required"`   // 要扫描的路径
-	Force   bool     `json:"force"`                       // 强制重新扫描
-	Workers int      `json:"workers,omitempty"`           // 并发数
+	Paths   []string `json:"paths" binding:"required"` // 要扫描的路径
+	Force   bool     `json:"force"`                    // 强制重新扫描
+	Workers int      `json:"workers,omitempty"`        // 并发数
 }
 
 // ScanResult 扫描结果.
 type ScanResult struct {
-	ScannedFiles   int    `json:"scannedFiles"`
-	NewTags        int    `json:"newTags"`
-	UpdatedFiles   int    `json:"updatedFiles"`
-	SkippedFiles   int    `json:"skippedFiles"`
-	Errors         int    `json:"errors"`
-	Duration       string `json:"duration"`
+	ScannedFiles int    `json:"scannedFiles"`
+	NewTags      int    `json:"newTags"`
+	UpdatedFiles int    `json:"updatedFiles"`
+	SkippedFiles int    `json:"skippedFiles"`
+	Errors       int    `json:"errors"`
+	Duration     string `json:"duration"`
 }

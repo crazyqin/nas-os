@@ -97,7 +97,7 @@ func TestNewScorer(t *testing.T) {
 func TestNewScorerWithConfig(t *testing.T) {
 	cfg := &Config{
 		Weights: map[ScoreCategory]float64{
-			CategoryDisk: 0.5,
+			CategoryDisk:    0.5,
 			CategoryNetwork: 0.5,
 		},
 		Threshold: 80,
@@ -245,8 +245,8 @@ func TestSetWeights(t *testing.T) {
 	scorer := NewScorer()
 
 	newWeights := map[ScoreCategory]float64{
-		CategoryDisk:    0.4,
-		CategoryNetwork: 0.3,
+		CategoryDisk:     0.4,
+		CategoryNetwork:  0.3,
 		CategorySecurity: 0.3,
 	}
 	scorer.SetWeights(newWeights)

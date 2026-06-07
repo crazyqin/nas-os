@@ -13,8 +13,8 @@ import (
 
 // Proxy 反向代理引擎
 type Proxy struct {
-	config  ProxyConfig
-	balancer *Balancer
+	config    ProxyConfig
+	balancer  *Balancer
 	transport *http.Transport
 }
 
@@ -25,17 +25,17 @@ func NewProxy(config ProxyConfig, balancer *Balancer) *Proxy {
 			Timeout:   config.DialTimeout,
 			KeepAlive: 30 * time.Second,
 		}).DialContext,
-		MaxIdleConns:        config.MaxIdleConns,
-		MaxIdleConnsPerHost: config.MaxIdleConnsPerHost,
-		MaxConnsPerHost:     config.MaxConnsPerHost,
-		IdleConnTimeout:     config.IdleTimeout,
-		TLSHandshakeTimeout: 10 * time.Second,
+		MaxIdleConns:          config.MaxIdleConns,
+		MaxIdleConnsPerHost:   config.MaxIdleConnsPerHost,
+		MaxConnsPerHost:       config.MaxConnsPerHost,
+		IdleConnTimeout:       config.IdleTimeout,
+		TLSHandshakeTimeout:   10 * time.Second,
 		ResponseHeaderTimeout: config.ResponseTimeout,
 	}
 
 	return &Proxy{
-		config:   config,
-		balancer: balancer,
+		config:    config,
+		balancer:  balancer,
 		transport: transport,
 	}
 }
@@ -67,7 +67,7 @@ func (p *Proxy) createReverseProxy(backend *Backend) *httputil.ReverseProxy {
 	if err != nil {
 		// 返回一个简单的错误处理器
 		return &httputil.ReverseProxy{
-			Director: func(req *http.Request) {},
+			Director:  func(req *http.Request) {},
 			Transport: &errorTransport{err: err},
 		}
 	}

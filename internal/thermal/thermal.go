@@ -18,14 +18,14 @@ import (
 
 // ThermalZone 温度区域
 type ThermalZone struct {
-	ID         string    `json:"id"`
-	Name       string    `json:"name"`
-	Type       string    `json:"type"`
-	Temp       float64   `json:"temp"`        // 摄氏度
-	MaxTemp    float64   `json:"maxTemp"`     // 最高温度阈值
-	CritTemp   float64   `json:"critTemp"`    // 临界温度阈值
-	Status     ZoneStatus `json:"status"`
-	UpdatedAt  time.Time `json:"updatedAt"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Type      string     `json:"type"`
+	Temp      float64    `json:"temp"`     // 摄氏度
+	MaxTemp   float64    `json:"maxTemp"`  // 最高温度阈值
+	CritTemp  float64    `json:"critTemp"` // 临界温度阈值
+	Status    ZoneStatus `json:"status"`
+	UpdatedAt time.Time  `json:"updatedAt"`
 }
 
 // ZoneStatus 温度区域状态
@@ -42,9 +42,9 @@ const (
 type FanInfo struct {
 	ID       string  `json:"id"`
 	Name     string  `json:"name"`
-	Speed    int     `json:"speed"`     // RPM
+	Speed    int     `json:"speed"` // RPM
 	MaxSpeed int     `json:"maxSpeed"`
-	Percent  float64 `json:"percent"`   // 0-100
+	Percent  float64 `json:"percent"` // 0-100
 	Mode     FanMode `json:"mode"`
 }
 
@@ -60,12 +60,12 @@ const (
 
 // ThermalPolicy 温控策略
 type ThermalPolicy struct {
-	Name         string        `json:"name"`
-	WarmThresh   float64       `json:"warmThresh"`   // 升温阈值
-	HotThresh    float64       `json:"hotThresh"`    // 高温阈值
-	CritThresh   float64       `json:"critThresh"`   // 临界阈值
-	FanCurve     []FanPoint    `json:"fanCurve"`     // 风扇曲线
-	ThrottleCPU  bool          `json:"throttleCPU"`  // 高温时降频
+	Name          string        `json:"name"`
+	WarmThresh    float64       `json:"warmThresh"`  // 升温阈值
+	HotThresh     float64       `json:"hotThresh"`   // 高温阈值
+	CritThresh    float64       `json:"critThresh"`  // 临界阈值
+	FanCurve      []FanPoint    `json:"fanCurve"`    // 风扇曲线
+	ThrottleCPU   bool          `json:"throttleCPU"` // 高温时降频
 	CheckInterval time.Duration `json:"checkInterval"`
 }
 
@@ -77,17 +77,17 @@ type FanPoint struct {
 
 // ThermalOverview 散热总览
 type ThermalOverview struct {
-	CPUTemp      float64        `json:"cpuTemp"`
-	GPUTemp      float64        `json:"gpuTemp,omitempty"`
-	AmbientTemp  float64        `json:"ambientTemp"`
-	HottestZone  string         `json:"hottestZone"`
-	HottestTemp  float64        `json:"hottestTemp"`
-	OverallStatus ZoneStatus    `json:"overallStatus"`
-	Zones        []ThermalZone  `json:"zones"`
-	Fans         []FanInfo      `json:"fans"`
-	Alerts       []ThermalAlert `json:"alerts,omitempty"`
-	Trend        TempTrend      `json:"trend"`
-	UpdatedAt    time.Time      `json:"updatedAt"`
+	CPUTemp       float64        `json:"cpuTemp"`
+	GPUTemp       float64        `json:"gpuTemp,omitempty"`
+	AmbientTemp   float64        `json:"ambientTemp"`
+	HottestZone   string         `json:"hottestZone"`
+	HottestTemp   float64        `json:"hottestTemp"`
+	OverallStatus ZoneStatus     `json:"overallStatus"`
+	Zones         []ThermalZone  `json:"zones"`
+	Fans          []FanInfo      `json:"fans"`
+	Alerts        []ThermalAlert `json:"alerts,omitempty"`
+	Trend         TempTrend      `json:"trend"`
+	UpdatedAt     time.Time      `json:"updatedAt"`
 }
 
 // TempTrend 温度趋势

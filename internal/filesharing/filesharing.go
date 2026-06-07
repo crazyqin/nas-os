@@ -38,9 +38,9 @@ type ShareStatus string
 
 const (
 	StatusActive       ShareStatus = "active"        // 活跃
-	StatusExpired      ShareStatus = "expired"        // 已过期
-	StatusRevoked      ShareStatus = "revoked"        // 已撤销
-	StatusLimitReached ShareStatus = "limit_reached"  // 达到下载限制
+	StatusExpired      ShareStatus = "expired"       // 已过期
+	StatusRevoked      ShareStatus = "revoked"       // 已撤销
+	StatusLimitReached ShareStatus = "limit_reached" // 达到下载限制
 )
 
 // ShareLink 分享链接
@@ -76,47 +76,47 @@ type AccessLogEntry struct {
 
 // ShareStats 分享统计
 type ShareStats struct {
-	TotalLinks       int     `json:"totalLinks"`
-	ActiveLinks      int     `json:"activeLinks"`
-	ExpiredLinks     int     `json:"expiredLinks"`
-	RevokedLinks     int     `json:"revokedLinks"`
-	TotalDownloads   int     `json:"totalDownloads"`
-	TotalViews       int     `json:"totalViews"`
-	TotalUploads     int     `json:"totalUploads"`
-	AverageDownloads float64 `json:"averageDownloads"`
+	TotalLinks       int         `json:"totalLinks"`
+	ActiveLinks      int         `json:"activeLinks"`
+	ExpiredLinks     int         `json:"expiredLinks"`
+	RevokedLinks     int         `json:"revokedLinks"`
+	TotalDownloads   int         `json:"totalDownloads"`
+	TotalViews       int         `json:"totalViews"`
+	TotalUploads     int         `json:"totalUploads"`
+	AverageDownloads float64     `json:"averageDownloads"`
 	TopLinks         []ShareLink `json:"topLinks,omitempty"`
 }
 
 // PreviewInfo 预览信息
 type PreviewInfo struct {
-	FilePath    string `json:"filePath"`
-	FileName    string `json:"fileName"`
-	MimeType    string `json:"mimeType"`
-	PreviewType string `json:"previewType"` // image, video, document, text, unsupported
-	PreviewURL  string `json:"previewURL,omitempty"`
-	Thumbnail   string `json:"thumbnail,omitempty"`
-	Size        int64  `json:"size"`
+	FilePath    string    `json:"filePath"`
+	FileName    string    `json:"fileName"`
+	MimeType    string    `json:"mimeType"`
+	PreviewType string    `json:"previewType"` // image, video, document, text, unsupported
+	PreviewURL  string    `json:"previewURL,omitempty"`
+	Thumbnail   string    `json:"thumbnail,omitempty"`
+	Size        int64     `json:"size"`
 	ModTime     time.Time `json:"modTime"`
 }
 
 // UploadItem 上传项
 type UploadItem struct {
-	FileName string `json:"fileName"`
-	Size     int64  `json:"size"`
-	Path     string `json:"path"`
+	FileName   string    `json:"fileName"`
+	Size       int64     `json:"size"`
+	Path       string    `json:"path"`
 	UploadedAt time.Time `json:"uploadedAt"`
-	UploadedBy string `json:"uploadedBy,omitempty"`
+	UploadedBy string    `json:"uploadedBy,omitempty"`
 }
 
 // FileSharingManager 文件分享管理器
 type FileSharingManager struct {
-	mu           sync.RWMutex
-	links        map[string]*ShareLink    // token -> ShareLink
-	linksByID    map[string]*ShareLink    // id -> ShareLink
-	linksBySlug  map[string]*ShareLink    // customSlug -> ShareLink
-	baseURL      string
-	dataDir      string
-	maxFileSize  int64
+	mu          sync.RWMutex
+	links       map[string]*ShareLink // token -> ShareLink
+	linksByID   map[string]*ShareLink // id -> ShareLink
+	linksBySlug map[string]*ShareLink // customSlug -> ShareLink
+	baseURL     string
+	dataDir     string
+	maxFileSize int64
 }
 
 // NewFileSharingManager 创建文件分享管理器

@@ -11,10 +11,10 @@ import (
 
 // Manager 不可变快照管理器
 type Manager struct {
-	mu          sync.RWMutex
-	logger      *slog.Logger
-	snapshots   map[string]*ImmutableSnapshot
-	policy      RetentionPolicy
+	mu           sync.RWMutex
+	logger       *slog.Logger
+	snapshots    map[string]*ImmutableSnapshot
+	policy       RetentionPolicy
 	threatEvents []ThreatEvent
 }
 
@@ -64,17 +64,17 @@ func (m *Manager) CreateSnapshot(datasetName, sourcePath, storagePath string, re
 	id := generateID()
 
 	snap := &ImmutableSnapshot{
-		ID:           id,
-		DatasetName:  datasetName,
-		Status:       StatusPending,
-		CreatedAt:    now,
-		ExpiresAt:    now.Add(time.Duration(hours) * time.Hour),
-		Locked:       false,
-		Size:         0,
-		Tags:         tags,
-		SourcePath:   sourcePath,
-		StoragePath:  storagePath,
-		ThreatLevel:  ThreatLevelNormal,
+		ID:          id,
+		DatasetName: datasetName,
+		Status:      StatusPending,
+		CreatedAt:   now,
+		ExpiresAt:   now.Add(time.Duration(hours) * time.Hour),
+		Locked:      false,
+		Size:        0,
+		Tags:        tags,
+		SourcePath:  sourcePath,
+		StoragePath: storagePath,
+		ThreatLevel: ThreatLevelNormal,
 	}
 
 	m.snapshots[id] = snap

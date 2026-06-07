@@ -10,12 +10,12 @@ import (
 
 // Manager manages PXE boot services (TFTP + HTTP boot)
 type Manager struct {
-	mu       sync.RWMutex
-	server   PXEServer
-	config   PXEConfig
-	clients  map[string]PXEClient  // key: MAC address
-	images   map[string]PXEImage   // key: image ID
-	running  bool
+	mu           sync.RWMutex
+	server       PXEServer
+	config       PXEConfig
+	clients      map[string]PXEClient // key: MAC address
+	images       map[string]PXEImage  // key: image ID
+	running      bool
 	totalBoots   int
 	successBoots int
 }

@@ -55,16 +55,16 @@ type OUFilter struct {
 
 // SyncRule 同步规则
 type SyncRule struct {
-	ID          string    `json:"id"`           // 规则ID
-	Name        string    `json:"name"`         // 规则名称
-	Description string    `json:"description"`  // 描述
-	Filter      OUFilter  `json:"filter"`       // OU过滤器
-	SyncUsers   bool      `json:"sync_users"`   // 是否同步用户
-	SyncGroups  bool      `json:"sync_groups"`  // 是否同步组
-	SyncComputers bool    `json:"sync_computers"` // 是否同步计算机
-	Enabled     bool      `json:"enabled"`      // 是否启用
-	CreatedAt   time.Time `json:"created_at"`   // 创建时间
-	UpdatedAt   time.Time `json:"updated_at"`   // 更新时间
+	ID            string    `json:"id"`             // 规则ID
+	Name          string    `json:"name"`           // 规则名称
+	Description   string    `json:"description"`    // 描述
+	Filter        OUFilter  `json:"filter"`         // OU过滤器
+	SyncUsers     bool      `json:"sync_users"`     // 是否同步用户
+	SyncGroups    bool      `json:"sync_groups"`    // 是否同步组
+	SyncComputers bool      `json:"sync_computers"` // 是否同步计算机
+	Enabled       bool      `json:"enabled"`        // 是否启用
+	CreatedAt     time.Time `json:"created_at"`     // 创建时间
+	UpdatedAt     time.Time `json:"updated_at"`     // 更新时间
 }
 
 // ============================================================
@@ -75,28 +75,28 @@ type SyncRule struct {
 type SyncStatus string
 
 const (
-	SyncStatusIdle     SyncStatus = "idle"     // 空闲
-	SyncStatusSyncing  SyncStatus = "syncing"  // 同步中
-	SyncStatusSuccess  SyncStatus = "success"  // 成功
-	SyncStatusFailed   SyncStatus = "failed"   // 失败
-	SyncStatusPartial  SyncStatus = "partial"  // 部分成功
+	SyncStatusIdle    SyncStatus = "idle"    // 空闲
+	SyncStatusSyncing SyncStatus = "syncing" // 同步中
+	SyncStatusSuccess SyncStatus = "success" // 成功
+	SyncStatusFailed  SyncStatus = "failed"  // 失败
+	SyncStatusPartial SyncStatus = "partial" // 部分成功
 )
 
 // SyncResult 同步结果
 type SyncResult struct {
-	ID            string     `json:"id"`             // 同步ID
-	Status        SyncStatus `json:"status"`         // 同步状态
-	StartTime     time.Time  `json:"start_time"`     // 开始时间
-	EndTime       time.Time  `json:"end_time"`       // 结束时间
-	Duration      string     `json:"duration"`       // 耗时
-	TotalOUs      int        `json:"total_ous"`      // 总OU数
-	SyncedOUs     int        `json:"synced_ous"`     // 已同步OU数
-	TotalUsers    int        `json:"total_users"`    // 总用户数
-	SyncedUsers   int        `json:"synced_users"`   // 已同步用户数
-	TotalGroups   int        `json:"total_groups"`   // 总组数
-	SyncedGroups  int        `json:"synced_groups"`  // 已同步组数
-	ErrorMessage  string     `json:"error_message"`  // 错误消息
-	Details       []SyncDetail `json:"details"`      // 详细信息
+	ID           string       `json:"id"`            // 同步ID
+	Status       SyncStatus   `json:"status"`        // 同步状态
+	StartTime    time.Time    `json:"start_time"`    // 开始时间
+	EndTime      time.Time    `json:"end_time"`      // 结束时间
+	Duration     string       `json:"duration"`      // 耗时
+	TotalOUs     int          `json:"total_ous"`     // 总OU数
+	SyncedOUs    int          `json:"synced_ous"`    // 已同步OU数
+	TotalUsers   int          `json:"total_users"`   // 总用户数
+	SyncedUsers  int          `json:"synced_users"`  // 已同步用户数
+	TotalGroups  int          `json:"total_groups"`  // 总组数
+	SyncedGroups int          `json:"synced_groups"` // 已同步组数
+	ErrorMessage string       `json:"error_message"` // 错误消息
+	Details      []SyncDetail `json:"details"`       // 详细信息
 }
 
 // SyncDetail 同步详细信息
@@ -129,15 +129,15 @@ type SyncHistory struct {
 
 // SyncStats 同步统计
 type SyncStats struct {
-	TotalSyncs     int       `json:"total_syncs"`     // 总同步次数
-	SuccessSyncs   int       `json:"success_syncs"`   // 成功次数
-	FailedSyncs    int       `json:"failed_syncs"`    // 失败次数
-	LastSyncTime   time.Time `json:"last_sync_time"`  // 最后同步时间
-	TotalOUs       int       `json:"total_ous"`       // 总OU数
-	SelectedOUs    int       `json:"selected_ous"`    // 已选择OU数
-	TotalUsers     int       `json:"total_users"`     // 总用户数
-	TotalGroups    int       `json:"total_groups"`    // 总组数
-	AvgSyncDuration string  `json:"avg_sync_duration"` // 平均同步耗时
+	TotalSyncs      int       `json:"total_syncs"`       // 总同步次数
+	SuccessSyncs    int       `json:"success_syncs"`     // 成功次数
+	FailedSyncs     int       `json:"failed_syncs"`      // 失败次数
+	LastSyncTime    time.Time `json:"last_sync_time"`    // 最后同步时间
+	TotalOUs        int       `json:"total_ous"`         // 总OU数
+	SelectedOUs     int       `json:"selected_ous"`      // 已选择OU数
+	TotalUsers      int       `json:"total_users"`       // 总用户数
+	TotalGroups     int       `json:"total_groups"`      // 总组数
+	AvgSyncDuration string    `json:"avg_sync_duration"` // 平均同步耗时
 }
 
 // ============================================================
@@ -153,8 +153,8 @@ type OUListResponse struct {
 
 // OUSelectionRequest OU选择请求
 type OUSelectionRequest struct {
-	OUDNs   []string `json:"ou_dns"`   // 要选择的OU DN列表
-	Replace bool     `json:"replace"`  // 是否替换现有选择
+	OUDNs   []string `json:"ou_dns"`  // 要选择的OU DN列表
+	Replace bool     `json:"replace"` // 是否替换现有选择
 }
 
 // SyncRequest 同步请求
@@ -186,9 +186,9 @@ type SyncHistoryResponse struct {
 
 // StatsResponse 统计响应
 type StatsResponse struct {
-	Code    int        `json:"code"`
-	Message string     `json:"message"`
-	Data    SyncStats  `json:"data"`
+	Code    int       `json:"code"`
+	Message string    `json:"message"`
+	Data    SyncStats `json:"data"`
 }
 
 // RuleListResponse 规则列表响应

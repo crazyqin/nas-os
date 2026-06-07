@@ -206,7 +206,7 @@ func (m *Manager) checkCPU() (SystemCheck, []Issue) {
 			ID: generateID(), Category: CheckCategoryCPU, Severity: IssueSeverityHigh,
 			Status: IssueStatusOpen, Title: "CPU 使用率过高",
 			Description: fmt.Sprintf("CPU 使用率达到 %.1f%%，超过阈值 90%%", cpuUsage),
-			Impact: "系统响应变慢，服务性能下降", RootCause: "可能存在异常进程或资源竞争",
+			Impact:      "系统响应变慢，服务性能下降", RootCause: "可能存在异常进程或资源竞争",
 			DetectedAt: time.Now(),
 		})
 	} else if cpuUsage > 70 {
@@ -216,7 +216,7 @@ func (m *Manager) checkCPU() (SystemCheck, []Issue) {
 			ID: generateID(), Category: CheckCategoryCPU, Severity: IssueSeverityMedium,
 			Status: IssueStatusOpen, Title: "CPU 使用率偏高",
 			Description: fmt.Sprintf("CPU 使用率为 %.1f%%，需要关注", cpuUsage),
-			Impact: "可能影响服务性能", RootCause: "系统负载较高",
+			Impact:      "可能影响服务性能", RootCause: "系统负载较高",
 			DetectedAt: time.Now(),
 		})
 	}
@@ -250,7 +250,7 @@ func (m *Manager) checkMemory() (SystemCheck, []Issue) {
 			ID: generateID(), Category: CheckCategoryMemory, Severity: IssueSeverityHigh,
 			Status: IssueStatusOpen, Title: "内存使用率过高",
 			Description: fmt.Sprintf("内存使用率达到 %.1f%%，超过阈值 90%%", memUsage),
-			Impact: "可能导致 OOM，服务崩溃", RootCause: "可能存在内存泄漏或内存不足",
+			Impact:      "可能导致 OOM，服务崩溃", RootCause: "可能存在内存泄漏或内存不足",
 			DetectedAt: time.Now(),
 		})
 	} else if memUsage > 80 {
@@ -260,7 +260,7 @@ func (m *Manager) checkMemory() (SystemCheck, []Issue) {
 			ID: generateID(), Category: CheckCategoryMemory, Severity: IssueSeverityMedium,
 			Status: IssueStatusOpen, Title: "内存使用率偏高",
 			Description: fmt.Sprintf("内存使用率为 %.1f%%，需要关注", memUsage),
-			Impact: "可能影响系统性能", RootCause: "内存使用较高",
+			Impact:      "可能影响系统性能", RootCause: "内存使用较高",
 			DetectedAt: time.Now(),
 		})
 	}
@@ -274,7 +274,7 @@ func (m *Manager) checkMemory() (SystemCheck, []Issue) {
 			ID: generateID(), Category: CheckCategoryMemory, Severity: IssueSeverityMedium,
 			Status: IssueStatusOpen, Title: "Swap 使用率偏高",
 			Description: fmt.Sprintf("Swap 使用率达到 %.1f%%，表示物理内存不足", swapUsage),
-			Impact: "系统性能下降", RootCause: "物理内存不足，频繁使用 Swap",
+			Impact:      "系统性能下降", RootCause: "物理内存不足，频繁使用 Swap",
 			DetectedAt: time.Now(),
 		})
 	}
@@ -312,7 +312,7 @@ func (m *Manager) checkDisk() ([]SystemCheck, []Issue) {
 				ID: generateID(), Category: CheckCategoryDisk, Severity: IssueSeverityCritical,
 				Status: IssueStatusOpen, Title: fmt.Sprintf("磁盘 %s 空间不足", d.mount),
 				Description: fmt.Sprintf("磁盘 %s 使用率达到 %.1f%%，即将耗尽", d.mount, d.usage),
-				Impact: "无法写入数据，服务可能崩溃", RootCause: "磁盘空间不足",
+				Impact:      "无法写入数据，服务可能崩溃", RootCause: "磁盘空间不足",
 				DetectedAt: time.Now(),
 			})
 		} else if d.usage > 85 {
@@ -322,7 +322,7 @@ func (m *Manager) checkDisk() ([]SystemCheck, []Issue) {
 				ID: generateID(), Category: CheckCategoryDisk, Severity: IssueSeverityMedium,
 				Status: IssueStatusOpen, Title: fmt.Sprintf("磁盘 %s 空间偏少", d.mount),
 				Description: fmt.Sprintf("磁盘 %s 使用率为 %.1f%%，需要清理", d.mount, d.usage),
-				Impact: "可能影响数据写入", RootCause: "磁盘空间使用率偏高",
+				Impact:      "可能影响数据写入", RootCause: "磁盘空间使用率偏高",
 				DetectedAt: time.Now(),
 			})
 		}
@@ -334,7 +334,7 @@ func (m *Manager) checkDisk() ([]SystemCheck, []Issue) {
 				ID: generateID(), Category: CheckCategoryDisk, Severity: IssueSeverityCritical,
 				Status: IssueStatusOpen, Title: fmt.Sprintf("磁盘 %s 健康状态异常", d.mount),
 				Description: fmt.Sprintf("磁盘 %s SMART 检测到问题，健康状态: %s", d.mount, d.health),
-				Impact: "磁盘可能随时故障，数据丢失风险", RootCause: "磁盘老化或硬件故障",
+				Impact:      "磁盘可能随时故障，数据丢失风险", RootCause: "磁盘老化或硬件故障",
 				DetectedAt: time.Now(),
 			})
 		}
@@ -364,7 +364,7 @@ func (m *Manager) checkNetwork() (SystemCheck, []Issue) {
 			ID: generateID(), Category: CheckCategoryNetwork, Severity: IssueSeverityHigh,
 			Status: IssueStatusOpen, Title: "网络连接异常",
 			Description: "网络连接存在问题，部分服务可能无法访问",
-			Impact: "服务不可用，用户体验下降", RootCause: "网络配置错误或硬件故障",
+			Impact:      "服务不可用，用户体验下降", RootCause: "网络配置错误或硬件故障",
 			DetectedAt: time.Now(),
 		})
 	}
@@ -379,7 +379,7 @@ func (m *Manager) checkNetwork() (SystemCheck, []Issue) {
 				ID: generateID(), Category: CheckCategoryNetwork, Severity: IssueSeverityMedium,
 				Status: IssueStatusOpen, Title: fmt.Sprintf("网络接口 %s 异常", iface),
 				Description: fmt.Sprintf("网络接口 %s 状态为 down", iface),
-				Impact: "网络连接受限", RootCause: "网卡故障或配置错误",
+				Impact:      "网络连接受限", RootCause: "网卡故障或配置错误",
 				DetectedAt: time.Now(),
 			})
 		}
@@ -420,7 +420,7 @@ func (m *Manager) checkServices() ([]SystemCheck, []Issue) {
 				ID: generateID(), Category: CheckCategoryService, Severity: IssueSeverityMedium,
 				Status: IssueStatusOpen, Title: fmt.Sprintf("服务 %s 未运行", svc.name),
 				Description: fmt.Sprintf("服务 %s 处于 %s 状态", svc.name, svc.status),
-				Impact: fmt.Sprintf("%s 服务不可用", svc.name), RootCause: "服务异常停止或未启动",
+				Impact:      fmt.Sprintf("%s 服务不可用", svc.name), RootCause: "服务异常停止或未启动",
 				DetectedAt: time.Now(),
 			})
 		}
@@ -452,7 +452,7 @@ func (m *Manager) checkSystem() ([]SystemCheck, []Issue) {
 			ID: generateID(), Category: CheckCategorySystem, Severity: IssueSeverityLow,
 			Status: IssueStatusOpen, Title: "系统时间不同步",
 			Description: "系统时间可能与 NTP 服务器不同步",
-			Impact: "日志时间戳不准确，证书验证可能失败", RootCause: "NTP 服务未运行或配置错误",
+			Impact:      "日志时间戳不准确，证书验证可能失败", RootCause: "NTP 服务未运行或配置错误",
 			DetectedAt: time.Now(),
 		})
 	}
@@ -475,7 +475,7 @@ func (m *Manager) checkSystem() ([]SystemCheck, []Issue) {
 			ID: generateID(), Category: CheckCategorySystem, Severity: IssueSeverityLow,
 			Status: IssueStatusOpen, Title: "内核参数需要优化",
 			Description: "部分内核参数配置不是最优",
-			Impact: "系统性能可能未达到最佳状态", RootCause: "内核参数配置不当",
+			Impact:      "系统性能可能未达到最佳状态", RootCause: "内核参数配置不当",
 			DetectedAt: time.Now(),
 		})
 	}
@@ -505,12 +505,12 @@ func (m *Manager) collectSystemOverview() *SystemOverview {
 		CPUUsage: 20 + rand.Float64()*60, CPUCores: 4, CPUModel: "ARM Cortex-A76",
 		CPUTemp: 40 + rand.Float64()*20, LoadAvg1: rand.Float64() * 4,
 		LoadAvg5: rand.Float64() * 3, LoadAvg15: rand.Float64() * 2,
-		MemoryTotal: 8 * 1024 * 1024 * 1024,
-		MemoryUsed:  int64(float64(8*1024*1024*1024) * (0.3 + rand.Float64()*0.5)),
+		MemoryTotal:    8 * 1024 * 1024 * 1024,
+		MemoryUsed:     int64(float64(8*1024*1024*1024) * (0.3 + rand.Float64()*0.5)),
 		MemoryUsagePct: 30 + rand.Float64()*50,
-		SwapTotal: 2 * 1024 * 1024 * 1024,
-		SwapUsed:  int64(float64(2*1024*1024*1024) * rand.Float64() * 0.2),
-		Disks: disks,
+		SwapTotal:      2 * 1024 * 1024 * 1024,
+		SwapUsed:       int64(float64(2*1024*1024*1024) * rand.Float64() * 0.2),
+		Disks:          disks,
 		NetworkInterfaces: []NetworkInterface{
 			{Name: "eth0", IP: []string{"192.168.1.100"}, MAC: "00:11:22:33:44:55",
 				Speed: "1Gbps", Status: "up", MTU: 1500},
@@ -621,9 +621,9 @@ func (m *Manager) generateRepairGuides(issues []Issue) {
 		issue := &issues[i]
 		issue.RepairGuide = &RepairGuide{
 			ID: generateID(), IssueID: issue.ID,
-			Title: fmt.Sprintf("修复指南: %s", issue.Title),
+			Title:       fmt.Sprintf("修复指南: %s", issue.Title),
 			Description: fmt.Sprintf("修复 %s 的详细步骤", issue.Title),
-			Difficulty: "medium", EstimatedTime: "15-30 分钟",
+			Difficulty:  "medium", EstimatedTime: "15-30 分钟",
 			Steps: m.getRepairSteps(issue), Warnings: []string{"操作前请备份重要数据"},
 		}
 	}
@@ -894,4 +894,3 @@ type QuickHealthResult struct {
 func (m *Manager) Stop() {
 	close(m.scheduleStop)
 }
-	

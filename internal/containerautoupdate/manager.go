@@ -510,8 +510,8 @@ func (m *Manager) sendNotification(containerID, digest string, success bool) {
 
 // storageData 存储数据结构.
 type storageData struct {
-	Policies []*UpdatePolicy `json:"policies"`
-	Records  []*UpdateRecord `json:"records"`
+	Policies []*UpdatePolicy    `json:"policies"`
+	Records  []*UpdateRecord    `json:"records"`
 	Health   []*ContainerHealth `json:"health"`
 }
 

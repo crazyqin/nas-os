@@ -10,73 +10,73 @@ import (
 type AdvisorBackupStrategy string
 
 const (
-	AdvisorStrategyFull        AdvisorBackupStrategy = "full"
-	AdvisorStrategyIncremental AdvisorBackupStrategy = "incremental"
+	AdvisorStrategyFull         AdvisorBackupStrategy = "full"
+	AdvisorStrategyIncremental  AdvisorBackupStrategy = "incremental"
 	AdvisorStrategyDifferential AdvisorBackupStrategy = "differential"
-	AdvisorStrategyMirror      AdvisorBackupStrategy = "mirror"
+	AdvisorStrategyMirror       AdvisorBackupStrategy = "mirror"
 )
 
 // AdvisorRiskLevel 风险等级
 type AdvisorRiskLevel string
 
 const (
-	AdvisorRiskLow    AdvisorRiskLevel = "low"
-	AdvisorRiskMedium AdvisorRiskLevel = "medium"
-	AdvisorRiskHigh   AdvisorRiskLevel = "high"
+	AdvisorRiskLow      AdvisorRiskLevel = "low"
+	AdvisorRiskMedium   AdvisorRiskLevel = "medium"
+	AdvisorRiskHigh     AdvisorRiskLevel = "high"
 	AdvisorRiskCritical AdvisorRiskLevel = "critical"
 )
 
 // DataSource 数据源
 type DataSource struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Type        string    `json:"type"` // file, database, vm, container, app
-	SizeGB      float64   `json:"size_gb"`
-	ChangeRate  float64   `json:"change_rate"` // 每日变更率 0-1
-	Importance  int       `json:"importance"`  // 1-10
-	LastBackup  *time.Time `json:"last_backup,omitempty"`
-	Retention   int       `json:"retention_days"`
-	Encrypted   bool      `json:"encrypted"`
-	Compressed  bool      `json:"compressed"`
+	ID         string     `json:"id"`
+	Name       string     `json:"name"`
+	Type       string     `json:"type"` // file, database, vm, container, app
+	SizeGB     float64    `json:"size_gb"`
+	ChangeRate float64    `json:"change_rate"` // 每日变更率 0-1
+	Importance int        `json:"importance"`  // 1-10
+	LastBackup *time.Time `json:"last_backup,omitempty"`
+	Retention  int        `json:"retention_days"`
+	Encrypted  bool       `json:"encrypted"`
+	Compressed bool       `json:"compressed"`
 }
 
 // BackupPlan 备份计划
 type BackupPlan struct {
-	ID          string          `json:"id"`
-	Name        string          `json:"name"`
-	Source      DataSource      `json:"source"`
-	Strategy    AdvisorBackupStrategy  `json:"strategy"`
-	Schedule    string          `json:"schedule"` // cron expression
-	Destination string          `json:"destination"`
-	RetentionDays int           `json:"retention_days"`
-	Enabled     bool            `json:"enabled"`
-	CreatedAt   time.Time       `json:"created_at"`
-	UpdatedAt   time.Time       `json:"updated_at"`
+	ID            string                `json:"id"`
+	Name          string                `json:"name"`
+	Source        DataSource            `json:"source"`
+	Strategy      AdvisorBackupStrategy `json:"strategy"`
+	Schedule      string                `json:"schedule"` // cron expression
+	Destination   string                `json:"destination"`
+	RetentionDays int                   `json:"retention_days"`
+	Enabled       bool                  `json:"enabled"`
+	CreatedAt     time.Time             `json:"created_at"`
+	UpdatedAt     time.Time             `json:"updated_at"`
 }
 
 // RiskAssessment 风险评估
 type RiskAssessment struct {
-	SourceID    string    `json:"source_id"`
-	SourceName  string    `json:"source_name"`
-	AdvisorRiskLevel   AdvisorRiskLevel `json:"risk_level"`
-	RiskScore   float64   `json:"risk_score"` // 0-100
-	Factors     []string  `json:"factors"`
-	LastBackup  *time.Time `json:"last_backup,omitempty"`
-	DaysSinceBackup int   `json:"days_since_backup"`
-	Recommendation  string `json:"recommendation"`
+	SourceID         string           `json:"source_id"`
+	SourceName       string           `json:"source_name"`
+	AdvisorRiskLevel AdvisorRiskLevel `json:"risk_level"`
+	RiskScore        float64          `json:"risk_score"` // 0-100
+	Factors          []string         `json:"factors"`
+	LastBackup       *time.Time       `json:"last_backup,omitempty"`
+	DaysSinceBackup  int              `json:"days_since_backup"`
+	Recommendation   string           `json:"recommendation"`
 }
 
 // BackupReport 备份报告
 type BackupReport struct {
-	ID          string           `json:"id"`
-	GeneratedAt time.Time        `json:"generated_at"`
-	TotalSources int             `json:"total_sources"`
-	BackedUp    int              `json:"backed_up"`
-	AtRisk      int              `json:"at_risk"`
-	Assessments []RiskAssessment `json:"assessments"`
-	Recommendations []string     `json:"recommendations"`
-	StorageUsedGB   float64      `json:"storage_used_gb"`
-	StorageSavedGB  float64      `json:"storage_saved_gb"`
+	ID              string           `json:"id"`
+	GeneratedAt     time.Time        `json:"generated_at"`
+	TotalSources    int              `json:"total_sources"`
+	BackedUp        int              `json:"backed_up"`
+	AtRisk          int              `json:"at_risk"`
+	Assessments     []RiskAssessment `json:"assessments"`
+	Recommendations []string         `json:"recommendations"`
+	StorageUsedGB   float64          `json:"storage_used_gb"`
+	StorageSavedGB  float64          `json:"storage_saved_gb"`
 }
 
 // Advisor 智能备份顾问
@@ -235,8 +235,8 @@ func (a *Advisor) GenerateReport() *BackupReport {
 	defer a.mu.RUnlock()
 
 	report := &BackupReport{
-		ID:          fmt.Sprintf("rpt_%d", time.Now().UnixNano()),
-		GeneratedAt: time.Now(),
+		ID:           fmt.Sprintf("rpt_%d", time.Now().UnixNano()),
+		GeneratedAt:  time.Now(),
 		TotalSources: len(a.sources),
 	}
 

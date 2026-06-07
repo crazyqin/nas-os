@@ -35,14 +35,14 @@ type FileChange struct {
 // IncrementalIndexer 增量索引器
 // 监控文件系统变更，实时更新索引
 type IncrementalIndexer struct {
-	indexer   *Indexer
-	logger    *zap.Logger
-	config    EngineConfig
+	indexer *Indexer
+	logger  *zap.Logger
+	config  EngineConfig
 
-	mu        sync.RWMutex
-	running   bool
-	ctx       context.Context
-	cancel    context.CancelFunc
+	mu      sync.RWMutex
+	running bool
+	ctx     context.Context
+	cancel  context.CancelFunc
 
 	// 变更队列
 	changes   chan FileChange

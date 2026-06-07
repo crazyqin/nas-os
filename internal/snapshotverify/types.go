@@ -17,10 +17,10 @@ type SnapshotVerifyManager struct {
 
 // VerifyConfig 验证配置
 type VerifyConfig struct {
-	MaxConcurrent  int           `json:"max_concurrent"`
-	Timeout        time.Duration `json:"timeout"`
-	RetryAttempts  int           `json:"retry_attempts"`
-	HashAlgorithm  string        `json:"hash_algorithm"`
+	MaxConcurrent int           `json:"max_concurrent"`
+	Timeout       time.Duration `json:"timeout"`
+	RetryAttempts int           `json:"retry_attempts"`
+	HashAlgorithm string        `json:"hash_algorithm"`
 }
 
 // Verifier 验证器
@@ -35,26 +35,26 @@ type Verifier struct {
 
 // VerifyJob 验证任务
 type VerifyJob struct {
-	ID         string    `json:"id"`
-	SnapshotID string    `json:"snapshot_id"`
-	Status     string    `json:"status"`
-	Progress   float64   `json:"progress"`
-	StartTime  time.Time `json:"start_time"`
-	EndTime    time.Time `json:"end_time,omitempty"`
+	ID         string        `json:"id"`
+	SnapshotID string        `json:"snapshot_id"`
+	Status     string        `json:"status"`
+	Progress   float64       `json:"progress"`
+	StartTime  time.Time     `json:"start_time"`
+	EndTime    time.Time     `json:"end_time,omitempty"`
 	Result     *VerifyResult `json:"result,omitempty"`
-	Error      string    `json:"error,omitempty"`
+	Error      string        `json:"error,omitempty"`
 }
 
 // VerifyResult 验证结果
 type VerifyResult struct {
-	SnapshotID   string    `json:"snapshot_id"`
-	IsValid      bool      `json:"is_valid"`
-	HashMatch    bool      `json:"hash_match"`
-	IntegrityOK  bool      `json:"integrity_ok"`
-	FileCount    int       `json:"file_count"`
-	CorruptedFiles []string `json:"corrupted_files,omitempty"`
-	VerifiedAt   time.Time `json:"verified_at"`
-	Duration     time.Duration `json:"duration"`
+	SnapshotID     string        `json:"snapshot_id"`
+	IsValid        bool          `json:"is_valid"`
+	HashMatch      bool          `json:"hash_match"`
+	IntegrityOK    bool          `json:"integrity_ok"`
+	FileCount      int           `json:"file_count"`
+	CorruptedFiles []string      `json:"corrupted_files,omitempty"`
+	VerifiedAt     time.Time     `json:"verified_at"`
+	Duration       time.Duration `json:"duration"`
 }
 
 // SnapshotInfo 快照信息
@@ -221,7 +221,7 @@ func (m *SnapshotVerifyManager) GetVerificationStats() *VerificationStats {
 	defer m.mu.RUnlock()
 
 	stats := &VerificationStats{
-		TotalJobs:    len(m.jobs),
+		TotalJobs:     len(m.jobs),
 		VerifierCount: len(m.verifiers),
 	}
 
@@ -246,10 +246,10 @@ func (m *SnapshotVerifyManager) GetVerificationStats() *VerificationStats {
 
 // VerificationStats 验证统计
 type VerificationStats struct {
-	TotalJobs      int `json:"total_jobs"`
-	CompletedJobs  int `json:"completed_jobs"`
-	SuccessJobs    int `json:"success_jobs"`
-	FailedJobs     int `json:"failed_jobs"`
-	RunningJobs    int `json:"running_jobs"`
-	VerifierCount  int `json:"verifier_count"`
+	TotalJobs     int `json:"total_jobs"`
+	CompletedJobs int `json:"completed_jobs"`
+	SuccessJobs   int `json:"success_jobs"`
+	FailedJobs    int `json:"failed_jobs"`
+	RunningJobs   int `json:"running_jobs"`
+	VerifierCount int `json:"verifier_count"`
 }

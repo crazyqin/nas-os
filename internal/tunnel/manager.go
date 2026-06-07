@@ -53,7 +53,7 @@ type Manager struct {
 	detector NATDetector
 
 	// 事件回调（独立锁避免死锁）
-	callbacksMu   sync.RWMutex
+	callbacksMu    sync.RWMutex
 	eventCallbacks []EventCallback
 
 	// 统计信息

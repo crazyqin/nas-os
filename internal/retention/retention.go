@@ -32,10 +32,10 @@ const (
 type RetentionPeriod string
 
 const (
-	Period7Days    RetentionPeriod = "7d"
-	Period30Days   RetentionPeriod = "30d"
-	Period90Days   RetentionPeriod = "90d"
-	Period1Year    RetentionPeriod = "1y"
+	Period7Days     RetentionPeriod = "7d"
+	Period30Days    RetentionPeriod = "30d"
+	Period90Days    RetentionPeriod = "90d"
+	Period1Year     RetentionPeriod = "1y"
 	PeriodPermanent RetentionPeriod = "permanent"
 )
 
@@ -73,34 +73,34 @@ type RetentionPolicy struct {
 
 // LegalHold 法律保留
 type LegalHold struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	FilePaths   []string  `json:"filePaths"`   // 被保留的文件路径列表（支持通配符）
-	CaseNumber  string    `json:"caseNumber"`   // 案件编号
-	IssuedBy    string    `json:"issuedBy"`     // 发起人
-	ExpiresAt   *time.Time `json:"expiresAt"`   // 过期时间，nil表示手动解除
-	Active      bool      `json:"active"`
-	CreatedAt   time.Time `json:"createdAt"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	FilePaths   []string   `json:"filePaths"`  // 被保留的文件路径列表（支持通配符）
+	CaseNumber  string     `json:"caseNumber"` // 案件编号
+	IssuedBy    string     `json:"issuedBy"`   // 发起人
+	ExpiresAt   *time.Time `json:"expiresAt"`  // 过期时间，nil表示手动解除
+	Active      bool       `json:"active"`
+	CreatedAt   time.Time  `json:"createdAt"`
 }
 
 // AuditEntry 审计日志条目
 type AuditEntry struct {
-	ID        string        `json:"id"`
-	Timestamp time.Time     `json:"timestamp"`
-	Action    string        `json:"action"`    // create_policy, update_policy, delete_policy, apply_policy, create_hold, release_hold, delete_file, archive_file, recycle_file
-	PolicyID  string        `json:"policyId,omitempty"`
-	Target    string        `json:"target"`    // 受影响的文件或策略ID
-	Details   string        `json:"details"`
-	Operator  string        `json:"operator"`  // 操作人
-	Success   bool          `json:"success"`
+	ID        string    `json:"id"`
+	Timestamp time.Time `json:"timestamp"`
+	Action    string    `json:"action"` // create_policy, update_policy, delete_policy, apply_policy, create_hold, release_hold, delete_file, archive_file, recycle_file
+	PolicyID  string    `json:"policyId,omitempty"`
+	Target    string    `json:"target"` // 受影响的文件或策略ID
+	Details   string    `json:"details"`
+	Operator  string    `json:"operator"` // 操作人
+	Success   bool      `json:"success"`
 }
 
 // FileRecord 文件记录（用于策略匹配）
 type FileRecord struct {
 	Path     string    `json:"path"`
 	Name     string    `json:"name"`
-	Size     int64     `json:"size"`     // 字节
+	Size     int64     `json:"size"` // 字节
 	ModTime  time.Time `json:"modTime"`
 	FileType string    `json:"fileType"` // 扩展名，如 .pdf, .jpg
 	Tags     []string  `json:"tags"`
@@ -109,26 +109,26 @@ type FileRecord struct {
 
 // SimulationResult 策略模拟结果
 type SimulationResult struct {
-	PolicyID       string       `json:"policyId"`
-	MatchedFiles   []FileRecord `json:"matchedFiles"`
-	MatchedCount   int          `json:"matchedCount"`
-	TotalSize      int64        `json:"totalSize"`
-	ProtectedFiles []FileRecord `json:"protectedFiles"` // 被法律保留保护的文件
+	PolicyID       string        `json:"policyId"`
+	MatchedFiles   []FileRecord  `json:"matchedFiles"`
+	MatchedCount   int           `json:"matchedCount"`
+	TotalSize      int64         `json:"totalSize"`
+	ProtectedFiles []FileRecord  `json:"protectedFiles"` // 被法律保留保护的文件
 	Action         ExecutionMode `json:"action"`
-	GeneratedAt    time.Time    `json:"generatedAt"`
+	GeneratedAt    time.Time     `json:"generatedAt"`
 }
 
 // ComplianceReport 合规报告
 type ComplianceReport struct {
-	GeneratedAt       time.Time    `json:"generatedAt"`
-	TotalPolicies     int          `json:"totalPolicies"`
-	ActivePolicies    int          `json:"activePolicies"`
-	TotalFiles        int          `json:"totalFiles"`
-	CoveredFiles      int          `json:"coveredFiles"`
-	CoverageRate      float64      `json:"coverageRate"`
-	ExpiringFiles     []FileRecord `json:"expiringFiles"`
-	ViolatingFiles    []FileRecord `json:"violatingFiles"`
-	ActiveLegalHolds  int          `json:"activeLegalHolds"`
+	GeneratedAt      time.Time    `json:"generatedAt"`
+	TotalPolicies    int          `json:"totalPolicies"`
+	ActivePolicies   int          `json:"activePolicies"`
+	TotalFiles       int          `json:"totalFiles"`
+	CoveredFiles     int          `json:"coveredFiles"`
+	CoverageRate     float64      `json:"coverageRate"`
+	ExpiringFiles    []FileRecord `json:"expiringFiles"`
+	ViolatingFiles   []FileRecord `json:"violatingFiles"`
+	ActiveLegalHolds int          `json:"activeLegalHolds"`
 }
 
 // RetentionEngine 保留策略引擎

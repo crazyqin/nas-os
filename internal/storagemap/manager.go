@@ -166,11 +166,11 @@ func (m *StorageMapManager) GetUsageSummary(path string) (*UsageSummary, error) 
 	}
 
 	summary := &UsageSummary{
-		Path:       path,
-		TotalSize:  tree.Size,
-		FileCount:  tree.FileCount,
-		DirCount:   tree.DirCount,
-		ScanTime:   tree.ModTime,
+		Path:          path,
+		TotalSize:     tree.Size,
+		FileCount:     tree.FileCount,
+		DirCount:      tree.DirCount,
+		ScanTime:      tree.ModTime,
 		TypeBreakdown: make(map[string]TypeStats),
 	}
 
@@ -198,11 +198,11 @@ func (m *StorageMapManager) calculateUsageSummary(tree *StorageTree, summary *Us
 
 // UsageSummary 使用摘要
 type UsageSummary struct {
-	Path          string              `json:"path"`
-	TotalSize     int64               `json:"total_size"`
-	FileCount     int64               `json:"file_count"`
-	DirCount      int64               `json:"dir_count"`
-	ScanTime      time.Time           `json:"scan_time"`
+	Path          string               `json:"path"`
+	TotalSize     int64                `json:"total_size"`
+	FileCount     int64                `json:"file_count"`
+	DirCount      int64                `json:"dir_count"`
+	ScanTime      time.Time            `json:"scan_time"`
 	TypeBreakdown map[string]TypeStats `json:"type_breakdown"`
 }
 
@@ -277,10 +277,10 @@ func (m *StorageMapManager) compareTrees(tree1, tree2 *StorageTree, diff *Snapsh
 
 // SnapshotDiff 快照差异
 type SnapshotDiff struct {
-	Path1    string          `json:"path1"`
-	Path2    string          `json:"path2"`
-	SizeDiff int64           `json:"size_diff"`
-	Added    []*StorageTree  `json:"added"`
-	Removed  []*StorageTree  `json:"removed"`
-	Modified []*StorageTree  `json:"modified"`
+	Path1    string         `json:"path1"`
+	Path2    string         `json:"path2"`
+	SizeDiff int64          `json:"size_diff"`
+	Added    []*StorageTree `json:"added"`
+	Removed  []*StorageTree `json:"removed"`
+	Modified []*StorageTree `json:"modified"`
 }

@@ -31,11 +31,11 @@ const (
 type ThreatStatus string
 
 const (
-	StatusDetected    ThreatStatus = "detected"
+	StatusDetected      ThreatStatus = "detected"
 	StatusInvestigating ThreatStatus = "investigating"
-	StatusConfirmed   ThreatStatus = "confirmed"
-	StatusMitigated   ThreatStatus = "mitigated"
-	StatusResolved    ThreatStatus = "resolved"
+	StatusConfirmed     ThreatStatus = "confirmed"
+	StatusMitigated     ThreatStatus = "mitigated"
+	StatusResolved      ThreatStatus = "resolved"
 	StatusFalsePositive ThreatStatus = "false_positive"
 )
 
@@ -64,14 +64,14 @@ const (
 type ResponseActionType string
 
 const (
-	ActionBlockIP       ResponseActionType = "block_ip"
-	ActionDisableUser   ResponseActionType = "disable_user"
-	ActionQuarantine    ResponseActionType = "quarantine_file"
-	ActionKillProcess   ResponseActionType = "kill_process"
-	ActionNotify        ResponseActionType = "notify"
-	ActionLogAudit      ResponseActionType = "log_audit"
-	ActionRateLimit     ResponseActionType = "rate_limit"
-	ActionIsolateHost   ResponseActionType = "isolate_host"
+	ActionBlockIP     ResponseActionType = "block_ip"
+	ActionDisableUser ResponseActionType = "disable_user"
+	ActionQuarantine  ResponseActionType = "quarantine_file"
+	ActionKillProcess ResponseActionType = "kill_process"
+	ActionNotify      ResponseActionType = "notify"
+	ActionLogAudit    ResponseActionType = "log_audit"
+	ActionRateLimit   ResponseActionType = "rate_limit"
+	ActionIsolateHost ResponseActionType = "isolate_host"
 )
 
 // Threat 威胁检测结果
@@ -121,9 +121,9 @@ type BehaviorPattern struct {
 
 // BehaviorRule 行为规则
 type BehaviorRule struct {
-	Field    string `json:"field"`
-	Operator string `json:"operator"` // eq, ne, gt, lt, contains, regex
-	Value    string `json:"value"`
+	Field    string  `json:"field"`
+	Operator string  `json:"operator"` // eq, ne, gt, lt, contains, regex
+	Value    string  `json:"value"`
 	Weight   float64 `json:"weight"`
 }
 
@@ -141,11 +141,11 @@ type BehaviorEvent struct {
 
 // BehaviorAnalysisResult 行为分析结果
 type BehaviorAnalysisResult struct {
-	Events       []*BehaviorEvent    `json:"events"`
-	MatchedRules []MatchedRule       `json:"matched_rules"`
-	TotalScore   float64             `json:"total_score"`
-	Anomalies    []Anomaly           `json:"anomalies"`
-	AnalyzedAt   time.Time           `json:"analyzed_at"`
+	Events       []*BehaviorEvent `json:"events"`
+	MatchedRules []MatchedRule    `json:"matched_rules"`
+	TotalScore   float64          `json:"total_score"`
+	Anomalies    []Anomaly        `json:"anomalies"`
+	AnalyzedAt   time.Time        `json:"analyzed_at"`
 }
 
 // MatchedRule 匹配的规则
@@ -159,39 +159,39 @@ type MatchedRule struct {
 
 // Anomaly 异常行为
 type Anomaly struct {
-	Type        string    `json:"type"`
-	Description string    `json:"description"`
+	Type        string      `json:"type"`
+	Description string      `json:"description"`
 	Severity    ThreatLevel `json:"severity"`
-	Score       float64   `json:"score"`
-	Timestamp   time.Time `json:"timestamp"`
+	Score       float64     `json:"score"`
+	Timestamp   time.Time   `json:"timestamp"`
 }
 
 // ThreatIntel 威胁情报条目
 type ThreatIntel struct {
-	ID          string    `json:"id"`
-	IOCType     string    `json:"ioc_type"` // ip, domain, hash, url, email
-	IOCValue    string    `json:"ioc_value"`
-	ThreatType  string    `json:"threat_type"`
+	ID          string      `json:"id"`
+	IOCType     string      `json:"ioc_type"` // ip, domain, hash, url, email
+	IOCValue    string      `json:"ioc_value"`
+	ThreatType  string      `json:"threat_type"`
 	Severity    ThreatLevel `json:"severity"`
-	Source      string    `json:"source"`
-	Description string    `json:"description"`
-	FirstSeen   time.Time `json:"first_seen"`
-	LastSeen    time.Time `json:"last_seen"`
-	ExpiryDate  *time.Time `json:"expiry_date,omitempty"`
-	Tags        []string  `json:"tags,omitempty"`
-	IsActive    bool      `json:"is_active"`
+	Source      string      `json:"source"`
+	Description string      `json:"description"`
+	FirstSeen   time.Time   `json:"first_seen"`
+	LastSeen    time.Time   `json:"last_seen"`
+	ExpiryDate  *time.Time  `json:"expiry_date,omitempty"`
+	Tags        []string    `json:"tags,omitempty"`
+	IsActive    bool        `json:"is_active"`
 }
 
 // IntelFeed 威胁情报源
 type IntelFeed struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	URL         string    `json:"url"`
-	FeedType    string    `json:"feed_type"` // ip_list, domain_list, hash_list, mixed
-	Enabled     bool      `json:"enabled"`
-	LastSync    time.Time `json:"last_sync"`
-	EntryCount  int       `json:"entry_count"`
-	Interval    int       `json:"interval_min"` // 同步间隔（分钟）
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	URL        string    `json:"url"`
+	FeedType   string    `json:"feed_type"` // ip_list, domain_list, hash_list, mixed
+	Enabled    bool      `json:"enabled"`
+	LastSync   time.Time `json:"last_sync"`
+	EntryCount int       `json:"entry_count"`
+	Interval   int       `json:"interval_min"` // 同步间隔（分钟）
 }
 
 // Incident 安全事件
@@ -212,13 +212,13 @@ type Incident struct {
 
 // ResponseAction 响应动作
 type ResponseAction struct {
-	ID         string           `json:"id"`
-	Type       ResponseActionType `json:"type"`
-	Target     string           `json:"target"`
+	ID         string                 `json:"id"`
+	Type       ResponseActionType     `json:"type"`
+	Target     string                 `json:"target"`
 	Parameters map[string]interface{} `json:"parameters,omitempty"`
-	Status     string           `json:"status"`
-	Result     string           `json:"result,omitempty"`
-	ExecutedAt *time.Time       `json:"executed_at,omitempty"`
+	Status     string                 `json:"status"`
+	Result     string                 `json:"result,omitempty"`
+	ExecutedAt *time.Time             `json:"executed_at,omitempty"`
 }
 
 // IncidentEvent 事件时间线
@@ -231,12 +231,12 @@ type IncidentEvent struct {
 
 // SecurityScore 安全评分
 type SecurityScore struct {
-	Overall    float64                `json:"overall"`     // 0-100
-	Grade      string                 `json:"grade"`       // A, B, C, D, F
-	Breakdown  map[string]float64     `json:"breakdown"`   // 各维度评分
-	Trends     []ScoreTrend           `json:"trends,omitempty"`
-	Recommendations []Recommendation  `json:"recommendations,omitempty"`
-	ScoredAt   time.Time              `json:"scored_at"`
+	Overall         float64            `json:"overall"`   // 0-100
+	Grade           string             `json:"grade"`     // A, B, C, D, F
+	Breakdown       map[string]float64 `json:"breakdown"` // 各维度评分
+	Trends          []ScoreTrend       `json:"trends,omitempty"`
+	Recommendations []Recommendation   `json:"recommendations,omitempty"`
+	ScoredAt        time.Time          `json:"scored_at"`
 }
 
 // ScoreTrend 评分趋势
@@ -247,31 +247,31 @@ type ScoreTrend struct {
 
 // Recommendation 安全建议
 type Recommendation struct {
-	ID          string    `json:"id"`
-	Category    string    `json:"category"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
+	ID          string      `json:"id"`
+	Category    string      `json:"category"`
+	Title       string      `json:"title"`
+	Description string      `json:"description"`
 	Priority    ThreatLevel `json:"priority"`
-	Impact      float64   `json:"impact"` // 对评分的潜在提升
+	Impact      float64     `json:"impact"` // 对评分的潜在提升
 }
 
 // ScanRequest 扫描请求
 type ScanRequest struct {
-	ScanType  string   `json:"scan_type"` // quick, full, targeted
-	Targets   []string `json:"targets,omitempty"`
+	ScanType   string           `json:"scan_type"` // quick, full, targeted
+	Targets    []string         `json:"targets,omitempty"`
 	Categories []ThreatCategory `json:"categories,omitempty"`
 }
 
 // ScanResult 扫描结果
 type ScanResult struct {
-	ID          string    `json:"id"`
-	ScanType    string    `json:"scan_type"`
-	Threats     []*Threat `json:"threats"`
-	TotalScanned int      `json:"total_scanned"`
-	ThreatCount  int      `json:"threat_count"`
-	Duration    string    `json:"duration"`
-	StartedAt   time.Time `json:"started_at"`
-	CompletedAt time.Time `json:"completed_at"`
+	ID           string    `json:"id"`
+	ScanType     string    `json:"scan_type"`
+	Threats      []*Threat `json:"threats"`
+	TotalScanned int       `json:"total_scanned"`
+	ThreatCount  int       `json:"threat_count"`
+	Duration     string    `json:"duration"`
+	StartedAt    time.Time `json:"started_at"`
+	CompletedAt  time.Time `json:"completed_at"`
 }
 
 // IncidentRequest 创建事件请求
@@ -285,13 +285,13 @@ type IncidentRequest struct {
 
 // ThreatHunterConfig 威胁猎手配置
 type ThreatHunterConfig struct {
-	Enabled            bool    `json:"enabled"`
-	ScanIntervalMin    int     `json:"scan_interval_min"`
-	AutoResponse       bool    `json:"auto_response"`
+	Enabled            bool               `json:"enabled"`
+	ScanIntervalMin    int                `json:"scan_interval_min"`
+	AutoResponse       bool               `json:"auto_response"`
 	ScoreWeights       map[string]float64 `json:"score_weights"`
-	MaxThreatHistory   int     `json:"max_threat_history"`
-	MaxIncidentHistory int     `json:"max_incident_history"`
-	AlertThreshold     float64 `json:"alert_threshold"`
+	MaxThreatHistory   int                `json:"max_threat_history"`
+	MaxIncidentHistory int                `json:"max_incident_history"`
+	AlertThreshold     float64            `json:"alert_threshold"`
 }
 
 // DefaultThreatHunterConfig 默认配置
@@ -301,11 +301,11 @@ func DefaultThreatHunterConfig() *ThreatHunterConfig {
 		ScanIntervalMin: 30,
 		AutoResponse:    true,
 		ScoreWeights: map[string]float64{
-			"threat_count":    0.3,
-			"threat_level":    0.25,
-			"behavior_score":  0.2,
-			"intel_coverage":  0.15,
-			"response_time":   0.1,
+			"threat_count":   0.3,
+			"threat_level":   0.25,
+			"behavior_score": 0.2,
+			"intel_coverage": 0.15,
+			"response_time":  0.1,
 		},
 		MaxThreatHistory:   10000,
 		MaxIncidentHistory: 5000,

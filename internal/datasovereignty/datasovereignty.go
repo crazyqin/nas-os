@@ -13,23 +13,23 @@ import (
 type Region string
 
 const (
-	RegionChina     Region = "china"
-	RegionEU        Region = "eu"
-	RegionUS        Region = "us"
-	RegionAPAC      Region = "apac"
-	RegionGlobal    Region = "global"
-	RegionLocal     Region = "local"
+	RegionChina  Region = "china"
+	RegionEU     Region = "eu"
+	RegionUS     Region = "us"
+	RegionAPAC   Region = "apac"
+	RegionGlobal Region = "global"
+	RegionLocal  Region = "local"
 )
 
 // ComplianceFramework 合规框架
 type ComplianceFramework string
 
 const (
-	FrameworkGDPR   ComplianceFramework = "gdpr"
-	FrameworkCCPA   ComplianceFramework = "ccpa"
-	FrameworkPIPL   ComplianceFramework = "pipl"
-	FrameworkHIPAA  ComplianceFramework = "hipaa"
-	FrameworkSOX    ComplianceFramework = "sox"
+	FrameworkGDPR     ComplianceFramework = "gdpr"
+	FrameworkCCPA     ComplianceFramework = "ccpa"
+	FrameworkPIPL     ComplianceFramework = "pipl"
+	FrameworkHIPAA    ComplianceFramework = "hipaa"
+	FrameworkSOX      ComplianceFramework = "sox"
 	FrameworkISO27001 ComplianceFramework = "iso27001"
 )
 
@@ -49,132 +49,132 @@ const (
 type TransferStatus string
 
 const (
-	TransferPending    TransferStatus = "pending"
-	TransferApproved   TransferStatus = "approved"
-	TransferRejected   TransferStatus = "rejected"
-	TransferCompleted  TransferStatus = "completed"
-	TransferViolated   TransferStatus = "violated"
+	TransferPending   TransferStatus = "pending"
+	TransferApproved  TransferStatus = "approved"
+	TransferRejected  TransferStatus = "rejected"
+	TransferCompleted TransferStatus = "completed"
+	TransferViolated  TransferStatus = "violated"
 )
 
 // DataPolicy 数据主权策略
 type DataPolicy struct {
-	ID                 string               `json:"id"`
-	Name               string               `json:"name"`
-	Description        string               `json:"description"`
-	AllowedRegions     []Region             `json:"allowed_regions"`
-	BlockedRegions     []Region             `json:"blocked_regions"`
+	ID                 string                `json:"id"`
+	Name               string                `json:"name"`
+	Description        string                `json:"description"`
+	AllowedRegions     []Region              `json:"allowed_regions"`
+	BlockedRegions     []Region              `json:"blocked_regions"`
 	Frameworks         []ComplianceFramework `json:"frameworks"`
-	Classification     DataClassification   `json:"classification"`
-	EncryptionRequired bool                 `json:"encryption_required"`
-	ResidencyDays      int                  `json:"residency_days"`
-	RetentionDays      int                  `json:"retention_days"`
-	AuditRequired      bool                 `json:"audit_required"`
-	CreatedAt          time.Time            `json:"created_at"`
-	UpdatedAt          time.Time            `json:"updated_at"`
-	Enabled            bool                 `json:"enabled"`
+	Classification     DataClassification    `json:"classification"`
+	EncryptionRequired bool                  `json:"encryption_required"`
+	ResidencyDays      int                   `json:"residency_days"`
+	RetentionDays      int                   `json:"retention_days"`
+	AuditRequired      bool                  `json:"audit_required"`
+	CreatedAt          time.Time             `json:"created_at"`
+	UpdatedAt          time.Time             `json:"updated_at"`
+	Enabled            bool                  `json:"enabled"`
 }
 
 // DataAsset 数据资产
 type DataAsset struct {
-	ID              string            `json:"id"`
-	Name            string            `json:"name"`
-	Path            string            `json:"path"`
-	Size            int64             `json:"size"`
-	Classification  DataClassification `json:"classification"`
-	CurrentRegion   Region            `json:"current_region"`
-	OriginRegion    Region            `json:"origin_region"`
-	OwnerID         string            `json:"owner_id"`
-	PolicyID        string            `json:"policy_id"`
-	Encrypted       bool              `json:"encrypted"`
-	Compliant       bool              `json:"compliant"`
-	Violations      []string          `json:"violations,omitempty"`
-	LastAuditAt     *time.Time        `json:"last_audit_at,omitempty"`
-	Metadata        map[string]string `json:"metadata,omitempty"`
-	CreatedAt       time.Time         `json:"created_at"`
-	UpdatedAt       time.Time         `json:"updated_at"`
+	ID             string             `json:"id"`
+	Name           string             `json:"name"`
+	Path           string             `json:"path"`
+	Size           int64              `json:"size"`
+	Classification DataClassification `json:"classification"`
+	CurrentRegion  Region             `json:"current_region"`
+	OriginRegion   Region             `json:"origin_region"`
+	OwnerID        string             `json:"owner_id"`
+	PolicyID       string             `json:"policy_id"`
+	Encrypted      bool               `json:"encrypted"`
+	Compliant      bool               `json:"compliant"`
+	Violations     []string           `json:"violations,omitempty"`
+	LastAuditAt    *time.Time         `json:"last_audit_at,omitempty"`
+	Metadata       map[string]string  `json:"metadata,omitempty"`
+	CreatedAt      time.Time          `json:"created_at"`
+	UpdatedAt      time.Time          `json:"updated_at"`
 }
 
 // TransferRequest 数据传输请求
 type TransferRequest struct {
-	ID              string           `json:"id"`
-	AssetID         string           `json:"asset_id"`
-	SourceRegion    Region           `json:"source_region"`
-	TargetRegion    Region           `json:"target_region"`
-	RequesterID     string           `json:"requester_id"`
-	Reason          string           `json:"reason"`
-	Status          TransferStatus   `json:"status"`
-	ApprovedBy      string           `json:"approved_by,omitempty"`
-	ApprovedAt      *time.Time       `json:"approved_at,omitempty"`
-	RejectedReason  string           `json:"rejected_reason,omitempty"`
-	CompletedAt     *time.Time       `json:"completed_at,omitempty"`
-	Violations      []string         `json:"violations,omitempty"`
-	CreatedAt       time.Time        `json:"created_at"`
-	UpdatedAt       time.Time        `json:"updated_at"`
+	ID             string         `json:"id"`
+	AssetID        string         `json:"asset_id"`
+	SourceRegion   Region         `json:"source_region"`
+	TargetRegion   Region         `json:"target_region"`
+	RequesterID    string         `json:"requester_id"`
+	Reason         string         `json:"reason"`
+	Status         TransferStatus `json:"status"`
+	ApprovedBy     string         `json:"approved_by,omitempty"`
+	ApprovedAt     *time.Time     `json:"approved_at,omitempty"`
+	RejectedReason string         `json:"rejected_reason,omitempty"`
+	CompletedAt    *time.Time     `json:"completed_at,omitempty"`
+	Violations     []string       `json:"violations,omitempty"`
+	CreatedAt      time.Time      `json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
 }
 
 // ComplianceReport 合规报告
 type ComplianceReport struct {
-	ID                string             `json:"id"`
-	Region            Region             `json:"region"`
-	Framework         ComplianceFramework `json:"framework"`
-	TotalAssets       int                `json:"total_assets"`
-	CompliantAssets   int                `json:"compliant_assets"`
-	ViolatingAssets   int                `json:"violating_assets"`
-	ComplianceRate    float64            `json:"compliance_rate"`
-	Violations        []Violation        `json:"violations"`
-	Recommendations   []string           `json:"recommendations"`
-	GeneratedAt       time.Time          `json:"generated_at"`
-	ValidUntil        time.Time          `json:"valid_until"`
+	ID              string              `json:"id"`
+	Region          Region              `json:"region"`
+	Framework       ComplianceFramework `json:"framework"`
+	TotalAssets     int                 `json:"total_assets"`
+	CompliantAssets int                 `json:"compliant_assets"`
+	ViolatingAssets int                 `json:"violating_assets"`
+	ComplianceRate  float64             `json:"compliance_rate"`
+	Violations      []Violation         `json:"violations"`
+	Recommendations []string            `json:"recommendations"`
+	GeneratedAt     time.Time           `json:"generated_at"`
+	ValidUntil      time.Time           `json:"valid_until"`
 }
 
 // Violation 合规违规
 type Violation struct {
-	ID          string    `json:"id"`
-	AssetID     string    `json:"asset_id"`
-	PolicyID    string    `json:"policy_id"`
+	ID          string              `json:"id"`
+	AssetID     string              `json:"asset_id"`
+	PolicyID    string              `json:"policy_id"`
 	Framework   ComplianceFramework `json:"framework"`
-	Description string    `json:"description"`
-	Severity    string    `json:"severity"`
-	Region      Region    `json:"region"`
-	DetectedAt  time.Time `json:"detected_at"`
-	ResolvedAt  *time.Time `json:"resolved_at,omitempty"`
-	Resolved    bool      `json:"resolved"`
+	Description string              `json:"description"`
+	Severity    string              `json:"severity"`
+	Region      Region              `json:"region"`
+	DetectedAt  time.Time           `json:"detected_at"`
+	ResolvedAt  *time.Time          `json:"resolved_at,omitempty"`
+	Resolved    bool                `json:"resolved"`
 }
 
 // SovereigntyStats 数据主权统计
 type SovereigntyStats struct {
-	TotalAssets       int                       `json:"total_assets"`
-	CompliantAssets   int                       `json:"compliant_assets"`
-	ViolatingAssets   int                       `json:"violating_assets"`
-	TotalPolicies     int                       `json:"total_policies"`
-	ActivePolicies    int                       `json:"active_policies"`
-	RegionDistribution map[Region]int           `json:"region_distribution"`
-	ClassDistribution map[DataClassification]int `json:"class_distribution"`
-	ComplianceRate    float64                   `json:"compliance_rate"`
-	PendingTransfers  int                       `json:"pending_transfers"`
-	LastAuditTime     *time.Time                `json:"last_audit_time,omitempty"`
+	TotalAssets        int                        `json:"total_assets"`
+	CompliantAssets    int                        `json:"compliant_assets"`
+	ViolatingAssets    int                        `json:"violating_assets"`
+	TotalPolicies      int                        `json:"total_policies"`
+	ActivePolicies     int                        `json:"active_policies"`
+	RegionDistribution map[Region]int             `json:"region_distribution"`
+	ClassDistribution  map[DataClassification]int `json:"class_distribution"`
+	ComplianceRate     float64                    `json:"compliance_rate"`
+	PendingTransfers   int                        `json:"pending_transfers"`
+	LastAuditTime      *time.Time                 `json:"last_audit_time,omitempty"`
 }
 
 // DataSovereigntyManager 数据主权管理器
 type DataSovereigntyManager struct {
-	mu              sync.RWMutex
-	policies        map[string]*DataPolicy
-	assets          map[string]*DataAsset
-	transfers       map[string]*TransferRequest
-	violations      []Violation
-	auditLog        []AuditEntry
-	config          *SovereigntyConfig
+	mu         sync.RWMutex
+	policies   map[string]*DataPolicy
+	assets     map[string]*DataAsset
+	transfers  map[string]*TransferRequest
+	violations []Violation
+	auditLog   []AuditEntry
+	config     *SovereigntyConfig
 }
 
 // SovereigntyConfig 数据主权配置
 type SovereigntyConfig struct {
-	DefaultRegion        Region   `json:"default_region"`
-	EnforceEncryption    bool     `json:"enforce_encryption"`
-	AutoAudit            bool     `json:"auto_audit"`
-	AuditIntervalHours   int      `json:"audit_interval_hours"`
-	AlertOnViolation     bool     `json:"alert_on_violation"`
-	RequireApproval      bool     `json:"require_approval"`
-	AllowedFrameworks    []ComplianceFramework `json:"allowed_frameworks"`
+	DefaultRegion      Region                `json:"default_region"`
+	EnforceEncryption  bool                  `json:"enforce_encryption"`
+	AutoAudit          bool                  `json:"auto_audit"`
+	AuditIntervalHours int                   `json:"audit_interval_hours"`
+	AlertOnViolation   bool                  `json:"alert_on_violation"`
+	RequireApproval    bool                  `json:"require_approval"`
+	AllowedFrameworks  []ComplianceFramework `json:"allowed_frameworks"`
 }
 
 // AuditEntry 审计日志
@@ -192,12 +192,12 @@ type AuditEntry struct {
 func NewDataSovereigntyManager(config *SovereigntyConfig) *DataSovereigntyManager {
 	if config == nil {
 		config = &SovereigntyConfig{
-			DefaultRegion:     RegionLocal,
-			EnforceEncryption: true,
-			AutoAudit:         true,
+			DefaultRegion:      RegionLocal,
+			EnforceEncryption:  true,
+			AutoAudit:          true,
 			AuditIntervalHours: 24,
-			AlertOnViolation:  true,
-			RequireApproval:   true,
+			AlertOnViolation:   true,
+			RequireApproval:    true,
 		}
 	}
 	return &DataSovereigntyManager{
@@ -404,8 +404,8 @@ func (dsm *DataSovereigntyManager) GetStats() *SovereigntyStats {
 	defer dsm.mu.RUnlock()
 
 	stats := &SovereigntyStats{
-		RegionDistribution:   make(map[Region]int),
-		ClassDistribution:    make(map[DataClassification]int),
+		RegionDistribution: make(map[Region]int),
+		ClassDistribution:  make(map[DataClassification]int),
 	}
 
 	for _, asset := range dsm.assets {
@@ -471,10 +471,10 @@ func (dsm *DataSovereigntyManager) MarshalJSON() ([]byte, error) {
 	defer dsm.mu.RUnlock()
 
 	return json.Marshal(struct {
-		Policies   map[string]*DataPolicy    `json:"policies"`
-		Assets     map[string]*DataAsset     `json:"assets"`
-		Transfers  map[string]*TransferRequest `json:"transfers"`
-		Config     *SovereigntyConfig        `json:"config"`
+		Policies  map[string]*DataPolicy      `json:"policies"`
+		Assets    map[string]*DataAsset       `json:"assets"`
+		Transfers map[string]*TransferRequest `json:"transfers"`
+		Config    *SovereigntyConfig          `json:"config"`
 	}{
 		Policies:  dsm.policies,
 		Assets:    dsm.assets,

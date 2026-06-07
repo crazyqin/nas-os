@@ -18,9 +18,9 @@ import (
 // Manager 智能快照管理器.
 type Manager struct {
 	mu         sync.RWMutex
-	snapshots  map[string]*Snapshot      // snapshotID -> Snapshot
+	snapshots  map[string]*Snapshot       // snapshotID -> Snapshot
 	policies   map[string]*SnapshotPolicy // policyID -> SnapshotPolicy
-	clones     map[string]*CloneInfo     // cloneID -> CloneInfo
+	clones     map[string]*CloneInfo      // cloneID -> CloneInfo
 	configPath string
 	cron       *cron.Cron
 	cronJobs   map[string]cron.EntryID // policyID -> cronEntryID
@@ -86,17 +86,17 @@ func (m *Manager) CreateSnapshot(req CreateSnapshotRequest) (*Snapshot, error) {
 
 	now := time.Now()
 	snap := &Snapshot{
-		ID:           uuid.New().String(),
-		Name:         req.Name,
-		DatasetPath:  req.DatasetPath,
-		Type:         req.Type,
-		Status:       StatusCreating,
-		SizeBytes:    0,
-		CreatedAt:    now,
-		Description:  req.Description,
-		Tags:         req.Tags,
-		FileCount:    0,
-		IsProtected:  req.Protected,
+		ID:            uuid.New().String(),
+		Name:          req.Name,
+		DatasetPath:   req.DatasetPath,
+		Type:          req.Type,
+		Status:        StatusCreating,
+		SizeBytes:     0,
+		CreatedAt:     now,
+		Description:   req.Description,
+		Tags:          req.Tags,
+		FileCount:     0,
+		IsProtected:   req.Protected,
 		RetentionDays: req.ExpireDays,
 	}
 
@@ -929,12 +929,10 @@ func (m *Manager) saveConfig() error {
 
 // 预定义错误.
 var (
-	ErrSnapshotNotFound = fmt.Errorf("快照不存在")
-	ErrPolicyNotFound   = fmt.Errorf("策略不存在")
-	ErrCloneNotFound    = fmt.Errorf("克隆不存在")
-	ErrNoBaseSnapshot   = fmt.Errorf("没有可用的基础快照")
+	ErrSnapshotNotFound  = fmt.Errorf("快照不存在")
+	ErrPolicyNotFound    = fmt.Errorf("策略不存在")
+	ErrCloneNotFound     = fmt.Errorf("克隆不存在")
+	ErrNoBaseSnapshot    = fmt.Errorf("没有可用的基础快照")
 	ErrSnapshotProtected = fmt.Errorf("快照受保护")
-	ErrSnapshotInUse    = fmt.Errorf("快照正在使用中")
+	ErrSnapshotInUse     = fmt.Errorf("快照正在使用中")
 )
-
-

@@ -14,18 +14,18 @@ import (
 
 // 数据块类型
 const (
-	BlockTypeFile    = "file"    // 文件块
-	BlockTypeMeta    = "meta"    // 元数据块
-	BlockTypeInline  = "inline"  // 内联数据
-	BlockTypeExtent  = "extent"  // 区块
+	BlockTypeFile   = "file"   // 文件块
+	BlockTypeMeta   = "meta"   // 元数据块
+	BlockTypeInline = "inline" // 内联数据
+	BlockTypeExtent = "extent" // 区块
 )
 
 // 冗余级别
 const (
-	RedundancyNone     = "none"      // 无冗余
-	RedundancyLow      = "low"       // 低冗余（2-3副本）
-	RedundancyMedium   = "medium"    // 中冗余（4-10副本）
-	RedundancyHigh     = "high"      // 高冗余（>10副本）
+	RedundancyNone   = "none"   // 无冗余
+	RedundancyLow    = "low"    // 低冗余（2-3副本）
+	RedundancyMedium = "medium" // 中冗余（4-10副本）
+	RedundancyHigh   = "high"   // 高冗余（>10副本）
 )
 
 var (
@@ -36,13 +36,13 @@ var (
 
 // DataBlock 数据块
 type DataBlock struct {
-	Hash        string   `json:"hash"`         // 数据哈希
-	Size        int64    `json:"size"`         // 块大小
-	Type        string   `json:"type"`         // 块类型
-	RefCount    int      `json:"ref_count"`    // 引用计数
-	FilePaths   []string `json:"file_paths"`   // 引用文件列表
-	FirstSeen   time.Time `json:"first_seen"`  // 首次出现
-	LastAccess  time.Time `json:"last_access"` // 最后访问
+	Hash       string    `json:"hash"`        // 数据哈希
+	Size       int64     `json:"size"`        // 块大小
+	Type       string    `json:"type"`        // 块类型
+	RefCount   int       `json:"ref_count"`   // 引用计数
+	FilePaths  []string  `json:"file_paths"`  // 引用文件列表
+	FirstSeen  time.Time `json:"first_seen"`  // 首次出现
+	LastAccess time.Time `json:"last_access"` // 最后访问
 }
 
 // DedupSnapshot 去重快照
@@ -75,11 +75,11 @@ type VolumeStats struct {
 
 // DedupReport 去重报告
 type DedupReport struct {
-	GeneratedAt    time.Time      `json:"generated_at"`
-	Volumes        []*VolumeStats `json:"volumes"`
-	TotalSaved     int64          `json:"total_saved"`
-	OverallRatio   float64        `json:"overall_ratio"`
-	Recommendations []string      `json:"recommendations"`
+	GeneratedAt     time.Time      `json:"generated_at"`
+	Volumes         []*VolumeStats `json:"volumes"`
+	TotalSaved      int64          `json:"total_saved"`
+	OverallRatio    float64        `json:"overall_ratio"`
+	Recommendations []string       `json:"recommendations"`
 }
 
 // DedupVisualizer 去重可视化引擎

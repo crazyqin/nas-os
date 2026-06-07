@@ -55,9 +55,9 @@ type BoundingBox struct {
 type Scene struct {
 	ID         string  `json:"id"`
 	PhotoID    string  `json:"photo_id"`
-	Label      string  `json:"label"`       // 海滩、山脉、城市等
-	Category   string  `json:"category"`    // nature, urban, indoor, etc.
-	Confidence float64 `json:"confidence"`  // 0-1
+	Label      string  `json:"label"`      // 海滩、山脉、城市等
+	Category   string  `json:"category"`   // nature, urban, indoor, etc.
+	Confidence float64 `json:"confidence"` // 0-1
 }
 
 // SmartTag 智能标签

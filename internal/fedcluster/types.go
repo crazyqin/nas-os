@@ -16,23 +16,23 @@ type ClusterInfo struct {
 
 // NodeInfo 节点信息摘要
 type NodeInfo struct {
-	ID       string      `json:"id"`
-	Name     string      `json:"name"`
-	Role     ClusterRole `json:"role"`
-	Status   NodeStatus  `json:"status"`
-	StorageTB float64    `json:"storage_tb"`
-	Usage    float64     `json:"usage_percent"`
+	ID        string      `json:"id"`
+	Name      string      `json:"name"`
+	Role      ClusterRole `json:"role"`
+	Status    NodeStatus  `json:"status"`
+	StorageTB float64     `json:"storage_tb"`
+	Usage     float64     `json:"usage_percent"`
 }
 
 // SyncRequest 同步请求
 type SyncRequest struct {
-	ClusterID  string `json:"cluster_id" binding:"required"`
-	SourceNode string `json:"source_node" binding:"required"`
-	TargetNode string `json:"target_node" binding:"required"`
-	SourcePath string `json:"source_path" binding:"required"`
-	TargetPath string `json:"target_path" binding:"required"`
-	Recursive  bool   `json:"recursive"`
-	DeleteExcess bool `json:"delete_excess"`
+	ClusterID    string `json:"cluster_id" binding:"required"`
+	SourceNode   string `json:"source_node" binding:"required"`
+	TargetNode   string `json:"target_node" binding:"required"`
+	SourcePath   string `json:"source_path" binding:"required"`
+	TargetPath   string `json:"target_path" binding:"required"`
+	Recursive    bool   `json:"recursive"`
+	DeleteExcess bool   `json:"delete_excess"`
 }
 
 // ClusterCreateRequest 创建集群请求
@@ -46,19 +46,19 @@ type ClusterCreateRequest struct {
 
 // NodeJoinRequest 节点加入请求
 type NodeJoinRequest struct {
-	Hostname string   `json:"hostname" binding:"required"`
-	Port     int      `json:"port"`
-	Name     string   `json:"name"`
+	Hostname string      `json:"hostname" binding:"required"`
+	Port     int         `json:"port"`
+	Name     string      `json:"name"`
 	Role     ClusterRole `json:"role"`
-	Tags     []string `json:"tags"`
+	Tags     []string    `json:"tags"`
 }
 
 // FailoverRequest 故障转移请求
 type FailoverRequest struct {
-	ClusterID   string `json:"cluster_id" binding:"required"`
-	FailedNode  string `json:"failed_node" binding:"required"`
-	TargetNode  string `json:"target_node"`
-	AutoSelect  bool   `json:"auto_select"`
+	ClusterID  string `json:"cluster_id" binding:"required"`
+	FailedNode string `json:"failed_node" binding:"required"`
+	TargetNode string `json:"target_node"`
+	AutoSelect bool   `json:"auto_select"`
 }
 
 // RebalanceRequest 重新平衡请求
@@ -69,30 +69,30 @@ type RebalanceRequest struct {
 
 // RebalanceResult 重新平衡结果
 type RebalanceResult struct {
-	ClusterID    string            `json:"cluster_id"`
-	DryRun       bool              `json:"dry_run"`
-	Actions      []*RebalanceAction `json:"actions"`
-	EstimatedTime int              `json:"estimated_time_seconds"`
+	ClusterID     string             `json:"cluster_id"`
+	DryRun        bool               `json:"dry_run"`
+	Actions       []*RebalanceAction `json:"actions"`
+	EstimatedTime int                `json:"estimated_time_seconds"`
 }
 
 // RebalanceAction 重新平衡动作
 type RebalanceAction struct {
-	Type       string  `json:"type"` // migrate, replicate, cleanup
-	SourceNode string  `json:"source_node"`
-	TargetNode string  `json:"target_node,omitempty"`
-	Path       string  `json:"path"`
-	SizeBytes  int64   `json:"size_bytes"`
-	Priority   int     `json:"priority"`
+	Type       string `json:"type"` // migrate, replicate, cleanup
+	SourceNode string `json:"source_node"`
+	TargetNode string `json:"target_node,omitempty"`
+	Path       string `json:"path"`
+	SizeBytes  int64  `json:"size_bytes"`
+	Priority   int    `json:"priority"`
 }
 
 // ClusterHealth 集群健康状态
 type ClusterHealth struct {
-	ClusterID    string         `json:"cluster_id"`
-	OverallStatus string        `json:"overall_status"` // healthy, degraded, critical
-	NodeHealth   map[string]bool `json:"node_health"`
-	SyncStatus   string         `json:"sync_status"`
-	LastCheck    time.Time      `json:"last_check"`
-	Issues       []string       `json:"issues,omitempty"`
+	ClusterID     string          `json:"cluster_id"`
+	OverallStatus string          `json:"overall_status"` // healthy, degraded, critical
+	NodeHealth    map[string]bool `json:"node_health"`
+	SyncStatus    string          `json:"sync_status"`
+	LastCheck     time.Time       `json:"last_check"`
+	Issues        []string        `json:"issues,omitempty"`
 }
 
 // ClusterMetrics 集群指标
@@ -112,13 +112,13 @@ type ClusterMetrics struct {
 
 // ClusterAlert 集群告警
 type ClusterAlert struct {
-	ID        string    `json:"id"`
-	ClusterID string    `json:"cluster_id"`
-	NodeID    string    `json:"node_id,omitempty"`
-	Type      string    `json:"type"`
-	Severity  string    `json:"severity"`
-	Message   string    `json:"message"`
-	CreatedAt time.Time `json:"created_at"`
-	Resolved  bool      `json:"resolved"`
+	ID         string     `json:"id"`
+	ClusterID  string     `json:"cluster_id"`
+	NodeID     string     `json:"node_id,omitempty"`
+	Type       string     `json:"type"`
+	Severity   string     `json:"severity"`
+	Message    string     `json:"message"`
+	CreatedAt  time.Time  `json:"created_at"`
+	Resolved   bool       `json:"resolved"`
 	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
 }

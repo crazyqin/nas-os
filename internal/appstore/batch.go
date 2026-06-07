@@ -12,23 +12,23 @@ import (
 
 // BatchManager 批量管理器
 type BatchManager struct {
-	mu        sync.RWMutex
-	catalog   *Catalog
-	resolver  *DependencyResolver
-	sandbox   *SandboxManager
+	mu         sync.RWMutex
+	catalog    *Catalog
+	resolver   *DependencyResolver
+	sandbox    *SandboxManager
 	operations map[string]*BatchOperation
 }
 
 // BatchOperation 批量操作
 type BatchOperation struct {
-	ID        string             `json:"id"`
-	Type      BatchOpType        `json:"type"`
-	Status    BatchOpStatus      `json:"status"`
-	Targets   []string           `json:"targets"`
-	Results   []BatchItemResult  `json:"results"`
-	StartedAt time.Time          `json:"startedAt"`
-	EndedAt   time.Time          `json:"endedAt,omitempty"`
-	Error     string             `json:"error,omitempty"`
+	ID        string            `json:"id"`
+	Type      BatchOpType       `json:"type"`
+	Status    BatchOpStatus     `json:"status"`
+	Targets   []string          `json:"targets"`
+	Results   []BatchItemResult `json:"results"`
+	StartedAt time.Time         `json:"startedAt"`
+	EndedAt   time.Time         `json:"endedAt,omitempty"`
+	Error     string            `json:"error,omitempty"`
 }
 
 // BatchOpType 批量操作类型

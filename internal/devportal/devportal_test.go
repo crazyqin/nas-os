@@ -29,10 +29,10 @@ func TestCreateAndListAPIKeys(t *testing.T) {
 	_, r := setupTest(t)
 
 	reqBody := map[string]interface{}{
-		"name":       "test-key",
-		"owner_id":   "user-1",
-		"scopes":     []string{"read", "write"},
-		"rate_limit": 100,
+		"name":        "test-key",
+		"owner_id":    "user-1",
+		"scopes":      []string{"read", "write"},
+		"rate_limit":  100,
 		"daily_quota": 5000,
 	}
 	body, _ := json.Marshal(reqBody)
@@ -163,12 +163,12 @@ func TestDeveloperAppLifecycle(t *testing.T) {
 	_, r := setupTest(t)
 
 	reqBody := map[string]interface{}{
-		"name":         "Test App",
-		"owner_id":     "user-1",
-		"description":  "A test application",
+		"name":          "Test App",
+		"owner_id":      "user-1",
+		"description":   "A test application",
 		"redirect_uris": []string{"https://example.com/callback"},
-		"grant_types":  []string{"authorization_code"},
-		"scopes":       []string{"read", "write"},
+		"grant_types":   []string{"authorization_code"},
+		"scopes":        []string{"read", "write"},
 	}
 	body, _ := json.Marshal(reqBody)
 	req := httptest.NewRequest(http.MethodPost, "/devportal/apps", bytes.NewReader(body))

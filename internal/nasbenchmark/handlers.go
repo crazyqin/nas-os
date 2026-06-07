@@ -18,8 +18,8 @@ type RunRequest struct {
 
 // SuiteRequest represents a benchmark suite request
 type SuiteRequest struct {
-	Name    string          `json:"name"`
-	Configs []RunRequest    `json:"configs"`
+	Name    string       `json:"name"`
+	Configs []RunRequest `json:"configs"`
 }
 
 // CompareRequest represents a compare request

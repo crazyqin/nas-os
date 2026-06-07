@@ -9,14 +9,14 @@ import (
 
 // Manager TrueCommand 多 NAS 管理器.
 type Manager struct {
-	mu          sync.RWMutex
-	config      TrueCommandConfig
-	systems     map[string]*NASSystem
-	clusters    map[string]*Cluster
-	alerts      []*Alert
-	dashboards  map[string]*Dashboard
-	running     bool
-	stopCh      chan struct{}
+	mu         sync.RWMutex
+	config     TrueCommandConfig
+	systems    map[string]*NASSystem
+	clusters   map[string]*Cluster
+	alerts     []*Alert
+	dashboards map[string]*Dashboard
+	running    bool
+	stopCh     chan struct{}
 }
 
 // NewManager 创建管理器.
@@ -329,11 +329,11 @@ func (m *Manager) pollSystems() {
 // addAlert 添加告警.
 func (m *Manager) addAlert(systemID, alertType, message, severity string) {
 	alert := &Alert{
-		ID:       fmt.Sprintf("alert-%d", time.Now().UnixNano()),
-		SystemID: systemID,
-		Type:     alertType,
-		Message:  message,
-		Severity: severity,
+		ID:        fmt.Sprintf("alert-%d", time.Now().UnixNano()),
+		SystemID:  systemID,
+		Type:      alertType,
+		Message:   message,
+		Severity:  severity,
 		Timestamp: time.Now(),
 	}
 	m.alerts = append(m.alerts, alert)

@@ -113,12 +113,12 @@ func TestManager_SensorManagement(t *testing.T) {
 
 	// 注册传感器
 	sensor := &Sensor{
-		ID:       "s1",
-		DeviceID: "d1",
-		Name:     "CPU温度",
-		Type:     SensorTypeTemperature,
-		Value:    65.5,
-		Unit:     "°C",
+		ID:        "s1",
+		DeviceID:  "d1",
+		Name:      "CPU温度",
+		Type:      SensorTypeTemperature,
+		Value:     65.5,
+		Unit:      "°C",
 		Threshold: 80,
 	}
 	if err := m.RegisterSensor(sensor); err != nil {

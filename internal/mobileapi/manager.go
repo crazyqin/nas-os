@@ -9,15 +9,15 @@ import (
 
 // Manager 移动端API管理器.
 type Manager struct {
-	mu            sync.RWMutex
-	authService   *AuthService
-	pushService   *PushService
-	syncService   *SyncService
-	preferences   map[string]*NotificationPreference // key: userID:deviceID:category
-	history       []*NotificationHistoryItem
-	conflicts     map[string]*ConflictRecord
-	bindings      map[string]*DeviceBinding // key: bindingID
-	maxHistory    int
+	mu          sync.RWMutex
+	authService *AuthService
+	pushService *PushService
+	syncService *SyncService
+	preferences map[string]*NotificationPreference // key: userID:deviceID:category
+	history     []*NotificationHistoryItem
+	conflicts   map[string]*ConflictRecord
+	bindings    map[string]*DeviceBinding // key: bindingID
+	maxHistory  int
 }
 
 // ManagerConfig 管理器配置.

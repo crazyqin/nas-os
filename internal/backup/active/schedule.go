@@ -46,9 +46,9 @@ type RetentionPolicy struct {
 
 // BandwidthLimit 带宽限制
 type BandwidthLimit struct {
-	MaxMBps    int            `json:"max_mbps"`    // 最大带宽 MB/s（0=不限）
-	Schedule   []TimeWindow   `json:"schedule"`    // 限速时间段
-	Priority   int            `json:"priority"`    // 优先级（1-10，10最高）
+	MaxMBps  int          `json:"max_mbps"` // 最大带宽 MB/s（0=不限）
+	Schedule []TimeWindow `json:"schedule"` // 限速时间段
+	Priority int          `json:"priority"` // 优先级（1-10，10最高）
 }
 
 // IsWithinTimeWindow 检查当前时间是否在允许备份的时间窗口内

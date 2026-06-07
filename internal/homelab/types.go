@@ -90,10 +90,10 @@ type Config struct {
 
 // 预定义错误
 var (
-	ErrServiceNotFound = errors.New("service not found")
-	ErrStackNotFound   = errors.New("stack not found")
-	ErrServiceExists   = errors.New("service already exists")
-	ErrMaxServices     = errors.New("max services reached")
-	ErrInvalidType     = errors.New("invalid service type")
+	ErrServiceNotFound  = errors.New("service not found")
+	ErrStackNotFound    = errors.New("stack not found")
+	ErrServiceExists    = errors.New("service already exists")
+	ErrMaxServices      = errors.New("max services reached")
+	ErrInvalidType      = errors.New("invalid service type")
 	ErrTemplateNotFound = errors.New("template not found")
 )

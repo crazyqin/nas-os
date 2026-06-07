@@ -7,19 +7,19 @@ import (
 
 // Config 推荐引擎配置
 type Config struct {
-	CacheTTL     time.Duration `json:"cache_ttl"`
-	MaxResults   int           `json:"max_results"`
-	MinAccesses  int           `json:"min_accesses"`
-	DecayFactor  float64       `json:"decay_factor"`   // 时间衰减因子
-	Weights      Weights       `json:"weights"`
+	CacheTTL    time.Duration `json:"cache_ttl"`
+	MaxResults  int           `json:"max_results"`
+	MinAccesses int           `json:"min_accesses"`
+	DecayFactor float64       `json:"decay_factor"` // 时间衰减因子
+	Weights     Weights       `json:"weights"`
 }
 
 // Weights 推荐算法权重
 type Weights struct {
-	TimeDecay    float64 `json:"time_decay"`     // 时间衰减权重 0.3
-	Frequency    float64 `json:"frequency"`       // 频率权重 0.3
+	TimeDecay     float64 `json:"time_decay"`    // 时间衰减权重 0.3
+	Frequency     float64 `json:"frequency"`     // 频率权重 0.3
 	Collaborative float64 `json:"collaborative"` // 协同过滤权重 0.2
-	Content      float64 `json:"content"`          // 内容相似度权重 0.2
+	Content       float64 `json:"content"`       // 内容相似度权重 0.2
 }
 
 // DefaultConfig 默认配置
@@ -40,10 +40,10 @@ func DefaultConfig() *Config {
 
 // UserProfile 用户画像
 type UserProfile struct {
-	UserID       string            `json:"user_id"`
-	AccessHistory []AccessRecord   `json:"access_history"`
-	Preferences  map[string]float64 `json:"preferences"` // 文件类型 -> 偏好分数
-	LastActive   time.Time         `json:"last_active"`
+	UserID        string             `json:"user_id"`
+	AccessHistory []AccessRecord     `json:"access_history"`
+	Preferences   map[string]float64 `json:"preferences"` // 文件类型 -> 偏好分数
+	LastActive    time.Time          `json:"last_active"`
 }
 
 // FileItem 文件信息
@@ -51,10 +51,10 @@ type FileItem struct {
 	FileID    string            `json:"file_id"`
 	Name      string            `json:"name"`
 	Path      string            `json:"path"`
-	Type      string            `json:"type"`      // 文件类型
+	Type      string            `json:"type"` // 文件类型
 	Size      int64             `json:"size"`
-	Tags      []string          `json:"tags"`       // 文件标签
-	Metadata  map[string]string `json:"metadata"`   // 元数据
+	Tags      []string          `json:"tags"`     // 文件标签
+	Metadata  map[string]string `json:"metadata"` // 元数据
 	CreatedAt time.Time         `json:"created_at"`
 	UpdatedAt time.Time         `json:"updated_at"`
 }
@@ -69,12 +69,12 @@ type AccessRecord struct {
 
 // Recommendation 推荐结果
 type Recommendation struct {
-	FileID      string    `json:"file_id"`
-	Name        string    `json:"name"`
-	Path        string    `json:"path"`
-	Score       float64   `json:"score"`
-	Reason      string    `json:"reason"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	FileID    string    `json:"file_id"`
+	Name      string    `json:"name"`
+	Path      string    `json:"path"`
+	Score     float64   `json:"score"`
+	Reason    string    `json:"reason"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // CacheEntry 缓存条目
@@ -85,12 +85,12 @@ type CacheEntry struct {
 
 // Engine 推荐引擎
 type Engine struct {
-	config      *Config
-	mu          sync.RWMutex
-	users       map[string]*UserProfile       // 用户ID -> 用户画像
-	files       map[string]*FileItem           // 文件ID -> 文件信息
-	cache       map[string]*CacheEntry         // 用户ID -> 缓存
-	accessLog   []AccessRecord                 // 访问历史
+	config    *Config
+	mu        sync.RWMutex
+	users     map[string]*UserProfile // 用户ID -> 用户画像
+	files     map[string]*FileItem    // 文件ID -> 文件信息
+	cache     map[string]*CacheEntry  // 用户ID -> 缓存
+	accessLog []AccessRecord          // 访问历史
 }
 
 // NewEngine 创建推荐引擎
@@ -100,9 +100,9 @@ func NewEngine(config *Config) *Engine {
 	}
 	return &Engine{
 		config: config,
-		users:   make(map[string]*UserProfile),
-		files:   make(map[string]*FileItem),
-		cache:   make(map[string]*CacheEntry),
+		users:  make(map[string]*UserProfile),
+		files:  make(map[string]*FileItem),
+		cache:  make(map[string]*CacheEntry),
 	}
 }
 

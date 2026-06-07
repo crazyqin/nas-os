@@ -34,15 +34,15 @@ const (
 
 // HAStatusResponse 高可用状态响应.
 type HAStatusResponse struct {
-	State          HAState          `json:"state"`
-	PrimaryNode    string           `json:"primary_node"`
-	SecondaryNode  string           `json:"secondary_node"`
-	LastHeartbeat  time.Time        `json:"last_heartbeat"`
-	FailoverCount  int              `json:"failover_count"`
-	Uptime         time.Duration    `json:"uptime"`
-	HealthyNodes   int              `json:"healthy_nodes"`
-	TotalNodes     int              `json:"total_nodes"`
-	NodeStates     map[string]HANode `json:"node_states"`
+	State         HAState           `json:"state"`
+	PrimaryNode   string            `json:"primary_node"`
+	SecondaryNode string            `json:"secondary_node"`
+	LastHeartbeat time.Time         `json:"last_heartbeat"`
+	FailoverCount int               `json:"failover_count"`
+	Uptime        time.Duration     `json:"uptime"`
+	HealthyNodes  int               `json:"healthy_nodes"`
+	TotalNodes    int               `json:"total_nodes"`
+	NodeStates    map[string]HANode `json:"node_states"`
 }
 
 // HANode 高可用节点信息.
@@ -58,22 +58,22 @@ type HANode struct {
 
 // HAConfigResponse 高可用配置响应.
 type HAConfigResponse struct {
-	VirtualIP        string        `json:"virtual_ip"`
+	VirtualIP         string        `json:"virtual_ip"`
 	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
-	FailoverTimeout  time.Duration `json:"failover_timeout"`
-	AutoFailback     bool          `json:"auto_failback"`
-	Preempt          bool          `json:"preempt"`
-	PeerNodes        []string      `json:"peer_nodes"`
+	FailoverTimeout   time.Duration `json:"failover_timeout"`
+	AutoFailback      bool          `json:"auto_failback"`
+	Preempt           bool          `json:"preempt"`
+	PeerNodes         []string      `json:"peer_nodes"`
 }
 
 // HAConfigUpdateRequest 更新高可用配置请求.
 type HAConfigUpdateRequest struct {
-	VirtualIP        *string        `json:"virtual_ip,omitempty"`
+	VirtualIP         *string        `json:"virtual_ip,omitempty"`
 	HeartbeatInterval *time.Duration `json:"heartbeat_interval,omitempty"`
-	FailoverTimeout  *time.Duration `json:"failover_timeout,omitempty"`
-	AutoFailback     *bool          `json:"auto_failback,omitempty"`
-	Preempt          *bool          `json:"preempt,omitempty"`
-	PeerNodes        []string       `json:"peer_nodes,omitempty"`
+	FailoverTimeout   *time.Duration `json:"failover_timeout,omitempty"`
+	AutoFailback      *bool          `json:"auto_failback,omitempty"`
+	Preempt           *bool          `json:"preempt,omitempty"`
+	PeerNodes         []string       `json:"peer_nodes,omitempty"`
 }
 
 // FailoverRequest 故障转移请求.
@@ -84,15 +84,15 @@ type FailoverRequest struct {
 
 // FailoverResponse 故障转移响应.
 type FailoverResponse struct {
-	Success   bool   `json:"success"`
+	Success    bool   `json:"success"`
 	NewPrimary string `json:"new_primary"`
-	Message   string `json:"message"`
+	Message    string `json:"message"`
 }
 
 // FailbackResponse 故障回切响应.
 type FailbackResponse struct {
-	Success  bool   `json:"success"`
-	Message  string `json:"message"`
+	Success bool   `json:"success"`
+	Message string `json:"message"`
 }
 
 // HAEvent 高可用事件.
@@ -117,10 +117,10 @@ type NodesResponse struct {
 
 // FailoverPolicy 故障转移策略.
 type FailoverPolicy struct {
-	AutoFailover   bool          `json:"auto_failover"`
+	AutoFailover    bool          `json:"auto_failover"`
 	FailoverTimeout time.Duration `json:"failover_timeout"`
-	MaxRetries     int           `json:"max_retries"`
-	CooldownPeriod time.Duration `json:"cooldown_period"`
+	MaxRetries      int           `json:"max_retries"`
+	CooldownPeriod  time.Duration `json:"cooldown_period"`
 }
 
 // TestResponse 连通性测试响应.

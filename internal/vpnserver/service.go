@@ -16,7 +16,7 @@ type Service struct {
 	wgInterfaces map[string]*WireGuardInterface
 
 	// OpenVPN state
-	openvpnConfig *OpenVPNConfig
+	openvpnConfig  *OpenVPNConfig
 	openvpnClients map[string]*OpenVPNClient
 
 	// User and device authorization
@@ -342,13 +342,13 @@ func (s *Service) CreateOpenVPNClient(name string) (*OpenVPNClient, error) {
 
 	id := s.generateID("ovpn")
 	client := &OpenVPNClient{
-		ID:         id,
-		Name:       name,
-		CN:         name,
+		ID:          id,
+		Name:        name,
+		CN:          name,
 		Certificate: fmt.Sprintf("-----BEGIN CERTIFICATE-----\n%s_cert\n-----END CERTIFICATE-----", name),
 		PrivateKey:  fmt.Sprintf("-----BEGIN PRIVATE KEY-----\n%s_key\n-----END PRIVATE KEY-----", name),
-		Enabled:    true,
-		CreatedAt:  time.Now(),
+		Enabled:     true,
+		CreatedAt:   time.Now(),
 	}
 	s.openvpnClients[id] = client
 	result := *client
@@ -642,8 +642,8 @@ func (s *Service) GetServerStatus() *ServerStatus {
 	defer s.mu.RUnlock()
 
 	status := &ServerStatus{
-		TotalUsers:  len(s.users),
-		Uptime:      time.Since(s.startTime),
+		TotalUsers: len(s.users),
+		Uptime:     time.Since(s.startTime),
 	}
 
 	// Find first WG interface
@@ -849,9 +849,9 @@ func (s *Service) MarshalJSON() ([]byte, error) {
 
 	return json.Marshal(struct {
 		WgInterfaces  map[string]*WireGuardInterface `json:"wg_interfaces"`
-		OpenVPNConfig *OpenVPNConfig                  `json:"openvpn_config"`
-		Users         map[string]*VPNUser             `json:"users"`
-		Devices       map[string]*VPNDevice            `json:"devices"`
+		OpenVPNConfig *OpenVPNConfig                 `json:"openvpn_config"`
+		Users         map[string]*VPNUser            `json:"users"`
+		Devices       map[string]*VPNDevice          `json:"devices"`
 	}{
 		WgInterfaces:  s.wgInterfaces,
 		OpenVPNConfig: s.openvpnConfig,

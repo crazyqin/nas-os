@@ -211,8 +211,8 @@ func (mc *MetricsCollector) GetMetricsSummary() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_points":  len(mc.metrics),
-		"metric_names":  nameCounts,
+		"total_points": len(mc.metrics),
+		"metric_names": nameCounts,
 	}
 }
 

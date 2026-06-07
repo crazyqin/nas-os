@@ -13,10 +13,10 @@ type Engine struct {
 	mu sync.RWMutex
 
 	// 配置
-	config    EngineConfig
-	tiers     map[StorageTier]*StorageTierConfig
-	policies  map[string]*ArchivePolicy
-	rules     map[string]*RetentionRule
+	config   EngineConfig
+	tiers    map[StorageTier]*StorageTierConfig
+	policies map[string]*ArchivePolicy
+	rules    map[string]*RetentionRule
 
 	// 子组件
 	analyzer  *Analyzer
@@ -25,14 +25,14 @@ type Engine struct {
 	costMgr   *CostManager
 
 	// 任务管理
-	jobs      map[string]*ArchiveJob
-	records   map[string]*ArchiveRecord
-	auditLog  []AuditEntry
+	jobs     map[string]*ArchiveJob
+	records  map[string]*ArchiveRecord
+	auditLog []AuditEntry
 
 	// 运行状态
-	running   bool
-	ctx       context.Context
-	cancel    context.CancelFunc
+	running bool
+	ctx     context.Context
+	cancel  context.CancelFunc
 
 	// 回调
 	onJobComplete    func(job *ArchiveJob)
@@ -43,10 +43,10 @@ type Engine struct {
 // EngineConfig 引擎配置.
 type EngineConfig struct {
 	// 基本配置
-	DataRoot       string `json:"dataRoot"`       // 数据根目录
-	TempDir        string `json:"tempDir"`        // 临时目录
-	WorkerCount    int    `json:"workerCount"`    // 工作线程数
-	BatchSize      int    `json:"batchSize"`      // 批处理大小
+	DataRoot    string `json:"dataRoot"`    // 数据根目录
+	TempDir     string `json:"tempDir"`     // 临时目录
+	WorkerCount int    `json:"workerCount"` // 工作线程数
+	BatchSize   int    `json:"batchSize"`   // 批处理大小
 
 	// 高级配置
 	EnableAutoArchive  bool `json:"enableAutoArchive"`  // 启用自动归档
@@ -360,15 +360,15 @@ func (e *Engine) RunManualArchive(policyID string, paths []string) (*ArchiveJob,
 	}
 
 	job := &ArchiveJob{
-		ID:         generateID(),
-		PolicyID:   policyID,
-		PolicyName: policy.Name,
-		Status:     JobStatusPending,
-		Action:     policy.Action,
-		SourceTier: e.getSourceTier(policy),
-		TargetTier: policy.TargetTier,
+		ID:          generateID(),
+		PolicyID:    policyID,
+		PolicyName:  policy.Name,
+		Status:      JobStatusPending,
+		Action:      policy.Action,
+		SourceTier:  e.getSourceTier(policy),
+		TargetTier:  policy.TargetTier,
 		Compression: policy.Compression,
-		CreatedAt:  time.Now(),
+		CreatedAt:   time.Now(),
 	}
 
 	e.mu.Lock()
@@ -577,15 +577,15 @@ func (e *Engine) shouldExecutePolicy(policy *ArchivePolicy) bool {
 func (e *Engine) executePolicy(policy *ArchivePolicy) {
 	// 创建任务
 	job := &ArchiveJob{
-		ID:         generateID(),
-		PolicyID:   policy.ID,
-		PolicyName: policy.Name,
-		Status:     JobStatusRunning,
-		Action:     policy.Action,
-		TargetTier: policy.TargetTier,
+		ID:          generateID(),
+		PolicyID:    policy.ID,
+		PolicyName:  policy.Name,
+		Status:      JobStatusRunning,
+		Action:      policy.Action,
+		TargetTier:  policy.TargetTier,
 		Compression: policy.Compression,
-		CreatedAt:  time.Now(),
-		StartedAt:  time.Now(),
+		CreatedAt:   time.Now(),
+		StartedAt:   time.Now(),
 	}
 
 	e.mu.Lock()

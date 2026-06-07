@@ -13,10 +13,10 @@ import (
 
 // Balancer 负载均衡器
 type Balancer struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	config   *Config
-	rrIndex  int64 // round-robin 计数器
+	mu      sync.RWMutex
+	logger  *zap.Logger
+	config  *Config
+	rrIndex int64 // round-robin 计数器
 }
 
 // NewBalancer 创建负载均衡器

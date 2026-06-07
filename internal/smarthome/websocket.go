@@ -49,7 +49,7 @@ func (h *WebSocketHub) Run() {
 			h.mu.Lock()
 			h.clients[client] = true
 			h.mu.Unlock()
-			
+
 		case client := <-h.unregister:
 			h.mu.Lock()
 			if _, ok := h.clients[client]; ok {
@@ -57,7 +57,7 @@ func (h *WebSocketHub) Run() {
 				close(client.send)
 			}
 			h.mu.Unlock()
-			
+
 		case message := <-h.broadcast:
 			h.mu.RLock()
 			for client := range h.clients {
@@ -80,7 +80,7 @@ func (h *WebSocketHub) BroadcastDeviceState(device *Device) {
 		Payload: device,
 		Time:    time.Now(),
 	}
-	
+
 	data, _ := json.Marshal(msg)
 	h.broadcast <- data
 }
@@ -92,7 +92,7 @@ func (h *WebSocketHub) BroadcastAutomationEvent(event interface{}) {
 		Payload: event,
 		Time:    time.Now(),
 	}
-	
+
 	data, _ := json.Marshal(msg)
 	h.broadcast <- data
 }
@@ -104,7 +104,7 @@ func (h *WebSocketHub) BroadcastEnergyUpdate(reading EnergyReading) {
 		Payload: reading,
 		Time:    time.Now(),
 	}
-	
+
 	data, _ := json.Marshal(msg)
 	h.broadcast <- data
 }
@@ -124,7 +124,7 @@ func (h *WebSocketHub) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 // MQTTBrokerConfig MQTT Broker 配置
 type MQTTBrokerConfig struct {
-	Type     string `json:"type"`     // mosquitto, emqx
+	Type     string `json:"type"` // mosquitto, emqx
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 	Username string `json:"username"`
@@ -135,29 +135,29 @@ type MQTTBrokerConfig struct {
 // ZigbeeConfig Zigbee 配置
 type ZigbeeConfig struct {
 	Enabled  bool   `json:"enabled"`
-	Adapter  string `json:"adapter"`  // zstack, deconz
-	Port     string `json:"port"`     // /dev/ttyUSB0
+	Adapter  string `json:"adapter"` // zstack, deconz
+	Port     string `json:"port"`    // /dev/ttyUSB0
 	BaudRate int    `json:"baud_rate"`
 }
 
 // ZWaveConfig Z-Wave 配置
 type ZWaveConfig struct {
-	Enabled  bool   `json:"enabled"`
-	Port     string `json:"port"`
+	Enabled    bool   `json:"enabled"`
+	Port       string `json:"port"`
 	NetworkKey string `json:"network_key"`
 }
 
 // DiscoveryConfig 设备发现配置
 type DiscoveryConfig struct {
-	Enabled         bool     `json:"enabled"`
-	Interval        int      `json:"interval"` // seconds
-	Protocols       []string `json:"protocols"`
-	AutoRegister    bool     `json:"auto_register"`
+	Enabled      bool     `json:"enabled"`
+	Interval     int      `json:"interval"` // seconds
+	Protocols    []string `json:"protocols"`
+	AutoRegister bool     `json:"auto_register"`
 }
 
 // AutomationRuleConfig 自动化规则配置
 type AutomationRuleConfig struct {
-	MaxRules        int  `json:"max_rules"`
-	EvaluateInterval int `json:"evaluate_interval"` // seconds
-	LogExecutions   bool `json:"log_executions"`
+	MaxRules         int  `json:"max_rules"`
+	EvaluateInterval int  `json:"evaluate_interval"` // seconds
+	LogExecutions    bool `json:"log_executions"`
 }

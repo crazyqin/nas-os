@@ -24,9 +24,9 @@ func NewManager() *EnergyManager {
 		readings: make([]*EnergyReading, 0),
 		config: PowerConfig{
 			CarbonFactor:     0.5703, // 中国电网平均碳排放因子
-			PricePerKWhCents: 56,    // 居民电价约0.56元/度
-			SamplingInterval: 60,    // 60秒采样一次
-			IdleThreshold:    10,    // 10瓦为空闲阈值
+			PricePerKWhCents: 56,     // 居民电价约0.56元/度
+			SamplingInterval: 60,     // 60秒采样一次
+			IdleThreshold:    10,     // 10瓦为空闲阈值
 		},
 	}
 }
@@ -311,59 +311,59 @@ func (m *EnergyManager) SuggestOptimization(deviceID string) ([]OptimizationTip,
 	if idleCount > len(readings)/2 {
 		idleSavings := avgPower * 0.3 * 24 / 1000 // 假设30%可节省
 		tips = append(tips, OptimizationTip{
-			Category:    "power_management",
-			Title:       "启用硬盘休眠",
-			Description: "检测到设备长时间处于低功耗状态，建议启用硬盘休眠功能",
-			SavingsKWh:  math.Round(idleSavings*100) / 100,
+			Category:     "power_management",
+			Title:        "启用硬盘休眠",
+			Description:  "检测到设备长时间处于低功耗状态，建议启用硬盘休眠功能",
+			SavingsKWh:   math.Round(idleSavings*100) / 100,
 			SavingsCents: int64(math.Round(idleSavings * float64(m.config.PricePerKWhCents))),
-			Priority:    "high",
+			Priority:     "high",
 		})
 	}
 
 	// 峰值功耗过高
 	if maxPower > 100 {
 		tips = append(tips, OptimizationTip{
-			Category:    "power_cap",
-			Title:       "设置功耗上限",
-			Description: "检测到设备峰值功耗较高，建议设置功耗上限以降低能耗",
-			SavingsKWh:  math.Round((maxPower-80)*24/1000*100) / 100,
-			SavingsCents: int64(math.Round((maxPower-80) * 24 / 1000 * float64(m.config.PricePerKWhCents))),
-			Priority:    "medium",
+			Category:     "power_cap",
+			Title:        "设置功耗上限",
+			Description:  "检测到设备峰值功耗较高，建议设置功耗上限以降低能耗",
+			SavingsKWh:   math.Round((maxPower-80)*24/1000*100) / 100,
+			SavingsCents: int64(math.Round((maxPower - 80) * 24 / 1000 * float64(m.config.PricePerKWhCents))),
+			Priority:     "medium",
 		})
 	}
 
 	// CPU 调度优化
 	if avgPower > 50 {
 		tips = append(tips, OptimizationTip{
-			Category:    "scheduling",
-			Title:       "优化任务调度",
-			Description: "将高负载任务调度到电价低谷时段执行",
-			SavingsKWh:  math.Round(avgPower*0.2*8/1000*100) / 100,
+			Category:     "scheduling",
+			Title:        "优化任务调度",
+			Description:  "将高负载任务调度到电价低谷时段执行",
+			SavingsKWh:   math.Round(avgPower*0.2*8/1000*100) / 100,
 			SavingsCents: int64(math.Round(avgPower * 0.2 * 8 / 1000 * float64(m.config.PricePerKWhCents))),
-			Priority:    "medium",
+			Priority:     "medium",
 		})
 	}
 
 	// 温控优化
 	if maxPower-minPower > 30 {
 		tips = append(tips, OptimizationTip{
-			Category:    "thermal",
-			Title:       "优化散热方案",
-			Description: "功耗波动较大，优化散热可降低风扇能耗",
-			SavingsKWh:  2.5,
+			Category:     "thermal",
+			Title:        "优化散热方案",
+			Description:  "功耗波动较大，优化散热可降低风扇能耗",
+			SavingsKWh:   2.5,
 			SavingsCents: int64(math.Round(2.5 * float64(m.config.PricePerKWhCents))),
-			Priority:    "low",
+			Priority:     "low",
 		})
 	}
 
 	// 定时开关机
 	tips = append(tips, OptimizationTip{
-		Category:    "schedule",
-		Title:       "设置定时开关机",
-		Description: "在非使用时段自动关机，可节省约30%能耗",
-		SavingsKWh:  math.Round(avgPower*0.3*8/1000*100) / 100,
+		Category:     "schedule",
+		Title:        "设置定时开关机",
+		Description:  "在非使用时段自动关机，可节省约30%能耗",
+		SavingsKWh:   math.Round(avgPower*0.3*8/1000*100) / 100,
 		SavingsCents: int64(math.Round(avgPower * 0.3 * 8 / 1000 * float64(m.config.PricePerKWhCents))),
-		Priority:    "high",
+		Priority:     "high",
 	})
 
 	return tips, nil
@@ -460,12 +460,12 @@ func (m *EnergyManager) generateOptimizationTips(devices []DeviceEnergy, totalEn
 	for _, dev := range devices {
 		if dev.Percentage > 30 {
 			tips = append(tips, OptimizationTip{
-				Category:    "high_consumption",
-				Title:       fmt.Sprintf("优化 %s 能耗", dev.DeviceName),
-				Description: fmt.Sprintf("%s 占总能耗 %.1f%%，建议检查是否有异常", dev.DeviceName, dev.Percentage),
-				SavingsKWh:  math.Round(dev.EnergyKWh*0.1*100) / 100,
+				Category:     "high_consumption",
+				Title:        fmt.Sprintf("优化 %s 能耗", dev.DeviceName),
+				Description:  fmt.Sprintf("%s 占总能耗 %.1f%%，建议检查是否有异常", dev.DeviceName, dev.Percentage),
+				SavingsKWh:   math.Round(dev.EnergyKWh*0.1*100) / 100,
 				SavingsCents: int64(math.Round(dev.EnergyKWh * 0.1 * float64(m.config.PricePerKWhCents))),
-				Priority:    "high",
+				Priority:     "high",
 			})
 		}
 	}
@@ -473,12 +473,12 @@ func (m *EnergyManager) generateOptimizationTips(devices []DeviceEnergy, totalEn
 	// 总体建议
 	if totalEnergyKWh > 100 {
 		tips = append(tips, OptimizationTip{
-			Category:    "overall",
-			Title:       "考虑升级节能设备",
-			Description: "当前能耗较高，升级到低功耗设备可长期节省成本",
-			SavingsKWh:  math.Round(totalEnergyKWh*0.2*100) / 100,
+			Category:     "overall",
+			Title:        "考虑升级节能设备",
+			Description:  "当前能耗较高，升级到低功耗设备可长期节省成本",
+			SavingsKWh:   math.Round(totalEnergyKWh*0.2*100) / 100,
 			SavingsCents: int64(math.Round(totalEnergyKWh * 0.2 * float64(m.config.PricePerKWhCents))),
-			Priority:    "medium",
+			Priority:     "medium",
 		})
 	}
 

@@ -362,7 +362,7 @@ func (h *Handler) GenerateQRCode(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"url":  data,
+		"url":    data,
 		"qrData": data,
 	})
 }

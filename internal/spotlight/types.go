@@ -58,14 +58,14 @@ type SearchRequest struct {
 
 // SearchResult 搜索结果
 type SearchResult struct {
-	Documents  []ScoredDocument `json:"documents"`
-	Total      int              `json:"total"`
-	Page       int              `json:"page"`
-	PageSize   int              `json:"page_size"`
-	TotalPages int              `json:"total_pages"`
-	Query      string           `json:"query"`
-	Duration   string           `json:"duration"`
-	Suggestions []string        `json:"suggestions,omitempty"`
+	Documents   []ScoredDocument `json:"documents"`
+	Total       int              `json:"total"`
+	Page        int              `json:"page"`
+	PageSize    int              `json:"page_size"`
+	TotalPages  int              `json:"total_pages"`
+	Query       string           `json:"query"`
+	Duration    string           `json:"duration"`
+	Suggestions []string         `json:"suggestions,omitempty"`
 }
 
 // ScoredDocument 带评分的文档
@@ -78,8 +78,8 @@ type ScoredDocument struct {
 
 // SuggestRequest 搜索建议请求
 type SuggestRequest struct {
-	Query    string `json:"query" form:"q"`
-	Limit    int    `json:"limit" form:"limit"`
+	Query string `json:"query" form:"q"`
+	Limit int    `json:"limit" form:"limit"`
 }
 
 // SuggestResponse 搜索建议响应
@@ -98,11 +98,11 @@ type Suggestion struct {
 
 // IndexStats 索引统计
 type IndexStats struct {
-	TotalDocuments  int       `json:"total_documents"`
-	TotalTerms      int       `json:"total_terms"`
-	IndexSize       int64     `json:"index_size"`
-	LastIndexedAt   time.Time `json:"last_indexed_at"`
-	IndexDuration   string    `json:"index_duration"`
+	TotalDocuments  int              `json:"total_documents"`
+	TotalTerms      int              `json:"total_terms"`
+	IndexSize       int64            `json:"index_size"`
+	LastIndexedAt   time.Time        `json:"last_indexed_at"`
+	IndexDuration   string           `json:"index_duration"`
 	DocumentsByType map[FileType]int `json:"documents_by_type"`
 }
 
@@ -111,7 +111,7 @@ type invertedIndex struct {
 	mu       sync.RWMutex
 	index    map[string]map[string]positions // term -> docID -> positions
 	docs     map[string]*Document            // docID -> Document
-	trieRoot *trieNode                        // 前缀树根节点
+	trieRoot *trieNode                       // 前缀树根节点
 }
 
 // positions 词项在文档中的位置
@@ -146,15 +146,15 @@ type Handlers struct {
 
 // SpotlightConfig 配置
 type SpotlightConfig struct {
-	MaxIndexSize     int    `json:"max_index_size"`
-	MinTermLength    int    `json:"min_term_length"`
-	MaxTermLength    int    `json:"max_term_length"`
-	EnableCJK       bool   `json:"enable_cjk"`
-	EnableStemming   bool   `json:"enable_stemming"`
-	IndexBatchSize   int    `json:"index_batch_size"`
-	SearchTimeout    int    `json:"search_timeout_ms"`
-	MaxResults       int    `json:"max_results"`
-	SuggestionLimit  int    `json:"suggestion_limit"`
+	MaxIndexSize    int  `json:"max_index_size"`
+	MinTermLength   int  `json:"min_term_length"`
+	MaxTermLength   int  `json:"max_term_length"`
+	EnableCJK       bool `json:"enable_cjk"`
+	EnableStemming  bool `json:"enable_stemming"`
+	IndexBatchSize  int  `json:"index_batch_size"`
+	SearchTimeout   int  `json:"search_timeout_ms"`
+	MaxResults      int  `json:"max_results"`
+	SuggestionLimit int  `json:"suggestion_limit"`
 }
 
 // tokenizer 分词器
@@ -298,8 +298,8 @@ func (m *Manager) GetStats() map[string]interface{} {
 
 	return map[string]interface{}{
 		"total_documents": len(m.index.docs),
-		"total_terms":    len(m.index.index),
-		"config":         m.config,
+		"total_terms":     len(m.index.index),
+		"config":          m.config,
 	}
 }
 

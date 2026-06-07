@@ -16,57 +16,57 @@ import (
 type VersionStatus string
 
 const (
-	StatusCurrent   VersionStatus = "current"   // 当前版本
-	StatusPrevious  VersionStatus = "previous"  // 历史版本
-	StatusDeleted   VersionStatus = "deleted"   // 已删除版本
-	StatusArchived  VersionStatus = "archived"  // 已归档版本
+	StatusCurrent  VersionStatus = "current"  // 当前版本
+	StatusPrevious VersionStatus = "previous" // 历史版本
+	StatusDeleted  VersionStatus = "deleted"  // 已删除版本
+	StatusArchived VersionStatus = "archived" // 已归档版本
 )
 
 // SnapshotType 快照类型
 type SnapshotType string
 
 const (
-	SnapshotManual    SnapshotType = "manual"    // 手动快照
-	SnapshotAuto      SnapshotType = "auto"      // 自动快照
-	SnapshotScheduled SnapshotType = "scheduled" // 定时快照
+	SnapshotManual    SnapshotType = "manual"     // 手动快照
+	SnapshotAuto      SnapshotType = "auto"       // 自动快照
+	SnapshotScheduled SnapshotType = "scheduled"  // 定时快照
 	SnapshotBeforeMod SnapshotType = "before_mod" // 修改前快照
 )
 
 // FileVersion 文件版本
 type FileVersion struct {
-	ID            string        `json:"id"`
-	FilePath      string        `json:"file_path"`
-	Version       int           `json:"version"`
-	Size          int64         `json:"size"`
-	Checksum      string        `json:"checksum"`
-	Status        VersionStatus `json:"status"`
-	SnapshotType  SnapshotType  `json:"snapshot_type"`
-	SnapshotID    string        `json:"snapshot_id"`
-	Comment       string        `json:"comment"`
-	CreatedBy     string        `json:"created_by"`
-	CreatedAt     time.Time     `json:"created_at"`
-	ExpiresAt     *time.Time    `json:"expires_at,omitempty"`
-	Metadata      map[string]string `json:"metadata,omitempty"`
-	Tags          []string      `json:"tags,omitempty"`
-	IsCompressed  bool          `json:"is_compressed"`
-	CompressedSize int64        `json:"compressed_size,omitempty"`
+	ID             string            `json:"id"`
+	FilePath       string            `json:"file_path"`
+	Version        int               `json:"version"`
+	Size           int64             `json:"size"`
+	Checksum       string            `json:"checksum"`
+	Status         VersionStatus     `json:"status"`
+	SnapshotType   SnapshotType      `json:"snapshot_type"`
+	SnapshotID     string            `json:"snapshot_id"`
+	Comment        string            `json:"comment"`
+	CreatedBy      string            `json:"created_by"`
+	CreatedAt      time.Time         `json:"created_at"`
+	ExpiresAt      *time.Time        `json:"expires_at,omitempty"`
+	Metadata       map[string]string `json:"metadata,omitempty"`
+	Tags           []string          `json:"tags,omitempty"`
+	IsCompressed   bool              `json:"is_compressed"`
+	CompressedSize int64             `json:"compressed_size,omitempty"`
 }
 
 // FileSnapshot 文件快照
 type FileSnapshot struct {
-	ID            string            `json:"id"`
-	Name          string            `json:"name"`
-	Description   string            `json:"description"`
-	Type          SnapshotType      `json:"type"`
-	FilePaths     []string          `json:"file_paths"`
-	Versions      map[string]int    `json:"versions"` // filePath -> version
-	TotalSize     int64             `json:"total_size"`
-	CreatedBy     string            `json:"created_by"`
-	CreatedAt     time.Time         `json:"created_at"`
-	ExpiresAt     *time.Time        `json:"expires_at,omitempty"`
-	Tags          []string          `json:"tags,omitempty"`
-	IsLocked      bool              `json:"is_locked"`
-	RetentionDays int               `json:"retention_days"`
+	ID            string         `json:"id"`
+	Name          string         `json:"name"`
+	Description   string         `json:"description"`
+	Type          SnapshotType   `json:"type"`
+	FilePaths     []string       `json:"file_paths"`
+	Versions      map[string]int `json:"versions"` // filePath -> version
+	TotalSize     int64          `json:"total_size"`
+	CreatedBy     string         `json:"created_by"`
+	CreatedAt     time.Time      `json:"created_at"`
+	ExpiresAt     *time.Time     `json:"expires_at,omitempty"`
+	Tags          []string       `json:"tags,omitempty"`
+	IsLocked      bool           `json:"is_locked"`
+	RetentionDays int            `json:"retention_days"`
 }
 
 // VersionDiff 版本差异
@@ -107,25 +107,25 @@ type RetentionPolicy struct {
 
 // VersionStats 版本统计
 type VersionStats struct {
-	TotalFiles       int            `json:"total_files"`
-	TotalVersions    int            `json:"total_versions"`
-	TotalSnapshots   int            `json:"total_snapshots"`
-	TotalSize        int64          `json:"total_size_bytes"`
-	CompressedSize   int64          `json:"compressed_size_bytes"`
-	SpaceSaved       int64          `json:"space_saved_bytes"`
+	TotalFiles       int                   `json:"total_files"`
+	TotalVersions    int                   `json:"total_versions"`
+	TotalSnapshots   int                   `json:"total_snapshots"`
+	TotalSize        int64                 `json:"total_size_bytes"`
+	CompressedSize   int64                 `json:"compressed_size_bytes"`
+	SpaceSaved       int64                 `json:"space_saved_bytes"`
 	VersionsByStatus map[VersionStatus]int `json:"versions_by_status"`
-	OldestVersion    *time.Time     `json:"oldest_version,omitempty"`
-	NewestVersion    *time.Time     `json:"newest_version,omitempty"`
-	AverageVersions  float64        `json:"average_versions_per_file"`
+	OldestVersion    *time.Time            `json:"oldest_version,omitempty"`
+	NewestVersion    *time.Time            `json:"newest_version,omitempty"`
+	AverageVersions  float64               `json:"average_versions_per_file"`
 }
 
 // FileVersionControl 文件版本控制器
 type FileVersionControl struct {
-	mu             sync.RWMutex
-	versions       map[string][]FileVersion  // filePath -> versions
-	snapshots      map[string]*FileSnapshot
+	mu                sync.RWMutex
+	versions          map[string][]FileVersion // filePath -> versions
+	snapshots         map[string]*FileSnapshot
 	retentionPolicies map[string]*RetentionPolicy
-	config         *VersionControlConfig
+	config            *VersionControlConfig
 }
 
 // VersionControlConfig 版本控制配置
@@ -339,17 +339,17 @@ func (fvc *FileVersionControl) RollbackToVersion(filePath string, version int) (
 
 	// 创建新版本（基于回滚版本）
 	newVersion := FileVersion{
-		ID:           fmt.Sprintf("ver_%s_%d_%d", filePath, len(versions)+1, time.Now().UnixNano()),
-		FilePath:     filePath,
-		Version:      len(versions) + 1,
-		Size:         targetVersion.Size,
-		Checksum:     targetVersion.Checksum,
-		Status:       StatusCurrent,
-		SnapshotType: SnapshotManual,
-		Comment:      fmt.Sprintf("回滚到版本 %d", version),
-		CreatedBy:    "system",
-		CreatedAt:    time.Now(),
-		IsCompressed: targetVersion.IsCompressed,
+		ID:             fmt.Sprintf("ver_%s_%d_%d", filePath, len(versions)+1, time.Now().UnixNano()),
+		FilePath:       filePath,
+		Version:        len(versions) + 1,
+		Size:           targetVersion.Size,
+		Checksum:       targetVersion.Checksum,
+		Status:         StatusCurrent,
+		SnapshotType:   SnapshotManual,
+		Comment:        fmt.Sprintf("回滚到版本 %d", version),
+		CreatedBy:      "system",
+		CreatedAt:      time.Now(),
+		IsCompressed:   targetVersion.IsCompressed,
 		CompressedSize: targetVersion.CompressedSize,
 	}
 
@@ -546,10 +546,10 @@ func (fvc *FileVersionControl) MarshalJSON() ([]byte, error) {
 	defer fvc.mu.RUnlock()
 
 	return json.Marshal(struct {
-		Versions          map[string][]FileVersion      `json:"versions"`
-		Snapshots         map[string]*FileSnapshot       `json:"snapshots"`
-		RetentionPolicies map[string]*RetentionPolicy    `json:"retention_policies"`
-		Config            *VersionControlConfig          `json:"config"`
+		Versions          map[string][]FileVersion    `json:"versions"`
+		Snapshots         map[string]*FileSnapshot    `json:"snapshots"`
+		RetentionPolicies map[string]*RetentionPolicy `json:"retention_policies"`
+		Config            *VersionControlConfig       `json:"config"`
 	}{
 		Versions:          fvc.versions,
 		Snapshots:         fvc.snapshots,
@@ -574,7 +574,7 @@ func (fvc *FileVersionControl) applyRetentionPolicy(filePath string) {
 	maxVersions := fvc.config.MaxVersionsPerFile
 	if maxVersions > 0 && len(versions) > maxVersions {
 		// 保留最新版本，删除最旧的
-	 excess := len(versions) - maxVersions
+		excess := len(versions) - maxVersions
 		fvc.versions[filePath] = versions[excess:]
 	}
 }

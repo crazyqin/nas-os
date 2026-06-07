@@ -44,11 +44,11 @@ const (
 type VolumeEncryptionState string
 
 const (
-	VolumeStateLocked    VolumeEncryptionState = "locked"
-	VolumeStateUnlocked  VolumeEncryptionState = "unlocked"
-	VolumeStateCreating  VolumeEncryptionState = "creating"
-	VolumeStateError     VolumeEncryptionState = "error"
-	VolumeStateRekeying  VolumeEncryptionState = "rekeying"
+	VolumeStateLocked   VolumeEncryptionState = "locked"
+	VolumeStateUnlocked VolumeEncryptionState = "unlocked"
+	VolumeStateCreating VolumeEncryptionState = "creating"
+	VolumeStateError    VolumeEncryptionState = "error"
+	VolumeStateRekeying VolumeEncryptionState = "rekeying"
 )
 
 // VolumeEncryptionAlgorithm 加密算法
@@ -62,34 +62,34 @@ const (
 
 // EncryptedVolume 加密卷定义
 type EncryptedVolume struct {
-	ID            string                   `json:"id"`
-	Name          string                   `json:"name"`
-	MountPoint    string                   `json:"mount_point"`
-	DevicePath    string                   `json:"device_path"`
-	State         VolumeEncryptionState    `json:"state"`
+	ID            string                    `json:"id"`
+	Name          string                    `json:"name"`
+	MountPoint    string                    `json:"mount_point"`
+	DevicePath    string                    `json:"device_path"`
+	State         VolumeEncryptionState     `json:"state"`
 	Algorithm     VolumeEncryptionAlgorithm `json:"algorithm"`
-	KeyID         string                   `json:"key_id"`
-	Salt          string                   `json:"salt"`
-	HeaderPath    string                   `json:"header_path"`
-	SizeBytes     int64                    `json:"size_bytes"`
-	UsedBytes     int64                    `json:"used_bytes"`
-	AESNI         bool                     `json:"aes_ni"`
-	CreatedAt     time.Time                `json:"created_at"`
-	LastUnlocked  *time.Time               `json:"last_unlocked,omitempty"`
-	LastLocked    *time.Time               `json:"last_locked,omitempty"`
-	RekeyDeadline *time.Time               `json:"rekey_deadline,omitempty"`
-	Metadata      map[string]string        `json:"metadata,omitempty"`
+	KeyID         string                    `json:"key_id"`
+	Salt          string                    `json:"salt"`
+	HeaderPath    string                    `json:"header_path"`
+	SizeBytes     int64                     `json:"size_bytes"`
+	UsedBytes     int64                     `json:"used_bytes"`
+	AESNI         bool                      `json:"aes_ni"`
+	CreatedAt     time.Time                 `json:"created_at"`
+	LastUnlocked  *time.Time                `json:"last_unlocked,omitempty"`
+	LastLocked    *time.Time                `json:"last_locked,omitempty"`
+	RekeyDeadline *time.Time                `json:"rekey_deadline,omitempty"`
+	Metadata      map[string]string         `json:"metadata,omitempty"`
 }
 
 // VolumeKey 卷加密密钥
 type VolumeKey struct {
-	ID        string    `json:"id"`
-	VolumeID  string    `json:"volume_id"`
-	Salt      string    `json:"salt"`
-	EncryptedKey string `json:"encrypted_key"` // 主密钥加密后的数据密钥
-	Algorithm VolumeEncryptionAlgorithm `json:"algorithm"`
-	Version   int       `json:"version"`
-	CreatedAt time.Time `json:"created_at"`
+	ID           string                    `json:"id"`
+	VolumeID     string                    `json:"volume_id"`
+	Salt         string                    `json:"salt"`
+	EncryptedKey string                    `json:"encrypted_key"` // 主密钥加密后的数据密钥
+	Algorithm    VolumeEncryptionAlgorithm `json:"algorithm"`
+	Version      int                       `json:"version"`
+	CreatedAt    time.Time                 `json:"created_at"`
 }
 
 // KMIPConfig KMIP远程密钥管理配置
@@ -104,23 +104,23 @@ type KMIPConfig struct {
 
 // CreateEncryptedVolumeRequest 创建加密卷请求
 type CreateEncryptedVolumeRequest struct {
-	Name       string                   `json:"name"`
-	DevicePath string                   `json:"device_path"`
-	SizeBytes  int64                    `json:"size_bytes"`
+	Name       string                    `json:"name"`
+	DevicePath string                    `json:"device_path"`
+	SizeBytes  int64                     `json:"size_bytes"`
 	Algorithm  VolumeEncryptionAlgorithm `json:"algorithm"`
-	Password   string                   `json:"password"`
-	Metadata   map[string]string        `json:"metadata,omitempty"`
+	Password   string                    `json:"password"`
+	Metadata   map[string]string         `json:"metadata,omitempty"`
 }
 
 // VolumeEncryptionManager 全卷加密管理器
 type VolumeEncryptionManager struct {
-	mu          sync.RWMutex
-	volumes     map[string]*EncryptedVolume
-	keys        map[string]*VolumeKey
-	baseDir     string
-	kmipConfig  KMIPConfig
-	aesNI       bool // 是否支持AES-NI硬件加速
-	masterKey   []byte // 运行时主密钥
+	mu         sync.RWMutex
+	volumes    map[string]*EncryptedVolume
+	keys       map[string]*VolumeKey
+	baseDir    string
+	kmipConfig KMIPConfig
+	aesNI      bool   // 是否支持AES-NI硬件加速
+	masterKey  []byte // 运行时主密钥
 }
 
 // NewVolumeEncryptionManager 创建全卷加密管理器
@@ -138,11 +138,11 @@ func NewVolumeEncryptionManager(baseDir string, kmipConfig KMIPConfig) (*VolumeE
 	}
 
 	mgr := &VolumeEncryptionManager{
-		volumes:   make(map[string]*EncryptedVolume),
-		keys:      make(map[string]*VolumeKey),
-		baseDir:   baseDir,
+		volumes:    make(map[string]*EncryptedVolume),
+		keys:       make(map[string]*VolumeKey),
+		baseDir:    baseDir,
 		kmipConfig: kmipConfig,
-		aesNI:     detectAESNI(),
+		aesNI:      detectAESNI(),
 	}
 
 	// 加载已有卷配置
@@ -246,14 +246,14 @@ func (m *VolumeEncryptionManager) CreateVolume(req CreateEncryptedVolumeRequest)
 
 	// 写入卷头
 	header := VolumeHeader{
-		Magic:       VolumeHeaderMagic,
-		Version:     VolumeHeaderVersion,
-		VolumeID:    volumeID,
-		Algorithm:   string(req.Algorithm),
-		Salt:        hex.EncodeToString(salt),
-		KeyID:       keyID,
-		SizeBytes:   req.SizeBytes,
-		CreatedAt:   time.Now(),
+		Magic:     VolumeHeaderMagic,
+		Version:   VolumeHeaderVersion,
+		VolumeID:  volumeID,
+		Algorithm: string(req.Algorithm),
+		Salt:      hex.EncodeToString(salt),
+		KeyID:     keyID,
+		SizeBytes: req.SizeBytes,
+		CreatedAt: time.Now(),
 	}
 	if err := m.writeHeader(vol.HeaderPath, header); err != nil {
 		return nil, fmt.Errorf("写入卷头失败: %w", err)

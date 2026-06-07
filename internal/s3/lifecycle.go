@@ -17,15 +17,15 @@ type LifecycleConfig struct {
 
 // LifecycleRule represents a single lifecycle rule.
 type LifecycleRule struct {
-	ID                     string              `json:"id"`
-	Status                 LifecycleRuleStatus `json:"status"`
-	Filter                 *LifecycleFilter    `json:"filter,omitempty"`
-	Expiration             *ExpirationAction   `json:"expiration,omitempty"`
-	Transition             *TransitionAction   `json:"transition,omitempty"`
-	NoncurrentExpiration   *NoncurrentExpiration `json:"noncurrentExpiration,omitempty"`
-	NoncurrentTransition   *NoncurrentTransition `json:"noncurrentTransition,omitempty"`
-	AbortIncompleteUpload  *AbortIncompleteMultipartUpload `json:"abortIncompleteUpload,omitempty"`
-	CreatedAt              time.Time           `json:"createdAt"`
+	ID                    string                          `json:"id"`
+	Status                LifecycleRuleStatus             `json:"status"`
+	Filter                *LifecycleFilter                `json:"filter,omitempty"`
+	Expiration            *ExpirationAction               `json:"expiration,omitempty"`
+	Transition            *TransitionAction               `json:"transition,omitempty"`
+	NoncurrentExpiration  *NoncurrentExpiration           `json:"noncurrentExpiration,omitempty"`
+	NoncurrentTransition  *NoncurrentTransition           `json:"noncurrentTransition,omitempty"`
+	AbortIncompleteUpload *AbortIncompleteMultipartUpload `json:"abortIncompleteUpload,omitempty"`
+	CreatedAt             time.Time                       `json:"createdAt"`
 }
 
 // LifecycleRuleStatus represents the status of a lifecycle rule.
@@ -45,9 +45,9 @@ type LifecycleFilter struct {
 
 // ExpirationAction defines when objects expire and should be deleted.
 type ExpirationAction struct {
-	Days         int       `json:"days,omitempty"`
-	Date         time.Time `json:"date,omitempty"`
-	ExpiredObjectDeleteMarker bool `json:"expiredObjectDeleteMarker,omitempty"`
+	Days                      int       `json:"days,omitempty"`
+	Date                      time.Time `json:"date,omitempty"`
+	ExpiredObjectDeleteMarker bool      `json:"expiredObjectDeleteMarker,omitempty"`
 }
 
 // TransitionAction defines when objects should transition to a different storage class.
@@ -64,8 +64,8 @@ type NoncurrentExpiration struct {
 
 // NoncurrentTransition defines transition for non-current object versions.
 type NoncurrentTransition struct {
-	NoncurrentDays int           `json:"noncurrentDays"`
-	StorageClass   StorageClass  `json:"storageClass"`
+	NoncurrentDays int          `json:"noncurrentDays"`
+	StorageClass   StorageClass `json:"storageClass"`
 }
 
 // AbortIncompleteMultipartUpload defines when to abort incomplete multipart uploads.
@@ -75,12 +75,12 @@ type AbortIncompleteMultipartUpload struct {
 
 // LifecycleStatus contains the current lifecycle status for a bucket.
 type LifecycleStatus struct {
-	Enabled      bool                  `json:"enabled"`
-	RuleCount    int                   `json:"ruleCount"`
-	Rules        []LifecycleRuleStatus `json:"rules"`
-	LastEvaluated time.Time            `json:"lastEvaluated,omitempty"`
-	ObjectsExpired    int64            `json:"objectsExpired"`
-	ObjectsTransitioned int64          `json:"objectsTransitioned"`
+	Enabled             bool                  `json:"enabled"`
+	RuleCount           int                   `json:"ruleCount"`
+	Rules               []LifecycleRuleStatus `json:"rules"`
+	LastEvaluated       time.Time             `json:"lastEvaluated,omitempty"`
+	ObjectsExpired      int64                 `json:"objectsExpired"`
+	ObjectsTransitioned int64                 `json:"objectsTransitioned"`
 }
 
 // LifecycleResult contains the result of applying lifecycle rules.
@@ -355,8 +355,8 @@ func shouldTransition(obj *Object, trans *TransitionAction, now time.Time) (Stor
 // lifecycleStats tracks lifecycle execution statistics.
 type lifecycleStats struct {
 	LastEvaluated       time.Time `json:"lastEvaluated"`
-	ObjectsExpired      int64       `json:"objectsExpired"`
-	ObjectsTransitioned int64       `json:"objectsTransitioned"`
+	ObjectsExpired      int64     `json:"objectsExpired"`
+	ObjectsTransitioned int64     `json:"objectsTransitioned"`
 }
 
 // lifecycleDir returns the directory for lifecycle metadata.

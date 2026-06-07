@@ -9,8 +9,8 @@ import (
 type SnapshotStrategy string
 
 const (
-	StrategyCopy   SnapshotStrategy = "copy"   // 文件复制
-	StrategyBtrfs  SnapshotStrategy = "btrfs"  // btrfs 快照（需内核支持）
+	StrategyCopy  SnapshotStrategy = "copy"  // 文件复制
+	StrategyBtrfs SnapshotStrategy = "btrfs" // btrfs 快照（需内核支持）
 )
 
 // TaskStatus 备份任务状态.
@@ -28,9 +28,9 @@ const (
 type RetentionMode string
 
 const (
-	RetentionByCount RetentionMode = "count"  // 按数量保留
-	RetentionByTime  RetentionMode = "time"   // 按时间保留
-	RetentionBySpace RetentionMode = "space"  // 按空间限制
+	RetentionByCount RetentionMode = "count" // 按数量保留
+	RetentionByTime  RetentionMode = "time"  // 按时间保留
+	RetentionBySpace RetentionMode = "space" // 按空间限制
 )
 
 // Snapshot 文件/目录快照.
@@ -58,10 +58,10 @@ type Version struct {
 
 // DiffEntry 文件差异条目.
 type DiffEntry struct {
-	Path      string `json:"path"`
-	Change    string `json:"change"` // added, removed, modified
-	SizeOld   int64  `json:"size_old,omitempty"`
-	SizeNew   int64  `json:"size_new,omitempty"`
+	Path       string `json:"path"`
+	Change     string `json:"change"` // added, removed, modified
+	SizeOld    int64  `json:"size_old,omitempty"`
+	SizeNew    int64  `json:"size_new,omitempty"`
 	ModTimeOld string `json:"mod_time_old,omitempty"`
 	ModTimeNew string `json:"mod_time_new,omitempty"`
 }
@@ -84,27 +84,27 @@ type DiffSummary struct {
 
 // RetentionPolicy 保留策略配置.
 type RetentionPolicy struct {
-	Mode          RetentionMode `json:"mode"`
-	MaxCount      int           `json:"max_count,omitempty"`      // 最大保留数量
-	MaxAgeDays    int           `json:"max_age_days,omitempty"`   // 最大保留天数
-	MaxSizeGB     float64       `json:"max_size_gb,omitempty"`    // 最大占用空间 (GB)
+	Mode       RetentionMode `json:"mode"`
+	MaxCount   int           `json:"max_count,omitempty"`    // 最大保留数量
+	MaxAgeDays int           `json:"max_age_days,omitempty"` // 最大保留天数
+	MaxSizeGB  float64       `json:"max_size_gb,omitempty"`  // 最大占用空间 (GB)
 }
 
 // BackupTask 备份任务定义.
 type BackupTask struct {
-	ID          string           `json:"id"`
-	Name        string           `json:"name"`
-	SourcePath  string           `json:"source_path"`
-	Strategy    SnapshotStrategy `json:"strategy"`
-	Schedule    string           `json:"schedule"`    // cron 表达式，空表示仅手动
-	Retention   RetentionPolicy  `json:"retention"`
-	Status      TaskStatus       `json:"status"`
-	Enabled     bool             `json:"enabled"`
-	LastRun     *time.Time       `json:"last_run,omitempty"`
-	LastError   string           `json:"last_error,omitempty"`
-	SnapshotCount int            `json:"snapshot_count"`
-	CreatedAt   time.Time        `json:"created_at"`
-	UpdatedAt   time.Time        `json:"updated_at"`
+	ID            string           `json:"id"`
+	Name          string           `json:"name"`
+	SourcePath    string           `json:"source_path"`
+	Strategy      SnapshotStrategy `json:"strategy"`
+	Schedule      string           `json:"schedule"` // cron 表达式，空表示仅手动
+	Retention     RetentionPolicy  `json:"retention"`
+	Status        TaskStatus       `json:"status"`
+	Enabled       bool             `json:"enabled"`
+	LastRun       *time.Time       `json:"last_run,omitempty"`
+	LastError     string           `json:"last_error,omitempty"`
+	SnapshotCount int              `json:"snapshot_count"`
+	CreatedAt     time.Time        `json:"created_at"`
+	UpdatedAt     time.Time        `json:"updated_at"`
 }
 
 // CreateTaskRequest 创建备份任务请求.

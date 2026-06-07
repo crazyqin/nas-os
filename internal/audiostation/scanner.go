@@ -177,18 +177,18 @@ func (s *Scanner) scanFile(filePath string, force bool) {
 
 // TrackMetadata 曲目元数据.
 type TrackMetadata struct {
-	Title      string
-	Artist     string
-	Album      string
+	Title       string
+	Artist      string
+	Album       string
 	AlbumArtist string
-	Genre      string
-	Year       int
-	TrackNum   int
-	DiscNum    int
-	Duration   int // 秒
-	Bitrate    int // kbps
-	SampleRate int // Hz
-	Channels   int
+	Genre       string
+	Year        int
+	TrackNum    int
+	DiscNum     int
+	Duration    int // 秒
+	Bitrate     int // kbps
+	SampleRate  int // Hz
+	Channels    int
 }
 
 // extractMetadata 提取音频文件元数据.

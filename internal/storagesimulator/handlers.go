@@ -118,7 +118,7 @@ func (h *Handler) GetScenarios(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"success": true,
 			"data": gin.H{
-				"scenarios": scenarios,
+				"scenarios":   scenarios,
 				"simulations": results,
 			},
 		})

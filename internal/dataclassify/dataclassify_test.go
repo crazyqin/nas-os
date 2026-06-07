@@ -6,13 +6,13 @@ import (
 
 func TestNewManager(t *testing.T) {
 	config := &Config{
-		Enabled:              true,
-		AutoClassify:         true,
-		AutoTag:              true,
-		DetectPII:            true,
-		ScanInterval:         24,
-		MaxFileSize:          100 * 1024 * 1024,
-		ConcurrentScans:      4,
+		Enabled:               true,
+		AutoClassify:          true,
+		AutoTag:               true,
+		DetectPII:             true,
+		ScanInterval:          24,
+		MaxFileSize:           100 * 1024 * 1024,
+		ConcurrentScans:       4,
 		DefaultClassification: "internal",
 	}
 

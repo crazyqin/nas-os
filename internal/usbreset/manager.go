@@ -27,8 +27,8 @@ const (
 type PolicyAction string
 
 const (
-	PolicyAllow   PolicyAction = "allow"   // 允许
-	PolicyDeny    PolicyAction = "deny"    // 拒绝
+	PolicyAllow    PolicyAction = "allow"    // 允许
+	PolicyDeny     PolicyAction = "deny"     // 拒绝
 	PolicyReadOnly PolicyAction = "readonly" // 只读
 )
 
@@ -44,27 +44,27 @@ const (
 
 // USBDevice USB 设备信息
 type USBDevice struct {
-	ID         string     `json:"id"`
-	Name       string     `json:"name"`
-	VendorID   string     `json:"vendorId"`
-	ProductID  string     `json:"productId"`
-	Type       DeviceType `json:"type"`
-	Speed      string     `json:"speed"` // low/full/high/super/super_plus
-	Port       string     `json:"port"`
-	MountPoint string     `json:"mountPoint,omitempty"`
-	Connected  bool       `json:"connected"`
-	ConnectedAt time.Time `json:"connectedAt"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	VendorID    string     `json:"vendorId"`
+	ProductID   string     `json:"productId"`
+	Type        DeviceType `json:"type"`
+	Speed       string     `json:"speed"` // low/full/high/super/super_plus
+	Port        string     `json:"port"`
+	MountPoint  string     `json:"mountPoint,omitempty"`
+	Connected   bool       `json:"connected"`
+	ConnectedAt time.Time  `json:"connectedAt"`
 }
 
 // USBPort USB 端口
 type USBPort struct {
-	ID          string     `json:"id"`
-	Path        string     `json:"path"`
-	DeviceID    string     `json:"deviceId,omitempty"`
-	Powered     bool       `json:"powered"`
-	Speed       string     `json:"speed"`
-	BusNumber   int        `json:"busNumber"`
-	PortNumber  int        `json:"portNumber"`
+	ID         string `json:"id"`
+	Path       string `json:"path"`
+	DeviceID   string `json:"deviceId,omitempty"`
+	Powered    bool   `json:"powered"`
+	Speed      string `json:"speed"`
+	BusNumber  int    `json:"busNumber"`
+	PortNumber int    `json:"portNumber"`
 }
 
 // USBPolicy USB 策略
@@ -72,8 +72,8 @@ type USBPolicy struct {
 	ID         string       `json:"id"`
 	DeviceType DeviceType   `json:"deviceType"`
 	Action     PolicyAction `json:"action"`
-	Priority   int          `json:"priority"` // 优先级，数值越大越优先
-	VendorID   string       `json:"vendorId,omitempty"` // 特定厂商
+	Priority   int          `json:"priority"`            // 优先级，数值越大越优先
+	VendorID   string       `json:"vendorId,omitempty"`  // 特定厂商
 	ProductID  string       `json:"productId,omitempty"` // 特定产品
 	Name       string       `json:"name"`
 	Enabled    bool         `json:"enabled"`
@@ -92,9 +92,9 @@ type USBEvent struct {
 
 // USBBandwidth USB 带宽信息
 type USBBandwidth struct {
-	PortID    string `json:"portId"`
-	UsedMbps  int    `json:"usedMbps"`
-	MaxMbps   int    `json:"maxMbps"`
+	PortID    string   `json:"portId"`
+	UsedMbps  int      `json:"usedMbps"`
+	MaxMbps   int      `json:"maxMbps"`
 	DeviceIDs []string `json:"deviceIds,omitempty"`
 }
 
@@ -109,13 +109,13 @@ type AutoMountPolicy struct {
 
 // Manager USB 设备管理器
 type Manager struct {
-	mu          sync.RWMutex
-	devices     map[string]*USBDevice
-	ports       map[string]*USBPort
-	policies    map[string]*USBPolicy
-	events      []USBEvent
-	bandwidth   map[string]*USBBandwidth
-	autoMount   AutoMountPolicy
+	mu           sync.RWMutex
+	devices      map[string]*USBDevice
+	ports        map[string]*USBPort
+	policies     map[string]*USBPolicy
+	events       []USBEvent
+	bandwidth    map[string]*USBBandwidth
+	autoMount    AutoMountPolicy
 	nextPolicyID int
 	nextEventID  int
 }
@@ -123,11 +123,11 @@ type Manager struct {
 // NewManager 创建管理器
 func NewManager() *Manager {
 	m := &Manager{
-		devices:     make(map[string]*USBDevice),
-		ports:       make(map[string]*USBPort),
-		policies:    make(map[string]*USBPolicy),
-		bandwidth:   make(map[string]*USBBandwidth),
-		autoMount:   AutoMountPolicy{Enabled: true, Policy: "readonly"},
+		devices:      make(map[string]*USBDevice),
+		ports:        make(map[string]*USBPort),
+		policies:     make(map[string]*USBPolicy),
+		bandwidth:    make(map[string]*USBBandwidth),
+		autoMount:    AutoMountPolicy{Enabled: true, Policy: "readonly"},
 		nextPolicyID: 1,
 		nextEventID:  1,
 	}

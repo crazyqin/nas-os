@@ -187,9 +187,9 @@ func (m *Manager) checkHardware() []*DiagResult {
 		Status:   DiagStatusPass,
 		Message:  "内存状态正常",
 		Details: map[string]interface{}{
-			"total_gb":   16.0,
-			"used_gb":    8.5,
-			"usage_pct":  53.1,
+			"total_gb":    16.0,
+			"used_gb":     8.5,
+			"usage_pct":   53.1,
 			"error_count": 0,
 		},
 		Duration: time.Since(start),
@@ -378,9 +378,9 @@ func (m *Manager) runPerformanceBenchmarks() []*DiagResult {
 		Status:   DiagStatusPass,
 		Message:  "磁盘性能基准正常",
 		Details: map[string]interface{}{
-			"seq_read_mbps":  520.5,
-			"seq_write_mbps": 480.2,
-			"random_read_iops": 75000,
+			"seq_read_mbps":     520.5,
+			"seq_write_mbps":    480.2,
+			"random_read_iops":  75000,
 			"random_write_iops": 60000,
 		},
 		Duration: time.Since(start),
@@ -490,8 +490,8 @@ func (m *Manager) DiagnoseNetwork() *NetworkDiag {
 		Connectivity: ConnectivityTest{
 			GatewayReachable:  true,
 			InternetReachable: true,
-			GatewayLatency:   1 * time.Millisecond,
-			InternetLatency:  15 * time.Millisecond,
+			GatewayLatency:    1 * time.Millisecond,
+			InternetLatency:   15 * time.Millisecond,
 		},
 		DNSResolution: DNSDiagResult{
 			Resolver: "8.8.8.8",

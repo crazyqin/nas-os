@@ -40,13 +40,13 @@ func TestManager_SystemLifecycle(t *testing.T) {
 
 	// 注册系统
 	system := &NASSystem{
-		ID:       "nas1",
-		Name:     "主存储",
-		Host:     "192.168.1.100",
-		Port:     80,
-		Version:  "v2.542.0",
-		CPUCores: 8,
-		MemoryTotal: 16 * 1024 * 1024 * 1024,
+		ID:           "nas1",
+		Name:         "主存储",
+		Host:         "192.168.1.100",
+		Port:         80,
+		Version:      "v2.542.0",
+		CPUCores:     8,
+		MemoryTotal:  16 * 1024 * 1024 * 1024,
 		StorageTotal: 10 * 1024 * 1024 * 1024 * 1024,
 	}
 	if err := m.RegisterSystem(system); err != nil {

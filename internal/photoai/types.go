@@ -31,26 +31,26 @@ const (
 
 // Photo 照片信息
 type Photo struct {
-	ID          string        `json:"id"`
-	Filename    string        `json:"filename"`
-	FilePath    string        `json:"file_path"`
-	FileSize    int64         `json:"file_size"`
-	MimeType    string        `json:"mime_type"`
-	Width       int           `json:"width"`
-	Height      int           `json:"height"`
-	Status      PhotoStatus   `json:"status"`
-	Categories  []PhotoCategory `json:"categories,omitempty"`
-	Tags        []string      `json:"tags,omitempty"`
-	Score       float64       `json:"score"` // 美学评分 0-100
-	Duplicates  []string      `json:"duplicates,omitempty"` // 重复照片ID列表
-	EXIF        *EXIFData     `json:"exif,omitempty"`
-	Faces       []*FaceInfo   `json:"faces,omitempty"`
-	Albums      []string      `json:"albums,omitempty"` // 所属智能相册ID
-	IsFavorite  bool          `json:"is_favorite"`
-	ShareLinks  []*ShareLink  `json:"share_links,omitempty"`
-	CreatedAt   time.Time     `json:"created_at"`
-	UpdatedAt   time.Time     `json:"updated_at"`
-	TakenAt     *time.Time    `json:"taken_at,omitempty"` // 拍摄时间
+	ID         string          `json:"id"`
+	Filename   string          `json:"filename"`
+	FilePath   string          `json:"file_path"`
+	FileSize   int64           `json:"file_size"`
+	MimeType   string          `json:"mime_type"`
+	Width      int             `json:"width"`
+	Height     int             `json:"height"`
+	Status     PhotoStatus     `json:"status"`
+	Categories []PhotoCategory `json:"categories,omitempty"`
+	Tags       []string        `json:"tags,omitempty"`
+	Score      float64         `json:"score"`                // 美学评分 0-100
+	Duplicates []string        `json:"duplicates,omitempty"` // 重复照片ID列表
+	EXIF       *EXIFData       `json:"exif,omitempty"`
+	Faces      []*FaceInfo     `json:"faces,omitempty"`
+	Albums     []string        `json:"albums,omitempty"` // 所属智能相册ID
+	IsFavorite bool            `json:"is_favorite"`
+	ShareLinks []*ShareLink    `json:"share_links,omitempty"`
+	CreatedAt  time.Time       `json:"created_at"`
+	UpdatedAt  time.Time       `json:"updated_at"`
+	TakenAt    *time.Time      `json:"taken_at,omitempty"` // 拍摄时间
 }
 
 // EXIFData EXIF元数据
@@ -78,13 +78,13 @@ type GPSData struct {
 
 // FaceInfo 人脸信息
 type FaceInfo struct {
-	ID         string    `json:"id"`
-	PersonID   string    `json:"person_id,omitempty"` // 聚类后的人物ID
-	PersonName string    `json:"person_name,omitempty"`
-	Confidence float64   `json:"confidence"` // 置信度 0-1
-	BoundingBox *Rect    `json:"bounding_box"`
-	Embedding  []float64 `json:"embedding,omitempty"` // 人脸特征向量
-	CreatedAt  time.Time `json:"created_at"`
+	ID          string    `json:"id"`
+	PersonID    string    `json:"person_id,omitempty"` // 聚类后的人物ID
+	PersonName  string    `json:"person_name,omitempty"`
+	Confidence  float64   `json:"confidence"` // 置信度 0-1
+	BoundingBox *Rect     `json:"bounding_box"`
+	Embedding   []float64 `json:"embedding,omitempty"` // 人脸特征向量
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 // Rect 矩形区域
@@ -97,29 +97,29 @@ type Rect struct {
 
 // Person 人物信息（聚类结果）
 type Person struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	PhotoCount  int      `json:"photo_count"`
-	CoverPhoto  string   `json:"cover_photo,omitempty"` // 封面照片ID
-	FaceIDs     []string `json:"face_ids,omitempty"`
-	PhotoIDs    []string `json:"photo_ids,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	PhotoCount int       `json:"photo_count"`
+	CoverPhoto string    `json:"cover_photo,omitempty"` // 封面照片ID
+	FaceIDs    []string  `json:"face_ids,omitempty"`
+	PhotoIDs   []string  `json:"photo_ids,omitempty"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // SmartAlbum 智能相册
 type SmartAlbum struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description,omitempty"`
-	Type        AlbumType      `json:"type"`
-	Rules       []AlbumRule    `json:"rules"` // 自动归类规则
-	PhotoCount  int            `json:"photo_count"`
-	CoverPhoto  string         `json:"cover_photo,omitempty"`
-	PhotoIDs    []string       `json:"photo_ids,omitempty"`
-	IsSystem    bool           `json:"is_system"` // 系统预设相册
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description,omitempty"`
+	Type        AlbumType   `json:"type"`
+	Rules       []AlbumRule `json:"rules"` // 自动归类规则
+	PhotoCount  int         `json:"photo_count"`
+	CoverPhoto  string      `json:"cover_photo,omitempty"`
+	PhotoIDs    []string    `json:"photo_ids,omitempty"`
+	IsSystem    bool        `json:"is_system"` // 系统预设相册
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
 // AlbumType 相册类型
@@ -157,18 +157,18 @@ type ShareLink struct {
 
 // SearchQuery 搜索查询
 type SearchQuery struct {
-	Keywords   string         `json:"keywords,omitempty"`
+	Keywords   string          `json:"keywords,omitempty"`
 	Categories []PhotoCategory `json:"categories,omitempty"`
-	Tags       []string       `json:"tags,omitempty"`
-	PersonIDs  []string       `json:"person_ids,omitempty"`
-	DateFrom   *time.Time     `json:"date_from,omitempty"`
-	DateTo     *time.Time     `json:"date_to,omitempty"`
+	Tags       []string        `json:"tags,omitempty"`
+	PersonIDs  []string        `json:"person_ids,omitempty"`
+	DateFrom   *time.Time      `json:"date_from,omitempty"`
+	DateTo     *time.Time      `json:"date_to,omitempty"`
 	Location   *LocationFilter `json:"location,omitempty"`
-	MinScore   *float64       `json:"min_score,omitempty"`
-	SortBy     string         `json:"sort_by,omitempty"` // date, score, filename
-	SortOrder  string         `json:"sort_order,omitempty"` // asc, desc
-	Page       int            `json:"page"`
-	PageSize   int            `json:"page_size"`
+	MinScore   *float64        `json:"min_score,omitempty"`
+	SortBy     string          `json:"sort_by,omitempty"`    // date, score, filename
+	SortOrder  string          `json:"sort_order,omitempty"` // asc, desc
+	Page       int             `json:"page"`
+	PageSize   int             `json:"page_size"`
 }
 
 // LocationFilter 位置过滤
@@ -188,18 +188,18 @@ type SearchResult struct {
 
 // ScanRequest 扫描请求
 type ScanRequest struct {
-	Directory  string `json:"directory" binding:"required"`
-	Recursive  bool   `json:"recursive"`
-	ForceRescan bool  `json:"force_rescan"` // 强制重新扫描
+	Directory   string `json:"directory" binding:"required"`
+	Recursive   bool   `json:"recursive"`
+	ForceRescan bool   `json:"force_rescan"` // 强制重新扫描
 }
 
 // ScanResult 扫描结果
 type ScanResult struct {
-	TotalFound   int      `json:"total_found"`
-	NewImported  int      `json:"new_imported"`
-	Skipped      int      `json:"skipped"`
-	Errors       []string `json:"errors,omitempty"`
-	Duration     string   `json:"duration"`
+	TotalFound  int      `json:"total_found"`
+	NewImported int      `json:"new_imported"`
+	Skipped     int      `json:"skipped"`
+	Errors      []string `json:"errors,omitempty"`
+	Duration    string   `json:"duration"`
 }
 
 // ImportRequest 导入请求
@@ -210,23 +210,23 @@ type ImportRequest struct {
 
 // ImportResult 导入结果
 type ImportResult struct {
-	TotalFiles  int      `json:"total_files"`
-	Imported    int      `json:"imported"`
-	Skipped     int      `json:"skipped"`
-	Failed      int      `json:"failed"`
-	Errors      []string `json:"errors,omitempty"`
+	TotalFiles int      `json:"total_files"`
+	Imported   int      `json:"imported"`
+	Skipped    int      `json:"skipped"`
+	Failed     int      `json:"failed"`
+	Errors     []string `json:"errors,omitempty"`
 }
 
 // ThumbnailConfig 缩略图配置
 type ThumbnailConfig struct {
-	Sizes    []ThumbnailSize `json:"sizes"`
-	Quality  int             `json:"quality"` // 1-100
-	Format   string          `json:"format"`  // jpeg, webp
+	Sizes   []ThumbnailSize `json:"sizes"`
+	Quality int             `json:"quality"` // 1-100
+	Format  string          `json:"format"`  // jpeg, webp
 }
 
 // ThumbnailSize 缩略图尺寸
 type ThumbnailSize struct {
-	Name   string `json:"name"`   // small, medium, large
+	Name   string `json:"name"` // small, medium, large
 	Width  int    `json:"width"`
 	Height int    `json:"height"`
 }
@@ -239,32 +239,32 @@ type DuplicateGroup struct {
 
 // PhotoAIConfig 照片AI配置
 type PhotoAIConfig struct {
-	Enabled          bool              `json:"enabled"`
-	LibraryPath      string            `json:"library_path"`      // 照片库根目录
-	ThumbnailPath    string            `json:"thumbnail_path"`    // 缩略图存储目录
-	DBPath           string            `json:"db_path"`           // 数据库路径
-	AIEnabled        bool              `json:"ai_enabled"`        // AI功能开关
-	FaceClusteringEnabled bool         `json:"face_clustering"`
-	ScoreEnabled     bool              `json:"score_enabled"`     // 美学评分开关
-	DuplicateDetectionEnabled bool     `json:"duplicate_detection"`
-	ThumbnailConfig  *ThumbnailConfig  `json:"thumbnail_config"`
-	MaxConcurrency   int               `json:"max_concurrency"`   // 并发处理数
-	SupportedFormats []string          `json:"supported_formats"` // 支持的图片格式
+	Enabled                   bool             `json:"enabled"`
+	LibraryPath               string           `json:"library_path"`   // 照片库根目录
+	ThumbnailPath             string           `json:"thumbnail_path"` // 缩略图存储目录
+	DBPath                    string           `json:"db_path"`        // 数据库路径
+	AIEnabled                 bool             `json:"ai_enabled"`     // AI功能开关
+	FaceClusteringEnabled     bool             `json:"face_clustering"`
+	ScoreEnabled              bool             `json:"score_enabled"` // 美学评分开关
+	DuplicateDetectionEnabled bool             `json:"duplicate_detection"`
+	ThumbnailConfig           *ThumbnailConfig `json:"thumbnail_config"`
+	MaxConcurrency            int              `json:"max_concurrency"`   // 并发处理数
+	SupportedFormats          []string         `json:"supported_formats"` // 支持的图片格式
 }
 
 // DefaultPhotoAIConfig 默认配置
 func DefaultPhotoAIConfig() *PhotoAIConfig {
 	return &PhotoAIConfig{
-		Enabled:          true,
-		LibraryPath:      "/data/photos",
-		ThumbnailPath:    "/data/thumbnails",
-		DBPath:           "/data/photoai.db",
-		AIEnabled:        true,
-		FaceClusteringEnabled: true,
-		ScoreEnabled:     true,
+		Enabled:                   true,
+		LibraryPath:               "/data/photos",
+		ThumbnailPath:             "/data/thumbnails",
+		DBPath:                    "/data/photoai.db",
+		AIEnabled:                 true,
+		FaceClusteringEnabled:     true,
+		ScoreEnabled:              true,
 		DuplicateDetectionEnabled: true,
-		MaxConcurrency:   4,
-		SupportedFormats: []string{".jpg", ".jpeg", ".png", ".gif", ".webp", ".heic", ".heif", ".tiff", ".bmp", ".raw", ".cr2", ".nef", ".arw"},
+		MaxConcurrency:            4,
+		SupportedFormats:          []string{".jpg", ".jpeg", ".png", ".gif", ".webp", ".heic", ".heif", ".tiff", ".bmp", ".raw", ".cr2", ".nef", ".arw"},
 		ThumbnailConfig: &ThumbnailConfig{
 			Quality: 85,
 			Format:  "jpeg",

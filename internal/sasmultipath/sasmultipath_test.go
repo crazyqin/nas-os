@@ -29,12 +29,12 @@ func TestDeviceStatus_Constants(t *testing.T) {
 func TestSASDevice_Fields(t *testing.T) {
 	now := time.Now()
 	device := SASDevice{
-		WWN:    "5000000000000001",
-		Model:  "Samsung PM1643",
-		Serial: "SAMSUNG123456",
-		Paths:  []*Path{},
-		Policy: PolicyRoundRobin,
-		Status: DeviceHealthy,
+		WWN:          "5000000000000001",
+		Model:        "Samsung PM1643",
+		Serial:       "SAMSUNG123456",
+		Paths:        []*Path{},
+		Policy:       PolicyRoundRobin,
+		Status:       DeviceHealthy,
 		LastFailover: &now,
 	}
 
@@ -75,12 +75,12 @@ func TestPath_Fields(t *testing.T) {
 func TestFailoverEvent_Fields(t *testing.T) {
 	now := time.Now()
 	event := FailoverEvent{
-		Timestamp:   now,
-		DeviceWWN:   "5000000000000001",
-		FromPath:    "0:0:0:0",
-		ToPath:      "1:0:0:0",
-		Reason:      "path failed",
-		DurationMs:  15,
+		Timestamp:  now,
+		DeviceWWN:  "5000000000000001",
+		FromPath:   "0:0:0:0",
+		ToPath:     "1:0:0:0",
+		Reason:     "path failed",
+		DurationMs: 15,
 	}
 
 	assert.Equal(t, "5000000000000001", event.DeviceWWN)

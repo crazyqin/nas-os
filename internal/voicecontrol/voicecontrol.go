@@ -10,13 +10,13 @@ import (
 
 // VoiceControl 语音控制引擎
 type VoiceControl struct {
-	mu          sync.RWMutex
-	config      Config
-	profiles    map[string]*VoiceProfile
-	commands    []*VoiceCommand
+	mu            sync.RWMutex
+	config        Config
+	profiles      map[string]*VoiceProfile
+	commands      []*VoiceCommand
 	conversations map[string]*Conversation
-	permissions map[string][]*Permission
-	intentEngine *IntentEngine
+	permissions   map[string][]*Permission
+	intentEngine  *IntentEngine
 }
 
 // New 创建语音控制引擎
@@ -174,10 +174,10 @@ func (vc *VoiceControl) executeCommand(cmd *VoiceCommand) *CommandResult {
 			Success: true,
 			Message: "系统运行正常，CPU 15%，内存 45%，温度 42°C",
 			Data: map[string]interface{}{
-				"cpu_percent":    15,
-				"mem_percent":    45,
-				"temperature_c":  42,
-				"uptime_hours":   720,
+				"cpu_percent":   15,
+				"mem_percent":   45,
+				"temperature_c": 42,
+				"uptime_hours":  720,
 			},
 		}
 	case CmdFileSearch:

@@ -8,11 +8,11 @@ import (
 
 // QoSManager 网络QoS管理器
 type QoSManager struct {
-	mu        sync.RWMutex
-	rules     map[string]*QoSRule
-	stats     map[string]*BandwidthStats
-	ifaces    map[string]*InterfaceInfo
-	config    *QoSConfig
+	mu     sync.RWMutex
+	rules  map[string]*QoSRule
+	stats  map[string]*BandwidthStats
+	ifaces map[string]*InterfaceInfo
+	config *QoSConfig
 }
 
 // QoSConfig QoS配置
@@ -25,19 +25,19 @@ type QoSConfig struct {
 
 // QoSRule QoS规则
 type QoSRule struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Priority    int       `json:"priority"`
-	Protocol    string    `json:"protocol"`
-	SourceIP    string    `json:"source_ip"`
-	DestIP      string    `json:"dest_ip"`
-	SourcePort  int       `json:"source_port"`
-	DestPort    int       `json:"dest_port"`
-	MinMbps     int64     `json:"min_mbps"`
-	MaxMbps     int64     `json:"max_mbps"`
-	Enabled     bool      `json:"enabled"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	Priority   int       `json:"priority"`
+	Protocol   string    `json:"protocol"`
+	SourceIP   string    `json:"source_ip"`
+	DestIP     string    `json:"dest_ip"`
+	SourcePort int       `json:"source_port"`
+	DestPort   int       `json:"dest_port"`
+	MinMbps    int64     `json:"min_mbps"`
+	MaxMbps    int64     `json:"max_mbps"`
+	Enabled    bool      `json:"enabled"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // BandwidthStats 带宽统计

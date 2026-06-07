@@ -51,20 +51,20 @@ func DefaultSMARTThresholds() SMARTThresholds {
 
 // SMARTCronConfig SMART cron任务配置
 type SMARTCronConfig struct {
-	ID          string           `json:"id"`                    // 配置ID
-	Name        string           `json:"name"`                  // 任务名称
-	Schedule    string           `json:"schedule"`              // cron表达式，默认"0 6 * * *"
-	Devices     []string         `json:"devices"`               // 设备过滤列表(空=全部)
-	CheckType   SMARTCheckType   `json:"check_type"`            // 检查类型: nvme/sata/all
-	Thresholds  SMARTThresholds  `json:"thresholds"`            // 告警阈值配置
-	ReportPath  string           `json:"report_path"`           // 报告保存路径
-	WebhookURL  string           `json:"webhook_url,omitempty"` // 告警webhook通知URL
-	Enabled     bool             `json:"enabled"`               // 是否启用
-	CreatedAt   time.Time        `json:"created_at"`            // 创建时间
-	UpdatedAt   time.Time        `json:"updated_at"`            // 更新时间
-	LastRun     *time.Time       `json:"last_run,omitempty"`    // 最后执行时间
-	NextRun     *time.Time       `json:"next_run,omitempty"`    // 下次执行时间
-	entryID     cron.EntryID     `json:"-"`                     // cron entry ID
+	ID         string          `json:"id"`                    // 配置ID
+	Name       string          `json:"name"`                  // 任务名称
+	Schedule   string          `json:"schedule"`              // cron表达式，默认"0 6 * * *"
+	Devices    []string        `json:"devices"`               // 设备过滤列表(空=全部)
+	CheckType  SMARTCheckType  `json:"check_type"`            // 检查类型: nvme/sata/all
+	Thresholds SMARTThresholds `json:"thresholds"`            // 告警阈值配置
+	ReportPath string          `json:"report_path"`           // 报告保存路径
+	WebhookURL string          `json:"webhook_url,omitempty"` // 告警webhook通知URL
+	Enabled    bool            `json:"enabled"`               // 是否启用
+	CreatedAt  time.Time       `json:"created_at"`            // 创建时间
+	UpdatedAt  time.Time       `json:"updated_at"`            // 更新时间
+	LastRun    *time.Time      `json:"last_run,omitempty"`    // 最后执行时间
+	NextRun    *time.Time      `json:"next_run,omitempty"`    // 下次执行时间
+	entryID    cron.EntryID    `json:"-"`                     // cron entry ID
 }
 
 // SMARTCronConfigRequest 创建/更新配置请求
@@ -81,41 +81,41 @@ type SMARTCronConfigRequest struct {
 
 // SMARTCronReport SMART检查报告
 type SMARTCronReport struct {
-	ConfigID    string                 `json:"config_id"`
-	ConfigName  string                 `json:"config_name"`
-	RunTime     time.Time              `json:"run_time"`
-	Duration    time.Duration          `json:"duration"`
-	Devices     []SMARTDeviceReport    `json:"devices"`
-	Summary     SMARTReportSummary     `json:"summary"`
-	Alerts      []SMARTReportAlert     `json:"alerts,omitempty"`
-	Success     bool                   `json:"success"`
-	Error       string                 `json:"error,omitempty"`
+	ConfigID   string              `json:"config_id"`
+	ConfigName string              `json:"config_name"`
+	RunTime    time.Time           `json:"run_time"`
+	Duration   time.Duration       `json:"duration"`
+	Devices    []SMARTDeviceReport `json:"devices"`
+	Summary    SMARTReportSummary  `json:"summary"`
+	Alerts     []SMARTReportAlert  `json:"alerts,omitempty"`
+	Success    bool                `json:"success"`
+	Error      string              `json:"error,omitempty"`
 }
 
 // SMARTDeviceReport 单设备报告
 type SMARTDeviceReport struct {
-	Device        string  `json:"device"`
-	Model         string  `json:"model"`
-	HealthPercent float64 `json:"health_percent"`
-	Temperature   int     `json:"temperature"`
-	MediaErrors   uint64  `json:"media_errors"`
-	Status        string  `json:"status"` // healthy/warning/critical
-	AlertTriggered bool   `json:"alert_triggered"`
+	Device         string  `json:"device"`
+	Model          string  `json:"model"`
+	HealthPercent  float64 `json:"health_percent"`
+	Temperature    int     `json:"temperature"`
+	MediaErrors    uint64  `json:"media_errors"`
+	Status         string  `json:"status"` // healthy/warning/critical
+	AlertTriggered bool    `json:"alert_triggered"`
 }
 
 // SMARTReportSummary 报告汇总
 type SMARTReportSummary struct {
-	TotalDevices   int `json:"total_devices"`
-	HealthyCount   int `json:"healthy_count"`
-	WarningCount   int `json:"warning_count"`
-	CriticalCount  int `json:"critical_count"`
-	OfflineCount   int `json:"offline_count"`
+	TotalDevices  int `json:"total_devices"`
+	HealthyCount  int `json:"healthy_count"`
+	WarningCount  int `json:"warning_count"`
+	CriticalCount int `json:"critical_count"`
+	OfflineCount  int `json:"offline_count"`
 }
 
 // SMARTReportAlert 报告告警
 type SMARTReportAlert struct {
 	Device    string    `json:"device"`
-	Type      string    `json:"type"`    // temperature/lifespan/spare/media_error
+	Type      string    `json:"type"`     // temperature/lifespan/spare/media_error
 	Severity  string    `json:"severity"` // warning/critical
 	Message   string    `json:"message"`
 	Timestamp time.Time `json:"timestamp"`

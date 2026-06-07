@@ -12,18 +12,18 @@ import (
 
 // ContainerHealth 容器健康状态信息
 type ContainerHealth struct {
-	ContainerID  string        `json:"container_id"`
-	Name         string        `json:"name"`
-	Status       string        `json:"status"` // healthy/unhealthy/starting/stopped
-	HealthCheckType string     `json:"health_check_type"` // http/tcp/cmd
-	LastCheck    time.Time     `json:"last_check"`
-	LastHealthy  time.Time     `json:"last_healthy"`
-	FailCount    int           `json:"fail_count"`
-	MaxFailCount int           `json:"max_fail_count"` // 默认3
-	AutoRestart  bool          `json:"auto_restart"`
-	RestartCount int           `json:"restart_count"`
-	Uptime       time.Duration `json:"uptime"`
-	ErrorMessage string        `json:"error_message,omitempty"`
+	ContainerID     string        `json:"container_id"`
+	Name            string        `json:"name"`
+	Status          string        `json:"status"`            // healthy/unhealthy/starting/stopped
+	HealthCheckType string        `json:"health_check_type"` // http/tcp/cmd
+	LastCheck       time.Time     `json:"last_check"`
+	LastHealthy     time.Time     `json:"last_healthy"`
+	FailCount       int           `json:"fail_count"`
+	MaxFailCount    int           `json:"max_fail_count"` // 默认3
+	AutoRestart     bool          `json:"auto_restart"`
+	RestartCount    int           `json:"restart_count"`
+	Uptime          time.Duration `json:"uptime"`
+	ErrorMessage    string        `json:"error_message,omitempty"`
 }
 
 // HealthCheckConfig 健康检查配置
@@ -67,12 +67,12 @@ func (m *Manager) RegisterContainer(containerID, name string, cfg HealthCheckCon
 
 	maxFail := 3
 	m.containers[containerID] = &ContainerHealth{
-		ContainerID:  containerID,
-		Name:         name,
-		Status:       "starting",
+		ContainerID:     containerID,
+		Name:            name,
+		Status:          "starting",
 		HealthCheckType: cfg.Type,
-		MaxFailCount: maxFail,
-		AutoRestart:  autoRestart,
+		MaxFailCount:    maxFail,
+		AutoRestart:     autoRestart,
 	}
 	m.configs[containerID] = &cfg
 	log.Printf("容器健康监控已注册: %s (%s)", name, containerID)

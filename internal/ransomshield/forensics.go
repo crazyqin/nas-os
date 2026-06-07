@@ -128,25 +128,25 @@ type ChainPhase struct {
 
 // ForensicsReport 取证报告
 type ForensicsReport struct {
-	ID              string          `json:"id"`
-	IncidentID      string          `json:"incident_id"`
-	Title           string          `json:"title"`
-	Summary         string          `json:"summary"`
-	Timeline        *Timeline       `json:"timeline,omitempty"`
-	AttackChain     *AttackChain    `json:"attack_chain,omitempty"`
-	Evidence        []Evidence      `json:"evidence"`
-	IOCs            []IOC           `json:"iocs"`
-	Recommendations []string        `json:"recommendations"`
-	GeneratedAt     time.Time       `json:"generated_at"`
-	GeneratedBy     string          `json:"generated_by"`
-	Format          string          `json:"format"`
+	ID              string       `json:"id"`
+	IncidentID      string       `json:"incident_id"`
+	Title           string       `json:"title"`
+	Summary         string       `json:"summary"`
+	Timeline        *Timeline    `json:"timeline,omitempty"`
+	AttackChain     *AttackChain `json:"attack_chain,omitempty"`
+	Evidence        []Evidence   `json:"evidence"`
+	IOCs            []IOC        `json:"iocs"`
+	Recommendations []string     `json:"recommendations"`
+	GeneratedAt     time.Time    `json:"generated_at"`
+	GeneratedBy     string       `json:"generated_by"`
+	Format          string       `json:"format"`
 }
 
 // ForensicsStats 取证统计
 type ForensicsStats struct {
 	TotalIncidents    int       `json:"total_incidents"`
 	OpenIncidents     int       `json:"open_incidents"`
-	ResolvedIncidents int      `json:"resolved_incidents"`
+	ResolvedIncidents int       `json:"resolved_incidents"`
 	TotalEvidence     int       `json:"total_evidence"`
 	TotalTimelines    int       `json:"total_timelines"`
 	TotalReports      int64     `json:"total_reports"`
@@ -640,15 +640,15 @@ func calculateChainConfidence(phases []ChainPhase) float64 {
 // identifyRansomwareFamily 识别勒索软件家族
 func identifyRansomwareFamily(timeline *Timeline) string {
 	familyKeywords := map[string][]string{
-		"WannaCry":        {"wncry", "wannacry", "wanacry", "wcry"},
-		"Ryuk":            {"ryuk", "ryk"},
-		"Conti":           {"conti"},
-		"LockBit":         {"lockbit", "lock bit"},
+		"WannaCry":         {"wncry", "wannacry", "wanacry", "wcry"},
+		"Ryuk":             {"ryuk", "ryk"},
+		"Conti":            {"conti"},
+		"LockBit":          {"lockbit", "lock bit"},
 		"REvil/Sodinokibi": {"revil", "sodinokibi"},
-		"Maze":            {"maze"},
-		"BlackCat/ALPHV":  {"blackcat", "alphv"},
-		"Cerber":          {"cerber"},
-		"Petya/NotPetya":  {"petya", "notpetya", "goldeneye"},
+		"Maze":             {"maze"},
+		"BlackCat/ALPHV":   {"blackcat", "alphv"},
+		"Cerber":           {"cerber"},
+		"Petya/NotPetya":   {"petya", "notpetya", "goldeneye"},
 	}
 
 	// 收集所有文本描述

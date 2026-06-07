@@ -39,15 +39,15 @@ func TestNewManager_NilConfig(t *testing.T) {
 
 func TestNewManager_CustomConfig(t *testing.T) {
 	cfg := &BackupVaultConfig{
-		Enabled:           true,
-		DefaultEncryption: EncryptionAES256,
-		DefaultRetention:  60,
-		MaxConcurrentJobs: 5,
-		ChunkSizeKB:       128,
-		DedupEnabled:      true,
+		Enabled:            true,
+		DefaultEncryption:  EncryptionAES256,
+		DefaultRetention:   60,
+		MaxConcurrentJobs:  5,
+		ChunkSizeKB:        128,
+		DedupEnabled:       true,
 		CompressionEnabled: true,
-		DefaultSLALevel:   SLALevelGold,
-		AlertOnFailure:    true,
+		DefaultSLALevel:    SLALevelGold,
+		AlertOnFailure:     true,
 	}
 	m := NewManager(nil, cfg)
 	assert.Equal(t, 5, m.config.MaxConcurrentJobs)
@@ -338,16 +338,16 @@ func TestGetSLA_NotFound(t *testing.T) {
 func TestSetSLA_Success(t *testing.T) {
 	m := newTestManager()
 	policy := &SLAPolicy{
-		Name:              "Custom SLA",
-		Level:             SLALevelGold,
-		RTOTarget:         30,
-		RPOTarget:         10,
-		BackupFrequency:   "hourly",
-		RetentionDays:     60,
-		MinCopies:         3,
-		GeoRedundancy:     true,
+		Name:               "Custom SLA",
+		Level:              SLALevelGold,
+		RTOTarget:          30,
+		RPOTarget:          10,
+		BackupFrequency:    "hourly",
+		RetentionDays:      60,
+		MinCopies:          3,
+		GeoRedundancy:      true,
 		EncryptionRequired: true,
-		TestFrequency:     "monthly",
+		TestFrequency:      "monthly",
 	}
 
 	result, err := m.SetSLA(policy)

@@ -33,10 +33,10 @@ var (
 
 // Manager SaaS 备份核心管理器，管理租户、备份任务和备份项.
 type Manager struct {
-	mu       sync.RWMutex
-	tenants  map[string]*SaaSTenant  // tenantID -> SaaSTenant
-	jobs     map[string]*BackupJob   // jobID -> BackupJob
-	items    map[string]*BackupItem  // itemID -> BackupItem
+	mu      sync.RWMutex
+	tenants map[string]*SaaSTenant // tenantID -> SaaSTenant
+	jobs    map[string]*BackupJob  // jobID -> BackupJob
+	items   map[string]*BackupItem // itemID -> BackupItem
 }
 
 // NewManager 创建 SaaS 备份管理器.

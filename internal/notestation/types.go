@@ -49,11 +49,11 @@ type CreateNoteRequest struct {
 
 // UpdateNoteRequest 更新笔记请求.
 type UpdateNoteRequest struct {
-	Title     *string  `json:"title,omitempty"`
-	Content   *string  `json:"content,omitempty"`
-	Tags      []string `json:"tags,omitempty"`
-	IsPinned  *bool    `json:"is_pinned,omitempty"`
-	IsFavorite *bool   `json:"is_favorite,omitempty"`
+	Title      *string  `json:"title,omitempty"`
+	Content    *string  `json:"content,omitempty"`
+	Tags       []string `json:"tags,omitempty"`
+	IsPinned   *bool    `json:"is_pinned,omitempty"`
+	IsFavorite *bool    `json:"is_favorite,omitempty"`
 }
 
 // CreateNotebookRequest 创建笔记本请求.
