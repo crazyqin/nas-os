@@ -13,12 +13,12 @@ import (
 
 // PrivacyManager 人脸隐私管理器
 type PrivacyManager struct {
-	dataDir         string
-	encryptKey      []byte
-	consents        map[string]*ConsentRecord
-	config          FacePrivacyConfig
-	cleanupCancel   context.CancelFunc
-	mu              sync.RWMutex
+	dataDir       string
+	encryptKey    []byte
+	consents      map[string]*ConsentRecord
+	config        FacePrivacyConfig
+	cleanupCancel context.CancelFunc
+	mu            sync.RWMutex
 }
 
 // ConsentRecord 用户知情同意记录
@@ -50,13 +50,13 @@ type FacePrivacyConfig struct {
 
 // DefaultPrivacyConfig 默认隐私配置
 var DefaultPrivacyConfig = FacePrivacyConfig{
-	DataDir:                   "/var/lib/nas-os/face-data",
-	EnableEncryption:          true,
-	DataRetentionDays:         365, // 默认保留1年
-	EnableAutoCleanup:         true, // 默认启用自动清理
-	AutoCleanupIntervalHours:  24,  // 每天检查一次
-	AllowExport:               true,
-	ConsentVersion:            "1.0",
+	DataDir:                  "/var/lib/nas-os/face-data",
+	EnableEncryption:         true,
+	DataRetentionDays:        365,  // 默认保留1年
+	EnableAutoCleanup:        true, // 默认启用自动清理
+	AutoCleanupIntervalHours: 24,   // 每天检查一次
+	AllowExport:              true,
+	ConsentVersion:           "1.0",
 }
 
 // NewPrivacyManager 创建隐私管理器
@@ -398,10 +398,10 @@ func (pm *PrivacyManager) updateFaceIndex(indexPath string, cutoff time.Time) {
 // GetRetentionPolicy 获取数据保留策略信息
 func (pm *PrivacyManager) GetRetentionPolicy() *RetentionPolicy {
 	return &RetentionPolicy{
-		RetentionDays:    pm.config.DataRetentionDays,
+		RetentionDays:     pm.config.DataRetentionDays,
 		EnableAutoCleanup: pm.config.EnableAutoCleanup,
-		CheckInterval:    pm.config.AutoCleanupIntervalHours,
-		Description:      fmt.Sprintf("人脸数据默认保留%d天（约%.1f年），超期数据将自动清理", 
+		CheckInterval:     pm.config.AutoCleanupIntervalHours,
+		Description: fmt.Sprintf("人脸数据默认保留%d天（约%.1f年），超期数据将自动清理",
 			pm.config.DataRetentionDays, float64(pm.config.DataRetentionDays)/365.0),
 	}
 }
@@ -483,8 +483,8 @@ type RetentionPolicy struct {
 
 // FaceIndex 人脸索引文件结构
 type FaceIndex struct {
-	UserID  string             `json:"userId"`
-	Records []FaceIndexRecord  `json:"records"`
+	UserID  string            `json:"userId"`
+	Records []FaceIndexRecord `json:"records"`
 }
 
 // FaceIndexRecord 人脸索引记录

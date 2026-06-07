@@ -446,8 +446,8 @@ func (m *Manager) generateSegments(totalBytes int64) []DataSegment {
 			ID:         fmt.Sprintf("seg-%d", i),
 			Offset:     offset,
 			SizeBytes:  size,
-			HotScore:   0.5,  // 默认中等热度
-			Importance: 0.5,  // 默认中等重要性
+			HotScore:   0.5, // 默认中等热度
+			Importance: 0.5, // 默认中等重要性
 			Priority:   PriorityNormal,
 		}
 	}

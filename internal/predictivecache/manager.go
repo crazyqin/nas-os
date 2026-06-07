@@ -16,11 +16,11 @@ import (
 type AccessPattern string
 
 const (
-	PatternSequential  AccessPattern = "sequential"
-	PatternRandom      AccessPattern = "random"
-	PatternPeriodic    AccessPattern = "periodic"
-	PatternHotspot     AccessPattern = "hotspot"
-	PatternSeasonal    AccessPattern = "seasonal"
+	PatternSequential AccessPattern = "sequential"
+	PatternRandom     AccessPattern = "random"
+	PatternPeriodic   AccessPattern = "periodic"
+	PatternHotspot    AccessPattern = "hotspot"
+	PatternSeasonal   AccessPattern = "seasonal"
 )
 
 // CacheLevel 缓存层级
@@ -43,74 +43,74 @@ const (
 
 // FileAccessRecord 文件访问记录
 type FileAccessRecord struct {
-	FilePath    string    `json:"file_path"`
-	AccessTime  time.Time `json:"access_time"`
-	UserID      string    `json:"user_id"`
-	Operation   string    `json:"operation"` // read, write, delete
-	SizeBytes   int64     `json:"size_bytes"`
-	Duration    int       `json:"duration_ms"`
+	FilePath   string    `json:"file_path"`
+	AccessTime time.Time `json:"access_time"`
+	UserID     string    `json:"user_id"`
+	Operation  string    `json:"operation"` // read, write, delete
+	SizeBytes  int64     `json:"size_bytes"`
+	Duration   int       `json:"duration_ms"`
 }
 
 // AccessPatternAnalysis 访问模式分析
 type AccessPatternAnalysis struct {
-	FilePath      string           `json:"file_path"`
-	Pattern       AccessPattern    `json:"pattern"`
-	Frequency     float64          `json:"frequency"`      // 每天访问次数
-	LastAccess    time.Time        `json:"last_access"`
-	NextPredicted time.Time        `json:"next_predicted"`
+	FilePath      string               `json:"file_path"`
+	Pattern       AccessPattern        `json:"pattern"`
+	Frequency     float64              `json:"frequency"` // 每天访问次数
+	LastAccess    time.Time            `json:"last_access"`
+	NextPredicted time.Time            `json:"next_predicted"`
 	Confidence    PredictionConfidence `json:"confidence"`
-	TrendScore    float64          `json:"trend_score"`    // 趋势分数 (0-1)
-	Seasonality   float64          `json:"seasonality"`    // 季节性因子
+	TrendScore    float64              `json:"trend_score"` // 趋势分数 (0-1)
+	Seasonality   float64              `json:"seasonality"` // 季节性因子
 }
 
 // CacheEntry 缓存条目
 type CacheEntry struct {
-	ID          string    `json:"id"`
-	FilePath    string    `json:"file_path"`
-	CacheLevel  CacheLevel `json:"cache_level"`
-	SizeBytes   int64     `json:"size_bytes"`
-	Priority    int       `json:"priority"`    // 优先级 (1-10)
-	HitCount    int       `json:"hit_count"`
-	MissCount   int       `json:"miss_count"`
-	HitRate     float64   `json:"hit_rate"`
-	LoadedAt    time.Time `json:"loaded_at"`
-	LastAccess  time.Time `json:"last_access"`
-	ExpiresAt   time.Time `json:"expires_at"`
-	Pinned      bool      `json:"pinned"`      // 是否固定在缓存中
+	ID         string     `json:"id"`
+	FilePath   string     `json:"file_path"`
+	CacheLevel CacheLevel `json:"cache_level"`
+	SizeBytes  int64      `json:"size_bytes"`
+	Priority   int        `json:"priority"` // 优先级 (1-10)
+	HitCount   int        `json:"hit_count"`
+	MissCount  int        `json:"miss_count"`
+	HitRate    float64    `json:"hit_rate"`
+	LoadedAt   time.Time  `json:"loaded_at"`
+	LastAccess time.Time  `json:"last_access"`
+	ExpiresAt  time.Time  `json:"expires_at"`
+	Pinned     bool       `json:"pinned"` // 是否固定在缓存中
 }
 
 // WarmingTask 预热任务
 type WarmingTask struct {
-	ID          string    `json:"id"`
-	FilePath    string    `json:"file_path"`
+	ID          string     `json:"id"`
+	FilePath    string     `json:"file_path"`
 	CacheLevel  CacheLevel `json:"cache_level"`
-	Priority    int       `json:"priority"`
-	Status      string    `json:"status"`      // pending, warming, completed, failed
-	Progress    float64   `json:"progress"`
-	StartedAt   time.Time `json:"started_at"`
+	Priority    int        `json:"priority"`
+	Status      string     `json:"status"` // pending, warming, completed, failed
+	Progress    float64    `json:"progress"`
+	StartedAt   time.Time  `json:"started_at"`
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
-	Error       string    `json:"error,omitempty"`
+	Error       string     `json:"error,omitempty"`
 }
 
 // PredictionModel 预测模型配置
 type PredictionModel struct {
-	WindowSize     int     `json:"window_size"`      // 分析窗口大小（天）
-	MinSamples     int     `json:"min_samples"`      // 最小样本数
+	WindowSize          int     `json:"window_size"`          // 分析窗口大小（天）
+	MinSamples          int     `json:"min_samples"`          // 最小样本数
 	ConfidenceThreshold float64 `json:"confidence_threshold"` // 置信度阈值
-	DecayFactor    float64 `json:"decay_factor"`     // 时间衰减因子
-	TrendWeight    float64 `json:"trend_weight"`     // 趋势权重
-	SeasonWeight   float64 `json:"season_weight"`    // 季节性权重
+	DecayFactor         float64 `json:"decay_factor"`         // 时间衰减因子
+	TrendWeight         float64 `json:"trend_weight"`         // 趋势权重
+	SeasonWeight        float64 `json:"season_weight"`        // 季节性权重
 }
 
 // CachePolicy 缓存策略
 type CachePolicy struct {
-	MaxL1SizeGB    float64 `json:"max_l1_size_gb"`    // L1缓存最大容量
-	MaxL2SizeGB    float64 `json:"max_l2_size_gb"`    // L2缓存最大容量
-	MaxL3SizeGB    float64 `json:"max_l3_size_gb"`    // L3缓存最大容量
-	EvictionPolicy string  `json:"eviction_policy"`   // lru, lfu, fifo, adaptive
-	TTLHours       int     `json:"ttl_hours"`         // 默认TTL
-	AutoWarming    bool    `json:"auto_warming"`      // 自动预热
-	WarmingSchedule string `json:"warming_schedule"` // 预热计划 (cron表达式)
+	MaxL1SizeGB     float64 `json:"max_l1_size_gb"`   // L1缓存最大容量
+	MaxL2SizeGB     float64 `json:"max_l2_size_gb"`   // L2缓存最大容量
+	MaxL3SizeGB     float64 `json:"max_l3_size_gb"`   // L3缓存最大容量
+	EvictionPolicy  string  `json:"eviction_policy"`  // lru, lfu, fifo, adaptive
+	TTLHours        int     `json:"ttl_hours"`        // 默认TTL
+	AutoWarming     bool    `json:"auto_warming"`     // 自动预热
+	WarmingSchedule string  `json:"warming_schedule"` // 预热计划 (cron表达式)
 }
 
 // Manager 预测缓存管理器

@@ -71,7 +71,7 @@ func (h *Handler) handleResolve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var req struct {
-		ID        string `json:"id"`
+		ID         string `json:"id"`
 		ResolvedBy string `json:"resolved_by"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

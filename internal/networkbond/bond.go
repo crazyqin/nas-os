@@ -13,13 +13,13 @@ import (
 type BondMode int
 
 const (
-	BalanceRR     BondMode = 0 // 轮询负载均衡
-	ActiveBackup  BondMode = 1 // 主备模式
-	BalanceXOR    BondMode = 2 // XOR负载均衡
-	Broadcast     BondMode = 3 // 广播模式
-	IEEE802_3ad   BondMode = 4 // LACP链路聚合
-	BalanceTLB    BondMode = 5 // 自适应传输负载均衡
-	BalanceALB    BondMode = 6 // 自适应负载均衡
+	BalanceRR    BondMode = 0 // 轮询负载均衡
+	ActiveBackup BondMode = 1 // 主备模式
+	BalanceXOR   BondMode = 2 // XOR负载均衡
+	Broadcast    BondMode = 3 // 广播模式
+	IEEE802_3ad  BondMode = 4 // LACP链路聚合
+	BalanceTLB   BondMode = 5 // 自适应传输负载均衡
+	BalanceALB   BondMode = 6 // 自适应负载均衡
 )
 
 // BondState 绑定状态.
@@ -34,22 +34,22 @@ const (
 
 // Bond 网卡绑定.
 type Bond struct {
-	mu          sync.RWMutex
-	Name        string        `json:"name"`        // 绑定名称（如 bond0）
-	Mode        BondMode      `json:"mode"`        // 绑定模式
-	State       BondState     `json:"state"`       // 绑定状态
-	MAC         string        `json:"mac"`         // 绑定MAC地址
-	IP          string        `json:"ip"`          // 绑定IP
-	MTU         int           `json:"mtu"`         // MTU
-	Interfaces  []*Interface  `json:"interfaces"`  // 成员接口
-	Primary     string        `json:"primary"`     // 主接口
-	ActiveSlave string        `json:"activeSlave"` // 当前活跃从接口
-	TransmitHash string       `json:"transmitHash"`// 传输哈希策略
-	MIIMonitor  int           `json:"miiMonitor"`  // MII监控间隔(ms)
-	UpDelay     int           `json:"upDelay"`     // 上线延迟(ms)
-	DownDelay   int           `json:"downDelay"`   // 下线延迟(ms)
-	CreatedAt   time.Time     `json:"createdAt"`
-	UpdatedAt   time.Time     `json:"updatedAt"`
+	mu           sync.RWMutex
+	Name         string       `json:"name"`         // 绑定名称（如 bond0）
+	Mode         BondMode     `json:"mode"`         // 绑定模式
+	State        BondState    `json:"state"`        // 绑定状态
+	MAC          string       `json:"mac"`          // 绑定MAC地址
+	IP           string       `json:"ip"`           // 绑定IP
+	MTU          int          `json:"mtu"`          // MTU
+	Interfaces   []*Interface `json:"interfaces"`   // 成员接口
+	Primary      string       `json:"primary"`      // 主接口
+	ActiveSlave  string       `json:"activeSlave"`  // 当前活跃从接口
+	TransmitHash string       `json:"transmitHash"` // 传输哈希策略
+	MIIMonitor   int          `json:"miiMonitor"`   // MII监控间隔(ms)
+	UpDelay      int          `json:"upDelay"`      // 上线延迟(ms)
+	DownDelay    int          `json:"downDelay"`    // 下线延迟(ms)
+	CreatedAt    time.Time    `json:"createdAt"`
+	UpdatedAt    time.Time    `json:"updatedAt"`
 }
 
 // Interface 网卡接口.
@@ -71,14 +71,14 @@ type Interface struct {
 
 // BondStats 绑定统计.
 type BondStats struct {
-	BondName     string    `json:"bondName"`
-	TotalRxBytes int64     `json:"totalRxBytes"`
-	TotalTxBytes int64     `json:"totalTxBytes"`
-	TotalRxPackets int64   `json:"totalRxPackets"`
-	TotalTxPackets int64   `json:"totalTxPackets"`
-	ActiveInterfaces int   `json:"activeInterfaces"`
-	TotalBandwidth int     `json:"totalBandwidth"` // 总带宽(Mbps)
-	UpdatedAt    time.Time `json:"updatedAt"`
+	BondName         string    `json:"bondName"`
+	TotalRxBytes     int64     `json:"totalRxBytes"`
+	TotalTxBytes     int64     `json:"totalTxBytes"`
+	TotalRxPackets   int64     `json:"totalRxPackets"`
+	TotalTxPackets   int64     `json:"totalTxPackets"`
+	ActiveInterfaces int       `json:"activeInterfaces"`
+	TotalBandwidth   int       `json:"totalBandwidth"` // 总带宽(Mbps)
+	UpdatedAt        time.Time `json:"updatedAt"`
 }
 
 // BondManager 绑定管理器.
@@ -90,11 +90,11 @@ type BondManager struct {
 
 // BondManagerConfig 管理器配置.
 type BondManagerConfig struct {
-	DefaultMTU       int    `json:"defaultMTU"`       // 默认MTU
-	DefaultMIIMonitor int   `json:"defaultMIIMonitor"` // 默认MII监控间隔
-	DefaultUpDelay   int    `json:"defaultUpDelay"`   // 默认上线延迟
-	DefaultDownDelay int    `json:"defaultDownDelay"` // 默认下线延迟
-	AllowMixedSpeed  bool   `json:"allowMixedSpeed"`  // 允许混合速率
+	DefaultMTU        int  `json:"defaultMTU"`        // 默认MTU
+	DefaultMIIMonitor int  `json:"defaultMIIMonitor"` // 默认MII监控间隔
+	DefaultUpDelay    int  `json:"defaultUpDelay"`    // 默认上线延迟
+	DefaultDownDelay  int  `json:"defaultDownDelay"`  // 默认下线延迟
+	AllowMixedSpeed   bool `json:"allowMixedSpeed"`   // 允许混合速率
 }
 
 // NewBondManager 创建绑定管理器.

@@ -113,11 +113,11 @@ func (h *Handler) getStatus(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"status":     latest.Status,
-		"timestamp":  latest.Timestamp,
-		"checks":     len(latest.Checks),
-		"alerts":     len(latest.Alerts),
-		"summary":    latest.Summary,
+		"status":      latest.Status,
+		"timestamp":   latest.Timestamp,
+		"checks":      len(latest.Checks),
+		"alerts":      len(latest.Alerts),
+		"summary":     latest.Summary,
 		"duration_ms": latest.Duration.Milliseconds(),
 	})
 }

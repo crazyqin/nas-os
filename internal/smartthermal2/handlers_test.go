@@ -361,8 +361,8 @@ func TestNoiseEstimate(t *testing.T) {
 	}{
 		{0, 3000, 0, 0},
 		{600, 3000, 2, 8},    // 低转速噪音低
-		{1500, 3000, 10, 15},  // 中转速
-		{3000, 3000, 18, 22},  // 全速
+		{1500, 3000, 10, 15}, // 中转速
+		{3000, 3000, 18, 22}, // 全速
 	}
 	for _, tt := range tests {
 		got := fc.estimateFanNoise(tt.rpm, tt.max)

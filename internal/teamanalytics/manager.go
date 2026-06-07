@@ -15,11 +15,11 @@ import (
 
 // Manager 团队效能分析管理器
 type Manager struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	metrics  map[string][]*DORAMetrics // teamID -> metrics
-	goals    map[string]*Goal
-	teams    map[string]*TeamPerformance
+	mu      sync.RWMutex
+	logger  *zap.Logger
+	metrics map[string][]*DORAMetrics // teamID -> metrics
+	goals   map[string]*Goal
+	teams   map[string]*TeamPerformance
 }
 
 // NewManager 创建团队效能分析管理器
@@ -525,8 +525,8 @@ func (m *Manager) GetTeamPerformance(teamID string) (*TeamPerformance, error) {
 
 	// 计算 DORA 指标
 	metricsReq := &GetMetricsRequest{
-		TeamID: teamID,
-		Period: PeriodMonthly,
+		TeamID:    teamID,
+		Period:    PeriodMonthly,
 		StartDate: time.Now().AddDate(0, -1, 0),
 		EndDate:   time.Now(),
 	}
@@ -561,8 +561,8 @@ func (m *Manager) GetTeamPerformance(teamID string) (*TeamPerformance, error) {
 			CrossTeamPRs:         15,
 			Trend:                TrendStable,
 		},
-		HealthScore:   metrics.Score,
-		GeneratedAt:   time.Now(),
+		HealthScore: metrics.Score,
+		GeneratedAt: time.Now(),
 	}
 
 	m.teams[teamID] = performance

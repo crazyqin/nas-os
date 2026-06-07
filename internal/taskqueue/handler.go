@@ -49,9 +49,9 @@ type SubmitTaskRequest struct {
 	Priority      string                 `json:"priority"` // low/normal/high/urgent
 	Payload       map[string]interface{} `json:"payload"`
 	MaxRetries    int                    `json:"max_retries"`
-	RetryDelay    string                 `json:"retry_delay"`    // duration string
+	RetryDelay    string                 `json:"retry_delay"` // duration string
 	BackoffFactor float64                `json:"backoff_factor"`
-	Timeout       string                 `json:"timeout"`        // duration string
+	Timeout       string                 `json:"timeout"` // duration string
 	Dependencies  []string               `json:"dependencies"`
 }
 

@@ -11,12 +11,12 @@ import (
 
 // Manager manages the SystemCopilot business logic
 type Manager struct {
-	mu            sync.RWMutex
-	commands      map[string]*Command
-	results       map[string]*CommandResult
-	sessions      map[string]*CopilotSession
-	startTime     time.Time
-	ruleEngine    *RuleEngine
+	mu         sync.RWMutex
+	commands   map[string]*Command
+	results    map[string]*CommandResult
+	sessions   map[string]*CopilotSession
+	startTime  time.Time
+	ruleEngine *RuleEngine
 }
 
 // RuleEngine handles keyword matching and command parsing
@@ -25,20 +25,20 @@ type RuleEngine struct {
 }
 
 type commandPattern struct {
-	keywords    []string
-	commandType CommandType
-	action      string
-	sensitivity SensitivityLevel
+	keywords     []string
+	commandType  CommandType
+	action       string
+	sensitivity  SensitivityLevel
 	needsConfirm bool
 }
 
 // NewManager creates a new SystemCopilot manager
 func NewManager() *Manager {
 	return &Manager{
-		commands:  make(map[string]*Command),
-		results:   make(map[string]*CommandResult),
-		sessions:  make(map[string]*CopilotSession),
-		startTime: time.Now(),
+		commands:   make(map[string]*Command),
+		results:    make(map[string]*CommandResult),
+		sessions:   make(map[string]*CopilotSession),
+		startTime:  time.Now(),
 		ruleEngine: newRuleEngine(),
 	}
 }

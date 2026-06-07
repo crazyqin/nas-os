@@ -40,14 +40,14 @@ const (
 
 // PrivacyRisk 隐私风险
 type PrivacyRisk struct {
-	ID          string         `json:"id"`
-	Dimension   ScanDimension  `json:"dimension"`
-	Level       RiskLevel      `json:"level"`
-	Title       string         `json:"title"`
-	Description string         `json:"description"`
-	Location    string         `json:"location,omitempty"` // 风险位置（文件路径、配置项等）
-	DetectedAt  time.Time      `json:"detected_at"`
-	Ignored     bool           `json:"ignored"`
+	ID          string        `json:"id"`
+	Dimension   ScanDimension `json:"dimension"`
+	Level       RiskLevel     `json:"level"`
+	Title       string        `json:"title"`
+	Description string        `json:"description"`
+	Location    string        `json:"location,omitempty"` // 风险位置（文件路径、配置项等）
+	DetectedAt  time.Time     `json:"detected_at"`
+	Ignored     bool          `json:"ignored"`
 }
 
 // Suggestion 改进建议
@@ -64,7 +64,7 @@ type Suggestion struct {
 // DimensionScore 维度评分
 type DimensionScore struct {
 	Dimension   ScanDimension `json:"dimension"`
-	Score       int           `json:"score"`        // 0-100
+	Score       int           `json:"score"` // 0-100
 	MaxScore    int           `json:"max_score"`
 	RiskCount   int           `json:"risk_count"`
 	Description string        `json:"description"`
@@ -72,14 +72,14 @@ type DimensionScore struct {
 
 // ScanResult 扫描结果
 type ScanResult struct {
-	ID              string                    `json:"id"`
-	TotalScore      int                       `json:"total_score"` // 0-100
-	Grade           string                    `json:"grade"`       // A/B/C/D/F
-	Dimensions      map[ScanDimension]*DimensionScore `json:"dimensions"`
-	Risks           []*PrivacyRisk            `json:"risks"`
-	Suggestions     []*Suggestion             `json:"suggestions"`
-	ScannedAt       time.Time                 `json:"scanned_at"`
-	Duration        time.Duration             `json:"duration_ms"`
+	ID          string                            `json:"id"`
+	TotalScore  int                               `json:"total_score"` // 0-100
+	Grade       string                            `json:"grade"`       // A/B/C/D/F
+	Dimensions  map[ScanDimension]*DimensionScore `json:"dimensions"`
+	Risks       []*PrivacyRisk                    `json:"risks"`
+	Suggestions []*Suggestion                     `json:"suggestions"`
+	ScannedAt   time.Time                         `json:"scanned_at"`
+	Duration    time.Duration                     `json:"duration_ms"`
 }
 
 // ScoreHistory 评分历史记录
@@ -92,20 +92,20 @@ type ScoreHistory struct {
 
 // ScanSchedule 扫描计划
 type ScanSchedule struct {
-	Enabled    bool   `json:"enabled"`
-	Interval   int    `json:"interval_hours"` // 扫描间隔（小时）
-	CronExpr   string `json:"cron_expr,omitempty"`
-	LastScan   *time.Time `json:"last_scan,omitempty"`
-	NextScan   *time.Time `json:"next_scan,omitempty"`
+	Enabled  bool       `json:"enabled"`
+	Interval int        `json:"interval_hours"` // 扫描间隔（小时）
+	CronExpr string     `json:"cron_expr,omitempty"`
+	LastScan *time.Time `json:"last_scan,omitempty"`
+	NextScan *time.Time `json:"next_scan,omitempty"`
 }
 
 // PrivacyReport 完整隐私报告
 type PrivacyReport struct {
-	Summary     *ScanResult              `json:"summary"`
-	History     []ScoreHistory           `json:"history"`
-	Trends      map[string][]int         `json:"trends"` // 维度 -> 历史分数
-	Schedule    *ScanSchedule            `json:"schedule"`
-	GeneratedAt time.Time                `json:"generated_at"`
+	Summary     *ScanResult      `json:"summary"`
+	History     []ScoreHistory   `json:"history"`
+	Trends      map[string][]int `json:"trends"` // 维度 -> 历史分数
+	Schedule    *ScanSchedule    `json:"schedule"`
+	GeneratedAt time.Time        `json:"generated_at"`
 }
 
 // Manager 隐私评分管理器
@@ -176,14 +176,14 @@ func (m *Manager) RunScan() *ScanResult {
 	// 存储结果
 	m.mu.Lock()
 	m.latestScan = &ScanResult{
-		ID:         fmt.Sprintf("scan-%d", time.Now().UnixNano()),
-		TotalScore: totalScore,
-		Grade:      grade,
-		Dimensions: dimensions,
-		Risks:      allRisks,
+		ID:          fmt.Sprintf("scan-%d", time.Now().UnixNano()),
+		TotalScore:  totalScore,
+		Grade:       grade,
+		Dimensions:  dimensions,
+		Risks:       allRisks,
 		Suggestions: allSuggestions,
-		ScannedAt:  start,
-		Duration:   time.Since(start),
+		ScannedAt:   start,
+		Duration:    time.Since(start),
 	}
 
 	// 更新风险和建议
@@ -329,8 +329,8 @@ func (m *Manager) GetStats() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"total_scans":    len(m.history),
-		"total_risks":    len(m.risks),
+		"total_scans":       len(m.history),
+		"total_risks":       len(m.risks),
 		"total_suggestions": len(m.suggestions),
 	}
 	if m.latestScan != nil {

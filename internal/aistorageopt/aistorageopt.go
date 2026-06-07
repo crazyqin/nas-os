@@ -54,20 +54,20 @@ type AccessPattern struct {
 	AccessCount  int64     `json:"access_count"`
 	LastAccess   time.Time `json:"last_access"`
 	AccessFreq   float64   `json:"access_freq"`   // 每天访问次数
-	ReadRatio    float64   `json:"read_ratio"`     // 读写比
-	SequentialIO float64   `json:"sequential_io"`  // 顺序IO比例
-	PeakHours    []int     `json:"peak_hours"`     // 高峰时段
+	ReadRatio    float64   `json:"read_ratio"`    // 读写比
+	SequentialIO float64   `json:"sequential_io"` // 顺序IO比例
+	PeakHours    []int     `json:"peak_hours"`    // 高峰时段
 }
 
 // StoragePrediction 存储预测
 type StoragePrediction struct {
-	Timestamp      time.Time     `json:"timestamp"`
-	CurrentUsage   int64         `json:"current_usage"`
-	PredictedUsage int64         `json:"predicted_usage"`
-	PredictionDate time.Time     `json:"prediction_date"`
-	Confidence     float64       `json:"confidence"`
-	Trend          string        `json:"trend"` // growing, stable, shrinking
-	DaysUntilFull  int           `json:"days_until_full"`
+	Timestamp       time.Time        `json:"timestamp"`
+	CurrentUsage    int64            `json:"current_usage"`
+	PredictedUsage  int64            `json:"predicted_usage"`
+	PredictionDate  time.Time        `json:"prediction_date"`
+	Confidence      float64          `json:"confidence"`
+	Trend           string           `json:"trend"` // growing, stable, shrinking
+	DaysUntilFull   int              `json:"days_until_full"`
 	Recommendations []Recommendation `json:"recommendations"`
 }
 
@@ -84,47 +84,47 @@ type Recommendation struct {
 
 // TierPolicy 分层策略
 type TierPolicy struct {
-	ID              string        `json:"id"`
-	Name            string        `json:"name"`
-	Enabled         bool          `json:"enabled"`
-	Tier            StorageTier   `json:"tier"`
-	Condition       TierCondition `json:"condition"`
-	Actions         []TierAction  `json:"actions"`
-	Priority        int           `json:"priority"`
-	LastEvaluated   time.Time     `json:"last_evaluated"`
-	FilesMoved      int64         `json:"files_moved"`
-	BytesTransferred int64        `json:"bytes_transferred"`
+	ID               string        `json:"id"`
+	Name             string        `json:"name"`
+	Enabled          bool          `json:"enabled"`
+	Tier             StorageTier   `json:"tier"`
+	Condition        TierCondition `json:"condition"`
+	Actions          []TierAction  `json:"actions"`
+	Priority         int           `json:"priority"`
+	LastEvaluated    time.Time     `json:"last_evaluated"`
+	FilesMoved       int64         `json:"files_moved"`
+	BytesTransferred int64         `json:"bytes_transferred"`
 }
 
 // TierCondition 分层条件
 type TierCondition struct {
-	MinAge           *time.Duration `json:"min_age,omitempty"`
-	MaxAge           *time.Duration `json:"max_age,omitempty"`
-	MinSize          *int64         `json:"min_size,omitempty"`
-	MaxSize          *int64         `json:"max_size,omitempty"`
-	AccessThreshold  *float64       `json:"access_threshold,omitempty"`
-	FileExtensions   []string       `json:"file_extensions,omitempty"`
-	Tags             []string       `json:"tags,omitempty"`
+	MinAge          *time.Duration `json:"min_age,omitempty"`
+	MaxAge          *time.Duration `json:"max_age,omitempty"`
+	MinSize         *int64         `json:"min_size,omitempty"`
+	MaxSize         *int64         `json:"max_size,omitempty"`
+	AccessThreshold *float64       `json:"access_threshold,omitempty"`
+	FileExtensions  []string       `json:"file_extensions,omitempty"`
+	Tags            []string       `json:"tags,omitempty"`
 }
 
 // TierAction 分层动作
 type TierAction struct {
-	Type       string            `json:"type"`
-	TargetTier StorageTier       `json:"target_tier"`
-	Compress   bool              `json:"compress"`
+	Type       string               `json:"type"`
+	TargetTier StorageTier          `json:"target_tier"`
+	Compress   bool                 `json:"compress"`
 	Algorithm  CompressionAlgorithm `json:"algorithm"`
-	Encrypt    bool              `json:"encrypt"`
+	Encrypt    bool                 `json:"encrypt"`
 }
 
 // DedupInfo 去重信息
 type DedupInfo struct {
-	FileID        string    `json:"file_id"`
-	Hash          string    `json:"hash"`
-	Size          int64     `json:"size"`
-	DuplicateCount int      `json:"duplicate_count"`
-	SavedSpace    int64     `json:"saved_space"`
-	Locations     []string  `json:"locations"`
-	LastChecked   time.Time `json:"last_checked"`
+	FileID         string    `json:"file_id"`
+	Hash           string    `json:"hash"`
+	Size           int64     `json:"size"`
+	DuplicateCount int       `json:"duplicate_count"`
+	SavedSpace     int64     `json:"saved_space"`
+	Locations      []string  `json:"locations"`
+	LastChecked    time.Time `json:"last_checked"`
 }
 
 // StorageMetrics 存储指标
@@ -159,11 +159,11 @@ type AIStorageOpt struct {
 
 // PredictionModel 预测模型
 type PredictionModel struct {
-	Weights    []float64 `json:"weights"`
-	Bias       float64   `json:"bias"`
-	Features   int       `json:"features"`
-	TrainedAt  time.Time `json:"trained_at"`
-	SampleCount int64    `json:"sample_count"`
+	Weights     []float64 `json:"weights"`
+	Bias        float64   `json:"bias"`
+	Features    int       `json:"features"`
+	TrainedAt   time.Time `json:"trained_at"`
+	SampleCount int64     `json:"sample_count"`
 	Accuracy    float64   `json:"accuracy"`
 }
 
@@ -258,11 +258,11 @@ func (opt *AIStorageOpt) PredictStorage(daysAhead int) *StoragePrediction {
 
 	if len(opt.metrics) < 2 {
 		return &StoragePrediction{
-			Timestamp:    time.Now(),
-			CurrentUsage: 0,
+			Timestamp:      time.Now(),
+			CurrentUsage:   0,
 			PredictedUsage: 0,
-			Confidence:   0,
-			Trend:        "unknown",
+			Confidence:     0,
+			Trend:          "unknown",
 		}
 	}
 
@@ -400,8 +400,8 @@ func (opt *AIStorageOpt) GetOptimizationReport() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"level":             opt.level,
-		"enabled":           opt.enabled,
+		"level":               opt.level,
+		"enabled":             opt.enabled,
 		"total_files_tracked": len(opt.accessPatterns),
 		"total_dedup_savings": totalSaved,
 		"total_tier_moved":    totalMoved,

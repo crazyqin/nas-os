@@ -32,12 +32,12 @@ type Indexer struct {
 
 // IndexerStats 索引器统计
 type IndexerStats struct {
-	TotalFiles     int64     `json:"totalFiles"`
-	IndexedFiles   int64     `json:"indexedFiles"`
-	SkippedFiles   int64     `json:"skippedFiles"`
-	FailedFiles    int64     `json:"failedFiles"`
-	LastIndexTime  time.Time `json:"lastIndexTime"`
-	Duration       time.Duration `json:"duration"`
+	TotalFiles    int64         `json:"totalFiles"`
+	IndexedFiles  int64         `json:"indexedFiles"`
+	SkippedFiles  int64         `json:"skippedFiles"`
+	FailedFiles   int64         `json:"failedFiles"`
+	LastIndexTime time.Time     `json:"lastIndexTime"`
+	Duration      time.Duration `json:"duration"`
 }
 
 // NewIndexer 创建索引器

@@ -19,85 +19,85 @@ const (
 type ScheduleType string
 
 const (
-	ScheduleCron    ScheduleType = "cron"     // cron 表达式
-	ScheduleOnce    ScheduleType = "once"     // 一次性
-	ScheduleEvery   ScheduleType = "every"    // 间隔执行
-	ScheduleBoot    ScheduleType = "boot"     // 开机执行
-	ScheduleDaily   ScheduleType = "daily"    // 每天
-	ScheduleWeekly  ScheduleType = "weekly"   // 每周
-	ScheduleMonthly ScheduleType = "monthly"  // 每月
+	ScheduleCron    ScheduleType = "cron"    // cron 表达式
+	ScheduleOnce    ScheduleType = "once"    // 一次性
+	ScheduleEvery   ScheduleType = "every"   // 间隔执行
+	ScheduleBoot    ScheduleType = "boot"    // 开机执行
+	ScheduleDaily   ScheduleType = "daily"   // 每天
+	ScheduleWeekly  ScheduleType = "weekly"  // 每周
+	ScheduleMonthly ScheduleType = "monthly" // 每月
 )
 
 // CronJob 定时任务.
 type CronJob struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Description string       `json:"description,omitempty"`
-	Status      JobStatus    `json:"status"`
-	Schedule    Schedule     `json:"schedule"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description,omitempty"`
+	Status      JobStatus `json:"status"`
+	Schedule    Schedule  `json:"schedule"`
 	// Command 要执行的命令或脚本.
-	Command     string    `json:"command"`
+	Command string `json:"command"`
 	// WorkingDir 工作目录.
-	WorkingDir  string    `json:"working_dir,omitempty"`
+	WorkingDir string `json:"working_dir,omitempty"`
 	// EnvVars 环境变量.
-	EnvVars     map[string]string `json:"env_vars,omitempty"`
+	EnvVars map[string]string `json:"env_vars,omitempty"`
 	// RunAsUser 以指定用户运行.
-	RunAsUser   string    `json:"run_as_user,omitempty"`
+	RunAsUser string `json:"run_as_user,omitempty"`
 	// TimeoutS 超时秒数.
-	TimeoutS    int       `json:"timeout_s"`
+	TimeoutS int `json:"timeout_s"`
 	// MaxRetries 最大重试次数.
-	MaxRetries  int       `json:"max_retries"`
+	MaxRetries int `json:"max_retries"`
 	// NotifyOnFailure 失败时通知.
-	NotifyOnFailure bool  `json:"notify_on_failure"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	LastRunAt   *time.Time `json:"last_run_at,omitempty"`
-	NextRunAt   *time.Time `json:"next_run_at,omitempty"`
+	NotifyOnFailure bool       `json:"notify_on_failure"`
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at"`
+	LastRunAt       *time.Time `json:"last_run_at,omitempty"`
+	NextRunAt       *time.Time `json:"next_run_at,omitempty"`
 	// RunCount 累计执行次数.
-	RunCount    int64     `json:"run_count"`
+	RunCount int64 `json:"run_count"`
 	// ErrorCount 累计错误次数.
-	ErrorCount  int64     `json:"error_count"`
-	LastError   string    `json:"last_error,omitempty"`
+	ErrorCount int64  `json:"error_count"`
+	LastError  string `json:"last_error,omitempty"`
 }
 
 // Schedule 调度配置.
 type Schedule struct {
-	Type     ScheduleType `json:"type"`
+	Type ScheduleType `json:"type"`
 	// CronExpr cron 表达式（Type=Cron 时使用）.
-	CronExpr string       `json:"cron_expr,omitempty"`
+	CronExpr string `json:"cron_expr,omitempty"`
 	// IntervalS 间隔秒数（Type=Every 时使用）.
-	IntervalS int64       `json:"interval_s,omitempty"`
+	IntervalS int64 `json:"interval_s,omitempty"`
 	// Time 执行时间 "HH:MM"（Type=Daily/Weekly/Monthly 时使用）.
-	Time      string       `json:"time,omitempty"`
+	Time string `json:"time,omitempty"`
 	// DayOfWeek 周几（Type=Weekly 时使用，0=周日）.
-	DayOfWeek int          `json:"day_of_week,omitempty"`
+	DayOfWeek int `json:"day_of_week,omitempty"`
 	// DayOfMonth 几号（Type=Monthly 时使用）.
-	DayOfMonth int         `json:"day_of_month,omitempty"`
+	DayOfMonth int `json:"day_of_month,omitempty"`
 	// ExecAt 执行时间（Type=Once 时使用）.
-	ExecAt    *time.Time   `json:"exec_at,omitempty"`
+	ExecAt *time.Time `json:"exec_at,omitempty"`
 }
 
 // JobRun 任务运行记录.
 type JobRun struct {
-	ID        string    `json:"id"`
-	JobID     string    `json:"job_id"`
-	JobName   string    `json:"job_name"`
-	StartedAt time.Time `json:"started_at"`
-	EndedAt   *time.Time `json:"ended_at,omitempty"`
+	ID        string        `json:"id"`
+	JobID     string        `json:"job_id"`
+	JobName   string        `json:"job_name"`
+	StartedAt time.Time     `json:"started_at"`
+	EndedAt   *time.Time    `json:"ended_at,omitempty"`
 	Duration  time.Duration `json:"duration"`
-	ExitCode  int       `json:"exit_code"`
-	Output    string    `json:"output,omitempty"`
-	Error     string    `json:"error,omitempty"`
-	Success   bool      `json:"success"`
+	ExitCode  int           `json:"exit_code"`
+	Output    string        `json:"output,omitempty"`
+	Error     string        `json:"error,omitempty"`
+	Success   bool          `json:"success"`
 }
 
 // CronConfig 定时任务配置.
 type CronConfig struct {
-	MaxConcurrent   int  `json:"max_concurrent"`
-	MaxHistoryPerJob int `json:"max_history_per_job"`
-	MaxHistoryTotal int  `json:"max_history_total"`
-	LogRetentionDays int `json:"log_retention_days"`
-	Enabled         bool `json:"enabled"`
+	MaxConcurrent    int  `json:"max_concurrent"`
+	MaxHistoryPerJob int  `json:"max_history_per_job"`
+	MaxHistoryTotal  int  `json:"max_history_total"`
+	LogRetentionDays int  `json:"log_retention_days"`
+	Enabled          bool `json:"enabled"`
 }
 
 // Manager 定时任务管理器.
@@ -296,10 +296,10 @@ func (m *Manager) GetStats() map[string]interface{} {
 		}
 	}
 	return map[string]interface{}{
-		"total_jobs":    len(m.jobs),
-		"enabled_jobs":  enabled,
-		"total_runs":    len(m.history),
-		"running":       m.running,
+		"total_jobs":   len(m.jobs),
+		"enabled_jobs": enabled,
+		"total_runs":   len(m.history),
+		"running":      m.running,
 	}
 }
 

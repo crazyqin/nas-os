@@ -18,11 +18,11 @@ import (
 type EfficiencyType string
 
 const (
-	EfficiencyTypeDedup      EfficiencyType = "dedup"      // 去重效率
+	EfficiencyTypeDedup       EfficiencyType = "dedup"       // 去重效率
 	EfficiencyTypeCompression EfficiencyType = "compression" // 压缩效率
-	EfficiencyTypeThinProv   EfficiencyType = "thin_prov"   // 精简配置效率
-	EfficiencyTypeTiering    EfficiencyType = "tiering"     // 分层存储效率
-	EfficiencyTypeOverall    EfficiencyType = "overall"     // 综合效率
+	EfficiencyTypeThinProv    EfficiencyType = "thin_prov"   // 精简配置效率
+	EfficiencyTypeTiering     EfficiencyType = "tiering"     // 分层存储效率
+	EfficiencyTypeOverall     EfficiencyType = "overall"     // 综合效率
 )
 
 // StorageEfficiencyStats 存储效率统计（对标群晖）
@@ -212,26 +212,26 @@ type EfficiencyMonitorConfig struct {
 
 // DefaultEfficiencyMonitorConfig 默认配置
 var DefaultEfficiencyMonitorConfig = EfficiencyMonitorConfig{
-	MonitorIntervalMinutes:    15,
-	HistoryRetentionDays:      30,
-	LowEfficiencyThreshold:    50,
-	LowDedupThreshold:         1.1,
-	LowCompressionThreshold:   1.2,
-	AlertingEnabled:           true,
-	ReportIntervalHours:       24,
-	CostPerGBMonthly:          0.1,
+	MonitorIntervalMinutes:  15,
+	HistoryRetentionDays:    30,
+	LowEfficiencyThreshold:  50,
+	LowDedupThreshold:       1.1,
+	LowCompressionThreshold: 1.2,
+	AlertingEnabled:         true,
+	ReportIntervalHours:     24,
+	CostPerGBMonthly:        0.1,
 }
 
 // EfficiencyMonitorService 效率监控服务
 type EfficiencyMonitorService struct {
-	config    EfficiencyMonitorConfig
-	stats     map[string]*StorageEfficiencyStats
-	history   map[string][]EfficiencyHistoryPoint
-	mu        sync.RWMutex
-	ctx       context.Context
-	cancel    context.CancelFunc
-	wg        sync.WaitGroup
-	logger    interface{} // 使用interface避免依赖
+	config     EfficiencyMonitorConfig
+	stats      map[string]*StorageEfficiencyStats
+	history    map[string][]EfficiencyHistoryPoint
+	mu         sync.RWMutex
+	ctx        context.Context
+	cancel     context.CancelFunc
+	wg         sync.WaitGroup
+	logger     interface{} // 使用interface避免依赖
 	configPath string
 }
 
@@ -240,11 +240,11 @@ func NewEfficiencyMonitorService(config EfficiencyMonitorConfig) *EfficiencyMoni
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &EfficiencyMonitorService{
-		config:    config,
-		stats:     make(map[string]*StorageEfficiencyStats),
-		history:   make(map[string][]EfficiencyHistoryPoint),
-		ctx:       ctx,
-		cancel:    cancel,
+		config:     config,
+		stats:      make(map[string]*StorageEfficiencyStats),
+		history:    make(map[string][]EfficiencyHistoryPoint),
+		ctx:        ctx,
+		cancel:     cancel,
 		configPath: "/var/lib/nas-os/efficiency",
 	}
 }
@@ -397,19 +397,19 @@ func (s *EfficiencyMonitorService) collectAll() {
 // collectEfficiency 采集单个资源效率
 func (s *EfficiencyMonitorService) collectEfficiency(resourceName string) (*StorageEfficiencyStats, error) {
 	stats := &StorageEfficiencyStats{
-		CollectedAt:        time.Now(),
-		ResourceName:       resourceName,
-		ResourceType:       "volume",
-		DedupRatio:         1.0,
-		CompressionRatio:   1.0,
-		ThinProvRatio:      1.0,
+		CollectedAt:            time.Now(),
+		ResourceName:           resourceName,
+		ResourceType:           "volume",
+		DedupRatio:             1.0,
+		CompressionRatio:       1.0,
+		ThinProvRatio:          1.0,
 		OverallEfficiencyScore: 100,
 	}
 
 	// 模拟数据采集（实际应调用btrfs/zfs命令）
 	// 这里使用模拟数据进行演示
 	stats.PhysicalCapacityTotal = 10 * 1024 * 1024 * 1024 * 1024 // 10TB
-	stats.PhysicalCapacityUsed = 3 * 1024 * 1024 * 1024 * 1024  // 3TB
+	stats.PhysicalCapacityUsed = 3 * 1024 * 1024 * 1024 * 1024   // 3TB
 	stats.PhysicalCapacityFree = stats.PhysicalCapacityTotal - stats.PhysicalCapacityUsed
 
 	stats.DedupRatio = 1.5 // 1.5x去重比率
@@ -422,7 +422,7 @@ func (s *EfficiencyMonitorService) collectEfficiency(resourceName string) (*Stor
 
 	// 计算逻辑容量
 	stats.LogicalCapacityUsed = stats.PhysicalCapacityUsed + stats.DedupSavedBytes + stats.CompressionSavedBytes
-	stats.LogicalCapacityTotal = stats.PhysicalCapacityTotal + uint64(float64(stats.PhysicalCapacityTotal) * (stats.DedupRatio * stats.CompressionRatio - 1) / (stats.DedupRatio * stats.CompressionRatio))
+	stats.LogicalCapacityTotal = stats.PhysicalCapacityTotal + uint64(float64(stats.PhysicalCapacityTotal)*(stats.DedupRatio*stats.CompressionRatio-1)/(stats.DedupRatio*stats.CompressionRatio))
 
 	// 综合效率计算
 	physicalGB := float64(stats.PhysicalCapacityUsed) / 1024 / 1024 / 1024
@@ -513,11 +513,11 @@ func (s *EfficiencyMonitorService) generateRecommendations(stats *StorageEfficie
 	// 去重优化建议
 	if stats.DedupRatio < s.config.LowDedupThreshold {
 		rec := EfficiencyRecommendation{
-			Type:                   EfficiencyTypeDedup,
-			Priority:               3,
-			Suggestion:             "考虑启用数据去重以提高存储效率",
-			ExpectedBenefit:        uint64(float64(stats.PhysicalCapacityUsed) * 0.2),
-			BenefitDescription:     "预计可节省约20%存储空间",
+			Type:                     EfficiencyTypeDedup,
+			Priority:                 3,
+			Suggestion:               "考虑启用数据去重以提高存储效率",
+			ExpectedBenefit:          uint64(float64(stats.PhysicalCapacityUsed) * 0.2),
+			BenefitDescription:       "预计可节省约20%存储空间",
 			ImplementationDifficulty: "medium",
 			ImplementationSteps: []string{
 				"评估数据类型是否适合去重（虚拟化镜像、备份库收益最高）",
@@ -531,11 +531,11 @@ func (s *EfficiencyMonitorService) generateRecommendations(stats *StorageEfficie
 	// 压缩优化建议
 	if stats.CompressionRatio < s.config.LowCompressionThreshold {
 		rec := EfficiencyRecommendation{
-			Type:                   EfficiencyTypeCompression,
-			Priority:               4,
-			Suggestion:             "考虑启用更高压缩率算法（如zstd）",
-			ExpectedBenefit:        uint64(float64(stats.PhysicalCapacityUsed) * 0.15),
-			BenefitDescription:     "预计可节省约15%存储空间",
+			Type:                     EfficiencyTypeCompression,
+			Priority:                 4,
+			Suggestion:               "考虑启用更高压缩率算法（如zstd）",
+			ExpectedBenefit:          uint64(float64(stats.PhysicalCapacityUsed) * 0.15),
+			BenefitDescription:       "预计可节省约15%存储空间",
 			ImplementationDifficulty: "easy",
 			ImplementationSteps: []string{
 				"设置compression=zstd",
@@ -549,11 +549,11 @@ func (s *EfficiencyMonitorService) generateRecommendations(stats *StorageEfficie
 	// 分层存储建议
 	if stats.HotTierHitRate < 30 && stats.ColdTierUsagePercent > 50 {
 		rec := EfficiencyRecommendation{
-			Type:                   EfficiencyTypeTiering,
-			Priority:               2,
-			Suggestion:             "优化分层存储策略，提高热层命中率",
-			ExpectedBenefit:        0, // 性能收益而非容量收益
-			BenefitDescription:     "提高热层命中率可显著改善读写性能",
+			Type:                     EfficiencyTypeTiering,
+			Priority:                 2,
+			Suggestion:               "优化分层存储策略，提高热层命中率",
+			ExpectedBenefit:          0, // 性能收益而非容量收益
+			BenefitDescription:       "提高热层命中率可显著改善读写性能",
 			ImplementationDifficulty: "medium",
 			ImplementationSteps: []string{
 				"分析热点数据访问模式",
@@ -568,11 +568,11 @@ func (s *EfficiencyMonitorService) generateRecommendations(stats *StorageEfficie
 	usagePercent := float64(stats.PhysicalCapacityUsed) / float64(stats.PhysicalCapacityTotal) * 100
 	if usagePercent > 80 {
 		rec := EfficiencyRecommendation{
-			Type:                   EfficiencyTypeOverall,
-			Priority:               5,
-			Suggestion:             "存储使用率超过80%，建议扩容或清理",
-			ExpectedBenefit:        0,
-			BenefitDescription:     fmt.Sprintf("当前使用率%.1f%%，存在容量风险", usagePercent),
+			Type:                     EfficiencyTypeOverall,
+			Priority:                 5,
+			Suggestion:               "存储使用率超过80%，建议扩容或清理",
+			ExpectedBenefit:          0,
+			BenefitDescription:       fmt.Sprintf("当前使用率%.1f%%，存在容量风险", usagePercent),
 			ImplementationDifficulty: "medium",
 			ImplementationSteps: []string{
 				"检查大文件和日志",
@@ -598,23 +598,23 @@ func (s *EfficiencyMonitorService) generateReport() {
 
 // EfficiencyReport 效率报告
 type EfficiencyReport struct {
-	GeneratedAt       time.Time                        `json:"generatedAt"`
-	ResourceStats     map[string]*StorageEfficiencyStats `json:"resourceStats"`
-	TopRecommendations []EfficiencyRecommendation       `json:"topRecommendations"`
-	Summary           EfficiencySummary                `json:"summary"`
+	GeneratedAt        time.Time                          `json:"generatedAt"`
+	ResourceStats      map[string]*StorageEfficiencyStats `json:"resourceStats"`
+	TopRecommendations []EfficiencyRecommendation         `json:"topRecommendations"`
+	Summary            EfficiencySummary                  `json:"summary"`
 }
 
 // EfficiencySummary 效率汇总
 type EfficiencySummary struct {
-	TotalPhysicalUsedGB  float64 `json:"totalPhysicalUsedGB"`
-	TotalLogicalUsedGB   float64 `json:"totalLogicalUsedGB"`
-	OverallEfficiency    float64 `json:"overallEfficiency"`
-	TotalCostSavedMonthly float64 `json:"totalCostSavedMonthly"`
-	AverageDedupRatio    float64 `json:"averageDedupRatio"`
+	TotalPhysicalUsedGB     float64 `json:"totalPhysicalUsedGB"`
+	TotalLogicalUsedGB      float64 `json:"totalLogicalUsedGB"`
+	OverallEfficiency       float64 `json:"overallEfficiency"`
+	TotalCostSavedMonthly   float64 `json:"totalCostSavedMonthly"`
+	AverageDedupRatio       float64 `json:"averageDedupRatio"`
 	AverageCompressionRatio float64 `json:"averageCompressionRatio"`
-	ResourceCount        int     `json:"resourceCount"`
-	ImprovingCount       int     `json:"improvingCount"`
-	DegradingCount       int     `json:"degradingCount"`
+	ResourceCount           int     `json:"resourceCount"`
+	ImprovingCount          int     `json:"improvingCount"`
+	DegradingCount          int     `json:"degradingCount"`
 }
 
 // generateEfficiencyReport 生成完整效率报告
@@ -623,8 +623,8 @@ func (s *EfficiencyMonitorService) generateEfficiencyReport() *EfficiencyReport 
 	defer s.mu.RUnlock()
 
 	report := &EfficiencyReport{
-		GeneratedAt:       time.Now(),
-		ResourceStats:     make(map[string]*StorageEfficiencyStats),
+		GeneratedAt:        time.Now(),
+		ResourceStats:      make(map[string]*StorageEfficiencyStats),
 		TopRecommendations: []EfficiencyRecommendation{},
 	}
 

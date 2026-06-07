@@ -13,21 +13,21 @@ import (
 
 // Manager 成本分析管理器.
 type Manager struct {
-	providers    map[string]*CloudProvider
-	metrics      map[string]*StorageMetrics
-	reports      map[string]*CostReport
-	alerts       map[string]*CostAlert
+	providers     map[string]*CloudProvider
+	metrics       map[string]*StorageMetrics
+	reports       map[string]*CostReport
+	alerts        map[string]*CostAlert
 	optimizations []*CostOptimization
-	mu           sync.RWMutex
+	mu            sync.RWMutex
 }
 
 // NewManager 创建成本分析管理器.
 func NewManager() *Manager {
 	return &Manager{
-		providers:    make(map[string]*CloudProvider),
-		metrics:      make(map[string]*StorageMetrics),
-		reports:      make(map[string]*CostReport),
-		alerts:       make(map[string]*CostAlert),
+		providers:     make(map[string]*CloudProvider),
+		metrics:       make(map[string]*StorageMetrics),
+		reports:       make(map[string]*CostReport),
+		alerts:        make(map[string]*CostAlert),
 		optimizations: make([]*CostOptimization, 0),
 	}
 }
@@ -232,13 +232,13 @@ func (m *Manager) GetUsageTrend(providerID string, period string) ([]map[string]
 
 	trend := make([]map[string]interface{}, points)
 	for i := 0; i < points; i++ {
-		t := time.Now().AddDate(0, 0, -(points-1-i))
+		t := time.Now().AddDate(0, 0, -(points - 1 - i))
 		usage := 400 + float64(i)*15 + math.Sin(float64(i))*50
 		cost := usage * 0.12
 		trend[i] = map[string]interface{}{
-			"date":       t.Format("2006-01-02"),
-			"used_gb":    usage,
-			"cost":       cost,
+			"date":    t.Format("2006-01-02"),
+			"used_gb": usage,
+			"cost":    cost,
 		}
 	}
 
@@ -270,10 +270,10 @@ func (m *Manager) ForecastCost(providerID string, months int) (map[string]interf
 	}
 
 	return map[string]interface{}{
-		"provider_id":   providerID,
-		"current_cost":  currentCost,
-		"growth_rate":   growthRate,
-		"forecasts":     forecasts,
+		"provider_id":  providerID,
+		"current_cost": currentCost,
+		"growth_rate":  growthRate,
+		"forecasts":    forecasts,
 	}, nil
 }
 

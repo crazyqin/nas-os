@@ -26,39 +26,39 @@ func NewReporter(logger *zap.Logger) *Reporter {
 
 // FullReport 完整审计报告
 type FullReport struct {
-	Summary          *FullReportSummary        `json:"summary"`
-	ComplianceReport *ComplianceReport          `json:"compliance_report"`
-	PolicyResults    []*PolicyResult            `json:"policy_results"`
-	Remediations     []*RemediationItem         `json:"remediations"`
-	Recommendations  []*Recommendation          `json:"recommendations"`
-	RiskMatrix       *RiskMatrix                `json:"risk_matrix"`
-	GeneratedAt      time.Time                  `json:"generated_at"`
+	Summary          *FullReportSummary `json:"summary"`
+	ComplianceReport *ComplianceReport  `json:"compliance_report"`
+	PolicyResults    []*PolicyResult    `json:"policy_results"`
+	Remediations     []*RemediationItem `json:"remediations"`
+	Recommendations  []*Recommendation  `json:"recommendations"`
+	RiskMatrix       *RiskMatrix        `json:"risk_matrix"`
+	GeneratedAt      time.Time          `json:"generated_at"`
 }
 
 // FullReportSummary 完整报告摘要
 type FullReportSummary struct {
-	OverallScore       float64                      `json:"overall_score"`
-	RiskLevel          RiskLevel                    `json:"risk_level"`
-	TotalChecks        int                          `json:"total_checks"`
-	Passed             int                          `json:"passed"`
-	Failed             int                          `json:"failed"`
-	Warnings           int                          `json:"warnings"`
-	ComplianceStatus   map[string]bool              `json:"compliance_status"`
-	CategoryScores     map[CheckCategory]float64    `json:"category_scores"`
+	OverallScore       float64                        `json:"overall_score"`
+	RiskLevel          RiskLevel                      `json:"risk_level"`
+	TotalChecks        int                            `json:"total_checks"`
+	Passed             int                            `json:"passed"`
+	Failed             int                            `json:"failed"`
+	Warnings           int                            `json:"warnings"`
+	ComplianceStatus   map[string]bool                `json:"compliance_status"`
+	CategoryScores     map[CheckCategory]float64      `json:"category_scores"`
 	StandardScores     map[ComplianceStandard]float64 `json:"standard_scores"`
-	ActiveRemediations int                          `json:"active_remediations"`
-	TopIssues          []*Finding                   `json:"top_issues"`
+	ActiveRemediations int                            `json:"active_remediations"`
+	TopIssues          []*Finding                     `json:"top_issues"`
 }
 
 // Recommendation 改进建议
 type Recommendation struct {
-	ID          string   `json:"id"`
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Category    string   `json:"category"`
-	Priority    int      `json:"priority"`
-	Impact      string   `json:"impact"`
-	Effort      string   `json:"effort"`
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Category    string `json:"category"`
+	Priority    int    `json:"priority"`
+	Impact      string `json:"impact"`
+	Effort      string `json:"effort"`
 }
 
 // RiskMatrix 风险矩阵

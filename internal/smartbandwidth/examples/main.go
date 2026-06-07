@@ -67,12 +67,12 @@ func main() {
 
 	// 创建流量配置文件
 	profile := &smartbandwidth.TrafficProfile{
-		Name:          "AI Inference",
-		TrafficClass:  smartbandwidth.TrafficClassAIInference,
-		Priority:      9,
-		MinMbps:       100,
-		MaxMbps:       600,
-		Description:   "AI model inference services",
+		Name:         "AI Inference",
+		TrafficClass: smartbandwidth.TrafficClassAIInference,
+		Priority:     9,
+		MinMbps:      100,
+		MaxMbps:      600,
+		Description:  "AI model inference services",
 	}
 
 	createdProfile, err := manager.CreateTrafficProfile(profile)

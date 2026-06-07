@@ -31,17 +31,17 @@ func TestRegisterNode(t *testing.T) {
 		Host: "192.168.1.100",
 		Resources: map[ResourceType]*Resource{
 			ResourceCPU: {
-				ID:   "cpu-1",
-				Type: ResourceCPU,
-				Name: "CPU",
+				ID:    "cpu-1",
+				Type:  ResourceCPU,
+				Name:  "CPU",
 				Total: 8.0,
 				Used:  2.0,
 				Unit:  "cores",
 			},
 			ResourceMemory: {
-				ID:   "mem-1",
-				Type: ResourceMemory,
-				Name: "Memory",
+				ID:    "mem-1",
+				Type:  ResourceMemory,
+				Name:  "Memory",
 				Total: 16.0,
 				Used:  4.0,
 				Unit:  "GB",

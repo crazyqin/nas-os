@@ -50,22 +50,22 @@ type TrendSeries struct {
 
 // AlertEvent represents a triggered alert.
 type AlertEvent struct {
-	RuleID    string    `json:"rule_id"`
-	Metric    string    `json:"metric"`
-	Value     float64   `json:"value"`
-	Threshold float64   `json:"threshold"`
-	Severity  string    `json:"severity"`
-	Message   string    `json:"message"`
+	RuleID      string    `json:"rule_id"`
+	Metric      string    `json:"metric"`
+	Value       float64   `json:"value"`
+	Threshold   float64   `json:"threshold"`
+	Severity    string    `json:"severity"`
+	Message     string    `json:"message"`
 	TriggeredAt time.Time `json:"triggered_at"`
 }
 
 // OverviewResponse is the response for the dashboard overview endpoint.
 type OverviewResponse struct {
-	Score     *HealthScore    `json:"score"`
-	Metrics   []*HealthMetric `json:"metrics"`
-	Alerts    []*AlertEvent   `json:"alerts"`
-	AlertCount int            `json:"alert_count"`
-	UpdatedAt  time.Time      `json:"updated_at"`
+	Score      *HealthScore    `json:"score"`
+	Metrics    []*HealthMetric `json:"metrics"`
+	Alerts     []*AlertEvent   `json:"alerts"`
+	AlertCount int             `json:"alert_count"`
+	UpdatedAt  time.Time       `json:"updated_at"`
 }
 
 // APIResponse is the standard API response wrapper.

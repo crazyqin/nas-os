@@ -23,9 +23,9 @@ type DeviceFingerprint struct {
 
 // FingerprintGenerator 设备指纹生成器
 type FingerprintGenerator struct {
-	mu         sync.RWMutex
+	mu           sync.RWMutex
 	knownDevices map[string]*DeviceFingerprint // fingerprint -> info
-	salt       string
+	salt         string
 }
 
 // NewFingerprintGenerator 创建设备指纹生成器
@@ -35,7 +35,7 @@ func NewFingerprintGenerator(salt string) *FingerprintGenerator {
 	}
 	return &FingerprintGenerator{
 		knownDevices: make(map[string]*DeviceFingerprint),
-		salt:       salt,
+		salt:         salt,
 	}
 }
 
@@ -91,17 +91,17 @@ func (fg *FingerprintGenerator) Generate(components *FingerprintComponents) *Dev
 	deviceFP := &DeviceFingerprint{
 		Fingerprint: fingerprint,
 		Components: map[string]string{
-			"user_agent":            components.UserAgent,
-			"ip":                    components.IP,
-			"screen_resolution":     components.ScreenResolution,
-			"timezone":              components.Timezone,
-			"language":              components.Language,
-			"platform":              components.Platform,
-			"hardware_concurrency":  components.HardwareConcurrency,
-			"device_memory":         components.DeviceMemory,
-			"fonts":                 components.Fonts,
-			"webgl":                 components.WebGL,
-			"canvas":                components.Canvas,
+			"user_agent":           components.UserAgent,
+			"ip":                   components.IP,
+			"screen_resolution":    components.ScreenResolution,
+			"timezone":             components.Timezone,
+			"language":             components.Language,
+			"platform":             components.Platform,
+			"hardware_concurrency": components.HardwareConcurrency,
+			"device_memory":        components.DeviceMemory,
+			"fonts":                components.Fonts,
+			"webgl":                components.WebGL,
+			"canvas":               components.Canvas,
 		},
 		CreatedAt:  time.Now(),
 		Confidence: confidence,

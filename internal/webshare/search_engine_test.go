@@ -105,8 +105,8 @@ func TestContentIndexer_Index(t *testing.T) {
 	// 索引目录
 	ctx := context.Background()
 	req := IndexRequest{
-		Path:       tmpDir,
-		Recursive:  true,
+		Path:         tmpDir,
+		Recursive:    true,
 		ForceReindex: true,
 	}
 
@@ -156,8 +156,8 @@ func TestContentIndexer_EXIF(t *testing.T) {
 
 	ctx := context.Background()
 	req := IndexRequest{
-		Path:        filepath.Join(tmpDir, "fake.jpg"),
-		Recursive:   false,
+		Path:         filepath.Join(tmpDir, "fake.jpg"),
+		Recursive:    false,
 		ForceReindex: true,
 	}
 
@@ -187,8 +187,8 @@ func TestContentIndexer_Tags(t *testing.T) {
 
 	ctx := context.Background()
 	req := IndexRequest{
-		Path:        filepath.Join(tmpDir, "test.txt"),
-		Recursive:   false,
+		Path:         filepath.Join(tmpDir, "test.txt"),
+		Recursive:    false,
 		ForceReindex: true,
 	}
 
@@ -324,9 +324,9 @@ func TestSearchEngine_Filters(t *testing.T) {
 
 	// 按扩展名过滤
 	req = SearchRequest{
-		Query:       "",
-		Extensions:  []string{".py"},
-		MaxResults:  10,
+		Query:      "",
+		Extensions: []string{".py"},
+		MaxResults: 10,
 	}
 
 	resp, err = engine.Search(ctx, req)

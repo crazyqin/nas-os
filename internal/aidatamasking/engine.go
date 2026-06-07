@@ -19,7 +19,7 @@ type sensitiveMatch struct {
 
 // Engine 脱敏引擎
 type Engine struct {
-	config  *MaskingEngineConfig
+	config   *MaskingEngineConfig
 	patterns []*SensitivePattern
 	rules    map[string]*MaskingRule
 }

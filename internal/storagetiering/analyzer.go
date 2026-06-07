@@ -12,11 +12,11 @@ import (
 
 // Analyzer 数据热度分析器
 type Analyzer struct {
-	mu           sync.RWMutex
-	config       *StorageTieringConfig
-	analyzerCfg  AnalyzerConfig
-	policyCfg    PolicyConfig
-	logger       *zap.Logger
+	mu          sync.RWMutex
+	config      *StorageTieringConfig
+	analyzerCfg AnalyzerConfig
+	policyCfg   PolicyConfig
+	logger      *zap.Logger
 
 	// 内部状态
 	files        map[string]*FileEntry
@@ -142,13 +142,13 @@ func (a *Analyzer) checkMigration(entry *FileEntry, now time.Time) *MigrationTas
 	}
 
 	return &MigrationTask{
-		ID:       generateID(),
-		FilePath: entry.Path,
-		FileSize: entry.Size,
-		FromTier: entry.CurrentTier,
-		ToTier:   targetTier,
-		State:    StatePending,
-		Reason:   "auto-tiering",
+		ID:        generateID(),
+		FilePath:  entry.Path,
+		FileSize:  entry.Size,
+		FromTier:  entry.CurrentTier,
+		ToTier:    targetTier,
+		State:     StatePending,
+		Reason:    "auto-tiering",
 		CreatedAt: now,
 	}
 }

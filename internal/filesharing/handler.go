@@ -331,10 +331,10 @@ func (h *Handler) handleView(w http.ResponseWriter, r *http.Request, tokenOrSlug
 		}
 
 		writeJSON(w, http.StatusOK, map[string]interface{}{
-			"type":    "directory",
-			"path":    subPath,
-			"items":   items,
-			"link":    link,
+			"type":  "directory",
+			"path":  subPath,
+			"items": items,
+			"link":  link,
 		})
 	} else {
 		// 文件预览
@@ -574,10 +574,10 @@ func (h *Handler) generateQRCode(w http.ResponseWriter, r *http.Request, id stri
 	}
 
 	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"qrCode":  qrData,
-		"token":   link.Token,
-		"size":    size,
-		"url":     qrData,
+		"qrCode": qrData,
+		"token":  link.Token,
+		"size":   size,
+		"url":    qrData,
 	})
 }
 

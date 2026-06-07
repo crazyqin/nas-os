@@ -13,17 +13,17 @@ import (
 
 // Manager 保修追踪管理器
 type Manager struct {
-	mu           sync.RWMutex
-	devices      map[string]*Device
-	warranties   map[string]*Warranty
-	repairs      map[string]*RepairRecord
-	attachments  map[string]*Attachment
-	extendedW    map[string]*ExtendedWarranty
-	config       *DepreciationConfig
-	logger       Logger
-	ctx          context.Context
-	cancel       context.CancelFunc
-	wg           sync.WaitGroup
+	mu          sync.RWMutex
+	devices     map[string]*Device
+	warranties  map[string]*Warranty
+	repairs     map[string]*RepairRecord
+	attachments map[string]*Attachment
+	extendedW   map[string]*ExtendedWarranty
+	config      *DepreciationConfig
+	logger      Logger
+	ctx         context.Context
+	cancel      context.CancelFunc
+	wg          sync.WaitGroup
 }
 
 // Logger 日志接口

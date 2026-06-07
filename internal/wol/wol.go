@@ -12,13 +12,13 @@ import (
 
 // Device represents a WOL-capable device.
 type Device struct {
-	Name        string `json:"name"`
-	MACAddress  string `json:"mac_address"`
-	IPAddress   string `json:"ip_address,omitempty"`
-	Group       string `json:"group,omitempty"`
-	Description string `json:"description,omitempty"`
+	Name         string `json:"name"`
+	MACAddress   string `json:"mac_address"`
+	IPAddress    string `json:"ip_address,omitempty"`
+	Group        string `json:"group,omitempty"`
+	Description  string `json:"description,omitempty"`
 	LastWakeTime string `json:"last_wake_time,omitempty"`
-	Enabled     bool   `json:"enabled"`
+	Enabled      bool   `json:"enabled"`
 }
 
 // Manager manages WOL devices.

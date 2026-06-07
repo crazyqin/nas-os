@@ -36,9 +36,9 @@ type Project struct {
 	Status      string    `json:"status"` // active, archived, completed
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
-	Tasks       []string  `json:"tasks"`       // task IDs
-	Milestones  []string  `json:"milestones"`  // milestone IDs
-	Members     []string  `json:"members"`     // member IDs
+	Tasks       []string  `json:"tasks"`      // task IDs
+	Milestones  []string  `json:"milestones"` // milestone IDs
+	Members     []string  `json:"members"`    // member IDs
 }
 
 // Task 任务
@@ -49,8 +49,8 @@ type Task struct {
 	Description string       `json:"description"`
 	Priority    TaskPriority `json:"priority"`
 	Status      TaskStatus   `json:"status"`
-	AssigneeID  string       `json:"assignee_id"`  // 负责人
-	Deadline    *time.Time   `json:"deadline"`      // 截止日期
+	AssigneeID  string       `json:"assignee_id"` // 负责人
+	Deadline    *time.Time   `json:"deadline"`    // 截止日期
 	CreatedAt   time.Time    `json:"created_at"`
 	UpdatedAt   time.Time    `json:"updated_at"`
 	CompletedAt *time.Time   `json:"completed_at"`
@@ -58,13 +58,13 @@ type Task struct {
 
 // Milestone 里程碑
 type Milestone struct {
-	ID          string    `json:"id"`
-	ProjectID   string    `json:"project_id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
+	ID          string     `json:"id"`
+	ProjectID   string     `json:"project_id"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
 	DueDate     *time.Time `json:"due_date"`
-	Completed   bool      `json:"completed"`
-	CreatedAt   time.Time `json:"created_at"`
+	Completed   bool       `json:"completed"`
+	CreatedAt   time.Time  `json:"created_at"`
 }
 
 // TimeEntry 工时记录
@@ -98,10 +98,10 @@ type ProjectStats struct {
 
 // MemberWorkload 成员工作量
 type MemberWorkload struct {
-	MemberID      string  `json:"member_id"`
-	ActiveTasks   int     `json:"active_tasks"`
-	TotalHours    float64 `json:"total_hours"`
-	OverdueTasks  int     `json:"overdue_tasks"`
+	MemberID     string  `json:"member_id"`
+	ActiveTasks  int     `json:"active_tasks"`
+	TotalHours   float64 `json:"total_hours"`
+	OverdueTasks int     `json:"overdue_tasks"`
 }
 
 // Config 配置
@@ -111,15 +111,15 @@ type Config struct {
 
 // ProjectHub 项目管理中心
 type ProjectHub struct {
-	mu         sync.RWMutex
-	config     Config
-	projects   map[string]*Project
-	tasks      map[string]*Task
-	milestones map[string]*Milestone
+	mu          sync.RWMutex
+	config      Config
+	projects    map[string]*Project
+	tasks       map[string]*Task
+	milestones  map[string]*Milestone
 	timeEntries map[string]*TimeEntry
-	members    map[string]*TeamMember
-	started    bool
-	stopCh     chan struct{}
+	members     map[string]*TeamMember
+	started     bool
+	stopCh      chan struct{}
 }
 
 // New 创建项目管理中心

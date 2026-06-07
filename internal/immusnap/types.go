@@ -31,13 +31,13 @@ type ImmutableSnapshot struct {
 	Status      SnapshotStatus `json:"status"`
 	CreatedAt   time.Time      `json:"created_at"`
 	ExpiresAt   time.Time      `json:"expires_at"`
-	Locked      bool           `json:"locked"`            // 是否已锁定
-	Size        int64          `json:"size_bytes"`         // 快照大小
-	Checksum    string         `json:"checksum"`           // 完整性校验和
+	Locked      bool           `json:"locked"`     // 是否已锁定
+	Size        int64          `json:"size_bytes"` // 快照大小
+	Checksum    string         `json:"checksum"`   // 完整性校验和
 	Tags        []string       `json:"tags,omitempty"`
 	SourcePath  string         `json:"source_path,omitempty"`  // 源数据路径
 	StoragePath string         `json:"storage_path,omitempty"` // 快照存储路径
-	ThreatLevel ThreatLevel    `json:"threat_level"`            // 触发时的威胁等级
+	ThreatLevel ThreatLevel    `json:"threat_level"`           // 触发时的威胁等级
 }
 
 // RetentionPolicy 快照保留策略

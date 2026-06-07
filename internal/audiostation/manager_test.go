@@ -536,13 +536,13 @@ func TestConfigPersistence(t *testing.T) {
 	// 手动添加曲目并保存
 	mgr1.mu.Lock()
 	mgr1.tracks["test_001"] = &Track{
-		ID:       "test_001",
-		Title:    "测试曲目",
-		Artist:   "测试艺术家",
-		Album:    "测试专辑",
-		Duration: 180,
-		Format:   FormatMP3,
-		FilePath: "/test/path.mp3",
+		ID:        "test_001",
+		Title:     "测试曲目",
+		Artist:    "测试艺术家",
+		Album:     "测试专辑",
+		Duration:  180,
+		Format:    FormatMP3,
+		FilePath:  "/test/path.mp3",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}

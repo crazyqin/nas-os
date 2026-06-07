@@ -76,12 +76,12 @@ func (h *RAIDZExpandHandlers) getGlobalStatus(c *gin.Context) {
 	progress := h.monitor.GetAllProgress()
 
 	status := RAIDZExpandGlobalStatus{
-		ActiveCount:   len(progress),
-		RunningCount:  0,
-		PausedCount:   0,
+		ActiveCount:    len(progress),
+		RunningCount:   0,
+		PausedCount:    0,
 		CompletedCount: 0,
-		FailedCount:   0,
-		LastUpdate:    time.Now(),
+		FailedCount:    0,
+		LastUpdate:     time.Now(),
 	}
 
 	for _, p := range progress {
@@ -106,13 +106,13 @@ func (h *RAIDZExpandHandlers) getGlobalStatus(c *gin.Context) {
 
 // RAIDZExpandGlobalStatus 全局扩展状态
 type RAIDZExpandGlobalStatus struct {
-	ActiveCount    int               `json:"activeCount"`    // 活跃任务数
-	RunningCount   int               `json:"runningCount"`   // 运行中
-	PausedCount    int               `json:"pausedCount"`    // 已暂停
-	CompletedCount int               `json:"completedCount"` // 已完成
-	FailedCount    int               `json:"failedCount"`    // 已失败
-	LastUpdate     time.Time         `json:"lastUpdate"`     // 最后更新时间
-	Summary        *ExpandSummary    `json:"summary"`        // 任务摘要
+	ActiveCount    int            `json:"activeCount"`    // 活跃任务数
+	RunningCount   int            `json:"runningCount"`   // 运行中
+	PausedCount    int            `json:"pausedCount"`    // 已暂停
+	CompletedCount int            `json:"completedCount"` // 已完成
+	FailedCount    int            `json:"failedCount"`    // 已失败
+	LastUpdate     time.Time      `json:"lastUpdate"`     // 最后更新时间
+	Summary        *ExpandSummary `json:"summary"`        // 任务摘要
 }
 
 // getAllProgress 获取所有扩展进度
@@ -192,13 +192,13 @@ func (h *RAIDZExpandHandlers) getSummary(c *gin.Context) {
 
 // StartExpansionReqV2 开始扩展请求（V2 API）
 type StartExpansionReqV2 struct {
-	PoolName      string            `json:"poolName" binding:"required"`      // 存储池名称
-	VdevName      string            `json:"vdevName"`                         // VDEV名称（可选）
-	NewDisk       string            `json:"newDisk" binding:"required"`       // 新磁盘路径
-	RAIDZLevel    string            `json:"raidzLevel"`                       // RAIDZ级别 (raidz1/raidz2/raidz3)
-	Force         bool              `json:"force"`                            // 强制执行
-	DryRun        bool              `json:"dryRun"`                           // 模拟运行
-	Metadata      map[string]string `json:"metadata"`                         // 扩展元数据
+	PoolName   string            `json:"poolName" binding:"required"` // 存储池名称
+	VdevName   string            `json:"vdevName"`                    // VDEV名称（可选）
+	NewDisk    string            `json:"newDisk" binding:"required"`  // 新磁盘路径
+	RAIDZLevel string            `json:"raidzLevel"`                  // RAIDZ级别 (raidz1/raidz2/raidz3)
+	Force      bool              `json:"force"`                       // 强制执行
+	DryRun     bool              `json:"dryRun"`                      // 模拟运行
+	Metadata   map[string]string `json:"metadata"`                    // 扩展元数据
 }
 
 // startExpansion 开始RAIDZ扩展
@@ -229,16 +229,16 @@ func (h *RAIDZExpandHandlers) startExpansion(c *gin.Context) {
 
 	// 创建扩展任务
 	task := &ExpansionTask{
-		ID:          generateTaskID(req.PoolName),
-		PoolName:    req.PoolName,
-		NewDisk:     req.NewDisk,
-		RAIDZLevel:  req.RAIDZLevel,
-		Status:      StatusPreparing,
-		CanPause:    true,
-		CanCancel:   true,
-		CanResume:   false,
-		StartTime:   time.Now(),
-		Metadata:    req.Metadata,
+		ID:         generateTaskID(req.PoolName),
+		PoolName:   req.PoolName,
+		NewDisk:    req.NewDisk,
+		RAIDZLevel: req.RAIDZLevel,
+		Status:     StatusPreparing,
+		CanPause:   true,
+		CanCancel:  true,
+		CanResume:  false,
+		StartTime:  time.Now(),
+		Metadata:   req.Metadata,
 	}
 
 	// 启动监控
@@ -359,20 +359,20 @@ func (h *RAIDZExpandHandlers) cancelExpansion(c *gin.Context) {
 
 // ValidateExpansionRequest 验证扩展请求
 type ValidateExpansionRequest struct {
-	PoolName   string `json:"poolName" binding:"required"`   // 存储池名称
-	NewDisk    string `json:"newDisk" binding:"required"`    // 新磁盘路径
-	RAIDZLevel string `json:"raidzLevel"`                    // RAIDZ级别
+	PoolName   string `json:"poolName" binding:"required"` // 存储池名称
+	NewDisk    string `json:"newDisk" binding:"required"`  // 新磁盘路径
+	RAIDZLevel string `json:"raidzLevel"`                  // RAIDZ级别
 }
 
 // ValidateExpansionResult 验证结果
 type ValidateExpansionResult struct {
-	Valid          bool     `json:"valid"`          // 是否有效
-	CanExpand      bool     `json:"canExpand"`      // 是否可扩展
-	Errors         []string `json:"errors"`         // 错误列表
-	Warnings       []string `json:"warnings"`       // 警告列表
-	Checks         []CheckDetail `json:"checks"`    // 检查详情
-	DiskInfo       *DiskSlot `json:"diskInfo"`      // 磁盘信息
-	PoolInfo       *PoolInfo `json:"poolInfo"`      // 池信息
+	Valid     bool          `json:"valid"`     // 是否有效
+	CanExpand bool          `json:"canExpand"` // 是否可扩展
+	Errors    []string      `json:"errors"`    // 错误列表
+	Warnings  []string      `json:"warnings"`  // 警告列表
+	Checks    []CheckDetail `json:"checks"`    // 检查详情
+	DiskInfo  *DiskSlot     `json:"diskInfo"`  // 磁盘信息
+	PoolInfo  *PoolInfo     `json:"poolInfo"`  // 池信息
 }
 
 // CheckDetail 检查详情
@@ -385,13 +385,13 @@ type CheckDetail struct {
 
 // PoolInfo 池信息
 type PoolInfo struct {
-	Name          string   `json:"name"`
-	RAIDZLevel    string   `json:"raidzLevel"`
-	VdevWidth     int      `json:"vdevWidth"`     // VDEV宽度
-	TotalDisks    int      `json:"totalDisks"`    // 总磁盘数
-	Healthy       bool     `json:"healthy"`
-	CapacityGB    float64  `json:"capacityGB"`
-	UsedPercent   float64  `json:"usedPercent"`
+	Name        string  `json:"name"`
+	RAIDZLevel  string  `json:"raidzLevel"`
+	VdevWidth   int     `json:"vdevWidth"`  // VDEV宽度
+	TotalDisks  int     `json:"totalDisks"` // 总磁盘数
+	Healthy     bool    `json:"healthy"`
+	CapacityGB  float64 `json:"capacityGB"`
+	UsedPercent float64 `json:"usedPercent"`
 }
 
 // validateExpansion 验证扩展可行性
@@ -413,11 +413,11 @@ func (h *RAIDZExpandHandlers) validateExpansion(c *gin.Context) {
 	}
 
 	result := &ValidateExpansionResult{
-		Valid:    true,
+		Valid:     true,
 		CanExpand: true,
-		Errors:   []string{},
-		Warnings: []string{},
-		Checks:   []CheckDetail{},
+		Errors:    []string{},
+		Warnings:  []string{},
+		Checks:    []CheckDetail{},
 	}
 
 	// 检查1: 磁盘是否存在
@@ -493,25 +493,25 @@ func (h *RAIDZExpandHandlers) validateExpansion(c *gin.Context) {
 
 // EstimateExpansionRequest 估算扩展请求
 type EstimateExpansionRequest struct {
-	PoolName       string  `json:"poolName" binding:"required"`    // 存储池名称
-	RAIDZLevel     string  `json:"raidzLevel"`                     // RAIDZ级别
-	CurrentWidth   int     `json:"currentWidth"`                   // 当前宽度
-	NewDiskSizeGB  float64 `json:"newDiskSizeGB"`                  // 新磁盘容量GB
-	UsedBytes      uint64  `json:"usedBytes"`                      // 已用字节
+	PoolName      string  `json:"poolName" binding:"required"` // 存储池名称
+	RAIDZLevel    string  `json:"raidzLevel"`                  // RAIDZ级别
+	CurrentWidth  int     `json:"currentWidth"`                // 当前宽度
+	NewDiskSizeGB float64 `json:"newDiskSizeGB"`               // 新磁盘容量GB
+	UsedBytes     uint64  `json:"usedBytes"`                   // 已用字节
 }
 
 // EstimateExpansionResult 估算结果
 type EstimateExpansionResult struct {
-	CapacityBeforeGB   float64 `json:"capacityBeforeGB"`   // 扩展前容量GB
-	CapacityAfterGB    float64 `json:"capacityAfterGB"`    // 扩展后容量GB
-	CapacityGainGB     float64 `json:"capacityGainGB"`     // 容量增益GB
+	CapacityBeforeGB    float64 `json:"capacityBeforeGB"`    // 扩展前容量GB
+	CapacityAfterGB     float64 `json:"capacityAfterGB"`     // 扩展后容量GB
+	CapacityGainGB      float64 `json:"capacityGainGB"`      // 容量增益GB
 	CapacityGainPercent float64 `json:"capacityGainPercent"` // 容量增益百分比
-	EstimatedTime      string  `json:"estimatedTime"`      // 预估时间
-	EstimatedHours     float64 `json:"estimatedHours"`     // 预估小时数
-	EfficiencyBefore   float64 `json:"efficiencyBefore"`   // 扩展前效率%
-	EfficiencyAfter    float64 `json:"efficiencyAfter"`    // 扩展后效率%
-	WidthBefore        int     `json:"widthBefore"`        // 扩展前宽度
-	WidthAfter         int     `json:"widthAfter"`         // 扩展后宽度
+	EstimatedTime       string  `json:"estimatedTime"`       // 预估时间
+	EstimatedHours      float64 `json:"estimatedHours"`      // 预估小时数
+	EfficiencyBefore    float64 `json:"efficiencyBefore"`    // 扩展前效率%
+	EfficiencyAfter     float64 `json:"efficiencyAfter"`     // 扩展后效率%
+	WidthBefore         int     `json:"widthBefore"`         // 扩展前宽度
+	WidthAfter          int     `json:"widthAfter"`          // 扩展后宽度
 }
 
 // estimateExpansion 估算扩展时间和容量
@@ -691,14 +691,14 @@ func (h *RAIDZExpandHandlers) calculateCapacity(c *gin.Context) {
 	capacityGain := diskSizeGB // 增加一个数据盘
 
 	info := &RAIDZCapacityInfo{
-		RAIDZLevel:         raidzLevel,
-		Width:              width,
-		ParityDisks:        parity,
-		DataDisks:          dataDisks,
-		DiskSizeGB:         diskSizeGB,
-		RawCapacityGB:      float64(width) * diskSizeGB,
-		UsableCapacityGB:   usableCapacity,
-		Efficiency:         efficiency,
+		RAIDZLevel:       raidzLevel,
+		Width:            width,
+		ParityDisks:      parity,
+		DataDisks:        dataDisks,
+		DiskSizeGB:       diskSizeGB,
+		RawCapacityGB:    float64(width) * diskSizeGB,
+		UsableCapacityGB: usableCapacity,
+		Efficiency:       efficiency,
 		ExpandAfter: RAIDZCapacityExpandInfo{
 			Width:            widthAfter,
 			DataDisks:        dataDisksAfter,
@@ -713,15 +713,15 @@ func (h *RAIDZExpandHandlers) calculateCapacity(c *gin.Context) {
 
 // RAIDZCapacityInfo RAIDZ容量信息
 type RAIDZCapacityInfo struct {
-	RAIDZLevel       string              `json:"raidzLevel"`       // RAIDZ级别
-	Width            int                 `json:"width"`            // VDEV宽度
-	ParityDisks      int                 `json:"parityDisks"`      // 奇偶校验盘数
-	DataDisks        int                 `json:"dataDisks"`        // 数据盘数
-	DiskSizeGB       float64             `json:"diskSizeGB"`       // 单盘容量GB
-	RawCapacityGB    float64             `json:"rawCapacityGB"`    // 原始容量GB
-	UsableCapacityGB float64             `json:"usableCapacityGB"` // 可用容量GB
-	Efficiency       float64             `json:"efficiency"`       // 存储效率%
-	ExpandAfter      RAIDZCapacityExpandInfo `json:"expandAfter"` // 扩展后信息
+	RAIDZLevel       string                  `json:"raidzLevel"`       // RAIDZ级别
+	Width            int                     `json:"width"`            // VDEV宽度
+	ParityDisks      int                     `json:"parityDisks"`      // 奇偶校验盘数
+	DataDisks        int                     `json:"dataDisks"`        // 数据盘数
+	DiskSizeGB       float64                 `json:"diskSizeGB"`       // 单盘容量GB
+	RawCapacityGB    float64                 `json:"rawCapacityGB"`    // 原始容量GB
+	UsableCapacityGB float64                 `json:"usableCapacityGB"` // 可用容量GB
+	Efficiency       float64                 `json:"efficiency"`       // 存储效率%
+	ExpandAfter      RAIDZCapacityExpandInfo `json:"expandAfter"`      // 扩展后信息
 }
 
 // RAIDZCapacityExpandInfo 扩展后容量信息

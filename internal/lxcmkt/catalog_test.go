@@ -139,11 +139,11 @@ func TestAddTemplate(t *testing.T) {
 	mgr := newTestManager(t)
 
 	newTmpl := &Template{
-		ID:     "custom-1",
-		Name:   "Custom Template",
-		Distro: "ubuntu",
+		ID:      "custom-1",
+		Name:    "Custom Template",
+		Distro:  "ubuntu",
 		Version: "22.04",
-		Arch:   "amd64",
+		Arch:    "amd64",
 	}
 
 	err := mgr.AddTemplate(newTmpl)

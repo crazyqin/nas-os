@@ -12,11 +12,11 @@ import (
 
 // 错误定义.
 var (
-	ErrBoardNotFound  = errors.New("看板不存在")
-	ErrTaskNotFound   = errors.New("任务不存在")
-	ErrLabelNotFound  = errors.New("标签不存在")
-	ErrLabelExists    = errors.New("标签已存在")
-	ErrInvalidStatus  = errors.New("无效的状态")
+	ErrBoardNotFound   = errors.New("看板不存在")
+	ErrTaskNotFound    = errors.New("任务不存在")
+	ErrLabelNotFound   = errors.New("标签不存在")
+	ErrLabelExists     = errors.New("标签已存在")
+	ErrInvalidStatus   = errors.New("无效的状态")
 	ErrInvalidProgress = errors.New("无效的进度值")
 )
 

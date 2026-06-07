@@ -14,36 +14,36 @@ import (
 
 // UsageSnapshot 使用量快照
 type UsageSnapshot struct {
-	Timestamp   time.Time `json:"timestamp"`
-	TotalBytes  int64     `json:"totalBytes"`
-	UsedBytes   int64     `json:"usedBytes"`
-	FreeBytes   int64     `json:"freeBytes"`
-	InodeTotal  int64     `json:"inodeTotal"`
-	InodeUsed   int64     `json:"inodeUsed"`
+	Timestamp  time.Time `json:"timestamp"`
+	TotalBytes int64     `json:"totalBytes"`
+	UsedBytes  int64     `json:"usedBytes"`
+	FreeBytes  int64     `json:"freeBytes"`
+	InodeTotal int64     `json:"inodeTotal"`
+	InodeUsed  int64     `json:"inodeUsed"`
 }
 
 // PredictionResult 预测结果
 type PredictionResult struct {
-	Dataset         string        `json:"dataset"`
-	CurrentUsage    float64       `json:"currentUsage"`    // 当前使用率 (0-100)
-	GrowthRateDaily float64       `json:"growthRateDaily"` // 每日增长 bytes
-	GrowthRatePct   float64       `json:"growthRatePct"`   // 每日增长百分比
-	DaysRemaining   int           `json:"daysRemaining"`   // 预计剩余天数
-	FullDate        *time.Time    `json:"fullDate"`        // 预计满盘日期
-	Confidence      float64       `json:"confidence"`      // 预测置信度 (0-100)
-	Trend           GrowthTrend   `json:"trend"`           // 增长趋势
-	Recommendations []string      `json:"recommendations"` // 建议
-	GeneratedAt     time.Time     `json:"generatedAt"`
+	Dataset         string      `json:"dataset"`
+	CurrentUsage    float64     `json:"currentUsage"`    // 当前使用率 (0-100)
+	GrowthRateDaily float64     `json:"growthRateDaily"` // 每日增长 bytes
+	GrowthRatePct   float64     `json:"growthRatePct"`   // 每日增长百分比
+	DaysRemaining   int         `json:"daysRemaining"`   // 预计剩余天数
+	FullDate        *time.Time  `json:"fullDate"`        // 预计满盘日期
+	Confidence      float64     `json:"confidence"`      // 预测置信度 (0-100)
+	Trend           GrowthTrend `json:"trend"`           // 增长趋势
+	Recommendations []string    `json:"recommendations"` // 建议
+	GeneratedAt     time.Time   `json:"generatedAt"`
 }
 
 // GrowthTrend 增长趋势
 type GrowthTrend string
 
 const (
-	TrendStable   GrowthTrend = "stable"   // 稳定
-	TrendGrowing  GrowthTrend = "growing"  // 增长
-	TrendSlowing  GrowthTrend = "slowing"  // 减速
-	TrendSpiking  GrowthTrend = "spiking"  // 激增
+	TrendStable    GrowthTrend = "stable"    // 稳定
+	TrendGrowing   GrowthTrend = "growing"   // 增长
+	TrendSlowing   GrowthTrend = "slowing"   // 减速
+	TrendSpiking   GrowthTrend = "spiking"   // 激增
 	TrendDeclining GrowthTrend = "declining" // 下降
 )
 
@@ -68,12 +68,12 @@ type CapacityAlert struct {
 
 // CapacityReport 容量报告
 type CapacityReport struct {
-	GeneratedAt  time.Time            `json:"generatedAt"`
-	Datasets     []*PredictionResult  `json:"datasets"`
-	Alerts       []*CapacityAlert     `json:"alerts"`
-	TotalUsed    int64                `json:"totalUsed"`
-	TotalFree    int64                `json:"totalFree"`
-	OverallUsage float64              `json:"overallUsage"`
+	GeneratedAt  time.Time           `json:"generatedAt"`
+	Datasets     []*PredictionResult `json:"datasets"`
+	Alerts       []*CapacityAlert    `json:"alerts"`
+	TotalUsed    int64               `json:"totalUsed"`
+	TotalFree    int64               `json:"totalFree"`
+	OverallUsage float64             `json:"overallUsage"`
 }
 
 // ==================== 预测器 ====================
@@ -96,10 +96,10 @@ type Predictor struct {
 // NewPredictor 创建容量预测器
 func NewPredictor() *Predictor {
 	return &Predictor{
-		history:        make(map[string][]*UsageSnapshot),
+		history:         make(map[string][]*UsageSnapshot),
 		alertThresholds: []float64{50, 70, 80, 90, 95},
-		maxHistoryDays: 365,
-		minSamples:     3,
+		maxHistoryDays:  365,
+		minSamples:      3,
 	}
 }
 

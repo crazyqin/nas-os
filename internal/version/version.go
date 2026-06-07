@@ -1,7 +1,7 @@
 package version
 
 // Version is the current version of the application
-const Version = "2.552.0"
+const Version = "2.566.0"
 
 // BuildTime is the time when the application was built
 var BuildTime = "unknown"
@@ -17,8 +17,8 @@ func GetVersion() string {
 // GetBuildInfo returns build information as a map
 func GetBuildInfo() map[string]string {
 	return map[string]string{
-		"version":     Version,
-		"build_date":  BuildTime,
-		"git_commit":  Commit,
+		"version":    Version,
+		"build_date": BuildTime,
+		"git_commit": Commit,
 	}
 }

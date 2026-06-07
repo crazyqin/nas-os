@@ -9,13 +9,13 @@ import (
 
 // SNMPConfig 定义 SNMP 代理配置
 type SNMPConfig struct {
-	ListenAddr string `json:"listen_addr"`          // 监听地址，默认 ":161"
-	Community  string `json:"community"`             // SNMP v2c community 字符串
-	Version    string `json:"version"`               // SNMP 版本："2c" 或 "3"
-	Username   string `json:"username,omitempty"`     // SNMPv3 用户名
-	AuthKey    string `json:"auth_key,omitempty"`     // SNMPv3 认证密钥
-	PrivKey    string `json:"priv_key,omitempty"`     // SNMPv3 加密密钥
-	Enabled    bool   `json:"enabled"`                // 是否启用
+	ListenAddr string `json:"listen_addr"`        // 监听地址，默认 ":161"
+	Community  string `json:"community"`          // SNMP v2c community 字符串
+	Version    string `json:"version"`            // SNMP 版本："2c" 或 "3"
+	Username   string `json:"username,omitempty"` // SNMPv3 用户名
+	AuthKey    string `json:"auth_key,omitempty"` // SNMPv3 认证密钥
+	PrivKey    string `json:"priv_key,omitempty"` // SNMPv3 加密密钥
+	Enabled    bool   `json:"enabled"`            // 是否启用
 }
 
 // SNMPMetric 定义 SNMP 指标结构
@@ -209,10 +209,10 @@ func (a *Agent) UpdateConfig(cfg SNMPConfig) {
 // registerDefaultMetrics 预注册常用的 NAS SNMP 指标
 func (a *Agent) registerDefaultMetrics() {
 	defaults := []struct {
-		oid   string
-		name  string
-		value interface{}
-		typ   string
+		oid    string
+		name   string
+		value  interface{}
+		typ    string
 		labels map[string]string
 	}{
 		// CPU 使用率

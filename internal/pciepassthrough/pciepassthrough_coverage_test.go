@@ -215,7 +215,7 @@ func TestManager_ClassifyDevice_ShortCodes(t *testing.T) {
 		classCode string
 		expected  DeviceType
 	}{
-		{"30000", DeviceTypeGPU},   // 5位，补0后为030000
+		{"30000", DeviceTypeGPU}, // 5位，补0后为030000
 		{"20000", DeviceTypeNetwork},
 		{"10000", DeviceTypeStorage},
 		{"c0300", DeviceTypeUSB},

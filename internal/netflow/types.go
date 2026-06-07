@@ -14,18 +14,18 @@ import (
 type Protocol string
 
 const (
-	ProtocolTCP     Protocol = "TCP"
-	ProtocolUDP     Protocol = "UDP"
-	ProtocolHTTP    Protocol = "HTTP"
-	ProtocolHTTPS   Protocol = "HTTPS"
-	ProtocolDNS     Protocol = "DNS"
-	ProtocolICMP    Protocol = "ICMP"
-	ProtocolSSH     Protocol = "SSH"
-	ProtocolSMB     Protocol = "SMB"
-	ProtocolNFS     Protocol = "NFS"
-	ProtocolFTP     Protocol = "FTP"
-	ProtocolSMTP    Protocol = "SMTP"
-	ProtocolOther   Protocol = "OTHER"
+	ProtocolTCP   Protocol = "TCP"
+	ProtocolUDP   Protocol = "UDP"
+	ProtocolHTTP  Protocol = "HTTP"
+	ProtocolHTTPS Protocol = "HTTPS"
+	ProtocolDNS   Protocol = "DNS"
+	ProtocolICMP  Protocol = "ICMP"
+	ProtocolSSH   Protocol = "SSH"
+	ProtocolSMB   Protocol = "SMB"
+	ProtocolNFS   Protocol = "NFS"
+	ProtocolFTP   Protocol = "FTP"
+	ProtocolSMTP  Protocol = "SMTP"
+	ProtocolOther Protocol = "OTHER"
 )
 
 // FlowDirection 流量方向
@@ -233,11 +233,11 @@ type CollectorConfig struct {
 // DefaultCollectorConfig 默认采集器配置
 func DefaultCollectorConfig() CollectorConfig {
 	return CollectorConfig{
-		ListenAddress:  "0.0.0.0",
-		SFlowPort:      6343,
-		NetFlowPort:    2055,
-		SampleRate:     100,
-		BufferSize:     100000,
+		ListenAddress:    "0.0.0.0",
+		SFlowPort:        6343,
+		NetFlowPort:      2055,
+		SampleRate:       100,
+		BufferSize:       100000,
 		FlushIntervalSec: 60,
 	}
 }
@@ -248,9 +248,9 @@ func DefaultCollectorConfig() CollectorConfig {
 
 // TrafficStatsResponse 流量统计响应
 type TrafficStatsResponse struct {
-	Stats      TrafficStats      `json:"stats"`
-	Protocols  []ProtocolStats   `json:"protocols"`
-	TopHosts   []HostTraffic     `json:"top_hosts"`
+	Stats     TrafficStats    `json:"stats"`
+	Protocols []ProtocolStats `json:"protocols"`
+	TopHosts  []HostTraffic   `json:"top_hosts"`
 }
 
 // BandwidthHistoryRequest 带宽历史查询请求

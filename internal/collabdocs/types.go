@@ -25,35 +25,35 @@ const (
 type Permission string
 
 const (
-	PermOwner  Permission = "owner"
-	PermEdit   Permission = "edit"
+	PermOwner   Permission = "owner"
+	PermEdit    Permission = "edit"
 	PermComment Permission = "comment"
-	PermView   Permission = "view"
+	PermView    Permission = "view"
 )
 
 // Document represents a collaborative document
 type Document struct {
-	ID          string            `json:"id"`
-	Title       string            `json:"title"`
-	Type        DocumentType      `json:"type"`
-	Content     string            `json:"content"`
-	Owner       string            `json:"owner"`
-	Collaborators []Collaborator  `json:"collaborators"`
-	Version     int               `json:"version"`
-	IsPublic    bool              `json:"is_public"`
-	Tags        []string          `json:"tags"`
-	Size        int64             `json:"size"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
-	UpdatedBy   string            `json:"updated_by"`
+	ID            string         `json:"id"`
+	Title         string         `json:"title"`
+	Type          DocumentType   `json:"type"`
+	Content       string         `json:"content"`
+	Owner         string         `json:"owner"`
+	Collaborators []Collaborator `json:"collaborators"`
+	Version       int            `json:"version"`
+	IsPublic      bool           `json:"is_public"`
+	Tags          []string       `json:"tags"`
+	Size          int64          `json:"size"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	UpdatedBy     string         `json:"updated_by"`
 }
 
 // Collaborator represents a document collaborator
 type Collaborator struct {
-	UserID    string     `json:"user_id"`
+	UserID     string     `json:"user_id"`
 	Permission Permission `json:"permission"`
-	AddedAt   time.Time  `json:"added_at"`
-	AddedBy   string     `json:"added_by"`
+	AddedAt    time.Time  `json:"added_at"`
+	AddedBy    string     `json:"added_by"`
 }
 
 // Comment represents a document comment
@@ -82,23 +82,23 @@ type Version struct {
 
 // Change represents a real-time change
 type Change struct {
-	ID        string      `json:"id"`
-	DocID     string      `json:"doc_id"`
-	UserID    string      `json:"user_id"`
-	Op        string      `json:"op"` // insert, delete, format
-	Position  int         `json:"position"`
-	Content   string      `json:"content"`
-	Length    int         `json:"length"`
-	Timestamp time.Time   `json:"timestamp"`
+	ID        string    `json:"id"`
+	DocID     string    `json:"doc_id"`
+	UserID    string    `json:"user_id"`
+	Op        string    `json:"op"` // insert, delete, format
+	Position  int       `json:"position"`
+	Content   string    `json:"content"`
+	Length    int       `json:"length"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // Cursor represents a user's cursor position
 type Cursor struct {
-	UserID    string    `json:"user_id"`
-	DocID     string    `json:"doc_id"`
-	Position  int       `json:"position"`
+	UserID    string     `json:"user_id"`
+	DocID     string     `json:"doc_id"`
+	Position  int        `json:"position"`
 	Selection *Selection `json:"selection,omitempty"`
-	UpdatedAt time.Time `json:"updated_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 // Selection represents a text selection
@@ -132,27 +132,27 @@ type Template struct {
 
 // Config represents collaborative docs configuration
 type Config struct {
-	Enabled           bool `json:"enabled"`
-	MaxDocuments      int  `json:"max_documents"`
-	MaxVersions       int  `json:"max_versions"`
-	AutoSaveInterval  int  `json:"auto_save_interval"` // seconds
+	Enabled              bool `json:"enabled"`
+	MaxDocuments         int  `json:"max_documents"`
+	MaxVersions          int  `json:"max_versions"`
+	AutoSaveInterval     int  `json:"auto_save_interval"` // seconds
 	CollaborationEnabled bool `json:"collaboration_enabled"`
-	PublicSharing     bool `json:"public_sharing"`
-	MaxFileSize       int  `json:"max_file_size"` // bytes
+	PublicSharing        bool `json:"public_sharing"`
+	MaxFileSize          int  `json:"max_file_size"` // bytes
 }
 
 // Manager manages collaborative documents
 type Manager struct {
-	config      *Config
-	documents   map[string]*Document
-	comments    map[string][]*Comment
-	versions    map[string][]*Version
-	sessions    map[string]*Session
-	templates   []*Template
-	mu          sync.RWMutex
-	ctx         context.Context
-	cancel      context.CancelFunc
-	changeChan  chan *Change
+	config     *Config
+	documents  map[string]*Document
+	comments   map[string][]*Comment
+	versions   map[string][]*Version
+	sessions   map[string]*Session
+	templates  []*Template
+	mu         sync.RWMutex
+	ctx        context.Context
+	cancel     context.CancelFunc
+	changeChan chan *Change
 }
 
 // NewManager creates a new collaborative docs manager
@@ -176,16 +176,16 @@ func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return nil
 	}
-	
+
 	// Initialize default templates
 	m.initDefaultTemplates()
-	
+
 	// Start auto-save
 	go m.autoSave()
-	
+
 	// Start session cleanup
 	go m.cleanupSessions()
-	
+
 	return nil
 }
 
@@ -236,7 +236,7 @@ func (m *Manager) initDefaultTemplates() {
 func (m *Manager) autoSave() {
 	ticker := time.NewTicker(time.Duration(m.config.AutoSaveInterval) * time.Second)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-m.ctx.Done():
@@ -256,7 +256,7 @@ func (m *Manager) saveAllDocuments() {
 func (m *Manager) cleanupSessions() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-m.ctx.Done():
@@ -271,7 +271,7 @@ func (m *Manager) cleanupSessions() {
 func (m *Manager) removeInactiveSessions() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	cutoff := time.Now().Add(-10 * time.Minute)
 	for id, session := range m.sessions {
 		if session.LastPing.Before(cutoff) {
@@ -284,16 +284,16 @@ func (m *Manager) removeInactiveSessions() {
 func (m *Manager) CreateDocument(doc *Document) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if doc.ID == "" {
 		doc.ID = fmt.Sprintf("doc_%d", time.Now().UnixNano())
 	}
 	doc.Version = 1
 	doc.CreatedAt = time.Now()
 	doc.UpdatedAt = time.Now()
-	
+
 	m.documents[doc.ID] = doc
-	
+
 	// Create initial version
 	m.versions[doc.ID] = []*Version{
 		{
@@ -306,7 +306,7 @@ func (m *Manager) CreateDocument(doc *Document) error {
 			CreatedAt: time.Now(),
 		},
 	}
-	
+
 	return nil
 }
 
@@ -314,7 +314,7 @@ func (m *Manager) CreateDocument(doc *Document) error {
 func (m *Manager) GetDocument(docID string) (*Document, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	doc, ok := m.documents[docID]
 	if !ok {
 		return nil, fmt.Errorf("document not found: %s", docID)
@@ -326,18 +326,18 @@ func (m *Manager) GetDocument(docID string) (*Document, error) {
 func (m *Manager) UpdateDocument(docID string, content string, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	doc, ok := m.documents[docID]
 	if !ok {
 		return fmt.Errorf("document not found: %s", docID)
 	}
-	
+
 	doc.Content = content
 	doc.Version++
 	doc.UpdatedAt = time.Now()
 	doc.UpdatedBy = userID
 	doc.Size = int64(len(content))
-	
+
 	// Save version
 	if len(m.versions[docID]) >= m.config.MaxVersions {
 		m.versions[docID] = m.versions[docID][1:]
@@ -350,7 +350,7 @@ func (m *Manager) UpdateDocument(docID string, content string, userID string) er
 		UserID:    userID,
 		CreatedAt: time.Now(),
 	})
-	
+
 	return nil
 }
 
@@ -358,15 +358,15 @@ func (m *Manager) UpdateDocument(docID string, content string, userID string) er
 func (m *Manager) DeleteDocument(docID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if _, ok := m.documents[docID]; !ok {
 		return fmt.Errorf("document not found: %s", docID)
 	}
-	
+
 	delete(m.documents, docID)
 	delete(m.comments, docID)
 	delete(m.versions, docID)
-	
+
 	return nil
 }
 
@@ -374,7 +374,7 @@ func (m *Manager) DeleteDocument(docID string) error {
 func (m *Manager) ListDocuments(userID string) []*Document {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	docs := make([]*Document, 0)
 	for _, doc := range m.documents {
 		if doc.Owner == userID || doc.IsPublic {
@@ -395,15 +395,15 @@ func (m *Manager) ListDocuments(userID string) []*Document {
 func (m *Manager) AddCollaborator(docID string, collab Collaborator) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	doc, ok := m.documents[docID]
 	if !ok {
 		return fmt.Errorf("document not found: %s", docID)
 	}
-	
+
 	collab.AddedAt = time.Now()
 	doc.Collaborators = append(doc.Collaborators, collab)
-	
+
 	return nil
 }
 
@@ -411,19 +411,19 @@ func (m *Manager) AddCollaborator(docID string, collab Collaborator) error {
 func (m *Manager) RemoveCollaborator(docID string, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	doc, ok := m.documents[docID]
 	if !ok {
 		return fmt.Errorf("document not found: %s", docID)
 	}
-	
+
 	for i, collab := range doc.Collaborators {
 		if collab.UserID == userID {
 			doc.Collaborators = append(doc.Collaborators[:i], doc.Collaborators[i+1:]...)
 			break
 		}
 	}
-	
+
 	return nil
 }
 
@@ -431,17 +431,17 @@ func (m *Manager) RemoveCollaborator(docID string, userID string) error {
 func (m *Manager) AddComment(comment *Comment) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if _, ok := m.documents[comment.DocID]; !ok {
 		return fmt.Errorf("document not found: %s", comment.DocID)
 	}
-	
+
 	if comment.ID == "" {
 		comment.ID = fmt.Sprintf("cmt_%d", time.Now().UnixNano())
 	}
 	comment.CreatedAt = time.Now()
 	comment.UpdatedAt = time.Now()
-	
+
 	m.comments[comment.DocID] = append(m.comments[comment.DocID], comment)
 	return nil
 }
@@ -450,7 +450,7 @@ func (m *Manager) AddComment(comment *Comment) error {
 func (m *Manager) GetComments(docID string) []*Comment {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	return m.comments[docID]
 }
 
@@ -458,7 +458,7 @@ func (m *Manager) GetComments(docID string) []*Comment {
 func (m *Manager) GetVersions(docID string) []*Version {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	return m.versions[docID]
 }
 
@@ -466,7 +466,7 @@ func (m *Manager) GetVersions(docID string) []*Version {
 func (m *Manager) JoinSession(docID string, userID string) *Session {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	session := &Session{
 		ID:        fmt.Sprintf("sess_%d", time.Now().UnixNano()),
 		DocID:     docID,
@@ -475,7 +475,7 @@ func (m *Manager) JoinSession(docID string, userID string) *Session {
 		StartedAt: time.Now(),
 		LastPing:  time.Now(),
 	}
-	
+
 	m.sessions[session.ID] = session
 	return session
 }
@@ -484,7 +484,7 @@ func (m *Manager) JoinSession(docID string, userID string) *Session {
 func (m *Manager) LeaveSession(sessionID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if session, ok := m.sessions[sessionID]; ok {
 		session.Connected = false
 		delete(m.sessions, sessionID)
@@ -506,30 +506,30 @@ func (m *Manager) GetTemplates() []*Template {
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	totalComments := 0
 	for _, comments := range m.comments {
 		totalComments += len(comments)
 	}
-	
+
 	totalVersions := 0
 	for _, versions := range m.versions {
 		totalVersions += len(versions)
 	}
-	
+
 	activeSessions := 0
 	for _, session := range m.sessions {
 		if session.Connected {
 			activeSessions++
 		}
 	}
-	
+
 	return map[string]interface{}{
-		"total_documents":   len(m.documents),
-		"total_comments":    totalComments,
-		"total_versions":    totalVersions,
-		"active_sessions":   activeSessions,
-		"total_templates":   len(m.templates),
+		"total_documents":       len(m.documents),
+		"total_comments":        totalComments,
+		"total_versions":        totalVersions,
+		"active_sessions":       activeSessions,
+		"total_templates":       len(m.templates),
 		"collaboration_enabled": m.config.CollaborationEnabled,
 	}
 }

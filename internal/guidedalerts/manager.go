@@ -156,11 +156,11 @@ func (am *AlertManager) ListAlerts(opts AlertFilter) []*Alert {
 
 // AlertFilter 告警过滤条件
 type AlertFilter struct {
-	Severity        AlertSeverity
-	Category        AlertCategory
-	Status          AlertStatus
-	Source          string
-	UnresolvedOnly  bool
+	Severity       AlertSeverity
+	Category       AlertCategory
+	Status         AlertStatus
+	Source         string
+	UnresolvedOnly bool
 }
 
 // AcknowledgeAlert 确认告警

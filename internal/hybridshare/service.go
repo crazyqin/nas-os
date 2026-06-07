@@ -52,15 +52,15 @@ type CloudFileInfo struct {
 
 // Service 混合共享服务
 type Service struct {
-	mu            sync.RWMutex
-	configs       map[string]*HybridShareConfig   // id -> config
-	metadata      map[string]map[string]*FileMetadata // shareID -> filePath -> metadata
-	syncTasks     map[string]*SyncTask            // taskID -> task
-	syncLogs      []SyncLog                       // 同步日志
-	eventLogs     []EventLog                      // 事件日志
-	capacityStats map[string]*CapacityStats       // shareID -> stats
-	bandwidthStats map[string]*BandwidthStats     // shareID -> stats
-	providers     map[string]CloudProvider        // shareID -> provider
+	mu             sync.RWMutex
+	configs        map[string]*HybridShareConfig       // id -> config
+	metadata       map[string]map[string]*FileMetadata // shareID -> filePath -> metadata
+	syncTasks      map[string]*SyncTask                // taskID -> task
+	syncLogs       []SyncLog                           // 同步日志
+	eventLogs      []EventLog                          // 事件日志
+	capacityStats  map[string]*CapacityStats           // shareID -> stats
+	bandwidthStats map[string]*BandwidthStats          // shareID -> stats
+	providers      map[string]CloudProvider            // shareID -> provider
 
 	// 缓存固定文件列表
 	pinnedFiles map[string]map[string]bool // shareID -> filePath -> pinned
@@ -69,15 +69,15 @@ type Service struct {
 // NewService 创建新的混合共享服务
 func NewService() *Service {
 	return &Service{
-		configs:       make(map[string]*HybridShareConfig),
-		metadata:      make(map[string]map[string]*FileMetadata),
-		syncTasks:     make(map[string]*SyncTask),
-		syncLogs:      make([]SyncLog, 0),
-		eventLogs:     make([]EventLog, 0),
-		capacityStats: make(map[string]*CapacityStats),
+		configs:        make(map[string]*HybridShareConfig),
+		metadata:       make(map[string]map[string]*FileMetadata),
+		syncTasks:      make(map[string]*SyncTask),
+		syncLogs:       make([]SyncLog, 0),
+		eventLogs:      make([]EventLog, 0),
+		capacityStats:  make(map[string]*CapacityStats),
 		bandwidthStats: make(map[string]*BandwidthStats),
-		providers:     make(map[string]CloudProvider),
-		pinnedFiles:   make(map[string]map[string]bool),
+		providers:      make(map[string]CloudProvider),
+		pinnedFiles:    make(map[string]map[string]bool),
 	}
 }
 
@@ -149,10 +149,10 @@ func (s *Service) CreateShare(req CreateShareRequest) (*HybridShareConfig, error
 
 	// 初始化容量统计
 	s.capacityStats[config.ID] = &CapacityStats{
-		ShareID:        config.ID,
+		ShareID:         config.ID,
 		LocalCacheTotal: config.CacheSizeBytes,
 		LocalCacheFree:  config.CacheSizeBytes,
-		UpdatedAt:      time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 
 	// 初始化带宽统计
@@ -629,9 +629,9 @@ func (s *Service) evictCache(shareID string, needBytes int64) error {
 
 	// 收集可驱逐的文件(非固定且已缓存)
 	type evictCandidate struct {
-		path     string
-		meta     *FileMetadata
-		score    float64
+		path  string
+		meta  *FileMetadata
+		score float64
 	}
 
 	candidates := make([]evictCandidate, 0)

@@ -10,10 +10,10 @@ import (
 
 // DedupManager 去重管理器
 type DedupManager struct {
-	mu            sync.RWMutex
-	photos        map[string]*Photo // 共享照片存储引用
-	config        Config
-	hashIndex     map[string][]string // hash -> photo IDs
+	mu        sync.RWMutex
+	photos    map[string]*Photo // 共享照片存储引用
+	config    Config
+	hashIndex map[string][]string // hash -> photo IDs
 }
 
 // NewDedupManager 创建去重管理器

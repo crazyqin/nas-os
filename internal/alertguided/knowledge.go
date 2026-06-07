@@ -8,15 +8,15 @@ import (
 
 // KnowledgeEntry 告警知识条目
 type KnowledgeEntry struct {
-	ID          string             `json:"id"`
-	Title       string             `json:"title"`
-	Category    Category           `json:"category"`
-	Severity    Severity           `json:"severity"`
-	Causes      []string           `json:"causes"`
-	Symptoms    []string           `json:"symptoms"`
-	Steps       []RepairStep       `json:"steps"`
-	References  []string           `json:"references,omitempty"`
-	Tags        []string           `json:"tags,omitempty"`
+	ID         string       `json:"id"`
+	Title      string       `json:"title"`
+	Category   Category     `json:"category"`
+	Severity   Severity     `json:"severity"`
+	Causes     []string     `json:"causes"`
+	Symptoms   []string     `json:"symptoms"`
+	Steps      []RepairStep `json:"steps"`
+	References []string     `json:"references,omitempty"`
+	Tags       []string     `json:"tags,omitempty"`
 }
 
 // RepairStep 修复步骤

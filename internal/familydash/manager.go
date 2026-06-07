@@ -473,7 +473,7 @@ func (m *Manager) GenerateStats() *FamilyStats {
 	defer m.mu.RUnlock()
 
 	stats := &FamilyStats{
-		FamilyID:    "default",
+		FamilyID:     "default",
 		TotalMembers: len(m.members),
 		GeneratedAt:  time.Now(),
 	}

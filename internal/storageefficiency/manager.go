@@ -9,11 +9,11 @@ import (
 
 // Manager 存储效率管理器
 type Manager struct {
-	configs  sync.Map // configID -> *EfficiencyConfig
-	tasks    sync.Map // taskID -> *EfficiencyTask
-	stats    sync.Map // configID -> *EfficiencyStats
+	configs   sync.Map // configID -> *EfficiencyConfig
+	tasks     sync.Map // taskID -> *EfficiencyTask
+	stats     sync.Map // configID -> *EfficiencyStats
 	schedules sync.Map // configID -> *ScheduleConfig
-	mu       sync.RWMutex
+	mu        sync.RWMutex
 }
 
 // NewManager 创建管理器
@@ -104,8 +104,8 @@ func (m *Manager) executeTask(task *EfficiencyTask, config *EfficiencyConfig) {
 	task.Progress = 0
 
 	stats := &EfficiencyStats{
-		ConfigID:  config.ID,
-		Status:    "running",
+		ConfigID:    config.ID,
+		Status:      "running",
 		LastRunTime: time.Now(),
 	}
 
@@ -119,7 +119,7 @@ func (m *Manager) executeTask(task *EfficiencyTask, config *EfficiencyConfig) {
 
 	// 完成统计
 	stats.TotalFiles = totalFiles
-	stats.OriginalSizeBytes = 1024 * 1024 * 1024 * 100 // 100GB
+	stats.OriginalSizeBytes = 1024 * 1024 * 1024 * 100                    // 100GB
 	stats.StoredSizeBytes = int64(float64(stats.OriginalSizeBytes) * 0.6) // 节省40%
 	stats.SpaceSavedBytes = stats.OriginalSizeBytes - stats.StoredSizeBytes
 	stats.SpaceSavedPercent = float64(stats.SpaceSavedBytes) / float64(stats.OriginalSizeBytes) * 100
@@ -157,13 +157,13 @@ func (m *Manager) GetTask(taskID string) (*EfficiencyTask, error) {
 // AnalyzeStorage 分析存储
 func (m *Manager) AnalyzeStorage() *StorageAnalysis {
 	return &StorageAnalysis{
-		TotalCapacity:     1024 * 1024 * 1024 * 1024, // 1TB
-		UsedCapacity:      1024 * 1024 * 1024 * 500,   // 500GB
-		FreeCapacity:      1024 * 1024 * 1024 * 500,   // 500GB
-		UniqueData:        1024 * 1024 * 1024 * 400,    // 400GB
-		DuplicateData:     1024 * 1024 * 1024 * 100,    // 100GB
-		CompressibleData:  1024 * 1024 * 1024 * 300,    // 300GB
-		EstimatedSaving:   1024 * 1024 * 1024 * 150,    // 150GB
+		TotalCapacity:    1024 * 1024 * 1024 * 1024, // 1TB
+		UsedCapacity:     1024 * 1024 * 1024 * 500,  // 500GB
+		FreeCapacity:     1024 * 1024 * 1024 * 500,  // 500GB
+		UniqueData:       1024 * 1024 * 1024 * 400,  // 400GB
+		DuplicateData:    1024 * 1024 * 1024 * 100,  // 100GB
+		CompressibleData: 1024 * 1024 * 1024 * 300,  // 300GB
+		EstimatedSaving:  1024 * 1024 * 1024 * 150,  // 150GB
 		FileTypeBreakdown: map[string]int64{
 			"documents": 1024 * 1024 * 1024 * 50,
 			"images":    1024 * 1024 * 1024 * 200,

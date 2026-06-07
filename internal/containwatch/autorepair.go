@@ -12,11 +12,11 @@ import (
 type RepairAction string
 
 const (
-	RepairRestart   RepairAction = "restart"   // 重启容器
-	RepairRollback  RepairAction = "rollback"  // 回滚到上一版本
-	RepairScaleUp   RepairAction = "scale_up"  // 扩容资源
-	RepairAlert     RepairAction = "alert"     // 仅告警
-	RepairStop      RepairAction = "stop"      // 停止容器
+	RepairRestart  RepairAction = "restart"  // 重启容器
+	RepairRollback RepairAction = "rollback" // 回滚到上一版本
+	RepairScaleUp  RepairAction = "scale_up" // 扩容资源
+	RepairAlert    RepairAction = "alert"    // 仅告警
+	RepairStop     RepairAction = "stop"     // 停止容器
 )
 
 // RepairStatus 修复状态
@@ -56,11 +56,11 @@ type RepairRecord struct {
 
 // RestartPolicy 重启策略配置
 type RestartPolicy struct {
-	Enabled        bool          `json:"enabled"`          // 是否启用自动重启
-	MaxRetries     int           `json:"max_retries"`      // 最大重试次数
-	InitialBackoff time.Duration `json:"initial_backoff"`  // 初始退避时间
-	MaxBackoff     time.Duration `json:"max_backoff"`      // 最大退避时间
-	BackoffFactor  float64       `json:"backoff_factor"`   // 退避因子（指数退避）
+	Enabled        bool          `json:"enabled"`         // 是否启用自动重启
+	MaxRetries     int           `json:"max_retries"`     // 最大重试次数
+	InitialBackoff time.Duration `json:"initial_backoff"` // 初始退避时间
+	MaxBackoff     time.Duration `json:"max_backoff"`     // 最大退避时间
+	BackoffFactor  float64       `json:"backoff_factor"`  // 退避因子（指数退避）
 }
 
 // DefaultRestartPolicy 返回默认重启策略
@@ -96,20 +96,20 @@ func DefaultResourceAdjustPolicy() ResourceAdjustPolicy {
 
 // AutoRepairManager 自动修复管理器
 type AutoRepairManager struct {
-	mu              sync.RWMutex
-	restartPolicies map[string]RestartPolicy        // 容器ID -> 重启策略
+	mu               sync.RWMutex
+	restartPolicies  map[string]RestartPolicy        // 容器ID -> 重启策略
 	resourcePolicies map[string]ResourceAdjustPolicy // 容器ID -> 资源调整策略
-	retryStates     map[string]*retryState           // 容器ID -> 重试状态
-	snapshots       map[string][]ContainerSnapshot   // 容器ID -> 快照列表
-	records         []RepairRecord                   // 修复记录
-	maxRecords      int
-	nextID          int64
+	retryStates      map[string]*retryState          // 容器ID -> 重试状态
+	snapshots        map[string][]ContainerSnapshot  // 容器ID -> 快照列表
+	records          []RepairRecord                  // 修复记录
+	maxRecords       int
+	nextID           int64
 }
 
 // retryState 内部重试状态
 type retryState struct {
-	CurrentRetry  int
-	LastAttempt   time.Time
+	CurrentRetry   int
+	LastAttempt    time.Time
 	CurrentBackoff time.Duration
 }
 

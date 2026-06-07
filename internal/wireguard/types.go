@@ -6,29 +6,29 @@ import (
 
 // WireGuardPeer represents a WireGuard peer configuration
 type WireGuardPeer struct {
-	ID                   string    `json:"id"`
-	PublicKey            string    `json:"public_key"`
-	AllowedIPs           string    `json:"allowed_ips"`
-	Endpoint             string    `json:"endpoint,omitempty"`
-	PersistentKeepalive  int       `json:"persistent_keepalive,omitempty"`
-	LastHandshake        time.Time `json:"last_handshake,omitempty"`
-	BytesRx              int64     `json:"bytes_rx"`
-	BytesTx              int64     `json:"bytes_tx"`
-	Enabled              bool      `json:"enabled"`
-	CreatedAt            time.Time `json:"created_at"`
+	ID                  string    `json:"id"`
+	PublicKey           string    `json:"public_key"`
+	AllowedIPs          string    `json:"allowed_ips"`
+	Endpoint            string    `json:"endpoint,omitempty"`
+	PersistentKeepalive int       `json:"persistent_keepalive,omitempty"`
+	LastHandshake       time.Time `json:"last_handshake,omitempty"`
+	BytesRx             int64     `json:"bytes_rx"`
+	BytesTx             int64     `json:"bytes_tx"`
+	Enabled             bool      `json:"enabled"`
+	CreatedAt           time.Time `json:"created_at"`
 }
 
 // WireGuardInterface represents the WireGuard interface configuration
 type WireGuardInterface struct {
-	Name       string           `json:"name"`
-	ListenPort int              `json:"listen_port"`
-	PrivateKey string           `json:"private_key,omitempty"`
-	PublicKey  string           `json:"public_key"`
-	Address    string           `json:"address"`
-	DNS        string           `json:"dns,omitempty"`
-	Peers      []WireGuardPeer  `json:"peers,omitempty"`
-	Enabled    bool             `json:"enabled"`
-	MTU        int              `json:"mtu,omitempty"`
+	Name       string          `json:"name"`
+	ListenPort int             `json:"listen_port"`
+	PrivateKey string          `json:"private_key,omitempty"`
+	PublicKey  string          `json:"public_key"`
+	Address    string          `json:"address"`
+	DNS        string          `json:"dns,omitempty"`
+	Peers      []WireGuardPeer `json:"peers,omitempty"`
+	Enabled    bool            `json:"enabled"`
+	MTU        int             `json:"mtu,omitempty"`
 }
 
 // WireGuardConfig represents the complete WireGuard configuration
@@ -39,8 +39,8 @@ type WireGuardConfig struct {
 
 // WireGuardStats represents aggregated WireGuard statistics
 type WireGuardStats struct {
-	TotalPeers  int   `json:"total_peers"`
-	ActivePeers int   `json:"active_peers"`
+	TotalPeers   int   `json:"total_peers"`
+	ActivePeers  int   `json:"active_peers"`
 	TotalBytesRx int64 `json:"total_bytes_rx"`
 	TotalBytesTx int64 `json:"total_bytes_tx"`
 }

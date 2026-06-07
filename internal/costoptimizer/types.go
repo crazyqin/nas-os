@@ -132,21 +132,21 @@ type StorageAllocation struct {
 
 // CostReport 成本报告.
 type CostReport struct {
-	GeneratedAt     time.Time                `json:"generated_at"`
-	TotalMonthlyCost float64                 `json:"total_monthly_cost"`
-	OptimizedCost   float64                  `json:"optimized_cost"`
-	TotalSavings    float64                  `json:"total_savings"`
-	SavingsPercent  float64                  `json:"savings_percent"`
-	CostByTier      map[StorageTier]float64  `json:"cost_by_tier"`
-	Suggestions     []OptimizationSuggestion `json:"suggestions"`
-	Allocations     []StorageAllocation      `json:"allocations"`
-	WasteAnalysis   *WasteAnalysis           `json:"waste_analysis"`
+	GeneratedAt      time.Time                `json:"generated_at"`
+	TotalMonthlyCost float64                  `json:"total_monthly_cost"`
+	OptimizedCost    float64                  `json:"optimized_cost"`
+	TotalSavings     float64                  `json:"total_savings"`
+	SavingsPercent   float64                  `json:"savings_percent"`
+	CostByTier       map[StorageTier]float64  `json:"cost_by_tier"`
+	Suggestions      []OptimizationSuggestion `json:"suggestions"`
+	Allocations      []StorageAllocation      `json:"allocations"`
+	WasteAnalysis    *WasteAnalysis           `json:"waste_analysis"`
 }
 
 // OptimizationSuggestion 优化建议.
 type OptimizationSuggestion struct {
 	ID              string      `json:"id"`
-	Type            string      `json:"type"` // migrate, compress, archive
+	Type            string      `json:"type"`     // migrate, compress, archive
 	Priority        string      `json:"priority"` // high, medium, low
 	Title           string      `json:"title"`
 	Description     string      `json:"description"`
@@ -195,76 +195,76 @@ type ResourceUsage struct {
 
 // UserResourceProfile 用户资源画像.
 type UserResourceProfile struct {
-	UserID          string            `json:"user_id"`
-	Username        string            `json:"username"`
-	TotalUsage      map[ResourceType]int64   `json:"total_usage"`
-	TotalCost       map[ResourceType]float64 `json:"total_cost"`
-	QuotaLimit      map[ResourceType]int64   `json:"quota_limit"`
-	UsageByType     map[DataType]int64       `json:"usage_by_type"`
-	AccessPattern   map[AccessPattern]int64  `json:"access_pattern"`
-	LastActive      time.Time         `json:"last_active"`
-	GrowthRateGB    float64           `json:"growth_rate_gb"` // 月增长
-	OptimizationScore float64         `json:"optimization_score"` // 0-100
+	UserID            string                   `json:"user_id"`
+	Username          string                   `json:"username"`
+	TotalUsage        map[ResourceType]int64   `json:"total_usage"`
+	TotalCost         map[ResourceType]float64 `json:"total_cost"`
+	QuotaLimit        map[ResourceType]int64   `json:"quota_limit"`
+	UsageByType       map[DataType]int64       `json:"usage_by_type"`
+	AccessPattern     map[AccessPattern]int64  `json:"access_pattern"`
+	LastActive        time.Time                `json:"last_active"`
+	GrowthRateGB      float64                  `json:"growth_rate_gb"`     // 月增长
+	OptimizationScore float64                  `json:"optimization_score"` // 0-100
 }
 
 // StorageCostBreakdown 存储成本明细.
 type StorageCostBreakdown struct {
-	UserID        string                `json:"user_id"`
-	TotalCost     float64               `json:"total_cost"`
-	ByDataType    map[DataType]float64  `json:"by_data_type"`
-	ByAccess      map[AccessPattern]float64 `json:"by_access_pattern"`
-	MonthlyTrend  []MonthlyCost         `json:"monthly_trend"`
-	TopExpenses   []CostItem            `json:"top_expenses"`
-	AnalyzedAt    time.Time             `json:"analyzed_at"`
+	UserID       string                    `json:"user_id"`
+	TotalCost    float64                   `json:"total_cost"`
+	ByDataType   map[DataType]float64      `json:"by_data_type"`
+	ByAccess     map[AccessPattern]float64 `json:"by_access_pattern"`
+	MonthlyTrend []MonthlyCost             `json:"monthly_trend"`
+	TopExpenses  []CostItem                `json:"top_expenses"`
+	AnalyzedAt   time.Time                 `json:"analyzed_at"`
 }
 
 // MonthlyCost 月度成本.
 type MonthlyCost struct {
-	Month    string  `json:"month"`
-	Cost     float64 `json:"cost"`
-	SizeGB   float64 `json:"size_gb"`
+	Month  string  `json:"month"`
+	Cost   float64 `json:"cost"`
+	SizeGB float64 `json:"size_gb"`
 }
 
 // CostItem 成本条目.
 type CostItem struct {
-	Path        string  `json:"path"`
+	Path        string   `json:"path"`
 	DataType    DataType `json:"data_type"`
-	SizeGB      float64 `json:"size_gb"`
-	Cost        float64 `json:"cost"`
-	AccessCount int     `json:"access_count"`
+	SizeGB      float64  `json:"size_gb"`
+	Cost        float64  `json:"cost"`
+	AccessCount int      `json:"access_count"`
 }
 
 // CapacityForecast 容量预测.
 type CapacityForecast struct {
-	Resource        ResourceType       `json:"resource"`
-	CurrentUsage    int64              `json:"current_usage"`
-	CurrentCapacity int64              `json:"current_capacity"`
-	UsagePercent    float64            `json:"usage_percent"`
-	GrowthRate      float64            `json:"growth_rate"` // 每月增长率（百分比）
-	Predictions     []CapacityPoint    `json:"predictions"`
-	DaysUntilFull   float64            `json:"days_until_full"`
-	UrgencyLevel    string             `json:"urgency_level"` // critical/warning/normal
-	Recommendations []string           `json:"recommendations"`
-	ForecastAt      time.Time          `json:"forecast_at"`
+	Resource        ResourceType    `json:"resource"`
+	CurrentUsage    int64           `json:"current_usage"`
+	CurrentCapacity int64           `json:"current_capacity"`
+	UsagePercent    float64         `json:"usage_percent"`
+	GrowthRate      float64         `json:"growth_rate"` // 每月增长率（百分比）
+	Predictions     []CapacityPoint `json:"predictions"`
+	DaysUntilFull   float64         `json:"days_until_full"`
+	UrgencyLevel    string          `json:"urgency_level"` // critical/warning/normal
+	Recommendations []string        `json:"recommendations"`
+	ForecastAt      time.Time       `json:"forecast_at"`
 }
 
 // CapacityPoint 容量预测点.
 type CapacityPoint struct {
-	Date        time.Time `json:"date"`
-	Usage       int64     `json:"usage"`
-	UsagePct    float64   `json:"usage_pct"`
+	Date     time.Time `json:"date"`
+	Usage    int64     `json:"usage"`
+	UsagePct float64   `json:"usage_pct"`
 }
 
 // ResourceReport 资源使用报告.
 type ResourceReport struct {
-	ReportID        string                    `json:"report_id"`
-	Period          ReportPeriod              `json:"period"`
-	Summary         ResourceSummary           `json:"summary"`
-	UserBreakdown   []UserResourceSummary     `json:"user_breakdown"`
-	ResourceTrends  map[ResourceType]Trend    `json:"resource_trends"`
-	TopConsumers    []ResourceConsumer        `json:"top_consumers"`
+	ReportID                  string                    `json:"report_id"`
+	Period                    ReportPeriod              `json:"period"`
+	Summary                   ResourceSummary           `json:"summary"`
+	UserBreakdown             []UserResourceSummary     `json:"user_breakdown"`
+	ResourceTrends            map[ResourceType]Trend    `json:"resource_trends"`
+	TopConsumers              []ResourceConsumer        `json:"top_consumers"`
 	OptimizationOpportunities []OptimizationOpportunity `json:"optimization_opportunities"`
-	GeneratedAt     time.Time                 `json:"generated_at"`
+	GeneratedAt               time.Time                 `json:"generated_at"`
 }
 
 // ReportPeriod 报告周期.
@@ -275,18 +275,18 @@ type ReportPeriod struct {
 
 // ResourceSummary 资源摘要.
 type ResourceSummary struct {
-	TotalStorageGB   float64            `json:"total_storage_gb"`
-	TotalCost        float64            `json:"total_cost"`
-	ActiveUsers      int                `json:"active_users"`
-	ResourceUsage    map[ResourceType]float64 `json:"resource_usage"`
-	Growth           GrowthSummary      `json:"growth"`
+	TotalStorageGB float64                  `json:"total_storage_gb"`
+	TotalCost      float64                  `json:"total_cost"`
+	ActiveUsers    int                      `json:"active_users"`
+	ResourceUsage  map[ResourceType]float64 `json:"resource_usage"`
+	Growth         GrowthSummary            `json:"growth"`
 }
 
 // GrowthSummary 增长摘要.
 type GrowthSummary struct {
-	MonthlyGrowthGB   float64 `json:"monthly_growth_gb"`
-	MonthlyGrowthPct  float64 `json:"monthly_growth_pct"`
-	ProjectedYearEnd  float64 `json:"projected_year_end_gb"`
+	MonthlyGrowthGB  float64 `json:"monthly_growth_gb"`
+	MonthlyGrowthPct float64 `json:"monthly_growth_pct"`
+	ProjectedYearEnd float64 `json:"projected_year_end_gb"`
 }
 
 // UserResourceSummary 用户资源摘要.
@@ -301,10 +301,10 @@ type UserResourceSummary struct {
 
 // Trend 趋势.
 type Trend struct {
-	Current    float64 `json:"current"`
-	Previous   float64 `json:"previous"`
-	ChangePct  float64 `json:"change_pct"`
-	Direction  string  `json:"direction"` // up/down/stable
+	Current   float64 `json:"current"`
+	Previous  float64 `json:"previous"`
+	ChangePct float64 `json:"change_pct"`
+	Direction string  `json:"direction"` // up/down/stable
 }
 
 // ResourceConsumer 资源消耗者.
@@ -320,37 +320,37 @@ type ResourceConsumer struct {
 
 // OptimizationOpportunity 优化机会.
 type OptimizationOpportunity struct {
-	ID              string  `json:"id"`
-	Type            string  `json:"type"` // tiering/dedup/compression/archive/cleanup
-	Title           string  `json:"title"`
-	Description     string  `json:"description"`
-	EstimatedSaving float64 `json:"estimated_saving"` // 元
+	ID               string  `json:"id"`
+	Type             string  `json:"type"` // tiering/dedup/compression/archive/cleanup
+	Title            string  `json:"title"`
+	Description      string  `json:"description"`
+	EstimatedSaving  float64 `json:"estimated_saving"` // 元
 	EstimatedSpaceGB float64 `json:"estimated_space_gb"`
-	Priority        int     `json:"priority"` // 1-3
-	AffectedUsers   int     `json:"affected_users"`
-	AffectedFiles   int     `json:"affected_files"`
+	Priority         int     `json:"priority"` // 1-3
+	AffectedUsers    int     `json:"affected_users"`
+	AffectedFiles    int     `json:"affected_files"`
 }
 
 // QuotaAllocation 配额分配.
 type QuotaAllocation struct {
-	UserID        string                  `json:"user_id"`
-	Username      string                  `json:"username"`
-	Allocations   map[ResourceType]int64  `json:"allocations"`
-	Usage         map[ResourceType]int64  `json:"usage"`
-	UsagePercent  map[ResourceType]float64 `json:"usage_percent"`
-	QuotaLevel    string                  `json:"quota_level"` // basic/standard/premium/custom
-	LastAdjusted  time.Time               `json:"last_adjusted"`
-	NextReview    time.Time               `json:"next_review"`
+	UserID       string                   `json:"user_id"`
+	Username     string                   `json:"username"`
+	Allocations  map[ResourceType]int64   `json:"allocations"`
+	Usage        map[ResourceType]int64   `json:"usage"`
+	UsagePercent map[ResourceType]float64 `json:"usage_percent"`
+	QuotaLevel   string                   `json:"quota_level"` // basic/standard/premium/custom
+	LastAdjusted time.Time                `json:"last_adjusted"`
+	NextReview   time.Time                `json:"next_review"`
 }
 
 // QuotaRecommendation 配额建议.
 type QuotaRecommendation struct {
-	UserID          string                  `json:"user_id"`
-	CurrentQuota    map[ResourceType]int64  `json:"current_quota"`
+	UserID           string                 `json:"user_id"`
+	CurrentQuota     map[ResourceType]int64 `json:"current_quota"`
 	RecommendedQuota map[ResourceType]int64 `json:"recommended_quota"`
-	Reason          string                  `json:"reason"`
-	ExpectedImpact  string                  `json:"expected_impact"`
-	Priority        int                     `json:"priority"`
+	Reason           string                 `json:"reason"`
+	ExpectedImpact   string                 `json:"expected_impact"`
+	Priority         int                    `json:"priority"`
 }
 
 // ReclaimableResource 可回收资源.
@@ -369,14 +369,14 @@ type ReclaimableResource struct {
 
 // ReclaimPlan 回收计划.
 type ReclaimPlan struct {
-	PlanID              string                `json:"plan_id"`
-	TotalReclaimableGB  float64               `json:"total_reclaimable_gb"`
-	TotalSaving         float64               `json:"total_saving"`
-	Resources           []ReclaimableResource `json:"resources"`
-	ByType              map[string]float64    `json:"by_type"`
-	ByUser              map[string]float64    `json:"by_user"`
-	EstimatedTimeHours  float64               `json:"estimated_time_hours"`
-	GeneratedAt         time.Time             `json:"generated_at"`
+	PlanID             string                `json:"plan_id"`
+	TotalReclaimableGB float64               `json:"total_reclaimable_gb"`
+	TotalSaving        float64               `json:"total_saving"`
+	Resources          []ReclaimableResource `json:"resources"`
+	ByType             map[string]float64    `json:"by_type"`
+	ByUser             map[string]float64    `json:"by_user"`
+	EstimatedTimeHours float64               `json:"estimated_time_hours"`
+	GeneratedAt        time.Time             `json:"generated_at"`
 }
 
 // ========== 配置 ==========
@@ -431,11 +431,11 @@ const (
 
 // QuotaLevelConfig 配额级别配置.
 type QuotaLevelConfig struct {
-	Level      QuotaLevel              `json:"level"`
-	Name       string                  `json:"name"`
-	Quotas     map[ResourceType]int64  `json:"quotas"`
-	MaxUsers   int                     `json:"max_users"`
-	MonthlyFee float64                 `json:"monthly_fee"`
+	Level      QuotaLevel             `json:"level"`
+	Name       string                 `json:"name"`
+	Quotas     map[ResourceType]int64 `json:"quotas"`
+	MaxUsers   int                    `json:"max_users"`
+	MonthlyFee float64                `json:"monthly_fee"`
 }
 
 // DefaultQuotaLevels 返回默认配额级别.
@@ -446,7 +446,7 @@ func DefaultQuotaLevels() []QuotaLevelConfig {
 			Name:  "基础版",
 			Quotas: map[ResourceType]int64{
 				ResourceStorage:   100 * 1024 * 1024 * 1024, // 100GB
-				ResourceCPU:       2,                         // 2核
+				ResourceCPU:       2,                        // 2核
 				ResourceMemory:    2 * 1024 * 1024 * 1024,   // 2GB
 				ResourceBandwidth: 100 * 1024 * 1024 * 1024, // 100GB
 			},

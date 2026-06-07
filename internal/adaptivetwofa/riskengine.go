@@ -7,10 +7,10 @@ import (
 
 // RiskEngine 风险评估引擎
 type RiskEngine struct {
-	mu             sync.RWMutex
-	config         *AdaptiveConfig
-	userStats      map[string]*UserLoginStats
-	loginHistory   map[string][]*LoginHistory // userID -> 历史记录
+	mu           sync.RWMutex
+	config       *AdaptiveConfig
+	userStats    map[string]*UserLoginStats
+	loginHistory map[string][]*LoginHistory // userID -> 历史记录
 }
 
 // NewRiskEngine 创建风险评估引擎
@@ -81,9 +81,9 @@ func (re *RiskEngine) EvaluateRisk(ctx *LoginContext, trustedDevice *TrustedDevi
 // evaluateIPRisk 评估IP风险
 func (re *RiskEngine) evaluateIPRisk(ctx *LoginContext, stats *UserLoginStats) RiskFactor {
 	factor := RiskFactor{
-		Name:     "ip_risk",
-		Weight:   re.config.NewIPWeight,
-		Score:    0,
+		Name:   "ip_risk",
+		Weight: re.config.NewIPWeight,
+		Score:  0,
 	}
 
 	if stats == nil || len(stats.LastIPs) == 0 {
@@ -121,9 +121,9 @@ func (re *RiskEngine) evaluateIPRisk(ctx *LoginContext, stats *UserLoginStats) R
 // evaluateDeviceRisk 评估设备风险
 func (re *RiskEngine) evaluateDeviceRisk(ctx *LoginContext, stats *UserLoginStats, trustedDevice *TrustedDevice) RiskFactor {
 	factor := RiskFactor{
-		Name:     "device_risk",
-		Weight:   re.config.NewDeviceWeight,
-		Score:    0,
+		Name:   "device_risk",
+		Weight: re.config.NewDeviceWeight,
+		Score:  0,
 	}
 
 	// 如果是信任设备，风险为0
@@ -163,9 +163,9 @@ func (re *RiskEngine) evaluateDeviceRisk(ctx *LoginContext, stats *UserLoginStat
 // evaluateTimeRisk 评估登录时间风险
 func (re *RiskEngine) evaluateTimeRisk(ctx *LoginContext, stats *UserLoginStats) RiskFactor {
 	factor := RiskFactor{
-		Name:     "time_risk",
-		Weight:   re.config.UnusualTimeWeight,
-		Score:    0,
+		Name:   "time_risk",
+		Weight: re.config.UnusualTimeWeight,
+		Score:  0,
 	}
 
 	hour := ctx.Timestamp.Hour()
@@ -227,9 +227,9 @@ func (re *RiskEngine) evaluateTimeRisk(ctx *LoginContext, stats *UserLoginStats)
 // evaluateGeoRisk 评估地理位置风险
 func (re *RiskEngine) evaluateGeoRisk(ctx *LoginContext, stats *UserLoginStats) RiskFactor {
 	factor := RiskFactor{
-		Name:     "geo_risk",
-		Weight:   re.config.GeoChangeWeight,
-		Score:    0,
+		Name:   "geo_risk",
+		Weight: re.config.GeoChangeWeight,
+		Score:  0,
 	}
 
 	// 如果没有地理位置信息，无法评估
@@ -285,9 +285,9 @@ func (re *RiskEngine) evaluateGeoRisk(ctx *LoginContext, stats *UserLoginStats) 
 // evaluateRapidLoginRisk 评估短时间多次登录风险
 func (re *RiskEngine) evaluateRapidLoginRisk(ctx *LoginContext, stats *UserLoginStats) RiskFactor {
 	factor := RiskFactor{
-		Name:     "rapid_login_risk",
-		Weight:   re.config.RapidLoginWeight,
-		Score:    0,
+		Name:   "rapid_login_risk",
+		Weight: re.config.RapidLoginWeight,
+		Score:  0,
 	}
 
 	if stats == nil {

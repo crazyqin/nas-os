@@ -158,14 +158,14 @@ func (m *PeakAvoidanceManager) GetStatus() map[string]interface{} {
 	defer m.mu.RUnlock()
 	allow, reason := m.shouldAllowScrubInternal()
 	return map[string]interface{}{
-		"enabled":      m.config.Enabled,
-		"allowScrub":   allow,
-		"reason":       reason,
-		"pausedPools":  m.pausedPools,
-		"delayCounts":  m.delayCount,
-		"quietHours":   map[string]int{"start": m.config.QuietHoursStart, "end": m.config.QuietHoursEnd},
-		"peakWindows":  m.config.PeakWindows,
-		"lastCheck":    m.lastCheck,
+		"enabled":     m.config.Enabled,
+		"allowScrub":  allow,
+		"reason":      reason,
+		"pausedPools": m.pausedPools,
+		"delayCounts": m.delayCount,
+		"quietHours":  map[string]int{"start": m.config.QuietHoursStart, "end": m.config.QuietHoursEnd},
+		"peakWindows": m.config.PeakWindows,
+		"lastCheck":   m.lastCheck,
 	}
 }
 

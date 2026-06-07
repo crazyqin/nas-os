@@ -92,48 +92,48 @@ type PhotoInfo struct {
 	FilePath     string    `json:"file_path"`
 	FileName     string    `json:"file_name"`
 	FileSize     int64     `json:"file_size"`     // 字节
-	Width        int       `json:"width"`          // 像素
-	Height       int       `json:"height"`         // 像素
-	ModTime      time.Time `json:"mod_time"`       // 修改时间
-	HashValue    uint64    `json:"hash_value"`     // 感知哈希值
-	BlurScore    float64   `json:"blur_score"`     // 清晰度评分（拉普拉斯方差，越高越清晰）
-	ThumbnailURL string    `json:"thumbnail_url"`  // 缩略图访问 URL
+	Width        int       `json:"width"`         // 像素
+	Height       int       `json:"height"`        // 像素
+	ModTime      time.Time `json:"mod_time"`      // 修改时间
+	HashValue    uint64    `json:"hash_value"`    // 感知哈希值
+	BlurScore    float64   `json:"blur_score"`    // 清晰度评分（拉普拉斯方差，越高越清晰）
+	ThumbnailURL string    `json:"thumbnail_url"` // 缩略图访问 URL
 }
 
 // DuplicateGroup 重复照片组.
 type DuplicateGroup struct {
-	ID         string      `json:"id"`
-	Similarity float64     `json:"similarity"` // 组内最低相似度 (%)
-	Photos     []*PhotoInfo `json:"photos"`     // 组内照片列表
-	RetainID   string      `json:"retain_id"`  // 建议保留的照片 ID
-	TotalSize  int64       `json:"total_size"` // 组内总大小（字节）
-	WastedSize int64       `json:"wasted_size"` // 可节省空间（字节）
+	ID         string       `json:"id"`
+	Similarity float64      `json:"similarity"`  // 组内最低相似度 (%)
+	Photos     []*PhotoInfo `json:"photos"`      // 组内照片列表
+	RetainID   string       `json:"retain_id"`   // 建议保留的照片 ID
+	TotalSize  int64        `json:"total_size"`  // 组内总大小（字节）
+	WastedSize int64        `json:"wasted_size"` // 可节省空间（字节）
 }
 
 // ScanTask 扫描任务.
 type ScanTask struct {
-	ID           string      `json:"id"`
-	Status       TaskStatus  `json:"status"`
-	ScanDirs     []string    `json:"scan_dirs"`     // 扫描目录
-	ExcludeDirs  []string    `json:"exclude_dirs"`  // 排除目录
-	Threshold    int         `json:"threshold"`      // 相似度阈值 (0-100)
-	Algorithm    HashAlgorithm `json:"algorithm"`    // 哈希算法
-	CreatedAt    time.Time   `json:"created_at"`
-	StartedAt    *time.Time  `json:"started_at,omitempty"`
-	FinishedAt   *time.Time  `json:"finished_at,omitempty"`
-	Progress     float64     `json:"progress"`       // 0-100
-	TotalFiles   int         `json:"total_files"`    // 已扫描文件数
-	TotalGroups  int         `json:"total_groups"`   // 重复组数
-	TotalWasted  int64       `json:"total_wasted"`   // 可节省空间（字节）
-	Error        string      `json:"error,omitempty"`
+	ID          string        `json:"id"`
+	Status      TaskStatus    `json:"status"`
+	ScanDirs    []string      `json:"scan_dirs"`    // 扫描目录
+	ExcludeDirs []string      `json:"exclude_dirs"` // 排除目录
+	Threshold   int           `json:"threshold"`    // 相似度阈值 (0-100)
+	Algorithm   HashAlgorithm `json:"algorithm"`    // 哈希算法
+	CreatedAt   time.Time     `json:"created_at"`
+	StartedAt   *time.Time    `json:"started_at,omitempty"`
+	FinishedAt  *time.Time    `json:"finished_at,omitempty"`
+	Progress    float64       `json:"progress"`     // 0-100
+	TotalFiles  int           `json:"total_files"`  // 已扫描文件数
+	TotalGroups int           `json:"total_groups"` // 重复组数
+	TotalWasted int64         `json:"total_wasted"` // 可节省空间（字节）
+	Error       string        `json:"error,omitempty"`
 }
 
 // ScanStats 扫描结果统计.
 type ScanStats struct {
-	TotalScanned int   `json:"total_scanned"` // 总扫描文件数
-	TotalGroups  int   `json:"total_groups"`  // 重复组数
-	TotalDuplicates int `json:"total_duplicates"` // 重复照片数
-	TotalWasted int64  `json:"total_wasted"`  // 可节省空间（字节）
+	TotalScanned    int   `json:"total_scanned"`    // 总扫描文件数
+	TotalGroups     int   `json:"total_groups"`     // 重复组数
+	TotalDuplicates int   `json:"total_duplicates"` // 重复照片数
+	TotalWasted     int64 `json:"total_wasted"`     // 可节省空间（字节）
 }
 
 // ========== 请求/响应结构 ==========
@@ -142,14 +142,14 @@ type ScanStats struct {
 type StartScanRequest struct {
 	ScanDirs    []string      `json:"scan_dirs" binding:"required,min=1"`
 	ExcludeDirs []string      `json:"exclude_dirs,omitempty"`
-	Threshold   int           `json:"threshold"`   // 默认 90
-	Algorithm   HashAlgorithm `json:"algorithm"`    // 默认 phash
+	Threshold   int           `json:"threshold"` // 默认 90
+	Algorithm   HashAlgorithm `json:"algorithm"` // 默认 phash
 }
 
 // UpdateConfigRequest 更新配置请求.
 type UpdateConfigRequest struct {
-	ExcludeDirs []string      `json:"exclude_dirs,omitempty"`
-	Threshold   *int          `json:"threshold,omitempty"`
+	ExcludeDirs []string       `json:"exclude_dirs,omitempty"`
+	Threshold   *int           `json:"threshold,omitempty"`
 	Algorithm   *HashAlgorithm `json:"algorithm,omitempty"`
 }
 
@@ -160,10 +160,10 @@ type SetRetainRequest struct {
 
 // BatchCleanupRequest 批量清理请求.
 type BatchCleanupRequest struct {
-	GroupIDs       []string     `json:"group_ids" binding:"required,min=1"`
-	RetainPolicy   RetainPolicy `json:"retain_policy" binding:"required"`
-	Action         CleanupAction `json:"action"` // 默认 trash
-	Confirmed      bool         `json:"confirmed"` // 二次确认标记
+	GroupIDs     []string      `json:"group_ids" binding:"required,min=1"`
+	RetainPolicy RetainPolicy  `json:"retain_policy" binding:"required"`
+	Action       CleanupAction `json:"action"`    // 默认 trash
+	Confirmed    bool          `json:"confirmed"` // 二次确认标记
 }
 
 // CleanupPreview 清理预览.
@@ -181,10 +181,10 @@ type CleanupResult struct {
 
 // ScheduleConfig 定时扫描配置.
 type ScheduleConfig struct {
-	Enabled    bool   `json:"enabled"`
-	Cron       string `json:"cron"`       // cron 表达式
-	ScanDirs   []string `json:"scan_dirs"`
-	ExcludeDirs []string `json:"exclude_dirs,omitempty"`
-	Threshold  int    `json:"threshold"`
-	Algorithm  HashAlgorithm `json:"algorithm"`
+	Enabled     bool          `json:"enabled"`
+	Cron        string        `json:"cron"` // cron 表达式
+	ScanDirs    []string      `json:"scan_dirs"`
+	ExcludeDirs []string      `json:"exclude_dirs,omitempty"`
+	Threshold   int           `json:"threshold"`
+	Algorithm   HashAlgorithm `json:"algorithm"`
 }

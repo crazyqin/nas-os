@@ -7,14 +7,14 @@ import (
 
 // HealthScore manages the health scoring system
 type HealthScore struct {
-	mu              sync.RWMutex
-	weights         map[ComponentType]float64
-	collectors      map[ComponentType]CollectorFunc
-	history         []ScoreHistory
-	maxHistory      int
-	currentReport   *HealthReport
-	calculator      *ScoreCalculator
-	analyzer        *Analyzer
+	mu            sync.RWMutex
+	weights       map[ComponentType]float64
+	collectors    map[ComponentType]CollectorFunc
+	history       []ScoreHistory
+	maxHistory    int
+	currentReport *HealthReport
+	calculator    *ScoreCalculator
+	analyzer      *Analyzer
 }
 
 // NewHealthScoreManager creates a new HealthScore manager
@@ -27,11 +27,11 @@ func NewHealthScoreManager() *HealthScore {
 	}
 	hs.calculator = NewScoreCalculator(hs)
 	hs.analyzer = NewAnalyzer(hs)
-	
+
 	// Register default collectors
 	dc := NewDefaultCollectors(hs)
 	dc.RegisterDefaultCollectors()
-	
+
 	return hs
 }
 

@@ -11,10 +11,10 @@ import (
 
 // ForecastEngine 存储预算预测引擎。
 type ForecastEngine struct {
-	mu        sync.RWMutex
-	snapshots []UsageSnapshot
+	mu         sync.RWMutex
+	snapshots  []UsageSnapshot
 	totalBytes int64
-	logger    *zap.Logger
+	logger     *zap.Logger
 }
 
 // NewForecastEngine 创建预测引擎。

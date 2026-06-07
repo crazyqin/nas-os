@@ -335,15 +335,15 @@ func TestRedactor_ChineseName(t *testing.T) {
 	// 加载中文姓名规则（使用简单匹配方式，Go 不支持前瞻断言）
 	rules := []*RedactRule{
 		{
-			ID:       "chinese_name",
-			Name:     "中文姓名",
-			PIIType:  PIIName,
-			Pattern:  `[\x{4e00}-\x{9fff}]{2}先生`,
-			Strategy: StrategyPartial,
+			ID:        "chinese_name",
+			Name:      "中文姓名",
+			PIIType:   PIIName,
+			Pattern:   `[\x{4e00}-\x{9fff}]{2}先生`,
+			Strategy:  StrategyPartial,
 			ShowFirst: 1, ShowLast: 0,
-			MaskChar:  "*",
-			Enabled:   true,
-			Priority:  70,
+			MaskChar: "*",
+			Enabled:  true,
+			Priority: 70,
 		},
 	}
 	err := r.LoadRules(rules)
@@ -532,14 +532,14 @@ func TestRedactor_Integration_MaskCharVariants(t *testing.T) {
 	r := NewRedactor()
 	rules := []*RedactRule{
 		{
-			ID:        "custom_mask",
-			Name:      "自定义掩码",
-			PIIType:   PIICustom,
-			Pattern:   `\bTEST\w+\b`,
-			Strategy:  StrategyMask,
-			MaskChar:  "#",
-			Enabled:   true,
-			Priority:  100,
+			ID:       "custom_mask",
+			Name:     "自定义掩码",
+			PIIType:  PIICustom,
+			Pattern:  `\bTEST\w+\b`,
+			Strategy: StrategyMask,
+			MaskChar: "#",
+			Enabled:  true,
+			Priority: 100,
 		},
 	}
 	err := r.LoadRules(rules)

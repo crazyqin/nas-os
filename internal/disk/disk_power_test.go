@@ -75,14 +75,14 @@ func TestNewPowerManager(t *testing.T) {
 
 func TestNewPowerManager_WithConfig(t *testing.T) {
 	cfg := &PowerConfig{
-		CheckInterval:          10 * time.Second,
-		DefaultPolicy:          "custom",
-		EnableMonitoring:       true,
-		EnableWakeOnDemand:     false,
-		EnableSmartScheduling:  false,
-		DefaultDiskPowerWatts:  8.0,
-		WakePowerSpikeWatts:    12.0,
-		WakeDurationSeconds:    5.0,
+		CheckInterval:         10 * time.Second,
+		DefaultPolicy:         "custom",
+		EnableMonitoring:      true,
+		EnableWakeOnDemand:    false,
+		EnableSmartScheduling: false,
+		DefaultDiskPowerWatts: 8.0,
+		WakePowerSpikeWatts:   12.0,
+		WakeDurationSeconds:   5.0,
 	}
 
 	pm := NewPowerManager(cfg)
@@ -298,12 +298,12 @@ func TestPowerManager_checkDiskStates_WakeFrequencyLimit(t *testing.T) {
 	pm := NewPowerManager(nil)
 
 	policy := &SleepPolicy{
-		ID:              "test",
-		IdleThreshold:   1 * time.Minute,
+		ID:               "test",
+		IdleThreshold:    1 * time.Minute,
 		StandbyThreshold: 2 * time.Minute,
-		SleepThreshold:  3 * time.Minute,
-		Enabled:         true,
-		MaxWakePerHour:  2,
+		SleepThreshold:   3 * time.Minute,
+		Enabled:          true,
+		MaxWakePerHour:   2,
 	}
 	pm.AddPolicy(policy)
 	pm.RegisterDisk("/dev/sda", "test")

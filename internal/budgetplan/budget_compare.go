@@ -70,14 +70,14 @@ func (m *BudgetManager) CompareBudget(budgetID string) (*BudgetComparison, error
 	}
 
 	return &BudgetComparison{
-		BudgetID:        budget.ID,
-		BudgetName:      budget.Name,
-		Period:          string(budget.Period),
-		BudgetedAmount:  budget.TotalAmount,
-		ActualAmount:    budget.UsedAmount,
-		Variance:        roundTo2(totalVariance),
-		VariancePercent: roundTo2(totalVariancePct),
-		Status:          status,
+		BudgetID:          budget.ID,
+		BudgetName:        budget.Name,
+		Period:            string(budget.Period),
+		BudgetedAmount:    budget.TotalAmount,
+		ActualAmount:      budget.UsedAmount,
+		Variance:          roundTo2(totalVariance),
+		VariancePercent:   roundTo2(totalVariancePct),
+		Status:            status,
 		CategoryBreakdown: categoryBreakdown,
 	}, nil
 }
@@ -220,15 +220,15 @@ func (m *BudgetManager) GetVarianceAnalysis(budgetID string) (map[string]interfa
 	}
 
 	return map[string]interface{}{
-		"budget_id":              comp.BudgetID,
-		"budget_name":            comp.BudgetName,
-		"total_variance":         comp.Variance,
-		"total_variance_percent": comp.VariancePercent,
-		"status":                 comp.Status,
-		"max_variance_category":  maxVarianceCat,
-		"max_variance_amount":    maxVariance,
-		"over_budget_categories": overBudgetCategories,
+		"budget_id":               comp.BudgetID,
+		"budget_name":             comp.BudgetName,
+		"total_variance":          comp.Variance,
+		"total_variance_percent":  comp.VariancePercent,
+		"status":                  comp.Status,
+		"max_variance_category":   maxVarianceCat,
+		"max_variance_amount":     maxVariance,
+		"over_budget_categories":  overBudgetCategories,
 		"under_budget_categories": underBudgetCategories,
-		"category_breakdown":     comp.CategoryBreakdown,
+		"category_breakdown":      comp.CategoryBreakdown,
 	}, nil
 }

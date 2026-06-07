@@ -367,11 +367,11 @@ func (m *Manager) GetBackupStats() (map[string]interface{}, error) {
 	defer m.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"total_backups":      len(m.backups),
-		"total_keys":         len(m.keys),
-		"total_schedules":    len(m.schedules),
-		"total_restores":     len(m.restores),
-		"total_integrities":  len(m.integrities),
+		"total_backups":     len(m.backups),
+		"total_keys":        len(m.keys),
+		"total_schedules":   len(m.schedules),
+		"total_restores":    len(m.restores),
+		"total_integrities": len(m.integrities),
 	}
 
 	// Count by status

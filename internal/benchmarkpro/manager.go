@@ -731,9 +731,9 @@ func (m *Manager) GenerateReport(resultID string) (*BenchmarkReport, error) {
 	}
 
 	report := &BenchmarkReport{
-		GeneratedAt:  time.Now(),
-		LatestResult: result,
-		History:      m.ListResults(),
+		GeneratedAt:    time.Now(),
+		LatestResult:   result,
+		History:        m.ListResults(),
 		CompetitorData: m.ListCompetitors(),
 	}
 

@@ -260,11 +260,11 @@ func TestPowerManagerV2_IsBusinessPeakHour(t *testing.T) {
 		hour     int
 		expected bool
 	}{
-		{9, true},  // 上午工作时段开始
-		{10, true}, // 上午工作时段
+		{9, true},   // 上午工作时段开始
+		{10, true},  // 上午工作时段
 		{12, false}, // 上午工作时段结束
-		{14, true}, // 下午工作时段开始
-		{16, true}, // 下午工作时段
+		{14, true},  // 下午工作时段开始
+		{16, true},  // 下午工作时段
 		{18, false}, // 下午工作时段结束
 		{22, false}, // 晚间使用时段
 		{3, false},  // 凌晨
@@ -280,10 +280,10 @@ func TestPowerManagerV2_IsBusinessPeakHour(t *testing.T) {
 
 func TestPowerManagerV2_StartStop(t *testing.T) {
 	pm := NewPowerManager(&PowerConfig{
-		CheckInterval:          1 * time.Second,
-		EnableMonitoring:       true,
-		EnableWakeOnDemand:     true,
-		EnableSmartScheduling:  true,
+		CheckInterval:         1 * time.Second,
+		EnableMonitoring:      true,
+		EnableWakeOnDemand:    true,
+		EnableSmartScheduling: true,
 	})
 
 	ctx, cancel := context.WithCancel(context.Background())

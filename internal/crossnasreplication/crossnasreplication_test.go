@@ -6,7 +6,7 @@ import (
 
 func TestNodeRegistration(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	mgr.RegisterNode(&RemoteNode{
 		ID:       "node1",
 		Name:     "NAS-Primary",
@@ -15,7 +15,7 @@ func TestNodeRegistration(t *testing.T) {
 		Protocol: "ssh",
 		Status:   "online",
 	})
-	
+
 	nodes := mgr.GetNodes()
 	if len(nodes) != 1 {
 		t.Fatalf("expected 1 node, got %d", len(nodes))
@@ -27,13 +27,13 @@ func TestNodeRegistration(t *testing.T) {
 
 func TestNodeRemoval(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	mgr.RegisterNode(&RemoteNode{ID: "node1", Name: "test"})
 	removed := mgr.RemoveNode("node1")
 	if !removed {
 		t.Error("expected node to be removed")
 	}
-	
+
 	nodes := mgr.GetNodes()
 	if len(nodes) != 0 {
 		t.Errorf("expected 0 nodes, got %d", len(nodes))
@@ -42,10 +42,10 @@ func TestNodeRemoval(t *testing.T) {
 
 func TestTaskCreation(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	mgr.RegisterNode(&RemoteNode{ID: "src", Name: "source"})
 	mgr.RegisterNode(&RemoteNode{ID: "dst", Name: "target"})
-	
+
 	task := &ReplicationTask{
 		ID:         "task1",
 		Name:       "Backup Photos",
@@ -57,12 +57,12 @@ func TestTaskCreation(t *testing.T) {
 		Compress:   true,
 		Encrypt:    true,
 	}
-	
+
 	err := mgr.CreateTask(task)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	
+
 	tasks := mgr.GetTasks()
 	if len(tasks) != 1 {
 		t.Fatalf("expected 1 task, got %d", len(tasks))
@@ -74,13 +74,13 @@ func TestTaskCreation(t *testing.T) {
 
 func TestTaskCreationInvalidNode(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	task := &ReplicationTask{
 		ID:         "task1",
 		SourceNode: "nonexistent",
 		TargetNode: "also_nonexistent",
 	}
-	
+
 	err := mgr.CreateTask(task)
 	if err == nil {
 		t.Error("expected error for nonexistent nodes")
@@ -89,10 +89,10 @@ func TestTaskCreationInvalidNode(t *testing.T) {
 
 func TestSyncExecution(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	mgr.RegisterNode(&RemoteNode{ID: "src", Name: "source"})
 	mgr.RegisterNode(&RemoteNode{ID: "dst", Name: "target"})
-	
+
 	task := &ReplicationTask{
 		ID:         "task1",
 		Name:       "test sync",
@@ -102,7 +102,7 @@ func TestSyncExecution(t *testing.T) {
 		TargetPath: "/backup",
 	}
 	mgr.CreateTask(task)
-	
+
 	result, err := mgr.StartSync("task1")
 	if err != nil {
 		t.Fatalf("sync failed: %v", err)
@@ -117,10 +117,10 @@ func TestSyncExecution(t *testing.T) {
 
 func TestSyncAlreadyRunning(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	mgr.RegisterNode(&RemoteNode{ID: "src"})
 	mgr.RegisterNode(&RemoteNode{ID: "dst"})
-	
+
 	task := &ReplicationTask{
 		ID:         "task1",
 		SourceNode: "src",
@@ -128,12 +128,12 @@ func TestSyncAlreadyRunning(t *testing.T) {
 		State:      StateRunning,
 	}
 	mgr.CreateTask(task)
-	
+
 	// Force state to running
 	mgr.mu.Lock()
 	mgr.tasks["task1"].State = StateRunning
 	mgr.mu.Unlock()
-	
+
 	_, err := mgr.StartSync("task1")
 	if err == nil {
 		t.Error("expected error for already running task")
@@ -142,22 +142,22 @@ func TestSyncAlreadyRunning(t *testing.T) {
 
 func TestTaskDeletion(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	mgr.RegisterNode(&RemoteNode{ID: "src"})
 	mgr.RegisterNode(&RemoteNode{ID: "dst"})
-	
+
 	task := &ReplicationTask{
 		ID:         "task1",
 		SourceNode: "src",
 		TargetNode: "dst",
 	}
 	mgr.CreateTask(task)
-	
+
 	deleted := mgr.DeleteTask("task1")
 	if !deleted {
 		t.Error("expected task to be deleted")
 	}
-	
+
 	tasks := mgr.GetTasks()
 	if len(tasks) != 0 {
 		t.Errorf("expected 0 tasks, got %d", len(tasks))
@@ -166,17 +166,17 @@ func TestTaskDeletion(t *testing.T) {
 
 func TestReplicationStats(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	mgr.RegisterNode(&RemoteNode{ID: "n1"})
 	mgr.RegisterNode(&RemoteNode{ID: "n2"})
-	
+
 	task := &ReplicationTask{
 		ID:         "task1",
 		SourceNode: "n1",
 		TargetNode: "n2",
 	}
 	mgr.CreateTask(task)
-	
+
 	stats := mgr.GetReplicationStats()
 	if stats["total_tasks"] != 1 {
 		t.Errorf("expected 1 task, got %v", stats["total_tasks"])
@@ -188,19 +188,19 @@ func TestReplicationStats(t *testing.T) {
 
 func TestSyncResults(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	mgr.RegisterNode(&RemoteNode{ID: "src"})
 	mgr.RegisterNode(&RemoteNode{ID: "dst"})
-	
+
 	task := &ReplicationTask{
 		ID:         "task1",
 		SourceNode: "src",
 		TargetNode: "dst",
 	}
 	mgr.CreateTask(task)
-	
+
 	mgr.StartSync("task1")
-	
+
 	results := mgr.GetTaskResults("task1")
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))

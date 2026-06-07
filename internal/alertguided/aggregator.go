@@ -11,10 +11,10 @@ import (
 // Aggregator 告警聚合器
 // 将相同类型告警合并，避免告警风暴
 type Aggregator struct {
-	groups    map[string]*AlertGroup // aggregationKey -> group
-	mu        sync.RWMutex
-	logger    *zap.Logger
-	dedupTTL  time.Duration // 去重窗口
+	groups   map[string]*AlertGroup // aggregationKey -> group
+	mu       sync.RWMutex
+	logger   *zap.Logger
+	dedupTTL time.Duration // 去重窗口
 }
 
 // NewAggregator 创建聚合器
@@ -34,16 +34,16 @@ func NewAggregator(logger *zap.Logger, dedupTTL time.Duration) *Aggregator {
 
 // AlertGroup 告警分组
 type AlertGroup struct {
-	Key          string        `json:"key"`
-	Category     Category      `json:"category"`
-	Severity     Severity      `json:"severity"`
-	PrimaryID    string        `json:"primaryId"`    // 主告警ID
-	AlertIDs     []string      `json:"alertIds"`     // 所有关联告警ID
-	Count        int           `json:"count"`
-	FirstSeen    time.Time     `json:"firstSeen"`
-	LastSeen     time.Time     `json:"lastSeen"`
-	LastMessage  string        `json:"lastMessage"`
-	IsSilenced   bool          `json:"isSilenced"`
+	Key         string    `json:"key"`
+	Category    Category  `json:"category"`
+	Severity    Severity  `json:"severity"`
+	PrimaryID   string    `json:"primaryId"` // 主告警ID
+	AlertIDs    []string  `json:"alertIds"`  // 所有关联告警ID
+	Count       int       `json:"count"`
+	FirstSeen   time.Time `json:"firstSeen"`
+	LastSeen    time.Time `json:"lastSeen"`
+	LastMessage string    `json:"lastMessage"`
+	IsSilenced  bool      `json:"isSilenced"`
 }
 
 // Aggregate 聚合告警
@@ -170,9 +170,9 @@ func (a *Aggregator) Summary() *AggregationSummary {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	summary := &AggregationSummary{
-		Groups:        make(map[string]int),
-		ByCategory:    make(map[Category]int),
-		TotalDeduped:  0,
+		Groups:       make(map[string]int),
+		ByCategory:   make(map[Category]int),
+		TotalDeduped: 0,
 	}
 	for _, g := range a.groups {
 		if a.isExpired(g) {
@@ -195,9 +195,9 @@ func (a *Aggregator) isExpired(g *AlertGroup) bool {
 
 // AggregationSummary 聚合汇总
 type AggregationSummary struct {
-	ActiveGroups int          `json:"activeGroups"`
-	TotalAlerts  int          `json:"totalAlerts"`
-	TotalDeduped int          `json:"totalDeduped"`
+	ActiveGroups int              `json:"activeGroups"`
+	TotalAlerts  int              `json:"totalAlerts"`
+	TotalDeduped int              `json:"totalDeduped"`
 	ByCategory   map[Category]int `json:"byCategory"`
 	Groups       map[string]int   `json:"groups"`
 }

@@ -9,14 +9,14 @@ import (
 
 // Manager Active Directory 集成管理器.
 type Manager struct {
-	mu          sync.RWMutex
-	config      ADConfig
-	domains     map[string]*Domain
-	users       map[string]*ADUser
-	groups      map[string]*ADGroup
-	syncJobs    map[string]*SyncJob
-	running     bool
-	stopCh      chan struct{}
+	mu       sync.RWMutex
+	config   ADConfig
+	domains  map[string]*Domain
+	users    map[string]*ADUser
+	groups   map[string]*ADGroup
+	syncJobs map[string]*SyncJob
+	running  bool
+	stopCh   chan struct{}
 }
 
 // NewManager 创建管理器.
@@ -159,10 +159,10 @@ func (m *Manager) SyncUsers(domainName string) (*SyncResult, error) {
 	job.RecordsSynced = synced
 	log.Printf("[ActiveDirectory] 用户同步完成: %s (%d 条记录)", domainName, synced)
 	return &SyncResult{
-		JobID:       job.ID,
-		Domain:      domainName,
+		JobID:         job.ID,
+		Domain:        domainName,
 		RecordsSynced: synced,
-		Duration:    time.Since(job.StartedAt),
+		Duration:      time.Since(job.StartedAt),
 	}, nil
 }
 
@@ -224,10 +224,10 @@ func (m *Manager) SyncGroups(domainName string) (*SyncResult, error) {
 	job.RecordsSynced = synced
 	log.Printf("[ActiveDirectory] 组同步完成: %s (%d 条记录)", domainName, synced)
 	return &SyncResult{
-		JobID:       job.ID,
-		Domain:      domainName,
+		JobID:         job.ID,
+		Domain:        domainName,
 		RecordsSynced: synced,
-		Duration:    time.Since(job.StartedAt),
+		Duration:      time.Since(job.StartedAt),
 	}, nil
 }
 

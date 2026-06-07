@@ -29,17 +29,17 @@ const (
 
 // QoSRule QoS规则
 type QoSRule struct {
-	Name        string        `json:"name"`        // 规则名称
-	Protocol    string        `json:"protocol"`     // 协议 (tcp/udp/any)
-	SrcIP       string        `json:"srcIP"`        // 源IP (CIDR)
-	DstIP       string        `json:"dstIP"`        // 目标IP (CIDR)
-	SrcPort     int           `json:"srcPort"`      // 源端口 (0=any)
-	DstPort     int           `json:"dstPort"`      // 目标端口 (0=any)
-	Priority    QoSPriority   `json:"priority"`     // 优先级
-	MinBandwidth int          `json:"minBandwidth"` // 最小带宽(Mbps)
-	MaxBandwidth int          `json:"maxBandwidth"` // 最大带宽(Mbps)
-	Burst       int           `json:"burst"`        // 突发大小(KB)
-	Enabled     bool          `json:"enabled"`      // 是否启用
+	Name         string      `json:"name"`         // 规则名称
+	Protocol     string      `json:"protocol"`     // 协议 (tcp/udp/any)
+	SrcIP        string      `json:"srcIP"`        // 源IP (CIDR)
+	DstIP        string      `json:"dstIP"`        // 目标IP (CIDR)
+	SrcPort      int         `json:"srcPort"`      // 源端口 (0=any)
+	DstPort      int         `json:"dstPort"`      // 目标端口 (0=any)
+	Priority     QoSPriority `json:"priority"`     // 优先级
+	MinBandwidth int         `json:"minBandwidth"` // 最小带宽(Mbps)
+	MaxBandwidth int         `json:"maxBandwidth"` // 最大带宽(Mbps)
+	Burst        int         `json:"burst"`        // 突发大小(KB)
+	Enabled      bool        `json:"enabled"`      // 是否启用
 }
 
 // VLANMode VLAN模式
@@ -53,12 +53,12 @@ const (
 
 // VLANConfig VLAN配置
 type VLANConfig struct {
-	ID          int       `json:"id"`          // VLAN ID (1-4094)
-	Name        string    `json:"name"`        // VLAN名称
-	Mode        VLANMode  `json:"mode"`        // VLAN模式
-	Description string    `json:"description"` // 描述
-	Tagged      bool      `json:"tagged"`      // 是否打标签
-	MTU         int       `json:"mtu"`         // VLAN MTU
+	ID          int      `json:"id"`          // VLAN ID (1-4094)
+	Name        string   `json:"name"`        // VLAN名称
+	Mode        VLANMode `json:"mode"`        // VLAN模式
+	Description string   `json:"description"` // 描述
+	Tagged      bool     `json:"tagged"`      // 是否打标签
+	MTU         int      `json:"mtu"`         // VLAN MTU
 }
 
 // Validate 校验VLAN配置
@@ -86,7 +86,7 @@ type BandwidthConfig struct {
 type AggregateMode int
 
 const (
-	AggregateBandwidth AggregateMode = 0 // 带宽聚合
+	AggregateBandwidth  AggregateMode = 0 // 带宽聚合
 	AggregateRedundancy AggregateMode = 1 // 冗余模式
 )
 
@@ -94,10 +94,10 @@ const (
 type HashPolicy int
 
 const (
-	HashLayer2    HashPolicy = 0 // 二层(MAC)
-	HashLayer34   HashPolicy = 1 // 三层四层(IP+Port)
-	HashLayer23   HashPolicy = 2 // 二层三层(MAC+IP)
-	HashEncap23   HashPolicy = 3 // 封装二层三层
+	HashLayer2  HashPolicy = 0 // 二层(MAC)
+	HashLayer34 HashPolicy = 1 // 三层四层(IP+Port)
+	HashLayer23 HashPolicy = 2 // 二层三层(MAC+IP)
+	HashEncap23 HashPolicy = 3 // 封装二层三层
 )
 
 // LinkHealthState 链路健康状态
@@ -111,20 +111,20 @@ type LinkHealthState struct {
 
 // FailoverPolicy 故障切换策略
 type FailoverPolicy struct {
-	Enabled         bool          `json:"enabled"`         // 是否启用
-	Interval        time.Duration `json:"interval"`        // 检测间隔
-	FailThreshold   int           `json:"failThreshold"`   // 连续失败阈值
-	RecoverThreshold int          `json:"recoverThreshold"`// 恢复阈值
-	GracePeriod     time.Duration `json:"gracePeriod"`     // 切换后宽限期
+	Enabled          bool          `json:"enabled"`          // 是否启用
+	Interval         time.Duration `json:"interval"`         // 检测间隔
+	FailThreshold    int           `json:"failThreshold"`    // 连续失败阈值
+	RecoverThreshold int           `json:"recoverThreshold"` // 恢复阈值
+	GracePeriod      time.Duration `json:"gracePeriod"`      // 切换后宽限期
 }
 
 // BondExtended 绑定扩展配置（QoS和VLAN）
 type BondExtended struct {
-	BondName    string       `json:"bondName"`    // 绑定名称
-	QoSRules    []*QoSRule   `json:"qosRules"`    // QoS规则列表
-	VLANs       []*VLANConfig `json:"vlans"`      // VLAN列表
-	Bandwidth   *BandwidthConfig `json:"bandwidth"` // 带宽配置
-	Failover    *FailoverPolicy `json:"failover"`  // 故障切换策略
+	BondName  string           `json:"bondName"`  // 绑定名称
+	QoSRules  []*QoSRule       `json:"qosRules"`  // QoS规则列表
+	VLANs     []*VLANConfig    `json:"vlans"`     // VLAN列表
+	Bandwidth *BandwidthConfig `json:"bandwidth"` // 带宽配置
+	Failover  *FailoverPolicy  `json:"failover"`  // 故障切换策略
 }
 
 // Validate 校验QoS规则

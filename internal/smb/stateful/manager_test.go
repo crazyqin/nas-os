@@ -8,9 +8,9 @@ import (
 
 func TestNewStatefulFailoverManager(t *testing.T) {
 	cfg := &StatefulFailoverConfig{
-		Enabled:         true,
-		ClusterName:     "test-cluster",
-		LocalNodeID:     "node-1",
+		Enabled:     true,
+		ClusterName: "test-cluster",
+		LocalNodeID: "node-1",
 		Peers: []PeerConfig{
 			{NodeID: "node-2", Address: "192.168.1.2", Port: 9445, Priority: 10},
 		},
@@ -155,15 +155,15 @@ func TestCleanupExpiredSessions(t *testing.T) {
 	reg := NewSessionStateRegistry()
 
 	reg.Add(&SessionState{
-		SessionID:   "s1",
-		ClientIP:    "10.0.0.1",
-		NodeID:      "n1",
+		SessionID:    "s1",
+		ClientIP:     "10.0.0.1",
+		NodeID:       "n1",
 		LastActivity: time.Now().Add(-2 * time.Hour),
 	})
 	reg.Add(&SessionState{
-		SessionID:   "s2",
-		ClientIP:    "10.0.0.2",
-		NodeID:      "n1",
+		SessionID:    "s2",
+		ClientIP:     "10.0.0.2",
+		NodeID:       "n1",
 		LastActivity: time.Now(),
 	})
 

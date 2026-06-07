@@ -17,15 +17,15 @@ import (
 
 // Manager manages the home media system
 type Manager struct {
-	mu           sync.RWMutex
-	media        map[string]*MediaFile
-	metadata     map[string]*MediaMetadata
-	collections  map[string]*Collection
-	playlists    map[string]*Playlist
-	sessions     map[string]*PlaybackSession
-	scans        map[string]*ScanStatus
-	transcodes   map[string]*TranscodeStatus
-	storagePath  string
+	mu               sync.RWMutex
+	media            map[string]*MediaFile
+	metadata         map[string]*MediaMetadata
+	collections      map[string]*Collection
+	playlists        map[string]*Playlist
+	sessions         map[string]*PlaybackSession
+	scans            map[string]*ScanStatus
+	transcodes       map[string]*TranscodeStatus
+	storagePath      string
 	supportedFormats map[string]bool
 }
 

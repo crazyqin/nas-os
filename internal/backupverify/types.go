@@ -14,57 +14,57 @@ import (
 type VerifyStatus string
 
 const (
-	VerifyPending  VerifyStatus = "pending"
-	VerifyRunning  VerifyStatus = "running"
-	VerifyPassed   VerifyStatus = "passed"
-	VerifyFailed   VerifyStatus = "failed"
-	VerifySkipped  VerifyStatus = "skipped"
+	VerifyPending VerifyStatus = "pending"
+	VerifyRunning VerifyStatus = "running"
+	VerifyPassed  VerifyStatus = "passed"
+	VerifyFailed  VerifyStatus = "failed"
+	VerifySkipped VerifyStatus = "skipped"
 )
 
 // VerifyMode 验证模式
 type VerifyMode string
 
 const (
-	ModeChecksum VerifyMode = "checksum"  // 校验和验证
-	ModeDeep     VerifyMode = "deep"      // 深度验证（读取+校验）
-	ModeRestore  VerifyMode = "restore"   // 测试恢复验证
+	ModeChecksum VerifyMode = "checksum" // 校验和验证
+	ModeDeep     VerifyMode = "deep"     // 深度验证（读取+校验）
+	ModeRestore  VerifyMode = "restore"  // 测试恢复验证
 )
 
 // VerifyTask 验证任务
 type VerifyTask struct {
-	ID          string       `json:"id"`
-	BackupID    string       `json:"backup_id"`
-	BackupPath  string       `json:"backup_path"`
-	Mode        VerifyMode   `json:"mode"`
-	Status      VerifyStatus `json:"status"`
-	TotalFiles  int          `json:"total_files"`
-	CheckedFiles int         `json:"checked_files"`
-	FailedFiles int          `json:"failed_files"`
-	TotalSize   int64        `json:"total_size"`
-	Duration    string       `json:"duration"`
-	Errors      []VerifyError `json:"errors"`
-	StartedAt   time.Time    `json:"started_at"`
-	CompletedAt *time.Time   `json:"completed_at"`
+	ID           string        `json:"id"`
+	BackupID     string        `json:"backup_id"`
+	BackupPath   string        `json:"backup_path"`
+	Mode         VerifyMode    `json:"mode"`
+	Status       VerifyStatus  `json:"status"`
+	TotalFiles   int           `json:"total_files"`
+	CheckedFiles int           `json:"checked_files"`
+	FailedFiles  int           `json:"failed_files"`
+	TotalSize    int64         `json:"total_size"`
+	Duration     string        `json:"duration"`
+	Errors       []VerifyError `json:"errors"`
+	StartedAt    time.Time     `json:"started_at"`
+	CompletedAt  *time.Time    `json:"completed_at"`
 }
 
 // VerifyError 验证错误
 type VerifyError struct {
-	File    string `json:"file"`
-	Error   string `json:"error"`
+	File     string `json:"file"`
+	Error    string `json:"error"`
 	Expected string `json:"expected,omitempty"`
 	Actual   string `json:"actual,omitempty"`
 }
 
 // VerifySchedule 验证计划
 type VerifySchedule struct {
-	ID         string     `json:"id"`
-	BackupID   string     `json:"backup_id"`
-	Mode       VerifyMode `json:"mode"`
-	Cron       string     `json:"cron"`
-	Enabled    bool       `json:"enabled"`
-	LastRun    *time.Time `json:"last_run"`
-	NextRun    *time.Time `json:"next_run"`
-	CreatedAt  time.Time  `json:"created_at"`
+	ID        string     `json:"id"`
+	BackupID  string     `json:"backup_id"`
+	Mode      VerifyMode `json:"mode"`
+	Cron      string     `json:"cron"`
+	Enabled   bool       `json:"enabled"`
+	LastRun   *time.Time `json:"last_run"`
+	NextRun   *time.Time `json:"next_run"`
+	CreatedAt time.Time  `json:"created_at"`
 }
 
 // IntegrityReport 完整性报告

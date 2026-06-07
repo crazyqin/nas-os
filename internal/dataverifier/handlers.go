@@ -96,8 +96,8 @@ func (h *Handler) handleVerify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		Path   string          `json:"path"`
-		Hash   string          `json:"hash"`
+		Path      string          `json:"path"`
+		Hash      string          `json:"hash"`
 		Algorithm VerifyAlgorithm `json:"algorithm"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

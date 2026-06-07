@@ -221,8 +221,8 @@ func GetDefaultRouteRules() []*RouteRule {
 			Enabled:  true,
 		},
 		{
-			ID:   "default-alerts",
-			Name: "默认告警路由",
+			ID:       "default-alerts",
+			Name:     "默认告警路由",
 			Matchers: []LabelMatcher{},
 			Channels: []string{"syslog"},
 			Continue: false,

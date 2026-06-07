@@ -244,7 +244,7 @@ type builtinCheck struct {
 	scanFunc    func(ctx *CheckContext) *CheckResult
 }
 
-func (c *builtinCheck) Name() string                { return c.name }
+func (c *builtinCheck) Name() string                 { return c.name }
 func (c *builtinCheck) Standard() ComplianceStandard { return c.standard }
 func (c *builtinCheck) Category() CheckCategory      { return c.category }
 func (c *builtinCheck) Description() string          { return c.description }
@@ -260,9 +260,9 @@ func (c *builtinCheck) GetRemediation(result *CheckResult) *Remediation {
 
 // AuditResult 完整审计结果
 type AuditResult struct {
-	Report        *ComplianceReport    `json:"report"`
-	PolicyResults []*PolicyResult      `json:"policy_results"`
-	Remediations  []*RemediationItem   `json:"remediations"`
-	FullReport    *FullReport          `json:"full_report"`
-	CompletedAt   time.Time            `json:"completed_at"`
+	Report        *ComplianceReport  `json:"report"`
+	PolicyResults []*PolicyResult    `json:"policy_results"`
+	Remediations  []*RemediationItem `json:"remediations"`
+	FullReport    *FullReport        `json:"full_report"`
+	CompletedAt   time.Time          `json:"completed_at"`
 }

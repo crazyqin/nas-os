@@ -16,20 +16,20 @@ import (
 type ShutdownTrigger string
 
 const (
-	TriggerBatteryLow   ShutdownTrigger = "battery_low"   // 电量低于阈值
-	TriggerRuntimeLow   ShutdownTrigger = "runtime_low"   // 剩余时间低于阈值
-	TriggerOverload     ShutdownTrigger = "overload"      // 负载超过阈值
-	TriggerManual       ShutdownTrigger = "manual"        // 手动触发
+	TriggerBatteryLow ShutdownTrigger = "battery_low" // 电量低于阈值
+	TriggerRuntimeLow ShutdownTrigger = "runtime_low" // 剩余时间低于阈值
+	TriggerOverload   ShutdownTrigger = "overload"    // 负载超过阈值
+	TriggerManual     ShutdownTrigger = "manual"      // 手动触发
 )
 
 // ShutdownPhase 关机阶段
 type ShutdownPhase string
 
 const (
-	PhaseNotify      ShutdownPhase = "notify"      // 通知阶段
-	PhaseSaveData    ShutdownPhase = "save_data"    // 保存数据阶段
+	PhaseNotify       ShutdownPhase = "notify"        // 通知阶段
+	PhaseSaveData     ShutdownPhase = "save_data"     // 保存数据阶段
 	PhaseStopServices ShutdownPhase = "stop_services" // 停止服务阶段
-	PhaseShutdown    ShutdownPhase = "shutdown"     // 关机阶段
+	PhaseShutdown     ShutdownPhase = "shutdown"      // 关机阶段
 )
 
 // ShutdownPolicy 关机策略配置
@@ -62,16 +62,16 @@ func DefaultShutdownPolicy() ShutdownPolicy {
 
 // SystemSnapshot 系统状态快照
 type SystemSnapshot struct {
-	Timestamp    time.Time              `json:"timestamp"`
-	Hostname     string                 `json:"hostname"`
-	Uptime       string                 `json:"uptime"`
-	Trigger      ShutdownTrigger        `json:"trigger"`
-	UPSStatus    map[string]UPSStatus   `json:"ups_status"`
-	Services     []ServiceStatus        `json:"services"`
-	DiskUsage    map[string]int         `json:"disk_usage"`    // 挂载点 -> 使用率%
-	Processes    int                    `json:"processes"`     // 进程数
-	LoadAvg      [3]float64             `json:"load_avg"`      // 1/5/15分钟负载
-	CustomData   map[string]interface{} `json:"custom_data"`
+	Timestamp  time.Time              `json:"timestamp"`
+	Hostname   string                 `json:"hostname"`
+	Uptime     string                 `json:"uptime"`
+	Trigger    ShutdownTrigger        `json:"trigger"`
+	UPSStatus  map[string]UPSStatus   `json:"ups_status"`
+	Services   []ServiceStatus        `json:"services"`
+	DiskUsage  map[string]int         `json:"disk_usage"` // 挂载点 -> 使用率%
+	Processes  int                    `json:"processes"`  // 进程数
+	LoadAvg    [3]float64             `json:"load_avg"`   // 1/5/15分钟负载
+	CustomData map[string]interface{} `json:"custom_data"`
 }
 
 // ServiceStatus 服务状态

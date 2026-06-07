@@ -45,39 +45,39 @@ type Camera struct {
 
 // Recording 录像记录
 type Recording struct {
-	ID           string    `json:"id"`
-	CameraID     string    `json:"cameraId"`
-	StartTime    time.Time `json:"startTime"`
-	EndTime      time.Time `json:"endTime,omitempty"`
-	FilePath     string    `json:"filePath"`
-	Size         int64     `json:"size"` // 字节
-	Duration     int64     `json:"duration"` // 秒
-	HasMotion    bool      `json:"hasMotion"`
-	HasAlert     bool      `json:"hasAlert"`
-	ThumbnailPath string   `json:"thumbnailPath,omitempty"`
-	CreatedAt    time.Time `json:"createdAt"`
+	ID            string    `json:"id"`
+	CameraID      string    `json:"cameraId"`
+	StartTime     time.Time `json:"startTime"`
+	EndTime       time.Time `json:"endTime,omitempty"`
+	FilePath      string    `json:"filePath"`
+	Size          int64     `json:"size"`     // 字节
+	Duration      int64     `json:"duration"` // 秒
+	HasMotion     bool      `json:"hasMotion"`
+	HasAlert      bool      `json:"hasAlert"`
+	ThumbnailPath string    `json:"thumbnailPath,omitempty"`
+	CreatedAt     time.Time `json:"createdAt"`
 }
 
 // ========== 移动侦测 ==========
 
 // MotionEvent 移动侦测事件
 type MotionEvent struct {
-	ID          string    `json:"id"`
-	CameraID    string    `json:"cameraId"`
-	Timestamp   time.Time `json:"timestamp"`
-	Duration    int       `json:"duration"` // 秒
-	Confidence  float64   `json:"confidence"` // 0.0-1.0
-	Zone        string    `json:"zone,omitempty"`
-	SnapshotPath string   `json:"snapshotPath,omitempty"`
-	RecordingID string    `json:"recordingId,omitempty"`
+	ID           string    `json:"id"`
+	CameraID     string    `json:"cameraId"`
+	Timestamp    time.Time `json:"timestamp"`
+	Duration     int       `json:"duration"`   // 秒
+	Confidence   float64   `json:"confidence"` // 0.0-1.0
+	Zone         string    `json:"zone,omitempty"`
+	SnapshotPath string    `json:"snapshotPath,omitempty"`
+	RecordingID  string    `json:"recordingId,omitempty"`
 }
 
 // MotionRule 移动侦测规则
 type MotionRule struct {
-	CameraID    string  `json:"cameraId"`
-	Zone        string  `json:"zone"`
-	Sensitivity float64 `json:"sensitivity"` // 0.0-1.0
-	Enabled     bool    `json:"enabled"`
+	CameraID    string    `json:"cameraId"`
+	Zone        string    `json:"zone"`
+	Sensitivity float64   `json:"sensitivity"` // 0.0-1.0
+	Enabled     bool      `json:"enabled"`
 	CreatedAt   time.Time `json:"createdAt"`
 }
 
@@ -110,13 +110,13 @@ type Alert struct {
 
 // StoragePlan 存储策略
 type StoragePlan struct {
-	ID            string   `json:"id"`
-	Name          string   `json:"name"`
-	RetentionDays int      `json:"retentionDays"`
-	MaxSize       int64    `json:"maxSize"` // 字节
-	Cameras       []string `json:"cameras,omitempty"`
-	Quality       string   `json:"quality,omitempty"` // high/medium/low
-	Schedule      string   `json:"schedule,omitempty"` // 24x7/weekday/weekend
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	RetentionDays int       `json:"retentionDays"`
+	MaxSize       int64     `json:"maxSize"` // 字节
+	Cameras       []string  `json:"cameras,omitempty"`
+	Quality       string    `json:"quality,omitempty"`  // high/medium/low
+	Schedule      string    `json:"schedule,omitempty"` // 24x7/weekday/weekend
 	CreatedAt     time.Time `json:"createdAt"`
 	UpdatedAt     time.Time `json:"updatedAt"`
 }
@@ -133,8 +133,8 @@ type TimelineSegment struct {
 
 // Timeline 时间线
 type Timeline struct {
-	CameraID string           `json:"cameraId"`
-	Date     string           `json:"date"` // YYYY-MM-DD
+	CameraID string            `json:"cameraId"`
+	Date     string            `json:"date"` // YYYY-MM-DD
 	Segments []TimelineSegment `json:"segments"`
 }
 
@@ -142,8 +142,8 @@ type Timeline struct {
 
 // StorageUsage 存储使用情况
 type StorageUsage struct {
-	CameraID    string `json:"cameraId"`
-	UsedBytes   int64  `json:"usedBytes"`
-	TotalBytes  int64  `json:"totalBytes"`
-	RecordingCount int `json:"recordingCount"`
+	CameraID       string `json:"cameraId"`
+	UsedBytes      int64  `json:"usedBytes"`
+	TotalBytes     int64  `json:"totalBytes"`
+	RecordingCount int    `json:"recordingCount"`
 }

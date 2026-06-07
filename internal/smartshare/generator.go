@@ -13,8 +13,8 @@ import (
 
 // Generator 分享链接生成器
 type Generator struct {
-	logger     *zap.Logger
-	baseURL    string
+	logger      *zap.Logger
+	baseURL     string
 	shortDomain string
 }
 

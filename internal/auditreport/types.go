@@ -27,13 +27,13 @@ const (
 
 // AuditReport 审计报告.
 type AuditReport struct {
-	ID          string      `json:"id"`
-	Title       string      `json:"title"`
-	Period      string      `json:"period"`
-	GeneratedAt time.Time   `json:"generated_at"`
-	Score       float64     `json:"score"`
-	Findings    []Finding   `json:"findings"`
-	Summary     string      `json:"summary"`
+	ID          string    `json:"id"`
+	Title       string    `json:"title"`
+	Period      string    `json:"period"`
+	GeneratedAt time.Time `json:"generated_at"`
+	Score       float64   `json:"score"`
+	Findings    []Finding `json:"findings"`
+	Summary     string    `json:"summary"`
 }
 
 // Finding 安全发现.
@@ -48,12 +48,12 @@ type Finding struct {
 
 // ComplianceCheck 合规检查.
 type ComplianceCheck struct {
-	ID       string            `json:"id"`
-	Standard string            `json:"standard"`
-	Score    float64           `json:"score"`
-	Passed   int               `json:"passed"`
-	Failed   int               `json:"failed"`
-	Items    []ComplianceItem  `json:"items"`
+	ID       string           `json:"id"`
+	Standard string           `json:"standard"`
+	Score    float64          `json:"score"`
+	Passed   int              `json:"passed"`
+	Failed   int              `json:"failed"`
+	Items    []ComplianceItem `json:"items"`
 }
 
 // ComplianceItem 合规检查项.

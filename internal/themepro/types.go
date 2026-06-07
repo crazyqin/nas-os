@@ -30,7 +30,7 @@ type ColorScheme struct {
 
 // FontConfig 字体配置
 type FontConfig struct {
-	Family        string  `json:"family" binding:"required"`
+	Family       string  `json:"family" binding:"required"`
 	SizeBase     float64 `json:"size_base"`
 	SizeSmall    float64 `json:"size_small"`
 	SizeLarge    float64 `json:"size_large"`
@@ -45,10 +45,10 @@ type FontConfig struct {
 type LayoutPreset string
 
 const (
-	LayoutCompact   LayoutPreset = "compact"
-	LayoutDefault   LayoutPreset = "default"
-	LayoutSpacious  LayoutPreset = "spacious"
-	LayoutCustom    LayoutPreset = "custom"
+	LayoutCompact  LayoutPreset = "compact"
+	LayoutDefault  LayoutPreset = "default"
+	LayoutSpacious LayoutPreset = "spacious"
+	LayoutCustom   LayoutPreset = "custom"
 )
 
 // SidebarPosition 侧边栏位置
@@ -70,15 +70,15 @@ type BorderRadius struct {
 
 // LayoutConfig 布局配置
 type LayoutConfig struct {
-	Preset           LayoutPreset    `json:"preset"`
-	SidebarPosition  SidebarPosition `json:"sidebar_position"`
-	SidebarWidth     string          `json:"sidebar_width"`
-	HeaderHeight     string          `json:"header_height"`
-	ContentMaxWidth  string          `json:"content_max_width"`
-	SpacingUnit      string          `json:"spacing_unit"`
-	BorderRadius     BorderRadius    `json:"border_radius"`
-	CardShadow       string          `json:"card_shadow"`
-	TransitionSpeed  string          `json:"transition_speed"`
+	Preset          LayoutPreset    `json:"preset"`
+	SidebarPosition SidebarPosition `json:"sidebar_position"`
+	SidebarWidth    string          `json:"sidebar_width"`
+	HeaderHeight    string          `json:"header_height"`
+	ContentMaxWidth string          `json:"content_max_width"`
+	SpacingUnit     string          `json:"spacing_unit"`
+	BorderRadius    BorderRadius    `json:"border_radius"`
+	CardShadow      string          `json:"card_shadow"`
+	TransitionSpeed string          `json:"transition_speed"`
 }
 
 // Theme 主题
@@ -101,13 +101,13 @@ type Theme struct {
 
 // ThemePack 主题包（可导入导出）
 type ThemePack struct {
-	Name        string       `json:"name" binding:"required"`
-	Description string       `json:"description,omitempty"`
-	Version     string       `json:"version"`
-	Author      string       `json:"author,omitempty"`
-	Themes      []Theme      `json:"themes" binding:"required,min=1"`
-	ExportedAt  time.Time    `json:"exported_at"`
-	Format      string       `json:"format"`
+	Name        string    `json:"name" binding:"required"`
+	Description string    `json:"description,omitempty"`
+	Version     string    `json:"version"`
+	Author      string    `json:"author,omitempty"`
+	Themes      []Theme   `json:"themes" binding:"required,min=1"`
+	ExportedAt  time.Time `json:"exported_at"`
+	Format      string    `json:"format"`
 }
 
 // CreateThemeRequest 创建主题请求
@@ -125,13 +125,13 @@ type CreateThemeRequest struct {
 
 // UpdateThemeRequest 更新主题请求
 type UpdateThemeRequest struct {
-	Name        string       `json:"name,omitempty"`
-	Description string       `json:"description,omitempty"`
-	Mode        ThemeMode    `json:"mode,omitempty"`
-	Colors      *ColorScheme `json:"colors,omitempty"`
-	Fonts       *FontConfig  `json:"fonts,omitempty"`
+	Name        string        `json:"name,omitempty"`
+	Description string        `json:"description,omitempty"`
+	Mode        ThemeMode     `json:"mode,omitempty"`
+	Colors      *ColorScheme  `json:"colors,omitempty"`
+	Fonts       *FontConfig   `json:"fonts,omitempty"`
 	Layout      *LayoutConfig `json:"layout,omitempty"`
-	Tags        []string     `json:"tags,omitempty"`
+	Tags        []string      `json:"tags,omitempty"`
 }
 
 // ApplyThemeRequest 应用主题请求
@@ -183,15 +183,15 @@ func DarkColorScheme() ColorScheme {
 // DefaultFontConfig 默认字体配置
 func DefaultFontConfig() FontConfig {
 	return FontConfig{
-		Family:        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-		SizeBase:      16,
-		SizeSmall:     14,
-		SizeLarge:     18,
-		SizeXLarge:    24,
-		WeightNormal:  400,
-		WeightBold:    700,
-		LineHeight:    1.5,
-		LetterSpace:   0,
+		Family:       "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+		SizeBase:     16,
+		SizeSmall:    14,
+		SizeLarge:    18,
+		SizeXLarge:   24,
+		WeightNormal: 400,
+		WeightBold:   700,
+		LineHeight:   1.5,
+		LetterSpace:  0,
 	}
 }
 

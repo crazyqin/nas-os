@@ -15,14 +15,14 @@ import (
 
 // Manager 流量管理器
 type Manager struct {
-	mu          sync.RWMutex
-	flows       map[string]*Flow
-	apps        map[string]*AppTraffic
-	alerts      []*TrafficAlert
-	qosRules    []*QoSRule
-	config      *Config
-	collector   *Collector
-	analyzer    *Analyzer
+	mu        sync.RWMutex
+	flows     map[string]*Flow
+	apps      map[string]*AppTraffic
+	alerts    []*TrafficAlert
+	qosRules  []*QoSRule
+	config    *Config
+	collector *Collector
+	analyzer  *Analyzer
 }
 
 // Config 配置
@@ -78,16 +78,16 @@ type TrafficAlert struct {
 
 // QoSRule QoS 规则
 type QoSRule struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	AppName    string `json:"app_name,omitempty"`
-	Protocol   string `json:"protocol,omitempty"`
-	SrcIP      string `json:"src_ip,omitempty"`
-	DstIP      string `json:"dst_ip,omitempty"`
-	Priority   int    `json:"priority"` // 1-7, 1=highest
-	MaxBandwidth int64 `json:"max_bandwidth"` // bytes/sec
-	MinBandwidth int64 `json:"min_bandwidth"`
-	Enabled    bool   `json:"enabled"`
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	AppName      string `json:"app_name,omitempty"`
+	Protocol     string `json:"protocol,omitempty"`
+	SrcIP        string `json:"src_ip,omitempty"`
+	DstIP        string `json:"dst_ip,omitempty"`
+	Priority     int    `json:"priority"`      // 1-7, 1=highest
+	MaxBandwidth int64  `json:"max_bandwidth"` // bytes/sec
+	MinBandwidth int64  `json:"min_bandwidth"`
+	Enabled      bool   `json:"enabled"`
 }
 
 // Collector 数据采集器
@@ -97,18 +97,18 @@ type Collector struct {
 
 // Analyzer 流量分析器
 type Analyzer struct {
-	manager     *Manager
-	baselines   map[string]*Baseline
-	anomalies   []*Anomaly
+	manager   *Manager
+	baselines map[string]*Baseline
+	anomalies []*Anomaly
 }
 
 // Baseline 基线数据
 type Baseline struct {
-	AppName      string    `json:"app_name"`
-	AvgBytes     float64   `json:"avg_bytes"`
-	StdDev       float64   `json:"std_dev"`
-	SampleCount  int       `json:"sample_count"`
-	LastUpdated  time.Time `json:"last_updated"`
+	AppName     string    `json:"app_name"`
+	AvgBytes    float64   `json:"avg_bytes"`
+	StdDev      float64   `json:"std_dev"`
+	SampleCount int       `json:"sample_count"`
+	LastUpdated time.Time `json:"last_updated"`
 }
 
 // Anomaly 异常检测结果
@@ -192,18 +192,18 @@ func (a *Analyzer) Analyze() {
 func (m *Manager) GetDashboard() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	totalBandwidth := int64(0)
 	for _, flow := range m.flows {
 		totalBandwidth += flow.BytesSent + flow.BytesRecv
 	}
-	
+
 	return map[string]interface{}{
-		"total_flows":      len(m.flows),
-		"total_apps":       len(m.apps),
-		"active_alerts":    m.activeAlerts(),
-		"total_bandwidth":  totalBandwidth,
-		"qos_rules":        len(m.qosRules),
+		"total_flows":     len(m.flows),
+		"total_apps":      len(m.apps),
+		"active_alerts":   m.activeAlerts(),
+		"total_bandwidth": totalBandwidth,
+		"qos_rules":       len(m.qosRules),
 	}
 }
 

@@ -319,22 +319,22 @@ func (vmgm *VMGPUManager) GenerateLibvirtXML(passthrough *VMGPUPassthrough) stri
 
 // MIGGPUManager MIG GPU管理器
 type MIGGPUManager struct {
-	manager *Manager
-	logger  Logger
+	manager      *Manager
+	logger       Logger
 	migInstances map[string]*MIGInstance // key: gi-ci
-	mu      sync.RWMutex
+	mu           sync.RWMutex
 }
 
 // MIGInstance MIG实例
 type MIGInstance struct {
-	GPUID       string    `json:"gpuId"`
-	GPUIndex    int       `json:"gpuIndex"`
-	GI          int       `json:"gi"`          // GPU Instance ID
-	CI          int       `json:"ci"`          // Compute Instance ID
-	Profile     string    `json:"profile"`     // MIG profile
-	MemoryMB    uint64    `json:"memoryMb"`    // 分配的显存
-	CreatedAt   time.Time `json:"createdAt"`
-	AttachedTo  string    `json:"attachedTo"`  // 附加目标
+	GPUID      string    `json:"gpuId"`
+	GPUIndex   int       `json:"gpuIndex"`
+	GI         int       `json:"gi"`       // GPU Instance ID
+	CI         int       `json:"ci"`       // Compute Instance ID
+	Profile    string    `json:"profile"`  // MIG profile
+	MemoryMB   uint64    `json:"memoryMb"` // 分配的显存
+	CreatedAt  time.Time `json:"createdAt"`
+	AttachedTo string    `json:"attachedTo"` // 附加目标
 }
 
 // NewMIGGPUManager 创建MIG管理器

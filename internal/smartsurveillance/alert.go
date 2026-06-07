@@ -23,18 +23,18 @@ type AlertManager struct {
 
 // AlertRule 告警规则
 type AlertRule struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Enabled     bool          `json:"enabled"`
-	CameraID    string        `json:"camera_id,omitempty"`    // 空表示所有摄像头
-	ZoneID      string        `json:"zone_id,omitempty"`      // 空表示所有区域
+	ID          string          `json:"id"`
+	Name        string          `json:"name"`
+	Enabled     bool            `json:"enabled"`
+	CameraID    string          `json:"camera_id,omitempty"` // 空表示所有摄像头
+	ZoneID      string          `json:"zone_id,omitempty"`   // 空表示所有区域
 	DetectTypes []DetectionType `json:"detect_types,omitempty"`
-	MinConf     float64       `json:"min_confidence"`         // 最小置信度
-	Level       AlertLevel    `json:"level"`
-	NotifyEmail bool          `json:"notify_email"`
-	NotifyPush  bool          `json:"notify_push"`
-	CooldownMin int           `json:"cooldown_minutes"`       // 冷却时间
-	LastTrigger time.Time     `json:"last_trigger"`
+	MinConf     float64         `json:"min_confidence"` // 最小置信度
+	Level       AlertLevel      `json:"level"`
+	NotifyEmail bool            `json:"notify_email"`
+	NotifyPush  bool            `json:"notify_push"`
+	CooldownMin int             `json:"cooldown_minutes"` // 冷却时间
+	LastTrigger time.Time       `json:"last_trigger"`
 }
 
 // NewAlertManager 创建告警管理器
@@ -353,13 +353,13 @@ func (am *AlertManager) GetAlertStats() map[string]interface{} {
 	defer am.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"total":       len(am.alerts),
-		"pending":     0,
-		"active":      0,
-		"acked":       0,
-		"resolved":    0,
-		"dismissed":   0,
-		"by_level":    make(map[AlertLevel]int),
+		"total":     len(am.alerts),
+		"pending":   0,
+		"active":    0,
+		"acked":     0,
+		"resolved":  0,
+		"dismissed": 0,
+		"by_level":  make(map[AlertLevel]int),
 	}
 
 	for _, alert := range am.alerts {

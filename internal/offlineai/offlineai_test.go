@@ -381,7 +381,7 @@ func TestChatStreamChat(t *testing.T) {
 
 func TestEstimateTokens(t *testing.T) {
 	tests := []struct {
-		text     string
+		text      string
 		minTokens int
 	}{
 		{"hello", 1},

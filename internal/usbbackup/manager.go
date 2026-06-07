@@ -130,7 +130,7 @@ func (m *Manager) CreateTask(req *CreateTaskRequest) (*BackupTask, error) {
 		SourcePath:  req.SourcePath,
 		DestPath:    req.DestPath,
 		DeviceID:    req.DeviceID,
-		CronExpr:   req.CronExpr,
+		CronExpr:    req.CronExpr,
 		Filter:      req.Filter,
 		Incremental: req.Incremental,
 		Enabled:     true,

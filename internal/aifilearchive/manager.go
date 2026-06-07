@@ -35,24 +35,24 @@ type Condition struct {
 type ConditionType string
 
 const (
-	ConditionFileType    ConditionType = "file_type"
-	ConditionFileSize    ConditionType = "file_size"
-	ConditionAge         ConditionType = "age"
-	ConditionAccessFreq  ConditionType = "access_frequency"
-	ConditionTags        ConditionType = "tags"
-	ConditionPath        ConditionType = "path"
-	ConditionAIAnalysis  ConditionType = "ai_analysis"
+	ConditionFileType   ConditionType = "file_type"
+	ConditionFileSize   ConditionType = "file_size"
+	ConditionAge        ConditionType = "age"
+	ConditionAccessFreq ConditionType = "access_frequency"
+	ConditionTags       ConditionType = "tags"
+	ConditionPath       ConditionType = "path"
+	ConditionAIAnalysis ConditionType = "ai_analysis"
 )
 
 // ArchiveAction defines what happens when rule matches
 type ArchiveAction struct {
-	Type         ActionType `json:"type"`
-	TargetPath   string     `json:"target_path,omitempty"`
-	Compress     bool       `json:"compress"`
-	Encrypt      bool       `json:"encrypt"`
-	Dedup        bool       `json:"dedup"`
-	Notify       bool       `json:"notify"`
-	RetentionDays int       `json:"retention_days,omitempty"`
+	Type          ActionType `json:"type"`
+	TargetPath    string     `json:"target_path,omitempty"`
+	Compress      bool       `json:"compress"`
+	Encrypt       bool       `json:"encrypt"`
+	Dedup         bool       `json:"dedup"`
+	Notify        bool       `json:"notify"`
+	RetentionDays int        `json:"retention_days,omitempty"`
 }
 
 // ActionType defines action types

@@ -17,41 +17,41 @@ import (
 
 // SearchEngine 增强搜索引擎
 type SearchEngine struct {
-	config        WebShareConfig
-	logger        *zap.Logger
-	mu            sync.RWMutex
+	config         WebShareConfig
+	logger         *zap.Logger
+	mu             sync.RWMutex
 	contentIndexer *ContentIndexer
-	nameIndex     map[string][]string     // token -> paths (文件名索引)
-	contentTokens map[string][]string     // token -> paths (内容索引)
-	tagIndex      map[string][]string     // tag -> paths
-	extIndex      map[string][]string     // ext -> paths
-	typeIndex     map[string][]string     // fileType -> paths
-	stopWords     map[string]bool
-	running       bool
-	ctx           context.Context
-	cancel        context.CancelFunc
+	nameIndex      map[string][]string // token -> paths (文件名索引)
+	contentTokens  map[string][]string // token -> paths (内容索引)
+	tagIndex       map[string][]string // tag -> paths
+	extIndex       map[string][]string // ext -> paths
+	typeIndex      map[string][]string // fileType -> paths
+	stopWords      map[string]bool
+	running        bool
+	ctx            context.Context
+	cancel         context.CancelFunc
 }
 
 // SearchRequest 搜索请求
 type SearchRequest struct {
-	Query       string    `json:"query"`       // 搜索关键词
-	Path        string    `json:"path"`        // 路径限制
-	FileType    string    `json:"fileType"`    // 文件类型过滤
-	Extensions  []string  `json:"extensions"`  // 扩展名过滤
-	Tags        []string  `json:"tags"`        // 标签过滤
-	MinSize     int64     `json:"minSize"`     // 最小大小
-	MaxSize     int64     `json:"maxSize"`     // 最大大小
-	FromDate    *time.Time `json:"fromDate"`   // 修改时间起始
-	ToDate      *time.Time `json:"toDate"`     // 修改时间结束
-	Content     bool      `json:"content"`     // 是否搜索内容
-	Fuzzy       bool      `json:"fuzzy"`       // 模糊搜索
-	Highlight   bool      `json:"highlight"`   // 高亮匹配
-	ExactMatch  bool      `json:"exactMatch"`  // 精确匹配
-	CaseSense   bool      `json:"caseSense"`   // 大小写敏感
-	MaxResults  int       `json:"maxResults"`  // 最大结果数
-	Offset      int       `json:"offset"`      // 偏移量
-	SortBy      string    `json:"sortBy"`      // 排序字段 (relevance, name, size, date)
-	SortDesc    bool      `json:"sortDesc"`    // 降序排序
+	Query      string     `json:"query"`      // 搜索关键词
+	Path       string     `json:"path"`       // 路径限制
+	FileType   string     `json:"fileType"`   // 文件类型过滤
+	Extensions []string   `json:"extensions"` // 扩展名过滤
+	Tags       []string   `json:"tags"`       // 标签过滤
+	MinSize    int64      `json:"minSize"`    // 最小大小
+	MaxSize    int64      `json:"maxSize"`    // 最大大小
+	FromDate   *time.Time `json:"fromDate"`   // 修改时间起始
+	ToDate     *time.Time `json:"toDate"`     // 修改时间结束
+	Content    bool       `json:"content"`    // 是否搜索内容
+	Fuzzy      bool       `json:"fuzzy"`      // 模糊搜索
+	Highlight  bool       `json:"highlight"`  // 高亮匹配
+	ExactMatch bool       `json:"exactMatch"` // 精确匹配
+	CaseSense  bool       `json:"caseSense"`  // 大小写敏感
+	MaxResults int        `json:"maxResults"` // 最大结果数
+	Offset     int        `json:"offset"`     // 偏移量
+	SortBy     string     `json:"sortBy"`     // 排序字段 (relevance, name, size, date)
+	SortDesc   bool       `json:"sortDesc"`   // 降序排序
 }
 
 // SearchResult 搜索结果
@@ -74,7 +74,7 @@ type SearchResult struct {
 
 // SearchHighlight 搜索高亮
 type SearchHighlight struct {
-	Field    string   `json:"field"`    // 匹配字段 (name, content, tags)
+	Field     string   `json:"field"`     // 匹配字段 (name, content, tags)
 	Fragments []string `json:"fragments"` // 高亮片段
 }
 
@@ -93,16 +93,16 @@ type SearchResponse struct {
 
 // SearchFacets 搜索分类统计
 type SearchFacets struct {
-	FileTypes map[string]int `json:"fileTypes"`
+	FileTypes  map[string]int `json:"fileTypes"`
 	Extensions map[string]int `json:"extensions"`
-	Tags      map[string]int `json:"tags"`
+	Tags       map[string]int `json:"tags"`
 }
 
 // SuggestRequest 搜索建议请求
 type SuggestRequest struct {
-	Query  string `json:"query"`  // 前缀
-	Path   string `json:"path"`   // 路径限制
-	Limit  int    `json:"limit"`  // 最大结果数
+	Query string `json:"query"` // 前缀
+	Path  string `json:"path"`  // 路径限制
+	Limit int    `json:"limit"` // 最大结果数
 }
 
 // SuggestResponse 搜索建议响应
@@ -116,16 +116,16 @@ func NewSearchEngine(config WebShareConfig, logger *zap.Logger) *SearchEngine {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	se := &SearchEngine{
-		config:         config,
-		logger:         logger,
-		nameIndex:      make(map[string][]string),
-		contentTokens:  make(map[string][]string),
-		tagIndex:       make(map[string][]string),
-		extIndex:       make(map[string][]string),
-		typeIndex:      make(map[string][]string),
-		stopWords:      make(map[string]bool),
-		ctx:            ctx,
-		cancel:         cancel,
+		config:        config,
+		logger:        logger,
+		nameIndex:     make(map[string][]string),
+		contentTokens: make(map[string][]string),
+		tagIndex:      make(map[string][]string),
+		extIndex:      make(map[string][]string),
+		typeIndex:     make(map[string][]string),
+		stopWords:     make(map[string]bool),
+		ctx:           ctx,
+		cancel:        cancel,
 	}
 
 	// 初始化停用词
@@ -206,8 +206,8 @@ func (se *SearchEngine) BuildIndex(ctx context.Context, basePath string) error {
 
 	// 使用内容索引器构建索引
 	req := IndexRequest{
-		Path:        absBase,
-		Recursive:   true,
+		Path:         absBase,
+		Recursive:    true,
 		ForceReindex: false,
 	}
 
@@ -281,9 +281,9 @@ func (se *SearchEngine) Search(ctx context.Context, req SearchRequest) (*SearchR
 	}
 
 	response := &SearchResponse{
-		Query:   req.Query,
-		Offset:  req.Offset,
-		Limit:   req.MaxResults,
+		Query:  req.Query,
+		Offset: req.Offset,
+		Limit:  req.MaxResults,
 		Facets: SearchFacets{
 			FileTypes:  make(map[string]int),
 			Extensions: make(map[string]int),
@@ -964,15 +964,15 @@ func (se *SearchEngine) GetStats() map[string]interface{} {
 	indexerStats := se.contentIndexer.GetStats()
 
 	return map[string]interface{}{
-		"totalFiles":      indexerStats.IndexedFiles,
-		"totalBytes":      indexerStats.IndexedBytes,
-		"nameIndexSize":   len(se.nameIndex),
+		"totalFiles":       indexerStats.IndexedFiles,
+		"totalBytes":       indexerStats.IndexedBytes,
+		"nameIndexSize":    len(se.nameIndex),
 		"contentIndexSize": len(se.contentTokens),
-		"tagIndexSize":    len(se.tagIndex),
-		"extIndexSize":    len(se.extIndex),
-		"typeIndexSize":   len(se.typeIndex),
-		"lastIndexed":     indexerStats.LastIndexed,
-		"filesByType":     indexerStats.FilesByType,
+		"tagIndexSize":     len(se.tagIndex),
+		"extIndexSize":     len(se.extIndex),
+		"typeIndexSize":    len(se.typeIndex),
+		"lastIndexed":      indexerStats.LastIndexed,
+		"filesByType":      indexerStats.FilesByType,
 	}
 }
 

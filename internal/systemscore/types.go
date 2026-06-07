@@ -23,47 +23,47 @@ type Manager struct {
 
 // Config 配置
 type Config struct {
-	Enabled         bool          `json:"enabled"`
-	CheckInterval   time.Duration `json:"check_interval"`
-	Weights         map[string]float64 `json:"weights"`
-	WarningThreshold float64      `json:"warning_threshold"` // 60
-	CriticalThreshold float64     `json:"critical_threshold"` // 40
+	Enabled           bool               `json:"enabled"`
+	CheckInterval     time.Duration      `json:"check_interval"`
+	Weights           map[string]float64 `json:"weights"`
+	WarningThreshold  float64            `json:"warning_threshold"`  // 60
+	CriticalThreshold float64            `json:"critical_threshold"` // 40
 }
 
 // OverallScore 总体评分
 type OverallScore struct {
-	Score       float64   `json:"score"` // 0-100
-	Grade       string    `json:"grade"` // A, B, C, D, F
-	Status      string    `json:"status"` // excellent, good, fair, poor, critical
-	LastCheck   time.Time `json:"last_check"`
-	Trend       string    `json:"trend"` // improving, stable, declining
+	Score     float64   `json:"score"`  // 0-100
+	Grade     string    `json:"grade"`  // A, B, C, D, F
+	Status    string    `json:"status"` // excellent, good, fair, poor, critical
+	LastCheck time.Time `json:"last_check"`
+	Trend     string    `json:"trend"` // improving, stable, declining
 }
 
 // CategoryScore 分类评分
 type CategoryScore struct {
-	Category    string    `json:"category"`
-	Score       float64   `json:"score"`
-	Grade       string    `json:"grade"`
-	Weight      float64   `json:"weight"`
-	Items       []*ItemScore `json:"items"`
-	LastCheck   time.Time `json:"last_check"`
+	Category  string       `json:"category"`
+	Score     float64      `json:"score"`
+	Grade     string       `json:"grade"`
+	Weight    float64      `json:"weight"`
+	Items     []*ItemScore `json:"items"`
+	LastCheck time.Time    `json:"last_check"`
 }
 
 // ItemScore 评分子项
 type ItemScore struct {
-	Name        string    `json:"name"`
-	Score       float64   `json:"score"`
-	Status      string    `json:"status"`
-	Message     string    `json:"message"`
-	Value       interface{} `json:"value,omitempty"`
-	Threshold   interface{} `json:"threshold,omitempty"`
+	Name      string      `json:"name"`
+	Score     float64     `json:"score"`
+	Status    string      `json:"status"`
+	Message   string      `json:"message"`
+	Value     interface{} `json:"value,omitempty"`
+	Threshold interface{} `json:"threshold,omitempty"`
 }
 
 // ScoreHistory 评分历史
 type ScoreHistory struct {
-	Timestamp   time.Time            `json:"timestamp"`
-	Overall     float64              `json:"overall"`
-	Categories  map[string]float64   `json:"categories"`
+	Timestamp  time.Time          `json:"timestamp"`
+	Overall    float64            `json:"overall"`
+	Categories map[string]float64 `json:"categories"`
 }
 
 // Suggestion 优化建议
@@ -82,21 +82,21 @@ type Suggestion struct {
 // NewManager 创建管理器
 func NewManager(config *Config) *Manager {
 	m := &Manager{
-		config: config,
-		overall: &OverallScore{},
-		categories: make(map[string]*CategoryScore),
-		history: make([]*ScoreHistory, 0),
+		config:      config,
+		overall:     &OverallScore{},
+		categories:  make(map[string]*CategoryScore),
+		history:     make([]*ScoreHistory, 0),
 		suggestions: make([]*Suggestion, 0),
 	}
 	// 初始化默认权重
 	if m.config.Weights == nil {
 		m.config.Weights = map[string]float64{
-			"storage":   0.25,
-			"security":  0.20,
-			"network":   0.15,
+			"storage":     0.25,
+			"security":    0.20,
+			"network":     0.15,
 			"performance": 0.15,
-			"hardware":  0.15,
-			"services":  0.10,
+			"hardware":    0.15,
+			"services":    0.10,
 		}
 	}
 	return m
@@ -123,7 +123,7 @@ func (m *Manager) checkLoop() {
 func (m *Manager) RunCheck() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	// 检查各分类
 	m.checkStorage()
 	m.checkSecurity()
@@ -131,7 +131,7 @@ func (m *Manager) RunCheck() {
 	m.checkPerformance()
 	m.checkHardware()
 	m.checkServices()
-	
+
 	// 计算总分
 	totalScore := 0.0
 	totalWeight := 0.0
@@ -140,21 +140,21 @@ func (m *Manager) RunCheck() {
 		totalScore += score.Score * weight
 		totalWeight += weight
 	}
-	
+
 	if totalWeight > 0 {
 		m.overall.Score = totalScore / totalWeight
 	}
 	m.overall.Grade = scoreToGrade(m.overall.Score)
 	m.overall.Status = scoreToStatus(m.overall.Score)
 	m.overall.LastCheck = time.Now()
-	
+
 	// 记录历史
 	m.history = append(m.history, &ScoreHistory{
 		Timestamp:  time.Now(),
 		Overall:    m.overall.Score,
 		Categories: make(map[string]float64),
 	})
-	
+
 	// 生成建议
 	m.generateSuggestions()
 }
@@ -166,7 +166,7 @@ func (m *Manager) checkStorage() {
 		LastCheck: time.Now(),
 		Items:     make([]*ItemScore, 0),
 	}
-	
+
 	// 存储健康检查项
 	score.Items = append(score.Items, &ItemScore{
 		Name:    "磁盘空间",
@@ -174,14 +174,14 @@ func (m *Manager) checkStorage() {
 		Status:  "good",
 		Message: "磁盘空间充足",
 	})
-	
+
 	score.Items = append(score.Items, &ItemScore{
 		Name:    "RAID 状态",
 		Score:   100,
 		Status:  "excellent",
 		Message: "所有 RAID 阵列正常",
 	})
-	
+
 	// 计算分类平均分
 	total := 0.0
 	for _, item := range score.Items {
@@ -189,7 +189,7 @@ func (m *Manager) checkStorage() {
 	}
 	score.Score = total / float64(len(score.Items))
 	score.Grade = scoreToGrade(score.Score)
-	
+
 	m.categories["storage"] = score
 }
 

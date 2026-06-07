@@ -47,9 +47,9 @@ const (
 type FileSystemType string
 
 const (
-	FSZFS     FileSystemType = "zfs"
-	FSBtrfs   FileSystemType = "btrfs"
-	FSExt4    FileSystemType = "ext4"
+	FSZFS       FileSystemType = "zfs"
+	FSBtrfs     FileSystemType = "btrfs"
+	FSExt4      FileSystemType = "ext4"
 	FSSimulated FileSystemType = "simulated"
 )
 
@@ -72,39 +72,39 @@ type Snapshot struct {
 
 // Schedule 快照调度计划
 type Schedule struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	VolumePath  string            `json:"volume_path"`
-	Frequency   ScheduleFrequency `json:"frequency"`
+	ID         string            `json:"id"`
+	Name       string            `json:"name"`
+	VolumePath string            `json:"volume_path"`
+	Frequency  ScheduleFrequency `json:"frequency"`
 	// Cron 表达式（当 Frequency 为 custom 时使用）
-	CronExpr    string            `json:"cron_expr,omitempty"`
+	CronExpr string `json:"cron_expr,omitempty"`
 	// 具体时间配置
-	Hour        int               `json:"hour,omitempty"`
-	Minute      int               `json:"minute,omitempty"`
-	DayOfWeek   int               `json:"day_of_week,omitempty"`  // 0=Sunday
-	DayOfMonth  int               `json:"day_of_month,omitempty"`
-	Enabled     bool              `json:"enabled"`
+	Hour       int  `json:"hour,omitempty"`
+	Minute     int  `json:"minute,omitempty"`
+	DayOfWeek  int  `json:"day_of_week,omitempty"` // 0=Sunday
+	DayOfMonth int  `json:"day_of_month,omitempty"`
+	Enabled    bool `json:"enabled"`
 	// 保留策略
-	Retention   RetentionPolicy   `json:"retention"`
+	Retention RetentionPolicy `json:"retention"`
 	// 快照前脚本
-	PreScript   string            `json:"pre_script,omitempty"`
+	PreScript string `json:"pre_script,omitempty"`
 	// 快照后脚本
-	PostScript  string            `json:"post_script,omitempty"`
-	Tags        []string          `json:"tags,omitempty"`
-	LastRunAt   *time.Time        `json:"last_run_at,omitempty"`
-	NextRunAt   *time.Time        `json:"next_run_at,omitempty"`
-	RunCount    int               `json:"run_count"`
-	FailCount   int               `json:"fail_count"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	PostScript string     `json:"post_script,omitempty"`
+	Tags       []string   `json:"tags,omitempty"`
+	LastRunAt  *time.Time `json:"last_run_at,omitempty"`
+	NextRunAt  *time.Time `json:"next_run_at,omitempty"`
+	RunCount   int        `json:"run_count"`
+	FailCount  int        `json:"fail_count"`
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
 // RetentionPolicy 保留策略
 type RetentionPolicy struct {
 	Unit         RetentionUnit `json:"unit"`
-	MaxCount     int           `json:"max_count,omitempty"`     // 最大保留数量
-	MaxAgeDays   int           `json:"max_age_days,omitempty"`  // 最大保留天数
-	MaxSizeGB    int64         `json:"max_size_gb,omitempty"`   // 最大总大小(GB)
+	MaxCount     int           `json:"max_count,omitempty"`      // 最大保留数量
+	MaxAgeDays   int           `json:"max_age_days,omitempty"`   // 最大保留天数
+	MaxSizeGB    int64         `json:"max_size_gb,omitempty"`    // 最大总大小(GB)
 	MinKeepCount int           `json:"min_keep_count,omitempty"` // 最少保留数量（防止全部过期）
 }
 
@@ -125,12 +125,12 @@ type RollbackRequest struct {
 
 // SchedulerStats 调度器统计
 type SchedulerStats struct {
-	TotalSnapshots   int            `json:"total_snapshots"`
-	TotalSchedules   int            `json:"total_schedules"`
-	ActiveSchedules  int            `json:"active_schedules"`
-	TotalSizeBytes   int64          `json:"total_size_bytes"`
-	ByStatus         map[SnapshotStatus]int `json:"by_status"`
-	ByVolume         map[string]int `json:"by_volume"`
-	LastSnapshotAt   *time.Time     `json:"last_snapshot_at,omitempty"`
-	NextSnapshotAt   *time.Time     `json:"next_snapshot_at,omitempty"`
+	TotalSnapshots  int                    `json:"total_snapshots"`
+	TotalSchedules  int                    `json:"total_schedules"`
+	ActiveSchedules int                    `json:"active_schedules"`
+	TotalSizeBytes  int64                  `json:"total_size_bytes"`
+	ByStatus        map[SnapshotStatus]int `json:"by_status"`
+	ByVolume        map[string]int         `json:"by_volume"`
+	LastSnapshotAt  *time.Time             `json:"last_snapshot_at,omitempty"`
+	NextSnapshotAt  *time.Time             `json:"next_snapshot_at,omitempty"`
 }

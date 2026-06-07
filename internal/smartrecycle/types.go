@@ -24,37 +24,37 @@ const (
 
 // CleanupItem 清理项
 type CleanupItem struct {
-	ID          string    `json:"id"`
-	Path        string    `json:"path"`
-	Size        int64     `json:"size"`
-	Type        FileType  `json:"type"`
-	Hash        string    `json:"hash,omitempty"`
-	LastAccess  time.Time `json:"last_access"`
-	CreatedAt   time.Time `json:"created_at"`
-	Score       int       `json:"score"` // 0-100, 越高越建议清理
-	Selected    bool      `json:"selected"`
-	Reason      string    `json:"reason"`
+	ID         string    `json:"id"`
+	Path       string    `json:"path"`
+	Size       int64     `json:"size"`
+	Type       FileType  `json:"type"`
+	Hash       string    `json:"hash,omitempty"`
+	LastAccess time.Time `json:"last_access"`
+	CreatedAt  time.Time `json:"created_at"`
+	Score      int       `json:"score"` // 0-100, 越高越建议清理
+	Selected   bool      `json:"selected"`
+	Reason     string    `json:"reason"`
 }
 
 // ScanPolicy 扫描策略
 type ScanPolicy struct {
-	MinFileSize    int64    `json:"min_file_size"`    // 最小文件大小(bytes)
-	MaxAge         int      `json:"max_age"`          // 最大保留天数
-	TempExtensions []string `json:"temp_extensions"`  // 临时文件扩展名
-	ExcludePaths   []string `json:"exclude_paths"`    // 排除路径
+	MinFileSize    int64    `json:"min_file_size"`   // 最小文件大小(bytes)
+	MaxAge         int      `json:"max_age"`         // 最大保留天数
+	TempExtensions []string `json:"temp_extensions"` // 临时文件扩展名
+	ExcludePaths   []string `json:"exclude_paths"`   // 排除路径
 	IncludeHidden  bool     `json:"include_hidden"`
 }
 
 // ScanResult 扫描结果
 type ScanResult struct {
-	ID          string         `json:"id"`
-	ScanPath    string         `json:"scan_path"`
-	TotalFiles  int            `json:"total_files"`
-	TotalSize   int64          `json:"total_size"`
-	Items       []*CleanupItem `json:"items"`
-	Saveable    int64          `json:"saveable"`
-	ScannedAt   time.Time      `json:"scanned_at"`
-	Duration    int64          `json:"duration_ms"`
+	ID         string         `json:"id"`
+	ScanPath   string         `json:"scan_path"`
+	TotalFiles int            `json:"total_files"`
+	TotalSize  int64          `json:"total_size"`
+	Items      []*CleanupItem `json:"items"`
+	Saveable   int64          `json:"saveable"`
+	ScannedAt  time.Time      `json:"scanned_at"`
+	Duration   int64          `json:"duration_ms"`
 }
 
 // CleanupReport 清理报告
@@ -268,9 +268,9 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_scans":   len(m.results),
-		"total_cleans":  len(m.reports),
-		"total_freed":   totalFreed,
+		"total_scans":  len(m.results),
+		"total_cleans": len(m.reports),
+		"total_freed":  totalFreed,
 	}
 }
 
@@ -298,4 +298,3 @@ func (m *Manager) save() error {
 	}
 	return os.WriteFile(m.dataFile, data, 0644)
 }
-

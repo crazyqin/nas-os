@@ -218,11 +218,11 @@ func (b *Browser) GetFileNode(path string) (*FileNode, error) {
 	}
 
 	node := &FileNode{
-		Name:    info.Name(),
-		Path:    cleanPath,
-		Size:    info.Size(),
-		ModTime: info.ModTime(),
-		Mode:    info.Mode().String(),
+		Name:     info.Name(),
+		Path:     cleanPath,
+		Size:     info.Size(),
+		ModTime:  info.ModTime(),
+		Mode:     info.Mode().String(),
 		IsHidden: strings.HasPrefix(info.Name(), "."),
 	}
 
@@ -462,12 +462,12 @@ func getMIMEType(path string) string {
 		".ods":  "application/vnd.oasis.opendocument.spreadsheet",
 
 		// 压缩
-		".zip":     "application/zip",
-		".tar":     "application/x-tar",
-		".gz":      "application/gzip",
-		".bz2":     "application/x-bzip2",
-		".7z":      "application/x-7z-compressed",
-		".rar":     "application/x-rar-compressed",
+		".zip": "application/zip",
+		".tar": "application/x-tar",
+		".gz":  "application/gzip",
+		".bz2": "application/x-bzip2",
+		".7z":  "application/x-7z-compressed",
+		".rar": "application/x-rar-compressed",
 
 		// 代码/文本
 		".txt":  "text/plain",

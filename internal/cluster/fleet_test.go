@@ -37,9 +37,9 @@ func TestNewFleet(t *testing.T) {
 
 func TestFleetNodeRegistration(t *testing.T) {
 	fleet := NewFleet(&FleetConfig{
-		NodeID:  "master",
+		NodeID:   "master",
 		MaxNodes: 10,
-		DataDir: t.TempDir(),
+		DataDir:  t.TempDir(),
 	})
 
 	// 注册节点
@@ -85,9 +85,9 @@ func TestFleetNodeRegistration(t *testing.T) {
 
 func TestFleetListNodes(t *testing.T) {
 	fleet := NewFleet(&FleetConfig{
-		NodeID:  "master",
+		NodeID:   "master",
 		MaxNodes: 10,
-		DataDir: t.TempDir(),
+		DataDir:  t.TempDir(),
 	})
 
 	fleet.RegisterNode(&FleetNode{
@@ -115,9 +115,9 @@ func TestFleetListNodes(t *testing.T) {
 
 func TestFleetNodeStateUpdate(t *testing.T) {
 	fleet := NewFleet(&FleetConfig{
-		NodeID:  "master",
+		NodeID:   "master",
 		MaxNodes: 10,
-		DataDir: t.TempDir(),
+		DataDir:  t.TempDir(),
 	})
 
 	fleet.RegisterNode(&FleetNode{
@@ -142,9 +142,9 @@ func TestFleetNodeStateUpdate(t *testing.T) {
 
 func TestFleetNodeRoleUpdate(t *testing.T) {
 	fleet := NewFleet(&FleetConfig{
-		NodeID:  "master",
+		NodeID:   "master",
 		MaxNodes: 10,
-		DataDir: t.TempDir(),
+		DataDir:  t.TempDir(),
 	})
 
 	fleet.RegisterNode(&FleetNode{
@@ -163,9 +163,9 @@ func TestFleetNodeRoleUpdate(t *testing.T) {
 
 func TestFleetNodeMetrics(t *testing.T) {
 	fleet := NewFleet(&FleetConfig{
-		NodeID:  "master",
+		NodeID:   "master",
 		MaxNodes: 10,
-		DataDir: t.TempDir(),
+		DataDir:  t.TempDir(),
 	})
 
 	fleet.RegisterNode(&FleetNode{
@@ -198,9 +198,9 @@ func TestFleetNodeMetrics(t *testing.T) {
 
 func TestFleetGroups(t *testing.T) {
 	fleet := NewFleet(&FleetConfig{
-		NodeID:  "master",
+		NodeID:   "master",
 		MaxNodes: 10,
-		DataDir: t.TempDir(),
+		DataDir:  t.TempDir(),
 	})
 
 	fleet.RegisterNode(&FleetNode{ID: "w1", Name: "W1", Address: "10.0.0.1"})
@@ -259,9 +259,9 @@ func TestFleetGroups(t *testing.T) {
 
 func TestFleetGroupsInvalidNode(t *testing.T) {
 	fleet := NewFleet(&FleetConfig{
-		NodeID:  "master",
+		NodeID:   "master",
 		MaxNodes: 10,
-		DataDir: t.TempDir(),
+		DataDir:  t.TempDir(),
 	})
 
 	// 创建分组时引用不存在的节点
@@ -287,7 +287,7 @@ func TestFleetScheduleTask(t *testing.T) {
 	fleet.RegisterNode(&FleetNode{
 		ID: "w1", Name: "W1", Address: "10.0.0.1",
 		Capabilities: []string{"storage"},
-		Metrics: &NodeMetrics{CPUUsage: 20, MemoryUsage: 30, DiskUsage: 40},
+		Metrics:      &NodeMetrics{CPUUsage: 20, MemoryUsage: 30, DiskUsage: 40},
 	})
 
 	task := &CrossNodeTask{
@@ -322,9 +322,9 @@ func TestFleetScheduleTask(t *testing.T) {
 
 func TestFleetScheduleTaskNoNodes(t *testing.T) {
 	fleet := NewFleet(&FleetConfig{
-		NodeID:  "master",
+		NodeID:   "master",
 		MaxNodes: 10,
-		DataDir: t.TempDir(),
+		DataDir:  t.TempDir(),
 	})
 
 	task := &CrossNodeTask{
@@ -340,9 +340,9 @@ func TestFleetScheduleTaskNoNodes(t *testing.T) {
 
 func TestFleetTaskCancel(t *testing.T) {
 	fleet := NewFleet(&FleetConfig{
-		NodeID:  "master",
+		NodeID:   "master",
 		MaxNodes: 10,
-		DataDir: t.TempDir(),
+		DataDir:  t.TempDir(),
 	})
 
 	// 取消不存在的任务
@@ -463,19 +463,19 @@ func TestAlertAggregator(t *testing.T) {
 
 	// 添加告警
 	aa.AddAlert(&ClusterAlert{
-		NodeID:  "node-1",
+		NodeID:   "node-1",
 		NodeName: "Node 1",
-		Level:   "warning",
-		Type:    "cpu",
-		Message: "CPU使用率过高",
+		Level:    "warning",
+		Type:     "cpu",
+		Message:  "CPU使用率过高",
 	})
 
 	aa.AddAlert(&ClusterAlert{
-		NodeID:  "node-2",
+		NodeID:   "node-2",
 		NodeName: "Node 2",
-		Level:   "error",
-		Type:    "disk",
-		Message: "磁盘空间不足",
+		Level:    "error",
+		Type:     "disk",
+		Message:  "磁盘空间不足",
 	})
 
 	// 列出所有告警
@@ -671,9 +671,9 @@ func TestFleetPersistence(t *testing.T) {
 
 	// 创建舰队并注册节点
 	fleet1 := NewFleet(&FleetConfig{
-		NodeID:  "master",
+		NodeID:   "master",
 		MaxNodes: 10,
-		DataDir: dataDir,
+		DataDir:  dataDir,
 	})
 	fleet1.RegisterNode(&FleetNode{
 		ID: "w1", Name: "W1", Address: "10.0.0.1",
@@ -689,9 +689,9 @@ func TestFleetPersistence(t *testing.T) {
 
 	// 重新创建（应加载持久化数据）
 	fleet2 := NewFleet(&FleetConfig{
-		NodeID:  "master",
+		NodeID:   "master",
 		MaxNodes: 10,
-		DataDir: dataDir,
+		DataDir:  dataDir,
 	})
 
 	node, ok := fleet2.GetNode("w1")

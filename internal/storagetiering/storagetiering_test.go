@@ -293,17 +293,17 @@ func TestListFilesByTier(t *testing.T) {
 func TestListFilesByHeatLevel(t *testing.T) {
 	m := newTestManager()
 	now := time.Now()
-	
+
 	// Register a file with high access count and recent access to ensure it's hot
 	hot := &FileMetadata{
-		Path:          "/data/hot.txt",
-		SizeBytes:     512 * 1024,
-		CurrentTier:   TierLevelHot,
-		AccessPattern: AccessPatternReadWrite,
-		AccessCount:   1000,
-		LastAccessAt:  now,
+		Path:           "/data/hot.txt",
+		SizeBytes:      512 * 1024,
+		CurrentTier:    TierLevelHot,
+		AccessPattern:  AccessPatternReadWrite,
+		AccessCount:    1000,
+		LastAccessAt:   now,
 		LastModifiedAt: now,
-		CreatedAt:     now.Add(-1 * 24 * time.Hour),
+		CreatedAt:      now.Add(-1 * 24 * time.Hour),
 	}
 	m.RegisterFile(hot)
 
@@ -641,12 +641,12 @@ func TestEvaluateRules_PinnedFileSkipped(t *testing.T) {
 	m := newTestManager()
 
 	file := &FileMetadata{
-		Path:          "/data/pinned.txt",
-		SizeBytes:     1024,
-		CurrentTier:   TierLevelWarm,
-		AccessCount:   20,
-		LastAccessAt:  time.Now(),
-		CreatedAt:     time.Now().Add(-30 * 24 * time.Hour),
+		Path:         "/data/pinned.txt",
+		SizeBytes:    1024,
+		CurrentTier:  TierLevelWarm,
+		AccessCount:  20,
+		LastAccessAt: time.Now(),
+		CreatedAt:    time.Now().Add(-30 * 24 * time.Hour),
 	}
 	registered, _ := m.RegisterFile(file)
 	m.PinFile(registered.ID)
@@ -776,12 +776,12 @@ func TestConcurrent_ScheduleMigration(t *testing.T) {
 	var files []*FileMetadata
 	for i := 0; i < 20; i++ {
 		file := &FileMetadata{
-			Path:        "/data/file-" + string(rune('A'+i)),
-			SizeBytes:   1024 * 1024,
-			CurrentTier: TierLevelWarm,
-			AccessCount: 100, // High access to trigger hot rule
+			Path:         "/data/file-" + string(rune('A'+i)),
+			SizeBytes:    1024 * 1024,
+			CurrentTier:  TierLevelWarm,
+			AccessCount:  100, // High access to trigger hot rule
 			LastAccessAt: time.Now(),
-			CreatedAt:   time.Now().Add(-30 * 24 * time.Hour),
+			CreatedAt:    time.Now().Add(-30 * 24 * time.Hour),
 		}
 		registered, _ := m.RegisterFile(file)
 		files = append(files, registered)

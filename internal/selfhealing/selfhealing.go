@@ -25,10 +25,10 @@ const (
 type RepairStatus string
 
 const (
-	RepairStatusPending  RepairStatus = "pending"
-	RepairStatusRunning  RepairStatus = "running"
-	RepairStatusSuccess  RepairStatus = "success"
-	RepairStatusFailed   RepairStatus = "failed"
+	RepairStatusPending RepairStatus = "pending"
+	RepairStatusRunning RepairStatus = "running"
+	RepairStatusSuccess RepairStatus = "success"
+	RepairStatusFailed  RepairStatus = "failed"
 )
 
 // IntegrityLevel 完整性校验级别
@@ -42,18 +42,18 @@ const (
 
 // ScrubTask scrub 任务
 type ScrubTask struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	Target      string      `json:"target"`      // 目标路径或卷
-	Status      ScrubStatus `json:"status"`
-	Progress    float64     `json:"progress"`     // 0-100
-	TotalFiles  int64       `json:"total_files"`
-	ScrubbedFiles int64     `json:"scrubbed_files"`
-	CorruptedFiles int64    `json:"corrupted_files"`
-	RepairedFiles int64     `json:"repaired_files"`
-	StartedAt   *time.Time  `json:"started_at,omitempty"`
-	CompletedAt *time.Time  `json:"completed_at,omitempty"`
-	Error       string      `json:"error,omitempty"`
+	ID             string      `json:"id"`
+	Name           string      `json:"name"`
+	Target         string      `json:"target"` // 目标路径或卷
+	Status         ScrubStatus `json:"status"`
+	Progress       float64     `json:"progress"` // 0-100
+	TotalFiles     int64       `json:"total_files"`
+	ScrubbedFiles  int64       `json:"scrubbed_files"`
+	CorruptedFiles int64       `json:"corrupted_files"`
+	RepairedFiles  int64       `json:"repaired_files"`
+	StartedAt      *time.Time  `json:"started_at,omitempty"`
+	CompletedAt    *time.Time  `json:"completed_at,omitempty"`
+	Error          string      `json:"error,omitempty"`
 }
 
 // DataBlock 数据块
@@ -70,49 +70,49 @@ type DataBlock struct {
 
 // CorruptionRecord 损坏记录
 type CorruptionRecord struct {
-	ID          string       `json:"id"`
-	BlockID     string       `json:"block_id"`
-	Path        string       `json:"path"`
-	DetectedAt  time.Time    `json:"detected_at"`
+	ID           string       `json:"id"`
+	BlockID      string       `json:"block_id"`
+	Path         string       `json:"path"`
+	DetectedAt   time.Time    `json:"detected_at"`
 	RepairStatus RepairStatus `json:"repair_status"`
-	RepairAt    *time.Time   `json:"repair_at,omitempty"`
-	Error       string       `json:"error,omitempty"`
+	RepairAt     *time.Time   `json:"repair_at,omitempty"`
+	Error        string       `json:"error,omitempty"`
 }
 
 // RepairReport 修复报告
 type RepairReport struct {
-	ID              string              `json:"id"`
-	ScrubTaskID     string              `json:"scrub_task_id"`
-	TotalBlocks     int                 `json:"total_blocks"`
-	CorruptedBlocks int                 `json:"corrupted_blocks"`
-	RepairedBlocks  int                 `json:"repaired_blocks"`
-	FailedBlocks    int                 `json:"failed_blocks"`
-	Records         []CorruptionRecord  `json:"records"`
-	StartedAt       time.Time           `json:"started_at"`
-	CompletedAt     *time.Time          `json:"completed_at,omitempty"`
+	ID              string             `json:"id"`
+	ScrubTaskID     string             `json:"scrub_task_id"`
+	TotalBlocks     int                `json:"total_blocks"`
+	CorruptedBlocks int                `json:"corrupted_blocks"`
+	RepairedBlocks  int                `json:"repaired_blocks"`
+	FailedBlocks    int                `json:"failed_blocks"`
+	Records         []CorruptionRecord `json:"records"`
+	StartedAt       time.Time          `json:"started_at"`
+	CompletedAt     *time.Time         `json:"completed_at,omitempty"`
 }
 
 // ReplicaInfo 副本信息
 type ReplicaInfo struct {
-	BlockID    string    `json:"block_id"`
-	ReplicaID  string    `json:"replica_id"`
-	Path       string    `json:"path"`
-	Checksum   string    `json:"checksum"`
-	Healthy    bool      `json:"healthy"`
-	LastCheck  time.Time `json:"last_check"`
+	BlockID   string    `json:"block_id"`
+	ReplicaID string    `json:"replica_id"`
+	Path      string    `json:"path"`
+	Checksum  string    `json:"checksum"`
+	Healthy   bool      `json:"healthy"`
+	LastCheck time.Time `json:"last_check"`
 }
 
 // SelfHealingConfig 自愈存储配置
 type SelfHealingConfig struct {
-	Enabled           bool            `json:"enabled"`
-	ScrubInterval     int             `json:"scrub_interval"`     // hours
-	ScrubSchedule     string          `json:"scrub_schedule"`     // cron expression
-	IntegrityLevel    IntegrityLevel  `json:"integrity_level"`
-	AutoRepair        bool            `json:"autoRepair"`
-	ReplicaCount      int             `json:"replica_count"`
-	MaxRepairAttempts int             `json:"max_repair_attempts"`
-	ChecksumAlgorithm string          `json:"checksum_algorithm"`
-	AlertThreshold    int             `json:"alert_threshold"`    // 损坏文件数告警阈值
+	Enabled           bool           `json:"enabled"`
+	ScrubInterval     int            `json:"scrub_interval"` // hours
+	ScrubSchedule     string         `json:"scrub_schedule"` // cron expression
+	IntegrityLevel    IntegrityLevel `json:"integrity_level"`
+	AutoRepair        bool           `json:"autoRepair"`
+	ReplicaCount      int            `json:"replica_count"`
+	MaxRepairAttempts int            `json:"max_repair_attempts"`
+	ChecksumAlgorithm string         `json:"checksum_algorithm"`
+	AlertThreshold    int            `json:"alert_threshold"` // 损坏文件数告警阈值
 }
 
 // Manager 自愈存储管理器
@@ -130,11 +130,11 @@ type Manager struct {
 // NewManager 创建自愈存储管理器
 func NewManager(config *SelfHealingConfig) *Manager {
 	return &Manager{
-		config:   config,
+		config:     config,
 		scrubTasks: make(map[string]*ScrubTask),
-		blocks:   make(map[string]*DataBlock),
-		replicas: make(map[string][]*ReplicaInfo),
-		stopCh:   make(chan struct{}),
+		blocks:     make(map[string]*DataBlock),
+		replicas:   make(map[string][]*ReplicaInfo),
+		stopCh:     make(chan struct{}),
 	}
 }
 
@@ -143,10 +143,10 @@ func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return nil
 	}
-	
+
 	go m.runScrubScheduler()
 	go m.monitorIntegrity()
-	
+
 	return nil
 }
 
@@ -159,7 +159,7 @@ func (m *Manager) Stop() {
 func (m *Manager) runScrubScheduler() {
 	ticker := time.NewTicker(time.Duration(m.config.ScrubInterval) * time.Hour)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-m.stopCh:
@@ -174,14 +174,14 @@ func (m *Manager) runScrubScheduler() {
 func (m *Manager) scheduleScrub() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	task := &ScrubTask{
 		ID:     fmt.Sprintf("scrub_%d", time.Now().UnixNano()),
 		Name:   "scheduled-scrub",
 		Target: "/",
 		Status: ScrubStatusPending,
 	}
-	
+
 	m.scrubTasks[task.ID] = task
 	go m.executeScrub(task)
 }
@@ -193,12 +193,12 @@ func (m *Manager) executeScrub(task *ScrubTask) {
 	now := time.Now()
 	task.StartedAt = &now
 	m.mu.Unlock()
-	
+
 	// 模拟 scrub 过程
 	m.mu.RLock()
 	totalBlocks := len(m.blocks)
 	m.mu.RUnlock()
-	
+
 	if totalBlocks == 0 {
 		m.mu.Lock()
 		task.Status = ScrubStatusCompleted
@@ -208,27 +208,27 @@ func (m *Manager) executeScrub(task *ScrubTask) {
 		m.mu.Unlock()
 		return
 	}
-	
+
 	checked := 0
 	corrupted := 0
-	
+
 	for blockID := range m.blocks {
 		m.mu.RLock()
 		block := m.blocks[blockID]
 		m.mu.RUnlock()
-		
+
 		// 验证校验和
 		if !m.verifyBlock(block) {
 			corrupted++
 			m.recordCorruption(block)
-			
+
 			if m.config.AutoRepair {
 				m.repairBlock(block)
 			}
 		}
-		
+
 		checked++
-		
+
 		m.mu.Lock()
 		task.ScrubbedFiles = int64(checked)
 		task.TotalFiles = int64(totalBlocks)
@@ -236,7 +236,7 @@ func (m *Manager) executeScrub(task *ScrubTask) {
 		task.Progress = float64(checked) / float64(totalBlocks) * 100
 		m.mu.Unlock()
 	}
-	
+
 	m.mu.Lock()
 	task.Status = ScrubStatusCompleted
 	completedAt := time.Now()
@@ -262,7 +262,7 @@ func (m *Manager) calculateChecksum(path string) string {
 func (m *Manager) recordCorruption(block *DataBlock) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	record := CorruptionRecord{
 		ID:           fmt.Sprintf("corr_%d", time.Now().UnixNano()),
 		BlockID:      block.ID,
@@ -270,7 +270,7 @@ func (m *Manager) recordCorruption(block *DataBlock) {
 		DetectedAt:   time.Now(),
 		RepairStatus: RepairStatusPending,
 	}
-	
+
 	m.corruptions = append(m.corruptions, record)
 }
 
@@ -278,19 +278,19 @@ func (m *Manager) recordCorruption(block *DataBlock) {
 func (m *Manager) repairBlock(block *DataBlock) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	replicas, ok := m.replicas[block.ID]
 	if !ok || len(replicas) == 0 {
 		return
 	}
-	
+
 	// 找到健康的副本
 	for _, replica := range replicas {
 		if replica.Healthy {
 			// 从健康副本修复
 			block.Checksum = replica.Checksum
 			block.UpdatedAt = time.Now()
-			
+
 			// 更新损坏记录
 			for i := range m.corruptions {
 				if m.corruptions[i].BlockID == block.ID && m.corruptions[i].RepairStatus == RepairStatusPending {
@@ -300,7 +300,7 @@ func (m *Manager) repairBlock(block *DataBlock) {
 					break
 				}
 			}
-			
+
 			return
 		}
 	}
@@ -310,7 +310,7 @@ func (m *Manager) repairBlock(block *DataBlock) {
 func (m *Manager) monitorIntegrity() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-m.stopCh:
@@ -325,7 +325,7 @@ func (m *Manager) monitorIntegrity() {
 func (m *Manager) checkIntegrity() {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	// 检查副本一致性
 	for blockID, replicas := range m.replicas {
 		for _, replica := range replicas {
@@ -333,7 +333,7 @@ func (m *Manager) checkIntegrity() {
 			if block == nil {
 				continue
 			}
-			
+
 			if replica.Checksum != block.Checksum {
 				replica.Healthy = false
 			} else {
@@ -348,18 +348,18 @@ func (m *Manager) checkIntegrity() {
 func (m *Manager) RegisterBlock(block *DataBlock) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if block.ID == "" {
 		block.ID = fmt.Sprintf("block_%d", time.Now().UnixNano())
 	}
-	
+
 	block.CreatedAt = time.Now()
 	block.UpdatedAt = time.Now()
-	
+
 	if block.Algorithm == "" {
 		block.Algorithm = m.config.ChecksumAlgorithm
 	}
-	
+
 	m.blocks[block.ID] = block
 	return nil
 }
@@ -368,15 +368,15 @@ func (m *Manager) RegisterBlock(block *DataBlock) error {
 func (m *Manager) AddReplica(blockID string, replica *ReplicaInfo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if _, ok := m.blocks[blockID]; !ok {
 		return fmt.Errorf("block not found: %s", blockID)
 	}
-	
+
 	replica.BlockID = blockID
 	replica.LastCheck = time.Now()
 	m.replicas[blockID] = append(m.replicas[blockID], replica)
-	
+
 	return nil
 }
 
@@ -384,17 +384,17 @@ func (m *Manager) AddReplica(blockID string, replica *ReplicaInfo) error {
 func (m *Manager) CreateScrubTask(name, target string) *ScrubTask {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	task := &ScrubTask{
 		ID:     fmt.Sprintf("scrub_%d", time.Now().UnixNano()),
 		Name:   name,
 		Target: target,
 		Status: ScrubStatusPending,
 	}
-	
+
 	m.scrubTasks[task.ID] = task
 	go m.executeScrub(task)
-	
+
 	return task
 }
 
@@ -402,12 +402,12 @@ func (m *Manager) CreateScrubTask(name, target string) *ScrubTask {
 func (m *Manager) GetScrubTask(taskID string) (*ScrubTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	task, ok := m.scrubTasks[taskID]
 	if !ok {
 		return nil, fmt.Errorf("scrub task not found: %s", taskID)
 	}
-	
+
 	return task, nil
 }
 
@@ -415,12 +415,12 @@ func (m *Manager) GetScrubTask(taskID string) (*ScrubTask, error) {
 func (m *Manager) ListScrubTasks() []*ScrubTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	tasks := make([]*ScrubTask, 0, len(m.scrubTasks))
 	for _, task := range m.scrubTasks {
 		tasks = append(tasks, task)
 	}
-	
+
 	return tasks
 }
 
@@ -428,7 +428,7 @@ func (m *Manager) ListScrubTasks() []*ScrubTask {
 func (m *Manager) GetCorruptionRecords() []CorruptionRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	return m.corruptions
 }
 
@@ -436,16 +436,16 @@ func (m *Manager) GetCorruptionRecords() []CorruptionRecord {
 func (m *Manager) GenerateRepairReport(scrubTaskID string) *RepairReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	report := &RepairReport{
 		ID:          fmt.Sprintf("report_%d", time.Now().UnixNano()),
 		ScrubTaskID: scrubTaskID,
 		StartedAt:   time.Now(),
 	}
-	
+
 	for _, record := range m.corruptions {
 		report.TotalBlocks++
-		
+
 		switch record.RepairStatus {
 		case RepairStatusSuccess:
 			report.RepairedBlocks++
@@ -454,10 +454,10 @@ func (m *Manager) GenerateRepairReport(scrubTaskID string) *RepairReport {
 		default:
 			report.CorruptedBlocks++
 		}
-		
+
 		report.Records = append(report.Records, record)
 	}
-	
+
 	m.reports = append(m.reports, report)
 	return report
 }
@@ -466,11 +466,11 @@ func (m *Manager) GenerateRepairReport(scrubTaskID string) *RepairReport {
 func (m *Manager) GetDashboard() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	totalBlocks := len(m.blocks)
 	totalReplicas := 0
 	healthyReplicas := 0
-	
+
 	for _, replicas := range m.replicas {
 		for _, replica := range replicas {
 			totalReplicas++
@@ -479,15 +479,15 @@ func (m *Manager) GetDashboard() map[string]interface{} {
 			}
 		}
 	}
-	
+
 	return map[string]interface{}{
-		"total_blocks":      totalBlocks,
-		"total_replicas":    totalReplicas,
-		"healthy_replicas":  healthyReplicas,
-		"corruption_count":  len(m.corruptions),
-		"scrub_tasks":       len(m.scrubTasks),
-		"integrity_level":   m.config.IntegrityLevel,
-		"auto_repair":       m.config.AutoRepair,
+		"total_blocks":     totalBlocks,
+		"total_replicas":   totalReplicas,
+		"healthy_replicas": healthyReplicas,
+		"corruption_count": len(m.corruptions),
+		"scrub_tasks":      len(m.scrubTasks),
+		"integrity_level":  m.config.IntegrityLevel,
+		"auto_repair":      m.config.AutoRepair,
 	}
 }
 
@@ -495,7 +495,7 @@ func (m *Manager) GetDashboard() map[string]interface{} {
 func (m *Manager) MarshalJSON() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	return json.Marshal(struct {
 		Config      *SelfHealingConfig `json:"config"`
 		Blocks      int                `json:"blocks_count"`

@@ -13,8 +13,8 @@ type Manager struct {
 
 // Config 配置
 type Config struct {
-	Enabled     bool   `json:"enabled"`
-	Interval    int    `json:"interval"`
+	Enabled  bool `json:"enabled"`
+	Interval int  `json:"interval"`
 }
 
 // NewManager 创建管理器

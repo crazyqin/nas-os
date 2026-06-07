@@ -17,11 +17,11 @@ import (
 
 // Manager WORM 存储管理器.
 type Manager struct {
-	mu        sync.RWMutex
-	logger    *zap.Logger
-	buckets   map[string]*ImmutableBucket
-	objects   map[string]map[string]*ImmutableObject // bucketName -> objectKey -> object
-	auditLogs []*RetentionAuditEntry
+	mu         sync.RWMutex
+	logger     *zap.Logger
+	buckets    map[string]*ImmutableBucket
+	objects    map[string]map[string]*ImmutableObject // bucketName -> objectKey -> object
+	auditLogs  []*RetentionAuditEntry
 	configPath string
 }
 
@@ -587,8 +587,8 @@ func (m *Manager) GetStats() *WORMStats {
 	defer m.mu.RUnlock()
 
 	stats := &WORMStats{
-		TotalBuckets:   len(m.buckets),
-		AuditLogCount:  len(m.auditLogs),
+		TotalBuckets:  len(m.buckets),
+		AuditLogCount: len(m.auditLogs),
 	}
 
 	for _, bucket := range m.buckets {
@@ -677,9 +677,9 @@ func calculateRetainUntil(mode LockMode, days, years int) time.Time {
 
 // wormData 持久化数据结构.
 type wormData struct {
-	Buckets   map[string]*ImmutableBucket              `json:"buckets"`
-	Objects   map[string]map[string]*ImmutableObject    `json:"objects"`
-	AuditLogs []*RetentionAuditEntry                    `json:"audit_logs"`
+	Buckets   map[string]*ImmutableBucket            `json:"buckets"`
+	Objects   map[string]map[string]*ImmutableObject `json:"objects"`
+	AuditLogs []*RetentionAuditEntry                 `json:"audit_logs"`
 }
 
 // SaveConfig 保存配置到文件.

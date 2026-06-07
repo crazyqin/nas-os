@@ -219,10 +219,10 @@ func TestSearchPhotos(t *testing.T) {
 	manager.UpdatePhoto(p)
 
 	query := SearchQuery{
-		Keywords:  "sunset",
-		MinScore:  float64Ptr(80.0),
-		Page:      1,
-		PageSize:  10,
+		Keywords: "sunset",
+		MinScore: float64Ptr(80.0),
+		Page:     1,
+		PageSize: 10,
 	}
 
 	body, _ := json.Marshal(query)
@@ -758,9 +758,9 @@ func TestManagerBatchTag(t *testing.T) {
 	m := setupTestManager(t)
 
 	p := &Photo{
-		ID:       "test-1",
-		Filename: "test.jpg",
-		Tags:     []string{"old"},
+		ID:        "test-1",
+		Filename:  "test.jpg",
+		Tags:      []string{"old"},
 		CreatedAt: time.Now(),
 	}
 	m.AddPhoto(p)

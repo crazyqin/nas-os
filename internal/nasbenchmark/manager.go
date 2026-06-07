@@ -23,29 +23,29 @@ const (
 
 // BenchmarkResult represents a benchmark result
 type BenchmarkResult struct {
-	ID          string        `json:"id"`
-	Type        BenchmarkType `json:"type"`
-	Path        string        `json:"path"`
-	BlockSize   int           `json:"block_size_kb"`
-	FileSize    int           `json:"file_size_mb"`
-	Threads     int           `json:"threads"`
-	Duration    time.Duration `json:"duration"`
-	Throughput  float64       `json:"throughput_mbps"`
-	IOPS        float64       `json:"iops"`
-	Latency     LatencyStats  `json:"latency"`
-	Timestamp   time.Time     `json:"timestamp"`
-	Status      string        `json:"status"`
-	ErrorMsg    string        `json:"error_msg,omitempty"`
+	ID         string        `json:"id"`
+	Type       BenchmarkType `json:"type"`
+	Path       string        `json:"path"`
+	BlockSize  int           `json:"block_size_kb"`
+	FileSize   int           `json:"file_size_mb"`
+	Threads    int           `json:"threads"`
+	Duration   time.Duration `json:"duration"`
+	Throughput float64       `json:"throughput_mbps"`
+	IOPS       float64       `json:"iops"`
+	Latency    LatencyStats  `json:"latency"`
+	Timestamp  time.Time     `json:"timestamp"`
+	Status     string        `json:"status"`
+	ErrorMsg   string        `json:"error_msg,omitempty"`
 }
 
 // LatencyStats represents latency statistics
 type LatencyStats struct {
-	Min    time.Duration `json:"min"`
-	Max    time.Duration `json:"max"`
-	Avg    time.Duration `json:"avg"`
-	P50    time.Duration `json:"p50"`
-	P95    time.Duration `json:"p95"`
-	P99    time.Duration `json:"p99"`
+	Min time.Duration `json:"min"`
+	Max time.Duration `json:"max"`
+	Avg time.Duration `json:"avg"`
+	P50 time.Duration `json:"p50"`
+	P95 time.Duration `json:"p95"`
+	P99 time.Duration `json:"p99"`
 }
 
 // BenchmarkConfig represents benchmark configuration
@@ -71,13 +71,13 @@ type BenchmarkSuite struct {
 
 // SuiteSummary represents a summary of benchmark suite
 type SuiteSummary struct {
-	TotalTests     int     `json:"total_tests"`
-	PassedTests    int     `json:"passed_tests"`
-	FailedTests    int     `json:"failed_tests"`
-	AvgThroughput  float64 `json:"avg_throughput_mbps"`
-	MaxThroughput  float64 `json:"max_throughput_mbps"`
-	MinThroughput  float64 `json:"min_throughput_mbps"`
-	TotalDuration  time.Duration `json:"total_duration"`
+	TotalTests    int           `json:"total_tests"`
+	PassedTests   int           `json:"passed_tests"`
+	FailedTests   int           `json:"failed_tests"`
+	AvgThroughput float64       `json:"avg_throughput_mbps"`
+	MaxThroughput float64       `json:"max_throughput_mbps"`
+	MinThroughput float64       `json:"min_throughput_mbps"`
+	TotalDuration time.Duration `json:"total_duration"`
 }
 
 // Manager manages benchmarks
@@ -273,13 +273,13 @@ func (m *Manager) CompareResults(id1, id2 string) (map[string]interface{}, error
 		"result1": map[string]interface{}{
 			"id":         r1.ID,
 			"type":       r1.Type,
-			"throughput":  r1.Throughput,
+			"throughput": r1.Throughput,
 			"iops":       r1.IOPS,
 		},
 		"result2": map[string]interface{}{
 			"id":         r2.ID,
 			"type":       r2.Type,
-			"throughput":  r2.Throughput,
+			"throughput": r2.Throughput,
 			"iops":       r2.IOPS,
 		},
 		"throughput_diff_pct": ((r2.Throughput - r1.Throughput) / r1.Throughput) * 100,

@@ -76,11 +76,11 @@ func (pm *PoolManager) CreatePool(ctx context.Context, config PoolConfig) error 
 	}
 
 	pm.pools[config.Name] = &PoolInfo{
-		Name:     config.Name,
-		Status:   PoolStatusOnline,
-		RaidType: config.RaidType,
-		Disks:    make([]DiskInfo, 0),
-		Spares:   make([]DiskInfo, 0),
+		Name:      config.Name,
+		Status:    PoolStatusOnline,
+		RaidType:  config.RaidType,
+		Disks:     make([]DiskInfo, 0),
+		Spares:    make([]DiskInfo, 0),
 		Timestamp: time.Now(),
 	}
 
@@ -365,8 +365,8 @@ func (pm *PoolManager) ImportPool(ctx context.Context, name string, force bool) 
 	}
 
 	pm.pools[name] = &PoolInfo{
-		Name:     name,
-		Status:   PoolStatusOnline,
+		Name:      name,
+		Status:    PoolStatusOnline,
 		Timestamp: time.Now(),
 	}
 

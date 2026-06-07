@@ -414,10 +414,10 @@ func TestPolicyCRUD(t *testing.T) {
 
 	t.Run("创建策略", func(t *testing.T) {
 		err := mgr.CreatePolicy(&SnapshotPolicy{
-			Name:     "test-policy",
-			Enabled:  true,
-			Type:     PolicyCron,
-			CronExpr: "0 0 2 * * *", // 每天凌晨 2 点
+			Name:         "test-policy",
+			Enabled:      true,
+			Type:         PolicyCron,
+			CronExpr:     "0 0 2 * * *", // 每天凌晨 2 点
 			DatasetPaths: []string{"/pool/auto"},
 			Retention: RetentionPolicy{
 				MaxSnapshots: 10,
@@ -448,8 +448,8 @@ func TestPolicyCRUD(t *testing.T) {
 		require.Len(t, policies, 1)
 
 		err := mgr.UpdatePolicy(policies[0].ID, &SnapshotPolicy{
-			Name:        "updated-policy",
-			Retention:   RetentionPolicy{MaxSnapshots: 20},
+			Name:      "updated-policy",
+			Retention: RetentionPolicy{MaxSnapshots: 20},
 		})
 		assert.NoError(t, err)
 

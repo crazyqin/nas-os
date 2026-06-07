@@ -17,85 +17,85 @@ const (
 type AirPlayDeviceType string
 
 const (
-	AirPlayTypeAppleTV    AirPlayDeviceType = "appletv"
-	AirPlayTypeHomePod    AirPlayDeviceType = "homepod"
-	AirPlayTypeSpeaker    AirPlayDeviceType = "speaker"
-	AirPlayTypeReceiver   AirPlayDeviceType = "receiver"
-	AirPlayTypeDisplay    AirPlayDeviceType = "display"
-	AirPlayTypeUnknown    AirPlayDeviceType = "unknown"
+	AirPlayTypeAppleTV  AirPlayDeviceType = "appletv"
+	AirPlayTypeHomePod  AirPlayDeviceType = "homepod"
+	AirPlayTypeSpeaker  AirPlayDeviceType = "speaker"
+	AirPlayTypeReceiver AirPlayDeviceType = "receiver"
+	AirPlayTypeDisplay  AirPlayDeviceType = "display"
+	AirPlayTypeUnknown  AirPlayDeviceType = "unknown"
 )
 
 // SpotlightIndexStatus Spotlight 索引状态
 type SpotlightIndexStatus string
 
 const (
-	SpotlightStatusIdle      SpotlightIndexStatus = "idle"
-	SpotlightStatusIndexing  SpotlightIndexStatus = "indexing"
-	SpotlightStatusPaused    SpotlightIndexStatus = "paused"
-	SpotlightStatusError     SpotlightIndexStatus = "error"
+	SpotlightStatusIdle     SpotlightIndexStatus = "idle"
+	SpotlightStatusIndexing SpotlightIndexStatus = "indexing"
+	SpotlightStatusPaused   SpotlightIndexStatus = "paused"
+	SpotlightStatusError    SpotlightIndexStatus = "error"
 )
 
 // AirPlayDevice AirPlay 设备信息
 type AirPlayDevice struct {
-	ID             string              `json:"id"`
-	Name           string              `json:"name"`
-	Model          string              `json:"model,omitempty"`
-	IP             string              `json:"ip"`
-	Port           int                 `json:"port"`
-	MAC            string              `json:"mac,omitempty"`
-	Type           AirPlayDeviceType   `json:"type"`
-	Status         AirPlayDeviceStatus `json:"status"`
-	SupportsVideo  bool                `json:"supports_video"`
-	SupportsAudio  bool                `json:"supports_audio"`
-	Resolution     string              `json:"resolution,omitempty"`
-	LastSeen       time.Time           `json:"last_seen"`
+	ID            string              `json:"id"`
+	Name          string              `json:"name"`
+	Model         string              `json:"model,omitempty"`
+	IP            string              `json:"ip"`
+	Port          int                 `json:"port"`
+	MAC           string              `json:"mac,omitempty"`
+	Type          AirPlayDeviceType   `json:"type"`
+	Status        AirPlayDeviceStatus `json:"status"`
+	SupportsVideo bool                `json:"supports_video"`
+	SupportsAudio bool                `json:"supports_audio"`
+	Resolution    string              `json:"resolution,omitempty"`
+	LastSeen      time.Time           `json:"last_seen"`
 }
 
 // TimeMachineClient Time Machine 客户端信息
 type TimeMachineClient struct {
-	ClientID    string    `json:"client_id"`
-	Hostname    string    `json:"hostname"`
-	IPAddress   string    `json:"ip_address"`
-	LastBackup  time.Time `json:"last_backup,omitempty"`
-	BackupSize  int64     `json:"backup_size"`
-	Status      string    `json:"status"`
+	ClientID   string    `json:"client_id"`
+	Hostname   string    `json:"hostname"`
+	IPAddress  string    `json:"ip_address"`
+	LastBackup time.Time `json:"last_backup,omitempty"`
+	BackupSize int64     `json:"backup_size"`
+	Status     string    `json:"status"`
 }
 
 // TimeMachineShare Time Machine 共享配置
 type TimeMachineShare struct {
-	ID           string              `json:"id"`
-	Name         string              `json:"name"`
-	Path         string              `json:"path"`
-	Quota        int64               `json:"quota"`
-	UsedSpace    int64               `json:"used_space"`
-	AFPEnabled   bool                `json:"afp_enabled"`
-	SMBEnabled   bool                `json:"smb_enabled"`
-	EncryptionKey string             `json:"encryption_key,omitempty"`
-	Clients      []TimeMachineClient `json:"clients,omitempty"`
-	CreatedAt    time.Time           `json:"created_at"`
-	UpdatedAt    time.Time           `json:"updated_at"`
+	ID            string              `json:"id"`
+	Name          string              `json:"name"`
+	Path          string              `json:"path"`
+	Quota         int64               `json:"quota"`
+	UsedSpace     int64               `json:"used_space"`
+	AFPEnabled    bool                `json:"afp_enabled"`
+	SMBEnabled    bool                `json:"smb_enabled"`
+	EncryptionKey string              `json:"encryption_key,omitempty"`
+	Clients       []TimeMachineClient `json:"clients,omitempty"`
+	CreatedAt     time.Time           `json:"created_at"`
+	UpdatedAt     time.Time           `json:"updated_at"`
 }
 
 // SpotlightIndex Spotlight 索引状态
 type SpotlightIndex struct {
-	ID          string              `json:"id"`
-	VolumeID    string              `json:"volume_id"`
-	IndexPath   string              `json:"index_path"`
+	ID          string               `json:"id"`
+	VolumeID    string               `json:"volume_id"`
+	IndexPath   string               `json:"index_path"`
 	Status      SpotlightIndexStatus `json:"status"`
-	LastIndexed time.Time           `json:"last_indexed,omitempty"`
-	TotalFiles  int64               `json:"total_files"`
-	IndexSize   int64               `json:"index_size"`
-	Progress    float64             `json:"progress"`
-	UpdatedAt   time.Time           `json:"updated_at"`
+	LastIndexed time.Time            `json:"last_indexed,omitempty"`
+	TotalFiles  int64                `json:"total_files"`
+	IndexSize   int64                `json:"index_size"`
+	Progress    float64              `json:"progress"`
+	UpdatedAt   time.Time            `json:"updated_at"`
 }
 
 // SMBConfig Apple 优化的 SMB 配置
 type SMBConfig struct {
-	Signing            bool `json:"signing"`
-	AAPLExtensions     bool `json:"aapl_extensions"`
-	Streams            bool `json:"streams"`
-	VFSFruitEnabled    bool `json:"vfs_fruit_enabled"`
-	SpotlightEnabled   bool `json:"spotlight_enabled"`
+	Signing          bool `json:"signing"`
+	AAPLExtensions   bool `json:"aapl_extensions"`
+	Streams          bool `json:"streams"`
+	VFSFruitEnabled  bool `json:"vfs_fruit_enabled"`
+	SpotlightEnabled bool `json:"spotlight_enabled"`
 }
 
 // CreateTimeMachineShareRequest 创建 Time Machine 共享请求
@@ -107,11 +107,11 @@ type CreateTimeMachineShareRequest struct {
 
 // UpdateSMBConfigRequest 更新 SMB 配置请求
 type UpdateSMBConfigRequest struct {
-	Signing            bool `json:"signing"`
-	AAPLExtensions     bool `json:"aapl_extensions"`
-	Streams            bool `json:"streams"`
-	VFSFruitEnabled    bool `json:"vfs_fruit_enabled"`
-	SpotlightEnabled   bool `json:"spotlight_enabled"`
+	Signing          bool `json:"signing"`
+	AAPLExtensions   bool `json:"aapl_extensions"`
+	Streams          bool `json:"streams"`
+	VFSFruitEnabled  bool `json:"vfs_fruit_enabled"`
+	SpotlightEnabled bool `json:"spotlight_enabled"`
 }
 
 // AppleShareConfig Apple 共享模块配置

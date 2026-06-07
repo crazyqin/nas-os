@@ -17,22 +17,22 @@ import (
 
 // Manager API 网关管理器
 type Manager struct {
-	mu             sync.RWMutex
-	logger         *zap.Logger
-	config         *GatewayConfig
-	routes         map[string]*Route
-	upstreams      map[string]*Upstream
-	consumers      map[string]*Consumer
-	apiKeys        map[string]*APIKeyInfo
-	versions       map[string]*APIVersion
+	mu              sync.RWMutex
+	logger          *zap.Logger
+	config          *GatewayConfig
+	routes          map[string]*Route
+	upstreams       map[string]*Upstream
+	consumers       map[string]*Consumer
+	apiKeys         map[string]*APIKeyInfo
+	versions        map[string]*APIVersion
 	circuitBreakers map[string]*CircuitBreaker
-	rateLimiter    RateLimiter
-	plugins        []Plugin
-	requestLogs    []*RequestLog
-	stats          *GatewayStats
-	startTime      time.Time
-	stopChan       chan struct{}
-	running        bool
+	rateLimiter     RateLimiter
+	plugins         []Plugin
+	requestLogs     []*RequestLog
+	stats           *GatewayStats
+	startTime       time.Time
+	stopChan        chan struct{}
+	running         bool
 }
 
 // NewManager 创建 API 网关管理器

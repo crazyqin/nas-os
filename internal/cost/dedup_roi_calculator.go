@@ -49,17 +49,17 @@ type DedupCostConfig struct {
 // DefaultDedupCostConfig 默认去重成本配置
 func DefaultDedupCostConfig() DedupCostConfig {
 	return DedupCostConfig{
-		MemoryCostPerGBMonthly:   0.15,    // 云内存价格参考
-		SSDCostPerGBMonthly:      0.08,    // SSD存储价格
-		CPUCostFactor:            0.05,    // 5% CPU开销系数
-		ElectricityCostPerkWh:    0.6,     // 国内电价
-		ServerPowerWatts:         200,     // 服务器功耗
-		OpsCostMonthly:           500,     // 运维成本
-		StorageValuePerGBMonthly: 0.10,    // 存储节省价值
-		ExpectedDedupRate:        30.0,    // 30%去重率预期
-		AvgChunkSizeBytes:        32768,   // 32KB块大小
+		MemoryCostPerGBMonthly:   0.15,                           // 云内存价格参考
+		SSDCostPerGBMonthly:      0.08,                           // SSD存储价格
+		CPUCostFactor:            0.05,                           // 5% CPU开销系数
+		ElectricityCostPerkWh:    0.6,                            // 国内电价
+		ServerPowerWatts:         200,                            // 服务器功耗
+		OpsCostMonthly:           500,                            // 运维成本
+		StorageValuePerGBMonthly: 0.10,                           // 存储节省价值
+		ExpectedDedupRate:        30.0,                           // 30%去重率预期
+		AvgChunkSizeBytes:        32768,                          // 32KB块大小
 		TotalDataBytes:           10 * 1024 * 1024 * 1024 * 1024, // 10TB
-		DDTEntryMemoryBytes:      80,      // DDT条目约80字节
+		DDTEntryMemoryBytes:      80,                             // DDT条目约80字节
 	}
 }
 
@@ -231,12 +231,12 @@ func NewDedupROICalculator(config DedupCostConfig) *DedupROICalculator {
 func (c *DedupROICalculator) Analyze() *DedupCostAnalysis {
 	now := time.Now()
 	analysis := &DedupCostAnalysis{
-		ID:            fmt.Sprintf("dedup_analysis_%d", now.Unix()),
-		AnalysisTime:  now,
-		Config:        c.config,
-		Risks:         make([]string, 0),
-		Suggestions:   make([]string, 0),
-		CostBreakdown: make(map[string]float64),
+		ID:               fmt.Sprintf("dedup_analysis_%d", now.Unix()),
+		AnalysisTime:     now,
+		Config:           c.config,
+		Risks:            make([]string, 0),
+		Suggestions:      make([]string, 0),
+		CostBreakdown:    make(map[string]float64),
 		BenefitBreakdown: make(map[string]float64),
 	}
 
@@ -363,7 +363,7 @@ func (c *DedupROICalculator) AnalyzeScenario(dataSizeTB float64, dedupRate float
 	// 计算内存需求
 	totalChunks := c.config.TotalDataBytes / c.config.AvgChunkSizeBytes
 	uniqueChunks := totalChunks * uint64(100-c.config.ExpectedDedupRate) / 100
-	ddtMemoryGB := float64(uniqueChunks * c.config.DDTEntryMemoryBytes) / (1024 * 1024 * 1024)
+	ddtMemoryGB := float64(uniqueChunks*c.config.DDTEntryMemoryBytes) / (1024 * 1024 * 1024)
 
 	result := &DedupROIResult{
 		Scenario:         fmt.Sprintf("%.1fTB @ %.1f%%去重", dataSizeTB, dedupRate),
@@ -397,7 +397,7 @@ func (c *DedupROICalculator) AnalyzeMultipleScenarios() *DedupScenarioAnalysis {
 	}
 
 	// 定义场景矩阵
-	dataSizes := []float64{1, 5, 10, 20, 50, 100} // TB
+	dataSizes := []float64{1, 5, 10, 20, 50, 100}       // TB
 	dedupRates := []float64{10, 20, 30, 40, 50, 60, 70} // %
 
 	// 分析各场景
@@ -409,11 +409,11 @@ func (c *DedupROICalculator) AnalyzeMultipleScenarios() *DedupScenarioAnalysis {
 			// 记录成本效益曲线点
 			scenarioAnalysis.CostBenefitCurve = append(scenarioAnalysis.CostBenefitCurve,
 				CostBenefitPoint{
-					DedupRate: dedupRate,
-					Cost:      result.MonthlyCost,
-					Benefit:   result.MonthlyBenefit,
+					DedupRate:  dedupRate,
+					Cost:       result.MonthlyCost,
+					Benefit:    result.MonthlyBenefit,
 					NetBenefit: result.MonthlyBenefit - result.MonthlyCost,
-					ROI:       result.ROI,
+					ROI:        result.ROI,
 				})
 		}
 	}
@@ -649,9 +649,9 @@ func CompareDedupStrategies(dataSizeTB float64) map[string]DedupROIResult {
 	calc := NewDedupROICalculator(config)
 
 	strategies := map[string]DedupROIResult{
-		"标准去重":  *calc.AnalyzeScenario(dataSizeTB, 30),
-		"高去重场景": *calc.AnalyzeScenario(dataSizeTB, 50),
-		"低去重场景": *calc.AnalyzeScenario(dataSizeTB, 15),
+		"标准去重":       *calc.AnalyzeScenario(dataSizeTB, 30),
+		"高去重场景":      *calc.AnalyzeScenario(dataSizeTB, 50),
+		"低去重场景":      *calc.AnalyzeScenario(dataSizeTB, 15),
 		"Fast Dedup": *calc.AnalyzeFastDedupScenario(dataSizeTB, 30),
 	}
 
@@ -768,5 +768,5 @@ func stringsJoin(strs []string, sep string) string {
 // dedupRound 去重ROI计算专用round函数
 func dedupRound(val float64, precision int) float64 {
 	factor := math.Pow10(precision)
-	return math.Round(val * factor) / factor
+	return math.Round(val*factor) / factor
 }

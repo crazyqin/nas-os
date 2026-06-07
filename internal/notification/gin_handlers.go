@@ -373,8 +373,8 @@ func (h *GinHandler) ToggleRule(c *gin.Context) {
 // TestRule 测试规则
 func (h *GinHandler) TestRule(c *gin.Context) {
 	var req struct {
-		Rule         *Rule          `json:"rule"`
-		Notification *Notification  `json:"notification"`
+		Rule         *Rule         `json:"rule"`
+		Notification *Notification `json:"notification"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
@@ -485,5 +485,3 @@ func (h *GinHandler) RenderTemplate(c *gin.Context) {
 
 	c.JSON(http.StatusOK, rendered)
 }
-
-

@@ -342,8 +342,8 @@ func (e *Engine) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"services":        len(e.services),
-		"total_endpoints": totalEndpoints,
+		"services":         len(e.services),
+		"total_endpoints":  totalEndpoints,
 		"circuit_breakers": len(e.breakers),
 		"tracing_enabled":  e.config.TracingEnabled,
 		"metrics_enabled":  e.config.MetricsEnabled,

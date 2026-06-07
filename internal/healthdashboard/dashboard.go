@@ -32,57 +32,57 @@ const (
 
 // DiskHealth represents SMART and operational health for a single disk.
 type DiskHealth struct {
-	Device       string    `json:"device"`        // e.g., "/dev/sda"
-	Model        string    `json:"model"`
-	Serial       string    `json:"serial"`
-	CapacityGB   int64     `json:"capacity_gb"`
-	Temperature  int       `json:"temperature_c"` // Celsius
-	PowerOnHours int64     `json:"power_on_hours"`
-	HealthScore  int       `json:"health_score"`  // 0-100
-	Reallocated  int64     `json:"reallocated_sectors"`
-	Pending      int64     `json:"pending_sectors"`
-	Uncorrectable int64    `json:"uncorrectable_errors"`
-	Role         DiskRole  `json:"role"`
-	PoolID       string    `json:"pool_id"`
-	LastCheck    time.Time `json:"last_check"`
-	Warnings     []string  `json:"warnings,omitempty"`
+	Device        string    `json:"device"` // e.g., "/dev/sda"
+	Model         string    `json:"model"`
+	Serial        string    `json:"serial"`
+	CapacityGB    int64     `json:"capacity_gb"`
+	Temperature   int       `json:"temperature_c"` // Celsius
+	PowerOnHours  int64     `json:"power_on_hours"`
+	HealthScore   int       `json:"health_score"` // 0-100
+	Reallocated   int64     `json:"reallocated_sectors"`
+	Pending       int64     `json:"pending_sectors"`
+	Uncorrectable int64     `json:"uncorrectable_errors"`
+	Role          DiskRole  `json:"role"`
+	PoolID        string    `json:"pool_id"`
+	LastCheck     time.Time `json:"last_check"`
+	Warnings      []string  `json:"warnings,omitempty"`
 }
 
 // PoolHealth represents the health of a storage pool.
 type PoolHealth struct {
-	ID           string      `json:"id"`
-	Name         string      `json:"name"`
-	Status       PoolStatus  `json:"status"`
-	RAIDLevel    string      `json:"raid_level"`
-	TotalGB      int64       `json:"total_gb"`
-	UsedGB       int64       `json:"used_gb"`
-	FreeGB       int64       `json:"free_gb"`
-	UsagePercent float64     `json:"usage_percent"`
-	DiskCount    int         `json:"disk_count"`
-	HealthyDisks int         `json:"healthy_disks"`
+	ID            string     `json:"id"`
+	Name          string     `json:"name"`
+	Status        PoolStatus `json:"status"`
+	RAIDLevel     string     `json:"raid_level"`
+	TotalGB       int64      `json:"total_gb"`
+	UsedGB        int64      `json:"used_gb"`
+	FreeGB        int64      `json:"free_gb"`
+	UsagePercent  float64    `json:"usage_percent"`
+	DiskCount     int        `json:"disk_count"`
+	HealthyDisks  int        `json:"healthy_disks"`
 	DegradedDisks int        `json:"degraded_disks"`
-	FailedDisks  int         `json:"failed_disks"`
-	LastScrub    time.Time   `json:"last_scrub"`
-	ScrubStatus  string      `json:"scrub_status"`
+	FailedDisks   int        `json:"failed_disks"`
+	LastScrub     time.Time  `json:"last_scrub"`
+	ScrubStatus   string     `json:"scrub_status"`
 }
 
 // CapacityTrend tracks storage usage over time for trend analysis.
 type CapacityTrend struct {
-	Timestamp    time.Time `json:"timestamp"`
-	TotalGB      int64     `json:"total_gb"`
-	UsedGB       int64     `json:"used_gb"`
-	GrowthRateGB float64   `json:"growth_rate_gb_per_day"`
-	DaysUntilFull int      `json:"days_until_full"` // -1 if not applicable
+	Timestamp     time.Time `json:"timestamp"`
+	TotalGB       int64     `json:"total_gb"`
+	UsedGB        int64     `json:"used_gb"`
+	GrowthRateGB  float64   `json:"growth_rate_gb_per_day"`
+	DaysUntilFull int       `json:"days_until_full"` // -1 if not applicable
 }
 
 // Dashboard aggregates all health information.
 type Dashboard struct {
-	Pools      []*PoolHealth   `json:"pools"`
-	Disks      []*DiskHealth   `json:"disks"`
-	Trends     []*CapacityTrend `json:"trends"`
-	OverallScore int           `json:"overall_score"` // 0-100
-	AlertCount   int           `json:"alert_count"`
-	LastUpdate   time.Time     `json:"last_update"`
+	Pools        []*PoolHealth    `json:"pools"`
+	Disks        []*DiskHealth    `json:"disks"`
+	Trends       []*CapacityTrend `json:"trends"`
+	OverallScore int              `json:"overall_score"` // 0-100
+	AlertCount   int              `json:"alert_count"`
+	LastUpdate   time.Time        `json:"last_update"`
 }
 
 // Collector gathers health data from various subsystems.
@@ -249,8 +249,8 @@ func (c *Collector) GetHealthScore() *HealthScore {
 	}
 
 	// Get CPU, memory, network scores from system metrics
-	cpuScore = 85 // Placeholder
-	memoryScore = 90 // Placeholder
+	cpuScore = 85     // Placeholder
+	memoryScore = 90  // Placeholder
 	networkScore = 95 // Placeholder
 
 	overall := (storageScore + cpuScore + memoryScore + networkScore) / 4
@@ -416,7 +416,7 @@ func (c *Collector) PredictCapacity(poolID string, days int) (projectedGB int64,
 	recent := c.trends[len(c.trends)-sampleSize:]
 	var totalGrowth float64
 	for i := 1; i < len(recent); i++ {
-		totalGrowth += float64(recent[i].UsedGB-recent[i-1].UsedGB)
+		totalGrowth += float64(recent[i].UsedGB - recent[i-1].UsedGB)
 	}
 	avgDailyGrowth := totalGrowth / float64(len(recent)-1)
 

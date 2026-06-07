@@ -12,31 +12,31 @@ import (
 
 // Alert 告警
 type Alert struct {
-	ID          string            `json:"id"`
-	Type        string            `json:"type"` // info, warning, error, critical
-	Category    string            `json:"category"` // disk, cpu, memory, network, service, security
-	Title       string            `json:"title"`
-	Message     string            `json:"message"`
-	Source      string            `json:"source"`
-	Severity    int               `json:"severity"` // 1-10
-	Status      string            `json:"status"` // active, acknowledged, resolved, suppressed
-	FirstSeen   time.Time         `json:"first_seen"`
-	LastSeen    time.Time         `json:"last_seen"`
-	Count       int               `json:"count"`
-	Threshold   *Threshold        `json:"threshold,omitempty"`
-	Value       float64           `json:"value,omitempty"`
-	AutoAction  *AutoAction       `json:"auto_action,omitempty"`
-	Tags        map[string]string `json:"tags,omitempty"`
-	ResolvedAt  *time.Time        `json:"resolved_at,omitempty"`
-	ResolvedBy  string            `json:"resolved_by,omitempty"`
+	ID         string            `json:"id"`
+	Type       string            `json:"type"`     // info, warning, error, critical
+	Category   string            `json:"category"` // disk, cpu, memory, network, service, security
+	Title      string            `json:"title"`
+	Message    string            `json:"message"`
+	Source     string            `json:"source"`
+	Severity   int               `json:"severity"` // 1-10
+	Status     string            `json:"status"`   // active, acknowledged, resolved, suppressed
+	FirstSeen  time.Time         `json:"first_seen"`
+	LastSeen   time.Time         `json:"last_seen"`
+	Count      int               `json:"count"`
+	Threshold  *Threshold        `json:"threshold,omitempty"`
+	Value      float64           `json:"value,omitempty"`
+	AutoAction *AutoAction       `json:"auto_action,omitempty"`
+	Tags       map[string]string `json:"tags,omitempty"`
+	ResolvedAt *time.Time        `json:"resolved_at,omitempty"`
+	ResolvedBy string            `json:"resolved_by,omitempty"`
 }
 
 // Threshold 阈值
 type Threshold struct {
-	Metric    string  `json:"metric"`
-	Operator  string  `json:"operator"` // gt, lt, eq, gte, lte
-	Value     float64 `json:"value"`
-	Duration  int     `json:"duration"` // 秒
+	Metric   string  `json:"metric"`
+	Operator string  `json:"operator"` // gt, lt, eq, gte, lte
+	Value    float64 `json:"value"`
+	Duration int     `json:"duration"` // 秒
 }
 
 // AutoAction 自动动作
@@ -50,19 +50,19 @@ type AutoAction struct {
 
 // Rule 监控规则
 type Rule struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description,omitempty"`
-	Enabled     bool      `json:"enabled"`
-	Category    string    `json:"category"`
-	Metric      string    `json:"metric"`
-	Condition   Condition `json:"condition"`
-	Duration    int       `json:"duration"` // 秒
-	Severity    int       `json:"severity"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description,omitempty"`
+	Enabled     bool        `json:"enabled"`
+	Category    string      `json:"category"`
+	Metric      string      `json:"metric"`
+	Condition   Condition   `json:"condition"`
+	Duration    int         `json:"duration"` // 秒
+	Severity    int         `json:"severity"`
 	AutoAction  *AutoAction `json:"auto_action,omitempty"`
-	Channels    []string  `json:"channels,omitempty"` // email, webhook, sms
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	Channels    []string    `json:"channels,omitempty"` // email, webhook, sms
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
 // Condition 条件
@@ -82,16 +82,16 @@ type Metric struct {
 
 // HealthCheck 健康检查
 type HealthCheck struct {
-	ID        string        `json:"id"`
-	Name      string        `json:"name"`
-	Type      string        `json:"type"` // http, tcp, process, script
-	Target    string        `json:"target"`
-	Interval  int           `json:"interval"` // 秒
-	Timeout   int           `json:"timeout"` // 秒
-	Status    string        `json:"status"` // healthy, unhealthy, unknown
-	LastCheck *time.Time    `json:"last_check,omitempty"`
-	Latency   int           `json:"latency"` // ms
-	Message   string        `json:"message,omitempty"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Type      string     `json:"type"` // http, tcp, process, script
+	Target    string     `json:"target"`
+	Interval  int        `json:"interval"` // 秒
+	Timeout   int        `json:"timeout"`  // 秒
+	Status    string     `json:"status"`   // healthy, unhealthy, unknown
+	LastCheck *time.Time `json:"last_check,omitempty"`
+	Latency   int        `json:"latency"` // ms
+	Message   string     `json:"message,omitempty"`
 }
 
 // CreateRuleRequest 创建规则请求
@@ -127,12 +127,12 @@ type Manager struct {
 
 // Config 配置
 type Config struct {
-	MaxAlerts       int    `json:"max_alerts"`
-	MaxRules        int    `json:"max_rules"`
-	MetricRetention int    `json:"metric_retention"` // 天
-	DefaultInterval int    `json:"default_interval"` // 秒
-	AutoResolve     bool   `json:"auto_resolve"`
-	AlertCooldown   int    `json:"alert_cooldown"` // 秒
+	MaxAlerts       int  `json:"max_alerts"`
+	MaxRules        int  `json:"max_rules"`
+	MetricRetention int  `json:"metric_retention"` // 天
+	DefaultInterval int  `json:"default_interval"` // 秒
+	AutoResolve     bool `json:"auto_resolve"`
+	AlertCooldown   int  `json:"alert_cooldown"` // 秒
 }
 
 // NewManager 创建管理器
@@ -317,9 +317,9 @@ func (m *Manager) createAlert(rule *Rule, metric Metric) {
 			Value:    rule.Condition.Value,
 			Duration: rule.Duration,
 		},
-		Value:     metric.Value,
+		Value:      metric.Value,
 		AutoAction: rule.AutoAction,
-		Tags:      metric.Labels,
+		Tags:       metric.Labels,
 	}
 
 	m.alerts[alertID] = alert
@@ -449,14 +449,14 @@ func (m *Manager) GetAlertStats() map[string]int {
 	defer m.mu.RUnlock()
 
 	stats := map[string]int{
-		"total":       0,
-		"active":      0,
+		"total":        0,
+		"active":       0,
 		"acknowledged": 0,
-		"resolved":    0,
-		"critical":    0,
-		"error":       0,
-		"warning":     0,
-		"info":        0,
+		"resolved":     0,
+		"critical":     0,
+		"error":        0,
+		"warning":      0,
+		"info":         0,
 	}
 
 	for _, a := range m.alerts {

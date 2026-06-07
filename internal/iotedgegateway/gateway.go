@@ -16,59 +16,59 @@ import (
 type DeviceProtocol string
 
 const (
-	ProtocolMQTT    DeviceProtocol = "mqtt"
-	ProtocolCoAP    DeviceProtocol = "coap"
-	ProtocolHTTP    DeviceProtocol = "http"
-	ProtocolModbus  DeviceProtocol = "modbus"
-	ProtocolOPCUA   DeviceProtocol = "opcua"
-	ProtocolBLE     DeviceProtocol = "ble"
+	ProtocolMQTT   DeviceProtocol = "mqtt"
+	ProtocolCoAP   DeviceProtocol = "coap"
+	ProtocolHTTP   DeviceProtocol = "http"
+	ProtocolModbus DeviceProtocol = "modbus"
+	ProtocolOPCUA  DeviceProtocol = "opcua"
+	ProtocolBLE    DeviceProtocol = "ble"
 )
 
 // DeviceStatus 设备状态
 type DeviceStatus string
 
 const (
-	DeviceStatusOnline    DeviceStatus = "online"
-	DeviceStatusOffline   DeviceStatus = "offline"
+	DeviceStatusOnline       DeviceStatus = "online"
+	DeviceStatusOffline      DeviceStatus = "offline"
 	DeviceStatusProvisioning DeviceStatus = "provisioning"
-	DeviceStatusError     DeviceStatus = "error"
+	DeviceStatusError        DeviceStatus = "error"
 )
 
 // IoTDevice IoT设备
 type IoTDevice struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	Type         string            `json:"type"`
-	Protocol     DeviceProtocol    `json:"protocol"`
-	Status       DeviceStatus      `json:"status"`
-	Address      string            `json:"address"`
-	Metadata     map[string]string `json:"metadata"`
-	LastSeen     time.Time         `json:"last_seen"`
-	DataPoints   int64             `json:"data_points"`
-	ErrorCount   int               `json:"error_count"`
-	Tags         []string          `json:"tags"`
+	ID         string            `json:"id"`
+	Name       string            `json:"name"`
+	Type       string            `json:"type"`
+	Protocol   DeviceProtocol    `json:"protocol"`
+	Status     DeviceStatus      `json:"status"`
+	Address    string            `json:"address"`
+	Metadata   map[string]string `json:"metadata"`
+	LastSeen   time.Time         `json:"last_seen"`
+	DataPoints int64             `json:"data_points"`
+	ErrorCount int               `json:"error_count"`
+	Tags       []string          `json:"tags"`
 }
 
 // DataPoint 数据点
 type DataPoint struct {
-	DeviceID    string                 `json:"device_id"`
-	Timestamp   time.Time              `json:"timestamp"`
-	Values      map[string]interface{} `json:"values"`
-	Quality     int                    `json:"quality"`
-	Tags        map[string]string      `json:"tags"`
+	DeviceID  string                 `json:"device_id"`
+	Timestamp time.Time              `json:"timestamp"`
+	Values    map[string]interface{} `json:"values"`
+	Quality   int                    `json:"quality"`
+	Tags      map[string]string      `json:"tags"`
 }
 
 // Rule 规则
 type Rule struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Description string        `json:"description"`
-	Enabled     bool          `json:"enabled"`
-	Trigger     RuleTrigger   `json:"trigger"`
-	Conditions  []Condition   `json:"conditions"`
-	Actions     []RuleAction  `json:"actions"`
-	Priority    int           `json:"priority"`
-	LastTrigger *time.Time    `json:"last_trigger,omitempty"`
+	ID           string       `json:"id"`
+	Name         string       `json:"name"`
+	Description  string       `json:"description"`
+	Enabled      bool         `json:"enabled"`
+	Trigger      RuleTrigger  `json:"trigger"`
+	Conditions   []Condition  `json:"conditions"`
+	Actions      []RuleAction `json:"actions"`
+	Priority     int          `json:"priority"`
+	LastTrigger  *time.Time   `json:"last_trigger,omitempty"`
 	TriggerCount int          `json:"trigger_count"`
 }
 
@@ -89,8 +89,8 @@ type Condition struct {
 
 // RuleAction 规则动作
 type RuleAction struct {
-	Type     string                 `json:"type"` // alert, store, forward, transform
-	Params   map[string]interface{} `json:"params"`
+	Type   string                 `json:"type"` // alert, store, forward, transform
+	Params map[string]interface{} `json:"params"`
 }
 
 // EdgeFunction 边缘函数
@@ -109,14 +109,14 @@ type EdgeFunction struct {
 
 // DataPipeline 数据管道
 type DataPipeline struct {
-	ID          string           `json:"id"`
-	Name        string           `json:"name"`
-	Source      PipelineSource   `json:"source"`
-	Processors  []Processor      `json:"processors"`
-	Sinks       []PipelineSink   `json:"sinks"`
-	Status      string           `json:"status"`
-	Throughput  float64          `json:"throughput"`
-	LastError   string           `json:"last_error,omitempty"`
+	ID         string         `json:"id"`
+	Name       string         `json:"name"`
+	Source     PipelineSource `json:"source"`
+	Processors []Processor    `json:"processors"`
+	Sinks      []PipelineSink `json:"sinks"`
+	Status     string         `json:"status"`
+	Throughput float64        `json:"throughput"`
+	LastError  string         `json:"last_error,omitempty"`
 }
 
 // PipelineSource 管道源

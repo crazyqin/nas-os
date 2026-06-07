@@ -26,14 +26,14 @@ type Crawler struct {
 
 // CrawlerStats 爬虫统计
 type CrawlerStats struct {
-	TotalDirs   int64     `json:"totalDirs"`
-	TotalFiles  int64     `json:"totalFiles"`
-	TotalSize   int64     `json:"totalSize"`
-	StartTime   time.Time `json:"startTime"`
-	EndTime     time.Time `json:"endTime"`
-	Duration    time.Duration `json:"duration"`
-	Errors      int64     `json:"errors"`
-	LastError   string    `json:"lastError,omitempty"`
+	TotalDirs  int64         `json:"totalDirs"`
+	TotalFiles int64         `json:"totalFiles"`
+	TotalSize  int64         `json:"totalSize"`
+	StartTime  time.Time     `json:"startTime"`
+	EndTime    time.Time     `json:"endTime"`
+	Duration   time.Duration `json:"duration"`
+	Errors     int64         `json:"errors"`
+	LastError  string        `json:"lastError,omitempty"`
 }
 
 // NewCrawler 创建爬虫

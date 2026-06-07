@@ -15,13 +15,13 @@ import (
 type Protocol string
 
 const (
-	ProtocolMatter  Protocol = "matter"  // Matter协议
-	ProtocolThread  Protocol = "thread"  // Thread协议
-	ProtocolZigbee  Protocol = "zigbee"  // Zigbee协议
-	ProtocolZWave   Protocol = "zwave"   // Z-Wave协议
-	ProtocolWiFi    Protocol = "wifi"    // WiFi协议
-	ProtocolBLE     Protocol = "ble"     // 蓝牙BLE
-	ProtocolMQTT    Protocol = "mqtt"    // MQTT协议
+	ProtocolMatter Protocol = "matter" // Matter协议
+	ProtocolThread Protocol = "thread" // Thread协议
+	ProtocolZigbee Protocol = "zigbee" // Zigbee协议
+	ProtocolZWave  Protocol = "zwave"  // Z-Wave协议
+	ProtocolWiFi   Protocol = "wifi"   // WiFi协议
+	ProtocolBLE    Protocol = "ble"    // 蓝牙BLE
+	ProtocolMQTT   Protocol = "mqtt"   // MQTT协议
 )
 
 // DeviceType 设备类型
@@ -48,8 +48,8 @@ const (
 type DeviceState string
 
 const (
-	StateOnline  DeviceState = "online"  // 在线
-	StateOffline DeviceState = "offline" // 离线
+	StateOnline  DeviceState = "online"      // 在线
+	StateOffline DeviceState = "offline"     // 离线
 	StateUnavail DeviceState = "unavailable" // 不可用
 )
 
@@ -57,10 +57,10 @@ const (
 type TriggerType string
 
 const (
-	TriggerTime     TriggerType = "time"     // 时间触发
-	TriggerDevice   TriggerType = "device"   // 设备触发
-	TriggerLocation TriggerType = "location" // 位置触发
-	TriggerEvent    TriggerType = "event"    // 事件触发
+	TriggerTime      TriggerType = "time"      // 时间触发
+	TriggerDevice    TriggerType = "device"    // 设备触发
+	TriggerLocation  TriggerType = "location"  // 位置触发
+	TriggerEvent     TriggerType = "event"     // 事件触发
 	TriggerCondition TriggerType = "condition" // 条件触发
 )
 
@@ -77,41 +77,41 @@ const (
 
 // Device 智能设备
 type Device struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Type        DeviceType        `json:"type"`
-	Protocol    Protocol          `json:"protocol"`
-	Manufacturer string           `json:"manufacturer,omitempty"`
-	Model       string            `json:"model,omitempty"`
-	Firmware    string            `json:"firmware,omitempty"`
-	State       DeviceState       `json:"state"`
-	Room        string            `json:"room,omitempty"`
-	Properties  map[string]interface{} `json:"properties,omitempty"`
-	Capabilities []string         `json:"capabilities,omitempty"`
-	Battery     *int              `json:"battery,omitempty"`
-	LastSeen    time.Time         `json:"last_seen"`
-	RegisteredAt time.Time        `json:"registered_at"`
+	ID           string                 `json:"id"`
+	Name         string                 `json:"name"`
+	Type         DeviceType             `json:"type"`
+	Protocol     Protocol               `json:"protocol"`
+	Manufacturer string                 `json:"manufacturer,omitempty"`
+	Model        string                 `json:"model,omitempty"`
+	Firmware     string                 `json:"firmware,omitempty"`
+	State        DeviceState            `json:"state"`
+	Room         string                 `json:"room,omitempty"`
+	Properties   map[string]interface{} `json:"properties,omitempty"`
+	Capabilities []string               `json:"capabilities,omitempty"`
+	Battery      *int                   `json:"battery,omitempty"`
+	LastSeen     time.Time              `json:"last_seen"`
+	RegisteredAt time.Time              `json:"registered_at"`
 }
 
 // Room 房间
 type Room struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Icon        string    `json:"icon,omitempty"`
-	DeviceIDs   []string  `json:"device_ids"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Icon      string    `json:"icon,omitempty"`
+	DeviceIDs []string  `json:"device_ids"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // Scene 场景
 type Scene struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Description string        `json:"description,omitempty"`
-	Icon        string        `json:"icon,omitempty"`
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description,omitempty"`
+	Icon        string         `json:"icon,omitempty"`
 	Actions     []*SceneAction `json:"actions"`
-	Enabled     bool          `json:"enabled"`
-	CreatedAt   time.Time     `json:"created_at"`
-	UpdatedAt   time.Time     `json:"updated_at"`
+	Enabled     bool           `json:"enabled"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
 }
 
 // SceneAction 场景动作
@@ -139,18 +139,18 @@ type Automation struct {
 
 // Trigger 触发器
 type Trigger struct {
-	Type       TriggerType          `json:"type"`
-	DeviceID   string               `json:"device_id,omitempty"`
-	Property   string               `json:"property,omitempty"`
-	Value      interface{}          `json:"value,omitempty"`
-	Schedule   string               `json:"schedule,omitempty"` // cron expression
-	Zone       string               `json:"zone,omitempty"`
+	Type       TriggerType            `json:"type"`
+	DeviceID   string                 `json:"device_id,omitempty"`
+	Property   string                 `json:"property,omitempty"`
+	Value      interface{}            `json:"value,omitempty"`
+	Schedule   string                 `json:"schedule,omitempty"` // cron expression
+	Zone       string                 `json:"zone,omitempty"`
 	Parameters map[string]interface{} `json:"parameters,omitempty"`
 }
 
 // Condition 条件
 type Condition struct {
-	Type     string      `json:"type"`     // device, time, state
+	Type     string      `json:"type"` // device, time, state
 	DeviceID string      `json:"device_id,omitempty"`
 	Property string      `json:"property,omitempty"`
 	Operator string      `json:"operator"` // eq, ne, gt, lt, gte, lte
@@ -159,37 +159,37 @@ type Condition struct {
 
 // Action 动作
 type Action struct {
-	Type       ActionType           `json:"type"`
-	DeviceID   string               `json:"device_id,omitempty"`
-	SceneID    string               `json:"scene_id,omitempty"`
-	Command    string               `json:"command,omitempty"`
+	Type       ActionType             `json:"type"`
+	DeviceID   string                 `json:"device_id,omitempty"`
+	SceneID    string                 `json:"scene_id,omitempty"`
+	Command    string                 `json:"command,omitempty"`
 	Properties map[string]interface{} `json:"properties,omitempty"`
-	Delay      time.Duration        `json:"delay,omitempty"`
-	Webhook    string               `json:"webhook,omitempty"`
+	Delay      time.Duration          `json:"delay,omitempty"`
+	Webhook    string                 `json:"webhook,omitempty"`
 }
 
 // EnergyReading 能耗读数
 type EnergyReading struct {
 	DeviceID  string    `json:"device_id"`
-	Power     float64   `json:"power"`      // 功率 W
-	Energy    float64   `json:"energy"`     // 能耗 Wh
-	Voltage   float64   `json:"voltage"`    // 电压 V
-	Current   float64   `json:"current"`    // 电流 A
+	Power     float64   `json:"power"`   // 功率 W
+	Energy    float64   `json:"energy"`  // 能耗 Wh
+	Voltage   float64   `json:"voltage"` // 电压 V
+	Current   float64   `json:"current"` // 电流 A
 	Timestamp time.Time `json:"timestamp"`
 }
 
 // Hub 智能家居Hub
 type Hub struct {
-	mu           sync.RWMutex
-	config       *Config
-	devices      map[string]*Device
-	rooms        map[string]*Room
-	scenes       map[string]*Scene
-	automations  map[string]*Automation
-	energyLog    []*EnergyReading
-	running      bool
-	ctx          context.Context
-	cancel       context.CancelFunc
+	mu          sync.RWMutex
+	config      *Config
+	devices     map[string]*Device
+	rooms       map[string]*Room
+	scenes      map[string]*Scene
+	automations map[string]*Automation
+	energyLog   []*EnergyReading
+	running     bool
+	ctx         context.Context
+	cancel      context.CancelFunc
 }
 
 // Config Hub配置

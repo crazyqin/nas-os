@@ -132,14 +132,14 @@ func (m *Manager) RecordCost(tier StorageTier, category CostCategory, amount flo
 	}
 
 	record := CostRecord{
-		ID:          id,
-		Timestamp:   m.nowFunc(),
-		Tier:        tier,
-		Category:    category,
-		Amount:      amount,
-		CapacityTB:  capacityTB,
-		CostPerTB:   costPerTB,
-		Provider:    "local",
+		ID:         id,
+		Timestamp:  m.nowFunc(),
+		Tier:       tier,
+		Category:   category,
+		Amount:     amount,
+		CapacityTB: capacityTB,
+		CostPerTB:  costPerTB,
+		Provider:   "local",
 	}
 
 	ts.records = append(ts.records, record)
@@ -183,11 +183,11 @@ func (m *Manager) PredictCapacity(months int) (*CapacityTrend, error) {
 	}
 
 	type tierForecast struct {
-		Tier            StorageTier
-		CurrentUsedTB   float64
-		CapacityTB      float64
-		GrowthPerMonth  float64
-		FullInMonths    float64
+		Tier           StorageTier
+		CurrentUsedTB  float64
+		CapacityTB     float64
+		GrowthPerMonth float64
+		FullInMonths   float64
 	}
 
 	var forecasts []tierForecast
@@ -266,12 +266,12 @@ func (m *Manager) PredictCapacity(months int) (*CapacityTrend, error) {
 	}
 
 	trend := &CapacityTrend{
-		GeneratedAt:   now,
-		TotalUsedTB:   totalUsed,
-		TotalCapacityTB: totalCap,
+		GeneratedAt:          now,
+		TotalUsedTB:          totalUsed,
+		TotalCapacityTB:      totalCap,
 		GrowthRateTBPerMonth: overallGrowth,
-		Months:        monthPoints,
-		Suggestions:   suggestions,
+		Months:               monthPoints,
+		Suggestions:          suggestions,
 	}
 	return trend, nil
 }
@@ -440,20 +440,20 @@ func (m *Manager) GetOptimizationSuggestions() []*OptimizationSuggestion {
 			id++
 			extraTB := ts.config.CapacityTB * 0.5 // 建议扩容50%
 			suggestions = append(suggestions, &OptimizationSuggestion{
-				ID:          fmt.Sprintf("opt-%d", id),
-				Title:       fmt.Sprintf("%s 层级利用率过高", ts.config.Name),
-				Category:    "rightsizing",
-				Priority:    PriorityHigh,
-				SourceTier:  ts.config.Tier,
-				TargetTier:  ts.config.Tier,
-				AffectedTB:  ts.config.UsedTB,
-				CurrentCost: ts.config.UsedTB * ts.config.CostPerTBMonth,
+				ID:            fmt.Sprintf("opt-%d", id),
+				Title:         fmt.Sprintf("%s 层级利用率过高", ts.config.Name),
+				Category:      "rightsizing",
+				Priority:      PriorityHigh,
+				SourceTier:    ts.config.Tier,
+				TargetTier:    ts.config.Tier,
+				AffectedTB:    ts.config.UsedTB,
+				CurrentCost:   ts.config.UsedTB * ts.config.CostPerTBMonth,
 				AnnualSavings: 0,
-				Description: fmt.Sprintf("层级 %s 利用率 %.1f%%，建议扩容 %.1f TB", ts.config.Name, utilization, extraTB),
-				Rationale:   "高利用率可能导致性能下降和服务中断",
-				Steps:       []string{"评估增长趋势", "采购额外存储", "完成扩容"},
-				Impact:      "high",
-				Effort:      "medium",
+				Description:   fmt.Sprintf("层级 %s 利用率 %.1f%%，建议扩容 %.1f TB", ts.config.Name, utilization, extraTB),
+				Rationale:     "高利用率可能导致性能下降和服务中断",
+				Steps:         []string{"评估增长趋势", "采购额外存储", "完成扩容"},
+				Impact:        "high",
+				Effort:        "medium",
 			})
 		}
 
@@ -462,21 +462,21 @@ func (m *Manager) GetOptimizationSuggestions() []*OptimizationSuggestion {
 			id++
 			savings := (ts.config.CapacityTB - ts.config.UsedTB) * ts.config.CostPerTBMonth * 12
 			suggestions = append(suggestions, &OptimizationSuggestion{
-				ID:             fmt.Sprintf("opt-%d", id),
-				Title:          fmt.Sprintf("%s SSD 利用率过低，建议分层", ts.config.Name),
-				Category:       "tiering",
-				Priority:       PriorityMedium,
-				SourceTier:     TierSSD,
-				TargetTier:     TierHDD,
-				AffectedTB:     ts.config.UsedTB,
-				CurrentCost:    ts.config.CapacityTB * ts.config.CostPerTBMonth,
-				OptimizedCost:  ts.config.UsedTB * ts.config.CostPerTBMonth,
-				AnnualSavings:  savings,
-				Description:    fmt.Sprintf("SSD 层级 %s 利用率仅 %.1f%%，建议迁移冷数据到 HDD", ts.config.Name, utilization),
-				Rationale:      "低利用率的 SSD 存储性价比低",
-				Steps:          []string{"分析数据热度", "制定分层策略", "执行数据迁移", "缩减 SSD 容量"},
-				Impact:         "medium",
-				Effort:         "medium",
+				ID:            fmt.Sprintf("opt-%d", id),
+				Title:         fmt.Sprintf("%s SSD 利用率过低，建议分层", ts.config.Name),
+				Category:      "tiering",
+				Priority:      PriorityMedium,
+				SourceTier:    TierSSD,
+				TargetTier:    TierHDD,
+				AffectedTB:    ts.config.UsedTB,
+				CurrentCost:   ts.config.CapacityTB * ts.config.CostPerTBMonth,
+				OptimizedCost: ts.config.UsedTB * ts.config.CostPerTBMonth,
+				AnnualSavings: savings,
+				Description:   fmt.Sprintf("SSD 层级 %s 利用率仅 %.1f%%，建议迁移冷数据到 HDD", ts.config.Name, utilization),
+				Rationale:     "低利用率的 SSD 存储性价比低",
+				Steps:         []string{"分析数据热度", "制定分层策略", "执行数据迁移", "缩减 SSD 容量"},
+				Impact:        "medium",
+				Effort:        "medium",
 			})
 		}
 
@@ -485,21 +485,21 @@ func (m *Manager) GetOptimizationSuggestions() []*OptimizationSuggestion {
 			id++
 			annualCost := ts.config.UsedTB * ts.config.CostPerTBMonth * 12
 			suggestions = append(suggestions, &OptimizationSuggestion{
-				ID:             fmt.Sprintf("opt-%d", id),
-				Title:          "云存储成本优化",
-				Category:       "migration",
-				Priority:       PriorityMedium,
-				SourceTier:     TierCloud,
-				TargetTier:     TierCold,
-				AffectedTB:     ts.config.UsedTB,
-				CurrentCost:    annualCost,
-				OptimizedCost:  annualCost * 0.4,
-				AnnualSavings:  annualCost * 0.6,
-				Description:    "云存储单位成本较高，建议将冷数据迁移到归档层",
-				Rationale:      "归档存储成本通常是标准云存储的 20-40%",
-				Steps:          []string{"识别冷数据", "配置生命周期策略", "自动归档"},
-				Impact:         "high",
-				Effort:         "low",
+				ID:            fmt.Sprintf("opt-%d", id),
+				Title:         "云存储成本优化",
+				Category:      "migration",
+				Priority:      PriorityMedium,
+				SourceTier:    TierCloud,
+				TargetTier:    TierCold,
+				AffectedTB:    ts.config.UsedTB,
+				CurrentCost:   annualCost,
+				OptimizedCost: annualCost * 0.4,
+				AnnualSavings: annualCost * 0.6,
+				Description:   "云存储单位成本较高，建议将冷数据迁移到归档层",
+				Rationale:     "归档存储成本通常是标准云存储的 20-40%",
+				Steps:         []string{"识别冷数据", "配置生命周期策略", "自动归档"},
+				Impact:        "high",
+				Effort:        "low",
 			})
 		}
 	}
@@ -527,13 +527,13 @@ func (m *Manager) CalculateTCO(tier StorageTier, months int) (*TCOAnalysis, erro
 	usedTB := cfg.UsedTB
 
 	// 成本构成（基于典型行业比例）
-	hardwareCost := usedTB * 500 // 硬件成本（一次性，按使用量估算）
-	powerCost := usedTB * 50 * float64(months) // 电力成本
-	coolingCost := powerCost * 0.3 // 散热成本（电力的30%）
+	hardwareCost := usedTB * 500                                  // 硬件成本（一次性，按使用量估算）
+	powerCost := usedTB * 50 * float64(months)                    // 电力成本
+	coolingCost := powerCost * 0.3                                // 散热成本（电力的30%）
 	maintenanceCost := hardwareCost * 0.15 * float64(months) / 12 // 年维护成本15%
 	subscriptionCost := usedTB * cfg.CostPerTBMonth * float64(months)
-	bandwidthCost := usedTB * 10 * float64(months) // 带宽成本
-	laborCost := 100 * float64(months) // 人力成本（每月100）
+	bandwidthCost := usedTB * 10 * float64(months)          // 带宽成本
+	laborCost := 100 * float64(months)                      // 人力成本（每月100）
 	depreciationCost := hardwareCost / 36 * float64(months) // 3年折旧
 
 	totalTCO := hardwareCost + powerCost + coolingCost + maintenanceCost +
@@ -701,14 +701,14 @@ func (m *Manager) CompareStorageOptions(requiredTB float64, options []StorageOpt
 		requiredTB, options[bestForCost].Name, options[bestForPerformance].Name, options[bestForCapacity].Name)
 
 	return &StorageComparison{
-		GeneratedAt:         m.nowFunc(),
-		Options:             options,
-		CostComparison:      comparisonPoints,
-		BestForPerformance:  bestForPerformance,
-		BestForCost:         bestForCost,
-		BestForCapacity:     bestForCapacity,
-		Recommendation:      recommendation,
-		Analysis:            analysis,
+		GeneratedAt:        m.nowFunc(),
+		Options:            options,
+		CostComparison:     comparisonPoints,
+		BestForPerformance: bestForPerformance,
+		BestForCost:        bestForCost,
+		BestForCapacity:    bestForCapacity,
+		Recommendation:     recommendation,
+		Analysis:           analysis,
 	}, nil
 }
 
@@ -846,21 +846,21 @@ func (m *Manager) EstimateDataOptimization(tier StorageTier, dedupRatio, compres
 	}
 
 	return &DataOptimizationEstimate{
-		GeneratedAt:           m.nowFunc(),
-		Tier:                  tier,
-		TierName:              cfg.Name,
-		OriginalDataTB:        originalTB,
-		DeduplicationRatio:    dedupRatio,
+		GeneratedAt:            m.nowFunc(),
+		Tier:                   tier,
+		TierName:               cfg.Name,
+		OriginalDataTB:         originalTB,
+		DeduplicationRatio:     dedupRatio,
 		DeduplicationSavingsTB: dedupSavings,
-		CompressionRatio:      compressionRatio,
-		CompressionSavingsTB:  compressionSavings,
-		TotalSavingsTB:        totalSavings,
-		OptimizedDataTB:       afterCompression,
-		SpaceReductionPercent: spaceReduction,
-		MonthlyCostSaving:     monthlySaving,
-		AnnualCostSaving:      annualSaving,
-		ImplementationCost:    implementationCost,
-		PaybackMonths:         paybackMonths,
+		CompressionRatio:       compressionRatio,
+		CompressionSavingsTB:   compressionSavings,
+		TotalSavingsTB:         totalSavings,
+		OptimizedDataTB:        afterCompression,
+		SpaceReductionPercent:  spaceReduction,
+		MonthlyCostSaving:      monthlySaving,
+		AnnualCostSaving:       annualSaving,
+		ImplementationCost:     implementationCost,
+		PaybackMonths:          paybackMonths,
 	}, nil
 }
 
@@ -940,11 +940,11 @@ func (m *Manager) ForecastCost(months int) (*EnhancedCostForecast, error) {
 		upperBound := projectedCost * (1 + confidenceWidth)
 
 		projectedPoints = append(projectedPoints, CostForecastPoint{
-			Month:         i,
-			Date:          date,
-			ProjectedCost: projectedCost,
-			LowerBound:    lowerBound,
-			UpperBound:    upperBound,
+			Month:          i,
+			Date:           date,
+			ProjectedCost:  projectedCost,
+			LowerBound:     lowerBound,
+			UpperBound:     upperBound,
 			CumulativeCost: cumulativeCost,
 		})
 	}
@@ -960,15 +960,15 @@ func (m *Manager) ForecastCost(months int) (*EnhancedCostForecast, error) {
 	recommendations = append(recommendations, "定期审查存储利用率，避免闲置浪费")
 
 	return &EnhancedCostForecast{
-		GeneratedAt:          now,
-		ForecastMonths:       months,
-		GrowthModel:          "exponential",
-		ConfidenceLevel:      confidenceLevel,
-		CurrentMonthlyCost:   currentMonthlyCost,
+		GeneratedAt:           now,
+		ForecastMonths:        months,
+		GrowthModel:           "exponential",
+		ConfidenceLevel:       confidenceLevel,
+		CurrentMonthlyCost:    currentMonthlyCost,
 		ProjectedMonthlyCosts: projectedPoints,
-		TotalForecastCost:    totalForecastCost,
-		CostGrowthRate:       growthRate * 100,
-		Recommendations:      recommendations,
+		TotalForecastCost:     totalForecastCost,
+		CostGrowthRate:        growthRate * 100,
+		Recommendations:       recommendations,
 	}, nil
 }
 
@@ -1038,20 +1038,20 @@ func (m *Manager) GetDashboard() *DashboardStats {
 	nextAnalyze := now.Add(time.Duration(m.config.AnalyzeIntervalHours) * time.Hour)
 
 	return &DashboardStats{
-		TotalMonthlyCost:     totalMonthly,
-		TotalCapacityTB:      totalCap,
-		TotalUsedTB:          totalUsed,
-		OverallUtilization:   overallUtil,
-		AvgCostPerTB:         avgCost,
-		TierCount:            len(m.tiers),
-		MonthlyReports:       len(m.reports),
-		PendingOptimizations: len(m.GetOptimizationSuggestions()),
+		TotalMonthlyCost:       totalMonthly,
+		TotalCapacityTB:        totalCap,
+		TotalUsedTB:            totalUsed,
+		OverallUtilization:     overallUtil,
+		AvgCostPerTB:           avgCost,
+		TierCount:              len(m.tiers),
+		MonthlyReports:         len(m.reports),
+		PendingOptimizations:   len(m.GetOptimizationSuggestions()),
 		PotentialAnnualSavings: potentialSavings,
-		CostChangePercent:    0,
-		LastAnalyzeTime:      now,
-		NextAnalyzeTime:      nextAnalyze,
-		TierStats:            tierStats,
-		Alerts:               alerts,
+		CostChangePercent:      0,
+		LastAnalyzeTime:        now,
+		NextAnalyzeTime:        nextAnalyze,
+		TierStats:              tierStats,
+		Alerts:                 alerts,
 	}
 }
 
@@ -1114,12 +1114,12 @@ func estimateGrowthPerMonth(ts *tierState, now time.Time) float64 {
 
 // CapacityTrend 容量趋势.
 type CapacityTrend struct {
-	GeneratedAt         time.Time       `json:"generatedAt"`
-	TotalUsedTB         float64         `json:"totalUsedTB"`
-	TotalCapacityTB     float64         `json:"totalCapacityTB"`
-	GrowthRateTBPerMonth float64        `json:"growthRateTBPerMonth"`
-	Months              []CapacityPoint `json:"months"`
-	Suggestions         []string        `json:"suggestions"`
+	GeneratedAt          time.Time       `json:"generatedAt"`
+	TotalUsedTB          float64         `json:"totalUsedTB"`
+	TotalCapacityTB      float64         `json:"totalCapacityTB"`
+	GrowthRateTBPerMonth float64         `json:"growthRateTBPerMonth"`
+	Months               []CapacityPoint `json:"months"`
+	Suggestions          []string        `json:"suggestions"`
 }
 
 // CapacityPoint 容量数据点.

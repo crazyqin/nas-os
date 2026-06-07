@@ -84,43 +84,43 @@ type ExpansionTask struct {
 type ExpansionStatus string
 
 const (
-	StatusIdle       ExpansionStatus = "idle"
-	StatusPreparing  ExpansionStatus = "preparing"
-	StatusRunning    ExpansionStatus = "running"
-	StatusPaused     ExpansionStatus = "paused"
-	StatusCompleted  ExpansionStatus = "completed"
-	StatusFailed     ExpansionStatus = "failed"
-	StatusCancelled  ExpansionStatus = "cancelled"
+	StatusIdle      ExpansionStatus = "idle"
+	StatusPreparing ExpansionStatus = "preparing"
+	StatusRunning   ExpansionStatus = "running"
+	StatusPaused    ExpansionStatus = "paused"
+	StatusCompleted ExpansionStatus = "completed"
+	StatusFailed    ExpansionStatus = "failed"
+	StatusCancelled ExpansionStatus = "cancelled"
 )
 
 // ExpansionProgress 进度详情
 type ExpansionProgress struct {
-	TaskID           string        `json:"task_id"`
-	Percentage       float64       `json:"percentage"`
-	BytesProcessed   uint64        `json:"bytes_processed"`
-	BytesTotal       uint64        `json:"bytes_total"`
-	SpeedMBps        float64       `json:"speed_mbps"`
-	ETA              time.Duration `json:"eta"`
-	Elapsed          time.Duration `json:"elapsed"`
-	Phase            string        `json:"phase"`
-	PhaseProgress    float64       `json:"phase_progress"`
-	LastUpdate       time.Time     `json:"last_update"`
+	TaskID         string        `json:"task_id"`
+	Percentage     float64       `json:"percentage"`
+	BytesProcessed uint64        `json:"bytes_processed"`
+	BytesTotal     uint64        `json:"bytes_total"`
+	SpeedMBps      float64       `json:"speed_mbps"`
+	ETA            time.Duration `json:"eta"`
+	Elapsed        time.Duration `json:"elapsed"`
+	Phase          string        `json:"phase"`
+	PhaseProgress  float64       `json:"phase_progress"`
+	LastUpdate     time.Time     `json:"last_update"`
 }
 
 // ExpansionEligibilityResult 扩展资格检查结果
 type ExpansionEligibilityResult struct {
-	PoolName        string               `json:"pool_name"`
-	Eligible        bool                 `json:"eligible"`
-	RAIDZLevel      string               `json:"raidz_level"`
-	CurrentWidth    int                  `json:"current_width"`
-	NewWidth        int                  `json:"new_width"`
-	CapacityGain    uint64               `json:"capacity_gain"`
-	CurrentCapacity uint64               `json:"current_capacity"`
-	NewCapacity     uint64               `json:"new_capacity"`
-	Warnings        []string             `json:"warnings"`
-	PreChecks       []PreCheckResult     `json:"pre_checks"`
-	EstimatedTime   time.Duration        `json:"estimated_time"`
-	DiskRequirements DiskRequirements    `json:"disk_requirements"`
+	PoolName         string           `json:"pool_name"`
+	Eligible         bool             `json:"eligible"`
+	RAIDZLevel       string           `json:"raidz_level"`
+	CurrentWidth     int              `json:"current_width"`
+	NewWidth         int              `json:"new_width"`
+	CapacityGain     uint64           `json:"capacity_gain"`
+	CurrentCapacity  uint64           `json:"current_capacity"`
+	NewCapacity      uint64           `json:"new_capacity"`
+	Warnings         []string         `json:"warnings"`
+	PreChecks        []PreCheckResult `json:"pre_checks"`
+	EstimatedTime    time.Duration    `json:"estimated_time"`
+	DiskRequirements DiskRequirements `json:"disk_requirements"`
 }
 
 // PreCheckResult 预检查结果

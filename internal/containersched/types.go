@@ -44,12 +44,12 @@ const (
 
 // NodeResources 节点资源
 type NodeResources struct {
-	CPU       CPUResource    `json:"cpu"`
-	Memory    MemoryResource `json:"memory"`
-	DiskIO    DiskIOResource `json:"disk_io"`
+	CPU       CPUResource     `json:"cpu"`
+	Memory    MemoryResource  `json:"memory"`
+	DiskIO    DiskIOResource  `json:"disk_io"`
 	Network   NetworkResource `json:"network"`
-	GPU       *GPUResource   `json:"gpu,omitempty"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	GPU       *GPUResource    `json:"gpu,omitempty"`
+	UpdatedAt time.Time       `json:"updated_at"`
 }
 
 // CPUResource CPU 资源
@@ -113,34 +113,34 @@ const (
 
 // ScheduleRequest 调度请求
 type ScheduleRequest struct {
-	ContainerID   string            `json:"container_id" binding:"required"`
-	ContainerName string            `json:"container_name"`
-	Image         string            `json:"image" binding:"required"`
-	Resources     *ResourceRequest  `json:"resources"`
+	ContainerID   string               `json:"container_id" binding:"required"`
+	ContainerName string               `json:"container_name"`
+	Image         string               `json:"image" binding:"required"`
+	Resources     *ResourceRequest     `json:"resources"`
 	Constraints   *ScheduleConstraints `json:"constraints,omitempty"`
-	Priority      Priority          `json:"priority"`
-	Labels        map[string]string `json:"labels,omitempty"`
-	RequestedAt   time.Time         `json:"requested_at"`
+	Priority      Priority             `json:"priority"`
+	Labels        map[string]string    `json:"labels,omitempty"`
+	RequestedAt   time.Time            `json:"requested_at"`
 }
 
 // ResourceRequest 资源请求
 type ResourceRequest struct {
-	CPUCores     float64 `json:"cpu_cores"`
-	MemoryBytes  int64   `json:"memory_bytes"`
-	DiskIOBPS    int64   `json:"disk_io_bps"`
-	NetworkBPS   int64   `json:"network_bps"`
-	GPUDevices   int     `json:"gpu_devices"`
+	CPUCores    float64 `json:"cpu_cores"`
+	MemoryBytes int64   `json:"memory_bytes"`
+	DiskIOBPS   int64   `json:"disk_io_bps"`
+	NetworkBPS  int64   `json:"network_bps"`
+	GPUDevices  int     `json:"gpu_devices"`
 }
 
 // ScheduleConstraints 调度约束
 type ScheduleConstraints struct {
-	NodeSelector    map[string]string    `json:"node_selector,omitempty"`
-	Affinity        []AffinityRule       `json:"affinity,omitempty"`
-	AntiAffinity    []AffinityRule       `json:"anti_affinity,omitempty"`
-	Tolerations     []Toleration         `json:"tolerations,omitempty"`
-	PreferredNodes  []string             `json:"preferred_nodes,omitempty"`
-	ExcludedNodes   []string             `json:"excluded_nodes,omitempty"`
-	TopologyZone    string               `json:"topology_zone,omitempty"`
+	NodeSelector   map[string]string `json:"node_selector,omitempty"`
+	Affinity       []AffinityRule    `json:"affinity,omitempty"`
+	AntiAffinity   []AffinityRule    `json:"anti_affinity,omitempty"`
+	Tolerations    []Toleration      `json:"tolerations,omitempty"`
+	PreferredNodes []string          `json:"preferred_nodes,omitempty"`
+	ExcludedNodes  []string          `json:"excluded_nodes,omitempty"`
+	TopologyZone   string            `json:"topology_zone,omitempty"`
 }
 
 // AffinityRule 亲和性规则
@@ -232,10 +232,10 @@ type ScaleMetric struct {
 type MetricType string
 
 const (
-	MetricTypeCPU       MetricType = "cpu"
-	MetricTypeMemory    MetricType = "memory"
-	MetricTypeRequests  MetricType = "requests"
-	MetricTypeCustom    MetricType = "custom"
+	MetricTypeCPU      MetricType = "cpu"
+	MetricTypeMemory   MetricType = "memory"
+	MetricTypeRequests MetricType = "requests"
+	MetricTypeCustom   MetricType = "custom"
 )
 
 // ========== 节能模式 ==========
@@ -252,13 +252,13 @@ type PowerSaveConfig struct {
 
 // Placement 容器放置记录
 type Placement struct {
-	ContainerID   string    `json:"container_id"`
-	ContainerName string    `json:"container_name"`
-	NodeID        string    `json:"node_id"`
-	NodeName      string    `json:"node_name"`
+	ContainerID   string           `json:"container_id"`
+	ContainerName string           `json:"container_name"`
+	NodeID        string           `json:"node_id"`
+	NodeName      string           `json:"node_name"`
 	Resources     *ResourceRequest `json:"resources"`
-	ScheduledAt   time.Time `json:"scheduled_at"`
-	Priority      Priority  `json:"priority"`
+	ScheduledAt   time.Time        `json:"scheduled_at"`
+	Priority      Priority         `json:"priority"`
 }
 
 // ========== API 请求/响应类型 ==========
@@ -287,13 +287,13 @@ type UpdateNodeResourcesRequest struct {
 
 // EnqueueRequest 入队请求
 type EnqueueRequest struct {
-	ContainerID   string            `json:"container_id" binding:"required"`
-	ContainerName string            `json:"container_name"`
-	Image         string            `json:"image" binding:"required"`
-	Resources     *ResourceRequest  `json:"resources"`
+	ContainerID   string               `json:"container_id" binding:"required"`
+	ContainerName string               `json:"container_name"`
+	Image         string               `json:"image" binding:"required"`
+	Resources     *ResourceRequest     `json:"resources"`
 	Constraints   *ScheduleConstraints `json:"constraints,omitempty"`
-	Priority      Priority          `json:"priority"`
-	Labels        map[string]string `json:"labels,omitempty"`
+	Priority      Priority             `json:"priority"`
+	Labels        map[string]string    `json:"labels,omitempty"`
 }
 
 // UpdateAutoScaleRequest 更新自动扩缩容请求
@@ -317,13 +317,13 @@ type UpdatePowerSaveRequest struct {
 
 // ScheduleStats 调度统计
 type ScheduleStats struct {
-	TotalScheduled   int     `json:"total_scheduled"`
-	TotalFailed      int     `json:"total_failed"`
-	PendingInQueue   int     `json:"pending_in_queue"`
-	ActiveNodes      int     `json:"active_nodes"`
-	TotalContainers  int     `json:"total_containers"`
-	AverageScore     float64 `json:"average_score"`
-	LastScheduledAt  *time.Time `json:"last_scheduled_at,omitempty"`
+	TotalScheduled  int        `json:"total_scheduled"`
+	TotalFailed     int        `json:"total_failed"`
+	PendingInQueue  int        `json:"pending_in_queue"`
+	ActiveNodes     int        `json:"active_nodes"`
+	TotalContainers int        `json:"total_containers"`
+	AverageScore    float64    `json:"average_score"`
+	LastScheduledAt *time.Time `json:"last_scheduled_at,omitempty"`
 }
 
 // ========== 标准响应 ==========

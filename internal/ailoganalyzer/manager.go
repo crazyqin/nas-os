@@ -14,16 +14,16 @@ import (
 
 // Manager AI 日志分析器管理器.
 type Manager struct {
-	logs      map[string]*LogEntry
-	patterns  map[string]*LogPattern
-	rules     map[string]*AnomalyRule
-	alerts    map[string]*Alert
-	clusters  map[string]*LogCluster
-	streams   map[string]*LogStream
-	policies  map[string]*RetentionPolicy
-	analyses  map[string]*RootCauseAnalysis
-	mu        sync.RWMutex
-	stopCh    map[string]chan struct{} // 停止流的通道
+	logs     map[string]*LogEntry
+	patterns map[string]*LogPattern
+	rules    map[string]*AnomalyRule
+	alerts   map[string]*Alert
+	clusters map[string]*LogCluster
+	streams  map[string]*LogStream
+	policies map[string]*RetentionPolicy
+	analyses map[string]*RootCauseAnalysis
+	mu       sync.RWMutex
+	stopCh   map[string]chan struct{} // 停止流的通道
 }
 
 // NewManager 创建 AI 日志分析器管理器.

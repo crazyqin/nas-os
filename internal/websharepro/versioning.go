@@ -17,20 +17,20 @@ import (
 type VersionStatus string
 
 const (
-	VersionActive    VersionStatus = "active"
-	VersionArchived  VersionStatus = "archived"
-	VersionDeleted   VersionStatus = "deleted"
-	VersionLocked    VersionStatus = "locked"
+	VersionActive   VersionStatus = "active"
+	VersionArchived VersionStatus = "archived"
+	VersionDeleted  VersionStatus = "deleted"
+	VersionLocked   VersionStatus = "locked"
 )
 
 // VersionPolicy 版本保留策略
 type VersionPolicy struct {
-	MaxVersions    int           `json:"maxVersions"`    // 最大版本数
-	MaxAge         time.Duration `json:"maxAge"`         // 最大保留时长
-	KeepMinVersions int          `json:"keepMinVersions"` // 最少保留版本数
-	AutoCleanup    bool          `json:"autoCleanup"`    // 自动清理
+	MaxVersions     int           `json:"maxVersions"`     // 最大版本数
+	MaxAge          time.Duration `json:"maxAge"`          // 最大保留时长
+	KeepMinVersions int           `json:"keepMinVersions"` // 最少保留版本数
+	AutoCleanup     bool          `json:"autoCleanup"`     // 自动清理
 	CleanupInterval time.Duration `json:"cleanupInterval"` // 清理间隔
-	CompressOld    bool          `json:"compressOld"`    // 压缩旧版本
+	CompressOld     bool          `json:"compressOld"`     // 压缩旧版本
 }
 
 // FileVersion 文件版本
@@ -45,31 +45,31 @@ type FileVersion struct {
 	Tags        []string      `json:"tags,omitempty"`
 	Author      string        `json:"author"`
 	CreatedAt   time.Time     `json:"createdAt"`
-	StoragePath string        `json:"storagePath"` // 版本数据存储位置
-	IsSnapshot  bool          `json:"isSnapshot"`  // 是否为完整快照
+	StoragePath string        `json:"storagePath"`        // 版本数据存储位置
+	IsSnapshot  bool          `json:"isSnapshot"`         // 是否为完整快照
 	ParentID    string        `json:"parentId,omitempty"` // 增量版本的父版本
 }
 
 // VersionDiff 版本差异
 type VersionDiff struct {
-	FromVersion  int         `json:"fromVersion"`
-	ToVersion    int         `json:"toVersion"`
-	Additions    int         `json:"additions"`
-	Deletions    int         `json:"deletions"`
-	Modifications int        `json:"modifications"`
-	ChangedFiles []string    `json:"changedFiles,omitempty"`
-	Summary      string      `json:"summary"`
+	FromVersion   int      `json:"fromVersion"`
+	ToVersion     int      `json:"toVersion"`
+	Additions     int      `json:"additions"`
+	Deletions     int      `json:"deletions"`
+	Modifications int      `json:"modifications"`
+	ChangedFiles  []string `json:"changedFiles,omitempty"`
+	Summary       string   `json:"summary"`
 }
 
 // VersionStats 版本统计
 type VersionStats struct {
-	TotalVersions   int64         `json:"totalVersions"`
-	TotalSize       int64         `json:"totalSize"`
-	ActiveVersions  int64         `json:"activeVersions"`
-	ArchivedVersions int64        `json:"archivedVersions"`
-	OldestVersion   *time.Time    `json:"oldestVersion,omitempty"`
-	NewestVersion   *time.Time    `json:"newestVersion,omitempty"`
-	AvgVersionSize  int64         `json:"avgVersionSize"`
+	TotalVersions    int64      `json:"totalVersions"`
+	TotalSize        int64      `json:"totalSize"`
+	ActiveVersions   int64      `json:"activeVersions"`
+	ArchivedVersions int64      `json:"archivedVersions"`
+	OldestVersion    *time.Time `json:"oldestVersion,omitempty"`
+	NewestVersion    *time.Time `json:"newestVersion,omitempty"`
+	AvgVersionSize   int64      `json:"avgVersionSize"`
 }
 
 // VersionManager 版本管理器

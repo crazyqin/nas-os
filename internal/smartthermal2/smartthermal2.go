@@ -138,13 +138,21 @@ func (e *ThermalEngine) Sample() {
 		hist := e.sensorHist[s.ID]
 		if len(hist) > 0 {
 			start := len(hist) - window
-			if start < 0 { start = 0 }
+			if start < 0 {
+				start = 0
+			}
 			var sum float64
-			for _, h := range hist[start:] { sum += h.Temp }
+			for _, h := range hist[start:] {
+				sum += h.Temp
+			}
 			s.AvgTemp = sum / float64(len(hist[start:]))
 		}
-		if s.Temp > s.MaxTemp { s.MaxTemp = s.Temp }
-		if s.Temp < s.MinTemp || s.MinTemp == 0 { s.MinTemp = s.Temp }
+		if s.Temp > s.MaxTemp {
+			s.MaxTemp = s.Temp
+		}
+		if s.Temp < s.MinTemp || s.MinTemp == 0 {
+			s.MinTemp = s.Temp
+		}
 		s.Status = e.classifySensorStatus(s.Temp)
 		s.UpdatedAt = now
 	}
@@ -175,7 +183,9 @@ func (e *ThermalEngine) GetSensors() []Sensor {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	sensors := make([]Sensor, 0, len(e.sensors))
-	for _, s := range e.sensors { sensors = append(sensors, *s) }
+	for _, s := range e.sensors {
+		sensors = append(sensors, *s)
+	}
 	sort.Slice(sensors, func(i, j int) bool { return sensors[i].ID < sensors[j].ID })
 	return sensors
 }
@@ -185,7 +195,9 @@ func (e *ThermalEngine) GetSensor(id string) (*Sensor, bool) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	s, ok := e.sensors[id]
-	if !ok { return nil, false }
+	if !ok {
+		return nil, false
+	}
 	result := *s
 	return &result, true
 }
@@ -194,11 +206,15 @@ func (e *ThermalEngine) GetSensor(id string) (*Sensor, bool) {
 func (e *ThermalEngine) GetSensorHistory(id string, minutes int) []SensorHistory {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	if minutes <= 0 { minutes = 60 }
+	if minutes <= 0 {
+		minutes = 60
+	}
 	cutoff := time.Now().Add(-time.Duration(minutes) * time.Minute)
 	var result []SensorHistory
 	for _, h := range e.sensorHist[id] {
-		if h.Timestamp.After(cutoff) { result = append(result, h) }
+		if h.Timestamp.After(cutoff) {
+			result = append(result, h)
+		}
 	}
 	return result
 }
@@ -208,7 +224,9 @@ func (e *ThermalEngine) GetZones() []ThermalZone {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	zones := make([]ThermalZone, 0, len(e.zones))
-	for _, z := range e.zones { zones = append(zones, *z) }
+	for _, z := range e.zones {
+		zones = append(zones, *z)
+	}
 	sort.Slice(zones, func(i, j int) bool { return zones[i].ID < zones[j].ID })
 	return zones
 }
@@ -290,7 +308,7 @@ func (fc *FanController) initDefaultCurves() {
 		},
 	}
 	fc.curves[FanProfileFullSpeed] = &FanCurve{
-		Type: FanProfileFullSpeed,
+		Type:   FanProfileFullSpeed,
 		Points: []FanCurvePoint{{Temp: 0, PWM: 100}, {Temp: 100, PWM: 100}},
 	}
 }
@@ -318,10 +336,16 @@ func (fc *FanController) initMockFans() {
 
 // InterpolateCurve 分段线性插值计算风扇转速
 func (fc *FanController) InterpolateCurve(temp float64, curve *FanCurve) float64 {
-	if curve == nil || len(curve.Points) == 0 { return 30 }
+	if curve == nil || len(curve.Points) == 0 {
+		return 30
+	}
 	points := curve.Points
-	if temp <= points[0].Temp { return points[0].PWM }
-	if temp >= points[len(points)-1].Temp { return points[len(points)-1].PWM }
+	if temp <= points[0].Temp {
+		return points[0].PWM
+	}
+	if temp >= points[len(points)-1].Temp {
+		return points[len(points)-1].PWM
+	}
 	for i := 1; i < len(points); i++ {
 		if temp <= points[i].Temp {
 			t1, t2 := points[i-1].Temp, points[i].Temp
@@ -337,20 +361,26 @@ func (fc *FanController) UpdateFans() {
 	fc.mu.Lock()
 	defer fc.mu.Unlock()
 	for _, fan := range fc.fans {
-		if fan.Status == FanStatusFailed || fan.Status == FanStatusDisabled { continue }
+		if fan.Status == FanStatusFailed || fan.Status == FanStatusDisabled {
+			continue
+		}
 		maxTemp := fc.getZoneMaxTemp(fan.Zone)
 		var targetPWM float64
 		if fan.Profile == FanProfileAdaptive {
 			targetPWM = fc.adaptiveTarget(fan.ID, maxTemp)
 		} else {
 			curve := fc.curves[fan.Profile]
-			if curve == nil { curve = fc.curves[FanProfileStandard] }
+			if curve == nil {
+				curve = fc.curves[FanProfileStandard]
+			}
 			targetPWM = fc.InterpolateCurve(maxTemp, curve)
 		}
 		fan.TargetPWM = targetPWM
 		fan.PWM = fc.smoothTransition(fan.PWM, targetPWM)
 		fan.RPM = int(float64(fan.MaxRPM) * fan.PWM / 100)
-		if fan.RPM < fan.MinRPM && fan.PWM > 0 { fan.RPM = fan.MinRPM }
+		if fan.RPM < fan.MinRPM && fan.PWM > 0 {
+			fan.RPM = fan.MinRPM
+		}
 		fan.NoiseLevel = fc.estimateFanNoise(fan.RPM, fan.MaxRPM)
 		fan.UpdatedAt = time.Now()
 	}
@@ -359,8 +389,12 @@ func (fc *FanController) UpdateFans() {
 // smoothTransition 平滑过渡
 func (fc *FanController) smoothTransition(current, target float64) float64 {
 	diff := target - current
-	if math.Abs(diff) <= fc.transitionRate { return target }
-	if diff > 0 { return current + fc.transitionRate }
+	if math.Abs(diff) <= fc.transitionRate {
+		return target
+	}
+	if diff > 0 {
+		return current + fc.transitionRate
+	}
 	return current - fc.transitionRate
 }
 
@@ -368,8 +402,12 @@ func (fc *FanController) smoothTransition(current, target float64) float64 {
 func (fc *FanController) getZoneMaxTemp(zoneID string) float64 {
 	fc.engine.mu.RLock()
 	defer fc.engine.mu.RUnlock()
-	if z, ok := fc.engine.zones[zoneID]; ok { return z.MaxTemp }
-	if s, ok := fc.engine.sensors["cpu-0"]; ok { return s.Temp }
+	if z, ok := fc.engine.zones[zoneID]; ok {
+		return z.MaxTemp
+	}
+	if s, ok := fc.engine.sensors["cpu-0"]; ok {
+		return s.Temp
+	}
 	return 40
 }
 
@@ -388,10 +426,14 @@ func (fc *FanController) adaptiveTarget(fanID string, temp float64) float64 {
 
 // estimateFanNoise 估算风扇噪音（基于常见风扇噪音曲线）
 func (fc *FanController) estimateFanNoise(rpm, maxRPM int) float64 {
-	if rpm <= 0 { return 0 }
+	if rpm <= 0 {
+		return 0
+	}
 	ratio := float64(rpm) / float64(maxRPM)
 	noise := 18.0 + 30.0*math.Log10(ratio+0.1)
-	if noise < 0 { noise = 0 }
+	if noise < 0 {
+		noise = 0
+	}
 	return math.Round(noise*10) / 10
 }
 
@@ -400,7 +442,9 @@ func (fc *FanController) GetFans() []FanInfo {
 	fc.mu.RLock()
 	defer fc.mu.RUnlock()
 	fans := make([]FanInfo, 0, len(fc.fans))
-	for _, f := range fc.fans { fans = append(fans, *f) }
+	for _, f := range fc.fans {
+		fans = append(fans, *f)
+	}
 	sort.Slice(fans, func(i, j int) bool { return fans[i].ID < fans[j].ID })
 	return fans
 }
@@ -410,7 +454,9 @@ func (fc *FanController) GetFan(id string) (*FanInfo, bool) {
 	fc.mu.RLock()
 	defer fc.mu.RUnlock()
 	f, ok := fc.fans[id]
-	if !ok { return nil, false }
+	if !ok {
+		return nil, false
+	}
 	result := *f
 	return &result, true
 }
@@ -420,13 +466,19 @@ func (fc *FanController) UpdateFan(id string, req FanUpdateRequest) error {
 	fc.mu.Lock()
 	defer fc.mu.Unlock()
 	fan, ok := fc.fans[id]
-	if !ok { return fmt.Errorf("风扇 %s 未找到", id) }
+	if !ok {
+		return fmt.Errorf("风扇 %s 未找到", id)
+	}
 	if req.PWM != nil {
-		if *req.PWM < 0 || *req.PWM > 100 { return fmt.Errorf("PWM 必须在 0-100 之间") }
+		if *req.PWM < 0 || *req.PWM > 100 {
+			return fmt.Errorf("PWM 必须在 0-100 之间")
+		}
 		fan.PWM = *req.PWM
 		fan.RPM = int(float64(fan.MaxRPM) * *req.PWM / 100)
 	}
-	if req.Profile != nil { fan.Profile = *req.Profile }
+	if req.Profile != nil {
+		fan.Profile = *req.Profile
+	}
 	fan.NoiseLevel = fc.estimateFanNoise(fan.RPM, fan.MaxRPM)
 	fan.UpdatedAt = time.Now()
 	return nil
@@ -438,7 +490,9 @@ func (fc *FanController) CheckFanHealth() []string {
 	defer fc.mu.Unlock()
 	var issues []string
 	for _, fan := range fc.fans {
-		if fan.Status == FanStatusDisabled { continue }
+		if fan.Status == FanStatusDisabled {
+			continue
+		}
 		if fan.PWM > 10 && fan.RPM == 0 {
 			fan.Status = FanStatusFailed
 			issues = append(issues, fmt.Sprintf("风扇 %s 故障：PWM=%.0f%% 但转速为0", fan.Name, fan.PWM))
@@ -457,7 +511,9 @@ func (fc *FanController) GetCurves() map[FanProfileType]*FanCurve {
 	fc.mu.RLock()
 	defer fc.mu.RUnlock()
 	result := make(map[FanProfileType]*FanCurve)
-	for k, v := range fc.curves { result[k] = v }
+	for k, v := range fc.curves {
+		result[k] = v
+	}
 	return result
 }
 
@@ -490,17 +546,23 @@ func (no *NoiseOptimizer) Assess() NoiseAssessment {
 	var totalPower float64
 	var perFan []FanNoise
 	for _, f := range fans {
-		if f.Status == FanStatusDisabled { continue }
+		if f.Status == FanStatusDisabled {
+			continue
+		}
 		perFan = append(perFan, FanNoise{FanID: f.ID, Name: f.Name, DBA: f.NoiseLevel, RPM: f.RPM})
 		totalPower += math.Pow(10, f.NoiseLevel/10.0)
 	}
 	totalDBA := 0.0
-	if totalPower > 0 { totalDBA = 10.0 * math.Log10(totalPower) }
+	if totalPower > 0 {
+		totalDBA = 10.0 * math.Log10(totalPower)
+	}
 	totalDBA = math.Round(totalDBA*10) / 10
 	level := no.classifyNoise(totalDBA)
 	budget := no.getCurrentBudget()
 	budgetUsed := 0.0
-	if budget > 0 { budgetUsed = math.Round(totalDBA/budget*10000) / 100 }
+	if budget > 0 {
+		budgetUsed = math.Round(totalDBA/budget*10000) / 100
+	}
 	recommendation := no.generateRecommendation(totalDBA, budget, fans)
 	return NoiseAssessment{
 		TotalDBA: totalDBA, Level: level, NoiseBudget: budget,
@@ -511,17 +573,24 @@ func (no *NoiseOptimizer) Assess() NoiseAssessment {
 // classifyNoise 分类噪音级别
 func (no *NoiseOptimizer) classifyNoise(dba float64) NoiseLevel {
 	switch {
-	case dba < 25: return NoiseSilent
-	case dba < 35: return NoiseQuiet
-	case dba < 45: return NoiseModerate
-	case dba < 55: return NoiseLoud
-	default: return NoiseVeryLoud
+	case dba < 25:
+		return NoiseSilent
+	case dba < 35:
+		return NoiseQuiet
+	case dba < 45:
+		return NoiseModerate
+	case dba < 55:
+		return NoiseLoud
+	default:
+		return NoiseVeryLoud
 	}
 }
 
 // getCurrentBudget 获取当前噪音预算
 func (no *NoiseOptimizer) getCurrentBudget() float64 {
-	if !no.settings.ScheduleEnabled { return no.settings.MaxDBA }
+	if !no.settings.ScheduleEnabled {
+		return no.settings.MaxDBA
+	}
 	hour := time.Now().Hour()
 	if hour >= no.settings.DayStartHour && hour < no.settings.DayEndHour {
 		return no.settings.DayMaxDBA
@@ -531,12 +600,18 @@ func (no *NoiseOptimizer) getCurrentBudget() float64 {
 
 // generateRecommendation 生成建议
 func (no *NoiseOptimizer) generateRecommendation(current, budget float64, fans []FanInfo) string {
-	if current <= budget { return "当前噪音在预算范围内，散热状态良好" }
+	if current <= budget {
+		return "当前噪音在预算范围内，散热状态良好"
+	}
 	overBudget := current - budget
-	if overBudget < 5 { return fmt.Sprintf("噪音超预算 %.1fdBA，建议将风扇曲线切换为静音模式", overBudget) }
+	if overBudget < 5 {
+		return fmt.Sprintf("噪音超预算 %.1fdBA，建议将风扇曲线切换为静音模式", overBudget)
+	}
 	var loudest FanInfo
 	for _, f := range fans {
-		if f.NoiseLevel > loudest.NoiseLevel { loudest = f }
+		if f.NoiseLevel > loudest.NoiseLevel {
+			loudest = f
+		}
 	}
 	return fmt.Sprintf("噪音超预算 %.1fdBA，最大噪音源 %s，建议降低其转速或切换静音方案", overBudget, loudest.Name)
 }
@@ -589,7 +664,9 @@ func (tp *ThermalPredictor) Predict(sensorID string, futureMinutes int) (*Predic
 	engine.mu.RLock()
 	defer engine.mu.RUnlock()
 	sensor, ok := engine.sensors[sensorID]
-	if !ok { return nil, fmt.Errorf("传感器 %s 未找到", sensorID) }
+	if !ok {
+		return nil, fmt.Errorf("传感器 %s 未找到", sensorID)
+	}
 	hist := engine.sensorHist[sensorID]
 	if len(hist) < 2 {
 		return &PredictionResult{
@@ -599,32 +676,51 @@ func (tp *ThermalPredictor) Predict(sensorID string, futureMinutes int) (*Predic
 		}, nil
 	}
 	n := 10
-	if len(hist) < n { n = len(hist) }
+	if len(hist) < n {
+		n = len(hist)
+	}
 	recent := hist[len(hist)-n:]
 	var sumX, sumY, sumXY, sumX2 float64
 	for i, h := range recent {
 		x, y := float64(i), h.Temp
-		sumX += x; sumY += y; sumXY += x * y; sumX2 += x * x
+		sumX += x
+		sumY += y
+		sumXY += x * y
+		sumX2 += x * x
 	}
 	nn := float64(n)
 	denom := nn*sumX2 - sumX*sumX
 	ratePerMin := 0.0
-	if denom != 0 { ratePerMin = (nn*sumXY - sumX*sumY) / denom }
+	if denom != 0 {
+		ratePerMin = (nn*sumXY - sumX*sumY) / denom
+	}
 	predicted := sensor.Temp + ratePerMin*float64(futureMinutes)
 	month := int(time.Now().Month())
 	for _, s := range tp.seasonalComp {
-		if s.Month == month { predicted += s.Compensation; break }
+		if s.Month == month {
+			predicted += s.Compensation
+			break
+		}
 	}
 	predictedWithMargin := predicted * tp.safeMargin
 	trend := "stable"
-	if ratePerMin > 0.5 { trend = "rising" } else if ratePerMin < -0.5 { trend = "falling" }
+	if ratePerMin > 0.5 {
+		trend = "rising"
+	} else if ratePerMin < -0.5 {
+		trend = "falling"
+	}
 	confidence := math.Min(nn/10.0, 1.0) * 0.8
 	if n > 3 {
 		var variance float64
 		mean := sumY / nn
-		for _, h := range recent { d := h.Temp - mean; variance += d * d }
+		for _, h := range recent {
+			d := h.Temp - mean
+			variance += d * d
+		}
 		variance /= nn
-		if variance < 4 { confidence += 0.2 }
+		if variance < 4 {
+			confidence += 0.2
+		}
 	}
 	confidence = math.Min(confidence, 1.0)
 	warningTemp := engine.settings.AlertSettings.WarningTemp
@@ -632,7 +728,9 @@ func (tp *ThermalPredictor) Predict(sensorID string, futureMinutes int) (*Predic
 	minutesToOverheat := 0
 	if willOverheat && ratePerMin > 0 {
 		minutesToOverheat = int((warningTemp - sensor.Temp) / ratePerMin)
-		if minutesToOverheat < 0 { minutesToOverheat = 0 }
+		if minutesToOverheat < 0 {
+			minutesToOverheat = 0
+		}
 	}
 	return &PredictionResult{
 		SensorID: sensorID, CurrentTemp: sensor.Temp, PredictedTemp: predictedWithMargin,
@@ -646,12 +744,16 @@ func (tp *ThermalPredictor) Predict(sensorID string, futureMinutes int) (*Predic
 func (tp *ThermalPredictor) PredictAll(futureMinutes int) []PredictionResult {
 	tp.mu.RLock()
 	sensorIDs := make([]string, 0, len(tp.engine.sensors))
-	for id := range tp.engine.sensors { sensorIDs = append(sensorIDs, id) }
+	for id := range tp.engine.sensors {
+		sensorIDs = append(sensorIDs, id)
+	}
 	tp.mu.RUnlock()
 	var results []PredictionResult
 	for _, id := range sensorIDs {
 		r, err := tp.Predict(id, futureMinutes)
-		if err == nil { results = append(results, *r) }
+		if err == nil {
+			results = append(results, *r)
+		}
 	}
 	return results
 }
@@ -660,10 +762,10 @@ func (tp *ThermalPredictor) PredictAll(futureMinutes int) []PredictionResult {
 
 // ProfileManager 散热方案管理器
 type ProfileManager struct {
-	mu             sync.RWMutex
-	logger         *zap.Logger
-	profiles       map[string]*CoolingProfile
-	activeID       string
+	mu       sync.RWMutex
+	logger   *zap.Logger
+	profiles map[string]*CoolingProfile
+	activeID string
 }
 
 // NewProfileManager 创建散热方案管理器
@@ -719,7 +821,9 @@ func (pm *ProfileManager) initPresets() {
 	}
 	for i := range presets {
 		pm.profiles[presets[i].ID] = &presets[i]
-		if presets[i].IsActive { pm.activeID = presets[i].ID }
+		if presets[i].IsActive {
+			pm.activeID = presets[i].ID
+		}
 	}
 }
 
@@ -728,7 +832,9 @@ func (pm *ProfileManager) List() []CoolingProfile {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
 	list := make([]CoolingProfile, 0, len(pm.profiles))
-	for _, p := range pm.profiles { list = append(list, *p) }
+	for _, p := range pm.profiles {
+		list = append(list, *p)
+	}
 	sort.Slice(list, func(i, j int) bool { return list[i].ID < list[j].ID })
 	return list
 }
@@ -738,7 +844,9 @@ func (pm *ProfileManager) Get(id string) (*CoolingProfile, bool) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
 	p, ok := pm.profiles[id]
-	if !ok { return nil, false }
+	if !ok {
+		return nil, false
+	}
 	result := *p
 	return &result, true
 }
@@ -748,7 +856,9 @@ func (pm *ProfileManager) GetActive() *CoolingProfile {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
 	p, ok := pm.profiles[pm.activeID]
-	if !ok { return nil }
+	if !ok {
+		return nil
+	}
 	result := *p
 	return &result
 }
@@ -764,7 +874,9 @@ func (pm *ProfileManager) Create(req ProfileCreateRequest) (*CoolingProfile, err
 		NoiseLimit: req.NoiseLimit, MaxTemp: req.MaxTemp,
 		IsDefault: false, IsActive: false, IsCustom: true, CreatedAt: time.Now(),
 	}
-	if req.Schedule != nil { profile.Schedule = req.Schedule }
+	if req.Schedule != nil {
+		profile.Schedule = req.Schedule
+	}
 	pm.profiles[id] = profile
 	pm.logger.Info("创建散热方案", zap.String("id", id), zap.String("name", req.Name))
 	return profile, nil
@@ -774,8 +886,12 @@ func (pm *ProfileManager) Create(req ProfileCreateRequest) (*CoolingProfile, err
 func (pm *ProfileManager) SetActive(id string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
-	if _, ok := pm.profiles[id]; !ok { return fmt.Errorf("方案 %s 未找到", id) }
-	if old, ok := pm.profiles[pm.activeID]; ok { old.IsActive = false }
+	if _, ok := pm.profiles[id]; !ok {
+		return fmt.Errorf("方案 %s 未找到", id)
+	}
+	if old, ok := pm.profiles[pm.activeID]; ok {
+		old.IsActive = false
+	}
 	pm.profiles[id].IsActive = true
 	pm.activeID = id
 	pm.logger.Info("切换散热方案", zap.String("id", id))
@@ -786,13 +902,13 @@ func (pm *ProfileManager) SetActive(id string) error {
 
 // AlertManager 告警管理器
 type AlertManager struct {
-	mu        sync.RWMutex
-	logger    *zap.Logger
-	engine    *ThermalEngine
-	fc        *FanController
-	alerts    map[string]*ThermalAlert
-	settings  AlertSettings
-	alertSeq  int64
+	mu       sync.RWMutex
+	logger   *zap.Logger
+	engine   *ThermalEngine
+	fc       *FanController
+	alerts   map[string]*ThermalAlert
+	settings AlertSettings
+	alertSeq int64
 }
 
 // NewAlertManager 创建告警管理器
@@ -816,11 +932,14 @@ func (am *AlertManager) Check() {
 		var threshold float64
 		switch {
 		case s.Temp >= am.settings.EmergencyTemp:
-			level = AlertEmergency; threshold = am.settings.EmergencyTemp
+			level = AlertEmergency
+			threshold = am.settings.EmergencyTemp
 		case s.Temp >= am.settings.CriticalTemp:
-			level = AlertCritical; threshold = am.settings.CriticalTemp
+			level = AlertCritical
+			threshold = am.settings.CriticalTemp
 		case s.Temp >= am.settings.WarningTemp:
-			level = AlertWarning; threshold = am.settings.WarningTemp
+			level = AlertWarning
+			threshold = am.settings.WarningTemp
 		default:
 			continue
 		}
@@ -863,7 +982,9 @@ func (am *AlertManager) GetActive() []ThermalAlert {
 	defer am.mu.RUnlock()
 	var active []ThermalAlert
 	for _, a := range am.alerts {
-		if a.Active { active = append(active, *a) }
+		if a.Active {
+			active = append(active, *a)
+		}
 	}
 	return active
 }
@@ -873,9 +994,13 @@ func (am *AlertManager) GetAll(limit int) []ThermalAlert {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
 	all := make([]ThermalAlert, 0, len(am.alerts))
-	for _, a := range am.alerts { all = append(all, *a) }
+	for _, a := range am.alerts {
+		all = append(all, *a)
+	}
 	sort.Slice(all, func(i, j int) bool { return all[i].CreatedAt.After(all[j].CreatedAt) })
-	if limit > 0 && limit < len(all) { all = all[:limit] }
+	if limit > 0 && limit < len(all) {
+		all = all[:limit]
+	}
 	return all
 }
 
@@ -884,7 +1009,9 @@ func (am *AlertManager) Resolve(id string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
 	a, ok := am.alerts[id]
-	if !ok { return fmt.Errorf("告警 %s 未找到", id) }
+	if !ok {
+		return fmt.Errorf("告警 %s 未找到", id)
+	}
 	now := time.Now()
 	a.Active = false
 	a.ResolvedAt = &now

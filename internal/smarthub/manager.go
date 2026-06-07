@@ -339,13 +339,13 @@ func (m *Manager) ListRooms() []string {
 
 // HubStats 中枢统计.
 type HubStats struct {
-	TotalDevices    int            `json:"total_devices"`
-	OnlineDevices   int            `json:"online_devices"`
-	OfflineDevices  int            `json:"offline_devices"`
-	TotalScenes     int            `json:"total_scenes"`
-	TotalAutomations int           `json:"total_automations"`
-	ProtocolDist    map[string]int `json:"protocol_dist"`
-	RoomDist        map[string]int `json:"room_dist"`
+	TotalDevices     int            `json:"total_devices"`
+	OnlineDevices    int            `json:"online_devices"`
+	OfflineDevices   int            `json:"offline_devices"`
+	TotalScenes      int            `json:"total_scenes"`
+	TotalAutomations int            `json:"total_automations"`
+	ProtocolDist     map[string]int `json:"protocol_dist"`
+	RoomDist         map[string]int `json:"room_dist"`
 }
 
 // GetStats 获取统计信息.

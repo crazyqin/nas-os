@@ -20,26 +20,26 @@ type ServiceStatus struct {
 
 // StorageOverview 存储概览
 type StorageOverview struct {
-	TotalSpace    int64   `json:"total_space"`
-	UsedSpace     int64   `json:"used_space"`
-	FreeSpace     int64   `json:"free_space"`
-	UsagePercent  float64 `json:"usage_percent"`
-	PoolCount     int     `json:"pool_count"`
-	DiskCount     int     `json:"disk_count"`
-	HealthStatus  string  `json:"health_status"`
-	LastScrub     string  `json:"last_scrub"`
+	TotalSpace   int64   `json:"total_space"`
+	UsedSpace    int64   `json:"used_space"`
+	FreeSpace    int64   `json:"free_space"`
+	UsagePercent float64 `json:"usage_percent"`
+	PoolCount    int     `json:"pool_count"`
+	DiskCount    int     `json:"disk_count"`
+	HealthStatus string  `json:"health_status"`
+	LastScrub    string  `json:"last_scrub"`
 }
 
 // SystemInfo 系统信息
 type SystemInfo struct {
-	Hostname     string  `json:"hostname"`
-	OS           string  `json:"os"`
-	Kernel       string  `json:"kernel"`
-	Architecture string  `json:"architecture"`
-	CPUModel     string  `json:"cpu_model"`
-	CPUCores     int     `json:"cpu_cores"`
-	TotalMemory  int64   `json:"total_memory"`
-	Uptime       string  `json:"uptime"`
+	Hostname     string     `json:"hostname"`
+	OS           string     `json:"os"`
+	Kernel       string     `json:"kernel"`
+	Architecture string     `json:"architecture"`
+	CPUModel     string     `json:"cpu_model"`
+	CPUCores     int        `json:"cpu_cores"`
+	TotalMemory  int64      `json:"total_memory"`
+	Uptime       string     `json:"uptime"`
 	LoadAvg      [3]float64 `json:"load_avg"`
 }
 
@@ -54,20 +54,20 @@ type RecentActivity struct {
 
 // DashboardData 仪表盘数据
 type DashboardData struct {
-	System      SystemInfo        `json:"system"`
-	Services    []ServiceStatus   `json:"services"`
-	Storage     StorageOverview   `json:"storage"`
-	Activities  []RecentActivity  `json:"activities"`
-	Alerts      []AlertItem       `json:"alerts"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	System     SystemInfo       `json:"system"`
+	Services   []ServiceStatus  `json:"services"`
+	Storage    StorageOverview  `json:"storage"`
+	Activities []RecentActivity `json:"activities"`
+	Alerts     []AlertItem      `json:"alerts"`
+	UpdatedAt  time.Time        `json:"updated_at"`
 }
 
 // AlertItem 告警项
 type AlertItem struct {
-	ID       string    `json:"id"`
-	Level    string    `json:"level"`
-	Message  string    `json:"message"`
-	Source   string    `json:"source"`
+	ID        string    `json:"id"`
+	Level     string    `json:"level"`
+	Message   string    `json:"message"`
+	Source    string    `json:"source"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -94,12 +94,12 @@ func (m *Manager) GetDashboard() *DashboardData {
 	defer m.mu.RUnlock()
 
 	return &DashboardData{
-		System: m.getSystemInfo(),
-		Services: m.getServices(),
-		Storage: m.getStorageOverview(),
+		System:     m.getSystemInfo(),
+		Services:   m.getServices(),
+		Storage:    m.getStorageOverview(),
 		Activities: m.activities,
-		Alerts: m.alerts,
-		UpdatedAt: time.Now(),
+		Alerts:     m.alerts,
+		UpdatedAt:  time.Now(),
 	}
 }
 

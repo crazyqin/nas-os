@@ -28,10 +28,10 @@ var (
 // Manager 文件锁管理器
 type Manager struct {
 	mu          sync.RWMutex
-	locks       map[string]*FileLockEntry   // lockID -> entry
-	fileLocks   map[string][]string         // filePath -> []lockID
-	userLocks   map[string][]string         // userID -> []lockID
-	conflicts   map[string]*LockConflict    // conflictID -> conflict
+	locks       map[string]*FileLockEntry // lockID -> entry
+	fileLocks   map[string][]string       // filePath -> []lockID
+	userLocks   map[string][]string       // userID -> []lockID
+	conflicts   map[string]*LockConflict  // conflictID -> conflict
 	policy      LockPolicy
 	storagePath string
 }

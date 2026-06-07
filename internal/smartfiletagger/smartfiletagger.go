@@ -114,12 +114,12 @@ type SearchResult struct {
 
 // TagStats 标签统计
 type TagStats struct {
-	TotalTags      int            `json:"total_tags"`
-	TotalFiles     int            `json:"total_files"`
-	TotalRelations int            `json:"total_relations"`
-	ByCategory     map[string]int `json:"by_category"`
+	TotalTags      int             `json:"total_tags"`
+	TotalFiles     int             `json:"total_files"`
+	TotalRelations int             `json:"total_relations"`
+	ByCategory     map[string]int  `json:"by_category"`
 	TopTags        []TagCloudEntry `json:"top_tags"`
-	AutoTagRatio   float64        `json:"auto_tag_ratio"`
+	AutoTagRatio   float64         `json:"auto_tag_ratio"`
 }
 
 // ========== 核心管理器 ==========

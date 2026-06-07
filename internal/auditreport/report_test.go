@@ -112,20 +112,20 @@ func TestReportEngineComprehensiveReport(t *testing.T) {
 	// 添加一些测试事件
 	analyzer := engine.GetAnalyzer()
 	analyzer.AddEvent(&AuditEvent{
-		ID:        "test-1",
-		UserID:    "user1",
-		Action:    "login",
-		Resource:  "/auth",
-		IP:        "192.168.1.1",
-		Result:    "success",
+		ID:       "test-1",
+		UserID:   "user1",
+		Action:   "login",
+		Resource: "/auth",
+		IP:       "192.168.1.1",
+		Result:   "success",
 	})
 	analyzer.AddEvent(&AuditEvent{
-		ID:        "test-2",
-		UserID:    "user1",
-		Action:    "read",
-		Resource:  "/api/files",
-		IP:        "192.168.1.1",
-		Result:    "success",
+		ID:       "test-2",
+		UserID:   "user1",
+		Action:   "read",
+		Resource: "/api/files",
+		IP:       "192.168.1.1",
+		Result:   "success",
 	})
 
 	report, err := engine.GenerateComprehensiveReport("综合安全报告", "2024-01")

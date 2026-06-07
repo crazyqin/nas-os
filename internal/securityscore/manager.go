@@ -192,10 +192,10 @@ func (m *Manager) buildCategories() map[string]CategoryScore {
 	// 分类权重
 	weights := map[string]float64{
 		"认证与授权": 0.25,
-		"网络安全":   0.20,
-		"数据保护":   0.25,
+		"网络安全":  0.20,
+		"数据保护":  0.25,
 		"日志与监控": 0.15,
-		"系统加固":   0.15,
+		"系统加固":  0.15,
 	}
 
 	for cat, checks := range categoryChecks {

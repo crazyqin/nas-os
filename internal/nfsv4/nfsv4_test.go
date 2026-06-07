@@ -20,10 +20,10 @@ func TestAddAndGetExport(t *testing.T) {
 	server := NewNFSv4Server(nil)
 
 	export := &NFSExport{
-		ID:       "export1",
-		Path:     "/data/share",
-		Alias:    "share",
-		Enabled:  true,
+		ID:      "export1",
+		Path:    "/data/share",
+		Alias:   "share",
+		Enabled: true,
 	}
 
 	if err := server.AddExport(export); err != nil {

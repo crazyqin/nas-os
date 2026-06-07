@@ -37,9 +37,9 @@ func (m *Manager) GetConfig() *HAConfig {
 			AutoFailover:  true,
 			FailoverDelay: 5,
 			Heartbeats: map[HeartbeatLevel]HeartbeatConfig{
-				HeartbeatNetwork:  {Interval: 5, Timeout: 15, MaxRetries: 3},
-				HeartbeatStorage:  {Interval: 10, Timeout: 30, MaxRetries: 3},
-				HeartbeatService:  {Interval: 15, Timeout: 45, MaxRetries: 3},
+				HeartbeatNetwork: {Interval: 5, Timeout: 15, MaxRetries: 3},
+				HeartbeatStorage: {Interval: 10, Timeout: 30, MaxRetries: 3},
+				HeartbeatService: {Interval: 15, Timeout: 45, MaxRetries: 3},
 			},
 			VIP: VIPConfig{
 				Enabled:   false,
@@ -385,12 +385,12 @@ func (m *Manager) ManualFailover(req *FailoverRequest) (*FailoverEvent, error) {
 	defer func() { m.failoverActive = false }()
 
 	event := FailoverEvent{
-		ID:         uuid.New().String(),
+		ID:          uuid.New().String(),
 		TriggeredAt: time.Now(),
-		Trigger:    TriggerManual,
-		FromNode:   m.localNode.ID,
-		ToNode:     m.peerNode.ID,
-		Reason:     req.Reason,
+		Trigger:     TriggerManual,
+		FromNode:    m.localNode.ID,
+		ToNode:      m.peerNode.ID,
+		Reason:      req.Reason,
 	}
 
 	startTime := time.Now()
@@ -441,12 +441,12 @@ func (m *Manager) triggerAutoFailover(reason string) {
 	}()
 
 	event := FailoverEvent{
-		ID:         uuid.New().String(),
+		ID:          uuid.New().String(),
 		TriggeredAt: time.Now(),
-		Trigger:    TriggerAuto,
-		FromNode:   m.localNode.ID,
-		ToNode:     m.peerNode.ID,
-		Reason:     reason,
+		Trigger:     TriggerAuto,
+		FromNode:    m.localNode.ID,
+		ToNode:      m.peerNode.ID,
+		Reason:      reason,
 	}
 
 	startTime := time.Now()
@@ -552,7 +552,7 @@ func (m *Manager) GetSyncStatus() *SyncStatus {
 	defer m.mu.RUnlock()
 
 	status := &SyncStatus{
-		State:     m.syncState,
+		State:      m.syncState,
 		LastSyncAt: m.lastSyncAt,
 	}
 	return status

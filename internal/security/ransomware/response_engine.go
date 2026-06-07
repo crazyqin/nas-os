@@ -48,27 +48,27 @@ type ResponseAction struct {
 	ID          string        `json:"id"`
 	Timestamp   time.Time     `json:"timestamp"`
 	Level       ResponseLevel `json:"level"`
-	ActionType  string        `json:"action_type"`  // 动作类型（如 alert, kill_process, snapshot, isolate）
-	Target      string        `json:"target"`        // 操作目标（进程名、网段等）
-	Success     bool          `json:"success"`       // 是否成功
+	ActionType  string        `json:"action_type"`     // 动作类型（如 alert, kill_process, snapshot, isolate）
+	Target      string        `json:"target"`          // 操作目标（进程名、网段等）
+	Success     bool          `json:"success"`         // 是否成功
 	Error       string        `json:"error,omitempty"` // 错误信息
-	DetectionID string        `json:"detection_id"`  // 关联的检测ID
-	Details     string        `json:"details"`       // 附加详情
+	DetectionID string        `json:"detection_id"`    // 关联的检测ID
+	Details     string        `json:"details"`         // 附加详情
 }
 
 // ========== 响应配置 ==========
 
 // ResponseConfig 响应引擎配置.
 type ResponseConfig struct {
-	Enabled               bool          `json:"enabled"`                 // 是否启用响应引擎
-	AutoEscalate          bool          `json:"auto_escalate"`           // 是否自动升级响应级别
-	MaxLevel              ResponseLevel `json:"max_level"`               // 允许的最大响应级别
-	EscalateDelay         time.Duration `json:"escalate_delay"`          // 升级延迟
-	ConfidenceThreshold   float64       `json:"confidence_threshold"`    // 置信度阈值（低于此值仅告警）
-	ProcessKillTimeout    time.Duration `json:"process_kill_timeout"`    // 进程终止超时
-	SnapshotPrefix        string        `json:"snapshot_prefix"`         // 快照名称前缀
-	NetworkIsolationCIDRs []string      `json:"network_isolation_cidrs"` // 允许隔离的网段白名单
-	NotifyChannel         chan<- ResponseAction `json:"-"`              // 通知通道
+	Enabled               bool                  `json:"enabled"`                 // 是否启用响应引擎
+	AutoEscalate          bool                  `json:"auto_escalate"`           // 是否自动升级响应级别
+	MaxLevel              ResponseLevel         `json:"max_level"`               // 允许的最大响应级别
+	EscalateDelay         time.Duration         `json:"escalate_delay"`          // 升级延迟
+	ConfidenceThreshold   float64               `json:"confidence_threshold"`    // 置信度阈值（低于此值仅告警）
+	ProcessKillTimeout    time.Duration         `json:"process_kill_timeout"`    // 进程终止超时
+	SnapshotPrefix        string                `json:"snapshot_prefix"`         // 快照名称前缀
+	NetworkIsolationCIDRs []string              `json:"network_isolation_cidrs"` // 允许隔离的网段白名单
+	NotifyChannel         chan<- ResponseAction `json:"-"`                       // 通知通道
 }
 
 // DefaultResponseConfig 返回默认响应配置.
@@ -147,13 +147,13 @@ type ResponseEngine struct {
 
 // ResponseStats 响应引擎统计信息.
 type ResponseStats struct {
-	TotalResponses    int64                `json:"total_responses"`
-	ByLevel           map[ResponseLevel]int64 `json:"by_level"`
-	SuccessCount      int64                `json:"success_count"`
-	FailureCount      int64                `json:"failure_count"`
-	LastResponseTime  *time.Time           `json:"last_response_time,omitempty"`
-	IsolatedCIDRs     []string             `json:"isolated_cidrs"`
-	ActiveSnapshots   []string             `json:"active_snapshots"`
+	TotalResponses   int64                   `json:"total_responses"`
+	ByLevel          map[ResponseLevel]int64 `json:"by_level"`
+	SuccessCount     int64                   `json:"success_count"`
+	FailureCount     int64                   `json:"failure_count"`
+	LastResponseTime *time.Time              `json:"last_response_time,omitempty"`
+	IsolatedCIDRs    []string                `json:"isolated_cidrs"`
+	ActiveSnapshots  []string                `json:"active_snapshots"`
 }
 
 // ========== 构造函数 ==========

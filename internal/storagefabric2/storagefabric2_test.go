@@ -274,7 +274,7 @@ func TestComputeHealthScore(t *testing.T) {
 	fm.AddNode(FabricNode{ID: "hc-src", Name: "s", Type: NodeTypeInitiator})
 	fm.AddNode(FabricNode{ID: "hc-dst", Name: "d", Type: NodeTypeTarget})
 	fm.AddLink(FabricLink{
-		ID:       "hc-link",
+		ID:        "hc-link",
 		SrcNodeID: "hc-src",
 		DstNodeID: "hc-dst",
 		Protocol:  ProtocolFC,

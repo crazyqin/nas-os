@@ -16,80 +16,80 @@ import (
 
 // Node represents a node in the fleet.
 type Node struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	Address      string    `json:"address"`
-	Port         int       `json:"port"`
-	Status       string    `json:"status"`        // "online", "offline", "maintenance"
-	Priority     int       `json:"priority"`      // 0-100, higher = more priority
-	Capacity     int64     `json:"capacity"`      // Available capacity
-	Load         float64   `json:"load"`          // Current load 0-1
-	Tags         []string  `json:"tags"`
-	LastSeen     time.Time `json:"last_seen"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Address   string    `json:"address"`
+	Port      int       `json:"port"`
+	Status    string    `json:"status"`   // "online", "offline", "maintenance"
+	Priority  int       `json:"priority"` // 0-100, higher = more priority
+	Capacity  int64     `json:"capacity"` // Available capacity
+	Load      float64   `json:"load"`     // Current load 0-1
+	Tags      []string  `json:"tags"`
+	LastSeen  time.Time `json:"last_seen"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // Task represents a scheduled task in the fleet.
 type Task struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	Type         string    `json:"type"`          // "backup", "sync", "replication", "custom"
-	NodeID       string    `json:"node_id"`       // Assigned node
-	Status       string    `json:"status"`        // "pending", "running", "completed", "failed"
-	Priority     int       `json:"priority"`      // Task priority 0-100
-	Progress     float64   `json:"progress"`      // 0-1
-	RetryCount   int       `json:"retry_count"`
-	MaxRetries   int       `json:"max_retries"`
-	Schedule     string    `json:"schedule"`      // Cron schedule
-	LastRun      time.Time `json:"last_run"`
-	NextRun      time.Time `json:"next_run"`
-	CreatedAt    time.Time `json:"created_at"`
-	CompletedAt  time.Time `json:"completed_at,omitempty"`
-	Error        string    `json:"error,omitempty"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Type        string    `json:"type"`     // "backup", "sync", "replication", "custom"
+	NodeID      string    `json:"node_id"`  // Assigned node
+	Status      string    `json:"status"`   // "pending", "running", "completed", "failed"
+	Priority    int       `json:"priority"` // Task priority 0-100
+	Progress    float64   `json:"progress"` // 0-1
+	RetryCount  int       `json:"retry_count"`
+	MaxRetries  int       `json:"max_retries"`
+	Schedule    string    `json:"schedule"` // Cron schedule
+	LastRun     time.Time `json:"last_run"`
+	NextRun     time.Time `json:"next_run"`
+	CreatedAt   time.Time `json:"created_at"`
+	CompletedAt time.Time `json:"completed_at,omitempty"`
+	Error       string    `json:"error,omitempty"`
 }
 
 // TaskReport represents aggregated task status report.
 type TaskReport struct {
-	GeneratedAt     time.Time `json:"generated_at"`
-	TotalTasks      int       `json:"total_tasks"`
-	PendingTasks    int       `json:"pending_tasks"`
-	RunningTasks    int       `json:"running_tasks"`
-	CompletedTasks  int       `json:"completed_tasks"`
-	FailedTasks     int       `json:"failed_tasks"`
-	NodeStats       map[string]*NodeTaskStats `json:"node_stats"`
-	RecentErrors    []string  `json:"recent_errors"`
-	SuccessRate     float64   `json:"success_rate"`
-	AvgExecutionTime float64  `json:"avg_execution_time_seconds"`
+	GeneratedAt      time.Time                 `json:"generated_at"`
+	TotalTasks       int                       `json:"total_tasks"`
+	PendingTasks     int                       `json:"pending_tasks"`
+	RunningTasks     int                       `json:"running_tasks"`
+	CompletedTasks   int                       `json:"completed_tasks"`
+	FailedTasks      int                       `json:"failed_tasks"`
+	NodeStats        map[string]*NodeTaskStats `json:"node_stats"`
+	RecentErrors     []string                  `json:"recent_errors"`
+	SuccessRate      float64                   `json:"success_rate"`
+	AvgExecutionTime float64                   `json:"avg_execution_time_seconds"`
 }
 
 // NodeTaskStats represents task statistics for a node.
 type NodeTaskStats struct {
-	NodeID        string  `json:"node_id"`
-	NodeName      string  `json:"node_name"`
-	TotalTasks    int     `json:"total_tasks"`
-	RunningTasks  int     `json:"running_tasks"`
-	CompletedTasks int    `json:"completed_tasks"`
-	FailedTasks   int     `json:"failed_tasks"`
-	AvgLoad       float64 `json:"avg_load"`
+	NodeID         string  `json:"node_id"`
+	NodeName       string  `json:"node_name"`
+	TotalTasks     int     `json:"total_tasks"`
+	RunningTasks   int     `json:"running_tasks"`
+	CompletedTasks int     `json:"completed_tasks"`
+	FailedTasks    int     `json:"failed_tasks"`
+	AvgLoad        float64 `json:"avg_load"`
 }
 
 // SchedulerConfig holds scheduler configuration.
 type SchedulerConfig struct {
-	DefaultPriority    int     `json:"default_priority"`
-	MaxRetries         int     `json:"max_retries"`
-	LoadThreshold      float64 `json:"load_threshold"`     // Max load before rejecting tasks
-	BalanceInterval    int     `json:"balance_interval"`   // Seconds between load balance checks
-	FailoverEnabled    bool    `json:"failover_enabled"`
-	HealthCheckInterval int    `json:"health_check_interval"` // Seconds
+	DefaultPriority     int     `json:"default_priority"`
+	MaxRetries          int     `json:"max_retries"`
+	LoadThreshold       float64 `json:"load_threshold"`   // Max load before rejecting tasks
+	BalanceInterval     int     `json:"balance_interval"` // Seconds between load balance checks
+	FailoverEnabled     bool    `json:"failover_enabled"`
+	HealthCheckInterval int     `json:"health_check_interval"` // Seconds
 }
 
 // Scheduler manages task distribution across fleet nodes.
 type Scheduler struct {
-	mu      sync.RWMutex
-	nodes   map[string]*Node
-	tasks   map[string]*Task
-	config  *SchedulerConfig
-	logger  *zap.Logger
+	mu         sync.RWMutex
+	nodes      map[string]*Node
+	tasks      map[string]*Task
+	config     *SchedulerConfig
+	logger     *zap.Logger
 	configPath string
 }
 
@@ -100,11 +100,11 @@ func NewScheduler(configPath string, logger *zap.Logger) (*Scheduler, error) {
 	}
 
 	config := &SchedulerConfig{
-		DefaultPriority:    50,
-		MaxRetries:         3,
-		LoadThreshold:      0.8,
-		BalanceInterval:    60,
-		FailoverEnabled:    true,
+		DefaultPriority:     50,
+		MaxRetries:          3,
+		LoadThreshold:       0.8,
+		BalanceInterval:     60,
+		FailoverEnabled:     true,
 		HealthCheckInterval: 30,
 	}
 

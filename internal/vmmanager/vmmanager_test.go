@@ -31,7 +31,7 @@ func TestCreateVM(t *testing.T) {
 func TestStartStopVM(t *testing.T) {
 	m := NewManager()
 	vm, _ := m.CreateVM("test-vm", OSLinux, 2, 4096, 50)
-	
+
 	err := m.StartVM(vm.ID)
 	if err != nil {
 		t.Fatalf("StartVM failed: %v", err)
@@ -40,7 +40,7 @@ func TestStartStopVM(t *testing.T) {
 	if running.State != VMStateRunning {
 		t.Errorf("expected running, got '%s'", running.State)
 	}
-	
+
 	err = m.StopVM(vm.ID, false)
 	if err != nil {
 		t.Fatalf("StopVM failed: %v", err)
@@ -55,13 +55,13 @@ func TestPauseResumeVM(t *testing.T) {
 	m := NewManager()
 	vm, _ := m.CreateVM("test-vm", OSLinux, 2, 4096, 50)
 	m.StartVM(vm.ID)
-	
+
 	m.PauseVM(vm.ID)
 	paused, _ := m.GetVM(vm.ID)
 	if paused.State != VMStatePaused {
 		t.Errorf("expected paused, got '%s'", paused.State)
 	}
-	
+
 	m.ResumeVM(vm.ID)
 	resumed, _ := m.GetVM(vm.ID)
 	if resumed.State != VMStateRunning {
@@ -85,7 +85,7 @@ func TestDeleteVM(t *testing.T) {
 func TestVMSnapshot(t *testing.T) {
 	m := NewManager()
 	vm, _ := m.CreateVM("test-vm", OSLinux, 2, 4096, 50)
-	
+
 	snap, err := m.CreateVMSnapshot(vm.ID, "before-update")
 	if err != nil {
 		t.Fatalf("CreateVMSnapshot failed: %v", err)
@@ -93,7 +93,7 @@ func TestVMSnapshot(t *testing.T) {
 	if snap.Name != "before-update" {
 		t.Errorf("expected 'before-update', got '%s'", snap.Name)
 	}
-	
+
 	snaps, _ := m.GetVMSnapshots(vm.ID)
 	if len(snaps) != 1 {
 		t.Errorf("expected 1 snapshot, got %d", len(snaps))
@@ -105,12 +105,12 @@ func TestRollbackSnapshot(t *testing.T) {
 	vm, _ := m.CreateVM("test-vm", OSLinux, 2, 4096, 50)
 	snap1, _ := m.CreateVMSnapshot(vm.ID, "snap1")
 	m.CreateVMSnapshot(vm.ID, "snap2")
-	
+
 	err := m.RollbackVMSnapshot(vm.ID, snap1.ID)
 	if err != nil {
 		t.Fatalf("RollbackVMSnapshot failed: %v", err)
 	}
-	
+
 	snaps, _ := m.GetVMSnapshots(vm.ID)
 	for _, s := range snaps {
 		if s.ID == snap1.ID && !s.Current {
@@ -122,7 +122,7 @@ func TestRollbackSnapshot(t *testing.T) {
 func TestUpdateVM(t *testing.T) {
 	m := NewManager()
 	vm, _ := m.CreateVM("test-vm", OSLinux, 2, 4096, 50)
-	
+
 	err := m.UpdateVM(vm.ID, 8, 16384)
 	if err != nil {
 		t.Fatalf("UpdateVM failed: %v", err)
@@ -139,7 +139,7 @@ func TestUpdateVM(t *testing.T) {
 func TestAttachGPU(t *testing.T) {
 	m := NewManager()
 	vm, _ := m.CreateVM("test-vm", OSLinux, 4, 8192, 100)
-	
+
 	err := m.AttachGPU(vm.ID, "gpu-0")
 	if err != nil {
 		t.Fatalf("AttachGPU failed: %v", err)
@@ -153,7 +153,7 @@ func TestAttachGPU(t *testing.T) {
 func TestAttachUSB(t *testing.T) {
 	m := NewManager()
 	vm, _ := m.CreateVM("test-vm", OSLinux, 2, 4096, 50)
-	
+
 	err := m.AttachUSB(vm.ID, "usb-001")
 	if err != nil {
 		t.Fatalf("AttachUSB failed: %v", err)

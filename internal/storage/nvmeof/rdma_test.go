@@ -69,11 +69,11 @@ func TestRDMAConfigValidate(t *testing.T) {
 		{
 			name: "invalid queue depth is corrected",
 			input: &pkgnvmeof.RDMAConfig{
-				Enabled:       true,
-				QueueDepth:    -1,
-				SQDepth:       0,
-				RQDepth:       -100,
-				CQDepth:       0,
+				Enabled:    true,
+				QueueDepth: -1,
+				SQDepth:    0,
+				RQDepth:    -100,
+				CQDepth:    0,
 			},
 			expected: &pkgnvmeof.RDMAConfig{
 				Enabled:       true,
@@ -135,9 +135,9 @@ func TestRDMATargetConfigValidate(t *testing.T) {
 		{
 			name: "valid config",
 			input: &pkgnvmeof.RDMATargetConfig{
-				SubsysNQN:  "nqn.2026-03.org.nas-os:test",
-				Device:     "mlx5_0",
-				IPAddress:  "192.168.100.100",
+				SubsysNQN:   "nqn.2026-03.org.nas-os:test",
+				Device:      "mlx5_0",
+				IPAddress:   "192.168.100.100",
 				ServicePort: 4420,
 			},
 			wantErr: false,
@@ -145,8 +145,8 @@ func TestRDMATargetConfigValidate(t *testing.T) {
 		{
 			name: "missing nqn",
 			input: &pkgnvmeof.RDMATargetConfig{
-				Device:     "mlx5_0",
-				IPAddress:  "192.168.100.100",
+				Device:    "mlx5_0",
+				IPAddress: "192.168.100.100",
 			},
 			wantErr: true,
 		},
@@ -169,9 +169,9 @@ func TestRDMATargetConfigValidate(t *testing.T) {
 		{
 			name: "invalid port corrected",
 			input: &pkgnvmeof.RDMATargetConfig{
-				SubsysNQN:  "nqn.2026-03.org.nas-os:test",
-				Device:     "mlx5_0",
-				IPAddress:  "192.168.100.100",
+				SubsysNQN:   "nqn.2026-03.org.nas-os:test",
+				Device:      "mlx5_0",
+				IPAddress:   "192.168.100.100",
 				ServicePort: -1,
 			},
 			wantErr: false,
@@ -663,11 +663,11 @@ func TestRDMAHandlersDiscover(t *testing.T) {
 
 func TestRDMAPortState(t *testing.T) {
 	port := &RDMAPort{
-		ID:           1,
-		Address:      "192.168.100.100",
-		ServicePort:  4420,
+		ID:            1,
+		Address:       "192.168.100.100",
+		ServicePort:   4420,
 		TransportType: pkgnvmeof.RDMATransportRoCEv2,
-		State:        RDMAPortStateUp,
+		State:         RDMAPortStateUp,
 	}
 
 	require.Equal(t, 1, port.ID)
@@ -750,14 +750,14 @@ func TestRDMAInitiatorStats(t *testing.T) {
 
 func TestRDMADevice(t *testing.T) {
 	device := &pkgnvmeof.RDMADevice{
-		Name:          "mlx5_0",
-		TransportType: pkgnvmeof.RDMATransportRoCEv2,
+		Name:            "mlx5_0",
+		TransportType:   pkgnvmeof.RDMATransportRoCEv2,
 		FirmwareVersion: "16.32.1010",
-		NodeGUID:      "50:6b:4b:0d:00:00:00:00",
-		Ports:         1,
-		MTU:           9000,
-		MaxBandwidth:  100,
-		State:         pkgnvmeof.RDMADeviceStateUp,
+		NodeGUID:        "50:6b:4b:0d:00:00:00:00",
+		Ports:           1,
+		MTU:             9000,
+		MaxBandwidth:    100,
+		State:           pkgnvmeof.RDMADeviceStateUp,
 	}
 
 	require.Equal(t, "mlx5_0", device.Name)
@@ -781,10 +781,10 @@ func TestRDMADeviceStates(t *testing.T) {
 
 func TestRDMAGID(t *testing.T) {
 	gid := &pkgnvmeof.RDMAGID{
-		Index:      0,
-		GID:        "fe80:0000:0000:0000:526b:4b0d:0000:0000",
-		Type:       "RoCEv2",
-		IPAddress:  "192.168.100.100",
+		Index:     0,
+		GID:       "fe80:0000:0000:0000:526b:4b0d:0000:0000",
+		Type:      "RoCEv2",
+		IPAddress: "192.168.100.100",
 	}
 
 	require.Equal(t, 0, gid.Index)
@@ -1118,9 +1118,9 @@ func TestRDMAValidTransports(t *testing.T) {
 
 func TestRDMAReconnectConfig(t *testing.T) {
 	config := pkgnvmeof.RDMAReconnectConfig{
-		Delay:             15,
-		MaxAttempts:       60,
-		Timeout:           120,
+		Delay:              15,
+		MaxAttempts:        60,
+		Timeout:            120,
 		ExponentialBackoff: false,
 	}
 
@@ -1147,11 +1147,11 @@ func TestRDMAPortConfig(t *testing.T) {
 
 func TestRDMAPerformanceConfig(t *testing.T) {
 	config := pkgnvmeof.RDMAPerformanceConfig{
-		MaxIOSize:        256,
-		BatchSize:        64,
-		ReadAhead:        1024,
+		MaxIOSize:         256,
+		BatchSize:         64,
+		ReadAhead:         1024,
 		PacketAggregation: false,
-		FlowControl:      false,
+		FlowControl:       false,
 	}
 
 	require.Equal(t, 256, config.MaxIOSize)
@@ -1162,21 +1162,21 @@ func TestRDMAPerformanceConfig(t *testing.T) {
 
 func TestRDMADeviceStats(t *testing.T) {
 	stats := pkgnvmeof.RDMADeviceStats{
-		TxBytes:    1000000000,
-		TxPackets:  1000000,
-		TxErrors:   10,
-		TxDropped:  5,
-		RxBytes:    500000000,
-		RxPackets:  500000,
-		RxErrors:   2,
-		RxDropped:  1,
+		TxBytes:      1000000000,
+		TxPackets:    1000000,
+		TxErrors:     10,
+		TxDropped:    5,
+		RxBytes:      500000000,
+		RxPackets:    500000,
+		RxErrors:     2,
+		RxDropped:    1,
 		RDMAReadOps:  100000,
 		RDMAWriteOps: 80000,
 		RDMASendOps:  50000,
 		RDMARecvOps:  50000,
-		QPCount:    128,
-		CQCount:    256,
-		SRQCount:   16,
+		QPCount:      128,
+		CQCount:      256,
+		SRQCount:     16,
 	}
 
 	require.Equal(t, uint64(1000000000), stats.TxBytes)
@@ -1202,11 +1202,11 @@ func TestRDMAPortInfo(t *testing.T) {
 
 func TestRDMAGIDStruct(t *testing.T) {
 	gid := pkgnvmeof.RDMAGID{
-		Index:      1,
-		GID:        "fe80:0000:0000:0000:526b:4b0d:0000:0001",
-		Type:       "RoCEv2",
-		PrefixLen:  64,
-		IPAddress:  "192.168.100.101",
+		Index:     1,
+		GID:       "fe80:0000:0000:0000:526b:4b0d:0000:0001",
+		Type:      "RoCEv2",
+		PrefixLen: 64,
+		IPAddress: "192.168.100.101",
 	}
 
 	require.Equal(t, 1, gid.Index)
@@ -1265,11 +1265,11 @@ func TestRDMATargetRequestEdgeCases(t *testing.T) {
 func TestRDMAInitiatorRequestEdgeCases(t *testing.T) {
 	// 测试默认值应用
 	req := &pkgnvmeof.RDMAInitiatorConfig{
-		TargetNQN:     "test",
-		TargetAddress: "192.168.1.1",
-		TargetPort:    0,  // 应该被修正为 4420
-		QueueDepth:    -1, // 应该被修正为 128
-		IOQueues:      -1, // 应该被修正为 8
+		TargetNQN:      "test",
+		TargetAddress:  "192.168.1.1",
+		TargetPort:     0,  // 应该被修正为 4420
+		QueueDepth:     -1, // 应该被修正为 128
+		IOQueues:       -1, // 应该被修正为 8
 		ReconnectDelay: -1, // 应该被修正为 10
 		MaxReconnect:   -1, // 应该被修正为 30
 	}
@@ -1284,19 +1284,19 @@ func TestRDMAInitiatorRequestEdgeCases(t *testing.T) {
 
 func TestRDMAControllerStruct(t *testing.T) {
 	ctrl := RDMAController{
-		Name:          "nvme0",
-		TargetNQN:     "nqn.test:subsys",
-		TargetAddress: "192.168.1.1",
-		TargetPort:    4420,
-		Transport:     pkgnvmeof.TransportRDMA,
-		State:         pkgnvmeof.ControllerStateLive,
-		QueueDepth:    128,
-		IOQueues:      8,
-		KeepAlive:     30,
+		Name:           "nvme0",
+		TargetNQN:      "nqn.test:subsys",
+		TargetAddress:  "192.168.1.1",
+		TargetPort:     4420,
+		Transport:      pkgnvmeof.TransportRDMA,
+		State:          pkgnvmeof.ControllerStateLive,
+		QueueDepth:     128,
+		IOQueues:       8,
+		KeepAlive:      30,
 		ReconnectDelay: 10,
-		ConnectedAt:   time.Now(),
+		ConnectedAt:    time.Now(),
 		ReconnectCount: 0,
-		Namespaces:    []*RDMANamespace{},
+		Namespaces:     []*RDMANamespace{},
 	}
 
 	require.Equal(t, "nvme0", ctrl.Name)

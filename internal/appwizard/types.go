@@ -14,7 +14,7 @@ import (
 type AppStatus string
 
 const (
-	StatusAvailable AppStatus = "available"  // 可用
+	StatusAvailable  AppStatus = "available"  // 可用
 	StatusInstalling AppStatus = "installing" // 安装中
 	StatusInstalled  AppStatus = "installed"  // 已安装
 	StatusUpdating   AppStatus = "updating"   // 更新中
@@ -28,10 +28,10 @@ const (
 type AppSource string
 
 const (
-	SourceOfficial  AppSource = "official"   // 官方仓库
-	SourceCommunity AppSource = "community"  // 社区仓库
-	SourceCustom    AppSource = "custom"     // 自定义仓库
-	SourceDockerHub AppSource = "dockerhub"  // Docker Hub
+	SourceOfficial  AppSource = "official"  // 官方仓库
+	SourceCommunity AppSource = "community" // 社区仓库
+	SourceCustom    AppSource = "custom"    // 自定义仓库
+	SourceDockerHub AppSource = "dockerhub" // Docker Hub
 )
 
 // ========== 应用分类 ==========
@@ -40,66 +40,66 @@ const (
 type AppCategory string
 
 const (
-	CategoryMedia      AppCategory = "media"       // 媒体
-	CategoryDownload   AppCategory = "download"    // 下载
+	CategoryMedia        AppCategory = "media"        // 媒体
+	CategoryDownload     AppCategory = "download"     // 下载
 	CategoryProductivity AppCategory = "productivity" // 效率
-	CategoryDevelopment AppCategory = "development" // 开发
-	CategoryNetwork    AppCategory = "network"     // 网络
-	CategorySecurity   AppCategory = "security"    // 安全
-	CategoryDatabase   AppCategory = "database"    // 数据库
-	CategoryStorage    AppCategory = "storage"     // 存储
-	CategoryMonitoring AppCategory = "monitoring"  // 监控
-	CategoryOther      AppCategory = "other"       // 其他
+	CategoryDevelopment  AppCategory = "development"  // 开发
+	CategoryNetwork      AppCategory = "network"      // 网络
+	CategorySecurity     AppCategory = "security"     // 安全
+	CategoryDatabase     AppCategory = "database"     // 数据库
+	CategoryStorage      AppCategory = "storage"      // 存储
+	CategoryMonitoring   AppCategory = "monitoring"   // 监控
+	CategoryOther        AppCategory = "other"        // 其他
 )
 
 // ========== 应用元数据 ==========
 
 // AppMeta 应用元数据
 type AppMeta struct {
-	ID           string      `json:"id"`
-	Name         string      `json:"name"`
-	DisplayName  string      `json:"display_name"`
-	Description  string      `json:"description"`
-	Version      string      `json:"version"`
-	LatestVersion string     `json:"latest_version"`
-	Category     AppCategory `json:"category"`
-	Source       AppSource   `json:"source"`
-	Icon         string      `json:"icon"`
-	Screenshots  []string    `json:"screenshots,omitempty"`
-	Author       string      `json:"author"`
-	License      string      `json:"license"`
-	Website      string      `json:"website,omitempty"`
-	Repository   string      `json:"repository,omitempty"`
-	Stars        int         `json:"stars"`          // 社区评分
-	Downloads    int64       `json:"downloads"`      // 下载次数
-	Tags         []string    `json:"tags"`
-	MinCPU       int         `json:"min_cpu"`        // 最低CPU核心
-	MinMemoryMB  int         `json:"min_memory_mb"`  // 最低内存(MB)
-	MinDiskGB    int         `json:"min_disk_gb"`    // 最低磁盘(GB)
-	Ports        []PortMap   `json:"ports"`          // 端口映射
-	Volumes      []string    `json:"volumes"`        // 持久化卷
-	EnvVars      []EnvVar    `json:"env_vars"`       // 环境变量
-	Dependencies []string    `json:"dependencies"`   // 依赖应用ID
-	CreatedAt    time.Time   `json:"created_at"`
-	UpdatedAt    time.Time   `json:"updated_at"`
+	ID            string      `json:"id"`
+	Name          string      `json:"name"`
+	DisplayName   string      `json:"display_name"`
+	Description   string      `json:"description"`
+	Version       string      `json:"version"`
+	LatestVersion string      `json:"latest_version"`
+	Category      AppCategory `json:"category"`
+	Source        AppSource   `json:"source"`
+	Icon          string      `json:"icon"`
+	Screenshots   []string    `json:"screenshots,omitempty"`
+	Author        string      `json:"author"`
+	License       string      `json:"license"`
+	Website       string      `json:"website,omitempty"`
+	Repository    string      `json:"repository,omitempty"`
+	Stars         int         `json:"stars"`     // 社区评分
+	Downloads     int64       `json:"downloads"` // 下载次数
+	Tags          []string    `json:"tags"`
+	MinCPU        int         `json:"min_cpu"`       // 最低CPU核心
+	MinMemoryMB   int         `json:"min_memory_mb"` // 最低内存(MB)
+	MinDiskGB     int         `json:"min_disk_gb"`   // 最低磁盘(GB)
+	Ports         []PortMap   `json:"ports"`         // 端口映射
+	Volumes       []string    `json:"volumes"`       // 持久化卷
+	EnvVars       []EnvVar    `json:"env_vars"`      // 环境变量
+	Dependencies  []string    `json:"dependencies"`  // 依赖应用ID
+	CreatedAt     time.Time   `json:"created_at"`
+	UpdatedAt     time.Time   `json:"updated_at"`
 }
 
 // PortMap 端口映射
 type PortMap struct {
-	Name       string `json:"name"`
-	Container  int    `json:"container"`
-	Host       int    `json:"host"`
-	Protocol   string `json:"protocol"` // tcp, udp
+	Name      string `json:"name"`
+	Container int    `json:"container"`
+	Host      int    `json:"host"`
+	Protocol  string `json:"protocol"` // tcp, udp
 }
 
 // EnvVar 环境变量
 type EnvVar struct {
-	Name        string `json:"name"`
-	Default     string `json:"default"`
-	Description string `json:"description"`
-	Required    bool   `json:"required"`
-	Secret      bool   `json:"secret"`
-	Type        string `json:"type"` // string, number, boolean, password, select
+	Name        string   `json:"name"`
+	Default     string   `json:"default"`
+	Description string   `json:"description"`
+	Required    bool     `json:"required"`
+	Secret      bool     `json:"secret"`
+	Type        string   `json:"type"`              // string, number, boolean, password, select
 	Options     []string `json:"options,omitempty"` // type=select 时可选值
 }
 
@@ -107,16 +107,16 @@ type EnvVar struct {
 
 // InstallTask 安装任务
 type InstallTask struct {
-	ID          string    `json:"id"`
-	AppID       string    `json:"app_id"`
-	Version     string    `json:"version"`
-	Status      AppStatus `json:"status"`
-	Progress    int       `json:"progress"`    // 0-100
-	Step        string    `json:"step"`        // 当前步骤描述
-	Config      map[string]string `json:"config"`
-	Error       string    `json:"error,omitempty"`
-	StartedAt   time.Time `json:"started_at"`
-	FinishedAt  *time.Time `json:"finished_at,omitempty"`
+	ID         string            `json:"id"`
+	AppID      string            `json:"app_id"`
+	Version    string            `json:"version"`
+	Status     AppStatus         `json:"status"`
+	Progress   int               `json:"progress"` // 0-100
+	Step       string            `json:"step"`     // 当前步骤描述
+	Config     map[string]string `json:"config"`
+	Error      string            `json:"error,omitempty"`
+	StartedAt  time.Time         `json:"started_at"`
+	FinishedAt *time.Time        `json:"finished_at,omitempty"`
 }
 
 // ========== 应用实例 ==========
@@ -147,9 +147,9 @@ type ConfigRecommendation struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
 	Config      map[string]string `json:"config"`
-	Score       float64           `json:"score"`      // 推荐分数
+	Score       float64           `json:"score"` // 推荐分数
 	Reason      string            `json:"reason"`
-	Template    string            `json:"template"`   // 推荐模板名
+	Template    string            `json:"template"` // 推荐模板名
 }
 
 // ========== 应用向导引擎 ==========
@@ -468,7 +468,7 @@ func (e *AppWizardEngine) initBuiltInCatalog() {
 			ID: "jellyfin", Name: "jellyfin", DisplayName: "Jellyfin",
 			Description: "免费开源媒体服务器", Category: CategoryMedia, Source: SourceOfficial,
 			Version: "10.9.0", LatestVersion: "10.9.0", Stars: 45000,
-			Ports: []PortMap{{Name: "web", Container: 8096, Host: 8096, Protocol: "tcp"}},
+			Ports:  []PortMap{{Name: "web", Container: 8096, Host: 8096, Protocol: "tcp"}},
 			MinCPU: 2, MinMemoryMB: 2048, MinDiskGB: 10,
 			Tags: []string{"media", "video", "music"},
 		},
@@ -476,7 +476,7 @@ func (e *AppWizardEngine) initBuiltInCatalog() {
 			ID: "nextcloud", Name: "nextcloud", DisplayName: "Nextcloud",
 			Description: "私有云文件同步与共享", Category: CategoryProductivity, Source: SourceOfficial,
 			Version: "29.0.0", LatestVersion: "29.0.0", Stars: 28000,
-			Ports: []PortMap{{Name: "web", Container: 80, Host: 8080, Protocol: "tcp"}},
+			Ports:  []PortMap{{Name: "web", Container: 80, Host: 8080, Protocol: "tcp"}},
 			MinCPU: 2, MinMemoryMB: 2048, MinDiskGB: 20,
 			Tags: []string{"cloud", "files", "sync"},
 		},
@@ -484,7 +484,7 @@ func (e *AppWizardEngine) initBuiltInCatalog() {
 			ID: "homeassistant", Name: "homeassistant", DisplayName: "Home Assistant",
 			Description: "智能家居自动化平台", Category: CategoryOther, Source: SourceOfficial,
 			Version: "2026.6.0", LatestVersion: "2026.6.0", Stars: 72000,
-			Ports: []PortMap{{Name: "web", Container: 8123, Host: 8123, Protocol: "tcp"}},
+			Ports:  []PortMap{{Name: "web", Container: 8123, Host: 8123, Protocol: "tcp"}},
 			MinCPU: 1, MinMemoryMB: 1024, MinDiskGB: 5,
 			Tags: []string{"iot", "smart-home", "automation"},
 		},
@@ -492,7 +492,7 @@ func (e *AppWizardEngine) initBuiltInCatalog() {
 			ID: "traefik", Name: "traefik", DisplayName: "Traefik",
 			Description: "云原生反向代理和负载均衡", Category: CategoryNetwork, Source: SourceOfficial,
 			Version: "v3.0", LatestVersion: "v3.0", Stars: 52000,
-			Ports: []PortMap{{Name: "web", Container: 80, Host: 80, Protocol: "tcp"}, {Name: "api", Container: 8080, Host: 8443, Protocol: "tcp"}},
+			Ports:  []PortMap{{Name: "web", Container: 80, Host: 80, Protocol: "tcp"}, {Name: "api", Container: 8080, Host: 8443, Protocol: "tcp"}},
 			MinCPU: 1, MinMemoryMB: 512, MinDiskGB: 1,
 			Tags: []string{"proxy", "reverse-proxy", "load-balancer"},
 		},
@@ -500,7 +500,7 @@ func (e *AppWizardEngine) initBuiltInCatalog() {
 			ID: "prometheus", Name: "prometheus", DisplayName: "Prometheus",
 			Description: "监控系统和时间序列数据库", Category: CategoryMonitoring, Source: SourceOfficial,
 			Version: "v2.52", LatestVersion: "v2.52", Stars: 56000,
-			Ports: []PortMap{{Name: "web", Container: 9090, Host: 9090, Protocol: "tcp"}},
+			Ports:  []PortMap{{Name: "web", Container: 9090, Host: 9090, Protocol: "tcp"}},
 			MinCPU: 2, MinMemoryMB: 2048, MinDiskGB: 20,
 			Tags: []string{"monitoring", "metrics", "database"},
 		},
@@ -508,7 +508,7 @@ func (e *AppWizardEngine) initBuiltInCatalog() {
 			ID: "vaultwarden", Name: "vaultwarden", DisplayName: "Vaultwarden",
 			Description: "轻量级密码管理器（Bitwarden 兼容）", Category: CategorySecurity, Source: SourceOfficial,
 			Version: "1.31.0", LatestVersion: "1.31.0", Stars: 35000,
-			Ports: []PortMap{{Name: "web", Container: 80, Host: 8880, Protocol: "tcp"}},
+			Ports:  []PortMap{{Name: "web", Container: 80, Host: 8880, Protocol: "tcp"}},
 			MinCPU: 1, MinMemoryMB: 256, MinDiskGB: 1,
 			Tags: []string{"password", "security", "vault"},
 		},

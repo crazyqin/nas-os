@@ -25,7 +25,7 @@ type FIPSComplianceLevel int
 
 const (
 	FIPSLevel140_2 FIPSComplianceLevel = iota // FIPS 140-2
-	FIPSLevel140_3                             // FIPS 140-3
+	FIPSLevel140_3                            // FIPS 140-3
 )
 
 // FIPSCipherSuite FIPS 认证密码套件
@@ -33,16 +33,16 @@ type FIPSCipherSuite string
 
 const (
 	// FIPS 140-2/140-3 认证算法
-	SuiteAES256GCM    FIPSCipherSuite = "AES-256-GCM"    // NIST SP 800-38D
-	SuiteAES128GCM    FIPSCipherSuite = "AES-128-GCM"    // NIST SP 800-38D
-	SuiteAES256CBC    FIPSCipherSuite = "AES-256-CBC"    // NIST SP 800-38A
-	SuiteHMACSHA256   FIPSCipherSuite = "HMAC-SHA-256"   // FIPS 198-1
-	SuiteHMACSHA384   FIPSCipherSuite = "HMAC-SHA-384"   // FIPS 198-1
-	SuiteHMACSHA512   FIPSCipherSuite = "HMAC-SHA-512"   // FIPS 198-1
-	SuiteECDSAP256    FIPSCipherSuite = "ECDSA-P-256"    // FIPS 186-4
-	SuiteECDSAP384    FIPSCipherSuite = "ECDSA-P-384"    // FIPS 186-4
-	SuiteECDHP256     FIPSCipherSuite = "ECDH-P-256"     // SP 800-56A
-	SuiteSHAKE256     FIPSCipherSuite = "SHAKE-256"       // FIPS 202
+	SuiteAES256GCM  FIPSCipherSuite = "AES-256-GCM"  // NIST SP 800-38D
+	SuiteAES128GCM  FIPSCipherSuite = "AES-128-GCM"  // NIST SP 800-38D
+	SuiteAES256CBC  FIPSCipherSuite = "AES-256-CBC"  // NIST SP 800-38A
+	SuiteHMACSHA256 FIPSCipherSuite = "HMAC-SHA-256" // FIPS 198-1
+	SuiteHMACSHA384 FIPSCipherSuite = "HMAC-SHA-384" // FIPS 198-1
+	SuiteHMACSHA512 FIPSCipherSuite = "HMAC-SHA-512" // FIPS 198-1
+	SuiteECDSAP256  FIPSCipherSuite = "ECDSA-P-256"  // FIPS 186-4
+	SuiteECDSAP384  FIPSCipherSuite = "ECDSA-P-384"  // FIPS 186-4
+	SuiteECDHP256   FIPSCipherSuite = "ECDH-P-256"   // SP 800-56A
+	SuiteSHAKE256   FIPSCipherSuite = "SHAKE-256"    // FIPS 202
 )
 
 // FIPSConfig FIPS 配置
@@ -51,9 +51,9 @@ type FIPSConfig struct {
 	ComplianceLevel FIPSComplianceLevel `json:"complianceLevel"`
 	CipherSuite     FIPSCipherSuite     `json:"cipherSuite"`
 	KeyRotationDays int                 `json:"keyRotationDays"` // 密钥轮换周期
-	RequireTLS13    bool                `json:"requireTls13"`   // 强制 TLS 1.3
-	AuditEnabled    bool                `json:"auditEnabled"`   // 审计日志
-	ModulePath      string              `json:"modulePath"`     // FIPS 模块路径
+	RequireTLS13    bool                `json:"requireTls13"`    // 强制 TLS 1.3
+	AuditEnabled    bool                `json:"auditEnabled"`    // 审计日志
+	ModulePath      string              `json:"modulePath"`      // FIPS 模块路径
 }
 
 // FIPSKey FIPS 密钥材料

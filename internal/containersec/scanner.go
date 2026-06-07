@@ -13,11 +13,11 @@ import (
 
 // Scanner performs vulnerability scanning on container images
 type Scanner struct {
-	logger     *zap.Logger
-	cache      map[string]*ScanResult
-	cacheMu    sync.RWMutex
-	cacheTTL   time.Duration
-	vulnDB     VulnDatabase
+	logger        *zap.Logger
+	cache         map[string]*ScanResult
+	cacheMu       sync.RWMutex
+	cacheTTL      time.Duration
+	vulnDB        VulnDatabase
 	layerAnalyzer *LayerAnalyzer
 }
 
@@ -98,14 +98,14 @@ func (s *Scanner) ScanImage(ctx context.Context, image, registry string, forceRe
 	benchmarkScore := s.runCISBenchmark(ctx, fullImage, layers)
 
 	result := &ScanResult{
-		Image:     fullImage,
-		Registry:  registry,
-		Digest:    digest,
-		ScanTime: startTime,
-		Duration: time.Since(startTime),
-		Vulns:    allVulns,
-		Layers:   layers,
-		Summary:  summary,
+		Image:          fullImage,
+		Registry:       registry,
+		Digest:         digest,
+		ScanTime:       startTime,
+		Duration:       time.Since(startTime),
+		Vulns:          allVulns,
+		Layers:         layers,
+		Summary:        summary,
 		BenchmarkScore: benchmarkScore,
 	}
 

@@ -17,24 +17,24 @@ type DedupStats struct {
 
 // FileGroup 文件分组
 type FileGroup struct {
-	Type     FileType       `json:"type"`
-	Count    int            `json:"count"`
-	TotalSize int64         `json:"total_size"`
-	DupCount int            `json:"dup_count"`
-	DupSize  int64          `json:"dup_size"`
-	Files    []FileInfo     `json:"files"`
+	Type      FileType   `json:"type"`
+	Count     int        `json:"count"`
+	TotalSize int64      `json:"total_size"`
+	DupCount  int        `json:"dup_count"`
+	DupSize   int64      `json:"dup_size"`
+	Files     []FileInfo `json:"files"`
 }
 
 // DedupAction 去重动作
 type DedupAction struct {
-	ID        string    `json:"id"`
-	ScanID    string    `json:"scan_id"`
-	Hash      string    `json:"hash"`
-	Action    string    `json:"action"` // keep, remove, symlink
-	KeepPath  string    `json:"keep_path"`
-	RemovePaths []string `json:"remove_paths"`
-	CreatedAt time.Time `json:"created_at"`
-	Status    string    `json:"status"` // pending, completed, failed
+	ID          string    `json:"id"`
+	ScanID      string    `json:"scan_id"`
+	Hash        string    `json:"hash"`
+	Action      string    `json:"action"` // keep, remove, symlink
+	KeepPath    string    `json:"keep_path"`
+	RemovePaths []string  `json:"remove_paths"`
+	CreatedAt   time.Time `json:"created_at"`
+	Status      string    `json:"status"` // pending, completed, failed
 }
 
 // GetStats 获取统计信息

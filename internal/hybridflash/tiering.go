@@ -11,17 +11,17 @@ import (
 
 // TieringEngine 混合分层引擎.
 type TieringEngine struct {
-	mu               sync.RWMutex
-	config           TieringConfig
-	heatConfig       HeatTrackingConfig
-	pools            map[string]*HybridPool
-	blockTracker     *BlockHeatTracker
-	migrationQueue   chan *MigrateTask
-	runningTasks     map[string]*MigrateTask
-	completedTasks   []*MigrateTask
-	cancel           context.CancelFunc
-	ctx              context.Context
-	checkInterval    time.Duration
+	mu                sync.RWMutex
+	config            TieringConfig
+	heatConfig        HeatTrackingConfig
+	pools             map[string]*HybridPool
+	blockTracker      *BlockHeatTracker
+	migrationQueue    chan *MigrateTask
+	runningTasks      map[string]*MigrateTask
+	completedTasks    []*MigrateTask
+	cancel            context.CancelFunc
+	ctx               context.Context
+	checkInterval     time.Duration
 	heatCheckInterval time.Duration
 }
 
@@ -38,15 +38,15 @@ type BlockHeatTracker struct {
 
 // HeatThresholds 热度阈值.
 type HeatThresholds struct {
-	HotThreshold   int64
-	WarmThreshold  int64
-	ColdAgeHours   int
+	HotThreshold  int64
+	WarmThreshold int64
+	ColdAgeHours  int
 }
 
 // NewTieringEngine 创建新的分层引擎.
 func NewTieringEngine(config TieringConfig, heatConfig HeatTrackingConfig) *TieringEngine {
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	// 解析间隔
 	checkInterval, _ := time.ParseDuration(config.CheckInterval)
 	if checkInterval == 0 {
@@ -56,7 +56,7 @@ func NewTieringEngine(config TieringConfig, heatConfig HeatTrackingConfig) *Tier
 	if heatCheckInterval == 0 {
 		heatCheckInterval = 1 * time.Minute
 	}
-	
+
 	return &TieringEngine{
 		config:            config,
 		heatConfig:        heatConfig,
@@ -186,14 +186,14 @@ func (e *TieringEngine) generateMigrationTasks(pool *HybridPool) []*MigrateTask 
 		if block.CurrentTier == FlashTypeSSD && block.HeatLevel == HeatLevelCold {
 			if e.shouldMigrateToHDD(block, pool) {
 				task := &MigrateTask{
-					ID:         fmt.Sprintf("migrate-%s-%d", block.BlockID, time.Now().UnixNano()),
-					Status:     MigrateStatusPending,
-					CreatedAt:  time.Now(),
-					SourcePath: block.BlockID,
-					TargetPath: block.BlockID,
-					SourceTier: FlashTypeSSD,
-					TargetTier: FlashTypeHDD,
-					BlockSize:  block.Size,
+					ID:          fmt.Sprintf("migrate-%s-%d", block.BlockID, time.Now().UnixNano()),
+					Status:      MigrateStatusPending,
+					CreatedAt:   time.Now(),
+					SourcePath:  block.BlockID,
+					TargetPath:  block.BlockID,
+					SourceTier:  FlashTypeSSD,
+					TargetTier:  FlashTypeHDD,
+					BlockSize:   block.Size,
 					TotalBlocks: 1,
 					TotalBytes:  block.Size,
 				}
@@ -207,14 +207,14 @@ func (e *TieringEngine) generateMigrationTasks(pool *HybridPool) []*MigrateTask 
 		if block.CurrentTier == FlashTypeHDD && block.HeatLevel == HeatLevelHot {
 			if e.shouldMigrateToSSD(block, pool) {
 				task := &MigrateTask{
-					ID:         fmt.Sprintf("migrate-%s-%d", block.BlockID, time.Now().UnixNano()),
-					Status:     MigrateStatusPending,
-					CreatedAt:  time.Now(),
-					SourcePath: block.BlockID,
-					TargetPath: block.BlockID,
-					SourceTier: FlashTypeHDD,
-					TargetTier: FlashTypeSSD,
-					BlockSize:  block.Size,
+					ID:          fmt.Sprintf("migrate-%s-%d", block.BlockID, time.Now().UnixNano()),
+					Status:      MigrateStatusPending,
+					CreatedAt:   time.Now(),
+					SourcePath:  block.BlockID,
+					TargetPath:  block.BlockID,
+					SourceTier:  FlashTypeHDD,
+					TargetTier:  FlashTypeSSD,
+					BlockSize:   block.Size,
 					TotalBlocks: 1,
 					TotalBytes:  block.Size,
 				}
@@ -369,14 +369,14 @@ func (e *TieringEngine) RecordBlockAccess(blockID, filePath string, offset, size
 	block, exists := e.blockTracker.blocks[blockID]
 	if !exists {
 		block = &BlockAccessRecord{
-			BlockID:      blockID,
-			FilePath:     filePath,
-			Offset:       offset,
-			Size:         size,
+			BlockID:       blockID,
+			FilePath:      filePath,
+			Offset:        offset,
+			Size:          size,
 			AccessPattern: pattern,
-			CurrentTier:  FlashTypeHDD, // 默认在 HDD
-			AccessTime:   time.Now(),
-			LastModified: time.Now(),
+			CurrentTier:   FlashTypeHDD, // 默认在 HDD
+			AccessTime:    time.Now(),
+			LastModified:  time.Now(),
 		}
 		e.blockTracker.blocks[blockID] = block
 	}
@@ -509,9 +509,9 @@ func (e *TieringEngine) GenerateEfficiencyReport(period string) *EfficiencyRepor
 	defer e.mu.RUnlock()
 
 	report := &EfficiencyReport{
-		GeneratedAt:   time.Now(),
-		Period:        period,
-		HitRateByTier: make(map[FlashType]float64),
+		GeneratedAt:      time.Now(),
+		Period:           period,
+		HitRateByTier:    make(map[FlashType]float64),
 		TierDistribution: make(map[FlashType]*TierDistStats),
 	}
 

@@ -371,9 +371,9 @@ func (m *Manager) extractFunction(req *RefactorRequest) refactoringResult {
 	switch req.Language {
 	case LangGo:
 		return refactoringResult{
-			Code: fmt.Sprintf("func %s() {\n%s\n}\n\n%s()", funcName, strings.Join(lines, "\n"), funcName),
+			Code:        fmt.Sprintf("func %s() {\n%s\n}\n\n%s()", funcName, strings.Join(lines, "\n"), funcName),
 			Explanation: fmt.Sprintf("将代码块提取为函数 %s", funcName),
-			Changes: []Change{{Type: "extract", Description: fmt.Sprintf("提取为函数 %s", funcName)}},
+			Changes:     []Change{{Type: "extract", Description: fmt.Sprintf("提取为函数 %s", funcName)}},
 		}
 	case LangPython:
 		indented := make([]string, 0, len(lines))
@@ -383,15 +383,15 @@ func (m *Manager) extractFunction(req *RefactorRequest) refactoringResult {
 			}
 		}
 		return refactoringResult{
-			Code: fmt.Sprintf("def %s():\n%s\n\n%s()", funcName, strings.Join(indented, "\n"), funcName),
+			Code:        fmt.Sprintf("def %s():\n%s\n\n%s()", funcName, strings.Join(indented, "\n"), funcName),
 			Explanation: fmt.Sprintf("将代码块提取为函数 %s", funcName),
-			Changes: []Change{{Type: "extract", Description: fmt.Sprintf("提取为函数 %s", funcName)}},
+			Changes:     []Change{{Type: "extract", Description: fmt.Sprintf("提取为函数 %s", funcName)}},
 		}
 	default:
 		return refactoringResult{
-			Code: fmt.Sprintf("// 提取的函数: %s\n%s", funcName, req.Code),
+			Code:        fmt.Sprintf("// 提取的函数: %s\n%s", funcName, req.Code),
 			Explanation: fmt.Sprintf("建议将代码块提取为函数 %s", funcName),
-			Changes: []Change{{Type: "extract", Description: fmt.Sprintf("提取为函数 %s", funcName)}},
+			Changes:     []Change{{Type: "extract", Description: fmt.Sprintf("提取为函数 %s", funcName)}},
 		}
 	}
 }

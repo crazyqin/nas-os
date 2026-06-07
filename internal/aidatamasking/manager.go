@@ -130,10 +130,10 @@ func (m *Manager) BatchMaskText(req *BatchMaskingRequest) (*BatchMaskingResponse
 	}
 
 	return &BatchMaskingResponse{
-		Results:    results,
-		TotalTexts: len(req.Texts),
+		Results:     results,
+		TotalTexts:  len(req.Texts),
 		TotalMasked: totalMasked,
-		Duration:   time.Since(start),
+		Duration:    time.Since(start),
 	}, nil
 }
 
@@ -145,10 +145,10 @@ func (m *Manager) ProcessAIPrompt(req *AIPromptRequest) (*AIPromptResponse, erro
 
 	if aiConfig == nil || !aiConfig.Enabled {
 		return &AIPromptResponse{
-			OriginalPrompt:  req.Prompt,
-			MaskedPrompt:    req.Prompt,
+			OriginalPrompt:   req.Prompt,
+			MaskedPrompt:     req.Prompt,
 			HasSensitiveData: false,
-			MaskingApplied:  false,
+			MaskingApplied:   false,
 		}, nil
 	}
 
@@ -162,10 +162,10 @@ func (m *Manager) ProcessAIPrompt(req *AIPromptRequest) (*AIPromptResponse, erro
 
 	if !hasSensitive {
 		return &AIPromptResponse{
-			OriginalPrompt:  req.Prompt,
-			MaskedPrompt:    req.Prompt,
+			OriginalPrompt:   req.Prompt,
+			MaskedPrompt:     req.Prompt,
 			HasSensitiveData: false,
-			MaskingApplied:  false,
+			MaskingApplied:   false,
 		}, nil
 	}
 
@@ -188,18 +188,18 @@ func (m *Manager) ProcessAIPrompt(req *AIPromptRequest) (*AIPromptResponse, erro
 		}
 
 		return &AIPromptResponse{
-			OriginalPrompt:  req.Prompt,
-			MaskedPrompt:    maskResp.MaskedText,
+			OriginalPrompt:   req.Prompt,
+			MaskedPrompt:     maskResp.MaskedText,
 			HasSensitiveData: true,
-			MaskingApplied:  true,
+			MaskingApplied:   true,
 		}, nil
 	}
 
 	return &AIPromptResponse{
-		OriginalPrompt:  req.Prompt,
-		MaskedPrompt:    req.Prompt,
+		OriginalPrompt:   req.Prompt,
+		MaskedPrompt:     req.Prompt,
 		HasSensitiveData: true,
-		MaskingApplied:  false,
+		MaskingApplied:   false,
 	}, nil
 }
 

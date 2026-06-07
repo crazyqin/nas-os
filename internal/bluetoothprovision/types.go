@@ -10,52 +10,52 @@ import (
 
 // BLEDevice 表示BLE设备信息
 type BLEDevice struct {
-	ID          string            `json:"id"`           // 设备唯一标识
-	Name        string            `json:"name"`         // 设备名称
-	Address     string            `json:"address"`      // MAC地址
-	RSSI        int               `json:"rssi"`         // 信号强度
-	Connected   bool              `json:"connected"`    // 是否已连接
-	Services    []string          `json:"services"`     // 支持的服务UUID
-	Manufacturer string           `json:"manufacturer"` // 制造商
-	Model       string            `json:"model"`        // 型号
-	FirmwareVer string            `json:"firmware_ver"` // 固件版本
-	Metadata    map[string]string `json:"metadata"`     // 扩展元数据
-	Discovered  time.Time         `json:"discovered"`   // 发现时间
-	LastSeen    time.Time         `json:"last_seen"`    // 最后可见时间
+	ID           string            `json:"id"`           // 设备唯一标识
+	Name         string            `json:"name"`         // 设备名称
+	Address      string            `json:"address"`      // MAC地址
+	RSSI         int               `json:"rssi"`         // 信号强度
+	Connected    bool              `json:"connected"`    // 是否已连接
+	Services     []string          `json:"services"`     // 支持的服务UUID
+	Manufacturer string            `json:"manufacturer"` // 制造商
+	Model        string            `json:"model"`        // 型号
+	FirmwareVer  string            `json:"firmware_ver"` // 固件版本
+	Metadata     map[string]string `json:"metadata"`     // 扩展元数据
+	Discovered   time.Time         `json:"discovered"`   // 发现时间
+	LastSeen     time.Time         `json:"last_seen"`    // 最后可见时间
 }
 
 // WiFiConfig 表示WiFi配置信息
 type WiFiConfig struct {
-	SSID     string `json:"ssid" validate:"required"`           // WiFi名称
-	Password string `json:"password" validate:"required"`       // WiFi密码
-	Security string `json:"security"`                           // 加密方式: WPA2, WPA3, WEP, OPEN
-	Band     string `json:"band"`                               // 频段: 2.4GHz, 5GHz, auto
-	Hidden   bool   `json:"hidden"`                             // 是否隐藏网络
-	Priority int    `json:"priority"`                           // 优先级 (1-10)
-	StaticIP *IPConfig `json:"static_ip,omitempty"`             // 静态IP配置
+	SSID     string    `json:"ssid" validate:"required"`     // WiFi名称
+	Password string    `json:"password" validate:"required"` // WiFi密码
+	Security string    `json:"security"`                     // 加密方式: WPA2, WPA3, WEP, OPEN
+	Band     string    `json:"band"`                         // 频段: 2.4GHz, 5GHz, auto
+	Hidden   bool      `json:"hidden"`                       // 是否隐藏网络
+	Priority int       `json:"priority"`                     // 优先级 (1-10)
+	StaticIP *IPConfig `json:"static_ip,omitempty"`          // 静态IP配置
 }
 
 // IPConfig 表示静态IP配置
 type IPConfig struct {
-	IP      string `json:"ip" validate:"required,ip"`        // IP地址
-	Netmask string `json:"netmask" validate:"required"`      // 子网掩码
-	Gateway string `json:"gateway" validate:"required,ip"`   // 网关
-	DNS     []string `json:"dns"`                             // DNS服务器
+	IP      string   `json:"ip" validate:"required,ip"`      // IP地址
+	Netmask string   `json:"netmask" validate:"required"`    // 子网掩码
+	Gateway string   `json:"gateway" validate:"required,ip"` // 网关
+	DNS     []string `json:"dns"`                            // DNS服务器
 }
 
 // ProvisionSession 表示配网会话
 type ProvisionSession struct {
-	ID          string            `json:"id"`           // 会话ID
-	DeviceID    string            `json:"device_id"`    // 目标设备ID
-	DeviceName  string            `json:"device_name"`  // 目标设备名称
-	WiFiConfig  WiFiConfig        `json:"wifi_config"`  // WiFi配置
-	Status      ProvisionStatus   `json:"status"`       // 配网状态
-	Progress    int               `json:"progress"`     // 进度百分比 (0-100)
-	Error       string            `json:"error"`        // 错误信息
-	StartTime   time.Time         `json:"start_time"`   // 开始时间
-	EndTime     *time.Time        `json:"end_time"`     // 结束时间
-	Steps       []ProvisionStep   `json:"steps"`        // 配网步骤
-	NetworkInfo *NetworkInfo      `json:"network_info"` // 配网成功后的网络信息
+	ID          string          `json:"id"`           // 会话ID
+	DeviceID    string          `json:"device_id"`    // 目标设备ID
+	DeviceName  string          `json:"device_name"`  // 目标设备名称
+	WiFiConfig  WiFiConfig      `json:"wifi_config"`  // WiFi配置
+	Status      ProvisionStatus `json:"status"`       // 配网状态
+	Progress    int             `json:"progress"`     // 进度百分比 (0-100)
+	Error       string          `json:"error"`        // 错误信息
+	StartTime   time.Time       `json:"start_time"`   // 开始时间
+	EndTime     *time.Time      `json:"end_time"`     // 结束时间
+	Steps       []ProvisionStep `json:"steps"`        // 配网步骤
+	NetworkInfo *NetworkInfo    `json:"network_info"` // 配网成功后的网络信息
 }
 
 // ProvisionStatus 表示配网状态
@@ -84,14 +84,14 @@ type ProvisionStep struct {
 
 // NetworkInfo 表示网络连接信息
 type NetworkInfo struct {
-	SSID       string `json:"ssid"`        // WiFi名称
-	IP         string `json:"ip"`          // 获取的IP地址
-	MAC        string `json:"mac"`         // 设备MAC地址
-	Gateway    string `json:"gateway"`     // 网关
-	DNS        string `json:"dns"`         // DNS
-	Signal     int    `json:"signal"`      // 信号强度
-	Speed      int    `json:"speed"`       // 连接速度 Mbps
-	Connected  bool   `json:"connected"`   // 是否已连接
+	SSID        string    `json:"ssid"`         // WiFi名称
+	IP          string    `json:"ip"`           // 获取的IP地址
+	MAC         string    `json:"mac"`          // 设备MAC地址
+	Gateway     string    `json:"gateway"`      // 网关
+	DNS         string    `json:"dns"`          // DNS
+	Signal      int       `json:"signal"`       // 信号强度
+	Speed       int       `json:"speed"`        // 连接速度 Mbps
+	Connected   bool      `json:"connected"`    // 是否已连接
 	ConnectedAt time.Time `json:"connected_at"` // 连接时间
 }
 
@@ -117,10 +117,10 @@ type ScanRequest struct {
 
 // ProvisionRequest 表示配网请求
 type ProvisionRequest struct {
-	DeviceID   string     `json:"device_id" validate:"required"` // 目标设备ID
+	DeviceID   string     `json:"device_id" validate:"required"`   // 目标设备ID
 	WiFiConfig WiFiConfig `json:"wifi_config" validate:"required"` // WiFi配置
-	Timeout    int        `json:"timeout"`                       // 超时时间(秒), 默认60秒
-	RetryCount int        `json:"retry_count"`                   // 重试次数, 默认3次
+	Timeout    int        `json:"timeout"`                         // 超时时间(秒), 默认60秒
+	RetryCount int        `json:"retry_count"`                     // 重试次数, 默认3次
 }
 
 // Scanner 定义BLE扫描器接口
@@ -143,17 +143,17 @@ type Provisioner interface {
 
 // Manager 管理蓝牙配网模块的核心状态
 type Manager struct {
-	mu            sync.RWMutex
-	scanner       Scanner
-	provisioner   Provisioner
-	devices       map[string]*BLEDevice      // 已发现设备
-	sessions      map[string]*ProvisionSession // 活跃会话
-	history       []ProvisionHistory          // 历史记录
-	networks      []WiFiConfig               // 已保存的网络配置
-	subscribers   map[string]chan ProvisionEvent // 事件订阅者
-	maxHistory    int                         // 最大历史记录数
-	scanTimeout   time.Duration               // 扫描超时
-	provisionTimeout time.Duration            // 配网超时
+	mu               sync.RWMutex
+	scanner          Scanner
+	provisioner      Provisioner
+	devices          map[string]*BLEDevice          // 已发现设备
+	sessions         map[string]*ProvisionSession   // 活跃会话
+	history          []ProvisionHistory             // 历史记录
+	networks         []WiFiConfig                   // 已保存的网络配置
+	subscribers      map[string]chan ProvisionEvent // 事件订阅者
+	maxHistory       int                            // 最大历史记录数
+	scanTimeout      time.Duration                  // 扫描超时
+	provisionTimeout time.Duration                  // 配网超时
 }
 
 // ProvisionEvent 表示配网事件

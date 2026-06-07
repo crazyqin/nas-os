@@ -32,24 +32,24 @@ type PredictionRequest struct {
 
 // PredictionResponse 预测响应
 type PredictionResponse struct {
-	FilePath      string               `json:"file_path"`
-	ShouldCache   bool                 `json:"should_cache"`
-	CacheLevel    CacheLevel           `json:"cache_level,omitempty"`
-	Priority      int                  `json:"priority"`
-	NextAccess    time.Time            `json:"next_access,omitempty"`
-	Confidence    PredictionConfidence `json:"confidence"`
-	Pattern       AccessPattern        `json:"pattern,omitempty"`
-	Reason        string               `json:"reason"`
+	FilePath    string               `json:"file_path"`
+	ShouldCache bool                 `json:"should_cache"`
+	CacheLevel  CacheLevel           `json:"cache_level,omitempty"`
+	Priority    int                  `json:"priority"`
+	NextAccess  time.Time            `json:"next_access,omitempty"`
+	Confidence  PredictionConfidence `json:"confidence"`
+	Pattern     AccessPattern        `json:"pattern,omitempty"`
+	Reason      string               `json:"reason"`
 }
 
 // CacheStatsResponse 缓存统计响应
 type CacheStatsResponse struct {
-	TotalEntries int                    `json:"total_entries"`
-	TotalHits    int64                  `json:"total_hits"`
-	TotalMisses  int64                  `json:"total_misses"`
-	HitRate      float64                `json:"hit_rate"`
-	WarmingTasks int                    `json:"warming_tasks"`
-	Levels       map[string]LevelStats  `json:"levels"`
+	TotalEntries int                   `json:"total_entries"`
+	TotalHits    int64                 `json:"total_hits"`
+	TotalMisses  int64                 `json:"total_misses"`
+	HitRate      float64               `json:"hit_rate"`
+	WarmingTasks int                   `json:"warming_tasks"`
+	Levels       map[string]LevelStats `json:"levels"`
 }
 
 // LevelStats 层级统计
@@ -60,13 +60,13 @@ type LevelStats struct {
 
 // PolicyUpdateRequest 策略更新请求
 type PolicyUpdateRequest struct {
-	MaxL1SizeGB    float64 `json:"max_l1_size_gb"`
-	MaxL2SizeGB    float64 `json:"max_l2_size_gb"`
-	MaxL3SizeGB    float64 `json:"max_l3_size_gb"`
-	EvictionPolicy string  `json:"eviction_policy"`
-	TTLHours       int     `json:"ttl_hours"`
-	AutoWarming    bool    `json:"auto_warming"`
-	WarmingSchedule string `json:"warming_schedule"`
+	MaxL1SizeGB     float64 `json:"max_l1_size_gb"`
+	MaxL2SizeGB     float64 `json:"max_l2_size_gb"`
+	MaxL3SizeGB     float64 `json:"max_l3_size_gb"`
+	EvictionPolicy  string  `json:"eviction_policy"`
+	TTLHours        int     `json:"ttl_hours"`
+	AutoWarming     bool    `json:"auto_warming"`
+	WarmingSchedule string  `json:"warming_schedule"`
 }
 
 // ModelUpdateRequest 模型更新请求

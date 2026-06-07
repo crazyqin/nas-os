@@ -39,10 +39,10 @@ type ContentIndex struct {
 	WordCount    int               `json:"wordCount"`
 	LineCount    int               `json:"lineCount"`
 	IndexedAt    time.Time         `json:"indexedAt"`
-	Excerpt      string            `json:"excerpt"`    // 文摘（前200字）
-	Language     string            `json:"language"`   // 检测的语言
-	Encoding     string            `json:"encoding"`   // 文件编码
-	Metadata     map[string]string `json:"metadata"`   // 元数据
+	Excerpt      string            `json:"excerpt"`  // 文摘（前200字）
+	Language     string            `json:"language"` // 检测的语言
+	Encoding     string            `json:"encoding"` // 文件编码
+	Metadata     map[string]string `json:"metadata"` // 元数据
 	HasFullIndex bool              `json:"hasFullIndex"`
 }
 
@@ -58,35 +58,35 @@ type TextIndex struct {
 
 // ContentSearchRequest 内容搜索请求
 type ContentSearchRequest struct {
-	Query       string        `json:"query"`       // 搜索关键词
-	Paths       []string      `json:"paths"`       // 搜索路径限制
-	Extensions  []string      `json:"extensions"`  // 文件扩展名过滤
-	MinSize     int64         `json:"minSize"`     // 最小文件大小
-	MaxSize     int64         `json:"maxSize"`     // 最大文件大小
-	FromDate    *time.Time    `json:"fromDate"`    // 修改时间起始
-	ToDate      *time.Time    `json:"toDate"`      // 修改时间结束
-	MaxResults  int           `json:"maxResults"`  // 最大结果数
-	Fuzzy       bool          `json:"fuzzy"`       // 模糊搜索
-	Highlight   bool          `json:"highlight"`   // 高亮匹配
-	ExactMatch  bool          `json:"exactMatch"`  // 精确匹配
-	CaseSense   bool          `json:"caseSense"`   // 大小写敏感
-	WithContext bool          `json:"withContext"` // 返回上下文
-	ContextSize int           `json:"contextSize"` // 上下文大小（字符数）
+	Query       string     `json:"query"`       // 搜索关键词
+	Paths       []string   `json:"paths"`       // 搜索路径限制
+	Extensions  []string   `json:"extensions"`  // 文件扩展名过滤
+	MinSize     int64      `json:"minSize"`     // 最小文件大小
+	MaxSize     int64      `json:"maxSize"`     // 最大文件大小
+	FromDate    *time.Time `json:"fromDate"`    // 修改时间起始
+	ToDate      *time.Time `json:"toDate"`      // 修改时间结束
+	MaxResults  int        `json:"maxResults"`  // 最大结果数
+	Fuzzy       bool       `json:"fuzzy"`       // 模糊搜索
+	Highlight   bool       `json:"highlight"`   // 高亮匹配
+	ExactMatch  bool       `json:"exactMatch"`  // 精确匹配
+	CaseSense   bool       `json:"caseSense"`   // 大小写敏感
+	WithContext bool       `json:"withContext"` // 返回上下文
+	ContextSize int        `json:"contextSize"` // 上下文大小（字符数）
 }
 
 // ContentSearchResult 内容搜索结果
 type ContentSearchResult struct {
-	Path        string        `json:"path"`
-	Name        string        `json:"name"`
-	Ext         string        `json:"ext"`
-	Size        int64         `json:"size"`
-	ModTime     time.Time     `json:"modTime"`
-	Score       float64       `json:"score"`
-	MatchCount  int           `json:"matchCount"`
-	Excerpt     string        `json:"excerpt"`
-	Highlights  []Highlight   `json:"highlights"`
+	Path        string         `json:"path"`
+	Name        string         `json:"name"`
+	Ext         string         `json:"ext"`
+	Size        int64          `json:"size"`
+	ModTime     time.Time      `json:"modTime"`
+	Score       float64        `json:"score"`
+	MatchCount  int            `json:"matchCount"`
+	Excerpt     string         `json:"excerpt"`
+	Highlights  []Highlight    `json:"highlights"`
 	Contexts    []MatchContext `json:"contexts"`
-	ContentType string        `json:"contentType"`
+	ContentType string         `json:"contentType"`
 }
 
 // Highlight 高亮匹配
@@ -98,38 +98,38 @@ type Highlight struct {
 
 // MatchContext 匹配上下文
 type MatchContext struct {
-	Before    string `json:"before"`    // 匹配前文本
-	Match     string `json:"match"`     // 匹配文本
-	After     string `json:"after"`     // 匹配后文本
-	LineNum   int    `json:"lineNum"`   // 行号
-	StartPos  int    `json:"startPos"`  // 开始位置
-	EndPos    int    `json:"endPos"`    // 结束位置
+	Before   string `json:"before"`   // 匹配前文本
+	Match    string `json:"match"`    // 匹配文本
+	After    string `json:"after"`    // 匹配后文本
+	LineNum  int    `json:"lineNum"`  // 行号
+	StartPos int    `json:"startPos"` // 开始位置
+	EndPos   int    `json:"endPos"`   // 结束位置
 }
 
 // ContentSearchResponse 内容搜索响应
 type ContentSearchResponse struct {
-	Query       string                 `json:"query"`
-	Took        time.Duration          `json:"took"`
-	Total       int                    `json:"total"`
-	Results     []ContentSearchResult  `json:"results"`
-	Truncated   bool                   `json:"truncated"`
-	Suggestions []string               `json:"suggestions"`
-	Facets      map[string]int         `json:"facets"`
-	Stats       ContentSearchStats     `json:"stats"`
+	Query       string                `json:"query"`
+	Took        time.Duration         `json:"took"`
+	Total       int                   `json:"total"`
+	Results     []ContentSearchResult `json:"results"`
+	Truncated   bool                  `json:"truncated"`
+	Suggestions []string              `json:"suggestions"`
+	Facets      map[string]int        `json:"facets"`
+	Stats       ContentSearchStats    `json:"stats"`
 }
 
 // ContentSearchStats 内容搜索统计
 type ContentSearchStats struct {
-	FilesScanned   int     `json:"filesScanned"`
-	BytesScanned   int64   `json:"bytesScanned"`
-	IndexHitRatio  float64 `json:"indexHitRatio"`
-	AverageScore   float64 `json:"averageScore"`
+	FilesScanned  int     `json:"filesScanned"`
+	BytesScanned  int64   `json:"bytesScanned"`
+	IndexHitRatio float64 `json:"indexHitRatio"`
+	AverageScore  float64 `json:"averageScore"`
 }
 
 // NewContentSearchService 创建内容搜索服务
 func NewContentSearchService(config WebShareConfig, logger *zap.Logger) *ContentSearchService {
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	css := &ContentSearchService{
 		config:     config,
 		logger:     logger,
@@ -138,10 +138,10 @@ func NewContentSearchService(config WebShareConfig, logger *zap.Logger) *Content
 		ctx:        ctx,
 		cancel:     cancel,
 	}
-	
+
 	// 初始化停用词
 	css.initStopWords()
-	
+
 	return css
 }
 
@@ -178,7 +178,7 @@ func (css *ContentSearchService) initStopWords() {
 		"when", "whenever", "if", "unless", "since", "lest", "that",
 		"which", "who", "whom", "whose", "what", "whatever", "whichever",
 	}
-	
+
 	for _, word := range stopWords {
 		css.textIdx.stopWords[strings.ToLower(word)] = true
 	}
@@ -189,10 +189,10 @@ func (css *ContentSearchService) Start() {
 	css.mu.Lock()
 	css.running = true
 	css.mu.Unlock()
-	
+
 	// 启动后台索引构建
 	go css.backgroundIndexer()
-	
+
 	css.logger.Info("Content search service started")
 }
 
@@ -202,7 +202,7 @@ func (css *ContentSearchService) Stop() {
 	css.mu.Lock()
 	css.running = false
 	css.mu.Unlock()
-	
+
 	css.logger.Info("Content search service stopped")
 }
 
@@ -210,10 +210,10 @@ func (css *ContentSearchService) Stop() {
 func (css *ContentSearchService) backgroundIndexer() {
 	// 初始构建
 	css.BuildIndex(css.config.BaseDir)
-	
+
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-css.ctx.Done():
@@ -230,31 +230,31 @@ func (css *ContentSearchService) BuildIndex(basePath string) error {
 	if basePath == "" {
 		basePath = css.config.BaseDir
 	}
-	
+
 	absBase, err := filepath.Abs(basePath)
 	if err != nil {
 		return err
 	}
-	
+
 	css.logger.Info("Building content index", zap.String("path", absBase))
 	startTime := time.Now()
-	
+
 	var filesIndexed int
 	var bytesIndexed int64
-	
+
 	err = css.walkAndIndex(absBase, "", &filesIndexed, &bytesIndexed)
 	if err != nil {
 		css.logger.Error("Index build failed", zap.Error(err))
 		return err
 	}
-	
+
 	took := time.Since(startTime)
 	css.logger.Info("Content index built",
 		zap.Int("files", filesIndexed),
 		zap.Int64("bytes", bytesIndexed),
 		zap.Duration("took", took),
 	)
-	
+
 	return nil
 }
 
@@ -264,24 +264,24 @@ func (css *ContentSearchService) walkAndIndex(absPath, relPath string, filesInde
 	if err != nil {
 		return nil // 跳过无法访问的目录
 	}
-	
+
 	for _, entry := range entries {
 		name := entry.Name()
 		childRelPath := filepath.Join(relPath, name)
 		childAbsPath := filepath.Join(absPath, name)
-		
+
 		// 跳过隐藏文件
 		if strings.HasPrefix(name, ".") {
 			continue
 		}
-		
+
 		// 跳过排除路径
 		for _, excluded := range css.config.IndexExcluded {
 			if strings.HasPrefix(childRelPath, excluded) {
 				continue
 			}
 		}
-		
+
 		if entry.IsDir() {
 			css.walkAndIndex(childAbsPath, childRelPath, filesIndexed, bytesIndexed)
 		} else {
@@ -290,9 +290,9 @@ func (css *ContentSearchService) walkAndIndex(absPath, relPath string, filesInde
 			if err != nil {
 				continue
 			}
-			
+
 			ext := strings.ToLower(filepath.Ext(name))
-			
+
 			// 只索引文本类文件
 			if css.isTextFile(ext) {
 				if err := css.indexFileContent(childRelPath, childAbsPath, info); err == nil {
@@ -302,7 +302,7 @@ func (css *ContentSearchService) walkAndIndex(absPath, relPath string, filesInde
 			}
 		}
 	}
-	
+
 	return nil
 }
 
@@ -320,13 +320,13 @@ func (css *ContentSearchService) isTextFile(ext string) bool {
 		".makefile", ".cmake", ".gradle", ".pom",
 		".license", ".readme", ".changelog", ".authors",
 	}
-	
+
 	for _, te := range textExts {
 		if ext == te {
 			return true
 		}
 	}
-	
+
 	return false
 }
 
@@ -336,57 +336,57 @@ func (css *ContentSearchService) indexFileContent(relPath, absPath string, info 
 	if info.Size() > css.textIdx.maxContent {
 		return nil // 跳过超大文件
 	}
-	
+
 	// 读取文件内容
 	file, err := os.Open(absPath)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-	
+
 	content, err := io.ReadAll(file)
 	if err != nil {
 		return err
 	}
-	
+
 	text := string(content)
-	
+
 	// 检测编码（简化版）
 	encoding := "utf-8"
 	if !css.isValidUTF8(content) {
 		encoding = "unknown"
 	}
-	
+
 	// 检测语言（简化版）
 	language := css.detectLanguage(text)
-	
+
 	// 提取关键词
 	words := css.extractWords(text)
 	keywords := css.extractKeywords(words)
-	
+
 	// 创建内容索引
 	idx := &ContentIndex{
-		Path:        relPath,
-		Name:        info.Name(),
-		Size:        info.Size(),
-		ModTime:     info.ModTime(),
-		ContentType: css.getContentType(filepath.Ext(info.Name())),
-		TextContent: text,
-		Keywords:    keywords,
-		WordCount:   len(words),
-		LineCount:   strings.Count(text, "\n") + 1,
-		IndexedAt:   time.Now(),
-		Excerpt:     css.makeExcerpt(text, 200),
-		Language:    language,
-		Encoding:    encoding,
-		Metadata:    make(map[string]string),
+		Path:         relPath,
+		Name:         info.Name(),
+		Size:         info.Size(),
+		ModTime:      info.ModTime(),
+		ContentType:  css.getContentType(filepath.Ext(info.Name())),
+		TextContent:  text,
+		Keywords:     keywords,
+		WordCount:    len(words),
+		LineCount:    strings.Count(text, "\n") + 1,
+		IndexedAt:    time.Now(),
+		Excerpt:      css.makeExcerpt(text, 200),
+		Language:     language,
+		Encoding:     encoding,
+		Metadata:     make(map[string]string),
 		HasFullIndex: true,
 	}
-	
+
 	css.mu.Lock()
 	css.contentIdx[relPath] = idx
 	css.mu.Unlock()
-	
+
 	// 更新全文索引
 	css.textIdx.mu.Lock()
 	css.textIdx.pathWords[relPath] = words
@@ -396,7 +396,7 @@ func (css *ContentSearchService) indexFileContent(relPath, absPath string, info 
 		}
 	}
 	css.textIdx.mu.Unlock()
-	
+
 	return nil
 }
 
@@ -427,7 +427,7 @@ func (css *ContentSearchService) detectLanguage(text string) string {
 	// 简化语言检测
 	chineseCount := 0
 	englishCount := 0
-	
+
 	for _, r := range text {
 		if r >= 0x4E00 && r <= 0x9FFF {
 			chineseCount++
@@ -435,7 +435,7 @@ func (css *ContentSearchService) detectLanguage(text string) string {
 			englishCount++
 		}
 	}
-	
+
 	if chineseCount > englishCount {
 		return "zh"
 	} else if englishCount > 0 {
@@ -448,20 +448,20 @@ func (css *ContentSearchService) detectLanguage(text string) string {
 func (css *ContentSearchService) extractWords(text string) []string {
 	// 分词处理
 	text = strings.ToLower(text)
-	
+
 	// 替换分隔符为空格
-	sepChars := []string{",", ".", ";", ":", "!", "?", "\"", "'", 
+	sepChars := []string{",", ".", ";", ":", "!", "?", "\"", "'",
 		"(", ")", "[", "]", "{", "}", "<", ">", "/", "\\", "|",
 		"@", "#", "$", "%", "^", "&", "*", "=", "+", "-", "_",
 		"\n", "\r", "\t"}
-	
+
 	for _, sep := range sepChars {
 		text = strings.ReplaceAll(text, sep, " ")
 	}
-	
+
 	// 分词
 	words := strings.Fields(text)
-	
+
 	// 过滤短词和停用词
 	result := make([]string, 0)
 	for _, word := range words {
@@ -469,7 +469,7 @@ func (css *ContentSearchService) extractWords(text string) []string {
 			result = append(result, word)
 		}
 	}
-	
+
 	return result
 }
 
@@ -480,7 +480,7 @@ func (css *ContentSearchService) extractKeywords(words []string) []string {
 	for _, word := range words {
 		wordCount[word]++
 	}
-	
+
 	// 选择高频词作为关键词
 	keywords := make([]string, 0)
 	for word, count := range wordCount {
@@ -491,7 +491,7 @@ func (css *ContentSearchService) extractKeywords(words []string) []string {
 			break
 		}
 	}
-	
+
 	return keywords
 }
 
@@ -507,7 +507,7 @@ func (css *ContentSearchService) makeExcerpt(text string, maxLen int) string {
 // getContentType 获取内容类型
 func (css *ContentSearchService) getContentType(ext string) string {
 	ext = strings.ToLower(ext)
-	
+
 	contentTypes := map[string]string{
 		".txt":  "text/plain",
 		".md":   "text/markdown",
@@ -529,7 +529,7 @@ func (css *ContentSearchService) getContentType(ext string) string {
 		".log":  "text/x-log",
 		".csv":  "text/csv",
 	}
-	
+
 	if ct, ok := contentTypes[ext]; ok {
 		return ct
 	}
@@ -539,31 +539,31 @@ func (css *ContentSearchService) getContentType(ext string) string {
 // Search 执行内容搜索
 func (css *ContentSearchService) Search(ctx context.Context, req ContentSearchRequest) (*ContentSearchResponse, error) {
 	startTime := time.Now()
-	
+
 	response := &ContentSearchResponse{
-		Query:     req.Query,
-		Facets:    make(map[string]int),
-		Results:   make([]ContentSearchResult, 0),
+		Query:       req.Query,
+		Facets:      make(map[string]int),
+		Results:     make([]ContentSearchResult, 0),
 		Suggestions: make([]string, 0),
 	}
-	
+
 	if req.MaxResults == 0 {
 		req.MaxResults = 50
 	}
-	
+
 	if req.ContextSize == 0 {
 		req.ContextSize = 100
 	}
-	
+
 	query := req.Query
 	if !req.CaseSense {
 		query = strings.ToLower(query)
 	}
-	
+
 	// 搜索索引
 	css.textIdx.mu.RLock()
 	var matchedPaths []string
-	
+
 	if req.ExactMatch {
 		// 精确匹配
 		if paths, ok := css.textIdx.wordIndex[query]; ok {
@@ -578,7 +578,7 @@ func (css *ContentSearchService) Search(ctx context.Context, req ContentSearchRe
 		}
 	}
 	css.textIdx.mu.RUnlock()
-	
+
 	// 去重
 	seen := make(map[string]bool)
 	uniquePaths := make([]string, 0)
@@ -588,17 +588,17 @@ func (css *ContentSearchService) Search(ctx context.Context, req ContentSearchRe
 			uniquePaths = append(uniquePaths, p)
 		}
 	}
-	
+
 	// 过滤和构建结果
 	css.mu.RLock()
 	stats := ContentSearchStats{}
-	
+
 	for _, path := range uniquePaths {
 		idx, ok := css.contentIdx[path]
 		if !ok {
 			continue
 		}
-		
+
 		// 路径过滤
 		if len(req.Paths) > 0 {
 			matched := false
@@ -612,7 +612,7 @@ func (css *ContentSearchService) Search(ctx context.Context, req ContentSearchRe
 				continue
 			}
 		}
-		
+
 		// 扩展名过滤
 		if len(req.Extensions) > 0 {
 			ext := strings.ToLower(filepath.Ext(idx.Name))
@@ -627,7 +627,7 @@ func (css *ContentSearchService) Search(ctx context.Context, req ContentSearchRe
 				continue
 			}
 		}
-		
+
 		// 大小过滤
 		if req.MinSize > 0 && idx.Size < req.MinSize {
 			continue
@@ -635,7 +635,7 @@ func (css *ContentSearchService) Search(ctx context.Context, req ContentSearchRe
 		if req.MaxSize > 0 && idx.Size > req.MaxSize {
 			continue
 		}
-		
+
 		// 时间过滤
 		if req.FromDate != nil && idx.ModTime.Before(*req.FromDate) {
 			continue
@@ -643,11 +643,11 @@ func (css *ContentSearchService) Search(ctx context.Context, req ContentSearchRe
 		if req.ToDate != nil && idx.ModTime.After(*req.ToDate) {
 			continue
 		}
-		
+
 		// 计算分数和匹配
 		score := css.calculateScore(query, idx, req.CaseSense)
 		matchCount := strings.Count(strings.ToLower(idx.TextContent), query)
-		
+
 		result := ContentSearchResult{
 			Path:        path,
 			Name:        idx.Name,
@@ -659,36 +659,36 @@ func (css *ContentSearchService) Search(ctx context.Context, req ContentSearchRe
 			Excerpt:     idx.Excerpt,
 			ContentType: idx.ContentType,
 		}
-		
+
 		// 高亮和上下文
 		if req.Highlight || req.WithContext {
 			highlights, contexts := css.extractMatches(idx.TextContent, query, req.CaseSense, req.ContextSize)
 			result.Highlights = highlights
 			result.Contexts = contexts
 		}
-		
+
 		response.Results = append(response.Results, result)
 		stats.FilesScanned++
 		stats.BytesScanned += idx.Size
-		
+
 		// 类型统计
 		response.Facets[idx.ContentType]++
 	}
 	css.mu.RUnlock()
-	
+
 	// 排序（按分数）
 	css.sortResults(response.Results)
-	
+
 	// 限制结果数
 	if len(response.Results) > req.MaxResults {
 		response.Results = response.Results[:req.MaxResults]
 		response.Truncated = true
 	}
-	
+
 	response.Total = len(response.Results)
 	response.Took = time.Since(startTime)
 	response.Stats = stats
-	
+
 	// 计算平均分数
 	if len(response.Results) > 0 {
 		var totalScore float64
@@ -697,47 +697,47 @@ func (css *ContentSearchService) Search(ctx context.Context, req ContentSearchRe
 		}
 		stats.AverageScore = totalScore / float64(len(response.Results))
 	}
-	
+
 	// 索引命中率
 	stats.IndexHitRatio = float64(stats.FilesScanned) / float64(len(css.contentIdx))
-	
+
 	// 生成建议
 	response.Suggestions = css.generateSuggestions(query)
-	
+
 	return response, nil
 }
 
 // calculateScore 计算匹配分数
 func (css *ContentSearchService) calculateScore(query string, idx *ContentIndex, caseSense bool) float64 {
 	score := 0.0
-	
+
 	text := idx.TextContent
 	if !caseSense {
 		text = strings.ToLower(text)
 		query = strings.ToLower(query)
 	}
-	
+
 	// 出现次数
 	count := strings.Count(text, query)
 	score += float64(count) * 10
-	
+
 	// 标题匹配
 	if strings.Contains(strings.ToLower(idx.Name), query) {
 		score += 50
 	}
-	
+
 	// 关键词匹配
 	for _, kw := range idx.Keywords {
 		if strings.Contains(strings.ToLower(kw), query) {
 			score += 20
 		}
 	}
-	
+
 	// 标准化分数
 	if score > 100 {
 		score = 100
 	}
-	
+
 	return score
 }
 
@@ -745,28 +745,28 @@ func (css *ContentSearchService) calculateScore(query string, idx *ContentIndex,
 func (css *ContentSearchService) extractMatches(text, query string, caseSense bool, contextSize int) ([]Highlight, []MatchContext) {
 	highlights := make([]Highlight, 0)
 	contexts := make([]MatchContext, 0)
-	
+
 	searchText := text
 	searchQuery := query
 	if !caseSense {
 		searchText = strings.ToLower(text)
 		searchQuery = strings.ToLower(query)
 	}
-	
+
 	// 找到所有匹配位置
 	pos := 0
 	lineNum := 1
 	lineStart := 0
-	
+
 	for {
 		idx := strings.Index(searchText[pos:], searchQuery)
 		if idx == -1 {
 			break
 		}
-		
+
 		matchPos := pos + idx
 		matchEnd := matchPos + len(query)
-		
+
 		// 计算行号
 		for i := lineStart; i < matchPos; i++ {
 			if text[i] == '\n' {
@@ -774,7 +774,7 @@ func (css *ContentSearchService) extractMatches(text, query string, caseSense bo
 				lineStart = i + 1
 			}
 		}
-		
+
 		// 提取上下文
 		beforeStart := matchPos - contextSize
 		if beforeStart < 0 {
@@ -784,7 +784,7 @@ func (css *ContentSearchService) extractMatches(text, query string, caseSense bo
 		if afterEnd > len(text) {
 			afterEnd = len(text)
 		}
-		
+
 		context := MatchContext{
 			Before:   text[beforeStart:matchPos],
 			Match:    text[matchPos:matchEnd],
@@ -794,21 +794,21 @@ func (css *ContentSearchService) extractMatches(text, query string, caseSense bo
 			EndPos:   matchEnd,
 		}
 		contexts = append(contexts, context)
-		
+
 		highlight := Highlight{
 			Field:    "content",
 			Text:     text[matchPos:matchEnd],
 			Position: matchPos,
 		}
 		highlights = append(highlights, highlight)
-		
+
 		pos = matchEnd
-		
+
 		if len(highlights) >= 10 {
 			break // 限制高亮数量
 		}
 	}
-	
+
 	return highlights, contexts
 }
 
@@ -827,10 +827,10 @@ func (css *ContentSearchService) sortResults(results []ContentSearchResult) {
 // generateSuggestions 生成搜索建议
 func (css *ContentSearchService) generateSuggestions(query string) []string {
 	suggestions := make([]string, 0)
-	
+
 	css.textIdx.mu.RLock()
 	defer css.textIdx.mu.RUnlock()
-	
+
 	// 找相似的词
 	for word := range css.textIdx.wordIndex {
 		if strings.HasPrefix(word, query) && word != query {
@@ -840,7 +840,7 @@ func (css *ContentSearchService) generateSuggestions(query string) []string {
 			break
 		}
 	}
-	
+
 	return suggestions
 }
 
@@ -848,7 +848,7 @@ func (css *ContentSearchService) generateSuggestions(query string) []string {
 func (css *ContentSearchService) refreshIndex() {
 	css.mu.RLock()
 	defer css.mu.RUnlock()
-	
+
 	// 检查需要更新的文件
 	for path, idx := range css.contentIdx {
 		absPath := filepath.Join(css.config.BaseDir, path)
@@ -858,7 +858,7 @@ func (css *ContentSearchService) refreshIndex() {
 			css.clearIndex(path)
 			continue
 		}
-		
+
 		// 检查是否需要更新
 		if info.ModTime().After(idx.IndexedAt) {
 			go css.indexFileContent(path, absPath, info)
@@ -871,7 +871,7 @@ func (css *ContentSearchService) clearIndex(path string) {
 	css.mu.Lock()
 	delete(css.contentIdx, path)
 	css.mu.Unlock()
-	
+
 	css.textIdx.mu.Lock()
 	delete(css.textIdx.pathWords, path)
 	for word, paths := range css.textIdx.wordIndex {
@@ -889,27 +889,27 @@ func (css *ContentSearchService) clearIndex(path string) {
 func (css *ContentSearchService) GetIndexStats() map[string]interface{} {
 	css.mu.RLock()
 	defer css.mu.RUnlock()
-	
+
 	css.textIdx.mu.RLock()
 	defer css.textIdx.mu.RUnlock()
-	
+
 	var totalSize int64
 	var totalWords int
 	var totalLines int
-	
+
 	for _, idx := range css.contentIdx {
 		totalSize += idx.Size
 		totalWords += idx.WordCount
 		totalLines += idx.LineCount
 	}
-	
+
 	return map[string]interface{}{
-		"indexedFiles":    len(css.contentIdx),
-		"indexedBytes":    totalSize,
-		"totalWords":      totalWords,
-		"totalLines":      totalLines,
-		"uniqueWords":     len(css.textIdx.wordIndex),
-		"stopWordsCount":  len(css.textIdx.stopWords),
-		"maxContentSize":  css.textIdx.maxContent,
+		"indexedFiles":   len(css.contentIdx),
+		"indexedBytes":   totalSize,
+		"totalWords":     totalWords,
+		"totalLines":     totalLines,
+		"uniqueWords":    len(css.textIdx.wordIndex),
+		"stopWordsCount": len(css.textIdx.stopWords),
+		"maxContentSize": css.textIdx.maxContent,
 	}
 }

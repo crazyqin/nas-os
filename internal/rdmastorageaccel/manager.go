@@ -25,19 +25,19 @@ const (
 
 // Manager RDMA 存储加速管理器
 type Manager struct {
-	mu              sync.RWMutex
-	config          *RDMAConfig
-	devices         map[string]*RDMADevice
-	targets         map[string]*StorageTarget
-	connections     map[string]*ConnectionInfo
-	metrics         map[string]*PerfMetrics
-	profiles        []TuningProfile
-	benchmarks      map[string]*BenchmarkResult
-	history         []PerfMetrics
-	healthChecks    map[string]*HealthCheckResult
-	monitorTicker   *time.Ticker
-	stopMonitor     chan struct{}
-	configPath      string
+	mu            sync.RWMutex
+	config        *RDMAConfig
+	devices       map[string]*RDMADevice
+	targets       map[string]*StorageTarget
+	connections   map[string]*ConnectionInfo
+	metrics       map[string]*PerfMetrics
+	profiles      []TuningProfile
+	benchmarks    map[string]*BenchmarkResult
+	history       []PerfMetrics
+	healthChecks  map[string]*HealthCheckResult
+	monitorTicker *time.Ticker
+	stopMonitor   chan struct{}
+	configPath    string
 }
 
 // NewManager 创建新的管理器实例
@@ -223,24 +223,24 @@ func (m *Manager) collectMetrics() {
 	for deviceID := range m.devices {
 		// 实际实现中会读取 /sys/class/infiniband/<device>/ports/<port>/counters/
 		metric := &PerfMetrics{
-			ID:               uuid.New().String(),
-			DeviceID:         deviceID,
-			BandwidthMBs:     12500.0 + float64(time.Now().UnixNano()%1000),
-			ReadBandwidthMBs: 7500.0 + float64(time.Now().UnixNano()%500),
+			ID:                uuid.New().String(),
+			DeviceID:          deviceID,
+			BandwidthMBs:      12500.0 + float64(time.Now().UnixNano()%1000),
+			ReadBandwidthMBs:  7500.0 + float64(time.Now().UnixNano()%500),
 			WriteBandwidthMBs: 5000.0 + float64(time.Now().UnixNano()%500),
-			LatencyUs:        2.5 + float64(time.Now().UnixNano()%100)/100.0,
-			ReadLatencyUs:    2.0 + float64(time.Now().UnixNano()%80)/100.0,
-			WriteLatencyUs:   3.0 + float64(time.Now().UnixNano()%120)/100.0,
-			IOPS:             500000 + time.Now().UnixNano()%100000,
-			ReadIOPS:         300000 + time.Now().UnixNano()%60000,
-			WriteIOPS:        200000 + time.Now().UnixNano()%40000,
-			QueueDepth:       32 + int(time.Now().UnixNano()%32),
-			MaxQueueDepth:    256,
-			CPUUsage:         15.0 + float64(time.Now().UnixNano()%200)/10.0,
-			MemoryUsageMB:    256 + time.Now().UnixNano()%128,
-			CongestionEvents: time.Now().UnixNano() % 10,
-			Retransmissions:  time.Now().UnixNano() % 5,
-			Timestamp:        time.Now(),
+			LatencyUs:         2.5 + float64(time.Now().UnixNano()%100)/100.0,
+			ReadLatencyUs:     2.0 + float64(time.Now().UnixNano()%80)/100.0,
+			WriteLatencyUs:    3.0 + float64(time.Now().UnixNano()%120)/100.0,
+			IOPS:              500000 + time.Now().UnixNano()%100000,
+			ReadIOPS:          300000 + time.Now().UnixNano()%60000,
+			WriteIOPS:         200000 + time.Now().UnixNano()%40000,
+			QueueDepth:        32 + int(time.Now().UnixNano()%32),
+			MaxQueueDepth:     256,
+			CPUUsage:          15.0 + float64(time.Now().UnixNano()%200)/10.0,
+			MemoryUsageMB:     256 + time.Now().UnixNano()%128,
+			CongestionEvents:  time.Now().UnixNano() % 10,
+			Retransmissions:   time.Now().UnixNano() % 5,
+			Timestamp:         time.Now(),
 		}
 
 		m.metrics[deviceID] = metric
@@ -325,19 +325,19 @@ func (m *Manager) CreateTarget(req *StorageTarget) (*StorageTarget, error) {
 
 	// 创建目标
 	target := &StorageTarget{
-		ID:           uuid.New().String(),
-		Name:         req.Name,
-		Type:         req.Type,
-		Status:       TargetStatusActive,
-		DeviceID:     req.DeviceID,
-		TargetAddr:   req.TargetAddr,
-		Port:         req.Port,
-		LUNMappings:  req.LUNMappings,
-		NFSSettings:  req.NFSSettings,
+		ID:            uuid.New().String(),
+		Name:          req.Name,
+		Type:          req.Type,
+		Status:        TargetStatusActive,
+		DeviceID:      req.DeviceID,
+		TargetAddr:    req.TargetAddr,
+		Port:          req.Port,
+		LUNMappings:   req.LUNMappings,
+		NFSSettings:   req.NFSSettings,
 		ISCSISettings: req.ISCSISettings,
-		Tags:         req.Tags,
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
+		Tags:          req.Tags,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
 	}
 
 	// 设置默认 RDMA 配置
@@ -471,20 +471,20 @@ func (m *Manager) RunBenchmark(config *BenchmarkConfig) (*BenchmarkResult, error
 	time.Sleep(time.Duration(config.Duration) * time.Second / 10) // 模拟测试时间
 
 	result := &BenchmarkResult{
-		ID:     uuid.New().String(),
-		Config: *config,
-		BandwidthMBs:     12500.0 * float64(config.QueueDepth) / 32.0,
+		ID:                uuid.New().String(),
+		Config:            *config,
+		BandwidthMBs:      12500.0 * float64(config.QueueDepth) / 32.0,
 		ReadBandwidthMBs:  7500.0 * float64(config.QueueDepth) / 32.0,
 		WriteBandwidthMBs: 5000.0 * float64(config.QueueDepth) / 32.0,
-		LatencyUs:        2.5 + float64(config.BlockSize)/1024.0,
-		ReadLatencyUs:    2.0 + float64(config.BlockSize)/1024.0,
-		WriteLatencyUs:   3.0 + float64(config.BlockSize)/1024.0,
-		IOPS:             int64(1000000.0 / (2.5 + float64(config.BlockSize)/1024.0)),
-		ReadIOPS:         int64(600000.0 / (2.0 + float64(config.BlockSize)/1024.0)),
-		WriteIOPS:        int64(400000.0 / (3.0 + float64(config.BlockSize)/1024.0)),
-		CPUUsage:         45.0 + float64(config.NumThreads)*5.0,
-		CompletedAt:      time.Now(),
-		Duration:         time.Duration(config.Duration) * time.Second,
+		LatencyUs:         2.5 + float64(config.BlockSize)/1024.0,
+		ReadLatencyUs:     2.0 + float64(config.BlockSize)/1024.0,
+		WriteLatencyUs:    3.0 + float64(config.BlockSize)/1024.0,
+		IOPS:              int64(1000000.0 / (2.5 + float64(config.BlockSize)/1024.0)),
+		ReadIOPS:          int64(600000.0 / (2.0 + float64(config.BlockSize)/1024.0)),
+		WriteIOPS:         int64(400000.0 / (3.0 + float64(config.BlockSize)/1024.0)),
+		CPUUsage:          45.0 + float64(config.NumThreads)*5.0,
+		CompletedAt:       time.Now(),
+		Duration:          time.Duration(config.Duration) * time.Second,
 	}
 
 	m.benchmarks[result.ID] = result

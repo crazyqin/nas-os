@@ -28,9 +28,9 @@ func TestRegisterJob(t *testing.T) {
 		},
 		Targets: []*TargetConfig{
 			{
-				Type:     TargetLocal,
-				Name:     "local",
-				Path:     "/backup",
+				Type:      TargetLocal,
+				Name:      "local",
+				Path:      "/backup",
 				IsPrimary: true,
 			},
 		},

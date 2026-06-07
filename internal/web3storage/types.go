@@ -126,7 +126,7 @@ func DefaultConfig() Web3StorageConfig {
 		LocalGatewayAddr:  ":8080",
 		ReplicationFactor: 3,
 		MinDealDuration:   24 * time.Hour * 180, // 180 days
-		LocalCacheMaxSize: 10 << 30,              // 10 GiB
+		LocalCacheMaxSize: 10 << 30,             // 10 GiB
 		LocalCacheDir:     "/var/lib/nas-os/web3cache",
 		CacheTTL:          24 * time.Hour,
 	}
@@ -204,23 +204,23 @@ type PinRequest struct {
 
 // PinQuery defines filters for listing/querying pins.
 type PinQuery struct {
-	Status   []PinStatus     `json:"status,omitempty"`
-	Tags     []string        `json:"tags,omitempty"`
-	Name     string          `json:"name,omitempty"`
+	Status   []PinStatus       `json:"status,omitempty"`
+	Tags     []string          `json:"tags,omitempty"`
+	Name     string            `json:"name,omitempty"`
 	Metadata map[string]string `json:"metadata,omitempty"`
-	Before   *time.Time      `json:"before,omitempty"`
-	After    *time.Time      `json:"after,omitempty"`
-	Limit    int             `json:"limit,omitempty"`
-	Offset   int             `json:"offset,omitempty"`
+	Before   *time.Time        `json:"before,omitempty"`
+	After    *time.Time        `json:"after,omitempty"`
+	Limit    int               `json:"limit,omitempty"`
+	Offset   int               `json:"offset,omitempty"`
 }
 
 // PinListResponse is the response for a list/query call.
 type PinListResponse struct {
-	Pins      []ContentPin `json:"pins"`
-	Total     int          `json:"total"`
-	Limit     int          `json:"limit"`
-	Offset    int          `json:"offset"`
-	HasMore   bool         `json:"hasMore"`
+	Pins    []ContentPin `json:"pins"`
+	Total   int          `json:"total"`
+	Limit   int          `json:"limit"`
+	Offset  int          `json:"offset"`
+	HasMore bool         `json:"hasMore"`
 }
 
 // StorageNode represents an IPFS cluster node.
@@ -287,21 +287,21 @@ type CacheEntry struct {
 
 // CacheStats holds aggregate cache statistics.
 type CacheStats struct {
-	TotalEntries int   `json:"totalEntries"`
-	TotalSize    int64 `json:"totalSize"`
-	MaxSize      int64 `json:"maxSize"`
-	HitCount     int64 `json:"hitCount"`
-	MissCount    int64 `json:"missCount"`
+	TotalEntries int     `json:"totalEntries"`
+	TotalSize    int64   `json:"totalSize"`
+	MaxSize      int64   `json:"maxSize"`
+	HitCount     int64   `json:"hitCount"`
+	MissCount    int64   `json:"missCount"`
 	HitRate      float64 `json:"hitRate"`
 }
 
 // GatewayStats holds aggregate gateway statistics.
 type GatewayStats struct {
-	TotalRequests   int64   `json:"totalRequests"`
-	CacheHits       int64   `json:"cacheHits"`
-	CacheMisses     int64   `json:"cacheMisses"`
-	TotalBytesServed int64  `json:"totalBytesServed"`
-	AvgLatencyMs    float64 `json:"avgLatencyMs"`
+	TotalRequests    int64   `json:"totalRequests"`
+	CacheHits        int64   `json:"cacheHits"`
+	CacheMisses      int64   `json:"cacheMisses"`
+	TotalBytesServed int64   `json:"totalBytesServed"`
+	AvgLatencyMs     float64 `json:"avgLatencyMs"`
 	ActiveStreams    int     `json:"activeStreams"`
 }
 

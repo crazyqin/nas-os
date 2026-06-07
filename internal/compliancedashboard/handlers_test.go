@@ -121,11 +121,11 @@ func TestGetStats(t *testing.T) {
 func TestLogAuditEvent(t *testing.T) {
 	m := NewManager(ComplianceConfig{})
 	m.LogAuditEvent(AuditEvent{
-		UserID:   "user1",
-		UserName: "Admin",
-		Action:   "login",
-		Resource: "system",
-		Result:   "success",
+		UserID:    "user1",
+		UserName:  "Admin",
+		Action:    "login",
+		Resource:  "system",
+		Result:    "success",
 		RiskLevel: "low",
 	})
 

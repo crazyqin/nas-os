@@ -16,8 +16,8 @@ import (
 type MetadataSource string
 
 const (
-	SourceTMDB MetadataSource = "tmdb"
-	SourceIMDB MetadataSource = "imdb"
+	SourceTMDB   MetadataSource = "tmdb"
+	SourceIMDB   MetadataSource = "imdb"
 	SourceDouban MetadataSource = "douban"
 )
 
@@ -31,30 +31,30 @@ const (
 
 // MediaMetadata represents scraped media metadata.
 type MediaMetadata struct {
-	ID           string            `json:"id"`
-	Title        string            `json:"title"`
-	OriginalTitle string           `json:"original_title"`
-	Year         int               `json:"year"`
-	Type         MediaType         `json:"type"`
-	Source       MetadataSource    `json:"source"`
-	IMDBID       string            `json:"imdb_id"`
-	TMDBID       int               `json:"tmdb_id"`
-	PosterURL    string            `json:"poster_url"`
-	BackdropURL  string            `json:"backdrop_url"`
-	Rating       float64           `json:"rating"`
-	Votes        int               `json:"votes"`
-	Runtime      int               `json:"runtime"` // minutes
-	Genres       []string          `json:"genres"`
-	Overview     string            `json:"overview"`
-	Language     string            `json:"language"`
-	Country      string            `json:"country"`
-	Cast         []CastMember      `json:"cast"`
-	Director     string            `json:"director"`
-	Seasons      int               `json:"seasons"` // for TV
-	Episodes     int               `json:"episodes"` // for TV
-	Status       string            `json:"status"`
-	ReleaseDate  string            `json:"release_date"`
-	ExtraData    map[string]string `json:"extra_data"`
+	ID            string            `json:"id"`
+	Title         string            `json:"title"`
+	OriginalTitle string            `json:"original_title"`
+	Year          int               `json:"year"`
+	Type          MediaType         `json:"type"`
+	Source        MetadataSource    `json:"source"`
+	IMDBID        string            `json:"imdb_id"`
+	TMDBID        int               `json:"tmdb_id"`
+	PosterURL     string            `json:"poster_url"`
+	BackdropURL   string            `json:"backdrop_url"`
+	Rating        float64           `json:"rating"`
+	Votes         int               `json:"votes"`
+	Runtime       int               `json:"runtime"` // minutes
+	Genres        []string          `json:"genres"`
+	Overview      string            `json:"overview"`
+	Language      string            `json:"language"`
+	Country       string            `json:"country"`
+	Cast          []CastMember      `json:"cast"`
+	Director      string            `json:"director"`
+	Seasons       int               `json:"seasons"`  // for TV
+	Episodes      int               `json:"episodes"` // for TV
+	Status        string            `json:"status"`
+	ReleaseDate   string            `json:"release_date"`
+	ExtraData     map[string]string `json:"extra_data"`
 }
 
 // CastMember represents cast member.
@@ -76,10 +76,10 @@ type ScraperConfig struct {
 
 // TMDBScraper scrapes metadata from TMDB.
 type TMDBScraper struct {
-	config  *ScraperConfig
-	cache   *MetadataCache
-	client  *http.Client
-	mu      sync.RWMutex
+	config *ScraperConfig
+	cache  *MetadataCache
+	client *http.Client
+	mu     sync.RWMutex
 }
 
 // NewTMDBScraper creates a new TMDB scraper.
@@ -434,7 +434,7 @@ type tmdbMovieSearchResult struct {
 }
 
 type tmdbTVSearchResult struct {
-	Page    int       `json:"page"`
+	Page    int      `json:"page"`
 	Results []tmdbTV `json:"results"`
 }
 

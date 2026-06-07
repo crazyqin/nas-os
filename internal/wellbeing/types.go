@@ -17,10 +17,10 @@ const (
 type SessionStatus string
 
 const (
-	StatusActive   SessionStatus = "active"
-	StatusPaused   SessionStatus = "paused"
-	StatusEnded    SessionStatus = "ended"
-	StatusBlocked  SessionStatus = "blocked"
+	StatusActive  SessionStatus = "active"
+	StatusPaused  SessionStatus = "paused"
+	StatusEnded   SessionStatus = "ended"
+	StatusBlocked SessionStatus = "blocked"
 )
 
 // ReminderType 提醒类型
@@ -75,21 +75,21 @@ type UsageSession struct {
 
 // BreakReminder 休息提醒
 type BreakReminder struct {
-	ID              string          `json:"id"`
-	UserID          string          `json:"user_id"`
-	Type            ReminderType    `json:"type"`
-	Title           string          `json:"title" binding:"required"`
-	Message         string          `json:"message" binding:"required"`
-	IntervalMinutes int             `json:"interval_minutes" binding:"required,min=1"`
-	DurationMinutes int             `json:"duration_minutes"`
-	Status          ReminderStatus  `json:"status"`
-	Enabled         bool            `json:"enabled"`
-	SnoozeMinutes   int             `json:"snooze_minutes"`
-	LastTriggered   *time.Time      `json:"last_triggered,omitempty"`
-	NextTrigger     *time.Time      `json:"next_trigger,omitempty"`
-	Sound           string          `json:"sound,omitempty"`
-	CreatedAt       time.Time       `json:"created_at"`
-	UpdatedAt       time.Time       `json:"updated_at"`
+	ID              string         `json:"id"`
+	UserID          string         `json:"user_id"`
+	Type            ReminderType   `json:"type"`
+	Title           string         `json:"title" binding:"required"`
+	Message         string         `json:"message" binding:"required"`
+	IntervalMinutes int            `json:"interval_minutes" binding:"required,min=1"`
+	DurationMinutes int            `json:"duration_minutes"`
+	Status          ReminderStatus `json:"status"`
+	Enabled         bool           `json:"enabled"`
+	SnoozeMinutes   int            `json:"snooze_minutes"`
+	LastTriggered   *time.Time     `json:"last_triggered,omitempty"`
+	NextTrigger     *time.Time     `json:"next_trigger,omitempty"`
+	Sound           string         `json:"sound,omitempty"`
+	CreatedAt       time.Time      `json:"created_at"`
+	UpdatedAt       time.Time      `json:"updated_at"`
 }
 
 // ScreenTime 屏幕时间统计
@@ -107,10 +107,10 @@ type ScreenTime struct {
 
 // AppUsage 应用使用统计
 type AppUsage struct {
-	AppName     string        `json:"app_name"`
-	Minutes     int           `json:"minutes"`
-	Percentage  float64       `json:"percentage"`
-	LaunchCount int           `json:"launch_count"`
+	AppName     string  `json:"app_name"`
+	Minutes     int     `json:"minutes"`
+	Percentage  float64 `json:"percentage"`
+	LaunchCount int     `json:"launch_count"`
 }
 
 // HourlyUsage 每小时使用统计
@@ -121,32 +121,32 @@ type HourlyUsage struct {
 
 // WellnessInsight 健康洞察
 type WellnessInsight struct {
-	ID        string       `json:"id"`
-	UserID    string       `json:"user_id"`
-	Type      InsightType  `json:"type"`
-	Title     string       `json:"title"`
-	Message   string       `json:"message"`
-	Data      interface{}  `json:"data,omitempty"`
-	Priority  int          `json:"priority"`
-	Read      bool         `json:"read"`
-	CreatedAt time.Time    `json:"created_at"`
+	ID        string      `json:"id"`
+	UserID    string      `json:"user_id"`
+	Type      InsightType `json:"type"`
+	Title     string      `json:"title"`
+	Message   string      `json:"message"`
+	Data      interface{} `json:"data,omitempty"`
+	Priority  int         `json:"priority"`
+	Read      bool        `json:"read"`
+	CreatedAt time.Time   `json:"created_at"`
 }
 
 // WellnessReport 健康报告
 type WellnessReport struct {
-	ID              string             `json:"id"`
-	UserID          string             `json:"user_id"`
-	Period          string             `json:"period"`
-	StartDate       time.Time          `json:"start_date"`
-	EndDate         time.Time          `json:"end_date"`
-	TotalScreenTime int                `json:"total_screen_time"`
-	AvgDailyMinutes int                `json:"avg_daily_minutes"`
-	TopApps         []AppUsage         `json:"top_apps"`
-	DailyBreakdown  []DailyBreakdown   `json:"daily_breakdown"`
-	Insights        []WellnessInsight  `json:"insights"`
-	Score           int                `json:"score"`
-	ComparedToPrev  *Comparison        `json:"compared_to_previous,omitempty"`
-	CreatedAt       time.Time          `json:"created_at"`
+	ID              string            `json:"id"`
+	UserID          string            `json:"user_id"`
+	Period          string            `json:"period"`
+	StartDate       time.Time         `json:"start_date"`
+	EndDate         time.Time         `json:"end_date"`
+	TotalScreenTime int               `json:"total_screen_time"`
+	AvgDailyMinutes int               `json:"avg_daily_minutes"`
+	TopApps         []AppUsage        `json:"top_apps"`
+	DailyBreakdown  []DailyBreakdown  `json:"daily_breakdown"`
+	Insights        []WellnessInsight `json:"insights"`
+	Score           int               `json:"score"`
+	ComparedToPrev  *Comparison       `json:"compared_to_previous,omitempty"`
+	CreatedAt       time.Time         `json:"created_at"`
 }
 
 // DailyBreakdown 每日明细
@@ -167,16 +167,16 @@ type Comparison struct {
 
 // UsageLimit 使用限制
 type UsageLimit struct {
-	ID          string    `json:"id"`
-	UserID      string    `json:"user_id"`
-	AppName     string    `json:"app_name" binding:"required"`
-	DailyLimit  int       `json:"daily_limit_minutes" binding:"required,min=1"`
-	Enabled     bool      `json:"enabled"`
-	CurrentUsed int       `json:"current_used_minutes"`
-	WarningAt   int       `json:"warning_at_percent"`
-	BlockAtLimit bool     `json:"block_at_limit"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID           string    `json:"id"`
+	UserID       string    `json:"user_id"`
+	AppName      string    `json:"app_name" binding:"required"`
+	DailyLimit   int       `json:"daily_limit_minutes" binding:"required,min=1"`
+	Enabled      bool      `json:"enabled"`
+	CurrentUsed  int       `json:"current_used_minutes"`
+	WarningAt    int       `json:"warning_at_percent"`
+	BlockAtLimit bool      `json:"block_at_limit"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 // CreateReminderRequest 创建提醒请求
@@ -203,10 +203,10 @@ type UpdateReminderRequest struct {
 
 // CreateUsageLimitRequest 创建使用限制请求
 type CreateUsageLimitRequest struct {
-	AppName        string `json:"app_name" binding:"required"`
-	DailyLimit     int    `json:"daily_limit_minutes" binding:"required,min=1"`
-	WarningAt      int    `json:"warning_at_percent"`
-	BlockAtLimit   bool   `json:"block_at_limit"`
+	AppName      string `json:"app_name" binding:"required"`
+	DailyLimit   int    `json:"daily_limit_minutes" binding:"required,min=1"`
+	WarningAt    int    `json:"warning_at_percent"`
+	BlockAtLimit bool   `json:"block_at_limit"`
 }
 
 // UpdateUsageLimitRequest 更新使用限制请求

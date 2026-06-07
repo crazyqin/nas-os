@@ -48,11 +48,11 @@ const (
 type TaskStatus string
 
 const (
-	TaskStatusPending   TaskStatus = "pending"
+	TaskStatusPending    TaskStatus = "pending"
 	TaskStatusProcessing TaskStatus = "processing"
-	TaskStatusCompleted TaskStatus = "completed"
-	TaskStatusFailed    TaskStatus = "failed"
-	TaskStatusCancelled TaskStatus = "cancelled"
+	TaskStatusCompleted  TaskStatus = "completed"
+	TaskStatusFailed     TaskStatus = "failed"
+	TaskStatusCancelled  TaskStatus = "cancelled"
 )
 
 // VideoInfo 视频信息
@@ -73,20 +73,20 @@ type VideoInfo struct {
 
 // EnhancementTask 增强任务
 type EnhancementTask struct {
-	ID          string            `json:"id"`
-	InputPath   string            `json:"input_path"`
-	OutputPath  string            `json:"output_path"`
-	Type        EnhancementType   `json:"type"`
-	Preset      QualityPreset     `json:"preset"`
-	Status      TaskStatus        `json:"status"`
-	Progress    float64           `json:"progress"`
-	InputInfo   *VideoInfo        `json:"input_info,omitempty"`
-	OutputInfo  *VideoInfo        `json:"output_info,omitempty"`
+	ID          string                 `json:"id"`
+	InputPath   string                 `json:"input_path"`
+	OutputPath  string                 `json:"output_path"`
+	Type        EnhancementType        `json:"type"`
+	Preset      QualityPreset          `json:"preset"`
+	Status      TaskStatus             `json:"status"`
+	Progress    float64                `json:"progress"`
+	InputInfo   *VideoInfo             `json:"input_info,omitempty"`
+	OutputInfo  *VideoInfo             `json:"output_info,omitempty"`
 	Params      map[string]interface{} `json:"params"`
-	StartedAt   *time.Time        `json:"started_at,omitempty"`
-	CompletedAt *time.Time        `json:"completed_at,omitempty"`
-	Error       string            `json:"error,omitempty"`
-	ProcessTime time.Duration     `json:"process_time"`
+	StartedAt   *time.Time             `json:"started_at,omitempty"`
+	CompletedAt *time.Time             `json:"completed_at,omitempty"`
+	Error       string                 `json:"error,omitempty"`
+	ProcessTime time.Duration          `json:"process_time"`
 }
 
 // EnhancementResult 增强结果
@@ -102,53 +102,53 @@ type EnhancementResult struct {
 
 // AIModel AI模型
 type AIModel struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Type        EnhancementType `json:"type"`
-	Version     string   `json:"version"`
-	Resolution  string   `json:"resolution"`
-	Speed       string   `json:"speed"`
-	Quality     string   `json:"quality"`
-	IsDefault   bool     `json:"is_default"`
-	IsDownloaded bool    `json:"is_downloaded"`
-	Size        int64    `json:"size"`
+	ID           string          `json:"id"`
+	Name         string          `json:"name"`
+	Type         EnhancementType `json:"type"`
+	Version      string          `json:"version"`
+	Resolution   string          `json:"resolution"`
+	Speed        string          `json:"speed"`
+	Quality      string          `json:"quality"`
+	IsDefault    bool            `json:"is_default"`
+	IsDownloaded bool            `json:"is_downloaded"`
+	Size         int64           `json:"size"`
 }
 
 // BatchJob 批处理任务
 type BatchJob struct {
-	ID        string              `json:"id"`
-	Name      string              `json:"name"`
-	Tasks     []string            `json:"tasks"`
-	Status    TaskStatus          `json:"status"`
-	Progress  float64             `json:"progress"`
-	Total     int                 `json:"total"`
-	Completed int                 `json:"completed"`
-	Failed    int                 `json:"failed"`
-	CreatedAt time.Time           `json:"created_at"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Tasks     []string   `json:"tasks"`
+	Status    TaskStatus `json:"status"`
+	Progress  float64    `json:"progress"`
+	Total     int        `json:"total"`
+	Completed int        `json:"completed"`
+	Failed    int        `json:"failed"`
+	CreatedAt time.Time  `json:"created_at"`
 }
 
 // Manager 视频增强管理器
 type Manager struct {
-	mu          sync.RWMutex
-	tasks       map[string]*EnhancementTask
-	batches     map[string]*BatchJob
-	models      map[string]*AIModel
-	gpuEnabled  bool
+	mu            sync.RWMutex
+	tasks         map[string]*EnhancementTask
+	batches       map[string]*BatchJob
+	models        map[string]*AIModel
+	gpuEnabled    bool
 	maxConcurrent int
-	outputDir   string
-	tempDir     string
+	outputDir     string
+	tempDir       string
 }
 
 // NewManager 创建管理器
 func NewManager(outputDir string) *Manager {
 	return &Manager{
-		tasks:       make(map[string]*EnhancementTask),
-		batches:     make(map[string]*BatchJob),
-		models:      getDefaultModels(),
-		gpuEnabled:  false,
+		tasks:         make(map[string]*EnhancementTask),
+		batches:       make(map[string]*BatchJob),
+		models:        getDefaultModels(),
+		gpuEnabled:    false,
 		maxConcurrent: 2,
-		outputDir:   outputDir,
-		tempDir:     "/tmp/video-enhance",
+		outputDir:     outputDir,
+		tempDir:       "/tmp/video-enhance",
 	}
 }
 
@@ -176,13 +176,13 @@ func getDefaultModels() map[string]*AIModel {
 			Size:       32 * 1024 * 1024,
 		},
 		"real-denoise": {
-			ID:         "real-denoise",
-			Name:       "Real-Denoise",
-			Type:       EnhanceDenoise,
-			Version:    "1.0",
-			Speed:      "fast",
-			Quality:    "high",
-			Size:       48 * 1024 * 1024,
+			ID:      "real-denoise",
+			Name:    "Real-Denoise",
+			Type:    EnhanceDenoise,
+			Version: "1.0",
+			Speed:   "fast",
+			Quality: "high",
+			Size:    48 * 1024 * 1024,
 		},
 	}
 	return models

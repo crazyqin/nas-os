@@ -14,101 +14,101 @@ import (
 type MusicGenre string
 
 const (
-	GenrePop     MusicGenre = "pop"
-	GenreRock    MusicGenre = "rock"
-	GenreJazz    MusicGenre = "jazz"
-	GenreClassical MusicGenre = "classical"
+	GenrePop        MusicGenre = "pop"
+	GenreRock       MusicGenre = "rock"
+	GenreJazz       MusicGenre = "jazz"
+	GenreClassical  MusicGenre = "classical"
 	GenreElectronic MusicGenre = "electronic"
-	GenreHipHop  MusicGenre = "hiphop"
-	GenreRnB     MusicGenre = "rnb"
-	GenreCountry MusicGenre = "country"
+	GenreHipHop     MusicGenre = "hiphop"
+	GenreRnB        MusicGenre = "rnb"
+	GenreCountry    MusicGenre = "country"
 )
 
 // Mood 情绪标签
 type Mood string
 
 const (
-	MoodHappy    Mood = "happy"
-	MoodSad      Mood = "sad"
+	MoodHappy     Mood = "happy"
+	MoodSad       Mood = "sad"
 	MoodEnergetic Mood = "energetic"
-	MoodCalm     Mood = "calm"
-	MoodRomantic Mood = "romantic"
-	MoodDark     Mood = "dark"
+	MoodCalm      Mood = "calm"
+	MoodRomantic  Mood = "romantic"
+	MoodDark      Mood = "dark"
 )
 
 // Track 音轨
 type Track struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Instrument string   `json:"instrument"`
-	Notes     []Note    `json:"notes"`
-	Volume    float64   `json:"volume"`
-	Pan       float64   `json:"pan"` // -1.0 to 1.0
-	Muted     bool      `json:"muted"`
-	Solo      bool      `json:"solo"`
-	CreatedAt time.Time `json:"created_at"`
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	Instrument string    `json:"instrument"`
+	Notes      []Note    `json:"notes"`
+	Volume     float64   `json:"volume"`
+	Pan        float64   `json:"pan"` // -1.0 to 1.0
+	Muted      bool      `json:"muted"`
+	Solo       bool      `json:"solo"`
+	CreatedAt  time.Time `json:"created_at"`
 }
 
 // Note 音符
 type Note struct {
-	Pitch     int     `json:"pitch"`     // MIDI note number (0-127)
-	Duration  float64 `json:"duration"`  // in beats
-	Velocity  int     `json:"velocity"`  // 0-127
+	Pitch     int     `json:"pitch"`      // MIDI note number (0-127)
+	Duration  float64 `json:"duration"`   // in beats
+	Velocity  int     `json:"velocity"`   // 0-127
 	StartTime float64 `json:"start_time"` // in beats from start
 }
 
 // Composition 作品
 type Composition struct {
-	ID          string    `json:"id"`
-	Title       string    `json:"title"`
-	Genre       MusicGenre `json:"genre"`
-	Mood        Mood      `json:"mood"`
-	BPM         int       `json:"bpm"`
-	Key         string    `json:"key"`
-	TimeSignature string  `json:"time_signature"`
-	Tracks      []Track   `json:"tracks"`
-	Duration    float64   `json:"duration"` // in seconds
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Tags        []string  `json:"tags"`
+	ID            string     `json:"id"`
+	Title         string     `json:"title"`
+	Genre         MusicGenre `json:"genre"`
+	Mood          Mood       `json:"mood"`
+	BPM           int        `json:"bpm"`
+	Key           string     `json:"key"`
+	TimeSignature string     `json:"time_signature"`
+	Tracks        []Track    `json:"tracks"`
+	Duration      float64    `json:"duration"` // in seconds
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
+	Tags          []string   `json:"tags"`
 }
 
 // MixConfig 混音配置
 type MixConfig struct {
-	CompositionID string             `json:"composition_id"`
+	CompositionID string              `json:"composition_id"`
 	TrackMixes    map[string]TrackMix `json:"track_mixes"`
-	MasterVolume  float64            `json:"master_volume"`
-	MasterEQ      EQConfig           `json:"master_eq"`
-	Compressor    CompressorConfig   `json:"compressor"`
-	Reverb        ReverbConfig       `json:"reverb"`
+	MasterVolume  float64             `json:"master_volume"`
+	MasterEQ      EQConfig            `json:"master_eq"`
+	Compressor    CompressorConfig    `json:"compressor"`
+	Reverb        ReverbConfig        `json:"reverb"`
 }
 
 // TrackMix 单轨混音
 type TrackMix struct {
-	Volume    float64 `json:"volume"`
-	Pan       float64 `json:"pan"`
-	EQ        EQConfig `json:"eq"`
+	Volume     float64          `json:"volume"`
+	Pan        float64          `json:"pan"`
+	EQ         EQConfig         `json:"eq"`
 	Compressor CompressorConfig `json:"compressor"`
-	Delay     DelayConfig `json:"delay"`
+	Delay      DelayConfig      `json:"delay"`
 }
 
 // EQConfig 均衡器配置
 type EQConfig struct {
-	LowGain   float64 `json:"low_gain"`   // dB
-	MidGain   float64 `json:"mid_gain"`   // dB
-	HighGain  float64 `json:"high_gain"`  // dB
-	LowFreq   float64 `json:"low_freq"`
-	MidFreq   float64 `json:"mid_freq"`
-	HighFreq  float64 `json:"high_freq"`
+	LowGain  float64 `json:"low_gain"`  // dB
+	MidGain  float64 `json:"mid_gain"`  // dB
+	HighGain float64 `json:"high_gain"` // dB
+	LowFreq  float64 `json:"low_freq"`
+	MidFreq  float64 `json:"mid_freq"`
+	HighFreq float64 `json:"high_freq"`
 }
 
 // CompressorConfig 压缩器配置
 type CompressorConfig struct {
 	Threshold float64 `json:"threshold"` // dB
 	Ratio     float64 `json:"ratio"`
-	Attack    float64 `json:"attack"`    // ms
-	Release   float64 `json:"release"`   // ms
-	Gain      float64 `json:"gain"`      // dB
+	Attack    float64 `json:"attack"`  // ms
+	Release   float64 `json:"release"` // ms
+	Gain      float64 `json:"gain"`    // dB
 }
 
 // ReverbConfig 混响配置
@@ -121,9 +121,9 @@ type ReverbConfig struct {
 
 // DelayConfig 延迟配置
 type DelayConfig struct {
-	Time    float64 `json:"time"`    // ms
+	Time     float64 `json:"time"`     // ms
 	Feedback float64 `json:"feedback"` // 0.0-1.0
-	Mix     float64 `json:"mix"`     // 0.0-1.0
+	Mix      float64 `json:"mix"`      // 0.0-1.0
 }
 
 // GenerateRequest AI作曲请求
@@ -325,22 +325,22 @@ func (s *Service) defaultKey(mood Mood) string {
 // generateTitle 生成标题
 func (s *Service) generateTitle(genre MusicGenre, mood Mood) string {
 	adjectives := map[Mood][]string{
-		MoodHappy:    {"Sunny", "Bright", "Joyful", "Cheerful"},
-		MoodSad:      {"Melancholy", "Blue", "Sorrowful", "Tearful"},
+		MoodHappy:     {"Sunny", "Bright", "Joyful", "Cheerful"},
+		MoodSad:       {"Melancholy", "Blue", "Sorrowful", "Tearful"},
 		MoodEnergetic: {"Electric", "Dynamic", "Powerful", "Blazing"},
-		MoodCalm:     {"Peaceful", "Serene", "Tranquil", "Gentle"},
-		MoodRomantic: {"Romantic", "Tender", "Passionate", "Dreamy"},
-		MoodDark:     {"Dark", "Mysterious", "Shadowy", "Haunting"},
+		MoodCalm:      {"Peaceful", "Serene", "Tranquil", "Gentle"},
+		MoodRomantic:  {"Romantic", "Tender", "Passionate", "Dreamy"},
+		MoodDark:      {"Dark", "Mysterious", "Shadowy", "Haunting"},
 	}
 
 	nouns := map[MusicGenre][]string{
-		GenrePop:     {"Hit", "Single", "Chart", "Melody"},
-		GenreRock:    {"Anthem", "Riff", "Storm", "Thunder"},
-		GenreJazz:    {"Groove", "Swing", "Blue Note", "Standard"},
-		GenreClassical: {"Sonata", "Symphony", "Concerto", "Nocturne"},
+		GenrePop:        {"Hit", "Single", "Chart", "Melody"},
+		GenreRock:       {"Anthem", "Riff", "Storm", "Thunder"},
+		GenreJazz:       {"Groove", "Swing", "Blue Note", "Standard"},
+		GenreClassical:  {"Sonata", "Symphony", "Concerto", "Nocturne"},
 		GenreElectronic: {"Beat", "Drop", "Wave", "Pulse"},
-		GenreHipHop:  {"Flow", "Beat", "Rhyme", "Verse"},
-		GenreRnB:     {"Soul", "Vibe", "Rhythm", "Groove"},
+		GenreHipHop:     {"Flow", "Beat", "Rhyme", "Verse"},
+		GenreRnB:        {"Soul", "Vibe", "Rhythm", "Groove"},
 	}
 
 	adj := adjectives[mood]
@@ -437,17 +437,17 @@ func (s *Service) AnalyzeComposition(ctx context.Context, id string) (map[string
 	}
 
 	analysis := map[string]interface{}{
-		"composition_id": comp.ID,
-		"title":         comp.Title,
-		"genre":         comp.Genre,
-		"mood":          comp.Mood,
-		"bpm":           comp.BPM,
-		"key":           comp.Key,
-		"duration":      comp.Duration,
-		"track_count":   len(comp.Tracks),
-		"total_notes":   totalNotes,
-		"complexity":    s.calculateComplexity(comp),
-		"energy_level":  s.calculateEnergyLevel(comp),
+		"composition_id":    comp.ID,
+		"title":             comp.Title,
+		"genre":             comp.Genre,
+		"mood":              comp.Mood,
+		"bpm":               comp.BPM,
+		"key":               comp.Key,
+		"duration":          comp.Duration,
+		"track_count":       len(comp.Tracks),
+		"total_notes":       totalNotes,
+		"complexity":        s.calculateComplexity(comp),
+		"energy_level":      s.calculateEnergyLevel(comp),
 		"harmonic_analysis": s.analyzeHarmony(comp),
 	}
 
@@ -498,10 +498,10 @@ func (s *Service) calculateEnergyLevel(comp *Composition) float64 {
 // analyzeHarmony 和声分析
 func (s *Service) analyzeHarmony(comp *Composition) map[string]interface{} {
 	return map[string]interface{}{
-		"key":           comp.Key,
-		"time_signature": comp.TimeSignature,
+		"key":               comp.Key,
+		"time_signature":    comp.TimeSignature,
 		"chord_progression": s.detectChordProgression(comp),
-		"harmonic_tension": s.calculateHarmonicTension(comp),
+		"harmonic_tension":  s.calculateHarmonicTension(comp),
 	}
 }
 

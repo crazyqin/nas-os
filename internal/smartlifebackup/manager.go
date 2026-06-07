@@ -18,9 +18,9 @@ type Manager struct {
 	mu sync.RWMutex
 
 	// 配置
-	configPath string
+	configPath  string
 	storagePath string
-	dataPath string
+	dataPath    string
 
 	// 策略
 	policies map[string]*BackupPolicy
@@ -648,10 +648,10 @@ func (m *Manager) ScheduleLifecycle(schedule string) error {
 // saveData 保存数据
 func (m *Manager) saveData() error {
 	data := struct {
-		Policies       map[string]*BackupPolicy `json:"policies"`
-		Backups        map[string]*BackupItem   `json:"backups"`
+		Policies       map[string]*BackupPolicy  `json:"policies"`
+		Backups        map[string]*BackupItem    `json:"backups"`
 		Tasks          map[string]*LifecycleTask `json:"tasks"`
-		ActivePolicyID string                   `json:"active_policy_id"`
+		ActivePolicyID string                    `json:"active_policy_id"`
 	}{
 		Policies:       m.policies,
 		Backups:        m.backups,

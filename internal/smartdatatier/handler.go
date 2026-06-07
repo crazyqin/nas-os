@@ -112,7 +112,7 @@ func (h *Handler) RecommendTier(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"fileId":     id,
+		"fileId":      id,
 		"recommended": tierName,
 	})
 }

@@ -33,21 +33,21 @@ const (
 type DeviceType string
 
 const (
-	DeviceTypeMemory   DeviceType = "memory"   // CXL Memory Device
-	DeviceTypeSwitch   DeviceType = "switch"    // CXL Switch
-	DeviceTypeBridge   DeviceType = "bridge"    // CXL Bridge
-	DeviceTypeType1    DeviceType = "type1"     // Type 1 Accelerator
-	DeviceTypeType2    DeviceType = "type2"     // Type 2 Accelerator
-	DeviceTypeType3    DeviceType = "type3"     // Type 3 Memory Device
+	DeviceTypeMemory DeviceType = "memory" // CXL Memory Device
+	DeviceTypeSwitch DeviceType = "switch" // CXL Switch
+	DeviceTypeBridge DeviceType = "bridge" // CXL Bridge
+	DeviceTypeType1  DeviceType = "type1"  // Type 1 Accelerator
+	DeviceTypeType2  DeviceType = "type2"  // Type 2 Accelerator
+	DeviceTypeType3  DeviceType = "type3"  // Type 3 Memory Device
 )
 
 // MemoryTier 内存层级
 type MemoryTier string
 
 const (
-	TierHot    MemoryTier = "hot"    // 热数据层（本地DRAM）
-	TierWarm   MemoryTier = "warm"   // 温数据层（CXL内存）
-	TierCold   MemoryTier = "cold"   // 冷数据层（CXL扩展内存）
+	TierHot     MemoryTier = "hot"     // 热数据层（本地DRAM）
+	TierWarm    MemoryTier = "warm"    // 温数据层（CXL内存）
+	TierCold    MemoryTier = "cold"    // 冷数据层（CXL扩展内存）
 	TierArchive MemoryTier = "archive" // 归档层
 )
 
@@ -71,13 +71,13 @@ type CXLDevice struct {
 	State        DeviceState `json:"state"`
 	PCIeAddr     string      `json:"pcie_addr"`
 	NUMANode     int         `json:"numa_node"`
-	TotalMemory  uint64      `json:"total_memory"`  // bytes
+	TotalMemory  uint64      `json:"total_memory"` // bytes
 	UsedMemory   uint64      `json:"used_memory"`
 	AvailableMem uint64      `json:"available_mem"`
-	Bandwidth    float64     `json:"bandwidth"`     // GB/s
-	Latency      float64     `json:"latency"`       // ns
-	Temperature  float64     `json:"temperature"`   // Celsius
-	PowerUsage   float64     `json:"power_usage"`   // Watts
+	Bandwidth    float64     `json:"bandwidth"`   // GB/s
+	Latency      float64     `json:"latency"`     // ns
+	Temperature  float64     `json:"temperature"` // Celsius
+	PowerUsage   float64     `json:"power_usage"` // Watts
 	VendorID     string      `json:"vendor_id"`
 	DeviceID     string      `json:"device_id"`
 	SerialNum    string      `json:"serial_num"`
@@ -88,40 +88,40 @@ type CXLDevice struct {
 
 // MemoryPool 内存池
 type MemoryPool struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	Tier         MemoryTier        `json:"tier"`
-	Devices      []string          `json:"devices"`      // device IDs
-	TotalMemory  uint64            `json:"total_memory"`
-	UsedMemory   uint64            `json:"used_memory"`
-	Allocations  []Allocation      `json:"allocations"`
-	Policy       AllocationPolicy  `json:"policy"`
-	CreatedAt    time.Time         `json:"created_at"`
-	UpdatedAt    time.Time         `json:"updated_at"`
+	ID          string           `json:"id"`
+	Name        string           `json:"name"`
+	Tier        MemoryTier       `json:"tier"`
+	Devices     []string         `json:"devices"` // device IDs
+	TotalMemory uint64           `json:"total_memory"`
+	UsedMemory  uint64           `json:"used_memory"`
+	Allocations []Allocation     `json:"allocations"`
+	Policy      AllocationPolicy `json:"policy"`
+	CreatedAt   time.Time        `json:"created_at"`
+	UpdatedAt   time.Time        `json:"updated_at"`
 }
 
 // Allocation 内存分配记录
 type Allocation struct {
-	ID        string      `json:"id"`
-	PoolID    string      `json:"pool_id"`
-	ProcessID int         `json:"process_id"`
-	Size      uint64      `json:"size"` // bytes
-	Aligned   uint64      `json:"aligned"`
-	Tier      MemoryTier  `json:"tier"`
-	Priority  int         `json:"priority"`
-	CreatedAt time.Time   `json:"created_at"`
-	ExpiresAt *time.Time  `json:"expires_at,omitempty"`
+	ID        string     `json:"id"`
+	PoolID    string     `json:"pool_id"`
+	ProcessID int        `json:"process_id"`
+	Size      uint64     `json:"size"` // bytes
+	Aligned   uint64     `json:"aligned"`
+	Tier      MemoryTier `json:"tier"`
+	Priority  int        `json:"priority"`
+	CreatedAt time.Time  `json:"created_at"`
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 }
 
 // AllocationPolicy 分配策略
 type AllocationPolicy string
 
 const (
-	PolicyFirstFit    AllocationPolicy = "first_fit"
-	PolicyBestFit     AllocationPolicy = "best_fit"
-	PolicyRoundRobin  AllocationPolicy = "round_robin"
-	PolicyNUMAAware   AllocationPolicy = "numa_aware"
-	PolicyLatencyOpt  AllocationPolicy = "latency_optimized"
+	PolicyFirstFit     AllocationPolicy = "first_fit"
+	PolicyBestFit      AllocationPolicy = "best_fit"
+	PolicyRoundRobin   AllocationPolicy = "round_robin"
+	PolicyNUMAAware    AllocationPolicy = "numa_aware"
+	PolicyLatencyOpt   AllocationPolicy = "latency_optimized"
 	PolicyBandwidthOpt AllocationPolicy = "bandwidth_optimized"
 )
 

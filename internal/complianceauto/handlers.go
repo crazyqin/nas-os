@@ -120,8 +120,8 @@ func (h *Handlers) getScanStatus(c *gin.Context) {
 		Code:    0,
 		Message: "success",
 		Data: map[string]interface{}{
-			"status":  lastScan.Status,
-			"scanId":  lastScan.ID,
+			"status": lastScan.Status,
+			"scanId": lastScan.ID,
 			"progress": map[string]int{
 				"total":   lastScan.TotalRules,
 				"passed":  lastScan.PassedRules,
@@ -244,9 +244,9 @@ func (h *Handlers) disableRule(c *gin.Context) {
 
 // ReportRequest 报告生成请求
 type ReportRequest struct {
-	ScanID  string `json:"scanId"`  // 扫描ID
-	Title   string `json:"title"`   // 报告标题
-	Format  string `json:"format"`  // 报告格式: pdf, html, json
+	ScanID string `json:"scanId"` // 扫描ID
+	Title  string `json:"title"`  // 报告标题
+	Format string `json:"format"` // 报告格式: pdf, html, json
 }
 
 // generateReport 生成合规报告

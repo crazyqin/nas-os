@@ -79,19 +79,19 @@ const (
 
 // ComplianceRule 合规规则.
 type ComplianceRule struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Description string       `json:"description,omitempty"`
-	RuleType    RuleType     `json:"rule_type"`
-	Category    string       `json:"category,omitempty"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description,omitempty"`
+	RuleType    RuleType      `json:"rule_type"`
+	Category    string        `json:"category,omitempty"`
 	Severity    SeverityLevel `json:"severity"`
-	Enabled     bool         `json:"enabled"`
-	Conditions  []Condition  `json:"conditions"`
-	Remediation string       `json:"remediation,omitempty"`
-	Tags        []string     `json:"tags,omitempty"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
-	CreatedBy   string       `json:"created_by,omitempty"`
+	Enabled     bool          `json:"enabled"`
+	Conditions  []Condition   `json:"conditions"`
+	Remediation string        `json:"remediation,omitempty"`
+	Tags        []string      `json:"tags,omitempty"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
+	CreatedBy   string        `json:"created_by,omitempty"`
 }
 
 // Condition 合规条件.
@@ -104,59 +104,59 @@ type Condition struct {
 
 // ComplianceCheck 合规检查结果.
 type ComplianceCheck struct {
-	ID          string           `json:"id"`
-	RuleID      string           `json:"rule_id"`
-	RuleName    string           `json:"rule_name"`
-	Timestamp   time.Time        `json:"timestamp"`
-	Status      ComplianceStatus `json:"status"`
-	Target      string           `json:"target"`
-	TargetType  string           `json:"target_type,omitempty"`
-	Details     string           `json:"details,omitempty"`
-	Violations  []Violation      `json:"violations,omitempty"`
-	CheckDuration int64          `json:"check_duration_ms,omitempty"`
-	CheckedBy   string           `json:"checked_by,omitempty"`
+	ID            string           `json:"id"`
+	RuleID        string           `json:"rule_id"`
+	RuleName      string           `json:"rule_name"`
+	Timestamp     time.Time        `json:"timestamp"`
+	Status        ComplianceStatus `json:"status"`
+	Target        string           `json:"target"`
+	TargetType    string           `json:"target_type,omitempty"`
+	Details       string           `json:"details,omitempty"`
+	Violations    []Violation      `json:"violations,omitempty"`
+	CheckDuration int64            `json:"check_duration_ms,omitempty"`
+	CheckedBy     string           `json:"checked_by,omitempty"`
 }
 
 // Violation 合规违规.
 type Violation struct {
-	Field      string       `json:"field"`
-	Expected   string       `json:"expected"`
-	Actual     string       `json:"actual"`
-	Severity   SeverityLevel `json:"severity"`
-	Message    string       `json:"message"`
+	Field    string        `json:"field"`
+	Expected string        `json:"expected"`
+	Actual   string        `json:"actual"`
+	Severity SeverityLevel `json:"severity"`
+	Message  string        `json:"message"`
 }
 
 // AuditLog 审计日志.
 type AuditLog struct {
-	ID        string    `json:"id"`
-	Timestamp time.Time `json:"timestamp"`
-	Action    string    `json:"action"`
-	Actor     string    `json:"actor"`
-	Target    string    `json:"target"`
-	Details   string    `json:"details,omitempty"`
-	Status    string    `json:"status"`
-	IPAddress string    `json:"ip_address,omitempty"`
-	UserAgent string    `json:"user_agent,omitempty"`
+	ID        string            `json:"id"`
+	Timestamp time.Time         `json:"timestamp"`
+	Action    string            `json:"action"`
+	Actor     string            `json:"actor"`
+	Target    string            `json:"target"`
+	Details   string            `json:"details,omitempty"`
+	Status    string            `json:"status"`
+	IPAddress string            `json:"ip_address,omitempty"`
+	UserAgent string            `json:"user_agent,omitempty"`
 	Metadata  map[string]string `json:"metadata,omitempty"`
 }
 
 // ComplianceReport 合规报告.
 type ComplianceReport struct {
-	ID                string                  `json:"id"`
-	GeneratedAt       time.Time               `json:"generated_at"`
-	StartTime         time.Time               `json:"start_time"`
-	EndTime           time.Time               `json:"end_time"`
-	TotalChecks       int                     `json:"total_checks"`
-	CompliantCount    int                     `json:"compliant_count"`
-	NonCompliantCount int                     `json:"non_compliant_count"`
-	PartialCount      int                     `json:"partial_count"`
-	PendingCount      int                     `json:"pending_count"`
-	ErrorCount        int                     `json:"error_count"`
-	ComplianceRate    float64                 `json:"compliance_rate"`
-	RuleSummary       []RuleSummary           `json:"rule_summary"`
-	TopViolations     []ViolationSummary      `json:"top_violations"`
-	TrendData         []TrendPoint            `json:"trend_data"`
-	Recommendations   []string                `json:"recommendations"`
+	ID                 string                   `json:"id"`
+	GeneratedAt        time.Time                `json:"generated_at"`
+	StartTime          time.Time                `json:"start_time"`
+	EndTime            time.Time                `json:"end_time"`
+	TotalChecks        int                      `json:"total_checks"`
+	CompliantCount     int                      `json:"compliant_count"`
+	NonCompliantCount  int                      `json:"non_compliant_count"`
+	PartialCount       int                      `json:"partial_count"`
+	PendingCount       int                      `json:"pending_count"`
+	ErrorCount         int                      `json:"error_count"`
+	ComplianceRate     float64                  `json:"compliance_rate"`
+	RuleSummary        []RuleSummary            `json:"rule_summary"`
+	TopViolations      []ViolationSummary       `json:"top_violations"`
+	TrendData          []TrendPoint             `json:"trend_data"`
+	Recommendations    []string                 `json:"recommendations"`
 	StatusDistribution map[ComplianceStatus]int `json:"status_distribution"`
 }
 
@@ -173,11 +173,11 @@ type RuleSummary struct {
 
 // ViolationSummary 违规摘要.
 type ViolationSummary struct {
-	RuleName    string       `json:"rule_name"`
-	Field       string       `json:"field"`
-	Count       int          `json:"count"`
-	Severity    SeverityLevel `json:"severity"`
-	LastSeen    time.Time    `json:"last_seen"`
+	RuleName string        `json:"rule_name"`
+	Field    string        `json:"field"`
+	Count    int           `json:"count"`
+	Severity SeverityLevel `json:"severity"`
+	LastSeen time.Time     `json:"last_seen"`
 }
 
 // TrendPoint 趋势数据点.
@@ -190,17 +190,17 @@ type TrendPoint struct {
 
 // QueryFilter 查询过滤器.
 type QueryFilter struct {
-	StartTime    *time.Time        `json:"start_time,omitempty"`
-	EndTime      *time.Time        `json:"end_time,omitempty"`
-	RuleID       string            `json:"rule_id,omitempty"`
-	RuleType     RuleType          `json:"rule_type,omitempty"`
-	Status       ComplianceStatus  `json:"status,omitempty"`
-	Target       string            `json:"target,omitempty"`
-	TargetType   string            `json:"target_type,omitempty"`
-	Severity     SeverityLevel     `json:"severity,omitempty"`
-	Tags         []string          `json:"tags,omitempty"`
-	Limit        int               `json:"limit,omitempty"`
-	Offset       int               `json:"offset,omitempty"`
+	StartTime  *time.Time       `json:"start_time,omitempty"`
+	EndTime    *time.Time       `json:"end_time,omitempty"`
+	RuleID     string           `json:"rule_id,omitempty"`
+	RuleType   RuleType         `json:"rule_type,omitempty"`
+	Status     ComplianceStatus `json:"status,omitempty"`
+	Target     string           `json:"target,omitempty"`
+	TargetType string           `json:"target_type,omitempty"`
+	Severity   SeverityLevel    `json:"severity,omitempty"`
+	Tags       []string         `json:"tags,omitempty"`
+	Limit      int              `json:"limit,omitempty"`
+	Offset     int              `json:"offset,omitempty"`
 }
 
 // ComplianceConfig 合规配置.

@@ -635,7 +635,7 @@ func TestIntegrationCostReport(t *testing.T) {
 
 func BenchmarkCostCalculation(b *testing.B) {
 	calc := NewCostCalculator(DefaultStorageCost())
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		calc.CalculateCost(StorageTierHot, 100)

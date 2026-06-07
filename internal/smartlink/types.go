@@ -78,23 +78,23 @@ func (sl *ShareLink) IncrementVisit() {
 
 // AccessLog represents an access log entry
 type AccessLog struct {
-	ID        string    `json:"id"`
-	LinkID    string    `json:"link_id"`
-	IP        string    `json:"ip"`
-	UserAgent string    `json:"user_agent"`
+	ID         string    `json:"id"`
+	LinkID     string    `json:"link_id"`
+	IP         string    `json:"ip"`
+	UserAgent  string    `json:"user_agent"`
 	AccessedAt time.Time `json:"accessed_at"`
-	Success   bool      `json:"success"`
-	Reason    string    `json:"reason,omitempty"`
+	Success    bool      `json:"success"`
+	Reason     string    `json:"reason,omitempty"`
 }
 
 // SharePolicy defines sharing policy constraints
 type SharePolicy struct {
-	MaxLinksPerUser    int           `json:"max_links_per_user"`
-	DefaultExpiration  time.Duration `json:"default_expiration"`
-	MaxExpiration      time.Duration `json:"max_expiration"`
-	AllowPassword      bool          `json:"allow_password"`
-	AllowOneTime       bool          `json:"allow_one_time"`
-	MaxVisitsPerLink   int           `json:"max_visits_per_link"`
+	MaxLinksPerUser   int           `json:"max_links_per_user"`
+	DefaultExpiration time.Duration `json:"default_expiration"`
+	MaxExpiration     time.Duration `json:"max_expiration"`
+	AllowPassword     bool          `json:"allow_password"`
+	AllowOneTime      bool          `json:"allow_one_time"`
+	MaxVisitsPerLink  int           `json:"max_visits_per_link"`
 }
 
 // DefaultSharePolicy returns default sharing policy
@@ -111,12 +111,12 @@ func DefaultSharePolicy() SharePolicy {
 
 // LinkStats represents statistics for a share link
 type LinkStats struct {
-	LinkID          string    `json:"link_id"`
-	TotalVisits     int       `json:"total_visits"`
-	UniqueVisitors  int       `json:"unique_visitors"`
+	LinkID          string     `json:"link_id"`
+	TotalVisits     int        `json:"total_visits"`
+	UniqueVisitors  int        `json:"unique_visitors"`
 	LastAccessedAt  *time.Time `json:"last_accessed_at,omitempty"`
 	FirstAccessedAt *time.Time `json:"first_accessed_at,omitempty"`
-	IPAddresses     []string  `json:"ip_addresses,omitempty"`
+	IPAddresses     []string   `json:"ip_addresses,omitempty"`
 }
 
 // CreateLinkRequest represents request to create a share link

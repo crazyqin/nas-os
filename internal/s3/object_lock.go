@@ -36,10 +36,10 @@ type ObjectRetention struct {
 
 // ObjectLockStatus contains the object lock status for a bucket.
 type ObjectLockStatus struct {
-	Enabled          bool              `json:"enabled"`
+	Enabled           bool             `json:"enabled"`
 	ObjectLockEnabled bool             `json:"objectLockEnabled"`
-	DefaultRetention *RetentionConfig  `json:"defaultRetention,omitempty"`
-	LockedObjects    int               `json:"lockedObjects"`
+	DefaultRetention  *RetentionConfig `json:"defaultRetention,omitempty"`
+	LockedObjects     int              `json:"lockedObjects"`
 }
 
 // SetObjectLockConfig sets or updates the object lock configuration for a bucket.
@@ -313,9 +313,9 @@ func (m *Manager) GetObjectLockStatus(bucketName string) (*ObjectLockStatus, err
 	}
 
 	status := &ObjectLockStatus{
-		Enabled:          bucket.ObjectLock != nil && bucket.ObjectLock.Enabled,
+		Enabled:           bucket.ObjectLock != nil && bucket.ObjectLock.Enabled,
 		ObjectLockEnabled: bucket.ObjectLock != nil && bucket.ObjectLock.Enabled,
-		DefaultRetention: nil,
+		DefaultRetention:  nil,
 	}
 
 	if bucket.ObjectLock != nil {
@@ -437,11 +437,11 @@ func validateRetentionConfig(config *RetentionConfig) error {
 
 // ComplianceMode represents compliance mode configuration.
 type ComplianceMode struct {
-	Enabled          bool      `json:"enabled"`
-	RetentionDays    int       `json:"retentionDays"`
-	RetentionYears   int       `json:"retentionYears"`
-	LockEnabled      bool      `json:"lockEnabled"`
-	LockRetainDate   time.Time `json:"lockRetainDate,omitempty"`
+	Enabled        bool      `json:"enabled"`
+	RetentionDays  int       `json:"retentionDays"`
+	RetentionYears int       `json:"retentionYears"`
+	LockEnabled    bool      `json:"lockEnabled"`
+	LockRetainDate time.Time `json:"lockRetainDate,omitempty"`
 }
 
 // SetComplianceMode enables compliance mode with specified retention on a bucket.

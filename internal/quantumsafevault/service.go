@@ -15,12 +15,12 @@ import (
 type Algorithm string
 
 const (
-	AlgorithmKyber    Algorithm = "kyber"     // CRYSTALS-Kyber (密钥封装)
+	AlgorithmKyber     Algorithm = "kyber"     // CRYSTALS-Kyber (密钥封装)
 	AlgorithmDilithium Algorithm = "dilithium" // CRYSTALS-Dilithium (数字签名)
-	AlgorithmFalcon   Algorithm = "falcon"    // Falcon (数字签名)
-	AlgorithmSPHINCS  Algorithm = "sphincs+"  // SPHINCS+ (数字签名)
-	AlgorithmNTRU     Algorithm = "ntru"      // NTRU (密钥封装)
-	AlgorithmSABER    Algorithm = "saber"     // SABER (密钥封装)
+	AlgorithmFalcon    Algorithm = "falcon"    // Falcon (数字签名)
+	AlgorithmSPHINCS   Algorithm = "sphincs+"  // SPHINCS+ (数字签名)
+	AlgorithmNTRU      Algorithm = "ntru"      // NTRU (密钥封装)
+	AlgorithmSABER     Algorithm = "saber"     // SABER (密钥封装)
 )
 
 // SecurityLevel 安全等级
@@ -42,38 +42,38 @@ const (
 
 // KeyPair 密钥对
 type KeyPair struct {
-	ID         string      `json:"id"`
-	Algorithm  Algorithm   `json:"algorithm"`
-	KeyType    KeyType     `json:"key_type"`
+	ID         string        `json:"id"`
+	Algorithm  Algorithm     `json:"algorithm"`
+	KeyType    KeyType       `json:"key_type"`
 	Security   SecurityLevel `json:"security"`
-	PublicKey  []byte      `json:"public_key"`
-	PrivateKey []byte      `json:"private_key"`
-	CreatedAt  time.Time   `json:"created_at"`
-	ExpiresAt  time.Time   `json:"expires_at"`
-	Tags       []string    `json:"tags"`
+	PublicKey  []byte        `json:"public_key"`
+	PrivateKey []byte        `json:"private_key"`
+	CreatedAt  time.Time     `json:"created_at"`
+	ExpiresAt  time.Time     `json:"expires_at"`
+	Tags       []string      `json:"tags"`
 }
 
 // EncryptedData 加密数据
 type EncryptedData struct {
-	ID          string    `json:"id"`
-	KeyID       string    `json:"key_id"`
-	Algorithm   Algorithm `json:"algorithm"`
-	Data        []byte    `json:"data"`
-	IV          []byte    `json:"iv"`
-	AuthTag     []byte    `json:"auth_tag"`
-	CreatedAt   time.Time `json:"created_at"`
-	Metadata    map[string]string `json:"metadata"`
+	ID        string            `json:"id"`
+	KeyID     string            `json:"key_id"`
+	Algorithm Algorithm         `json:"algorithm"`
+	Data      []byte            `json:"data"`
+	IV        []byte            `json:"iv"`
+	AuthTag   []byte            `json:"auth_tag"`
+	CreatedAt time.Time         `json:"created_at"`
+	Metadata  map[string]string `json:"metadata"`
 }
 
 // Signature 数字签名
 type Signature struct {
-	ID          string    `json:"id"`
-	KeyID       string    `json:"key_id"`
-	Algorithm   Algorithm `json:"algorithm"`
-	Data        []byte    `json:"data"`
-	Signature   []byte    `json:"signature"`
-	CreatedAt   time.Time `json:"created_at"`
-	Verified    bool      `json:"verified"`
+	ID        string    `json:"id"`
+	KeyID     string    `json:"key_id"`
+	Algorithm Algorithm `json:"algorithm"`
+	Data      []byte    `json:"data"`
+	Signature []byte    `json:"signature"`
+	CreatedAt time.Time `json:"created_at"`
+	Verified  bool      `json:"verified"`
 }
 
 // AuditLog 审计日志

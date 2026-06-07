@@ -246,12 +246,12 @@ type ComplianceReport struct {
 
 // ComplianceCenter 合规中心
 type ComplianceCenter struct {
-	mu          sync.RWMutex
-	checks      map[string]*ComplianceCheck
-	scans       map[string]*DataScanResult
-	requests    map[string]*PrivacyRequest
-	auditLog    []AuditEvent
-	reports     map[string]*ComplianceReport
+	mu       sync.RWMutex
+	checks   map[string]*ComplianceCheck
+	scans    map[string]*DataScanResult
+	requests map[string]*PrivacyRequest
+	auditLog []AuditEvent
+	reports  map[string]*ComplianceReport
 }
 
 // NewComplianceCenter 创建合规中心

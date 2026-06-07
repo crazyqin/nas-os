@@ -130,17 +130,17 @@ type RepairGuide struct {
 
 // GuideStep 引导步骤
 type GuideStep struct {
-	Order          int      `json:"order"`
-	Title          string   `json:"title"`
-	Description    string   `json:"description"`
-	Command        string   `json:"command,omitempty"`
-	ExpectedResult string   `json:"expectedResult,omitempty"`
-	RiskLevel      string   `json:"riskLevel,omitempty"`
-	RequiresAck    bool     `json:"requiresAck,omitempty"`
-	IsOptional     bool     `json:"isOptional,omitempty"`
-	Alternatives   []string `json:"alternatives,omitempty"`
+	Order          int        `json:"order"`
+	Title          string     `json:"title"`
+	Description    string     `json:"description"`
+	Command        string     `json:"command,omitempty"`
+	ExpectedResult string     `json:"expectedResult,omitempty"`
+	RiskLevel      string     `json:"riskLevel,omitempty"`
+	RequiresAck    bool       `json:"requiresAck,omitempty"`
+	IsOptional     bool       `json:"isOptional,omitempty"`
+	Alternatives   []string   `json:"alternatives,omitempty"`
 	Status         StepStatus `json:"status"`
-	Note           string   `json:"note,omitempty"`
+	Note           string     `json:"note,omitempty"`
 }
 
 // StepStatus 步骤状态
@@ -174,16 +174,16 @@ func NewGuideTracker(logger *zap.Logger) *GuideTracker {
 
 // RepairProgress 修复进度
 type RepairProgress struct {
-	AlertID        string              `json:"alertId"`
-	KnowledgeID    string              `json:"knowledgeId"`
-	TotalSteps     int                 `json:"totalSteps"`
-	CompletedSteps int                 `json:"completedSteps"`
-	SkippedSteps   int                 `json:"skippedSteps"`
-	FailedSteps    int                 `json:"failedSteps"`
-	StepStatuses   map[int]StepStatus  `json:"stepStatuses"`
-	Notes          map[int]string      `json:"notes,omitempty"`
-	StartedAt      int64               `json:"startedAt"`
-	UpdatedAt      int64               `json:"updatedAt"`
+	AlertID        string             `json:"alertId"`
+	KnowledgeID    string             `json:"knowledgeId"`
+	TotalSteps     int                `json:"totalSteps"`
+	CompletedSteps int                `json:"completedSteps"`
+	SkippedSteps   int                `json:"skippedSteps"`
+	FailedSteps    int                `json:"failedSteps"`
+	StepStatuses   map[int]StepStatus `json:"stepStatuses"`
+	Notes          map[int]string     `json:"notes,omitempty"`
+	StartedAt      int64              `json:"startedAt"`
+	UpdatedAt      int64              `json:"updatedAt"`
 }
 
 // StartRepair 开始修复流程

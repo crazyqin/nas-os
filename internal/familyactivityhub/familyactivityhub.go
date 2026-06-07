@@ -248,21 +248,21 @@ type Announcement struct {
 
 // CalendarEvent 日历事件
 type CalendarEvent struct {
-	ID           string       `json:"id"`
-	Title        string       `json:"title"`
-	Description  string       `json:"description,omitempty"`
-	StartTime    time.Time    `json:"start_time"`
-	EndTime      time.Time    `json:"end_time"`
-	AllDay       bool         `json:"all_day"`
-	Location     string       `json:"location,omitempty"`
-	Members      []string     `json:"members"`
+	ID           string        `json:"id"`
+	Title        string        `json:"title"`
+	Description  string        `json:"description,omitempty"`
+	StartTime    time.Time     `json:"start_time"`
+	EndTime      time.Time     `json:"end_time"`
+	AllDay       bool          `json:"all_day"`
+	Location     string        `json:"location,omitempty"`
+	Members      []string      `json:"members"`
 	ActivityType *ActivityType `json:"activity_type,omitempty"`
-	TaskID       string       `json:"task_id,omitempty"`
-	IsReminder   bool         `json:"is_reminder"`
-	ReminderAt   *time.Time   `json:"reminder_at,omitempty"`
-	ReminderSent bool         `json:"reminder_sent"`
-	CreatedBy    string       `json:"created_by"`
-	CreatedAt    time.Time    `json:"created_at"`
+	TaskID       string        `json:"task_id,omitempty"`
+	IsReminder   bool          `json:"is_reminder"`
+	ReminderAt   *time.Time    `json:"reminder_at,omitempty"`
+	ReminderSent bool          `json:"reminder_sent"`
+	CreatedBy    string        `json:"created_by"`
+	CreatedAt    time.Time     `json:"created_at"`
 }
 
 // FamilyStats 家庭统计
@@ -280,13 +280,13 @@ type FamilyStats struct {
 
 // MemberStats 成员统计
 type MemberStats struct {
-	MemberID         string              `json:"member_id"`
-	MemberName       string              `json:"member_name"`
-	ActivityCount    int                 `json:"activity_count"`
-	TaskCount        int                 `json:"task_count"`
-	CompletedTasks   int                 `json:"completed_tasks"`
-	TotalPoints      int64               `json:"total_points"`
-	AchievementCount int                 `json:"achievement_count"`
+	MemberID         string               `json:"member_id"`
+	MemberName       string               `json:"member_name"`
+	ActivityCount    int                  `json:"activity_count"`
+	TaskCount        int                  `json:"task_count"`
+	CompletedTasks   int                  `json:"completed_tasks"`
+	TotalPoints      int64                `json:"total_points"`
+	AchievementCount int                  `json:"achievement_count"`
 	ActivityByType   map[ActivityType]int `json:"activity_by_type"`
 }
 
@@ -385,18 +385,18 @@ type CreateAnnouncementRequest struct {
 
 // CreateCalendarEventRequest 创建日历事件请求
 type CreateCalendarEventRequest struct {
-	Title           string       `json:"title"`
-	Description     string       `json:"description,omitempty"`
-	StartTime       time.Time    `json:"start_time"`
-	EndTime         time.Time    `json:"end_time"`
-	AllDay          bool         `json:"all_day,omitempty"`
-	Location        string       `json:"location,omitempty"`
-	Members         []string     `json:"members"`
+	Title           string        `json:"title"`
+	Description     string        `json:"description,omitempty"`
+	StartTime       time.Time     `json:"start_time"`
+	EndTime         time.Time     `json:"end_time"`
+	AllDay          bool          `json:"all_day,omitempty"`
+	Location        string        `json:"location,omitempty"`
+	Members         []string      `json:"members"`
 	ActivityType    *ActivityType `json:"activity_type,omitempty"`
-	TaskID          string       `json:"task_id,omitempty"`
-	IsReminder      bool         `json:"is_reminder,omitempty"`
-	ReminderMinutes int          `json:"reminder_minutes,omitempty"`
-	CreatedBy       string       `json:"created_by"`
+	TaskID          string        `json:"task_id,omitempty"`
+	IsReminder      bool          `json:"is_reminder,omitempty"`
+	ReminderMinutes int           `json:"reminder_minutes,omitempty"`
+	CreatedBy       string        `json:"created_by"`
 }
 
 // ========== 管理器 ==========
@@ -1141,8 +1141,7 @@ func (h *Hub) matchTaskFilter(task *Task, filter *TaskFilter) bool {
 		return true
 	}
 
-	if
- filter.Status != "" && task.Status != filter.Status {
+	if filter.Status != "" && task.Status != filter.Status {
 		return false
 	}
 

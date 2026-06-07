@@ -20,9 +20,9 @@ import (
 type CollectManager struct {
 	mu          sync.RWMutex
 	config      CollectConfig
-	requests    map[string]*CollectRequest    // 收集请求
-	submissions map[string][]*FileSubmission  // 收集ID -> 提交列表
-	fileHashes  map[string]string             // 文件哈希 -> 提交ID (用于去重)
+	requests    map[string]*CollectRequest   // 收集请求
+	submissions map[string][]*FileSubmission // 收集ID -> 提交列表
+	fileHashes  map[string]string            // 文件哈希 -> 提交ID (用于去重)
 }
 
 // NewCollectManager 创建收集管理器

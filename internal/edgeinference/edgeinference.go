@@ -14,14 +14,14 @@ import (
 type ModelType string
 
 const (
-	ModelTypeLLM        ModelType = "llm"         // 大语言模型
-	ModelTypeVision     ModelType = "vision"      // 视觉模型
-	ModelTypeAudio      ModelType = "audio"       // 音频模型
-	ModelTypeEmbedding  ModelType = "embedding"   // 嵌入模型
-	ModelTypeDetection  ModelType = "detection"   // 目标检测
+	ModelTypeLLM          ModelType = "llm"          // 大语言模型
+	ModelTypeVision       ModelType = "vision"       // 视觉模型
+	ModelTypeAudio        ModelType = "audio"        // 音频模型
+	ModelTypeEmbedding    ModelType = "embedding"    // 嵌入模型
+	ModelTypeDetection    ModelType = "detection"    // 目标检测
 	ModelTypeSegmentation ModelType = "segmentation" // 图像分割
-	ModelTypeOCR        ModelType = "ocr"         // 文字识别
-	ModelTypeTTS        ModelType = "tts"         // 语音合成
+	ModelTypeOCR          ModelType = "ocr"          // 文字识别
+	ModelTypeTTS          ModelType = "tts"          // 语音合成
 )
 
 // ModelStatus 模型状态
@@ -41,30 +41,30 @@ type ComputeDevice string
 const (
 	DeviceCPU  ComputeDevice = "cpu"
 	DeviceGPU  ComputeDevice = "gpu"
-	DeviceNPU  ComputeDevice = "npu"  // 神经网络处理器
+	DeviceNPU  ComputeDevice = "npu" // 神经网络处理器
 	DeviceAuto ComputeDevice = "auto"
 )
 
 // InferenceModel 推理模型
 type InferenceModel struct {
-	ID            string        `json:"id"`
-	Name          string        `json:"name"`
-	Description   string        `json:"description"`
-	Type          ModelType     `json:"type"`
-	Version       string        `json:"version"`
-	Path          string        `json:"path"`
-	Status        ModelStatus   `json:"status"`
-	Device        ComputeDevice `json:"device"`
-	InputFormat   string        `json:"inputFormat"`
-	OutputFormat  string        `json:"outputFormat"`
-	MaxBatchSize  int           `json:"maxBatchSize"`
-	LoadedAt      time.Time     `json:"loadedAt,omitempty"`
-	LastUsedAt    time.Time     `json:"lastUsedAt,omitempty"`
-	InferCount    int64         `json:"inferCount"`
-	TotalLatency  int64         `json:"totalLatencyMs"`
-	AvgLatency    float64       `json:"avgLatencyMs"`
-	MemoryMB      int           `json:"memoryMB"`
-	GPUMemoryMB   int           `json:"gpuMemoryMB"`
+	ID           string        `json:"id"`
+	Name         string        `json:"name"`
+	Description  string        `json:"description"`
+	Type         ModelType     `json:"type"`
+	Version      string        `json:"version"`
+	Path         string        `json:"path"`
+	Status       ModelStatus   `json:"status"`
+	Device       ComputeDevice `json:"device"`
+	InputFormat  string        `json:"inputFormat"`
+	OutputFormat string        `json:"outputFormat"`
+	MaxBatchSize int           `json:"maxBatchSize"`
+	LoadedAt     time.Time     `json:"loadedAt,omitempty"`
+	LastUsedAt   time.Time     `json:"lastUsedAt,omitempty"`
+	InferCount   int64         `json:"inferCount"`
+	TotalLatency int64         `json:"totalLatencyMs"`
+	AvgLatency   float64       `json:"avgLatencyMs"`
+	MemoryMB     int           `json:"memoryMB"`
+	GPUMemoryMB  int           `json:"gpuMemoryMB"`
 }
 
 // InferRequest 推理请求
@@ -90,14 +90,14 @@ type InferResponse struct {
 
 // InferenceEngine 推理引擎
 type InferenceEngine struct {
-	mu        sync.RWMutex
-	models    map[string]*InferenceModel
-	jobQueue  chan InferJob
-	results   map[string]chan InferResponse
-	workers   int
-	quit      chan struct{}
-	running   bool
-	gpuAvail  bool
+	mu       sync.RWMutex
+	models   map[string]*InferenceModel
+	jobQueue chan InferJob
+	results  map[string]chan InferResponse
+	workers  int
+	quit     chan struct{}
+	running  bool
+	gpuAvail bool
 }
 
 // InferJob 推理任务
@@ -287,12 +287,12 @@ func (e *InferenceEngine) worker(id int) {
 
 // EngineStats 引擎统计
 type EngineStats struct {
-	TotalModels    int   `json:"totalModels"`
-	ReadyModels    int   `json:"readyModels"`
+	TotalModels     int   `json:"totalModels"`
+	ReadyModels     int   `json:"readyModels"`
 	TotalInferences int64 `json:"totalInferences"`
-	GPUAvailable   bool  `json:"gpuAvailable"`
-	Workers        int   `json:"workers"`
-	QueueLength    int   `json:"queueLength"`
+	GPUAvailable    bool  `json:"gpuAvailable"`
+	Workers         int   `json:"workers"`
+	QueueLength     int   `json:"queueLength"`
 }
 
 // GetStats 获取引擎统计

@@ -63,7 +63,7 @@ func (h *Handler) handleDoc(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "id parameter is required", http.StatusBadRequest)
 		return
 	}
-	
+
 	switch r.Method {
 	case http.MethodGet:
 		doc, err := h.manager.GetDocument(docID)
@@ -106,7 +106,7 @@ func (h *Handler) handleCollaborators(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "doc_id is required", http.StatusBadRequest)
 		return
 	}
-	
+
 	switch r.Method {
 	case http.MethodPost:
 		var collab Collaborator
@@ -144,7 +144,7 @@ func (h *Handler) handleComments(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "doc_id is required", http.StatusBadRequest)
 		return
 	}
-	
+
 	switch r.Method {
 	case http.MethodGet:
 		comments := h.manager.GetComments(docID)
@@ -178,13 +178,13 @@ func (h *Handler) handleVersions(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	docID := r.URL.Query().Get("doc_id")
 	if docID == "" {
 		http.Error(w, "doc_id is required", http.StatusBadRequest)
 		return
 	}
-	
+
 	versions := h.manager.GetVersions(docID)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
@@ -228,7 +228,7 @@ func (h *Handler) handleTemplates(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	templates := h.manager.GetTemplates()
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
@@ -243,7 +243,7 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	stats := h.manager.GetStats()
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(stats)

@@ -197,11 +197,11 @@ func (h *Handlers) getSystemStatus(c *gin.Context) {
 	}
 
 	status := gin.H{
-		"score":       report.Score,
-		"status":      report.Status,
-		"summary":     report.Summary,
-		"lastCheck":   report.Timestamp,
-		"problemCount": len(report.Problems),
+		"score":           report.Score,
+		"status":          report.Status,
+		"summary":         report.Summary,
+		"lastCheck":       report.Timestamp,
+		"problemCount":    len(report.Problems),
 		"suggestionCount": len(report.Suggestions),
 		"cpu": gin.H{
 			"usage":  report.CPU.Usage,

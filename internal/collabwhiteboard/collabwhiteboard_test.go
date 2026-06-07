@@ -100,12 +100,12 @@ func TestAddElement(t *testing.T) {
 	board, _ := e.CreateBoard(CreateBoardRequest{Title: "test", Owner: "admin"})
 
 	elem, err := e.AddElement(board.ID, AddElementRequest{
-		Type:  "shape",
-		X:     100,
-		Y:     100,
-		Width: 200,
+		Type:   "shape",
+		X:      100,
+		Y:      100,
+		Width:  200,
 		Height: 100,
-		Style: Style{StrokeColor: "#000000", FillColor: "#ffffff"},
+		Style:  Style{StrokeColor: "#000000", FillColor: "#ffffff"},
 	}, "admin")
 	if err != nil {
 		t.Fatalf("添加元素失败: %v", err)
@@ -519,12 +519,12 @@ func TestRendererToSVG(t *testing.T) {
 		Height: 600,
 		Elements: []Element{
 			{
-				ID:     "elem1",
-				Type:   "shape",
-				X:      100,
-				Y:      100,
-				Width:  200,
-				Height: 100,
+				ID:      "elem1",
+				Type:    "shape",
+				X:       100,
+				Y:       100,
+				Width:   200,
+				Height:  100,
 				Visible: true,
 				Style: Style{
 					StrokeColor: "#000000",
@@ -555,12 +555,12 @@ func TestRendererToCanvas(t *testing.T) {
 		Height: 600,
 		Elements: []Element{
 			{
-				ID:     "elem1",
-				Type:   "shape",
-				X:      100,
-				Y:      100,
-				Width:  200,
-				Height: 100,
+				ID:      "elem1",
+				Type:    "shape",
+				X:       100,
+				Y:       100,
+				Width:   200,
+				Height:  100,
 				Visible: true,
 			},
 		},

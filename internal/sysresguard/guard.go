@@ -20,9 +20,9 @@ import (
 type ResourceType string
 
 const (
-	ResourceDisk  ResourceType = "disk"
+	ResourceDisk   ResourceType = "disk"
 	ResourceMemory ResourceType = "memory"
-	ResourceCPU   ResourceType = "cpu"
+	ResourceCPU    ResourceType = "cpu"
 )
 
 // AlertLevel 告警级别
@@ -36,12 +36,12 @@ const (
 
 // ThresholdConfig 阈值配置
 type ThresholdConfig struct {
-	DiskWarning   float64 `json:"diskWarning"`   // 磁盘使用率警告阈值（百分比）
-	DiskCritical  float64 `json:"diskCritical"`   // 磁盘使用率危险阈值
-	MemWarning    float64 `json:"memWarning"`     // 内存使用率警告阈值
-	MemCritical   float64 `json:"memCritical"`    // 内存使用率危险阈值
-	CPUWarning    float64 `json:"cpuWarning"`     // CPU使用率警告阈值
-	CPUCritical   float64 `json:"cpuCritical"`    // CPU使用率危险阈值
+	DiskWarning  float64 `json:"diskWarning"`  // 磁盘使用率警告阈值（百分比）
+	DiskCritical float64 `json:"diskCritical"` // 磁盘使用率危险阈值
+	MemWarning   float64 `json:"memWarning"`   // 内存使用率警告阈值
+	MemCritical  float64 `json:"memCritical"`  // 内存使用率危险阈值
+	CPUWarning   float64 `json:"cpuWarning"`   // CPU使用率警告阈值
+	CPUCritical  float64 `json:"cpuCritical"`  // CPU使用率危险阈值
 }
 
 // DefaultThresholds 默认阈值
@@ -58,21 +58,21 @@ func DefaultThresholds() ThresholdConfig {
 
 // ResourceStatus 资源状态
 type ResourceStatus struct {
-	Type       ResourceType `json:"type"`
-	Used       float64      `json:"used"`
-	Total      float64      `json:"total"`
-	Percent    float64      `json:"percent"`
-	Level      AlertLevel   `json:"level"`
-	Timestamp  time.Time    `json:"timestamp"`
+	Type      ResourceType `json:"type"`
+	Used      float64      `json:"used"`
+	Total     float64      `json:"total"`
+	Percent   float64      `json:"percent"`
+	Level     AlertLevel   `json:"level"`
+	Timestamp time.Time    `json:"timestamp"`
 }
 
 // CleanupResult 清理结果
 type CleanupResult struct {
-	FilesDeleted   int   `json:"filesDeleted"`
-	BytesFreed     int64 `json:"bytesFreed"`
-	Duration       time.Duration `json:"duration"`
-	Errors         []string `json:"errors,omitempty"`
-	Timestamp      time.Time `json:"timestamp"`
+	FilesDeleted int           `json:"filesDeleted"`
+	BytesFreed   int64         `json:"bytesFreed"`
+	Duration     time.Duration `json:"duration"`
+	Errors       []string      `json:"errors,omitempty"`
+	Timestamp    time.Time     `json:"timestamp"`
 }
 
 // ResourceTrend 资源趋势
@@ -98,15 +98,15 @@ type Alert struct {
 
 // Guard 守护引擎
 type Guard struct {
-	mu          sync.RWMutex
-	thresholds  ThresholdConfig
-	alerts      []Alert
-	statuses    []ResourceStatus
-	cleanups    []CleanupResult
-	trends      map[ResourceType][]float64
-	cleanPaths  []string
-	maxAlerts   int
-	maxHistory  int
+	mu         sync.RWMutex
+	thresholds ThresholdConfig
+	alerts     []Alert
+	statuses   []ResourceStatus
+	cleanups   []CleanupResult
+	trends     map[ResourceType][]float64
+	cleanPaths []string
+	maxAlerts  int
+	maxHistory int
 }
 
 // NewGuard 创建守护引擎
@@ -482,10 +482,10 @@ func (g *Guard) GetStatusSummary() map[string]interface{} {
 
 // syscallStatfs 磁盘统计结构
 type syscallStatfs struct {
-	Blocks  uint64
-	Bsize   uint64
-	Bavail  uint64
-	Bfree   uint64
+	Blocks uint64
+	Bsize  uint64
+	Bavail uint64
+	Bfree  uint64
 }
 
 func getDiskStat(path string, stat *syscallStatfs) error {

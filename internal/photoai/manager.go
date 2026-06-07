@@ -18,12 +18,12 @@ import (
 type Manager struct {
 	mu       sync.RWMutex
 	config   *PhotoAIConfig
-	photos   map[string]*Photo    // photoID -> Photo
-	persons  map[string]*Person   // personID -> Person
+	photos   map[string]*Photo      // photoID -> Photo
+	persons  map[string]*Person     // personID -> Person
 	albums   map[string]*SmartAlbum // albumID -> SmartAlbum
-	shares   map[string]*ShareLink // shareID -> ShareLink
-	faceMap  map[string][]string   // personID -> []faceID
-	hashMap  map[string][]string   // perceptualHash -> []photoID
+	shares   map[string]*ShareLink  // shareID -> ShareLink
+	faceMap  map[string][]string    // personID -> []faceID
+	hashMap  map[string][]string    // perceptualHash -> []photoID
 	scanning bool
 }
 
@@ -845,16 +845,16 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_photos":   total,
-		"ready":          ready,
-		"pending":        pending,
-		"failed":         failed,
-		"favorites":      favorites,
-		"persons":        len(m.persons),
-		"albums":         len(m.albums),
-		"share_links":    len(m.shares),
-		"avg_score":      math.Round(avgScore*10) / 10,
-		"categories":     categories,
+		"total_photos": total,
+		"ready":        ready,
+		"pending":      pending,
+		"failed":       failed,
+		"favorites":    favorites,
+		"persons":      len(m.persons),
+		"albums":       len(m.albums),
+		"share_links":  len(m.shares),
+		"avg_score":    math.Round(avgScore*10) / 10,
+		"categories":   categories,
 	}
 }
 

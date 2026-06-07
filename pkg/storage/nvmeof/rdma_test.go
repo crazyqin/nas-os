@@ -56,10 +56,10 @@ func TestRDMAConfigValidateNegativeValues(t *testing.T) {
 		MaxWR:         -1,
 		MaxInlineData: -1,
 		PortConfig: RDMAPortConfig{
-			PortNum:    -1,
-			GIDIndex:   -1,
+			PortNum:     -1,
+			GIDIndex:    -1,
 			ServicePort: -1,
-			MTU:        -1,
+			MTU:         -1,
 		},
 		Reconnect: RDMAReconnectConfig{
 			Delay:       -1,
@@ -143,14 +143,14 @@ func TestRDMATargetConfigValidateMissingIP(t *testing.T) {
 
 func TestRDMATargetConfigValidateDefaults(t *testing.T) {
 	config := &RDMATargetConfig{
-		SubsysNQN:  "nqn.2026-03.org.nas-os:test",
-		Device:     "mlx5_0",
-		IPAddress:  "192.168.100.100",
+		SubsysNQN:   "nqn.2026-03.org.nas-os:test",
+		Device:      "mlx5_0",
+		IPAddress:   "192.168.100.100",
 		ServicePort: -1,
-		PortNum:    -1,
-		GIDIndex:   -2,
-		QueueDepth: -1,
-		MTU:        -1,
+		PortNum:     -1,
+		GIDIndex:    -2,
+		QueueDepth:  -1,
+		MTU:         -1,
 	}
 	err := config.Validate()
 	require.NoError(t, err)
@@ -207,11 +207,11 @@ func TestRDMAInitiatorConfigValidateMissingAddress(t *testing.T) {
 
 func TestRDMAInitiatorConfigValidateDefaults(t *testing.T) {
 	config := &RDMAInitiatorConfig{
-		TargetNQN:     "nqn.2026-03.org.nas-os:test",
-		TargetAddress: "192.168.100.100",
-		TargetPort:    -1,
-		QueueDepth:    -1,
-		IOQueues:      -1,
+		TargetNQN:      "nqn.2026-03.org.nas-os:test",
+		TargetAddress:  "192.168.100.100",
+		TargetPort:     -1,
+		QueueDepth:     -1,
+		IOQueues:       -1,
 		ReconnectDelay: -1,
 		MaxReconnect:   -1,
 	}

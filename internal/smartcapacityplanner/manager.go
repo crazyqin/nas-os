@@ -13,26 +13,26 @@ import (
 
 // PlannerManager 智能容量规划管理器.
 type PlannerManager struct {
-	snapshots  map[string]*CapacitySnapshot
-	forecasts  map[string]*ForecastResult
-	trends     map[string]*GrowthTrend
-	plans      map[string]*CapacityPlan
-	alerts     map[string]*Alert
-	history    []*CapacitySnapshot
+	snapshots         map[string]*CapacitySnapshot
+	forecasts         map[string]*ForecastResult
+	trends            map[string]*GrowthTrend
+	plans             map[string]*CapacityPlan
+	alerts            map[string]*Alert
+	history           []*CapacitySnapshot
 	warningThreshold  float64
 	criticalThreshold float64
-	mu         sync.RWMutex
+	mu                sync.RWMutex
 }
 
 // NewPlannerManager 创建智能容量规划管理器.
 func NewPlannerManager() *PlannerManager {
 	return &PlannerManager{
-		snapshots:  make(map[string]*CapacitySnapshot),
-		forecasts:  make(map[string]*ForecastResult),
-		trends:     make(map[string]*GrowthTrend),
-		plans:      make(map[string]*CapacityPlan),
-		alerts:     make(map[string]*Alert),
-		history:    make([]*CapacitySnapshot, 0),
+		snapshots:         make(map[string]*CapacitySnapshot),
+		forecasts:         make(map[string]*ForecastResult),
+		trends:            make(map[string]*GrowthTrend),
+		plans:             make(map[string]*CapacityPlan),
+		alerts:            make(map[string]*Alert),
+		history:           make([]*CapacitySnapshot, 0),
 		warningThreshold:  0.80, // 80%
 		criticalThreshold: 0.95, // 95%
 	}

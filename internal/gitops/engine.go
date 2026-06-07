@@ -38,15 +38,15 @@ type K8sClient interface {
 
 // Engine is the main GitOps engine
 type Engine struct {
-	logger     *zap.Logger
-	config     GitOpsConfig
-	gitClient  GitClient
-	k8sClient  K8sClient
-	repos      map[string]*repoState
+	logger      *zap.Logger
+	config      GitOpsConfig
+	gitClient   GitClient
+	k8sClient   K8sClient
+	repos       map[string]*repoState
 	deployments map[string]*Deployment
-	syncStatus map[string]*SyncStatusDetail
-	mu         sync.RWMutex
-	stopCh     chan struct{}
+	syncStatus  map[string]*SyncStatusDetail
+	mu          sync.RWMutex
+	stopCh      chan struct{}
 }
 
 // repoState tracks the state of a repository
@@ -410,15 +410,15 @@ func (e *Engine) AddRepo(req AddRepoRequest) (*GitRepo, error) {
 	defer e.mu.Unlock()
 
 	repo := GitRepo{
-		ID:     fmt.Sprintf("repo_%d", time.Now().UnixNano()),
-		Name:   req.Name,
-		URL:    req.URL,
-		Branch: req.Branch,
-		Path:   req.Path,
-		Auth:   req.Auth,
+		ID:         fmt.Sprintf("repo_%d", time.Now().UnixNano()),
+		Name:       req.Name,
+		URL:        req.URL,
+		Branch:     req.Branch,
+		Path:       req.Path,
+		Auth:       req.Auth,
 		SyncPolicy: DefaultSyncPolicy(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
 	}
 
 	if repo.Branch == "" {
@@ -426,7 +426,7 @@ func (e *Engine) AddRepo(req AddRepoRequest) (*GitRepo, error) {
 	}
 
 	state := &repoState{
-		repo:     repo,
+		repo:      repo,
 		localPath: fmt.Sprintf("/tmp/gitops/%s", repo.ID),
 	}
 
@@ -499,14 +499,14 @@ func (e *Engine) updateSyncStatus(repoID string, env Environment, status SyncSta
 	defer e.mu.Unlock()
 
 	detail := &SyncStatusDetail{
-		RepoID:       repoID,
-		Environment:  env,
-		Status:       status,
-		LastSyncAt:   time.Now(),
+		RepoID:        repoID,
+		Environment:   env,
+		Status:        status,
+		LastSyncAt:    time.Now(),
 		LastCommitSHA: state.lastCommit,
-		DesiredSHA:   state.lastCommit,
-		SyncDuration: time.Since(startTime),
-		Error:        errMsg,
+		DesiredSHA:    state.lastCommit,
+		SyncDuration:  time.Since(startTime),
+		Error:         errMsg,
 	}
 	if state != nil {
 		detail.RepoName = state.repo.Name

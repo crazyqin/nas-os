@@ -286,11 +286,11 @@ func TestAuditLog(t *testing.T) {
 
 	// 手动记录审计事件
 	m.LogAudit(AuditRecord{
-		UserID:   "admin",
-		UserName: "Admin",
-		Action:   ActionRead,
-		AssetID:  "aud-1",
-		Result:   "success",
+		UserID:    "admin",
+		UserName:  "Admin",
+		Action:    ActionRead,
+		AssetID:   "aud-1",
+		Result:    "success",
 		RiskLevel: "low",
 	})
 

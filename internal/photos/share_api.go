@@ -37,19 +37,19 @@ func (api *ShareAPI) RegisterRoutes(r *gin.RouterGroup) {
 		// 创建分享链接
 		share.POST("/photos", api.SharePhotos)
 		share.POST("/album/:id", api.ShareAlbum)
-		
+
 		// 获取分享内容（公开访问）
 		share.GET("/p/:code", api.GetPublicShare)
 		share.GET("/p/:code/photos", api.GetSharePhotos)
 		share.GET("/p/:code/album", api.GetShareAlbum)
 		share.GET("/p/:code/photo/:photoId", api.GetSharePhoto)
-		
+
 		// 分享管理
 		share.GET("/list", api.ListShares)
 		share.GET("/:id", api.GetShare)
 		share.PUT("/:id", api.UpdateShare)
 		share.DELETE("/:id", api.DeleteShare)
-		
+
 		// 分享统计
 		share.GET("/:id/stats", api.GetShareStats)
 	}
@@ -57,23 +57,23 @@ func (api *ShareAPI) RegisterRoutes(r *gin.RouterGroup) {
 
 // ShareLink 分享链接
 type ShareLink struct {
-	ID          string      `json:"id"`
-	Code        string      `json:"code"`      // 公开访问码
-	Type        string      `json:"type"`      // "photos", "album"
-	ResourceID  string      `json:"resource_id"` // 相册ID或照片ID列表
-	PhotoIDs    []string    `json:"photo_ids,omitempty"`
-	Title       string      `json:"title"`
-	Description string      `json:"description"`
-	Password    string      `json:"password,omitempty"` // 访问密码（可选）
-	ExpiresAt   *time.Time  `json:"expires_at,omitempty"`
-	ViewLimit   int         `json:"view_limit"`    // 查看次数限制
-	Downloads   int         `json:"downloads"`     // 允许下载次数
-	Views       int         `json:"views"`         // 已查看次数
-	CreatedBy   string      `json:"created_by"`
-	CreatedAt   time.Time   `json:"created_at"`
-	AllowDownload bool      `json:"allow_download"`
-	AllowComment  bool      `json:"allow_comment"`
-	PublicAccess  bool      `json:"public_access"` // 是否公开可访问
+	ID            string     `json:"id"`
+	Code          string     `json:"code"`        // 公开访问码
+	Type          string     `json:"type"`        // "photos", "album"
+	ResourceID    string     `json:"resource_id"` // 相册ID或照片ID列表
+	PhotoIDs      []string   `json:"photo_ids,omitempty"`
+	Title         string     `json:"title"`
+	Description   string     `json:"description"`
+	Password      string     `json:"password,omitempty"` // 访问密码（可选）
+	ExpiresAt     *time.Time `json:"expires_at,omitempty"`
+	ViewLimit     int        `json:"view_limit"` // 查看次数限制
+	Downloads     int        `json:"downloads"`  // 允许下载次数
+	Views         int        `json:"views"`      // 已查看次数
+	CreatedBy     string     `json:"created_by"`
+	CreatedAt     time.Time  `json:"created_at"`
+	AllowDownload bool       `json:"allow_download"`
+	AllowComment  bool       `json:"allow_comment"`
+	PublicAccess  bool       `json:"public_access"` // 是否公开可访问
 }
 
 // ShareStore 分享存储
@@ -120,14 +120,14 @@ func generateCode() string {
 
 // SharePhotosRequest 分享照片请求
 type SharePhotosRequest struct {
-	PhotoIDs    []string   `json:"photo_ids" binding:"required"`
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	Password    string     `json:"password"`
-	ExpiresAt   *time.Time `json:"expires_at"`
-	ViewLimit   int        `json:"view_limit"`
-	AllowDownload bool     `json:"allow_download"`
-	AllowComment  bool     `json:"allow_comment"`
+	PhotoIDs      []string   `json:"photo_ids" binding:"required"`
+	Title         string     `json:"title"`
+	Description   string     `json:"description"`
+	Password      string     `json:"password"`
+	ExpiresAt     *time.Time `json:"expires_at"`
+	ViewLimit     int        `json:"view_limit"`
+	AllowDownload bool       `json:"allow_download"`
+	AllowComment  bool       `json:"allow_comment"`
 }
 
 // SharePhotos 分享照片
@@ -147,20 +147,20 @@ func (api *ShareAPI) SharePhotos(c *gin.Context) {
 	}
 
 	share := &ShareLink{
-		ID:           fmt.Sprintf("share_%d", time.Now().UnixNano()),
-		Code:         generateCode(),
-		Type:         "photos",
-		PhotoIDs:     req.PhotoIDs,
-		Title:        req.Title,
-		Description:  req.Description,
-		Password:     req.Password,
-		ExpiresAt:    req.ExpiresAt,
-		ViewLimit:    req.ViewLimit,
+		ID:            fmt.Sprintf("share_%d", time.Now().UnixNano()),
+		Code:          generateCode(),
+		Type:          "photos",
+		PhotoIDs:      req.PhotoIDs,
+		Title:         req.Title,
+		Description:   req.Description,
+		Password:      req.Password,
+		ExpiresAt:     req.ExpiresAt,
+		ViewLimit:     req.ViewLimit,
 		AllowDownload: req.AllowDownload,
 		AllowComment:  req.AllowComment,
 		PublicAccess:  true,
-		CreatedBy:    c.GetString("user_id"),
-		CreatedAt:    time.Now(),
+		CreatedBy:     c.GetString("user_id"),
+		CreatedAt:     time.Now(),
 	}
 
 	api.shareStore.mu.Lock()
@@ -177,7 +177,7 @@ func (api *ShareAPI) SharePhotos(c *gin.Context) {
 // ShareAlbum 分享相册
 func (api *ShareAPI) ShareAlbum(c *gin.Context) {
 	albumID := c.Param("id")
-	
+
 	album, err := api.manager.GetAlbum(albumID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "相册不存在"})
@@ -192,20 +192,20 @@ func (api *ShareAPI) ShareAlbum(c *gin.Context) {
 	}
 
 	share := &ShareLink{
-		ID:           fmt.Sprintf("share_%d", time.Now().UnixNano()),
-		Code:         generateCode(),
-		Type:         "album",
-		ResourceID:   albumID,
-		Title:        req.Title,
-		Description:  req.Description,
-		Password:     req.Password,
-		ExpiresAt:    req.ExpiresAt,
-		ViewLimit:    req.ViewLimit,
+		ID:            fmt.Sprintf("share_%d", time.Now().UnixNano()),
+		Code:          generateCode(),
+		Type:          "album",
+		ResourceID:    albumID,
+		Title:         req.Title,
+		Description:   req.Description,
+		Password:      req.Password,
+		ExpiresAt:     req.ExpiresAt,
+		ViewLimit:     req.ViewLimit,
 		AllowDownload: req.AllowDownload,
 		AllowComment:  req.AllowComment,
 		PublicAccess:  true,
-		CreatedBy:    c.GetString("user_id"),
-		CreatedAt:    time.Now(),
+		CreatedBy:     c.GetString("user_id"),
+		CreatedAt:     time.Now(),
 	}
 
 	api.shareStore.mu.Lock()
@@ -221,19 +221,19 @@ func (api *ShareAPI) ShareAlbum(c *gin.Context) {
 
 // PublicShareResponse 公开分享响应
 type PublicShareResponse struct {
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Type        string    `json:"type"`
-	PhotoCount  int       `json:"photo_count"`
-	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
-	AllowDownload bool     `json:"allow_download"`
-	AllowComment  bool     `json:"allow_comment"`
+	Title         string     `json:"title"`
+	Description   string     `json:"description"`
+	Type          string     `json:"type"`
+	PhotoCount    int        `json:"photo_count"`
+	ExpiresAt     *time.Time `json:"expires_at,omitempty"`
+	AllowDownload bool       `json:"allow_download"`
+	AllowComment  bool       `json:"allow_comment"`
 }
 
 // GetPublicShare 获取公开分享（入口）
 func (api *ShareAPI) GetPublicShare(c *gin.Context) {
 	code := c.Param("code")
-	
+
 	share := api.findShareByCode(code)
 	if share == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "分享不存在"})
@@ -276,11 +276,11 @@ func (api *ShareAPI) GetPublicShare(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, PublicShareResponse{
-		Title:        share.Title,
-		Description:  share.Description,
-		Type:         share.Type,
-		PhotoCount:   photoCount,
-		ExpiresAt:    share.ExpiresAt,
+		Title:         share.Title,
+		Description:   share.Description,
+		Type:          share.Type,
+		PhotoCount:    photoCount,
+		ExpiresAt:     share.ExpiresAt,
 		AllowDownload: share.AllowDownload,
 		AllowComment:  share.AllowComment,
 	})
@@ -289,7 +289,7 @@ func (api *ShareAPI) GetPublicShare(c *gin.Context) {
 // GetSharePhotos 获取分享的照片列表
 func (api *ShareAPI) GetSharePhotos(c *gin.Context) {
 	code := c.Param("code")
-	
+
 	share := api.findShareByCode(code)
 	if share == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "分享不存在"})
@@ -303,7 +303,7 @@ func (api *ShareAPI) GetSharePhotos(c *gin.Context) {
 	}
 
 	var photos []*Photo
-	
+
 	if share.Type == "album" {
 		album, err := api.manager.GetAlbum(share.ResourceID)
 		if err != nil {
@@ -331,7 +331,7 @@ func (api *ShareAPI) GetSharePhotos(c *gin.Context) {
 // GetShareAlbum 获取分享的相册
 func (api *ShareAPI) GetShareAlbum(c *gin.Context) {
 	code := c.Param("code")
-	
+
 	share := api.findShareByCode(code)
 	if share == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "分享不存在"})
@@ -362,7 +362,7 @@ func (api *ShareAPI) GetShareAlbum(c *gin.Context) {
 func (api *ShareAPI) GetSharePhoto(c *gin.Context) {
 	code := c.Param("code")
 	photoID := c.Param("photoId")
-	
+
 	share := api.findShareByCode(code)
 	if share == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "分享不存在"})
@@ -424,7 +424,7 @@ func (api *ShareAPI) GetSharePhoto(c *gin.Context) {
 // ListShares 列出用户的分享
 func (api *ShareAPI) ListShares(c *gin.Context) {
 	userID := c.GetString("user_id")
-	
+
 	api.shareStore.mu.RLock()
 	var shares []*ShareLink
 	for _, share := range api.shareStore.shares {
@@ -440,7 +440,7 @@ func (api *ShareAPI) ListShares(c *gin.Context) {
 // GetShare 获取分享详情
 func (api *ShareAPI) GetShare(c *gin.Context) {
 	shareID := c.Param("id")
-	
+
 	api.shareStore.mu.RLock()
 	share, ok := api.shareStore.shares[shareID]
 	api.shareStore.mu.RUnlock()
@@ -461,19 +461,19 @@ func (api *ShareAPI) GetShare(c *gin.Context) {
 
 // UpdateShareRequest 更新分享请求
 type UpdateShareRequest struct {
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	Password    string     `json:"password"`
-	ExpiresAt   *time.Time `json:"expires_at"`
-	ViewLimit   int        `json:"view_limit"`
-	AllowDownload bool     `json:"allow_download"`
-	AllowComment  bool     `json:"allow_comment"`
+	Title         string     `json:"title"`
+	Description   string     `json:"description"`
+	Password      string     `json:"password"`
+	ExpiresAt     *time.Time `json:"expires_at"`
+	ViewLimit     int        `json:"view_limit"`
+	AllowDownload bool       `json:"allow_download"`
+	AllowComment  bool       `json:"allow_comment"`
 }
 
 // UpdateShare 更新分享
 func (api *ShareAPI) UpdateShare(c *gin.Context) {
 	shareID := c.Param("id")
-	
+
 	var req UpdateShareRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -517,7 +517,7 @@ func (api *ShareAPI) UpdateShare(c *gin.Context) {
 // DeleteShare 删除分享
 func (api *ShareAPI) DeleteShare(c *gin.Context) {
 	shareID := c.Param("id")
-	
+
 	api.shareStore.mu.Lock()
 	share, ok := api.shareStore.shares[shareID]
 	if !ok {
@@ -542,23 +542,23 @@ func (api *ShareAPI) DeleteShare(c *gin.Context) {
 
 // ShareStats 分享统计
 type ShareStats struct {
-	Views       int       `json:"views"`
-	Downloads   int       `json:"downloads"`
+	Views       int        `json:"views"`
+	Downloads   int        `json:"downloads"`
 	LastView    *time.Time `json:"last_view,omitempty"`
-	ViewHistory []ViewLog `json:"view_history"`
+	ViewHistory []ViewLog  `json:"view_history"`
 }
 
 // ViewLog 查看日志
 type ViewLog struct {
-	Time     time.Time `json:"time"`
-	IP       string    `json:"ip"`
-	UserAgent string   `json:"user_agent"`
+	Time      time.Time `json:"time"`
+	IP        string    `json:"ip"`
+	UserAgent string    `json:"user_agent"`
 }
 
 // GetShareStats 获取分享统计
 func (api *ShareAPI) GetShareStats(c *gin.Context) {
 	shareID := c.Param("id")
-	
+
 	api.shareStore.mu.RLock()
 	share, ok := api.shareStore.shares[shareID]
 	api.shareStore.mu.RUnlock()
@@ -586,7 +586,7 @@ func (api *ShareAPI) GetShareStats(c *gin.Context) {
 func (api *ShareAPI) findShareByCode(code string) *ShareLink {
 	api.shareStore.mu.RLock()
 	defer api.shareStore.mu.RUnlock()
-	
+
 	for _, share := range api.shareStore.shares {
 		if share.Code == code {
 			return share

@@ -19,22 +19,22 @@ import (
 
 // MockProvider 模拟指标数据源.
 type MockProvider struct {
-	CPUUsage          float64
-	MemoryUsage       float64
-	DiskMetrics       []DiskMetric
-	NetworkMetrics    []NetworkMetric
-	StoragePools      []StoragePoolMetric
-	DiskTemps         []DiskTempMetric
-	ActiveConn        float64
-	SMBSessions       float64
-	ErrCPU            error
-	ErrMemory         error
-	ErrDisk           error
-	ErrNetwork        error
-	ErrStorage        error
-	ErrTemp           error
-	ErrConn           error
-	ErrSMB            error
+	CPUUsage       float64
+	MemoryUsage    float64
+	DiskMetrics    []DiskMetric
+	NetworkMetrics []NetworkMetric
+	StoragePools   []StoragePoolMetric
+	DiskTemps      []DiskTempMetric
+	ActiveConn     float64
+	SMBSessions    float64
+	ErrCPU         error
+	ErrMemory      error
+	ErrDisk        error
+	ErrNetwork     error
+	ErrStorage     error
+	ErrTemp        error
+	ErrConn        error
+	ErrSMB         error
 }
 
 func (m *MockProvider) GetCPUUsage() (float64, error) {
@@ -132,7 +132,7 @@ func TestExporter_Collect_AllMetrics(t *testing.T) {
 			{Device: "/dev/sda", Temperature: 38},
 			{Device: "/dev/sdb", Temperature: 42},
 		},
-		ActiveConn: 15,
+		ActiveConn:  15,
 		SMBSessions: 3,
 	}
 
@@ -228,14 +228,14 @@ func TestExporter_Collect_ErrorGraceful(t *testing.T) {
 
 func TestExporter_Collect_EmptyData(t *testing.T) {
 	provider := &MockProvider{
-		CPUUsage:    0,
-		MemoryUsage: 0,
-		DiskMetrics: nil,
+		CPUUsage:       0,
+		MemoryUsage:    0,
+		DiskMetrics:    nil,
 		NetworkMetrics: nil,
-		StoragePools: nil,
-		DiskTemps: nil,
-		ActiveConn: 0,
-		SMBSessions: 0,
+		StoragePools:   nil,
+		DiskTemps:      nil,
+		ActiveConn:     0,
+		SMBSessions:    0,
 	}
 
 	exporter := NewExporter(provider)

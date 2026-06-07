@@ -28,17 +28,17 @@ type UPSStatusResponse struct {
 
 // BatteryResponse 电池详情响应
 type BatteryResponse struct {
-	Health      *BatteryHealth   `json:"health"`
-	UPSID       string           `json:"ups_id"`
-	UPSName     string           `json:"ups_name"`
+	Health        *BatteryHealth `json:"health"`
+	UPSID         string         `json:"ups_id"`
+	UPSName       string         `json:"ups_name"`
 	CurrentStatus UPSStatus      `json:"current_status"`
 }
 
 // EventsResponse 事件历史响应
 type EventsResponse struct {
-	Events    []PowerEventRecord `json:"events"`
-	Total     int                `json:"total"`
-	HasMore   bool               `json:"has_more"`
+	Events  []PowerEventRecord `json:"events"`
+	Total   int                `json:"total"`
+	HasMore bool               `json:"has_more"`
 }
 
 // TestRequest 测试请求

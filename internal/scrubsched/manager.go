@@ -69,21 +69,21 @@ type AlertSender interface {
 // Manager Scrub调度管理器.
 type Manager struct {
 	mu           sync.RWMutex
-	policies     map[string]*Policy        // policyID -> Policy
-	statuses     map[string]*ScrubStatus   // poolID -> ScrubStatus
-	history      []*ScrubRecord            // 执行历史
-	ioHistory    map[string][]*IOLoad      // poolID -> IO负载历史
-	scheduler    *Scheduler                // 调度引擎
-	analyzer     *IOAnalyzer               // IO分析器
-	persister    *Persister                // 持久化管理器
-	poolProvider PoolProvider              // 存储池接口
-	scrubExec    ScrubExecutor             // Scrub执行器
-	ioCollector  IOCollector               // IO采集器
-	healthProv   HealthProvider            // 健康数据接口
-	alertSender  AlertSender               // 告警发送接口
-	configPath   string                    // 配置存储路径
-	stopCh       chan struct{}             // 停止信号
-	running      bool                      // 是否在运行
+	policies     map[string]*Policy      // policyID -> Policy
+	statuses     map[string]*ScrubStatus // poolID -> ScrubStatus
+	history      []*ScrubRecord          // 执行历史
+	ioHistory    map[string][]*IOLoad    // poolID -> IO负载历史
+	scheduler    *Scheduler              // 调度引擎
+	analyzer     *IOAnalyzer             // IO分析器
+	persister    *Persister              // 持久化管理器
+	poolProvider PoolProvider            // 存储池接口
+	scrubExec    ScrubExecutor           // Scrub执行器
+	ioCollector  IOCollector             // IO采集器
+	healthProv   HealthProvider          // 健康数据接口
+	alertSender  AlertSender             // 告警发送接口
+	configPath   string                  // 配置存储路径
+	stopCh       chan struct{}           // 停止信号
+	running      bool                    // 是否在运行
 }
 
 // NewManager 创建Scrub调度管理器.

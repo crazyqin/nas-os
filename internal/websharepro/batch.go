@@ -15,16 +15,16 @@ import (
 type BatchOperationType string
 
 const (
-	BatchOpCopy      BatchOperationType = "copy"
-	BatchOpMove      BatchOperationType = "move"
-	BatchOpDelete    BatchOperationType = "delete"
-	BatchOpMkdir     BatchOperationType = "mkdir"
-	BatchOpChmod     BatchOperationType = "chmod"
-	BatchOpChown     BatchOperationType = "chown"
-	BatchOpCompress  BatchOperationType = "compress"
-	BatchOpExtract   BatchOperationType = "extract"
-	BatchOpRename    BatchOperationType = "rename"
-	BatchOpShare     BatchOperationType = "share"
+	BatchOpCopy     BatchOperationType = "copy"
+	BatchOpMove     BatchOperationType = "move"
+	BatchOpDelete   BatchOperationType = "delete"
+	BatchOpMkdir    BatchOperationType = "mkdir"
+	BatchOpChmod    BatchOperationType = "chmod"
+	BatchOpChown    BatchOperationType = "chown"
+	BatchOpCompress BatchOperationType = "compress"
+	BatchOpExtract  BatchOperationType = "extract"
+	BatchOpRename   BatchOperationType = "rename"
+	BatchOpShare    BatchOperationType = "share"
 )
 
 // BatchTaskStatus 任务状态
@@ -50,41 +50,41 @@ type BatchOperation struct {
 
 // BatchTask 批量任务
 type BatchTask struct {
-	ID             string             `json:"id"`
-	Operations     []*BatchOperation  `json:"operations"`
-	Status         BatchTaskStatus    `json:"status"`
-	TotalOps       int                `json:"totalOps"`
-	CompletedOps   int                `json:"completedOps"`
-	FailedOps      int                `json:"failedOps"`
-	SkippedOps     int                `json:"skippedOps"`
-	Progress       float64            `json:"progress"`
-	StartTime      time.Time          `json:"startTime"`
-	EndTime        *time.Time         `json:"endTime,omitempty"`
-	ElapsedTime    time.Duration      `json:"elapsedTime"`
-	EstRemaining   time.Duration      `json:"estRemaining"`
-	Errors         []BatchError       `json:"errors,omitempty"`
-	Results        []BatchResult      `json:"results,omitempty"`
-	Concurrency    int                `json:"concurrency"`
-	Author         string             `json:"author"`
-	CreatedAt      time.Time          `json:"createdAt"`
-	cancel         context.CancelFunc `json:"-"`
-	cancelMu       sync.Mutex         `json:"-"`
+	ID           string             `json:"id"`
+	Operations   []*BatchOperation  `json:"operations"`
+	Status       BatchTaskStatus    `json:"status"`
+	TotalOps     int                `json:"totalOps"`
+	CompletedOps int                `json:"completedOps"`
+	FailedOps    int                `json:"failedOps"`
+	SkippedOps   int                `json:"skippedOps"`
+	Progress     float64            `json:"progress"`
+	StartTime    time.Time          `json:"startTime"`
+	EndTime      *time.Time         `json:"endTime,omitempty"`
+	ElapsedTime  time.Duration      `json:"elapsedTime"`
+	EstRemaining time.Duration      `json:"estRemaining"`
+	Errors       []BatchError       `json:"errors,omitempty"`
+	Results      []BatchResult      `json:"results,omitempty"`
+	Concurrency  int                `json:"concurrency"`
+	Author       string             `json:"author"`
+	CreatedAt    time.Time          `json:"createdAt"`
+	cancel       context.CancelFunc `json:"-"`
+	cancelMu     sync.Mutex         `json:"-"`
 }
 
 // BatchError 批量操作错误
 type BatchError struct {
-	OperationID string `json:"operationId"`
-	Source      string `json:"source"`
-	Error       string `json:"error"`
+	OperationID string    `json:"operationId"`
+	Source      string    `json:"source"`
+	Error       string    `json:"error"`
 	Timestamp   time.Time `json:"timestamp"`
 }
 
 // BatchResult 批量操作结果
 type BatchResult struct {
-	OperationID string    `json:"operationId"`
-	Status      string    `json:"status"`
-	Message     string    `json:"message,omitempty"`
-	Timestamp   time.Time `json:"timestamp"`
+	OperationID string        `json:"operationId"`
+	Status      string        `json:"status"`
+	Message     string        `json:"message,omitempty"`
+	Timestamp   time.Time     `json:"timestamp"`
 	Duration    time.Duration `json:"duration"`
 }
 
@@ -93,13 +93,13 @@ type BatchProgressCallback func(task *BatchTask)
 
 // BatchConfig 批量操作配置
 type BatchConfig struct {
-	DefaultConcurrency int              `json:"defaultConcurrency"` // 默认并发数
-	MaxConcurrency     int              `json:"maxConcurrency"`     // 最大并发数
-	RetryAttempts      int              `json:"retryAttempts"`      // 重试次数
-	RetryDelay         time.Duration    `json:"retryDelay"`         // 重试延迟
-	StopOnError        bool             `json:"stopOnError"`        // 遇错停止
-	EnableRollback     bool             `json:"enableRollback"`     // 启用回滚
-	ProgressInterval   time.Duration    `json:"progressInterval"`   // 进度回调间隔
+	DefaultConcurrency int           `json:"defaultConcurrency"` // 默认并发数
+	MaxConcurrency     int           `json:"maxConcurrency"`     // 最大并发数
+	RetryAttempts      int           `json:"retryAttempts"`      // 重试次数
+	RetryDelay         time.Duration `json:"retryDelay"`         // 重试延迟
+	StopOnError        bool          `json:"stopOnError"`        // 遇错停止
+	EnableRollback     bool          `json:"enableRollback"`     // 启用回滚
+	ProgressInterval   time.Duration `json:"progressInterval"`   // 进度回调间隔
 }
 
 // BatchExecutor 批量执行器

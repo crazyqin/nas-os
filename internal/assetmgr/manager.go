@@ -392,13 +392,13 @@ func (m *Manager) GetAssetSummary() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total":             len(m.assets),
-		"by_type":           byType,
-		"by_status":         byStatus,
-		"groups":            len(m.groups),
-		"schedules":         len(m.schedules),
-		"aging":             agingCount,
-		"warranty_expired":  warrantyExpiredCount,
+		"total":            len(m.assets),
+		"by_type":          byType,
+		"by_status":        byStatus,
+		"groups":           len(m.groups),
+		"schedules":        len(m.schedules),
+		"aging":            agingCount,
+		"warranty_expired": warrantyExpiredCount,
 	}
 }
 

@@ -29,10 +29,10 @@ type PermissionTemplate struct {
 
 // UserQuota 用户配额
 type UserQuota struct {
-	MaxStorageBytes  int64 `json:"maxStorageBytes"`  // 最大存储空间
-	MaxFiles         int64 `json:"maxFiles"`         // 最大文件数
-	MaxBandwidth     int64 `json:"maxBandwidthMbps"` // 最大带宽(Mbps)
-	MaxSessions      int   `json:"maxSessions"`      // 最大并发会话
+	MaxStorageBytes int64 `json:"maxStorageBytes"`  // 最大存储空间
+	MaxFiles        int64 `json:"maxFiles"`         // 最大文件数
+	MaxBandwidth    int64 `json:"maxBandwidthMbps"` // 最大带宽(Mbps)
+	MaxSessions     int   `json:"maxSessions"`      // 最大并发会话
 }
 
 // TemplateApplication 模板应用记录
@@ -175,10 +175,10 @@ func (m *TemplateManager) registerBuiltinTemplates() {
 			{Resource: "service:ftp", Access: "none"},
 		},
 		Quotas: &UserQuota{
-			MaxStorageBytes:  500 * 1024 * 1024 * 1024, // 500GB
-			MaxFiles:         100000,
-			MaxBandwidth:     100,
-			MaxSessions:      3,
+			MaxStorageBytes: 500 * 1024 * 1024 * 1024, // 500GB
+			MaxFiles:        100000,
+			MaxBandwidth:    100,
+			MaxSessions:     3,
 		},
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -200,10 +200,10 @@ func (m *TemplateManager) registerBuiltinTemplates() {
 			{Resource: "service:webdav", Access: "read"},
 		},
 		Quotas: &UserQuota{
-			MaxStorageBytes:  200 * 1024 * 1024 * 1024, // 200GB
-			MaxFiles:         50000,
-			MaxBandwidth:     200,
-			MaxSessions:      5,
+			MaxStorageBytes: 200 * 1024 * 1024 * 1024, // 200GB
+			MaxFiles:        50000,
+			MaxBandwidth:    200,
+			MaxSessions:     5,
 		},
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -224,10 +224,10 @@ func (m *TemplateManager) registerBuiltinTemplates() {
 			{Resource: "app:transcoding", Access: "read"},
 		},
 		Quotas: &UserQuota{
-			MaxStorageBytes:  2 * 1024 * 1024 * 1024 * 1024, // 2TB
-			MaxFiles:         500000,
-			MaxBandwidth:     500,
-			MaxSessions:      10,
+			MaxStorageBytes: 2 * 1024 * 1024 * 1024 * 1024, // 2TB
+			MaxFiles:        500000,
+			MaxBandwidth:    500,
+			MaxSessions:     10,
 		},
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -248,10 +248,10 @@ func (m *TemplateManager) registerBuiltinTemplates() {
 			{Resource: "service:git", Access: "write"},
 		},
 		Quotas: &UserQuota{
-			MaxStorageBytes:  1 * 1024 * 1024 * 1024 * 1024, // 1TB
-			MaxFiles:         200000,
-			MaxBandwidth:     1000,
-			MaxSessions:      10,
+			MaxStorageBytes: 1 * 1024 * 1024 * 1024 * 1024, // 1TB
+			MaxFiles:        200000,
+			MaxBandwidth:    1000,
+			MaxSessions:     10,
 		},
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -267,10 +267,10 @@ func (m *TemplateManager) registerBuiltinTemplates() {
 			{Resource: "*", Access: "admin"},
 		},
 		Quotas: &UserQuota{
-			MaxStorageBytes:  0, // 无限制
-			MaxFiles:         0,
-			MaxBandwidth:     0,
-			MaxSessions:      0,
+			MaxStorageBytes: 0, // 无限制
+			MaxFiles:        0,
+			MaxBandwidth:    0,
+			MaxSessions:     0,
 		},
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),

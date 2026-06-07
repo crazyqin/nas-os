@@ -8,14 +8,14 @@ import "time"
 type Category string
 
 const (
-	CategoryChinese   Category = "chinese"   // 中餐
-	CategoryWestern   Category = "western"   // 西餐
-	CategoryJapanese  Category = "japanese"  // 日料
-	CategoryKorean    Category = "korean"    // 韩餐
-	CategoryDessert   Category = "dessert"   // 甜点
-	CategorySoup      Category = "soup"      // 汤类
-	CategorySalad     Category = "salad"     // 沙拉
-	CategoryDrink     Category = "drink"     // 饮品
+	CategoryChinese  Category = "chinese"  // 中餐
+	CategoryWestern  Category = "western"  // 西餐
+	CategoryJapanese Category = "japanese" // 日料
+	CategoryKorean   Category = "korean"   // 韩餐
+	CategoryDessert  Category = "dessert"  // 甜点
+	CategorySoup     Category = "soup"     // 汤类
+	CategorySalad    Category = "salad"    // 沙拉
+	CategoryDrink    Category = "drink"    // 饮品
 )
 
 // Difficulty 难度
@@ -45,24 +45,24 @@ const (
 type InventoryStatus string
 
 const (
-	InventoryStatusNormal     InventoryStatus = "normal"      // 正常
-	InventoryStatusLow        InventoryStatus = "low"         // 库存不足
+	InventoryStatusNormal       InventoryStatus = "normal"        // 正常
+	InventoryStatusLow          InventoryStatus = "low"           // 库存不足
 	InventoryStatusExpiringSoon InventoryStatus = "expiring_soon" // 即将过期
-	InventoryStatusExpired    InventoryStatus = "expired"     // 已过期
+	InventoryStatusExpired      InventoryStatus = "expired"       // 已过期
 )
 
 // Nutrient 营养成分
 type Nutrient struct {
-	Calories float64 `json:"calories"` // 卡路里
-	Protein  float64 `json:"protein"`  // 蛋白质(g)
-	Fat      float64 `json:"fat"`      // 脂肪(g)
-	Carb     float64 `json:"carb"`     // 碳水化合物(g)
-	Fiber    float64 `json:"fiber"`    // 膳食纤维(g)
-	Sodium   float64 `json:"sodium"`   // 钠(mg)
+	Calories float64 `json:"calories"`  // 卡路里
+	Protein  float64 `json:"protein"`   // 蛋白质(g)
+	Fat      float64 `json:"fat"`       // 脂肪(g)
+	Carb     float64 `json:"carb"`      // 碳水化合物(g)
+	Fiber    float64 `json:"fiber"`     // 膳食纤维(g)
+	Sodium   float64 `json:"sodium"`    // 钠(mg)
 	VitaminA float64 `json:"vitamin_a"` // 维生素A(μg)
 	VitaminC float64 `json:"vitamin_c"` // 维生素C(mg)
-	Calcium  float64 `json:"calcium"`  // 钙(mg)
-	Iron     float64 `json:"iron"`     // 铁(mg)
+	Calcium  float64 `json:"calcium"`   // 钙(mg)
+	Iron     float64 `json:"iron"`      // 铁(mg)
 }
 
 // Ingredient 食材
@@ -70,7 +70,7 @@ type Ingredient struct {
 	ID             string             `json:"id"`
 	Name           string             `json:"name"`
 	Category       IngredientCategory `json:"category"`
-	Unit           string             `json:"unit"`            // g, ml, piece, etc.
+	Unit           string             `json:"unit"`             // g, ml, piece, etc.
 	NutrientPer100 Nutrient           `json:"nutrient_per_100"` // 每100g营养成分
 	ImageURL       string             `json:"image_url,omitempty"`
 	CreatedAt      time.Time          `json:"created_at"`
@@ -87,22 +87,22 @@ type RecipeIngredient struct {
 
 // Recipe 菜谱
 type Recipe struct {
-	ID              string             `json:"id"`
-	Name            string             `json:"name"`
-	Description     string             `json:"description,omitempty"`
-	Category        Category           `json:"category"`
-	Difficulty      Difficulty         `json:"difficulty"`
-	PrepTime        int                `json:"prep_time"`        // 准备时间(分钟)
-	CookTime        int                `json:"cook_time"`        // 烹饪时间(分钟)
-	Servings        int                `json:"servings"`         // 份量
-	Ingredients     []RecipeIngredient `json:"ingredients"`
-	Steps           []string           `json:"steps"`
-	Tags            []string           `json:"tags,omitempty"`
-	ImageURL        string             `json:"image_url,omitempty"`
-	Rating          float64            `json:"rating,omitempty"`
-	TotalNutrition  Nutrient           `json:"total_nutrition"`
-	CreatedAt       time.Time          `json:"created_at"`
-	UpdatedAt       time.Time          `json:"updated_at"`
+	ID             string             `json:"id"`
+	Name           string             `json:"name"`
+	Description    string             `json:"description,omitempty"`
+	Category       Category           `json:"category"`
+	Difficulty     Difficulty         `json:"difficulty"`
+	PrepTime       int                `json:"prep_time"` // 准备时间(分钟)
+	CookTime       int                `json:"cook_time"` // 烹饪时间(分钟)
+	Servings       int                `json:"servings"`  // 份量
+	Ingredients    []RecipeIngredient `json:"ingredients"`
+	Steps          []string           `json:"steps"`
+	Tags           []string           `json:"tags,omitempty"`
+	ImageURL       string             `json:"image_url,omitempty"`
+	Rating         float64            `json:"rating,omitempty"`
+	TotalNutrition Nutrient           `json:"total_nutrition"`
+	CreatedAt      time.Time          `json:"created_at"`
+	UpdatedAt      time.Time          `json:"updated_at"`
 }
 
 // InventoryItem 库存项
@@ -112,7 +112,7 @@ type InventoryItem struct {
 	IngredientName string          `json:"ingredient_name"`
 	Quantity       float64         `json:"quantity"`
 	Unit           string          `json:"unit"`
-	Location       string          `json:"location"`    // fridge, freezer, pantry
+	Location       string          `json:"location"` // fridge, freezer, pantry
 	ExpiryDate     time.Time       `json:"expiry_date"`
 	Status         InventoryStatus `json:"status"`
 	CreatedAt      time.Time       `json:"created_at"`
@@ -121,13 +121,13 @@ type InventoryItem struct {
 
 // MealPlan 膳食计划
 type MealPlan struct {
-	ID        string     `json:"id"`
-	Name      string     `json:"name"`
-	StartDate string     `json:"start_date"` // YYYY-MM-DD
-	EndDate   string     `json:"end_date"`   // YYYY-MM-DD
-	Days      []DayPlan  `json:"days"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	StartDate string    `json:"start_date"` // YYYY-MM-DD
+	EndDate   string    `json:"end_date"`   // YYYY-MM-DD
+	Days      []DayPlan `json:"days"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // DayPlan 每日计划
@@ -145,8 +145,8 @@ type MealEntry struct {
 
 // NutritionSummary 营养摘要
 type NutritionSummary struct {
-	StartDate    string  `json:"start_date"`
-	EndDate      string  `json:"end_date"`
+	StartDate     string  `json:"start_date"`
+	EndDate       string  `json:"end_date"`
 	TotalCalories float64 `json:"total_calories"`
 	TotalProtein  float64 `json:"total_protein"`
 	TotalFat      float64 `json:"total_fat"`
@@ -171,9 +171,9 @@ type RecommendationRequest struct {
 // RecommendationResult 推荐结果
 type RecommendationResult struct {
 	Recipe             Recipe  `json:"recipe"`
-	MatchScore         float64 `json:"match_score"`          // 匹配度百分比
-	MatchedIngredients int     `json:"matched_ingredients"`  // 匹配的食材数
-	MissingIngredients int     `json:"missing_ingredients"`  // 缺少的食材数
+	MatchScore         float64 `json:"match_score"`         // 匹配度百分比
+	MatchedIngredients int     `json:"matched_ingredients"` // 匹配的食材数
+	MissingIngredients int     `json:"missing_ingredients"` // 缺少的食材数
 }
 
 // ShoppingItem 购物项
@@ -182,8 +182,8 @@ type ShoppingItem struct {
 	IngredientName string   `json:"ingredient_name"`
 	Quantity       float64  `json:"quantity"`
 	Unit           string   `json:"unit"`
-	Reason         string   `json:"reason"`            // 缺少, 不足
-	RecipeNames    []string `json:"recipe_names"`      // 关联的菜谱
+	Reason         string   `json:"reason"`       // 缺少, 不足
+	RecipeNames    []string `json:"recipe_names"` // 关联的菜谱
 	Checked        bool     `json:"checked"`
 }
 
@@ -199,11 +199,11 @@ type ShoppingList struct {
 
 // ExpiryAlert 过期提醒
 type ExpiryAlert struct {
-	ID             string    `json:"id"`
-	IngredientID   string    `json:"ingredient_id"`
-	IngredientName string    `json:"ingredient_name"`
-	ExpiryDate     time.Time `json:"expiry_date"`
-	DaysLeft       int       `json:"days_left"`
+	ID             string     `json:"id"`
+	IngredientID   string     `json:"ingredient_id"`
+	IngredientName string     `json:"ingredient_name"`
+	ExpiryDate     time.Time  `json:"expiry_date"`
+	DaysLeft       int        `json:"days_left"`
 	Level          AlertLevel `json:"level"`
 }
 
@@ -211,9 +211,9 @@ type ExpiryAlert struct {
 type AlertLevel string
 
 const (
-	AlertLevelExpired AlertLevel = "expired"   // 已过期
-	AlertLevelSoon    AlertLevel = "soon"      // 即将过期（1-3天）
-	AlertLevelWarning AlertLevel = "warning"   // 预警（4-7天）
+	AlertLevelExpired AlertLevel = "expired" // 已过期
+	AlertLevelSoon    AlertLevel = "soon"    // 即将过期（1-3天）
+	AlertLevelWarning AlertLevel = "warning" // 预警（4-7天）
 )
 
 // RecipeRecommendation 菜谱推荐（简化版）

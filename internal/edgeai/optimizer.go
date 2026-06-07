@@ -9,7 +9,7 @@ import (
 
 // Optimizer 模型优化器
 type Optimizer struct {
-	mu        sync.RWMutex
+	mu         sync.RWMutex
 	strategies map[string]OptimizationStrategy
 }
 
@@ -25,15 +25,15 @@ type OptimizationStrategy interface {
 
 // OptimizationOptions 优化选项
 type OptimizationOptions struct {
-	TargetPrecision string `json:"targetPrecision"` // fp32/fp16/int8
-	Quantize        bool   `json:"quantize"`        // 是否量化
-	Prune           bool   `json:"prune"`           // 是否剪枝
-	PruneRatio      float64 `json:"pruneRatio"`     // 剪枝比例
-	Distill         bool   `json:"distill"`         // 是否蒸馏
-	TeacherModel    string `json:"teacherModel"`    // 教师模型 ID
-	TargetSize      int64  `json:"targetSize"`      // 目标大小 (bytes)
-	MaxLatency      float64 `json:"maxLatency"`     // 最大延迟 (ms)
-	MinAccuracy     float64 `json:"minAccuracy"`    // 最小精度
+	TargetPrecision string  `json:"targetPrecision"` // fp32/fp16/int8
+	Quantize        bool    `json:"quantize"`        // 是否量化
+	Prune           bool    `json:"prune"`           // 是否剪枝
+	PruneRatio      float64 `json:"pruneRatio"`      // 剪枝比例
+	Distill         bool    `json:"distill"`         // 是否蒸馏
+	TeacherModel    string  `json:"teacherModel"`    // 教师模型 ID
+	TargetSize      int64   `json:"targetSize"`      // 目标大小 (bytes)
+	MaxLatency      float64 `json:"maxLatency"`      // 最大延迟 (ms)
+	MinAccuracy     float64 `json:"minAccuracy"`     // 最小精度
 }
 
 // NewOptimizer 创建模型优化器
@@ -343,28 +343,28 @@ func (a *ModelAnalyzer) calculateComplexity(model *Model) float64 {
 
 // ModelAnalysis 模型分析结果
 type ModelAnalysis struct {
-	ModelID          string      `json:"modelId"`
-	Format           ModelFormat `json:"format"`
-	TaskType         TaskType    `json:"taskType"`
-	MemoryUsage      int64       `json:"memoryUsage"`
-	InputShape       []int       `json:"inputShape"`
-	OutputShape      []int       `json:"outputShape"`
-	ComplexityScore  float64     `json:"complexityScore"`
-	Optimizations    []string    `json:"optimizations"`
+	ModelID         string      `json:"modelId"`
+	Format          ModelFormat `json:"format"`
+	TaskType        TaskType    `json:"taskType"`
+	MemoryUsage     int64       `json:"memoryUsage"`
+	InputShape      []int       `json:"inputShape"`
+	OutputShape     []int       `json:"outputShape"`
+	ComplexityScore float64     `json:"complexityScore"`
+	Optimizations   []string    `json:"optimizations"`
 }
 
 // BenchmarkResult 基准测试结果
 type BenchmarkResult struct {
-	ModelID       string        `json:"modelId"`
-	Device        ComputeDevice `json:"device"`
-	BatchSize     int           `json:"batchSize"`
-	AvgLatency    float64       `json:"avgLatency"`    // ms
-	P50Latency    float64       `json:"p50Latency"`    // ms
-	P95Latency    float64       `json:"p95Latency"`    // ms
-	P99Latency    float64       `json:"p99Latency"`    // ms
-	Throughput    float64       `json:"throughput"`    // 推理/秒
-	MemoryPeak    int64         `json:"memoryPeak"`    // bytes
-	Iterations    int           `json:"iterations"`
+	ModelID    string        `json:"modelId"`
+	Device     ComputeDevice `json:"device"`
+	BatchSize  int           `json:"batchSize"`
+	AvgLatency float64       `json:"avgLatency"` // ms
+	P50Latency float64       `json:"p50Latency"` // ms
+	P95Latency float64       `json:"p95Latency"` // ms
+	P99Latency float64       `json:"p99Latency"` // ms
+	Throughput float64       `json:"throughput"` // 推理/秒
+	MemoryPeak int64         `json:"memoryPeak"` // bytes
+	Iterations int           `json:"iterations"`
 }
 
 // Benchmarker 基准测试器

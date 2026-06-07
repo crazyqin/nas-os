@@ -9,12 +9,12 @@ import (
 // NewWANPlanner 创建 WAN 链路规划器
 func NewWANPlanner(config PlannerConfig) *WANPlanner {
 	return &WANPlanner{
-		config:  config,
-		links:   make(map[string]*WANLink),
-		rules:   make(map[string]*QoSRule),
-		history: make([]BandwidthSample, 0),
+		config:      config,
+		links:       make(map[string]*WANLink),
+		rules:       make(map[string]*QoSRule),
+		history:     make([]BandwidthSample, 0),
 		failoverLog: make([]FailoverEvent, 0),
-		stopCh:  make(chan struct{}),
+		stopCh:      make(chan struct{}),
 	}
 }
 
@@ -355,12 +355,12 @@ func (p *WANPlanner) GetHistory() []BandwidthSample {
 
 // LinkStats 链路统计
 type LinkStats struct {
-	TotalLinks    int     `json:"total_links"`
-	ActiveLinks   int     `json:"active_links"`
-	DownLinks     int     `json:"down_links"`
+	TotalLinks    int           `json:"total_links"`
+	ActiveLinks   int           `json:"active_links"`
+	DownLinks     int           `json:"down_links"`
 	AvgLatency    time.Duration `json:"avg_latency"`
-	AvgPacketLoss float64 `json:"avg_packet_loss"`
-	AvgScore      float64 `json:"avg_score"`
+	AvgPacketLoss float64       `json:"avg_packet_loss"`
+	AvgScore      float64       `json:"avg_score"`
 }
 
 // GetStats 获取整体统计

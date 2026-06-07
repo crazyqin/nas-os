@@ -219,9 +219,9 @@ func (h *Handlers) searchNotes(c *gin.Context) {
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
-			"total":  len(notes),
-			"query":  query,
-			"notes":  notes,
+			"total": len(notes),
+			"query": query,
+			"notes": notes,
 		},
 	})
 }

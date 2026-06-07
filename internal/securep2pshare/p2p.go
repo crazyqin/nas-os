@@ -40,32 +40,32 @@ const (
 type ConnectionType string
 
 const (
-	ConnectionDirect   ConnectionType = "direct"
-	ConnectionRelay    ConnectionType = "relay"
-	ConnectionLAN      ConnectionType = "lan"
-	ConnectionWAN      ConnectionType = "wan"
+	ConnectionDirect ConnectionType = "direct"
+	ConnectionRelay  ConnectionType = "relay"
+	ConnectionLAN    ConnectionType = "lan"
+	ConnectionWAN    ConnectionType = "wan"
 )
 
 // Share 共享定义
 type Share struct {
-	ID            string            `json:"id"`
-	Name          string            `json:"name"`
-	Path          string            `json:"path"`
-	Status        ShareStatus       `json:"status"`
-	EncryptionKey string            `json:"-"` // 不序列化
-	KeyFingerprint string           `json:"key_fingerprint"`
-	Owner         string            `json:"owner"`
-	Peers         []Peer            `json:"peers"`
-	Permissions   SharePermissions  `json:"permissions"`
-	Size          int64             `json:"size"`
-	FileCount     int               `json:"file_count"`
-	SyncProgress  float64           `json:"sync_progress"`
-	CreatedAt     time.Time         `json:"created_at"`
-	UpdatedAt     time.Time         `json:"updated_at"`
-	ExpiresAt     *time.Time        `json:"expires_at,omitempty"`
-	MaxDownloads  int               `json:"maxDownloads"`
-	DownloadCount int               `json:"download_count"`
-	Metadata      map[string]string `json:"metadata"`
+	ID             string            `json:"id"`
+	Name           string            `json:"name"`
+	Path           string            `json:"path"`
+	Status         ShareStatus       `json:"status"`
+	EncryptionKey  string            `json:"-"` // 不序列化
+	KeyFingerprint string            `json:"key_fingerprint"`
+	Owner          string            `json:"owner"`
+	Peers          []Peer            `json:"peers"`
+	Permissions    SharePermissions  `json:"permissions"`
+	Size           int64             `json:"size"`
+	FileCount      int               `json:"file_count"`
+	SyncProgress   float64           `json:"sync_progress"`
+	CreatedAt      time.Time         `json:"created_at"`
+	UpdatedAt      time.Time         `json:"updated_at"`
+	ExpiresAt      *time.Time        `json:"expires_at,omitempty"`
+	MaxDownloads   int               `json:"maxDownloads"`
+	DownloadCount  int               `json:"download_count"`
+	Metadata       map[string]string `json:"metadata"`
 }
 
 // Peer 对等节点
@@ -84,13 +84,13 @@ type Peer struct {
 
 // SharePermissions 共享权限
 type SharePermissions struct {
-	AllowRead      bool `json:"allow_read"`
-	AllowWrite     bool `json:"allow_write"`
-	AllowDelete    bool `json:"allow_delete"`
-	AllowShare     bool `json:"allow_share"`
-	AllowDownload  bool `json:"allow_download"`
-	MaxFileSize    int64 `json:"max_file_size"`
-	AllowedTypes   []string `json:"allowed_types"`
+	AllowRead     bool     `json:"allow_read"`
+	AllowWrite    bool     `json:"allow_write"`
+	AllowDelete   bool     `json:"allow_delete"`
+	AllowShare    bool     `json:"allow_share"`
+	AllowDownload bool     `json:"allow_download"`
+	MaxFileSize   int64    `json:"max_file_size"`
+	AllowedTypes  []string `json:"allowed_types"`
 }
 
 // Transfer 传输记录

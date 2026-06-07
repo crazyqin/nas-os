@@ -59,11 +59,11 @@ type ScanResult struct {
 
 // ResourceLimits 表示容器资源限制
 type ResourceLimits struct {
-	CPUQuota    int64  `json:"cpu_quota"`    // CPU配额（微秒）
-	MemoryLimit int64  `json:"memory_limit"` // 内存限制（字节）
-	PidsLimit   int64  `json:"pids_limit"`   // 进程数限制
-	IOReadBPS   int64  `json:"io_read_bps"`  // 磁盘读取速率限制
-	IOWriteBPS  int64  `json:"io_write_bps"` // 磁盘写入速率限制
+	CPUQuota    int64 `json:"cpu_quota"`    // CPU配额（微秒）
+	MemoryLimit int64 `json:"memory_limit"` // 内存限制（字节）
+	PidsLimit   int64 `json:"pids_limit"`   // 进程数限制
+	IOReadBPS   int64 `json:"io_read_bps"`  // 磁盘读取速率限制
+	IOWriteBPS  int64 `json:"io_write_bps"` // 磁盘写入速率限制
 }
 
 // NetworkPolicy 表示网络隔离策略
@@ -234,7 +234,7 @@ func (cg *ContainerGuardian) MonitorContainer(containerID string) (*ContainerSta
 		Running:     true,
 		CPUUsage:    45.5,
 		MemoryUsage: 512 * 1024 * 1024, // 512MB
-		NetworkIO:   1024 * 1024,        // 1MB
+		NetworkIO:   1024 * 1024,       // 1MB
 		Anomalies:   make([]string, 0),
 		Uptime:      2 * time.Hour,
 	}

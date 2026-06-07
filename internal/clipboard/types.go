@@ -10,7 +10,7 @@ type ClipItem struct {
 	ID        string    `json:"id"`
 	Content   string    `json:"content"`
 	Type      ClipType  `json:"type"`
-	Source    string    `json:"source"`     // 设备标识
+	Source    string    `json:"source"` // 设备标识
 	UserID    string    `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
 	ExpiresAt time.Time `json:"expires_at,omitempty"`
@@ -28,19 +28,19 @@ const (
 
 // ClipboardStats 剪贴板统计.
 type ClipboardStats struct {
-	TotalItems   int64     `json:"total_items"`
-	TotalSize    int64     `json:"total_bytes"`
-	ActiveUsers  int       `json:"active_users"`
-	OldestItem   time.Time `json:"oldest_item"`
-	NewestItem   time.Time `json:"newest_item"`
-	DeviceCount  int       `json:"device_count"`
+	TotalItems  int64     `json:"total_items"`
+	TotalSize   int64     `json:"total_bytes"`
+	ActiveUsers int       `json:"active_users"`
+	OldestItem  time.Time `json:"oldest_item"`
+	NewestItem  time.Time `json:"newest_item"`
+	DeviceCount int       `json:"device_count"`
 }
 
 // SyncMessage WebSocket同步消息.
 type SyncMessage struct {
-	Action  string    `json:"action"` // push, pull, delete
-	Items   []ClipItem `json:"items,omitempty"`
-	DeviceID string   `json:"device_id"`
+	Action   string     `json:"action"` // push, pull, delete
+	Items    []ClipItem `json:"items,omitempty"`
+	DeviceID string     `json:"device_id"`
 }
 
 // CreateClipRequest 创建剪贴板条目请求.

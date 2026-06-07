@@ -51,9 +51,9 @@ type User2FA struct {
 
 // TOTPConfig TOTP 配置
 type TOTPConfig struct {
-	Secret  string
-	Period  uint
-	Digits  int
+	Secret    string
+	Period    uint
+	Digits    int
 	Algorithm string
 }
 
@@ -285,13 +285,13 @@ func (tf *TwoFactor) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_users":   len(tf.users),
-		"enabled_users": enabledCount,
+		"total_users":    len(tf.users),
+		"enabled_users":  enabledCount,
 		"verified_users": verifiedCount,
-		"issuer":        tf.config.Issuer,
-		"period":        tf.config.Period,
-		"digits":        tf.config.Digits,
-		"algorithm":     tf.config.Algorithm,
+		"issuer":         tf.config.Issuer,
+		"period":         tf.config.Period,
+		"digits":         tf.config.Digits,
+		"algorithm":      tf.config.Algorithm,
 	}
 }
 

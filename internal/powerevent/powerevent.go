@@ -17,15 +17,15 @@ import (
 type PowerEventType string
 
 const (
-	PowerEventPowerOn     PowerEventType = "power_on"
-	PowerEventPowerOff    PowerEventType = "power_off"
-	PowerEventRestart     PowerEventType = "restart"
-	PowerEventUPSOnBattery PowerEventType = "ups_on_battery"
-	PowerEventUPSOnLine   PowerEventType = "ups_on_line"
+	PowerEventPowerOn       PowerEventType = "power_on"
+	PowerEventPowerOff      PowerEventType = "power_off"
+	PowerEventRestart       PowerEventType = "restart"
+	PowerEventUPSOnBattery  PowerEventType = "ups_on_battery"
+	PowerEventUPSOnLine     PowerEventType = "ups_on_line"
 	PowerEventUPSLowBattery PowerEventType = "ups_low_battery"
-	PowerEventUPSShutdown  PowerEventType = "ups_shutdown"
-	PowerEventWOL         PowerEventType = "wol"
-	PowerEventScheduled    PowerEventType = "scheduled"
+	PowerEventUPSShutdown   PowerEventType = "ups_shutdown"
+	PowerEventWOL           PowerEventType = "wol"
+	PowerEventScheduled     PowerEventType = "scheduled"
 )
 
 // PowerEventState 电源事件状态
@@ -63,72 +63,72 @@ type UPSStatus struct {
 
 // PowerEvent 电源事件
 type PowerEvent struct {
-	ID          string         `json:"id"`
-	Type        PowerEventType `json:"type"`
+	ID          string          `json:"id"`
+	Type        PowerEventType  `json:"type"`
 	State       PowerEventState `json:"state"`
-	ScheduledAt *time.Time     `json:"scheduled_at,omitempty"`
-	ExecutedAt  *time.Time     `json:"executed_at,omitempty"`
-	CompletedAt *time.Time     `json:"completed_at,omitempty"`
-	TargetMAC   string         `json:"target_mac,omitempty"`   // WOL目标MAC
-	TargetIP    string         `json:"target_ip,omitempty"`    // WOL目标IP
-	Message     string         `json:"message"`
-	Error       string         `json:"error,omitempty"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
+	ScheduledAt *time.Time      `json:"scheduled_at,omitempty"`
+	ExecutedAt  *time.Time      `json:"executed_at,omitempty"`
+	CompletedAt *time.Time      `json:"completed_at,omitempty"`
+	TargetMAC   string          `json:"target_mac,omitempty"` // WOL目标MAC
+	TargetIP    string          `json:"target_ip,omitempty"`  // WOL目标IP
+	Message     string          `json:"message"`
+	Error       string          `json:"error,omitempty"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at"`
 }
 
 // PowerSchedule 电源调度
 type PowerSchedule struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Enabled     bool           `json:"enabled"`
-	EventType   PowerEventType `json:"event_type"`
-	CronExpr    string         `json:"cron_expr"`    // cron表达式
-	TargetMAC   string         `json:"target_mac,omitempty"`
-	TargetIP    string         `json:"target_ip,omitempty"`
+	ID             string         `json:"id"`
+	Name           string         `json:"name"`
+	Enabled        bool           `json:"enabled"`
+	EventType      PowerEventType `json:"event_type"`
+	CronExpr       string         `json:"cron_expr"` // cron表达式
+	TargetMAC      string         `json:"target_mac,omitempty"`
+	TargetIP       string         `json:"target_ip,omitempty"`
 	ShutdownPolicy ShutdownPolicy `json:"shutdown_policy,omitempty"`
-	DelaySeconds int           `json:"delay_seconds,omitempty"` // 延迟关机秒数
-	LastRun     *time.Time     `json:"last_run,omitempty"`
-	NextRun     *time.Time     `json:"next_run,omitempty"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
+	DelaySeconds   int            `json:"delay_seconds,omitempty"` // 延迟关机秒数
+	LastRun        *time.Time     `json:"last_run,omitempty"`
+	NextRun        *time.Time     `json:"next_run,omitempty"`
+	CreatedAt      time.Time      `json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
 }
 
 // Config 电源事件管理器配置
 type Config struct {
-	LowBatteryThreshold   int           `json:"low_battery_threshold"`   // 低电量阈值(默认20%)
-	CriticalBatteryThreshold int        `json:"critical_battery_threshold"` // 临界电量阈值(默认10%)
-	UPSCheckInterval      time.Duration `json:"ups_check_interval"`      // UPS检查间隔
-	ShutdownDelay         time.Duration `json:"shutdown_delay"`          // 关机延迟
-	WOLRetryCount         int           `json:"wol_retry_count"`         // WOL重试次数
-	WOLRetryInterval      time.Duration `json:"wol_retry_interval"`      // WOL重试间隔
-	MaxHistorySize        int           `json:"max_history_size"`        // 最大历史记录数
+	LowBatteryThreshold      int           `json:"low_battery_threshold"`      // 低电量阈值(默认20%)
+	CriticalBatteryThreshold int           `json:"critical_battery_threshold"` // 临界电量阈值(默认10%)
+	UPSCheckInterval         time.Duration `json:"ups_check_interval"`         // UPS检查间隔
+	ShutdownDelay            time.Duration `json:"shutdown_delay"`             // 关机延迟
+	WOLRetryCount            int           `json:"wol_retry_count"`            // WOL重试次数
+	WOLRetryInterval         time.Duration `json:"wol_retry_interval"`         // WOL重试间隔
+	MaxHistorySize           int           `json:"max_history_size"`           // 最大历史记录数
 }
 
 // DefaultConfig 返回默认配置
 func DefaultConfig() Config {
 	return Config{
-		LowBatteryThreshold:    20,
+		LowBatteryThreshold:      20,
 		CriticalBatteryThreshold: 10,
-		UPSCheckInterval:      30 * time.Second,
-		ShutdownDelay:         5 * time.Minute,
-		WOLRetryCount:         3,
-		WOLRetryInterval:      5 * time.Second,
-		MaxHistorySize:        1000,
+		UPSCheckInterval:         30 * time.Second,
+		ShutdownDelay:            5 * time.Minute,
+		WOLRetryCount:            3,
+		WOLRetryInterval:         5 * time.Second,
+		MaxHistorySize:           1000,
 	}
 }
 
 // Manager 电源事件管理器
 type Manager struct {
-	config      Config
-	logger      *zap.Logger
-	mu          sync.RWMutex
-	events      []PowerEvent
-	schedules   map[string]*PowerSchedule
-	upsStatus   UPSStatus
-	policy      ShutdownPolicy
-	cancelFunc  context.CancelFunc
-	eventChan   chan PowerEvent
+	config     Config
+	logger     *zap.Logger
+	mu         sync.RWMutex
+	events     []PowerEvent
+	schedules  map[string]*PowerSchedule
+	upsStatus  UPSStatus
+	policy     ShutdownPolicy
+	cancelFunc context.CancelFunc
+	eventChan  chan PowerEvent
 }
 
 // NewManager 创建电源事件管理器

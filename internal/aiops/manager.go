@@ -472,9 +472,9 @@ func (m *Manager) findRemediation(incident *Incident) *RemediationAction {
 			ID: remediationID, IncidentID: incident.ID,
 			Name: "自动清理磁盘", Type: "cleanup", Target: "disk",
 			Parameters: map[string]string{
-				"clean_logs":   "true",
-				"clean_temp":   "true",
-				"keep_days":    "7",
+				"clean_logs": "true",
+				"clean_temp": "true",
+				"keep_days":  "7",
 			},
 			Status: RemediationStatusPending, CreatedAt: now,
 		}
@@ -483,8 +483,8 @@ func (m *Manager) findRemediation(incident *Incident) *RemediationAction {
 			ID: remediationID, IncidentID: incident.ID,
 			Name: "释放内存缓存", Type: "memory_cleanup", Target: "memory",
 			Parameters: map[string]string{
-				"drop_caches":  "true",
-				"restart_oom":  "true",
+				"drop_caches": "true",
+				"restart_oom": "true",
 			},
 			Status: RemediationStatusPending, CreatedAt: now,
 		}
@@ -493,8 +493,8 @@ func (m *Manager) findRemediation(incident *Incident) *RemediationAction {
 			ID: remediationID, IncidentID: incident.ID,
 			Name: "限制异常进程", Type: "throttle", Target: "process",
 			Parameters: map[string]string{
-				"nice_adjust":  "10",
-				"cpulimit":     "80",
+				"nice_adjust": "10",
+				"cpulimit":    "80",
 			},
 			Status: RemediationStatusPending, CreatedAt: now,
 		}
@@ -503,8 +503,8 @@ func (m *Manager) findRemediation(incident *Incident) *RemediationAction {
 			ID: remediationID, IncidentID: incident.ID,
 			Name: "重启相关服务", Type: "restart", Target: incident.AffectedService,
 			Parameters: map[string]string{
-				"graceful":     "true",
-				"timeout_sec":  "30",
+				"graceful":    "true",
+				"timeout_sec": "30",
 			},
 			Status: RemediationStatusPending, CreatedAt: now,
 		}
@@ -565,7 +565,7 @@ func (m *Manager) UpdateSLA(req *SLATargetRequest) *SLATarget {
 		ID: generateID(), Name: req.Name, Service: req.Service,
 		TargetUptime: req.TargetUptime, TargetLatency: req.TargetLatency,
 		MeasurementPeriod: req.MeasurementPeriod,
-		CurrentUptime: 100, Status: "healthy",
+		CurrentUptime:     100, Status: "healthy",
 		CreatedAt: time.Now(), UpdatedAt: time.Now(),
 	}
 	m.slaTargets[sla.ID] = sla
@@ -578,8 +578,8 @@ func (m *Manager) GetStats() *OpsStats {
 	defer m.mu.RUnlock()
 
 	stats := &OpsStats{
-		TotalIncidents:   len(m.incidents),
-		TotalAlerts:      m.totalAlertsIn,
+		TotalIncidents:    len(m.incidents),
+		TotalAlerts:       m.totalAlertsIn,
 		TotalRemediations: len(m.remediations),
 	}
 

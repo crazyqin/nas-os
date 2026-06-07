@@ -25,10 +25,10 @@ const (
 type ThirdPartyType string
 
 const (
-	ThirdPartyService  ThirdPartyType = "service_provider" // 服务提供商
-	ThirdPartyBusiness ThirdPartyType = "business_partner" // 商业伙伴
-	ThirdPartyAd       ThirdPartyType = "advertising"      // 广告商
-	ThirdPartyAnalytics ThirdPartyType = "analytics"       // 分析服务
+	ThirdPartyService   ThirdPartyType = "service_provider" // 服务提供商
+	ThirdPartyBusiness  ThirdPartyType = "business_partner" // 商业伙伴
+	ThirdPartyAd        ThirdPartyType = "advertising"      // 广告商
+	ThirdPartyAnalytics ThirdPartyType = "analytics"        // 分析服务
 )
 
 // UserDataRecord 用户数据记录.
@@ -38,45 +38,45 @@ type UserDataRecord struct {
 	Description string           `json:"description"`
 	CollectedAt time.Time        `json:"collected_at"`
 	RetainDays  int              `json:"retain_days"`
-	IsSold      bool             `json:"is_sold"`        // 是否出售
-	IsShared    bool             `json:"is_shared"`      // 是否共享
+	IsSold      bool             `json:"is_sold"`   // 是否出售
+	IsShared    bool             `json:"is_shared"` // 是否共享
 }
 
 // ThirdPartySharingRecord 第三方共享记录.
 type ThirdPartySharingRecord struct {
-	PartyID     string           `json:"party_id"`
-	PartyName   string           `json:"party_name"`
-	PartyType   ThirdPartyType   `json:"party_type"`
+	PartyID     string             `json:"party_id"`
+	PartyName   string             `json:"party_name"`
+	PartyType   ThirdPartyType     `json:"party_type"`
 	DataTypes   []CCPADataCategory `json:"data_types"`
-	Purpose     string           `json:"purpose"`
-	StartDate   time.Time        `json:"start_date"`
-	IsActive    bool             `json:"is_active"`
-	HasContract bool             `json:"has_contract"` // 是否有合同约束
+	Purpose     string             `json:"purpose"`
+	StartDate   time.Time          `json:"start_date"`
+	IsActive    bool               `json:"is_active"`
+	HasContract bool               `json:"has_contract"` // 是否有合同约束
 }
 
 // CCPADataAccessRequest CCPA 数据访问请求.
 type CCPADataAccessRequest struct {
-	RequestID   string    `json:"request_id"`
-	UserID      string    `json:"user_id"`
-	UserName    string    `json:"user_name"`
-	Email       string    `json:"email"`
-	RequestType string    `json:"request_type"` // "know", "delete", "opt_out"
-	Status      string    `json:"status"`       // "pending", "processing", "completed", "denied"
-	SubmittedAt time.Time `json:"submitted_at"`
+	RequestID   string     `json:"request_id"`
+	UserID      string     `json:"user_id"`
+	UserName    string     `json:"user_name"`
+	Email       string     `json:"email"`
+	RequestType string     `json:"request_type"` // "know", "delete", "opt_out"
+	Status      string     `json:"status"`       // "pending", "processing", "completed", "denied"
+	SubmittedAt time.Time  `json:"submitted_at"`
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
-	Notes       string    `json:"notes,omitempty"`
+	Notes       string     `json:"notes,omitempty"`
 }
 
 // CCPAReport CCPA 数据访问报告.
 type CCPAReport struct {
-	ReportID        string                      `json:"report_id"`
-	GeneratedAt     time.Time                   `json:"generated_at"`
-	ReportPeriod    ReportPeriod                `json:"report_period"`
-	BusinessInfo    CCPABusinessInfo            `json:"business_info"`
-	UserData        []UserDataRecord            `json:"user_data"`
-	ThirdParty      []ThirdPartySharingRecord   `json:"third_party_sharing"`
-	AccessRequests  []CCPADataAccessRequest     `json:"access_requests"`
-	Summary         CCPASummary                 `json:"summary"`
+	ReportID       string                    `json:"report_id"`
+	GeneratedAt    time.Time                 `json:"generated_at"`
+	ReportPeriod   ReportPeriod              `json:"report_period"`
+	BusinessInfo   CCPABusinessInfo          `json:"business_info"`
+	UserData       []UserDataRecord          `json:"user_data"`
+	ThirdParty     []ThirdPartySharingRecord `json:"third_party_sharing"`
+	AccessRequests []CCPADataAccessRequest   `json:"access_requests"`
+	Summary        CCPASummary               `json:"summary"`
 }
 
 // CCPABusinessInfo 企业信息.
@@ -92,18 +92,18 @@ type CCPABusinessInfo struct {
 
 // CCPASummary CCPA 报告摘要.
 type CCPASummary struct {
-	TotalDataCategories   int      `json:"total_data_categories"`
-	TotalDataFields       int      `json:"total_data_fields"`
-	SharedDataFields      int      `json:"shared_data_fields"`
-	SoldDataFields        int      `json:"sold_data_fields"`
-	TotalThirdParties     int      `json:"total_third_parties"`
-	ActiveThirdParties    int      `json:"active_third_parties"`
-	TotalAccessRequests   int      `json:"total_access_requests"`
-	CompletedRequests     int      `json:"completed_requests"`
-	PendingRequests       int      `json:"pending_requests"`
-	AvgCompletionDays     int      `json:"avg_completion_days"`
-	ComplianceStatus      string   `json:"compliance_status"`
-	Recommendations       []string `json:"recommendations"`
+	TotalDataCategories int      `json:"total_data_categories"`
+	TotalDataFields     int      `json:"total_data_fields"`
+	SharedDataFields    int      `json:"shared_data_fields"`
+	SoldDataFields      int      `json:"sold_data_fields"`
+	TotalThirdParties   int      `json:"total_third_parties"`
+	ActiveThirdParties  int      `json:"active_third_parties"`
+	TotalAccessRequests int      `json:"total_access_requests"`
+	CompletedRequests   int      `json:"completed_requests"`
+	PendingRequests     int      `json:"pending_requests"`
+	AvgCompletionDays   int      `json:"avg_completion_days"`
+	ComplianceStatus    string   `json:"compliance_status"`
+	Recommendations     []string `json:"recommendations"`
 }
 
 // CCPAReportGenerator CCPA 报告生成器.

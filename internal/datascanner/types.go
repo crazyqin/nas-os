@@ -40,17 +40,17 @@ const (
 type PIIType string
 
 const (
-	PIIIDCard          PIIType = "id_card"           // 身份证号
-	PIIPhone           PIIType = "phone"             // 手机号
-	PIIBankCard        PIIType = "bank_card"         // 银行卡号
-	PIIEmail           PIIType = "email"             // 邮箱
-	PIIAddress         PIIType = "address"           // 地址
-	PIIName            PIIType = "name"              // 姓名
-	PIICreditCode      PIIType = "credit_code"       // 统一社会信用代码
-	PIIPassport        PIIType = "passport"          // 护照号
-	PIIMilitaryID      PIIType = "military_id"       // 军官证号
-	PIILicensePlate    PIIType = "license_plate"     // 车牌号
-	PIICustom          PIIType = "custom"            // 自定义规则
+	PIIIDCard       PIIType = "id_card"       // 身份证号
+	PIIPhone        PIIType = "phone"         // 手机号
+	PIIBankCard     PIIType = "bank_card"     // 银行卡号
+	PIIEmail        PIIType = "email"         // 邮箱
+	PIIAddress      PIIType = "address"       // 地址
+	PIIName         PIIType = "name"          // 姓名
+	PIICreditCode   PIIType = "credit_code"   // 统一社会信用代码
+	PIIPassport     PIIType = "passport"      // 护照号
+	PIIMilitaryID   PIIType = "military_id"   // 军官证号
+	PIILicensePlate PIIType = "license_plate" // 车牌号
+	PIICustom       PIIType = "custom"        // 自定义规则
 )
 
 // ========== 文件类型 ==========
@@ -59,10 +59,10 @@ const (
 type FileType string
 
 const (
-	FileTypeText     FileType = "text"      // 纯文本
-	FileTypeDocument FileType = "document"  // Office 文档
-	FileTypePDF      FileType = "pdf"       // PDF
-	FileTypeImage    FileType = "image"     // 图片（OCR）
+	FileTypeText     FileType = "text"     // 纯文本
+	FileTypeDocument FileType = "document" // Office 文档
+	FileTypePDF      FileType = "pdf"      // PDF
+	FileTypeImage    FileType = "image"    // 图片（OCR）
 )
 
 // ========== 扫描任务状态 ==========
@@ -71,12 +71,12 @@ const (
 type TaskStatus string
 
 const (
-	TaskStatusPending  TaskStatus = "pending"   // 待执行
-	TaskStatusRunning  TaskStatus = "running"   // 运行中
-	TaskStatusPaused   TaskStatus = "paused"    // 已暂停
-	TaskStatusCanceled TaskStatus = "canceled"  // 已取消
-	TaskStatusDone     TaskStatus = "done"      // 已完成
-	TaskStatusFailed   TaskStatus = "failed"    // 失败
+	TaskStatusPending  TaskStatus = "pending"  // 待执行
+	TaskStatusRunning  TaskStatus = "running"  // 运行中
+	TaskStatusPaused   TaskStatus = "paused"   // 已暂停
+	TaskStatusCanceled TaskStatus = "canceled" // 已取消
+	TaskStatusDone     TaskStatus = "done"     // 已完成
+	TaskStatusFailed   TaskStatus = "failed"   // 失败
 )
 
 // ========== 合规标准 ==========
@@ -85,9 +85,9 @@ const (
 type ComplianceStandard string
 
 const (
-	ComplianceGDPR       ComplianceStandard = "gdpr"        // 欧盟 GDPR
-	CompliancePIPL       ComplianceStandard = "pipl"        // 个人信息保护法
-	ComplianceCSL        ComplianceStandard = "csl"         // 网络安全法
+	ComplianceGDPR ComplianceStandard = "gdpr" // 欧盟 GDPR
+	CompliancePIPL ComplianceStandard = "pipl" // 个人信息保护法
+	ComplianceCSL  ComplianceStandard = "csl"  // 网络安全法
 )
 
 // ========== 报告格式 ==========
@@ -105,59 +105,59 @@ const (
 
 // ScanTask 扫描任务.
 type ScanTask struct {
-	ID              string       `json:"id"`
-	Name            string       `json:"name"`
-	Path            string       `json:"path"`
-	Recursive       bool         `json:"recursive"`
-	FileTypes       []FileType   `json:"file_types"`
-	PIITypes        []PIIType    `json:"pii_types"`
-	Status          TaskStatus   `json:"status"`
-	Progress        float64      `json:"progress"` // 0.0 ~ 1.0
-	TotalFiles      int          `json:"total_files"`
-	ScannedFiles    int          `json:"scanned_files"`
-	FoundItems      int          `json:"found_items"`
-	WhitelistID     string       `json:"whitelist_id,omitempty"`
-	CreatedAt       time.Time    `json:"created_at"`
-	StartedAt       *time.Time   `json:"started_at,omitempty"`
-	CompletedAt     *time.Time   `json:"completed_at,omitempty"`
-	Error           string       `json:"error,omitempty"`
+	ID           string     `json:"id"`
+	Name         string     `json:"name"`
+	Path         string     `json:"path"`
+	Recursive    bool       `json:"recursive"`
+	FileTypes    []FileType `json:"file_types"`
+	PIITypes     []PIIType  `json:"pii_types"`
+	Status       TaskStatus `json:"status"`
+	Progress     float64    `json:"progress"` // 0.0 ~ 1.0
+	TotalFiles   int        `json:"total_files"`
+	ScannedFiles int        `json:"scanned_files"`
+	FoundItems   int        `json:"found_items"`
+	WhitelistID  string     `json:"whitelist_id,omitempty"`
+	CreatedAt    time.Time  `json:"created_at"`
+	StartedAt    *time.Time `json:"started_at,omitempty"`
+	CompletedAt  *time.Time `json:"completed_at,omitempty"`
+	Error        string     `json:"error,omitempty"`
 }
 
 // ScanResult 单条扫描结果.
 type ScanResult struct {
-	ID          string       `json:"id"`
-	TaskID      string       `json:"task_id"`
-	FilePath    string       `json:"file_path"`
-	LineNumber  int          `json:"line_number"`
-	ColumnStart int          `json:"column_start"`
-	ColumnEnd   int          `json:"column_end"`
-	PIIType     PIIType      `json:"pii_type"`
-	MatchedText string       `json:"matched_text"` // 脱敏后的匹配文本
-	Context     string       `json:"context"`      // 上下文片段
-	RiskLevel   RiskLevel    `json:"risk_level"`
-	RiskScore   float64      `json:"risk_score"`   // 0.0 ~ 100.0
+	ID          string               `json:"id"`
+	TaskID      string               `json:"task_id"`
+	FilePath    string               `json:"file_path"`
+	LineNumber  int                  `json:"line_number"`
+	ColumnStart int                  `json:"column_start"`
+	ColumnEnd   int                  `json:"column_end"`
+	PIIType     PIIType              `json:"pii_type"`
+	MatchedText string               `json:"matched_text"` // 脱敏后的匹配文本
+	Context     string               `json:"context"`      // 上下文片段
+	RiskLevel   RiskLevel            `json:"risk_level"`
+	RiskScore   float64              `json:"risk_score"` // 0.0 ~ 100.0
 	Compliance  []ComplianceStandard `json:"compliance,omitempty"`
-	Suggestion  string       `json:"suggestion,omitempty"` // 脱敏建议
-	CreatedAt   time.Time    `json:"created_at"`
+	Suggestion  string               `json:"suggestion,omitempty"` // 脱敏建议
+	CreatedAt   time.Time            `json:"created_at"`
 }
 
 // ScanReport 扫描报告.
 type ScanReport struct {
-	ID            string          `json:"id"`
-	TaskID        string          `json:"task_id"`
-	Format        ReportFormat    `json:"format"`
-	Summary       ReportSummary   `json:"summary"`
-	TopRiskFiles  []FileRiskStat  `json:"top_risk_files"`
-	GeneratedAt   time.Time       `json:"generated_at"`
+	ID           string         `json:"id"`
+	TaskID       string         `json:"task_id"`
+	Format       ReportFormat   `json:"format"`
+	Summary      ReportSummary  `json:"summary"`
+	TopRiskFiles []FileRiskStat `json:"top_risk_files"`
+	GeneratedAt  time.Time      `json:"generated_at"`
 }
 
 // ReportSummary 报告概要统计.
 type ReportSummary struct {
-	TotalFiles     int               `json:"total_files"`
-	ScannedFiles   int               `json:"scanned_files"`
-	TotalFindings  int               `json:"total_findings"`
-	RiskDist       RiskDistribution  `json:"risk_distribution"`
-	PIIDist        map[PIIType]int   `json:"pii_distribution"`
+	TotalFiles    int              `json:"total_files"`
+	ScannedFiles  int              `json:"scanned_files"`
+	TotalFindings int              `json:"total_findings"`
+	RiskDist      RiskDistribution `json:"risk_distribution"`
+	PIIDist       map[PIIType]int  `json:"pii_distribution"`
 }
 
 // RiskDistribution 风险等级分布.
@@ -169,28 +169,28 @@ type RiskDistribution struct {
 
 // FileRiskStat 文件风险统计.
 type FileRiskStat struct {
-	FilePath   string     `json:"file_path"`
-	Findings   int        `json:"findings"`
-	RiskScore  float64    `json:"risk_score"`
-	RiskLevel  RiskLevel  `json:"risk_level"`
+	FilePath  string    `json:"file_path"`
+	Findings  int       `json:"findings"`
+	RiskScore float64   `json:"risk_score"`
+	RiskLevel RiskLevel `json:"risk_level"`
 }
 
 // DesensitizeStrategy 脱敏策略建议.
 type DesensitizeStrategy struct {
-	PIIType    PIIType `json:"pii_type"`
-	Strategy   string  `json:"strategy"`   // 如 "掩码", "哈希", "截断", "替换"
-	Example    string  `json:"example"`    // 示例：110101********1234
+	PIIType    PIIType              `json:"pii_type"`
+	Strategy   string               `json:"strategy"` // 如 "掩码", "哈希", "截断", "替换"
+	Example    string               `json:"example"`  // 示例：110101********1234
 	Compliance []ComplianceStandard `json:"compliance"`
 }
 
 // WhitelistRule 白名单规则.
 type WhitelistRule struct {
-	ID           string   `json:"id"`
-	Name         string   `json:"name"`
-	ExcludeDirs  []string `json:"exclude_dirs,omitempty"`  // 排除目录
-	ExcludeExts  []string `json:"exclude_exts,omitempty"`  // 排除文件扩展名
-	ExcludeFiles []string `json:"exclude_files,omitempty"` // 排除特定文件路径
-	MarkedFiles  []string `json:"marked_files,omitempty"`  // 已标记/审核过的文件（跳过）
+	ID           string    `json:"id"`
+	Name         string    `json:"name"`
+	ExcludeDirs  []string  `json:"exclude_dirs,omitempty"`  // 排除目录
+	ExcludeExts  []string  `json:"exclude_exts,omitempty"`  // 排除文件扩展名
+	ExcludeFiles []string  `json:"exclude_files,omitempty"` // 排除特定文件路径
+	MarkedFiles  []string  `json:"marked_files,omitempty"`  // 已标记/审核过的文件（跳过）
 	CreatedAt    time.Time `json:"created_at"`
 }
 
@@ -226,6 +226,6 @@ type CreateWhitelistRequest struct {
 
 // GenerateReportRequest 生成报告请求.
 type GenerateReportRequest struct {
-	TaskID string      `json:"task_id" binding:"required"`
+	TaskID string       `json:"task_id" binding:"required"`
 	Format ReportFormat `json:"format" binding:"required"`
 }

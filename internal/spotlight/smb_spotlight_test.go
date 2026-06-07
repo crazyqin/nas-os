@@ -192,30 +192,30 @@ func TestConvertQuery(t *testing.T) {
 	protocol := NewSMBSpotlightProtocol(engine)
 
 	tests := []struct {
-		name      string
-		query     string
+		name       string
+		query      string
 		maxResults uint32
-		check     func(EngineSearchRequest) bool
+		check      func(EngineSearchRequest) bool
 	}{
 		{
-			name:      "基本查询",
-			query:     `kMDItemDisplayName == "test"`,
+			name:       "基本查询",
+			query:      `kMDItemDisplayName == "test"`,
 			maxResults: 50,
 			check: func(req EngineSearchRequest) bool {
 				return req.Query == "test" && req.Limit == 50
 			},
 		},
 		{
-			name:      "带通配符",
-			query:     `kMDItemDisplayName == "test*"`,
+			name:       "带通配符",
+			query:      `kMDItemDisplayName == "test*"`,
 			maxResults: 100,
 			check: func(req EngineSearchRequest) bool {
 				return req.Query == "test" && req.Limit == 100
 			},
 		},
 		{
-			name:      "简单查询",
-			query:     "test query",
+			name:       "简单查询",
+			query:      "test query",
 			maxResults: 50,
 			check: func(req EngineSearchRequest) bool {
 				return req.Query == "test query" && req.Limit == 50

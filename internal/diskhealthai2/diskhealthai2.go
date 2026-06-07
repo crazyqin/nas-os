@@ -16,10 +16,10 @@ import (
 
 // SMARTAnalyzer SMART 数据分析引擎
 type SMARTAnalyzer struct {
-	mu             sync.RWMutex
-	history        map[string][]SMARTData
-	analysisCache  map[string]*SMARTAnalysisResult
-	maxHistoryLen  int
+	mu            sync.RWMutex
+	history       map[string][]SMARTData
+	analysisCache map[string]*SMARTAnalysisResult
+	maxHistoryLen int
 }
 
 // NewSMARTAnalyzer 创建 SMART 分析器

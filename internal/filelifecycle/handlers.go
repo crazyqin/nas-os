@@ -504,7 +504,7 @@ func (h *Handlers) executeDestruction(c *gin.Context) {
 func (h *Handlers) runAutoMigrate(c *gin.Context) {
 	count := h.manager.RunAutoMigrateNow()
 	c.JSON(http.StatusOK, gin.H{
-		"message":      "自动迁移已触发",
+		"message":       "自动迁移已触发",
 		"migratedFiles": count,
 	})
 }
@@ -512,8 +512,8 @@ func (h *Handlers) runAutoMigrate(c *gin.Context) {
 func (h *Handlers) runAutoCleanup(c *gin.Context) {
 	count := h.manager.RunAutoCleanupNow()
 	c.JSON(http.StatusOK, gin.H{
-		"message":       "自动清理已触发",
-		"cleanedFiles":  count,
+		"message":      "自动清理已触发",
+		"cleanedFiles": count,
 	})
 }
 

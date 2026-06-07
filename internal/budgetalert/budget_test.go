@@ -18,8 +18,8 @@ func TestNewBudgetAlertManager(t *testing.T) {
 func TestCreateBudget(t *testing.T) {
 	mgr := NewBudgetAlertManager(nil)
 	budget, err := mgr.CreateBudget("用户存储", CategoryUser, 100*1024*1024*1024, &BudgetOptions{
-		CostPerGB: 0.5,
-		AlertAt:   80,
+		CostPerGB:  0.5,
+		AlertAt:    80,
 		CriticalAt: 95,
 	})
 	if err != nil {

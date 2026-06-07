@@ -187,12 +187,12 @@ func (m *Manager) GetStats() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	return map[string]interface{}{
-		"total_functions":  len(m.functions),
-		"total_workloads":  len(m.workloads),
-		"total_nodes":      len(m.nodes),
-		"wasm_enabled":     m.config.WasmEnabled,
-		"gpu_enabled":      m.config.GPUEnabled,
-		"auto_scaling":     m.config.AutoScaling,
-		"running":          m.running,
+		"total_functions": len(m.functions),
+		"total_workloads": len(m.workloads),
+		"total_nodes":     len(m.nodes),
+		"wasm_enabled":    m.config.WasmEnabled,
+		"gpu_enabled":     m.config.GPUEnabled,
+		"auto_scaling":    m.config.AutoScaling,
+		"running":         m.running,
 	}
 }

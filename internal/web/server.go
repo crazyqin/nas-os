@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"time"
 
+	"nas-os/internal/acl"
+	"nas-os/internal/activebackup"
 	"nas-os/internal/ai"
 	"nas-os/internal/ai_classify"
-	"nas-os/internal/activebackup"
 	alertremediation "nas-os/internal/alertremediation"
-	"nas-os/internal/acl"
 	"nas-os/internal/audiostation"
 	"nas-os/internal/auth"
 	"nas-os/internal/backup"
@@ -31,10 +31,10 @@ import (
 	"nas-os/internal/iscsi"
 	"nas-os/internal/lock"
 	"nas-os/internal/logcenter"
-	"nas-os/internal/notification"
 	"nas-os/internal/monitor"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
+	"nas-os/internal/notification"
 	"nas-os/internal/notify"
 	"nas-os/internal/notifychannel"
 	"nas-os/internal/office"
@@ -50,8 +50,8 @@ import (
 	"nas-os/internal/s3"
 	"nas-os/internal/s3gateway"
 	"nas-os/internal/scheduler"
-	"nas-os/internal/search"
 	"nas-os/internal/scrubsched"
+	"nas-os/internal/search"
 	sftp "nas-os/internal/sftp"
 	"nas-os/internal/shares"
 	"nas-os/internal/smartmigrate"
@@ -70,8 +70,8 @@ import (
 	"nas-os/internal/vm"
 	"nas-os/internal/vmimport"
 	"nas-os/internal/webdav"
-	"nas-os/internal/webterminal"
 	"nas-os/internal/webhook"
+	"nas-os/internal/webterminal"
 	"nas-os/internal/wol"
 	"nas-os/internal/zfs"
 
@@ -83,9 +83,11 @@ import (
 	"nas-os/internal/dataclassify"
 	"nas-os/internal/digitalwellbeing"
 	"nas-os/internal/dlp"
+	"nas-os/internal/dockergui"
 	"nas-os/internal/edgecompute"
 	"nas-os/internal/energymanager"
 	"nas-os/internal/filesync"
+	"nas-os/internal/gpumonitor"
 	"nas-os/internal/netsentinel"
 	"nas-os/internal/networkmap"
 	"nas-os/internal/photoenhance"
@@ -94,12 +96,10 @@ import (
 	"nas-os/internal/smarthome"
 	"nas-os/internal/ssohub"
 	"nas-os/internal/surveillance"
-	"nas-os/internal/unifiedsearch"
-	"nas-os/internal/zfspool"
-	"nas-os/internal/dockergui"
-	"nas-os/internal/gpumonitor"
-	"nas-os/internal/vmmanager"
 	"nas-os/internal/sysdashboard"
+	"nas-os/internal/unifiedsearch"
+	"nas-os/internal/vmmanager"
+	"nas-os/internal/zfspool"
 
 	// v2.513.0 新增模块
 	"nas-os/internal/airecommend"
@@ -116,18 +116,18 @@ import (
 	"nas-os/internal/spotlight"
 
 	// v2.542.0 新增模块
-	"nas-os/internal/dlnamedia"
-	"nas-os/internal/dnsfilter"
-	"nas-os/internal/musicserver"
-	"nas-os/internal/photoai"
-	"nas-os/internal/syslogserver"
-	"nas-os/internal/digitallegacy"
 	"nas-os/internal/containerimagecache"
 	"nas-os/internal/custombranding"
+	"nas-os/internal/digitallegacy"
+	"nas-os/internal/dlnamedia"
+	"nas-os/internal/dnsfilter"
 	"nas-os/internal/multiclusterfed"
+	"nas-os/internal/musicserver"
+	"nas-os/internal/photoai"
+	"nas-os/internal/smartnasrouter"
 	"nas-os/internal/smbdirect"
 	"nas-os/internal/storagecostforecast"
-	"nas-os/internal/smartnasrouter"
+	"nas-os/internal/syslogserver"
 
 	_ "nas-os/docs/swagger" // Swagger 文档
 
@@ -223,35 +223,35 @@ type Server struct {
 	fileindexMgr   *fileindex.Indexer
 	webterminalMgr *webterminal.Manager
 	// v2.490.0 新增模块
-	logcenterMgr   *logcenter.Manager
+	logcenterMgr *logcenter.Manager
 	// v2.491.0 新增模块
 	notificationSvc *notification.Service
 	// v2.498.0 新增模块
-	appCenterMgr       *appcenter.AppStore
-	backupVerifyMgr    *backupverify.Manager
-	collabDocsMgr      *collabdocs.Manager
-	containResMonMgr   *containresmon.Manager
-	dataClassifyMgr    *dataclassify.Manager
-	wellbeingMgr       *digitalwellbeing.Manager
-	dlpMgr             *dlp.Manager
-	edgeComputeMgr     *edgecompute.Manager
-	energyMgr          *energymanager.Manager
-	fileSyncMgr        *filesync.SyncManager
-	netSentinelMgr     *netsentinel.Manager
-	networkMapMgr      *networkmap.Manager
-	photoEnhanceMgr    *photoenhance.Manager
-	privacyVaultMgr    *privacyvault.Engine
-	remoteDesktopMgr   *remotedesktop.Manager
-	smartHomeMgr       *smarthome.Manager
-	ssoHubMgr          *ssohub.Manager
-	surveillanceMgr    *surveillance.Manager
-	unifiedSearchMgr   *unifiedsearch.Manager
+	appCenterMgr     *appcenter.AppStore
+	backupVerifyMgr  *backupverify.Manager
+	collabDocsMgr    *collabdocs.Manager
+	containResMonMgr *containresmon.Manager
+	dataClassifyMgr  *dataclassify.Manager
+	wellbeingMgr     *digitalwellbeing.Manager
+	dlpMgr           *dlp.Manager
+	edgeComputeMgr   *edgecompute.Manager
+	energyMgr        *energymanager.Manager
+	fileSyncMgr      *filesync.SyncManager
+	netSentinelMgr   *netsentinel.Manager
+	networkMapMgr    *networkmap.Manager
+	photoEnhanceMgr  *photoenhance.Manager
+	privacyVaultMgr  *privacyvault.Engine
+	remoteDesktopMgr *remotedesktop.Manager
+	smartHomeMgr     *smarthome.Manager
+	ssoHubMgr        *ssohub.Manager
+	surveillanceMgr  *surveillance.Manager
+	unifiedSearchMgr *unifiedsearch.Manager
 	// v2.499.0 竞品对标新增模块
-	zfsPoolMgr         *zfspool.Manager
-	dockerGuiMgr       *dockergui.Manager
-	gpuMonitorMgr      *gpumonitor.Monitor
-	vmManagerMgr       *vmmanager.Manager
-	sysDashboardMgr    *sysdashboard.Manager
+	zfsPoolMgr      *zfspool.Manager
+	dockerGuiMgr    *dockergui.Manager
+	gpuMonitorMgr   *gpumonitor.Monitor
+	vmManagerMgr    *vmmanager.Manager
+	sysDashboardMgr *sysdashboard.Manager
 	// v2.513.0 新增模块
 	airRecommendMgr    *airecommend.Engine
 	alertGuidedMgr     *alertguided.Manager
@@ -266,18 +266,18 @@ type Server struct {
 	smartLinkMgr       *smartlink.Linker
 	spotlightMgr       *spotlight.Manager
 	// v2.542.0 新增模块
-	dlnaMediaMgr       *dlnamedia.Manager
-	dnsFilterMgr       *dnsfilter.Manager
-	musicServerMgr     *musicserver.Manager
-	photoAIMgr         *photoai.Manager
-	syslogServerMgr    *syslogserver.Manager
-	digitalLegacyMgr   *digitallegacy.Manager
+	dlnaMediaMgr           *dlnamedia.Manager
+	dnsFilterMgr           *dnsfilter.Manager
+	musicServerMgr         *musicserver.Manager
+	photoAIMgr             *photoai.Manager
+	syslogServerMgr        *syslogserver.Manager
+	digitalLegacyMgr       *digitallegacy.Manager
 	containerImageCacheMgr *containerimagecache.ImageCacheManager
-	customBrandingMgr  *custombranding.BrandingEngine
-	multiClusterFedMgr *multiclusterfed.ClusterFederationManager
-	smbDirectMgr       *smbdirect.SMBDirectManager
+	customBrandingMgr      *custombranding.BrandingEngine
+	multiClusterFedMgr     *multiclusterfed.ClusterFederationManager
+	smbDirectMgr           *smbdirect.SMBDirectManager
 	storageCostForecastMgr *storagecostforecast.CostForecastEngine
-	smartNASRouterMgr     *smartnasrouter.Manager
+	smartNASRouterMgr      *smartnasrouter.Manager
 }
 
 // NewServer 创建 Web 服务器.
@@ -1005,7 +1005,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		fileindexMgr:   fileindexMgr,
 		webterminalMgr: webterminalMgr,
 		// v2.490.0 新增模块
-		logcenterMgr:   logcenterMgr,
+		logcenterMgr: logcenterMgr,
 		// v2.491.0 新增模块
 		notificationSvc: notificationSvc,
 		// v2.498.0 新增模块
@@ -1029,30 +1029,30 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		surveillanceMgr:  surveillanceMgr,
 		unifiedSearchMgr: unifiedSearchMgr,
 		// v2.513.0 新增模块
-		airRecommendMgr:    airRecommendMgr,
-		alertGuidedMgr:     alertGuidedMgr,
-		auditTrailMgr:      auditTrailMgr,
-		dataWarehouseMgr:   dataWarehouseMgr,
-		fileDejavuMgr:      fileDejavuMgr,
-		hybridFlashMgr:     hybridFlashMgr,
-		lxcmktMgr:          lxcmktMgr,
-		objectImmutableMgr: objectImmutableMgr,
-		privacyShieldMgr:   privacyShieldMgr,
-		selfServiceMgr:     selfServiceMgr,
-		smartLinkMgr:       smartLinkMgr,
-		spotlightMgr:       spotlightMgr,
-		dlnaMediaMgr:       dlnaMediaMgr,
-		dnsFilterMgr:       dnsFilterMgr,
-		musicServerMgr:     musicServerMgr,
-		photoAIMgr:         photoAIMgr,
-		syslogServerMgr:    syslogServerMgr,
-		digitalLegacyMgr:   digitalLegacyMgr,
+		airRecommendMgr:        airRecommendMgr,
+		alertGuidedMgr:         alertGuidedMgr,
+		auditTrailMgr:          auditTrailMgr,
+		dataWarehouseMgr:       dataWarehouseMgr,
+		fileDejavuMgr:          fileDejavuMgr,
+		hybridFlashMgr:         hybridFlashMgr,
+		lxcmktMgr:              lxcmktMgr,
+		objectImmutableMgr:     objectImmutableMgr,
+		privacyShieldMgr:       privacyShieldMgr,
+		selfServiceMgr:         selfServiceMgr,
+		smartLinkMgr:           smartLinkMgr,
+		spotlightMgr:           spotlightMgr,
+		dlnaMediaMgr:           dlnaMediaMgr,
+		dnsFilterMgr:           dnsFilterMgr,
+		musicServerMgr:         musicServerMgr,
+		photoAIMgr:             photoAIMgr,
+		syslogServerMgr:        syslogServerMgr,
+		digitalLegacyMgr:       digitalLegacyMgr,
 		containerImageCacheMgr: containerImageCacheMgr,
-		customBrandingMgr:  customBrandingMgr,
-		multiClusterFedMgr: multiClusterFedMgr,
-		smbDirectMgr:       smbDirectMgr,
+		customBrandingMgr:      customBrandingMgr,
+		multiClusterFedMgr:     multiClusterFedMgr,
+		smbDirectMgr:           smbDirectMgr,
 		storageCostForecastMgr: storageCostForecastMgr,
-		smartNASRouterMgr:     smartNASRouterMgr,
+		smartNASRouterMgr:      smartNASRouterMgr,
 	}
 
 	// 设置 WebDAV 认证函数

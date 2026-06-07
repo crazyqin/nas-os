@@ -9,15 +9,15 @@ import (
 
 // DiskInfo 磁盘信息
 type DiskInfo struct {
-	Device        string    `json:"device"`
-	Model         string    `json:"model"`
-	Serial        string    `json:"serial"`
-	Size          int64     `json:"size"`
-	Temperature   int       `json:"temperature"`
-	PowerOnHours  int64     `json:"power_on_hours"`
-	HealthScore   float64   `json:"health_score"` // 0-100
-	SmartStatus   string    `json:"smart_status"` // passed, failed, unknown
-	LastCheck     time.Time `json:"last_check"`
+	Device       string    `json:"device"`
+	Model        string    `json:"model"`
+	Serial       string    `json:"serial"`
+	Size         int64     `json:"size"`
+	Temperature  int       `json:"temperature"`
+	PowerOnHours int64     `json:"power_on_hours"`
+	HealthScore  float64   `json:"health_score"` // 0-100
+	SmartStatus  string    `json:"smart_status"` // passed, failed, unknown
+	LastCheck    time.Time `json:"last_check"`
 }
 
 // SmartAttribute S.M.A.R.T. 属性
@@ -43,9 +43,9 @@ type HealthReport struct {
 
 // AlertConfig 告警配置
 type AlertConfig struct {
-	TemperatureThreshold         int     `json:"temperature_threshold"`
-	HealthScoreThreshold         float64 `json:"health_score_threshold"`
-	ReallocatedSectorsThreshold  int64   `json:"reallocated_sectors_threshold"`
+	TemperatureThreshold        int     `json:"temperature_threshold"`
+	HealthScoreThreshold        float64 `json:"health_score_threshold"`
+	ReallocatedSectorsThreshold int64   `json:"reallocated_sectors_threshold"`
 }
 
 // HistoryRecord 历史记录
@@ -58,10 +58,10 @@ type HistoryRecord struct {
 
 // Manager 硬盘健康管理器
 type Manager struct {
-	mu       sync.RWMutex
-	disks    map[string]*DiskInfo
-	history  map[string][]HistoryRecord
-	config   AlertConfig
+	mu      sync.RWMutex
+	disks   map[string]*DiskInfo
+	history map[string][]HistoryRecord
+	config  AlertConfig
 }
 
 // NewManager 创建健康管理器

@@ -23,10 +23,10 @@ import (
 type ServiceStatus string
 
 const (
-	StatusHealthy   ServiceStatus = "healthy"   // 正常
-	StatusWarning   ServiceStatus = "warning"   // 警告
-	StatusCritical  ServiceStatus = "critical"  // 故障
-	StatusUnknown   ServiceStatus = "unknown"   // 未知
+	StatusHealthy  ServiceStatus = "healthy"  // 正常
+	StatusWarning  ServiceStatus = "warning"  // 警告
+	StatusCritical ServiceStatus = "critical" // 故障
+	StatusUnknown  ServiceStatus = "unknown"  // 未知
 )
 
 // ============================================================
@@ -37,10 +37,10 @@ const (
 type CheckType string
 
 const (
-	CheckHTTP     CheckType = "http"     // HTTP 健康检查
-	CheckTCP      CheckType = "tcp"      // TCP 端口检查
-	CheckProcess  CheckType = "process"  // 进程存活检查
-	CheckScript   CheckType = "script"   // 自定义脚本检查
+	CheckHTTP    CheckType = "http"    // HTTP 健康检查
+	CheckTCP     CheckType = "tcp"     // TCP 端口检查
+	CheckProcess CheckType = "process" // 进程存活检查
+	CheckScript  CheckType = "script"  // 自定义脚本检查
 )
 
 // ============================================================
@@ -49,20 +49,20 @@ const (
 
 // ServiceConfig 服务配置
 type ServiceConfig struct {
-	Name         string            `json:"name"`          // 服务名称
-	DisplayName  string            `json:"display_name"`  // 显示名称
-	CheckType    CheckType         `json:"check_type"`    // 检查类型
-	CheckURL     string            `json:"check_url"`     // HTTP 检查 URL
-	CheckPort    int               `json:"check_port"`    // TCP 检查端口
-	CheckHost    string            `json:"check_host"`    // 检查主机
-	ProcessName  string            `json:"process_name"`  // 进程名称
-	ScriptPath   string            `json:"script_path"`   // 自定义脚本路径
-	ScriptArgs   []string          `json:"script_args"`   // 脚本参数
-	Interval     time.Duration     `json:"interval"`      // 检查间隔
-	Timeout      time.Duration     `json:"timeout"`       // 检查超时
-	Enabled      bool              `json:"enabled"`       // 是否启用
-	Tags         map[string]string `json:"tags"`          // 标签
-	Dependencies []string          `json:"dependencies"`  // 依赖服务列表
+	Name         string            `json:"name"`         // 服务名称
+	DisplayName  string            `json:"display_name"` // 显示名称
+	CheckType    CheckType         `json:"check_type"`   // 检查类型
+	CheckURL     string            `json:"check_url"`    // HTTP 检查 URL
+	CheckPort    int               `json:"check_port"`   // TCP 检查端口
+	CheckHost    string            `json:"check_host"`   // 检查主机
+	ProcessName  string            `json:"process_name"` // 进程名称
+	ScriptPath   string            `json:"script_path"`  // 自定义脚本路径
+	ScriptArgs   []string          `json:"script_args"`  // 脚本参数
+	Interval     time.Duration     `json:"interval"`     // 检查间隔
+	Timeout      time.Duration     `json:"timeout"`      // 检查超时
+	Enabled      bool              `json:"enabled"`      // 是否启用
+	Tags         map[string]string `json:"tags"`         // 标签
+	Dependencies []string          `json:"dependencies"` // 依赖服务列表
 }
 
 // HealthCheckConfig 健康检查全局配置

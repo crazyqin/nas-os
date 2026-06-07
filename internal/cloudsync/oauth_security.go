@@ -28,31 +28,31 @@ type OAuthSecurityManager struct {
 
 // OAuthSecurityConfig OAuth安全配置
 type OAuthSecurityConfig struct {
-	Enabled            bool          `json:"enabled"`
-	TokenEncrypt       bool          `json:"token_encrypt"`       // Token加密存储
-	KeyRotationDays    int           `json:"key_rotation_days"`   // 密钥轮转周期(天)
-	TokenExpiryMargin  time.Duration `json:"token_expiry_margin"` // Token过期提前刷新时间
-	MaxTokenAge        time.Duration `json:"max_token_age"`       // Token最大有效期
-	SecureStoragePath  string        `json:"secure_storage_path"` // 安全存储路径
-	KeyDerivationAlg   string        `json:"key_derivation_alg"`  // 密钥派生算法
-	AutoRotate         bool          `json:"auto_rotate"`         // 自动密钥轮转
-	AuditEnabled       bool          `json:"audit_enabled"`       // 审计日志
+	Enabled           bool          `json:"enabled"`
+	TokenEncrypt      bool          `json:"token_encrypt"`       // Token加密存储
+	KeyRotationDays   int           `json:"key_rotation_days"`   // 密钥轮转周期(天)
+	TokenExpiryMargin time.Duration `json:"token_expiry_margin"` // Token过期提前刷新时间
+	MaxTokenAge       time.Duration `json:"max_token_age"`       // Token最大有效期
+	SecureStoragePath string        `json:"secure_storage_path"` // 安全存储路径
+	KeyDerivationAlg  string        `json:"key_derivation_alg"`  // 密钥派生算法
+	AutoRotate        bool          `json:"auto_rotate"`         // 自动密钥轮转
+	AuditEnabled      bool          `json:"audit_enabled"`       // 审计日志
 }
 
 // SecureToken 安全存储的Token
 type SecureToken struct {
-	ID           string    `json:"id"`
-	ProviderID   string    `json:"provider_id"`
-	ProviderType ProviderType `json:"provider_type"`
-	TokenType    string    `json:"token_type"` // access_token, refresh_token, api_key
-	EncryptedData []byte   `json:"encrypted_data"`
-	Nonce        []byte    `json:"nonce"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
-	ExpiresAt    *time.Time `json:"expires_at,omitempty"`
-	KeyVersion   int       `json:"key_version"` // 密钥版本号
-	LastUsed     time.Time `json:"last_used"`
-	UsageCount   int64     `json:"usage_count"`
+	ID            string       `json:"id"`
+	ProviderID    string       `json:"provider_id"`
+	ProviderType  ProviderType `json:"provider_type"`
+	TokenType     string       `json:"token_type"` // access_token, refresh_token, api_key
+	EncryptedData []byte       `json:"encrypted_data"`
+	Nonce         []byte       `json:"nonce"`
+	CreatedAt     time.Time    `json:"created_at"`
+	UpdatedAt     time.Time    `json:"updated_at"`
+	ExpiresAt     *time.Time   `json:"expires_at,omitempty"`
+	KeyVersion    int          `json:"key_version"` // 密钥版本号
+	LastUsed      time.Time    `json:"last_used"`
+	UsageCount    int64        `json:"usage_count"`
 }
 
 // OAuthToken OAuth Token结构
@@ -67,18 +67,18 @@ type OAuthToken struct {
 
 // APIKeyRecord API密钥记录
 type APIKeyRecord struct {
-	KeyID       string    `json:"key_id"`
-	ProviderID  string    `json:"provider_id"`
-	KeyType     string    `json:"key_type"` // access_key, secret_key, api_key
-	EncryptedKey []byte   `json:"encrypted_key"`
-	Nonce       []byte    `json:"nonce"`
-	KeyVersion  int       `json:"key_version"`
-	CreatedAt   time.Time `json:"created_at"`
-	RotatedAt   time.Time `json:"rotated_at"`
-	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
-	RotationDue time.Time `json:"rotation_due"`
-	LastUsed    time.Time `json:"last_used"`
-	Status      string    `json:"status"` // active, rotated, expired, revoked
+	KeyID        string     `json:"key_id"`
+	ProviderID   string     `json:"provider_id"`
+	KeyType      string     `json:"key_type"` // access_key, secret_key, api_key
+	EncryptedKey []byte     `json:"encrypted_key"`
+	Nonce        []byte     `json:"nonce"`
+	KeyVersion   int        `json:"key_version"`
+	CreatedAt    time.Time  `json:"created_at"`
+	RotatedAt    time.Time  `json:"rotated_at"`
+	ExpiresAt    *time.Time `json:"expires_at,omitempty"`
+	RotationDue  time.Time  `json:"rotation_due"`
+	LastUsed     time.Time  `json:"last_used"`
+	Status       string     `json:"status"` // active, rotated, expired, revoked
 }
 
 // KeyRotationRecord 密钥轮转记录
@@ -204,7 +204,7 @@ func (m *OAuthSecurityManager) initMasterKey() error {
 func (m *OAuthSecurityManager) deriveSystemKey(salt []byte) []byte {
 	// 使用机器ID等系统信息作为密钥材料
 	systemInfo := fmt.Sprintf("%s-%d", m.config.SecureStoragePath, time.Now().UnixNano())
-	
+
 	// Argon2id 参数
 	timeCost := uint32(3)
 	memory := uint32(64 * 1024) // 64MB
@@ -531,11 +531,11 @@ func (m *OAuthSecurityManager) RotateAPIKey(providerID string, keyType string, n
 	if m.config.AuditEnabled && m.auditLogger != nil {
 		m.auditLogger.LogKeyRotation(rotationRecord)
 		m.auditLogger.LogTokenOperation(OAuthOpKeyRotate, map[string]interface{}{
-			"provider_id":  providerID,
-			"key_type":     keyType,
-			"old_version":  oldVersion,
-			"new_version":  newVersion,
-			"reason":       reason,
+			"provider_id": providerID,
+			"key_type":    keyType,
+			"old_version": oldVersion,
+			"new_version": newVersion,
+			"reason":      reason,
 		})
 	}
 
@@ -693,7 +693,7 @@ func (m *OAuthSecurityManager) loadAPIKeyRecord(keyID string) (*APIKeyRecord, er
 // saveRotationRecord 保存轮转记录
 func (m *OAuthSecurityManager) saveRotationRecord(record *KeyRotationRecord) error {
 	historyPath := filepath.Join(m.config.SecureStoragePath, "rotation_history.json")
-	
+
 	var history []*KeyRotationRecord
 	if data, err := os.ReadFile(historyPath); err == nil {
 		_ = json.Unmarshal(data, &history)
@@ -764,9 +764,9 @@ func (m *OAuthSecurityManager) checkTokenExpiry() {
 			if now.After(token.ExpiresAt.Add(-m.config.TokenExpiryMargin)) {
 				if m.config.AuditEnabled && m.auditLogger != nil {
 					m.auditLogger.LogSecurityEvent("token_expiry_warning", "warning", map[string]interface{}{
-						"provider_id":  token.ProviderID,
-						"expires_at":   *token.ExpiresAt,
-						"token_type":   token.TokenType,
+						"provider_id": token.ProviderID,
+						"expires_at":  *token.ExpiresAt,
+						"token_type":  token.TokenType,
 					})
 				}
 			}

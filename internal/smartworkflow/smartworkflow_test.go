@@ -946,5 +946,3 @@ func TestWorkflowVariables(t *testing.T) {
 		t.Errorf("步骤参数 = %v, want %v", wf.Steps[0].Parameters["key"], "value")
 	}
 }
-
-

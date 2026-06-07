@@ -71,15 +71,15 @@ func (e *Engine) CreateProject(name, description, ownerID, createdBy string) (*P
 
 	now := time.Now()
 	project := &Project{
-		ID:        uuid.New().String(),
-		Name:      name,
+		ID:          uuid.New().String(),
+		Name:        name,
 		Description: description,
-		Status:    ProjectStatusActive,
-		OwnerID:   ownerID,
-		MemberIDs: []string{ownerID},
-		CreatedAt: now,
-		UpdatedAt: now,
-		CreatedBy: createdBy,
+		Status:      ProjectStatusActive,
+		OwnerID:     ownerID,
+		MemberIDs:   []string{ownerID},
+		CreatedAt:   now,
+		UpdatedAt:   now,
+		CreatedBy:   createdBy,
 	}
 
 	e.projects[project.ID] = project

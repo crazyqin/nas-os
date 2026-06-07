@@ -19,20 +19,20 @@ type BenchmarkManager struct {
 
 // BenchResult 测试结果
 type BenchResult struct {
-	ID          string        `json:"id"`
-	TargetPath  string        `json:"target_path"`
-	Status      BenchStatus   `json:"status"`
-	SeqReadMBps float64       `json:"seq_read_mbps"`
-	SeqWriteMBps float64      `json:"seq_write_mbps"`
-	RandomReadIOPS float64    `json:"random_read_iops"`
-	RandomWriteIOPS float64   `json:"random_write_iops"`
-	FileSizeMB  int           `json:"file_size_mb"`
-	BlockSizeKB int           `json:"block_size_kb"`
-	LatencyAvg  time.Duration `json:"latency_avg"`
-	LatencyP99  time.Duration `json:"latency_p99"`
-	StartedAt   time.Time     `json:"started_at"`
-	CompletedAt *time.Time    `json:"completed_at,omitempty"`
-	ErrorMsg    string        `json:"error_msg,omitempty"`
+	ID              string        `json:"id"`
+	TargetPath      string        `json:"target_path"`
+	Status          BenchStatus   `json:"status"`
+	SeqReadMBps     float64       `json:"seq_read_mbps"`
+	SeqWriteMBps    float64       `json:"seq_write_mbps"`
+	RandomReadIOPS  float64       `json:"random_read_iops"`
+	RandomWriteIOPS float64       `json:"random_write_iops"`
+	FileSizeMB      int           `json:"file_size_mb"`
+	BlockSizeKB     int           `json:"block_size_kb"`
+	LatencyAvg      time.Duration `json:"latency_avg"`
+	LatencyP99      time.Duration `json:"latency_p99"`
+	StartedAt       time.Time     `json:"started_at"`
+	CompletedAt     *time.Time    `json:"completed_at,omitempty"`
+	ErrorMsg        string        `json:"error_msg,omitempty"`
 }
 
 type BenchStatus string
@@ -67,12 +67,12 @@ func (m *BenchmarkManager) RunBenchmark(targetPath string, fileSizeMB int) (*Ben
 	}
 
 	result := &BenchResult{
-		ID:         fmt.Sprintf("bench-%d", time.Now().UnixNano()),
-		TargetPath: targetPath,
-		Status:     StatusPending,
-		FileSizeMB: fileSizeMB,
+		ID:          fmt.Sprintf("bench-%d", time.Now().UnixNano()),
+		TargetPath:  targetPath,
+		Status:      StatusPending,
+		FileSizeMB:  fileSizeMB,
 		BlockSizeKB: 64,
-		StartedAt:  time.Now(),
+		StartedAt:   time.Now(),
 	}
 
 	m.mu.Lock()

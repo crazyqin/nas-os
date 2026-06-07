@@ -99,10 +99,10 @@ func (h *Handlers) listLibrary(c *gin.Context) {
 
 	tracks, total := h.manager.ListTracks(query)
 	c.JSON(http.StatusOK, APISuccess(gin.H{
-		"tracks":    tracks,
-		"total":     total,
-		"page":      query.Page,
-		"per_page":  query.PerPage,
+		"tracks":   tracks,
+		"total":    total,
+		"page":     query.Page,
+		"per_page": query.PerPage,
 	}))
 }
 
@@ -491,7 +491,7 @@ func (h *Handlers) updateTrackTag(c *gin.Context) {
 // batchUpdateTags 批量更新标签.
 func (h *Handlers) batchUpdateTags(c *gin.Context) {
 	var req struct {
-		TrackIDs []string        `json:"track_ids" binding:"required"`
+		TrackIDs []string         `json:"track_ids" binding:"required"`
 		Tags     TagUpdateRequest `json:"tags"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {

@@ -23,15 +23,15 @@ type ADConfig struct {
 
 // Domain AD 域.
 type Domain struct {
-	Name          string       `json:"name"`
-	Server        string       `json:"server"`
-	Port          int          `json:"port"`
-	BaseDN        string       `json:"base_dn"`
-	Status        DomainStatus `json:"status"`
-	LastSync      time.Time    `json:"last_sync"`
-	UserCount     int          `json:"user_count"`
-	GroupCount    int          `json:"group_count"`
-	ErrorMessage  string       `json:"error_message,omitempty"`
+	Name         string       `json:"name"`
+	Server       string       `json:"server"`
+	Port         int          `json:"port"`
+	BaseDN       string       `json:"base_dn"`
+	Status       DomainStatus `json:"status"`
+	LastSync     time.Time    `json:"last_sync"`
+	UserCount    int          `json:"user_count"`
+	GroupCount   int          `json:"group_count"`
+	ErrorMessage string       `json:"error_message,omitempty"`
 }
 
 // DomainStatus 域状态.
@@ -46,47 +46,47 @@ const (
 
 // ADUser AD 用户.
 type ADUser struct {
-	ID           string            `json:"id"`
-	Username     string            `json:"username"`
-	Domain       string            `json:"domain"`
-	Email        string            `json:"email"`
-	DisplayName  string            `json:"display_name"`
-	FirstName    string            `json:"first_name"`
-	LastName     string            `json:"last_name"`
-	Department   string            `json:"department"`
-	Title        string            `json:"title"`
-	Enabled      bool              `json:"enabled"`
-	Locked       bool              `json:"locked"`
-	PasswordExpired bool           `json:"password_expired"`
-	LastLogon    time.Time         `json:"last_logon"`
-	MemberOf     []string          `json:"member_of"`
-	Attributes   map[string]string `json:"attributes"`
-	CreatedAt    time.Time         `json:"created_at"`
-	UpdatedAt    time.Time         `json:"updated_at"`
+	ID              string            `json:"id"`
+	Username        string            `json:"username"`
+	Domain          string            `json:"domain"`
+	Email           string            `json:"email"`
+	DisplayName     string            `json:"display_name"`
+	FirstName       string            `json:"first_name"`
+	LastName        string            `json:"last_name"`
+	Department      string            `json:"department"`
+	Title           string            `json:"title"`
+	Enabled         bool              `json:"enabled"`
+	Locked          bool              `json:"locked"`
+	PasswordExpired bool              `json:"password_expired"`
+	LastLogon       time.Time         `json:"last_logon"`
+	MemberOf        []string          `json:"member_of"`
+	Attributes      map[string]string `json:"attributes"`
+	CreatedAt       time.Time         `json:"created_at"`
+	UpdatedAt       time.Time         `json:"updated_at"`
 }
 
 // ADGroup AD 组.
 type ADGroup struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Domain      string   `json:"domain"`
-	Description string   `json:"description"`
-	Members     []string `json:"members"`
-	Type        string   `json:"type"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Domain      string    `json:"domain"`
+	Description string    `json:"description"`
+	Members     []string  `json:"members"`
+	Type        string    `json:"type"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 
 // SyncJob 同步任务.
 type SyncJob struct {
-	ID           string        `json:"id"`
-	Domain       string        `json:"domain"`
-	Type         SyncType      `json:"type"`
-	Status       SyncStatus    `json:"status"`
-	StartedAt    time.Time     `json:"started_at"`
-	CompletedAt  time.Time     `json:"completed_at"`
-	RecordsSynced int          `json:"records_synced"`
-	ErrorMessage string        `json:"error_message,omitempty"`
-	Duration     time.Duration `json:"duration"`
+	ID            string        `json:"id"`
+	Domain        string        `json:"domain"`
+	Type          SyncType      `json:"type"`
+	Status        SyncStatus    `json:"status"`
+	StartedAt     time.Time     `json:"started_at"`
+	CompletedAt   time.Time     `json:"completed_at"`
+	RecordsSynced int           `json:"records_synced"`
+	ErrorMessage  string        `json:"error_message,omitempty"`
+	Duration      time.Duration `json:"duration"`
 }
 
 // SyncType 同步类型.

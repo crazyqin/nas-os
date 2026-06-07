@@ -25,14 +25,14 @@ func TestServerClientIntegration(t *testing.T) {
 
 	// 创建配置
 	serverCfg := &Config{
-		ListenAddr:       ":0", // 随机端口
-		MaxConcurrent:    4,
-		ChunkSize:        1024, // 小块用于测试
+		ListenAddr:        ":0", // 随机端口
+		MaxConcurrent:     4,
+		ChunkSize:         1024, // 小块用于测试
 		EnableCompression: false,
 		EnableEncryption:  false,
-		TransferTimeout:  30 * time.Second,
-		StorageRoot:      storageDir,
-		TempDir:          tempDir,
+		TransferTimeout:   30 * time.Second,
+		StorageRoot:       storageDir,
+		TempDir:           tempDir,
 	}
 
 	// 创建服务端
@@ -56,8 +56,8 @@ func TestServerClientIntegration(t *testing.T) {
 	clientCfg := &Config{
 		EnableCompression: false,
 		EnableEncryption:  false,
-		TransferTimeout:  30 * time.Second,
-		TempDir:          tempDir,
+		TransferTimeout:   30 * time.Second,
+		TempDir:           tempDir,
 	}
 
 	client := NewClient(clientCfg, logger)
@@ -96,13 +96,13 @@ func TestTransferLifecycle(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	cfg := &Config{
-		MaxConcurrent:    2,
-		ChunkSize:        1024,
+		MaxConcurrent:     2,
+		ChunkSize:         1024,
 		EnableCompression: false,
 		EnableEncryption:  false,
-		TransferTimeout:  10 * time.Second,
-		StorageRoot:      tmpDir,
-		TempDir:          tmpDir,
+		TransferTimeout:   10 * time.Second,
+		StorageRoot:       tmpDir,
+		TempDir:           tmpDir,
 	}
 
 	mgr := NewManager(cfg, logger)
@@ -177,12 +177,12 @@ func TestConcurrentTransfers(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	cfg := &Config{
-		MaxConcurrent:    3,
-		ChunkSize:        1024,
+		MaxConcurrent:     3,
+		ChunkSize:         1024,
 		EnableCompression: false,
 		EnableEncryption:  false,
-		StorageRoot:      tmpDir,
-		TempDir:          tmpDir,
+		StorageRoot:       tmpDir,
+		TempDir:           tmpDir,
 	}
 
 	mgr := NewManager(cfg, logger)
@@ -230,10 +230,10 @@ func TestTransferStats(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	cfg := &Config{
-		MaxConcurrent:    10,
-		ChunkSize:        1024,
-		StorageRoot:      tmpDir,
-		TempDir:          tmpDir,
+		MaxConcurrent: 10,
+		ChunkSize:     1024,
+		StorageRoot:   tmpDir,
+		TempDir:       tmpDir,
 	}
 
 	mgr := NewManager(cfg, logger)

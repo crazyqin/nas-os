@@ -20,11 +20,11 @@ func TestNewHAManager(t *testing.T) {
 	logger := zap.NewNop()
 
 	config := testApplyDefaults(t, &HAConfig{
-		ClusterName:     "test-cluster",
-		NodeID:          "node-1",
-		NodeName:        "node-1",
-		Address:         "127.0.0.1",
-		Port:            8080,
+		ClusterName:       "test-cluster",
+		NodeID:            "node-1",
+		NodeName:          "node-1",
+		Address:           "127.0.0.1",
+		Port:              8080,
 		HeartbeatInterval: 3 * time.Second,
 		HeartbeatTimeout:  10 * time.Second,
 		Peers: []PeerNode{

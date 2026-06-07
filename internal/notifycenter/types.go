@@ -9,13 +9,13 @@ import (
 type ChannelType string
 
 const (
-	ChannelEmail   ChannelType = "email"
-	ChannelWebhook ChannelType = "webhook"
-	ChannelWeChat  ChannelType = "wechat"
+	ChannelEmail    ChannelType = "email"
+	ChannelWebhook  ChannelType = "webhook"
+	ChannelWeChat   ChannelType = "wechat"
 	ChannelDingTalk ChannelType = "dingtalk"
 	ChannelTelegram ChannelType = "telegram"
-	ChannelSMS     ChannelType = "sms"
-	ChannelInApp   ChannelType = "in_app"
+	ChannelSMS      ChannelType = "sms"
+	ChannelInApp    ChannelType = "in_app"
 )
 
 // Priority 通知优先级.
@@ -30,48 +30,48 @@ const (
 
 // Notification 通知消息.
 type Notification struct {
-	ID        string    `json:"id"`
-	Title     string    `json:"title"`
-	Body      string    `json:"body"`
-	Priority  Priority  `json:"priority"`
-	Channel   ChannelType `json:"channel"`
-	Source    string    `json:"source"`
-	Tags      []string  `json:"tags,omitempty"`
-	Read      bool      `json:"read"`
-	SentAt    time.Time `json:"sent_at"`
-	ReadAt    *time.Time `json:"read_at,omitempty"`
+	ID       string      `json:"id"`
+	Title    string      `json:"title"`
+	Body     string      `json:"body"`
+	Priority Priority    `json:"priority"`
+	Channel  ChannelType `json:"channel"`
+	Source   string      `json:"source"`
+	Tags     []string    `json:"tags,omitempty"`
+	Read     bool        `json:"read"`
+	SentAt   time.Time   `json:"sent_at"`
+	ReadAt   *time.Time  `json:"read_at,omitempty"`
 }
 
 // Channel 通知渠道配置.
 type Channel struct {
-	ID        string      `json:"id"`
-	Name      string      `json:"name"`
-	Type      ChannelType `json:"type"`
-	Enabled   bool        `json:"enabled"`
-	Config    map[string]string `json:"config"`
+	ID      string            `json:"id"`
+	Name    string            `json:"name"`
+	Type    ChannelType       `json:"type"`
+	Enabled bool              `json:"enabled"`
+	Config  map[string]string `json:"config"`
 	// RateLimitPerMin 每分钟最大发送数.
 	RateLimitPerMin int `json:"rate_limit_per_min"`
 }
 
 // Template 通知模板.
 type Template struct {
-	ID       string      `json:"id"`
-	Name     string      `json:"name"`
-	Channel  ChannelType `json:"channel"`
-	Subject  string      `json:"subject"`
-	Body     string      `json:"body"`
+	ID      string      `json:"id"`
+	Name    string      `json:"name"`
+	Channel ChannelType `json:"channel"`
+	Subject string      `json:"subject"`
+	Body    string      `json:"body"`
 	// Variables 模板变量列表.
 	Variables []string `json:"variables,omitempty"`
 }
 
 // Preference 用户通知偏好.
 type Preference struct {
-	UserID           string          `json:"user_id"`
-	EnabledChannels  []ChannelType   `json:"enabled_channels"`
-	MinPriority      Priority        `json:"min_priority"`
-	QuietHoursStart  string          `json:"quiet_hours_start"` // "22:00"
-	QuietHoursEnd    string          `json:"quiet_hours_end"`   // "08:00"
-	MutedSources     []string        `json:"muted_sources"`
+	UserID          string        `json:"user_id"`
+	EnabledChannels []ChannelType `json:"enabled_channels"`
+	MinPriority     Priority      `json:"min_priority"`
+	QuietHoursStart string        `json:"quiet_hours_start"` // "22:00"
+	QuietHoursEnd   string        `json:"quiet_hours_end"`   // "08:00"
+	MutedSources    []string      `json:"muted_sources"`
 }
 
 // Manager 通知中心管理器.

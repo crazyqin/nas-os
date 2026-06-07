@@ -159,26 +159,26 @@ type ResourceQuota struct {
 
 // InferenceMetrics 推理指标
 type InferenceMetrics struct {
-	TotalRequests   int64         `json:"totalRequests"`
-	SuccessRequests int64         `json:"successRequests"`
-	FailedRequests  int64         `json:"failedRequests"`
-	AvgLatencyMs    float64       `json:"avgLatencyMs"`
-	P95LatencyMs    float64       `json:"p95LatencyMs"`
-	P99LatencyMs    float64       `json:"p99LatencyMs"`
-	QueueDepth      int           `json:"queueDepth"`
-	GPUMemoryUsedMB int           `json:"gpuMemoryUsedMB"`
-	GPUMemoryTotalMB int          `json:"gpuMemoryTotalMB"`
-	GPUUtilization  float64       `json:"gpuUtilization"`
-	Timestamp       time.Time     `json:"timestamp"`
+	TotalRequests    int64     `json:"totalRequests"`
+	SuccessRequests  int64     `json:"successRequests"`
+	FailedRequests   int64     `json:"failedRequests"`
+	AvgLatencyMs     float64   `json:"avgLatencyMs"`
+	P95LatencyMs     float64   `json:"p95LatencyMs"`
+	P99LatencyMs     float64   `json:"p99LatencyMs"`
+	QueueDepth       int       `json:"queueDepth"`
+	GPUMemoryUsedMB  int       `json:"gpuMemoryUsedMB"`
+	GPUMemoryTotalMB int       `json:"gpuMemoryTotalMB"`
+	GPUUtilization   float64   `json:"gpuUtilization"`
+	Timestamp        time.Time `json:"timestamp"`
 }
 
 // SchedulerConfig 调度器配置
 type SchedulerConfig struct {
-	Strategy        string `json:"strategy"`
-	MaxBatchSize    int    `json:"maxBatchSize"`
-	BatchTimeoutMs  int    `json:"batchTimeoutMs"`
-	MaxQueueSize    int    `json:"maxQueueSize"`
-	EnablePreemption bool  `json:"enablePreemption"`
+	Strategy         string `json:"strategy"`
+	MaxBatchSize     int    `json:"maxBatchSize"`
+	BatchTimeoutMs   int    `json:"batchTimeoutMs"`
+	MaxQueueSize     int    `json:"maxQueueSize"`
+	EnablePreemption bool   `json:"enablePreemption"`
 }
 
 // InferenceEvent 推理事件

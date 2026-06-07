@@ -14,7 +14,7 @@ func TestNewWakeOnLANPlus(t *testing.T) {
 
 func TestAddDevice(t *testing.T) {
 	wol := NewWakeOnLANPlus()
-	
+
 	device := Device{
 		Name:       "Test PC",
 		MACAddress: "AA:BB:CC:DD:EE:FF",
@@ -34,7 +34,7 @@ func TestAddDevice(t *testing.T) {
 
 func TestAddDeviceInvalidMAC(t *testing.T) {
 	wol := NewWakeOnLANPlus()
-	
+
 	device := Device{
 		Name:       "Test PC",
 		MACAddress: "invalid",
@@ -48,7 +48,7 @@ func TestAddDeviceInvalidMAC(t *testing.T) {
 
 func TestRemoveDevice(t *testing.T) {
 	wol := NewWakeOnLANPlus()
-	
+
 	wol.AddDevice(Device{
 		Name:       "Test PC",
 		MACAddress: "AA:BB:CC:DD:EE:FF",
@@ -63,7 +63,7 @@ func TestRemoveDevice(t *testing.T) {
 
 func TestGetDeviceStatus(t *testing.T) {
 	wol := NewWakeOnLANPlus()
-	
+
 	wol.AddDevice(Device{
 		Name:       "Test PC",
 		MACAddress: "AA:BB:CC:DD:EE:FF",

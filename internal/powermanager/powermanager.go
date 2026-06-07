@@ -36,8 +36,8 @@ const (
 type DiskState string
 
 const (
-	DiskStateActive DiskState = "active" // 活跃
-	DiskStateIdle   DiskState = "idle"   // 空闲
+	DiskStateActive  DiskState = "active"  // 活跃
+	DiskStateIdle    DiskState = "idle"    // 空闲
 	DiskStateStandby DiskState = "standby" // 待机（休眠）
 )
 
@@ -115,13 +115,13 @@ type DiskInfo struct {
 
 // CPUInfo CPU 信息.
 type CPUInfo struct {
-	Governor      string  `json:"governor"`       // 当前调频策略
-	CurrentFreq   int     `json:"current_freq"`   // 当前频率 (MHz)
-	MinFreq       int     `json:"min_freq"`       // 最小频率 (MHz)
-	MaxFreq       int     `json:"max_freq"`       // 最大频率 (MHz)
-	Usage         float64 `json:"usage"`          // CPU 使用率 (%)
-	Temperature   float64 `json:"temperature"`    // 温度
-	CoreCount     int     `json:"core_count"`     // 核心数
+	Governor    string  `json:"governor"`     // 当前调频策略
+	CurrentFreq int     `json:"current_freq"` // 当前频率 (MHz)
+	MinFreq     int     `json:"min_freq"`     // 最小频率 (MHz)
+	MaxFreq     int     `json:"max_freq"`     // 最大频率 (MHz)
+	Usage       float64 `json:"usage"`        // CPU 使用率 (%)
+	Temperature float64 `json:"temperature"`  // 温度
+	CoreCount   int     `json:"core_count"`   // 核心数
 }
 
 // ========== Manager ==========
@@ -408,11 +408,11 @@ func (m *Manager) SetCPUGovernor(governor string) error {
 	defer m.mu.Unlock()
 
 	validGovernors := map[string]bool{
-		"performance": true,
-		"powersave":   true,
-		"ondemand":    true,
+		"performance":  true,
+		"powersave":    true,
+		"ondemand":     true,
 		"conservative": true,
-		"schedutil":   true,
+		"schedutil":    true,
 	}
 
 	if !validGovernors[governor] {

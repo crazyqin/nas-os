@@ -10,22 +10,22 @@ import (
 
 // Manager 数据权利管理器
 type Manager struct {
-	config *Config
-	requests map[string]*DataRightRequest
-	pias     map[string]*PrivacyImpactAssessment
+	config    *Config
+	requests  map[string]*DataRightRequest
+	pias      map[string]*PrivacyImpactAssessment
 	deletions map[string]*DeletionResult
 	exports   map[string]*ExportResult
-	mu       sync.RWMutex
+	mu        sync.RWMutex
 }
 
 // NewManager 创建数据权利管理器
 func NewManager(config *Config) *Manager {
 	if config == nil {
 		config = &Config{
-			Enabled:             true,
-			MaxRequests:         10000,
+			Enabled:              true,
+			MaxRequests:          10000,
 			ResponseDeadlineDays: 30,
-			AuditEnabled:        true,
+			AuditEnabled:         true,
 		}
 	}
 	if config.ResponseDeadlineDays == 0 {

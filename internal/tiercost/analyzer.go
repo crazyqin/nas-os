@@ -218,8 +218,8 @@ func (a *TierCostAnalyzer) GetCostTrends(months int) []CostTrend {
 			date := now.AddDate(0, i-6, 0)
 			cost := baseCost * (1 + float64(i)*0.02) // 模拟2%月增长
 			trends = append(trends, CostTrend{
-				Date:     date,
-				Cost:     round2(cost),
+				Date:        date,
+				Cost:        round2(cost),
 				IsProjected: false,
 			})
 		}
@@ -234,9 +234,9 @@ func (a *TierCostAnalyzer) GetCostTrends(months int) []CostTrend {
 			date := lastTrend.Date.AddDate(0, i, 0)
 			projected := lastTrend.Cost * (1 + growthRate*float64(i))
 			trends = append(trends, CostTrend{
-				Date:           date,
-				ProjectedCost:  round2(projected),
-				IsProjected:    true,
+				Date:          date,
+				ProjectedCost: round2(projected),
+				IsProjected:   true,
 			})
 		}
 	}
@@ -322,11 +322,11 @@ func (a *TierCostAnalyzer) SimulateTierPlan(req *SimulateRequest) (*SimulateResp
 	}
 
 	return &SimulateResponse{
-		CurrentCost:     round2(currentCost),
-		SimulatedCost:   round2(simulatedCost),
-		Savings:         round2(savings),
-		SavingsPercent:  round2(savingsPct),
-		Details:         details,
+		CurrentCost:    round2(currentCost),
+		SimulatedCost:  round2(simulatedCost),
+		Savings:        round2(savings),
+		SavingsPercent: round2(savingsPct),
+		Details:        details,
 	}, nil
 }
 

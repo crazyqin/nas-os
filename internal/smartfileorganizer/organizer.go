@@ -61,17 +61,17 @@ type FileEntry struct {
 
 // OrganizationRule defines an automatic organization rule.
 type OrganizationRule struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Enabled     bool         `json:"enabled"`
-	Category    FileCategory `json:"category,omitempty"`
-	Extensions  []string     `json:"extensions,omitempty"`
-	MinSize     int64        `json:"minSize,omitempty"`
-	MaxSize     int64        `json:"maxSize,omitempty"`
-	TargetDir   string       `json:"targetDir"`
-	Dedup       bool         `json:"dedup,omitempty"`
-	AutoTag     bool         `json:"autoTag,omitempty"`
-	RenamePattern string     `json:"renamePattern,omitempty"`
+	ID            string       `json:"id"`
+	Name          string       `json:"name"`
+	Enabled       bool         `json:"enabled"`
+	Category      FileCategory `json:"category,omitempty"`
+	Extensions    []string     `json:"extensions,omitempty"`
+	MinSize       int64        `json:"minSize,omitempty"`
+	MaxSize       int64        `json:"maxSize,omitempty"`
+	TargetDir     string       `json:"targetDir"`
+	Dedup         bool         `json:"dedup,omitempty"`
+	AutoTag       bool         `json:"autoTag,omitempty"`
+	RenamePattern string       `json:"renamePattern,omitempty"`
 }
 
 // DuplicateGroup groups duplicate files.
@@ -84,15 +84,15 @@ type DuplicateGroup struct {
 
 // OrganizationReport summarizes an organization run.
 type OrganizationReport struct {
-	StartTime       time.Time         `json:"startTime"`
-	EndTime         time.Time         `json:"endTime"`
-	ScannedFiles    int               `json:"scannedFiles"`
-	MovedFiles      int               `json:"movedFiles"`
-	RenamedFiles    int               `json:"renamedFiles"`
-	DeletedDupes    int               `json:"deletedDupes"`
-	SpaceFreedBytes int64             `json:"spaceFreedBytes"`
+	StartTime       time.Time            `json:"startTime"`
+	EndTime         time.Time            `json:"endTime"`
+	ScannedFiles    int                  `json:"scannedFiles"`
+	MovedFiles      int                  `json:"movedFiles"`
+	RenamedFiles    int                  `json:"renamedFiles"`
+	DeletedDupes    int                  `json:"deletedDupes"`
+	SpaceFreedBytes int64                `json:"spaceFreedBytes"`
 	CategoryCounts  map[FileCategory]int `json:"categoryCounts"`
-	Errors          []string          `json:"errors,omitempty"`
+	Errors          []string             `json:"errors,omitempty"`
 }
 
 // Organizer manages intelligent file organization.
@@ -329,12 +329,12 @@ func (o *Organizer) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"totalFiles":     len(o.index),
-		"totalSize":      totalSize,
-		"categories":     len(o.catIdx),
-		"rules":          len(o.rules),
+		"totalFiles":      len(o.index),
+		"totalSize":       totalSize,
+		"categories":      len(o.catIdx),
+		"rules":           len(o.rules),
 		"duplicateGroups": len(o.dupIdx),
-		"baseDir":        o.baseDir,
+		"baseDir":         o.baseDir,
 	}
 }
 

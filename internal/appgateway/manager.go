@@ -92,11 +92,11 @@ func (m *Manager) RegisterApp(app *Application) error {
 	}
 	if app.HealthCheck == nil {
 		app.HealthCheck = &HealthCheckConfig{
-			Enabled:           true,
-			Path:              "/health",
-			Interval:          30 * time.Second,
-			Timeout:           5 * time.Second,
-			HealthyCodes:      []int{200},
+			Enabled:            true,
+			Path:               "/health",
+			Interval:           30 * time.Second,
+			Timeout:            5 * time.Second,
+			HealthyCodes:       []int{200},
 			UnhealthyThreshold: 3,
 			HealthyThreshold:   2,
 		}

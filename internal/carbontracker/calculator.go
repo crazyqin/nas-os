@@ -129,8 +129,8 @@ func (c *Calculator) CalculateDeviceCarbon(device *EnergyConsumption, region str
 // region: 地区
 func (c *Calculator) CalculateIntensity(gridPct, solarPct, windPct float64, region string) float64 {
 	gridIntensity := c.GetIntensity(region)
-	solarIntensity := 41.0  // 太阳能全生命周期排放因子
-	windIntensity := 11.0   // 风能全生命周期排放因子
+	solarIntensity := 41.0 // 太阳能全生命周期排放因子
+	windIntensity := 11.0  // 风能全生命周期排放因子
 
 	total := gridPct + solarPct + windPct
 	if total == 0 {
@@ -272,12 +272,12 @@ func (c *Calculator) CalculateESGScore(
 		Social:        math.Round(socialScore*100) / 100,
 		Governance:    math.Round(govScore*100) / 100,
 		Breakdown: map[string]float64{
-			"carbon_emission":  envScore,
-			"green_energy":     greenEnergyPct,
-			"reduction":        reductionPct,
-			"target_progress":  targetProgress,
-			"social":           socialScore,
-			"governance":       govScore,
+			"carbon_emission": envScore,
+			"green_energy":    greenEnergyPct,
+			"reduction":       reductionPct,
+			"target_progress": targetProgress,
+			"social":          socialScore,
+			"governance":      govScore,
 		},
 		Rating: rating,
 	}

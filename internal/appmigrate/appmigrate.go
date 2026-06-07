@@ -47,10 +47,10 @@ type MigrationTask struct {
 
 // MigrationManager 迁移管理器
 type MigrationManager struct {
-	mu         sync.RWMutex
-	apps       map[string]*App
-	tasks      map[string]*MigrationTask
-	taskOrder  []string
+	mu        sync.RWMutex
+	apps      map[string]*App
+	tasks     map[string]*MigrationTask
+	taskOrder []string
 }
 
 // NewMigrationManager 创建迁移管理器

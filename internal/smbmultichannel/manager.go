@@ -13,16 +13,16 @@ import (
 
 // Manager SMB Multichannel 管理器.
 type Manager struct {
-	config       *ChannelConfig
-	channels     map[string]*ChannelInfo
-	sessions     map[string]*MultichannelSession
-	history      []BandwidthHistoryItem
-	health       map[string]*ChannelHealth
-	auditLog     []AuditEntry
-	stats        *ChannelStats
-	mu           sync.RWMutex
-	maxHistory   int
-	maxAudit     int
+	config     *ChannelConfig
+	channels   map[string]*ChannelInfo
+	sessions   map[string]*MultichannelSession
+	history    []BandwidthHistoryItem
+	health     map[string]*ChannelHealth
+	auditLog   []AuditEntry
+	stats      *ChannelStats
+	mu         sync.RWMutex
+	maxHistory int
+	maxAudit   int
 }
 
 // NewManager 创建 SMB Multichannel 管理器.
@@ -38,11 +38,11 @@ func NewManager() *Manager {
 			JumboFrames:     false,
 			RDMAEnabled:     false,
 		},
-		channels:   make(map[string]*ChannelInfo),
-		sessions:   make(map[string]*MultichannelSession),
-		history:    make([]BandwidthHistoryItem, 0),
-		health:     make(map[string]*ChannelHealth),
-		auditLog:   make([]AuditEntry, 0),
+		channels: make(map[string]*ChannelInfo),
+		sessions: make(map[string]*MultichannelSession),
+		history:  make([]BandwidthHistoryItem, 0),
+		health:   make(map[string]*ChannelHealth),
+		auditLog: make([]AuditEntry, 0),
 		stats: &ChannelStats{
 			PerChannelBandwidth: make(map[string]int),
 		},
@@ -136,9 +136,9 @@ func (m *Manager) DetectChannels() []ChannelStatus {
 		name  string
 		speed int
 	}{
-		{"eth0", 10000}, // 10GbE
-		{"eth1", 10000}, // 10GbE
-		{"eth2", 2500},  // 2.5GbE
+		{"eth0", 10000},  // 10GbE
+		{"eth1", 10000},  // 10GbE
+		{"eth2", 2500},   // 2.5GbE
 		{"bond0", 20000}, // bonded
 	}
 
@@ -329,10 +329,10 @@ func (m *Manager) createSession(clientIP, serverIP string) *MultichannelSession 
 	}
 
 	session := &MultichannelSession{
-		ID:       uuid.New().String(),
-		ClientIP: clientIP,
-		ServerIP: serverIP,
-		Channels: channels,
+		ID:         uuid.New().String(),
+		ClientIP:   clientIP,
+		ServerIP:   serverIP,
+		Channels:   channels,
 		TotalSpeed: totalSpeed,
 		StartTime:  time.Now(),
 		Protocol:   "SMB3",
@@ -438,7 +438,7 @@ func (m *Manager) SimulateTraffic() {
 
 	for _, ch := range m.channels {
 		if ch.Enabled {
-			bytesTransferred := int64(rand.Intn(100) + 10) * 1024 * 1024 // 10-110 MB
+			bytesTransferred := int64(rand.Intn(100)+10) * 1024 * 1024 // 10-110 MB
 			ch.Status.BytesTransferred += bytesTransferred
 			ch.TotalBytes += bytesTransferred
 		}

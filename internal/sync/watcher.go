@@ -26,8 +26,8 @@ type Watcher struct {
 	watchDirs map[string]struct{} // 已监控的目录
 
 	// 事件处理
-	events      []FileWatchEvent
-	eventDebounce map[string]time.Time
+	events           []FileWatchEvent
+	eventDebounce    map[string]time.Time
 	debounceInterval time.Duration
 
 	// 扫描模式
@@ -46,23 +46,23 @@ type Watcher struct {
 
 // FileWatchEvent 文件监控事件.
 type FileWatchEvent struct {
-	Path      string    `json:"path"`
+	Path      string      `json:"path"`
 	Op        fsnotify.Op `json:"op"`
-	Timestamp time.Time `json:"timestamp"`
-	IsDir     bool      `json:"isDir"`
+	Timestamp time.Time   `json:"timestamp"`
+	IsDir     bool        `json:"isDir"`
 }
 
 // NewWatcher 创建 watcher.
 func NewWatcher(taskID string, task *Task, provider Provider, store *StateStore) (*Watcher, error) {
 	w := &Watcher{
-		taskID:          taskID,
-		task:            task,
-		provider:        provider,
-		store:           store,
-		watchDirs:       make(map[string]struct{}),
-		eventDebounce:   make(map[string]time.Time),
+		taskID:           taskID,
+		task:             task,
+		provider:         provider,
+		store:            store,
+		watchDirs:        make(map[string]struct{}),
+		eventDebounce:    make(map[string]time.Time),
 		debounceInterval: 2 * time.Second,
-		scanInterval:    5 * time.Minute,
+		scanInterval:     5 * time.Minute,
 	}
 
 	switch task.WatchMode {
@@ -265,13 +265,13 @@ func (w *Watcher) triggerScan() {
 
 // WatchStatus watcher 状态.
 type WatchStatus struct {
-	TaskID      string            `json:"taskID"`
-	Mode        string            `json:"mode"`
-	Running     bool              `json:"running"`
-	WatchDirs   int               `json:"watchDirs"`
-	Debounced   int               `json:"debouncedEvents"`
-	LastScan    *time.Time        `json:"lastScan,omitempty"`
-	PendingSync bool              `json:"pendingSync"`
+	TaskID      string     `json:"taskID"`
+	Mode        string     `json:"mode"`
+	Running     bool       `json:"running"`
+	WatchDirs   int        `json:"watchDirs"`
+	Debounced   int        `json:"debouncedEvents"`
+	LastScan    *time.Time `json:"lastScan,omitempty"`
+	PendingSync bool       `json:"pendingSync"`
 }
 
 // Status 返回 watcher 状态.

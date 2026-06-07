@@ -118,11 +118,11 @@ func (mm *MaskingManager) CreateRule(req CreateMaskRuleRequest) (*DataMaskRule, 
 	}
 
 	validStrategies := map[string]bool{
-		"mask":           true,
-		"partial":        true,
-		"hash":           true,
-		"tokenize":       true,
-		"pseudonymize":   true,
+		"mask":         true,
+		"partial":      true,
+		"hash":         true,
+		"tokenize":     true,
+		"pseudonymize": true,
 	}
 	if !validStrategies[req.Strategy] {
 		return nil, fmt.Errorf("不支持的脱敏策略: %s", req.Strategy)

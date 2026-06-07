@@ -127,8 +127,8 @@ func TestManager_CorrelateAlerts(t *testing.T) {
 	m := setupTestManager()
 
 	alert1 := m.Fire("smart_warning", "disk sda issue") // hardware
-	alert2 := m.Fire("pool_degraded", "pool degraded") // storage
-	alert3 := m.Fire("disk_space_low", "space low")   // storage
+	alert2 := m.Fire("pool_degraded", "pool degraded")  // storage
+	alert3 := m.Fire("disk_space_low", "space low")     // storage
 
 	// alert2 and alert3 are both storage category, should be correlated
 	found2to3 := false

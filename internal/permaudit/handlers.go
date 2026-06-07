@@ -9,8 +9,8 @@ import (
 
 // Handlers 权限审计 HTTP 处理器
 type Handlers struct {
-	auditor     *Auditor
-	mu          sync.RWMutex
+	auditor      *Auditor
+	mu           sync.RWMutex
 	latestReport *AuditReport
 }
 
@@ -65,8 +65,8 @@ func (h *Handlers) getIssues(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"issues":          report.Issues,
-		"issue_summary":   report.IssueSummary,
+		"issues":           report.Issues,
+		"issue_summary":    report.IssueSummary,
 		"severity_summary": report.SeveritySummary,
 	})
 }

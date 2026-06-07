@@ -13,17 +13,17 @@ import (
 
 // Manager manages RAG-enhanced search
 type Manager struct {
-	config       *Config
-	index        map[string]*IndexEntry
-	invertedIdx  map[string]map[string]int // term -> docID -> term freq
-	docFreq      map[string]int            // term -> number of docs containing term
-	totalDocLen  int                       // total content length of all docs
-	mu           sync.RWMutex
-	ctx          context.Context
-	cancel       context.CancelFunc
-	stats        *IndexStats
-	history      []*SearchHistory
-	historyMu    sync.RWMutex
+	config      *Config
+	index       map[string]*IndexEntry
+	invertedIdx map[string]map[string]int // term -> docID -> term freq
+	docFreq     map[string]int            // term -> number of docs containing term
+	totalDocLen int                       // total content length of all docs
+	mu          sync.RWMutex
+	ctx         context.Context
+	cancel      context.CancelFunc
+	stats       *IndexStats
+	history     []*SearchHistory
+	historyMu   sync.RWMutex
 }
 
 // NewManager creates a new RAG search manager

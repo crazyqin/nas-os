@@ -32,12 +32,12 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 
 // CreateLinkRequest 创建链接请求
 type CreateLinkRequest struct {
-	Path         string          `json:"path" binding:"required"`
-	Name         string          `json:"name" binding:"required"`
-	CreatedBy    string          `json:"createdBy" binding:"required"`
-	Permission   SharePermission `json:"permission"`
-	ExpiryHours  int             `json:"expiryHours"`
-	Password     string          `json:"password"`
+	Path        string          `json:"path" binding:"required"`
+	Name        string          `json:"name" binding:"required"`
+	CreatedBy   string          `json:"createdBy" binding:"required"`
+	Permission  SharePermission `json:"permission"`
+	ExpiryHours int             `json:"expiryHours"`
+	Password    string          `json:"password"`
 }
 
 // ListLinks 列出链接

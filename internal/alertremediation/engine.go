@@ -277,10 +277,10 @@ func (e *RemediationEngine) buildPlan(alert *Alert, rule *RemediationRule) *Reme
 		RuleID:  rule.ID,
 		Alert:   alert,
 		RootCause: RootCauseAnalysis{
-			Summary:     rule.RootCause,
-			Description: fmt.Sprintf("基于规则 %q 的根因分析: %s", rule.Name, rule.RootCause),
+			Summary:        rule.RootCause,
+			Description:    fmt.Sprintf("基于规则 %q 的根因分析: %s", rule.Name, rule.RootCause),
 			PossibleCauses: []string{rule.RootCause},
-			Impact:      fmt.Sprintf("影响类别: %s, 严重级别: %s", rule.Category, rule.Severity),
+			Impact:         fmt.Sprintf("影响类别: %s, 严重级别: %s", rule.Category, rule.Severity),
 		},
 		Steps:     steps,
 		Actions:   actions,

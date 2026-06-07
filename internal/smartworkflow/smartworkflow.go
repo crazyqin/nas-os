@@ -49,9 +49,9 @@ const (
 type TriggerType int
 
 const (
-	TriggerTypeCron    TriggerType = iota // 定时触发
-	TriggerTypeEvent                      // 事件触发
-	TriggerTypeManual                     // 手动触发
+	TriggerTypeCron   TriggerType = iota // 定时触发
+	TriggerTypeEvent                     // 事件触发
+	TriggerTypeManual                    // 手动触发
 )
 
 // Step 工作流步骤
@@ -137,11 +137,11 @@ type CronSchedule struct {
 // SmartWorkflow 智能工作流引擎主结构体
 type SmartWorkflow struct {
 	mu          sync.RWMutex
-	workflows   map[string]*Workflow     // 工作流存储
-	executions  map[string]*Execution    // 执行记录存储
-	templates   map[string]*Template     // 模板存储
-	triggers    map[string][]*Trigger    // 触发器索引
-	execCounter int64                    // 执行计数器
+	workflows   map[string]*Workflow  // 工作流存储
+	executions  map[string]*Execution // 执行记录存储
+	templates   map[string]*Template  // 模板存储
+	triggers    map[string][]*Trigger // 触发器索引
+	execCounter int64                 // 执行计数器
 }
 
 // New 创建新的智能工作流引擎实例

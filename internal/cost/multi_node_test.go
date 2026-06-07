@@ -76,8 +76,8 @@ func TestMultiNodeAggregator_UpdateNodeStats(t *testing.T) {
 
 	resources := []ResourceCostDetail{
 		{
-			Name:              "pool-main",
-			Type:              "pool",
+			Name:               "pool-main",
+			Type:               "pool",
 			TotalCapacityBytes: 10 * 1024 * 1024 * 1024 * 1024, // 10TB
 			UsedCapacityBytes:  5 * 1024 * 1024 * 1024 * 1024,  // 5TB
 			MonthlyCost:        300.0,

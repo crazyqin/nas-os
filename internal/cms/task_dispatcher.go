@@ -27,27 +27,27 @@ type TaskDispatcher struct {
 
 // TaskInfo 任务信息
 type TaskInfo struct {
-	TaskID       string                 `json:"taskId"`
-	DeviceID     string                 `json:"deviceId"`
-	TaskType     string                 `json:"taskType"`
-	Priority     int                    `json:"priority"`
-	Status       string                 `json:"status"` // pending, running, completed, failed, cancelled
-	Params       map[string]interface{} `json:"params"`
-	Progress     float64                `json:"progress"`
-	Result       interface{}            `json:"result,omitempty"`
-	Error        string                 `json:"error,omitempty"`
-	CreatedAt    time.Time              `json:"createdAt"`
-	StartedAt    time.Time              `json:"startedAt,omitempty"`
-	CompletedAt  time.Time              `json:"completedAt,omitempty"`
-	ExpiresAt    time.Time              `json:"expiresAt"`
-	MaxRetries   int                    `json:"maxRetries"`
-	RetryCount   int                    `json:"retryCount"`
+	TaskID      string                 `json:"taskId"`
+	DeviceID    string                 `json:"deviceId"`
+	TaskType    string                 `json:"taskType"`
+	Priority    int                    `json:"priority"`
+	Status      string                 `json:"status"` // pending, running, completed, failed, cancelled
+	Params      map[string]interface{} `json:"params"`
+	Progress    float64                `json:"progress"`
+	Result      interface{}            `json:"result,omitempty"`
+	Error       string                 `json:"error,omitempty"`
+	CreatedAt   time.Time              `json:"createdAt"`
+	StartedAt   time.Time              `json:"startedAt,omitempty"`
+	CompletedAt time.Time              `json:"completedAt,omitempty"`
+	ExpiresAt   time.Time              `json:"expiresAt"`
+	MaxRetries  int                    `json:"maxRetries"`
+	RetryCount  int                    `json:"retryCount"`
 }
 
 // TaskDispatchRequest 任务分发请求
 type TaskDispatchRequest struct {
 	TaskType   string                 `json:"taskType"`
-	DeviceID   string                 `json:"deviceId"`   // 可选，空则自动选择
+	DeviceID   string                 `json:"deviceId"` // 可选，空则自动选择
 	Priority   int                    `json:"priority"`
 	Params     map[string]interface{} `json:"params"`
 	ExpiresIn  time.Duration          `json:"expiresIn"`
@@ -56,9 +56,9 @@ type TaskDispatchRequest struct {
 
 // TaskDispatchResult 任务分发结果
 type TaskDispatchResult struct {
-	TaskID  string    `json:"taskId"`
-	Status  string    `json:"status"`
-	Message string    `json:"message"`
+	TaskID  string `json:"taskId"`
+	Status  string `json:"status"`
+	Message string `json:"message"`
 }
 
 // NodeTask 节点任务
@@ -74,7 +74,7 @@ type NodeTask struct {
 // NewTaskDispatcher 创建任务调度器
 func NewTaskDispatcher(config FleetConfig, logger *zap.Logger) (*TaskDispatcher, error) {
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	td := &TaskDispatcher{
 		config:    config,
 		tasks:     make(map[string]*TaskInfo),
@@ -84,12 +84,12 @@ func NewTaskDispatcher(config FleetConfig, logger *zap.Logger) (*TaskDispatcher,
 		cancel:    cancel,
 		dataFile:  filepath.Join(config.DataDir, "tasks.json"),
 	}
-	
+
 	// 加载持久化数据
 	if err := td.loadState(); err != nil {
 		logger.Warn("加载任务状态失败", zap.Error(err))
 	}
-	
+
 	return td, nil
 }
 
@@ -109,9 +109,9 @@ func (td *TaskDispatcher) Stop() {
 func (td *TaskDispatcher) Dispatch(req TaskDispatchRequest) (*TaskDispatchResult, error) {
 	td.mu.Lock()
 	defer td.mu.Unlock()
-	
+
 	taskID := generateTaskID()
-	
+
 	task := &TaskInfo{
 		TaskID:     taskID,
 		DeviceID:   req.DeviceID,
@@ -125,17 +125,17 @@ func (td *TaskDispatcher) Dispatch(req TaskDispatchRequest) (*TaskDispatchResult
 		MaxRetries: req.MaxRetries,
 		RetryCount: 0,
 	}
-	
+
 	td.tasks[taskID] = task
 	if req.DeviceID != "" {
 		td.nodeTasks[req.DeviceID] = append(td.nodeTasks[req.DeviceID], taskID)
 	}
-	
+
 	td.logger.Info("任务已创建",
 		zap.String("task_id", taskID),
 		zap.String("task_type", req.TaskType),
 		zap.String("device_id", req.DeviceID))
-	
+
 	return &TaskDispatchResult{
 		TaskID:  taskID,
 		Status:  "pending",
@@ -147,10 +147,10 @@ func (td *TaskDispatcher) Dispatch(req TaskDispatchRequest) (*TaskDispatchResult
 func (td *TaskDispatcher) GetNodeTasks(deviceID string) ([]NodeTask, error) {
 	td.mu.RLock()
 	defer td.mu.RUnlock()
-	
+
 	taskIDs := td.nodeTasks[deviceID]
 	tasks := make([]NodeTask, 0, len(taskIDs))
-	
+
 	for _, taskID := range taskIDs {
 		if task, ok := td.tasks[taskID]; ok {
 			tasks = append(tasks, NodeTask{
@@ -163,7 +163,7 @@ func (td *TaskDispatcher) GetNodeTasks(deviceID string) ([]NodeTask, error) {
 			})
 		}
 	}
-	
+
 	return tasks, nil
 }
 
@@ -171,17 +171,17 @@ func (td *TaskDispatcher) GetNodeTasks(deviceID string) ([]NodeTask, error) {
 func (td *TaskDispatcher) CancelTask(taskID string) error {
 	td.mu.Lock()
 	defer td.mu.Unlock()
-	
+
 	task, ok := td.tasks[taskID]
 	if !ok {
 		return fmt.Errorf("任务不存在: %s", taskID)
 	}
-	
+
 	task.Status = "cancelled"
 	task.CompletedAt = time.Now()
-	
+
 	td.logger.Info("任务已取消", zap.String("task_id", taskID))
-	
+
 	return nil
 }
 
@@ -189,23 +189,23 @@ func (td *TaskDispatcher) CancelTask(taskID string) error {
 func (td *TaskDispatcher) UpdateTaskProgress(deviceID string, progress TaskProgress) {
 	td.mu.Lock()
 	defer td.mu.Unlock()
-	
+
 	task, ok := td.tasks[progress.TaskID]
 	if !ok {
 		td.logger.Warn("任务不存在", zap.String("task_id", progress.TaskID))
 		return
 	}
-	
+
 	task.Status = progress.Status
 	task.Progress = progress.Progress
 	task.Error = progress.Error
-	
+
 	if progress.Status == "completed" {
 		task.CompletedAt = time.Now()
 	} else if progress.Status == "running" && task.StartedAt.IsZero() {
 		task.StartedAt = time.Now()
 	}
-	
+
 	td.logger.Debug("任务进度更新",
 		zap.String("task_id", progress.TaskID),
 		zap.Float64("progress", progress.Progress))
@@ -215,12 +215,12 @@ func (td *TaskDispatcher) UpdateTaskProgress(deviceID string, progress TaskProgr
 func (td *TaskDispatcher) GetTask(taskID string) (*TaskInfo, error) {
 	td.mu.RLock()
 	defer td.mu.RUnlock()
-	
+
 	task, ok := td.tasks[taskID]
 	if !ok {
 		return nil, fmt.Errorf("任务不存在: %s", taskID)
 	}
-	
+
 	return task, nil
 }
 
@@ -228,7 +228,7 @@ func (td *TaskDispatcher) GetTask(taskID string) (*TaskInfo, error) {
 func (td *TaskDispatcher) ListTasks(filter TaskFilter) []*TaskInfo {
 	td.mu.RLock()
 	defer td.mu.RUnlock()
-	
+
 	result := make([]*TaskInfo, 0)
 	for _, task := range td.tasks {
 		if filter.Match(task) {
@@ -268,19 +268,19 @@ func (td *TaskDispatcher) loadState() error {
 		}
 		return err
 	}
-	
+
 	var state struct {
 		Tasks     map[string]*TaskInfo
 		NodeTasks map[string][]string
 	}
-	
+
 	if err := json.Unmarshal(data, &state); err != nil {
 		return err
 	}
-	
+
 	td.tasks = state.Tasks
 	td.nodeTasks = state.NodeTasks
-	
+
 	return nil
 }
 
@@ -288,7 +288,7 @@ func (td *TaskDispatcher) loadState() error {
 func (td *TaskDispatcher) saveState() error {
 	td.mu.RLock()
 	defer td.mu.RUnlock()
-	
+
 	state := struct {
 		Tasks     map[string]*TaskInfo
 		NodeTasks map[string][]string
@@ -296,12 +296,12 @@ func (td *TaskDispatcher) saveState() error {
 		Tasks:     td.tasks,
 		NodeTasks: td.nodeTasks,
 	}
-	
+
 	data, err := json.Marshal(state)
 	if err != nil {
 		return err
 	}
-	
+
 	return os.WriteFile(td.dataFile, data, 0640)
 }
 

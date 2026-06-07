@@ -746,11 +746,11 @@ func (cb *CircuitBreaker) GetStats() map[string]interface{} {
 	defer cb.mu.RUnlock()
 
 	return map[string]interface{}{
-		"state":          cb.state,
-		"failure_count":  cb.failureCount,
-		"success_count":  cb.successCount,
-		"total_requests": cb.totalRequests,
-		"total_failures": cb.totalFailures,
+		"state":           cb.state,
+		"failure_count":   cb.failureCount,
+		"success_count":   cb.successCount,
+		"total_requests":  cb.totalRequests,
+		"total_failures":  cb.totalFailures,
 		"total_successes": cb.totalSuccesses,
 	}
 }

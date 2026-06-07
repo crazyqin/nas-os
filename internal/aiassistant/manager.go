@@ -338,7 +338,7 @@ func (m *Manager) getSystemStatus() *SystemStatus {
 			Total:     17179869184, // 16GB
 			Used:      8589934592,  // 8GB
 			Available: 8589934592,
-			SwapTotal: 4294967296,  // 4GB
+			SwapTotal: 4294967296, // 4GB
 			SwapUsed:  0,
 			Usage:     50.0,
 		},

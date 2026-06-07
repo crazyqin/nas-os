@@ -31,7 +31,7 @@ const (
 type TemplateType string
 
 const (
-	TemplateTypeHome      TemplateType = "home"
+	TemplateTypeHome       TemplateType = "home"
 	TemplateTypeEnterprise TemplateType = "enterprise"
 	TemplateTypeDeveloper  TemplateType = "developer"
 )
@@ -64,15 +64,15 @@ type Progress struct {
 
 // Session 引导会话
 type Session struct {
-	ID          string           `json:"id"`
-	TemplateType TemplateType     `json:"template_type"`
-	Steps       []*Step          `json:"steps"`
-	Progress    *Progress        `json:"progress"`
-	CreatedAt   time.Time        `json:"created_at"`
-	UpdatedAt   time.Time        `json:"updated_at"`
-	CompletedAt *time.Time       `json:"completed_at,omitempty"`
-	IsCompleted bool             `json:"is_completed"`
-	CustomData  map[string]any   `json:"custom_data,omitempty"`
+	ID           string         `json:"id"`
+	TemplateType TemplateType   `json:"template_type"`
+	Steps        []*Step        `json:"steps"`
+	Progress     *Progress      `json:"progress"`
+	CreatedAt    time.Time      `json:"created_at"`
+	UpdatedAt    time.Time      `json:"updated_at"`
+	CompletedAt  *time.Time     `json:"completed_at,omitempty"`
+	IsCompleted  bool           `json:"is_completed"`
+	CustomData   map[string]any `json:"custom_data,omitempty"`
 }
 
 // NetworkConfig 网络配置数据

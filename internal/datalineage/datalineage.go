@@ -22,9 +22,9 @@ type Manager struct {
 // NewManager 创建管理器
 func NewManager(dataFile string) *Manager {
 	return &Manager{
-		nodes:    make(map[string]*DataNode),
-		edges:    make(map[string]*LineageEdge),
-		records:  make([]*ProcessingRecord, 0),
+		nodes:   make(map[string]*DataNode),
+		edges:   make(map[string]*LineageEdge),
+		records: make([]*ProcessingRecord, 0),
 		config: &Config{
 			MaxNodes:           10000,
 			MaxDepth:           10,
@@ -350,12 +350,12 @@ func (m *Manager) GenerateComplianceReport(regulation ComplianceRegulation) map[
 	}
 
 	return map[string]interface{}{
-		"regulation":             regulation,
-		"total_records":          totalRecords,
-		"cross_border_count":     crossBorderCount,
-		"consent_obtained_count": consentCount,
+		"regulation":              regulation,
+		"total_records":           totalRecords,
+		"cross_border_count":      crossBorderCount,
+		"consent_obtained_count":  consentCount,
 		"nodes_by_classification": nodesByClassification,
-		"generated_at":           time.Now(),
+		"generated_at":            time.Now(),
 	}
 }
 
@@ -435,12 +435,12 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_nodes":     len(m.nodes),
-		"total_edges":     len(m.edges),
-		"total_records":   len(m.records),
-		"nodes_by_type":   nodesByType,
-		"nodes_by_class":  nodesByClass,
-		"edges_by_type":   edgesByType,
+		"total_nodes":    len(m.nodes),
+		"total_edges":    len(m.edges),
+		"total_records":  len(m.records),
+		"nodes_by_type":  nodesByType,
+		"nodes_by_class": nodesByClass,
+		"edges_by_type":  edgesByType,
 	}
 }
 

@@ -13,28 +13,28 @@ import (
 
 // SyncTask represents a file synchronization task
 type SyncTask struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Source      string    `json:"source"`
-	Destination string    `json:"destination"`
-	Mode        string    `json:"mode"` // mirror, backup, sync
-	Status      string    `json:"status"`
-	LastSync    time.Time `json:"last_sync"`
-	NextSync    time.Time `json:"next_sync"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Source      string        `json:"source"`
+	Destination string        `json:"destination"`
+	Mode        string        `json:"mode"` // mirror, backup, sync
+	Status      string        `json:"status"`
+	LastSync    time.Time     `json:"last_sync"`
+	NextSync    time.Time     `json:"next_sync"`
 	Interval    time.Duration `json:"interval"`
-	FileCount   int64     `json:"file_count"`
-	TotalSize   int64     `json:"total_size"`
+	FileCount   int64         `json:"file_count"`
+	TotalSize   int64         `json:"total_size"`
 }
 
 // SyncResult represents the result of a sync operation
 type SyncResult struct {
-	TaskID      string    `json:"task_id"`
-	StartTime   time.Time `json:"start_time"`
-	EndTime     time.Time `json:"end_time"`
-	FilesSynced int       `json:"files_synced"`
-	FilesSkipped int      `json:"files_skipped"`
-	BytesTotal  int64     `json:"bytes_total"`
-	Errors      []string  `json:"errors,omitempty"`
+	TaskID       string    `json:"task_id"`
+	StartTime    time.Time `json:"start_time"`
+	EndTime      time.Time `json:"end_time"`
+	FilesSynced  int       `json:"files_synced"`
+	FilesSkipped int       `json:"files_skipped"`
+	BytesTotal   int64     `json:"bytes_total"`
+	Errors       []string  `json:"errors,omitempty"`
 }
 
 // ConflictResolution defines how to handle conflicts
@@ -45,18 +45,18 @@ type ConflictResolution struct {
 // FileSyncHub provides file synchronization across devices
 // Inspired by Synology Drive
 type FileSyncHub struct {
-	mu             sync.RWMutex
-	tasks          map[string]*SyncTask
-	running        bool
-	stopCh         chan struct{}
-	conflictRes    ConflictResolution
+	mu          sync.RWMutex
+	tasks       map[string]*SyncTask
+	running     bool
+	stopCh      chan struct{}
+	conflictRes ConflictResolution
 }
 
 // NewFileSyncHub creates a new FileSyncHub instance
 func NewFileSyncHub() *FileSyncHub {
 	return &FileSyncHub{
-		tasks:   make(map[string]*SyncTask),
-		stopCh:  make(chan struct{}),
+		tasks:       make(map[string]*SyncTask),
+		stopCh:      make(chan struct{}),
 		conflictRes: ConflictResolution{Strategy: "newest"},
 	}
 }

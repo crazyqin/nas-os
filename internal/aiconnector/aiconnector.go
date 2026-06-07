@@ -9,11 +9,11 @@ import (
 
 // AIConnector AI助手连接器
 type AIConnector struct {
-	mu          sync.RWMutex
-	providers   map[string]*Provider
+	mu            sync.RWMutex
+	providers     map[string]*Provider
 	conversations map[string]*Conversation
-	config      *Config
-	embedder    *Embedder
+	config        *Config
+	embedder      *Embedder
 }
 
 // Provider AI提供商
@@ -33,43 +33,43 @@ type Provider struct {
 
 // Conversation 对话
 type Conversation struct {
-	ID        string    `json:"id"`
-	Title     string    `json:"title"`
-	Messages  []*Message `json:"messages"`
-	ProviderID string   `json:"provider_id"`
-	Model     string    `json:"model"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID         string     `json:"id"`
+	Title      string     `json:"title"`
+	Messages   []*Message `json:"messages"`
+	ProviderID string     `json:"provider_id"`
+	Model      string     `json:"model"`
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
 // Message 消息
 type Message struct {
-	ID        string    `json:"id"`
-	Role      string    `json:"role"` // user, assistant, system
-	Content   string    `json:"content"`
+	ID        string                 `json:"id"`
+	Role      string                 `json:"role"` // user, assistant, system
+	Content   string                 `json:"content"`
 	Metadata  map[string]interface{} `json:"metadata"`
-	Timestamp time.Time `json:"timestamp"`
+	Timestamp time.Time              `json:"timestamp"`
 }
 
 // Embedding 嵌入向量
 type Embedding struct {
-	ID        string    `json:"id"`
-	Text      string    `json:"text"`
-	Vector    []float64 `json:"vector"`
-	FilePath  string    `json:"file_path"`
+	ID        string                 `json:"id"`
+	Text      string                 `json:"text"`
+	Vector    []float64              `json:"vector"`
+	FilePath  string                 `json:"file_path"`
 	Metadata  map[string]interface{} `json:"metadata"`
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt time.Time              `json:"created_at"`
 }
 
 // Config 配置
 type Config struct {
-	DefaultProvider string `json:"default_provider"`
-	DefaultModel    string `json:"default_model"`
-	CacheEnabled    bool   `json:"cache_enabled"`
+	DefaultProvider string        `json:"default_provider"`
+	DefaultModel    string        `json:"default_model"`
+	CacheEnabled    bool          `json:"cache_enabled"`
 	CacheTTL        time.Duration `json:"cache_ttl"`
-	MaxHistory      int    `json:"max_history"`
-	EmbeddingModel  string `json:"embedding_model"`
-	VectorDBPath    string `json:"vector_db_path"`
+	MaxHistory      int           `json:"max_history"`
+	EmbeddingModel  string        `json:"embedding_model"`
+	VectorDBPath    string        `json:"vector_db_path"`
 }
 
 // NewAIConnector 创建AI连接器
@@ -86,7 +86,7 @@ func NewAIConnector(config *Config) *AIConnector {
 func (ac *AIConnector) AddProvider(ctx context.Context, provider *Provider) error {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
-	
+
 	ac.providers[provider.ID] = provider
 	return nil
 }
@@ -95,7 +95,7 @@ func (ac *AIConnector) AddProvider(ctx context.Context, provider *Provider) erro
 func (ac *AIConnector) GetProvider(ctx context.Context, id string) (*Provider, error) {
 	ac.mu.RLock()
 	defer ac.mu.RUnlock()
-	
+
 	provider, exists := ac.providers[id]
 	if !exists {
 		return nil, fmt.Errorf("provider not found: %s", id)
@@ -107,7 +107,7 @@ func (ac *AIConnector) GetProvider(ctx context.Context, id string) (*Provider, e
 func (ac *AIConnector) ListProviders(ctx context.Context) []*Provider {
 	ac.mu.RLock()
 	defer ac.mu.RUnlock()
-	
+
 	var providers []*Provider
 	for _, provider := range ac.providers {
 		providers = append(providers, provider)
@@ -119,12 +119,12 @@ func (ac *AIConnector) ListProviders(ctx context.Context) []*Provider {
 func (ac *AIConnector) CreateConversation(ctx context.Context, title, providerID string) (*Conversation, error) {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
-	
+
 	provider, exists := ac.providers[providerID]
 	if !exists {
 		return nil, fmt.Errorf("provider not found: %s", providerID)
 	}
-	
+
 	conversation := &Conversation{
 		ID:         generateID(),
 		Title:      title,
@@ -134,7 +134,7 @@ func (ac *AIConnector) CreateConversation(ctx context.Context, title, providerID
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}
-	
+
 	ac.conversations[conversation.ID] = conversation
 	return conversation, nil
 }
@@ -143,12 +143,12 @@ func (ac *AIConnector) CreateConversation(ctx context.Context, title, providerID
 func (ac *AIConnector) SendMessage(ctx context.Context, conversationID, content string) (*Message, error) {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
-	
+
 	conversation, exists := ac.conversations[conversationID]
 	if !exists {
 		return nil, fmt.Errorf("conversation not found: %s", conversationID)
 	}
-	
+
 	// 添加用户消息
 	userMessage := &Message{
 		ID:        generateID(),
@@ -157,13 +157,13 @@ func (ac *AIConnector) SendMessage(ctx context.Context, conversationID, content 
 		Timestamp: time.Now(),
 	}
 	conversation.Messages = append(conversation.Messages, userMessage)
-	
+
 	// 调用AI生成回复
 	response, err := ac.callAI(ctx, conversation)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 添加助手消息
 	assistantMessage := &Message{
 		ID:        generateID(),
@@ -173,7 +173,7 @@ func (ac *AIConnector) SendMessage(ctx context.Context, conversationID, content 
 	}
 	conversation.Messages = append(conversation.Messages, assistantMessage)
 	conversation.UpdatedAt = time.Now()
-	
+
 	return assistantMessage, nil
 }
 
@@ -181,19 +181,19 @@ func (ac *AIConnector) SendMessage(ctx context.Context, conversationID, content 
 func (ac *AIConnector) SearchFiles(ctx context.Context, query string, limit int) ([]*SearchResult, error) {
 	ac.mu.RLock()
 	defer ac.mu.RUnlock()
-	
+
 	// 生成查询向量
 	queryVector, err := ac.embedder.Embed(ctx, query)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 向量搜索
 	results, err := ac.vectorSearch(ctx, queryVector, limit)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return results, nil
 }
 
@@ -201,13 +201,13 @@ func (ac *AIConnector) SearchFiles(ctx context.Context, query string, limit int)
 func (ac *AIConnector) IndexFile(ctx context.Context, filePath, content string) error {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
-	
+
 	// 生成嵌入向量
 	vector, err := ac.embedder.Embed(ctx, content)
 	if err != nil {
 		return err
 	}
-	
+
 	// 存储到向量数据库
 	embedding := &Embedding{
 		ID:        generateID(),
@@ -216,7 +216,7 @@ func (ac *AIConnector) IndexFile(ctx context.Context, filePath, content string) 
 		FilePath:  filePath,
 		CreatedAt: time.Now(),
 	}
-	
+
 	return ac.storeEmbedding(ctx, embedding)
 }
 
@@ -224,19 +224,19 @@ func (ac *AIConnector) IndexFile(ctx context.Context, filePath, content string) 
 func (ac *AIConnector) GetRecommendations(ctx context.Context, userID string, limit int) ([]*Recommendation, error) {
 	ac.mu.RLock()
 	defer ac.mu.RUnlock()
-	
+
 	// 分析用户行为
 	behavior, err := ac.analyzeBehavior(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 生成推荐
 	recommendations, err := ac.generateRecommendations(ctx, behavior, limit)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return recommendations, nil
 }
 
@@ -244,14 +244,14 @@ func (ac *AIConnector) GetRecommendations(ctx context.Context, userID string, li
 func (ac *AIConnector) SummarizeDocument(ctx context.Context, content string, maxLength int) (string, error) {
 	ac.mu.RLock()
 	defer ac.mu.RUnlock()
-	
+
 	prompt := fmt.Sprintf("请为以下文档生成一个简洁的摘要，不超过%d字：\n\n%s", maxLength, content)
-	
+
 	response, err := ac.callAIWithPrompt(ctx, prompt)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return response, nil
 }
 
@@ -259,14 +259,14 @@ func (ac *AIConnector) SummarizeDocument(ctx context.Context, content string, ma
 func (ac *AIConnector) TranslateText(ctx context.Context, text, targetLang string) (string, error) {
 	ac.mu.RLock()
 	defer ac.mu.RUnlock()
-	
+
 	prompt := fmt.Sprintf("请将以下文本翻译成%s：\n\n%s", targetLang, text)
-	
+
 	response, err := ac.callAIWithPrompt(ctx, prompt)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return response, nil
 }
 
@@ -274,7 +274,7 @@ func (ac *AIConnector) TranslateText(ctx context.Context, text, targetLang strin
 func (ac *AIConnector) GetConversation(ctx context.Context, id string) (*Conversation, error) {
 	ac.mu.RLock()
 	defer ac.mu.RUnlock()
-	
+
 	conversation, exists := ac.conversations[id]
 	if !exists {
 		return nil, fmt.Errorf("conversation not found: %s", id)
@@ -286,15 +286,15 @@ func (ac *AIConnector) GetConversation(ctx context.Context, id string) (*Convers
 func (ac *AIConnector) ListConversations(ctx context.Context, limit int) []*Conversation {
 	ac.mu.RLock()
 	defer ac.mu.RUnlock()
-	
+
 	var conversations []*Conversation
 	for _, conv := range ac.conversations {
 		conversations = append(conversations, conv)
 	}
-	
+
 	// 按更新时间排序
 	sortConversationsByUpdateTime(conversations)
-	
+
 	if len(conversations) > limit {
 		return conversations[:limit]
 	}
@@ -305,7 +305,7 @@ func (ac *AIConnector) ListConversations(ctx context.Context, limit int) []*Conv
 func (ac *AIConnector) DeleteConversation(ctx context.Context, id string) error {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
-	
+
 	delete(ac.conversations, id)
 	return nil
 }
@@ -314,16 +314,16 @@ func (ac *AIConnector) DeleteConversation(ctx context.Context, id string) error 
 func (ac *AIConnector) GetStats(ctx context.Context) map[string]interface{} {
 	ac.mu.RLock()
 	defer ac.mu.RUnlock()
-	
+
 	totalMessages := 0
 	for _, conv := range ac.conversations {
 		totalMessages += len(conv.Messages)
 	}
-	
+
 	return map[string]interface{}{
-		"total_providers":    len(ac.providers),
+		"total_providers":     len(ac.providers),
 		"total_conversations": len(ac.conversations),
-		"total_messages":     totalMessages,
+		"total_messages":      totalMessages,
 	}
 }
 
@@ -333,7 +333,7 @@ func (ac *AIConnector) callAI(ctx context.Context, conversation *Conversation) (
 	if !exists {
 		return "", fmt.Errorf("provider not found: %s", conversation.ProviderID)
 	}
-	
+
 	// 构建请求
 	request := &AIRequest{
 		Model:       conversation.Model,
@@ -341,17 +341,17 @@ func (ac *AIConnector) callAI(ctx context.Context, conversation *Conversation) (
 		MaxTokens:   provider.MaxTokens,
 		Temperature: provider.Temperature,
 	}
-	
+
 	// 调用AI API
 	response, err := ac.callProviderAPI(ctx, provider, request)
 	if err != nil {
 		return "", err
 	}
-	
+
 	// 更新使用统计
 	provider.LastUsed = time.Now()
 	provider.UsageCount++
-	
+
 	return response, nil
 }
 
@@ -361,7 +361,7 @@ func (ac *AIConnector) callAIWithPrompt(ctx context.Context, prompt string) (str
 	if !exists {
 		return "", fmt.Errorf("default provider not found: %s", providerID)
 	}
-	
+
 	messages := []*Message{
 		{
 			ID:        generateID(),
@@ -370,22 +370,22 @@ func (ac *AIConnector) callAIWithPrompt(ctx context.Context, prompt string) (str
 			Timestamp: time.Now(),
 		},
 	}
-	
+
 	request := &AIRequest{
 		Model:       provider.Model,
 		Messages:    messages,
 		MaxTokens:   provider.MaxTokens,
 		Temperature: provider.Temperature,
 	}
-	
+
 	response, err := ac.callProviderAPI(ctx, provider, request)
 	if err != nil {
 		return "", err
 	}
-	
+
 	provider.LastUsed = time.Now()
 	provider.UsageCount++
-	
+
 	return response, nil
 }
 
@@ -447,23 +447,23 @@ type AIRequest struct {
 }
 
 type SearchResult struct {
-	FilePath  string  `json:"file_path"`
-	Score     float64 `json:"score"`
-	Snippet   string  `json:"snippet"`
-	Metadata  map[string]interface{} `json:"metadata"`
+	FilePath string                 `json:"file_path"`
+	Score    float64                `json:"score"`
+	Snippet  string                 `json:"snippet"`
+	Metadata map[string]interface{} `json:"metadata"`
 }
 
 type Recommendation struct {
-	ID        string  `json:"id"`
-	Type      string  `json:"type"`
-	Title     string  `json:"title"`
-	Score     float64 `json:"score"`
-	Reason    string  `json:"reason"`
+	ID     string  `json:"id"`
+	Type   string  `json:"type"`
+	Title  string  `json:"title"`
+	Score  float64 `json:"score"`
+	Reason string  `json:"reason"`
 }
 
 type UserBehavior struct {
-	RecentFiles    []string `json:"recent_files"`
-	FrequentTopics []string `json:"frequent_topics"`
+	RecentFiles    []string               `json:"recent_files"`
+	FrequentTopics []string               `json:"frequent_topics"`
 	Preferences    map[string]interface{} `json:"preferences"`
 }
 

@@ -16,11 +16,11 @@ import (
 type NotifyChannel string
 
 const (
-	ChannelEmail    NotifyChannel = "email"
-	ChannelWebhook  NotifyChannel = "webhook"
+	ChannelEmail     NotifyChannel = "email"
+	ChannelWebhook   NotifyChannel = "webhook"
 	ChannelWebSocket NotifyChannel = "websocket"
-	ChannelSMS      NotifyChannel = "sms"
-	ChannelApp      NotifyChannel = "app" // 移动端推送
+	ChannelSMS       NotifyChannel = "sms"
+	ChannelApp       NotifyChannel = "app" // 移动端推送
 )
 
 // Priority 通知优先级
@@ -47,33 +47,33 @@ const (
 
 // Notification 通知消息
 type Notification struct {
-	ID         string        `json:"id"`
-	Title      string        `json:"title"`
-	Body       string        `json:"body"`
-	Source     string        `json:"source"`      // 来源模块
-	Category   string        `json:"category"`     // 分类
-	Priority   Priority      `json:"priority"`
-	Channels   []NotifyChannel `json:"channels"`
-	Status     NotifyStatus  `json:"status"`
-	Timestamp  time.Time     `json:"timestamp"`
-	SentAt     *time.Time    `json:"sentAt,omitempty"`
-	ReadAt     *time.Time    `json:"readAt,omitempty"`
-	GroupKey   string        `json:"groupKey"`     // 用于去重和分组
-	TTL        time.Duration `json:"ttl"`
-	Metadata   map[string]string `json:"metadata,omitempty"`
+	ID        string            `json:"id"`
+	Title     string            `json:"title"`
+	Body      string            `json:"body"`
+	Source    string            `json:"source"`   // 来源模块
+	Category  string            `json:"category"` // 分类
+	Priority  Priority          `json:"priority"`
+	Channels  []NotifyChannel   `json:"channels"`
+	Status    NotifyStatus      `json:"status"`
+	Timestamp time.Time         `json:"timestamp"`
+	SentAt    *time.Time        `json:"sentAt,omitempty"`
+	ReadAt    *time.Time        `json:"readAt,omitempty"`
+	GroupKey  string            `json:"groupKey"` // 用于去重和分组
+	TTL       time.Duration     `json:"ttl"`
+	Metadata  map[string]string `json:"metadata,omitempty"`
 }
 
 // SilencRule 静默规则
 type SilencRule struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Source    string    `json:"source,omitempty"`    // 匹配来源
-	Category  string    `json:"category,omitempty"`  // 匹配分类
-	Channel   NotifyChannel `json:"channel,omitempty"` // 匹配渠道
-	Priority  Priority  `json:"minPriority,omitempty"` // 最低优先级
-	StartTime time.Time `json:"startTime"`
-	EndTime   time.Time `json:"endTime"`
-	Enabled   bool      `json:"enabled"`
+	ID        string        `json:"id"`
+	Name      string        `json:"name"`
+	Source    string        `json:"source,omitempty"`      // 匹配来源
+	Category  string        `json:"category,omitempty"`    // 匹配分类
+	Channel   NotifyChannel `json:"channel,omitempty"`     // 匹配渠道
+	Priority  Priority      `json:"minPriority,omitempty"` // 最低优先级
+	StartTime time.Time     `json:"startTime"`
+	EndTime   time.Time     `json:"endTime"`
+	Enabled   bool          `json:"enabled"`
 }
 
 // NotifyConfig 通知配置
@@ -109,15 +109,15 @@ type NotifyResult struct {
 
 // SummaryReport 通知摘要
 type SummaryReport struct {
-	Period       time.Duration `json:"period"`
-	TotalSent    int           `json:"totalSent"`
-	TotalFailed  int           `json:"totalFailed"`
-	TotalSilenced int          `json:"totalSilenced"`
-	TotalDeduped int           `json:"totalDeduped"`
-	ByCategory   map[string]int `json:"byCategory"`
-	ByChannel    map[NotifyChannel]int `json:"byChannel"`
-	TopSources   []SourceCount `json:"topSources"`
-	GeneratedAt  time.Time     `json:"generatedAt"`
+	Period        time.Duration         `json:"period"`
+	TotalSent     int                   `json:"totalSent"`
+	TotalFailed   int                   `json:"totalFailed"`
+	TotalSilenced int                   `json:"totalSilenced"`
+	TotalDeduped  int                   `json:"totalDeduped"`
+	ByCategory    map[string]int        `json:"byCategory"`
+	ByChannel     map[NotifyChannel]int `json:"byChannel"`
+	TopSources    []SourceCount         `json:"topSources"`
+	GeneratedAt   time.Time             `json:"generatedAt"`
 }
 
 // SourceCount 来源统计
@@ -128,15 +128,15 @@ type SourceCount struct {
 
 // SmartNotifier 智能通知引擎
 type SmartNotifier struct {
-	mu          sync.RWMutex
-	config      NotifyConfig
-	queue       []*Notification
-	history     []*Notification
-	rules       []SilencRule
-	handlers    map[NotifyChannel]NotifyHandler
-	dedupCache  map[string]time.Time
-	groupCache  map[string][]*Notification
-	stats       *notifyStats
+	mu         sync.RWMutex
+	config     NotifyConfig
+	queue      []*Notification
+	history    []*Notification
+	rules      []SilencRule
+	handlers   map[NotifyChannel]NotifyHandler
+	dedupCache map[string]time.Time
+	groupCache map[string][]*Notification
+	stats      *notifyStats
 }
 
 // NotifyHandler 通知处理器接口
@@ -145,10 +145,10 @@ type NotifyHandler interface {
 }
 
 type notifyStats struct {
-	sent       int
-	failed     int
-	silenced   int
-	deduped    int
+	sent     int
+	failed   int
+	silenced int
+	deduped  int
 }
 
 // NewSmartNotifier 创建智能通知引擎
@@ -438,11 +438,11 @@ func (sn *SmartNotifier) GetStats() map[string]int {
 	defer sn.mu.RUnlock()
 
 	return map[string]int{
-		"sent":       sn.stats.sent,
-		"failed":     sn.stats.failed,
-		"silenced":   sn.stats.silenced,
-		"deduped":    sn.stats.deduped,
-		"queueSize":  len(sn.queue),
+		"sent":        sn.stats.sent,
+		"failed":      sn.stats.failed,
+		"silenced":    sn.stats.silenced,
+		"deduped":     sn.stats.deduped,
+		"queueSize":   len(sn.queue),
 		"historySize": len(sn.history),
 	}
 }

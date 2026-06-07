@@ -31,8 +31,8 @@ type RecordingMode string
 const (
 	RecordingModeContinuous RecordingMode = "continuous" // 连续录像
 	RecordingModeEvent      RecordingMode = "event"      // 事件触发
-	RecordingModeSchedule   RecordingMode = "schedule"    // 计划录像
-	RecordingModeManual     RecordingMode = "manual"      // 手动录像
+	RecordingModeSchedule   RecordingMode = "schedule"   // 计划录像
+	RecordingModeManual     RecordingMode = "manual"     // 手动录像
 )
 
 // ========== 移动侦测 ==========
@@ -72,10 +72,10 @@ const (
 type AlertStatus string
 
 const (
-	AlertStatusPending   AlertStatus = "pending"
-	AlertStatusAcked     AlertStatus = "acked"
-	AlertStatusResolved  AlertStatus = "resolved"
-	AlertStatusIgnored   AlertStatus = "ignored"
+	AlertStatusPending  AlertStatus = "pending"
+	AlertStatusAcked    AlertStatus = "acked"
+	AlertStatusResolved AlertStatus = "resolved"
+	AlertStatusIgnored  AlertStatus = "ignored"
 )
 
 // ========== 联动动作 ==========
@@ -97,16 +97,16 @@ type Camera struct {
 	ID           string         `json:"id"`
 	Name         string         `json:"name"`
 	Protocol     CameraProtocol `json:"protocol"`
-	RTSPUrl      string         `json:"rtspUrl"`               // RTSP 地址
+	RTSPUrl      string         `json:"rtspUrl"` // RTSP 地址
 	Host         string         `json:"host"`
 	Port         int            `json:"port"`
 	StreamPath   string         `json:"streamPath"`
 	Username     string         `json:"username,omitempty"`
 	Password     string         `json:"password,omitempty"`
 	Status       CameraStatus   `json:"status"`
-	Resolution   string         `json:"resolution,omitempty"`  // 1920x1080
+	Resolution   string         `json:"resolution,omitempty"` // 1920x1080
 	FPS          int            `json:"fps,omitempty"`
-	Bitrate      int            `json:"bitrate,omitempty"`     // kbps
+	Bitrate      int            `json:"bitrate,omitempty"` // kbps
 	Manufacturer string         `json:"manufacturer,omitempty"`
 	Model        string         `json:"model,omitempty"`
 	Location     string         `json:"location,omitempty"`
@@ -148,25 +148,25 @@ type Recording struct {
 
 // RecordingSchedule 录像计划
 type RecordingSchedule struct {
-	ID          string         `json:"id"`
-	CameraID    string         `json:"cameraId"`
-	Name        string         `json:"name"`
-	Mode        RecordingMode  `json:"mode"`
-	Type        ScheduleType   `json:"type"`          // all_day / timed / event
-	Days        []time.Weekday `json:"days"`          // 生效的星期几
-	Start       string         `json:"start,omitempty"` // HH:MM (timed模式)
-	End         string         `json:"end,omitempty"`   // HH:MM (timed模式)
-	Enabled     bool           `json:"enabled"`
-	CreatedAt   time.Time      `json:"createdAt"`
+	ID        string         `json:"id"`
+	CameraID  string         `json:"cameraId"`
+	Name      string         `json:"name"`
+	Mode      RecordingMode  `json:"mode"`
+	Type      ScheduleType   `json:"type"`            // all_day / timed / event
+	Days      []time.Weekday `json:"days"`            // 生效的星期几
+	Start     string         `json:"start,omitempty"` // HH:MM (timed模式)
+	End       string         `json:"end,omitempty"`   // HH:MM (timed模式)
+	Enabled   bool           `json:"enabled"`
+	CreatedAt time.Time      `json:"createdAt"`
 }
 
 // ScheduleType 计划类型
 type ScheduleType string
 
 const (
-	ScheduleTypeAllDay ScheduleType = "all_day"  // 全天录像
-	ScheduleTypeTimed  ScheduleType = "timed"    // 定时录像
-	ScheduleTypeEvent  ScheduleType = "event"    // 事件触发录像
+	ScheduleTypeAllDay ScheduleType = "all_day" // 全天录像
+	ScheduleTypeTimed  ScheduleType = "timed"   // 定时录像
+	ScheduleTypeEvent  ScheduleType = "event"   // 事件触发录像
 )
 
 // ========== 移动侦测和AI检测 ==========
@@ -193,31 +193,31 @@ type MotionRegion struct {
 
 // MotionEvent 移动侦测事件
 type MotionEvent struct {
-	ID         string    `json:"id"`
-	CameraID   string    `json:"cameraId"`
-	RegionID   string    `json:"regionId,omitempty"`
-	RegionName string    `json:"regionName,omitempty"`
-	Confidence float64   `json:"confidence"` // 0.0 - 1.0
-	IsHuman    bool      `json:"isHuman"`    // AI人形检测结果
-	SnapshotURL string   `json:"snapshotUrl,omitempty"`
-	Timestamp  time.Time `json:"timestamp"`
+	ID          string    `json:"id"`
+	CameraID    string    `json:"cameraId"`
+	RegionID    string    `json:"regionId,omitempty"`
+	RegionName  string    `json:"regionName,omitempty"`
+	Confidence  float64   `json:"confidence"` // 0.0 - 1.0
+	IsHuman     bool      `json:"isHuman"`    // AI人形检测结果
+	SnapshotURL string    `json:"snapshotUrl,omitempty"`
+	Timestamp   time.Time `json:"timestamp"`
 }
 
 // ========== 告警 ==========
 
 // Alert 告警
 type Alert struct {
-	ID        string      `json:"id"`
-	CameraID  string      `json:"cameraId"`
-	CameraName string     `json:"cameraName"`
-	EventType EventType   `json:"eventType"`
-	Level     AlertLevel  `json:"level"`
-	Message   string      `json:"message"`
-	ImageURL  string      `json:"imageUrl,omitempty"`
-	Status    AlertStatus `json:"status"`
-	AckedBy   string      `json:"ackedBy,omitempty"`
-	AckedAt   time.Time   `json:"ackedAt,omitempty"`
-	CreatedAt time.Time   `json:"createdAt"`
+	ID         string      `json:"id"`
+	CameraID   string      `json:"cameraId"`
+	CameraName string      `json:"cameraName"`
+	EventType  EventType   `json:"eventType"`
+	Level      AlertLevel  `json:"level"`
+	Message    string      `json:"message"`
+	ImageURL   string      `json:"imageUrl,omitempty"`
+	Status     AlertStatus `json:"status"`
+	AckedBy    string      `json:"ackedBy,omitempty"`
+	AckedAt    time.Time   `json:"ackedAt,omitempty"`
+	CreatedAt  time.Time   `json:"createdAt"`
 }
 
 // ActionRule 事件联动规则
@@ -252,10 +252,10 @@ type Layout struct {
 // StorageQuota 存储配额
 type StorageQuota struct {
 	CameraID      string `json:"cameraId"`
-	MaxSizeGB     int    `json:"maxSizeGb"`       // 最大存储 GB
-	CurrentSizeGB int    `json:"currentSizeGb"`   // 当前存储 GB
-	RetentionDays int    `json:"retentionDays"`   // 保留天数
-	LoopRecording bool   `json:"loopRecording"`   // 循环录像
+	MaxSizeGB     int    `json:"maxSizeGb"`     // 最大存储 GB
+	CurrentSizeGB int    `json:"currentSizeGb"` // 当前存储 GB
+	RetentionDays int    `json:"retentionDays"` // 保留天数
+	LoopRecording bool   `json:"loopRecording"` // 循环录像
 }
 
 // ========== 快照 ==========
@@ -275,13 +275,13 @@ type Snapshot struct {
 
 // SurveillanceStats 监控系统统计
 type SurveillanceStats struct {
-	TotalCameras   int     `json:"totalCameras"`
-	OnlineCameras  int     `json:"onlineCameras"`
-	OfflineCameras int     `json:"offlineCameras"`
+	TotalCameras    int     `json:"totalCameras"`
+	OnlineCameras   int     `json:"onlineCameras"`
+	OfflineCameras  int     `json:"offlineCameras"`
 	ActiveStreams   int     `json:"activeStreams"`
-	TotalRecordings int    `json:"totalRecordings"`
-	TotalEvents     int    `json:"totalEvents"`
-	TotalAlerts     int    `json:"totalAlerts"`
+	TotalRecordings int     `json:"totalRecordings"`
+	TotalEvents     int     `json:"totalEvents"`
+	TotalAlerts     int     `json:"totalAlerts"`
 	PendingAlerts   int     `json:"pendingAlerts"`
 	TotalGroups     int     `json:"totalGroups"`
 	TotalSchedules  int     `json:"totalSchedules"`

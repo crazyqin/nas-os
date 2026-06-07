@@ -18,9 +18,9 @@ const (
 type StorageClass string
 
 const (
-	StorageClassStandard    StorageClass = "STANDARD"
-	StorageClassInfrequent  StorageClass = "STANDARD_IA"
-	StorageClassArchive     StorageClass = "GLACIER"
+	StorageClassStandard   StorageClass = "STANDARD"
+	StorageClassInfrequent StorageClass = "STANDARD_IA"
+	StorageClassArchive    StorageClass = "GLACIER"
 )
 
 // Permission ACL权限类型
@@ -54,31 +54,31 @@ const (
 type LifecycleAction string
 
 const (
-	ActionExpiration  LifecycleAction = "Expiration"
-	ActionTransition  LifecycleAction = "Transition"
+	ActionExpiration LifecycleAction = "Expiration"
+	ActionTransition LifecycleAction = "Transition"
 )
 
 // S3Config S3网关配置
 type S3Config struct {
-	StorageRoot   string        `json:"storageRoot"`
-	DefaultPolicy BucketPolicy  `json:"defaultPolicy"`
-	MaxBucketSize int64         `json:"maxBucketSize"`
-	MaxObjectSize int64         `json:"maxObjectSize"`
-	EnableLogging bool          `json:"enableLogging"`
-	Region        string        `json:"region"`
+	StorageRoot   string       `json:"storageRoot"`
+	DefaultPolicy BucketPolicy `json:"defaultPolicy"`
+	MaxBucketSize int64        `json:"maxBucketSize"`
+	MaxObjectSize int64        `json:"maxObjectSize"`
+	EnableLogging bool         `json:"enableLogging"`
+	Region        string       `json:"region"`
 }
 
 // Bucket 存储桶
 type Bucket struct {
-	Name        string            `json:"name"`
-	OwnerID     string            `json:"ownerId"`
-	Policy      BucketPolicy      `json:"policy"`
-	Quota       BucketQuota       `json:"quota"`
-	Versioning  VersioningStatus  `json:"versioning"`
-	ACL         []ACLGrant        `json:"acl,omitempty"`
-	Tags        map[string]string `json:"tags,omitempty"`
-	CreatedAt   time.Time         `json:"createdAt"`
-	Region      string            `json:"region"`
+	Name       string            `json:"name"`
+	OwnerID    string            `json:"ownerId"`
+	Policy     BucketPolicy      `json:"policy"`
+	Quota      BucketQuota       `json:"quota"`
+	Versioning VersioningStatus  `json:"versioning"`
+	ACL        []ACLGrant        `json:"acl,omitempty"`
+	Tags       map[string]string `json:"tags,omitempty"`
+	CreatedAt  time.Time         `json:"createdAt"`
+	Region     string            `json:"region"`
 }
 
 // BucketQuota 存储桶配额
@@ -89,9 +89,9 @@ type BucketQuota struct {
 
 // ACLGrant ACL授权条目
 type ACLGrant struct {
-	GranteeID   string       `json:"granteeId"`
-	GranteeType GranteeType  `json:"granteeType"`
-	Permission  Permission   `json:"permission"`
+	GranteeID   string      `json:"granteeId"`
+	GranteeType GranteeType `json:"granteeType"`
+	Permission  Permission  `json:"permission"`
 }
 
 // Object 存储对象
@@ -146,25 +146,25 @@ type UploadPart struct {
 
 // AccessKey 访问密钥
 type AccessKey struct {
-	AccessKeyID     string    `json:"accessKeyId"`
-	SecretAccessKey string    `json:"secretAccessKey"`
-	OwnerID         string    `json:"ownerId"`
-	Description     string    `json:"description,omitempty"`
-	Status          string    `json:"status"` // Active, Inactive
-	CreatedAt       time.Time `json:"createdAt"`
+	AccessKeyID     string     `json:"accessKeyId"`
+	SecretAccessKey string     `json:"secretAccessKey"`
+	OwnerID         string     `json:"ownerId"`
+	Description     string     `json:"description,omitempty"`
+	Status          string     `json:"status"` // Active, Inactive
+	CreatedAt       time.Time  `json:"createdAt"`
 	LastUsedAt      *time.Time `json:"lastUsedAt,omitempty"`
 }
 
 // LifecycleRule 生命周期规则
 type LifecycleRule struct {
-	ID              string          `json:"id"`
-	Bucket          string          `json:"bucket"`
-	Prefix          string          `json:"prefix"`
-	Enabled         bool            `json:"enabled"`
-	ExpirationDays  int             `json:"expirationDays"`
-	TransitionDays  int             `json:"transitionDays"`
-	TargetClass     StorageClass    `json:"targetClass"`
-	Action          LifecycleAction `json:"action"`
+	ID             string          `json:"id"`
+	Bucket         string          `json:"bucket"`
+	Prefix         string          `json:"prefix"`
+	Enabled        bool            `json:"enabled"`
+	ExpirationDays int             `json:"expirationDays"`
+	TransitionDays int             `json:"transitionDays"`
+	TargetClass    StorageClass    `json:"targetClass"`
+	Action         LifecycleAction `json:"action"`
 }
 
 // AccessLog 访问日志
@@ -183,13 +183,13 @@ type AccessLog struct {
 
 // TrafficStats 流量统计
 type TrafficStats struct {
-	TotalBuckets int64                 `json:"totalBuckets"`
-	TotalObjects int64                 `json:"totalObjects"`
-	TotalSize    int64                 `json:"totalSize"`
-	ByUser       map[string]*UserStats  `json:"byUser,omitempty"`
+	TotalBuckets int64                   `json:"totalBuckets"`
+	TotalObjects int64                   `json:"totalObjects"`
+	TotalSize    int64                   `json:"totalSize"`
+	ByUser       map[string]*UserStats   `json:"byUser,omitempty"`
 	ByBucket     map[string]*BucketStats `json:"byBucket,omitempty"`
-	ByOperation  map[string]int64       `json:"byOperation,omitempty"`
-	ByClass      map[string]int64       `json:"byClass,omitempty"`
+	ByOperation  map[string]int64        `json:"byOperation,omitempty"`
+	ByClass      map[string]int64        `json:"byClass,omitempty"`
 }
 
 // UserStats 用户维度统计

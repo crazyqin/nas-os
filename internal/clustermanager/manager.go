@@ -214,15 +214,15 @@ func (m *ClusterManager) CreateTask(req *CreateTaskRequest) (*ClusterTask, error
 	}
 
 	task := &ClusterTask{
-		ID:           fmt.Sprintf("task_%d", time.Now().UnixNano()),
-		Name:         req.Name,
-		Type:         req.Type,
-		Status:       TaskStatusPending,
-		Priority:     req.Priority,
-		NodeIDs:      req.TargetNodeIDs,
-		Payload:      req.Payload,
-		CreatedAt:    time.Now(),
-		Timeout:      time.Duration(req.Timeout) * time.Second,
+		ID:        fmt.Sprintf("task_%d", time.Now().UnixNano()),
+		Name:      req.Name,
+		Type:      req.Type,
+		Status:    TaskStatusPending,
+		Priority:  req.Priority,
+		NodeIDs:   req.TargetNodeIDs,
+		Payload:   req.Payload,
+		CreatedAt: time.Now(),
+		Timeout:   time.Duration(req.Timeout) * time.Second,
 	}
 
 	m.tasks[task.ID] = task
@@ -274,10 +274,10 @@ func (m *ClusterManager) GetTopology() *ClusterTopology {
 	topo := &ClusterTopology{UpdatedAt: time.Now()}
 	for _, node := range m.nodes {
 		topo.Nodes = append(topo.Nodes, &TopologyNode{
-			ID:     node.ID,
-			Name:   node.Name,
-			Type:   node.Type,
-			Status: node.Status,
+			ID:      node.ID,
+			Name:    node.Name,
+			Type:    node.Type,
+			Status:  node.Status,
 			GroupID: node.GroupID,
 		})
 	}
@@ -290,13 +290,13 @@ func (m *ClusterManager) CreateAlert(alertType AlertType, level AlertLevel, node
 	defer m.mu.Unlock()
 
 	alert := &ClusterAlert{
-		ID:         fmt.Sprintf("alert_%d", time.Now().UnixNano()),
-		Type:       alertType,
-		Level:      level,
-		NodeID:     nodeID,
-		Title:      title,
-		Message:    message,
-		Active:     true,
+		ID:          fmt.Sprintf("alert_%d", time.Now().UnixNano()),
+		Type:        alertType,
+		Level:       level,
+		NodeID:      nodeID,
+		Title:       title,
+		Message:     message,
+		Active:      true,
 		TriggeredAt: time.Now(),
 	}
 

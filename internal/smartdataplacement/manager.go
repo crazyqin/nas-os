@@ -11,10 +11,10 @@ import (
 )
 
 var (
-	ErrFileNotFound     = errors.New("file not found")
-	ErrTierNotFound     = errors.New("storage tier not found")
+	ErrFileNotFound      = errors.New("file not found")
+	ErrTierNotFound      = errors.New("storage tier not found")
 	ErrNoMigrationNeeded = errors.New("no migration needed")
-	ErrInvalidPolicy    = errors.New("invalid placement policy")
+	ErrInvalidPolicy     = errors.New("invalid placement policy")
 )
 
 // DataTemperature 数据温度
@@ -31,37 +31,37 @@ const (
 type StorageTier string
 
 const (
-	TierNVMe   StorageTier = "nvme"   // NVMe SSD
-	TierSSD    StorageTier = "ssd"     // SATA SSD
-	TierHDD    StorageTier = "hdd"     // 机械硬盘
-	TierCloud  StorageTier = "cloud"   // 云存储
-	TierTape   StorageTier = "tape"    // 磁带归档
+	TierNVMe  StorageTier = "nvme"  // NVMe SSD
+	TierSSD   StorageTier = "ssd"   // SATA SSD
+	TierHDD   StorageTier = "hdd"   // 机械硬盘
+	TierCloud StorageTier = "cloud" // 云存储
+	TierTape  StorageTier = "tape"  // 磁带归档
 )
 
 // FileRecord 文件记录
 type FileRecord struct {
-	FileID         string        `json:"fileId"`
-	FilePath       string        `json:"filePath"`
-	SizeBytes      int64         `json:"sizeBytes"`
-	CurrentTier    StorageTier   `json:"currentTier"`
-	Temperature    DataTemperature `json:"temperature"`
-	AccessCount    int64         `json:"accessCount"`
-	LastAccessed   time.Time     `json:"lastAccessed"`
-	CreatedAt      time.Time     `json:"createdAt"`
-	ModifiedAt     time.Time     `json:"modifiedAt"`
-	FileType       string        `json:"fileType"`
-	AccessScore    float64       `json:"accessScore"`
+	FileID       string          `json:"fileId"`
+	FilePath     string          `json:"filePath"`
+	SizeBytes    int64           `json:"sizeBytes"`
+	CurrentTier  StorageTier     `json:"currentTier"`
+	Temperature  DataTemperature `json:"temperature"`
+	AccessCount  int64           `json:"accessCount"`
+	LastAccessed time.Time       `json:"lastAccessed"`
+	CreatedAt    time.Time       `json:"createdAt"`
+	ModifiedAt   time.Time       `json:"modifiedAt"`
+	FileType     string          `json:"fileType"`
+	AccessScore  float64         `json:"accessScore"`
 }
 
 // PlacementPolicy 放置策略
 type PlacementPolicy struct {
-	Name               string                    `json:"name"`
-	TierMapping        map[DataTemperature]StorageTier `json:"tierMapping"`
-	TemperatureThresholds TemperatureThresholds   `json:"temperatureThresholds"`
-	MinFileSize        int64                     `json:"minFileSize"`
-	MaxMigrationsPerDay int                      `json:"maxMigrationsPerDay"`
-	CooldownPeriod     time.Duration             `json:"cooldownPeriod"`
-	PriorityFileTypes  []string                  `json:"priorityFileTypes"`
+	Name                  string                          `json:"name"`
+	TierMapping           map[DataTemperature]StorageTier `json:"tierMapping"`
+	TemperatureThresholds TemperatureThresholds           `json:"temperatureThresholds"`
+	MinFileSize           int64                           `json:"minFileSize"`
+	MaxMigrationsPerDay   int                             `json:"maxMigrationsPerDay"`
+	CooldownPeriod        time.Duration                   `json:"cooldownPeriod"`
+	PriorityFileTypes     []string                        `json:"priorityFileTypes"`
 }
 
 // TemperatureThresholds 温度阈值
@@ -74,17 +74,17 @@ type TemperatureThresholds struct {
 
 // MigrationTask 迁移任务
 type MigrationTask struct {
-	TaskID       string        `json:"taskId"`
-	FileID       string        `json:"fileId"`
-	FilePath     string        `json:"filePath"`
-	SourceTier   StorageTier   `json:"sourceTier"`
-	TargetTier   StorageTier   `json:"targetTier"`
-	SizeBytes    int64         `json:"sizeBytes"`
-	Reason       string        `json:"reason"`
-	Priority     int           `json:"priority"`
-	CreatedAt    time.Time     `json:"createdAt"`
-	Status       MigrationStatus `json:"status"`
-	CompletedAt  *time.Time    `json:"completedAt,omitempty"`
+	TaskID      string          `json:"taskId"`
+	FileID      string          `json:"fileId"`
+	FilePath    string          `json:"filePath"`
+	SourceTier  StorageTier     `json:"sourceTier"`
+	TargetTier  StorageTier     `json:"targetTier"`
+	SizeBytes   int64           `json:"sizeBytes"`
+	Reason      string          `json:"reason"`
+	Priority    int             `json:"priority"`
+	CreatedAt   time.Time       `json:"createdAt"`
+	Status      MigrationStatus `json:"status"`
+	CompletedAt *time.Time      `json:"completedAt,omitempty"`
 }
 
 // MigrationStatus 迁移状态
@@ -99,68 +99,68 @@ const (
 
 // PlacementReport 放置报告
 type PlacementReport struct {
-	GeneratedAt       time.Time              `json:"generatedAt"`
-	TotalFiles        int                    `json:"totalFiles"`
-	TotalSizeBytes    int64                  `json:"totalSizeBytes"`
-	TierDistribution  map[StorageTier]TierInfo `json:"tierDistribution"`
-	TemperatureDistribution map[DataTemperature]int `json:"temperatureDistribution"`
-	PendingMigrations int                    `json:"pendingMigrations"`
-	RecommendedActions int                   `json:"recommendedActions"`
-	CostSavingsEstimate float64              `json:"costSavingsEstimate"`
+	GeneratedAt             time.Time                `json:"generatedAt"`
+	TotalFiles              int                      `json:"totalFiles"`
+	TotalSizeBytes          int64                    `json:"totalSizeBytes"`
+	TierDistribution        map[StorageTier]TierInfo `json:"tierDistribution"`
+	TemperatureDistribution map[DataTemperature]int  `json:"temperatureDistribution"`
+	PendingMigrations       int                      `json:"pendingMigrations"`
+	RecommendedActions      int                      `json:"recommendedActions"`
+	CostSavingsEstimate     float64                  `json:"costSavingsEstimate"`
 }
 
 // TierInfo 层信息
 type TierInfo struct {
-	FileCount  int     `json:"fileCount"`
-	TotalBytes int64   `json:"totalBytes"`
-	UsedPercent float64 `json:"usedPercent"`
+	FileCount      int     `json:"fileCount"`
+	TotalBytes     int64   `json:"totalBytes"`
+	UsedPercent    float64 `json:"usedPercent"`
 	CostPerTBMonth float64 `json:"costPerTbMonth"`
 }
 
 // Manager 智能数据放置管理器
 type Manager struct {
-	mu          sync.RWMutex
-	config      *Config
-	files       map[string]*FileRecord
-	tiers       map[StorageTier]*TierConfig
-	policy      *PlacementPolicy
-	migrations  []MigrationTask
+	mu               sync.RWMutex
+	config           *Config
+	files            map[string]*FileRecord
+	tiers            map[StorageTier]*TierConfig
+	policy           *PlacementPolicy
+	migrations       []MigrationTask
 	migrationCounter int64
-	running     bool
-	stopCh      chan struct{}
-	nowFunc     func() time.Time
+	running          bool
+	stopCh           chan struct{}
+	nowFunc          func() time.Time
 }
 
 // Config 配置
 type Config struct {
-	Enabled            bool          `json:"enabled"`
-	AnalysisInterval   time.Duration `json:"analysisInterval"`
-	TemperatureWindow  time.Duration `json:"temperatureWindow"`
-	MinAccessForScore  int64         `json:"minAccessForScore"`
-	AutoMigrate        bool          `json:"autoMigrate"`
-	MaxConcurrentMigrations int     `json:"maxConcurrentMigrations"`
+	Enabled                 bool          `json:"enabled"`
+	AnalysisInterval        time.Duration `json:"analysisInterval"`
+	TemperatureWindow       time.Duration `json:"temperatureWindow"`
+	MinAccessForScore       int64         `json:"minAccessForScore"`
+	AutoMigrate             bool          `json:"autoMigrate"`
+	MaxConcurrentMigrations int           `json:"maxConcurrentMigrations"`
 }
 
 // TierConfig 层配置
 type TierConfig struct {
-	Name          string  `json:"name"`
-	CapacityBytes int64   `json:"capacityBytes"`
-	UsedBytes     int64   `json:"usedBytes"`
+	Name           string  `json:"name"`
+	CapacityBytes  int64   `json:"capacityBytes"`
+	UsedBytes      int64   `json:"usedBytes"`
 	CostPerTBMonth float64 `json:"costPerTbMonth"`
-	ReadSpeedMBps int     `json:"readSpeedMbps"`
-	WriteSpeedMBps int    `json:"writeSpeedMbps"`
-	Durability    string  `json:"durability"`
+	ReadSpeedMBps  int     `json:"readSpeedMbps"`
+	WriteSpeedMBps int     `json:"writeSpeedMbps"`
+	Durability     string  `json:"durability"`
 }
 
 // NewManager 创建管理器
 func NewManager(config *Config) *Manager {
 	if config == nil {
 		config = &Config{
-			Enabled:            true,
-			AnalysisInterval:   time.Hour,
-			TemperatureWindow:  time.Hour * 24 * 30, // 30天
-			MinAccessForScore:  1,
-			AutoMigrate:        false,
+			Enabled:                 true,
+			AnalysisInterval:        time.Hour,
+			TemperatureWindow:       time.Hour * 24 * 30, // 30天
+			MinAccessForScore:       1,
+			AutoMigrate:             false,
 			MaxConcurrentMigrations: 5,
 		}
 	}
@@ -256,8 +256,8 @@ func (m *Manager) AnalyzePlacement() (*PlacementReport, error) {
 	defer m.mu.RUnlock()
 
 	report := &PlacementReport{
-		GeneratedAt:            m.nowFunc(),
-		TierDistribution:       make(map[StorageTier]TierInfo),
+		GeneratedAt:             m.nowFunc(),
+		TierDistribution:        make(map[StorageTier]TierInfo),
 		TemperatureDistribution: make(map[DataTemperature]int),
 	}
 

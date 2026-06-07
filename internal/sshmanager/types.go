@@ -9,23 +9,23 @@ import (
 type SessionStatus string
 
 const (
-	StatusActive   SessionStatus = "active"
-	StatusClosed   SessionStatus = "closed"
-	StatusError    SessionStatus = "error"
-	StatusIdle     SessionStatus = "idle"
+	StatusActive SessionStatus = "active"
+	StatusClosed SessionStatus = "closed"
+	StatusError  SessionStatus = "error"
+	StatusIdle   SessionStatus = "idle"
 )
 
 // SSHKey SSH 密钥.
 type SSHKey struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Type        string    `json:"type"` // rsa, ed25519, ecdsa
-	Fingerprint string    `json:"fingerprint"`
-	PublicKey   string    `json:"public_key"`
-	PrivateKey  string    `json:"private_key,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Type        string     `json:"type"` // rsa, ed25519, ecdsa
+	Fingerprint string     `json:"fingerprint"`
+	PublicKey   string     `json:"public_key"`
+	PrivateKey  string     `json:"private_key,omitempty"`
+	CreatedAt   time.Time  `json:"created_at"`
 	LastUsedAt  *time.Time `json:"last_used_at,omitempty"`
-	Tags        []string  `json:"tags,omitempty"`
+	Tags        []string   `json:"tags,omitempty"`
 }
 
 // SSHSession SSH 会话.
@@ -48,14 +48,14 @@ type SSHSession struct {
 
 // Tunnel SSH 隧道.
 type Tunnel struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	SessionID   string    `json:"session_id"`
-	LocalAddr   string    `json:"local_addr"`
-	RemoteAddr  string    `json:"remote_addr"`
-	Enabled     bool      `json:"enabled"`
-	CreatedAt   time.Time `json:"created_at"`
-	BytesTunneled int64   `json:"bytes_tunneled"`
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	SessionID     string    `json:"session_id"`
+	LocalAddr     string    `json:"local_addr"`
+	RemoteAddr    string    `json:"remote_addr"`
+	Enabled       bool      `json:"enabled"`
+	CreatedAt     time.Time `json:"created_at"`
+	BytesTunneled int64     `json:"bytes_tunneled"`
 }
 
 // SSHConfig SSH 管理器配置.
@@ -256,10 +256,10 @@ func (m *Manager) GetStats() map[string]interface{} {
 		}
 	}
 	return map[string]interface{}{
-		"total_keys":     len(m.keys),
-		"total_sessions": len(m.sessions),
+		"total_keys":      len(m.keys),
+		"total_sessions":  len(m.sessions),
 		"active_sessions": active,
-		"total_tunnels":  len(m.tunnels),
+		"total_tunnels":   len(m.tunnels),
 	}
 }
 

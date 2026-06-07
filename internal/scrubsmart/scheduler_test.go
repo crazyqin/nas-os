@@ -9,12 +9,12 @@ import (
 
 // mockBackend 模拟 Scrub 后端.
 type mockBackend struct {
-	mu           sync.Mutex
-	startCalled  int
-	stopCalled   int
-	startErr     error
-	stopErr      error
-	progress     *ScrubProgress
+	mu          sync.Mutex
+	startCalled int
+	stopCalled  int
+	startErr    error
+	stopErr     error
+	progress    *ScrubProgress
 }
 
 func (m *mockBackend) Start(_ context.Context, _ string) error {

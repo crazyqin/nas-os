@@ -17,12 +17,12 @@ type Manager struct {
 	storagePath string
 
 	// 内存存储（生产环境应使用数据库）
-	links     map[string]*ShareLink       // id -> link
-	shortURLs map[string]string           // shortURL -> linkID
-	brandings map[string]*ShareBranding   // id -> branding
-	portals   map[string]*SharePortal     // id -> portal
-	accesses  map[string][]*ShareAccess   // linkID -> accesses
-	uploads   map[string][]*ShareUpload   // linkID -> uploads
+	links     map[string]*ShareLink     // id -> link
+	shortURLs map[string]string         // shortURL -> linkID
+	brandings map[string]*ShareBranding // id -> branding
+	portals   map[string]*SharePortal   // id -> portal
+	accesses  map[string][]*ShareAccess // linkID -> accesses
+	uploads   map[string][]*ShareUpload // linkID -> uploads
 }
 
 // NewManager 创建分享门户管理器

@@ -8,12 +8,12 @@ import (
 
 func TestNewTieringAnalyzer(t *testing.T) {
 	analysis := TieringCostAnalysis{
-		HotStorageCost:   0.10,
-		WarmStorageCost:  0.05,
-		ColdStorageCost:  0.01,
-		HotAccessCost:    0.001,
-		WarmAccessCost:   0.005,
-		ColdAccessCost:   0.01,
+		HotStorageCost:  0.10,
+		WarmStorageCost: 0.05,
+		ColdStorageCost: 0.01,
+		HotAccessCost:   0.001,
+		WarmAccessCost:  0.005,
+		ColdAccessCost:  0.01,
 	}
 	analyzer := NewTieringAnalyzer(analysis)
 	if analyzer == nil {
@@ -26,9 +26,9 @@ func TestNewTieringAnalyzer(t *testing.T) {
 
 func TestDetermineOptimalTier(t *testing.T) {
 	analysis := TieringCostAnalysis{
-		HotStorageCost:   0.10,
-		WarmStorageCost:  0.05,
-		ColdStorageCost:  0.01,
+		HotStorageCost:  0.10,
+		WarmStorageCost: 0.05,
+		ColdStorageCost: 0.01,
 	}
 	analyzer := NewTieringAnalyzer(analysis)
 
@@ -52,12 +52,12 @@ func TestDetermineOptimalTier(t *testing.T) {
 
 func TestAnalyzeDataTiering(t *testing.T) {
 	analysis := TieringCostAnalysis{
-		HotStorageCost:   0.10,
-		WarmStorageCost:  0.05,
-		ColdStorageCost:  0.01,
-		HotAccessCost:    0.001,
-		WarmAccessCost:   0.005,
-		ColdAccessCost:   0.01,
+		HotStorageCost:  0.10,
+		WarmStorageCost: 0.05,
+		ColdStorageCost: 0.01,
+		HotAccessCost:   0.001,
+		WarmAccessCost:  0.005,
+		ColdAccessCost:  0.01,
 	}
 	analyzer := NewTieringAnalyzer(analysis)
 
@@ -93,12 +93,12 @@ func TestAnalyzeDataTiering(t *testing.T) {
 
 func TestCalculateTierCost(t *testing.T) {
 	analysis := TieringCostAnalysis{
-		HotStorageCost:   0.10,
-		WarmStorageCost:  0.05,
-		ColdStorageCost:  0.01,
-		HotAccessCost:    0.001,
-		WarmAccessCost:   0.005,
-		ColdAccessCost:   0.01,
+		HotStorageCost:  0.10,
+		WarmStorageCost: 0.05,
+		ColdStorageCost: 0.01,
+		HotAccessCost:   0.001,
+		WarmAccessCost:  0.005,
+		ColdAccessCost:  0.01,
 	}
 	analyzer := NewTieringAnalyzer(analysis)
 

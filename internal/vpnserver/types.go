@@ -46,7 +46,7 @@ type WireGuardInterface struct {
 	ListenPort   int             `json:"listen_port"`
 	PrivateKey   string          `json:"private_key,omitempty"`
 	PublicKey    string          `json:"public_key"`
-	Address      string          `json:"address"`       // e.g. "10.0.0.1/24"
+	Address      string          `json:"address"` // e.g. "10.0.0.1/24"
 	DNS          []string        `json:"dns"`
 	Status       InterfaceStatus `json:"status"`
 	Peers        []WireGuardPeer `json:"peers"`
@@ -57,13 +57,13 @@ type WireGuardInterface struct {
 
 // WireGuardPeer represents a WireGuard peer (client).
 type WireGuardPeer struct {
-	PublicKey           string    `json:"public_key"`
-	AllowedIPs          []string  `json:"allowed_ips"`
-	Endpoint            string    `json:"endpoint,omitempty"`
-	PersistentKeepalive int       `json:"persistent_keepalive,omitempty"`
-	Name                string    `json:"name"`
-	Enabled             bool      `json:"enabled"`
-	LastHandshake       time.Time `json:"last_handshake,omitempty"`
+	PublicKey           string       `json:"public_key"`
+	AllowedIPs          []string     `json:"allowed_ips"`
+	Endpoint            string       `json:"endpoint,omitempty"`
+	PersistentKeepalive int          `json:"persistent_keepalive,omitempty"`
+	Name                string       `json:"name"`
+	Enabled             bool         `json:"enabled"`
+	LastHandshake       time.Time    `json:"last_handshake,omitempty"`
 	TrafficStats        TrafficStats `json:"traffic_stats"`
 }
 
@@ -76,83 +76,83 @@ type TrafficStats struct {
 
 // OpenVPNConfig holds OpenVPN server configuration.
 type OpenVPNConfig struct {
-	Enabled      bool     `json:"enabled"`
-	Port         int      `json:"port"`
-	Protocol     string   `json:"protocol"` // "udp" or "tcp"
-	Subnet       string   `json:"subnet"`   // e.g. "10.8.0.0"
-	Netmask      string   `json:"netmask"`  // e.g. "255.255.255.0"
-	DNS          []string `json:"dns"`
-	MaxClients   int      `json:"max_clients"`
-	KeepAlive    bool     `json:"keep_alive"`
-	Compression  string   `json:"compression"`
-	Cipher       string   `json:"cipher"`
-	AuthType     string   `json:"auth_type"` // "certificate", "password", "both"
-	Status       InterfaceStatus `json:"status"`
-	ConnectedUsers int    `json:"connected_users"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	Enabled        bool            `json:"enabled"`
+	Port           int             `json:"port"`
+	Protocol       string          `json:"protocol"` // "udp" or "tcp"
+	Subnet         string          `json:"subnet"`   // e.g. "10.8.0.0"
+	Netmask        string          `json:"netmask"`  // e.g. "255.255.255.0"
+	DNS            []string        `json:"dns"`
+	MaxClients     int             `json:"max_clients"`
+	KeepAlive      bool            `json:"keep_alive"`
+	Compression    string          `json:"compression"`
+	Cipher         string          `json:"cipher"`
+	AuthType       string          `json:"auth_type"` // "certificate", "password", "both"
+	Status         InterfaceStatus `json:"status"`
+	ConnectedUsers int             `json:"connected_users"`
+	CreatedAt      time.Time       `json:"created_at"`
+	UpdatedAt      time.Time       `json:"updated_at"`
 }
 
 // OpenVPNClient represents an OpenVPN client certificate/credential.
 type OpenVPNClient struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	CN          string    `json:"cn"` // Common Name in certificate
-	Certificate string    `json:"certificate,omitempty"`
-	PrivateKey  string    `json:"private_key,omitempty"`
-	Enabled     bool      `json:"enabled"`
-	Connected   bool      `json:"connected"`
-	RemoteIP    string    `json:"remote_ip,omitempty"`
-	ConnectedAt time.Time `json:"connected_at,omitempty"`
+	ID           string       `json:"id"`
+	Name         string       `json:"name"`
+	CN           string       `json:"cn"` // Common Name in certificate
+	Certificate  string       `json:"certificate,omitempty"`
+	PrivateKey   string       `json:"private_key,omitempty"`
+	Enabled      bool         `json:"enabled"`
+	Connected    bool         `json:"connected"`
+	RemoteIP     string       `json:"remote_ip,omitempty"`
+	ConnectedAt  time.Time    `json:"connected_at,omitempty"`
 	TrafficStats TrafficStats `json:"traffic_stats"`
-	CreatedAt   time.Time `json:"created_at"`
+	CreatedAt    time.Time    `json:"created_at"`
 }
 
 // VPNUser represents a user authorized for VPN access.
 type VPNUser struct {
-	ID          string            `json:"id"`
-	Username    string            `json:"username"`
-	Permission  Permission        `json:"permission"`
-	Protocols   []Protocol        `json:"protocols"` // allowed protocols
-	MaxDevices  int               `json:"max_devices"`
-	Devices     []VPNDevice       `json:"devices"`
-	TrafficLimit int64            `json:"traffic_limit"` // bytes, 0 = unlimited
-	TrafficUsed int64             `json:"traffic_used"`
-	ExpiresAt   *time.Time        `json:"expires_at,omitempty"`
-	Enabled     bool              `json:"enabled"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
-	Metadata    map[string]string `json:"metadata,omitempty"`
+	ID           string            `json:"id"`
+	Username     string            `json:"username"`
+	Permission   Permission        `json:"permission"`
+	Protocols    []Protocol        `json:"protocols"` // allowed protocols
+	MaxDevices   int               `json:"max_devices"`
+	Devices      []VPNDevice       `json:"devices"`
+	TrafficLimit int64             `json:"traffic_limit"` // bytes, 0 = unlimited
+	TrafficUsed  int64             `json:"traffic_used"`
+	ExpiresAt    *time.Time        `json:"expires_at,omitempty"`
+	Enabled      bool              `json:"enabled"`
+	CreatedAt    time.Time         `json:"created_at"`
+	UpdatedAt    time.Time         `json:"updated_at"`
+	Metadata     map[string]string `json:"metadata,omitempty"`
 }
 
 // VPNDevice represents an authorized VPN device.
 type VPNDevice struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	UserID       string    `json:"user_id"`
-	Protocol     Protocol  `json:"protocol"`
-	PublicKey    string    `json:"public_key,omitempty"` // for WireGuard
-	Certificate  string    `json:"certificate,omitempty"` // for OpenVPN
-	AssignedIP   string    `json:"assigned_ip"`
-	Enabled      bool      `json:"enabled"`
-	Connected    bool      `json:"connected"`
-	ConnectedAt  time.Time `json:"connected_at,omitempty"`
+	ID           string       `json:"id"`
+	Name         string       `json:"name"`
+	UserID       string       `json:"user_id"`
+	Protocol     Protocol     `json:"protocol"`
+	PublicKey    string       `json:"public_key,omitempty"`  // for WireGuard
+	Certificate  string       `json:"certificate,omitempty"` // for OpenVPN
+	AssignedIP   string       `json:"assigned_ip"`
+	Enabled      bool         `json:"enabled"`
+	Connected    bool         `json:"connected"`
+	ConnectedAt  time.Time    `json:"connected_at,omitempty"`
 	TrafficStats TrafficStats `json:"traffic_stats"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	CreatedAt    time.Time    `json:"created_at"`
+	UpdatedAt    time.Time    `json:"updated_at"`
 }
 
 // ConnectionSession represents an active VPN connection.
 type ConnectionSession struct {
-	ID          string        `json:"id"`
-	UserID      string        `json:"username"`
-	DeviceID    string        `json:"device_id"`
-	Protocol    Protocol      `json:"protocol"`
-	RemoteAddr  string        `json:"remote_addr"`
-	AssignedIP  string        `json:"assigned_ip"`
-	ConnectedAt time.Time     `json:"connected_at"`
-	Duration    time.Duration `json:"duration"`
-	TrafficStats TrafficStats `json:"traffic_stats"`
+	ID           string        `json:"id"`
+	UserID       string        `json:"username"`
+	DeviceID     string        `json:"device_id"`
+	Protocol     Protocol      `json:"protocol"`
+	RemoteAddr   string        `json:"remote_addr"`
+	AssignedIP   string        `json:"assigned_ip"`
+	ConnectedAt  time.Time     `json:"connected_at"`
+	Duration     time.Duration `json:"duration"`
+	TrafficStats TrafficStats  `json:"traffic_stats"`
 }
 
 // DNSConfig holds DNS server configuration for VPN.
@@ -164,10 +164,10 @@ type DNSConfig struct {
 
 // NATConfig holds NAT/masquerade configuration for VPN.
 type NATConfig struct {
-	Enabled     bool     `json:"enabled"`
-	Interface   string   `json:"interface"`    // e.g. "eth0"
-	Subnets     []string `json:"subnets"`      // VPN subnets to masquerade
-	Masquerade  bool     `json:"masquerade"`
+	Enabled     bool          `json:"enabled"`
+	Interface   string        `json:"interface"` // e.g. "eth0"
+	Subnets     []string      `json:"subnets"`   // VPN subnets to masquerade
+	Masquerade  bool          `json:"masquerade"`
 	PortForward []PortForward `json:"port_forward,omitempty"`
 }
 
@@ -240,11 +240,11 @@ type AddDeviceRequest struct {
 
 // UpdateNATRequest is the request to update NAT configuration.
 type UpdateNATRequest struct {
-	Enabled     bool           `json:"enabled"`
-	Interface   string         `json:"interface"`
-	Subnets     []string       `json:"subnets"`
-	Masquerade  bool           `json:"masquerade"`
-	PortForward []PortForward  `json:"port_forward,omitempty"`
+	Enabled     bool          `json:"enabled"`
+	Interface   string        `json:"interface"`
+	Subnets     []string      `json:"subnets"`
+	Masquerade  bool          `json:"masquerade"`
+	PortForward []PortForward `json:"port_forward,omitempty"`
 }
 
 // UpdateDNSRequest is the request to update DNS configuration.

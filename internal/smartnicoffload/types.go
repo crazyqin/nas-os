@@ -43,17 +43,17 @@ const (
 type OffloadType string
 
 const (
-	OffloadOVS        OffloadType = "ovs"         // Open vSwitch
-	OffloadIPsec      OffloadType = "ipsec"       // IPsec 加解密
-	OffloadTLS        OffloadType = "tls"         // TLS 终结
-	OffloadCompress   OffloadType = "compress"    // 数据压缩
-	OffloadDedup      OffloadType = "dedup"       // 数据去重
-	OffloadFirewall   OffloadType = "firewall"    // 防火墙
-	OffloadNAT        OffloadType = "nat"         // NAT
-	OffloadVxLAN      OffloadType = "vxlan"       // VXLAN 封装
-	OffloadGRE        OffloadType = "gre"         // GRE 封装
-	OffloadRDMA       OffloadType = "rdma"        // RDMA
-	OffloadRegEx      OffloadType = "regex"       // 正则匹配
+	OffloadOVS         OffloadType = "ovs"          // Open vSwitch
+	OffloadIPsec       OffloadType = "ipsec"        // IPsec 加解密
+	OffloadTLS         OffloadType = "tls"          // TLS 终结
+	OffloadCompress    OffloadType = "compress"     // 数据压缩
+	OffloadDedup       OffloadType = "dedup"        // 数据去重
+	OffloadFirewall    OffloadType = "firewall"     // 防火墙
+	OffloadNAT         OffloadType = "nat"          // NAT
+	OffloadVxLAN       OffloadType = "vxlan"        // VXLAN 封装
+	OffloadGRE         OffloadType = "gre"          // GRE 封装
+	OffloadRDMA        OffloadType = "rdma"         // RDMA
+	OffloadRegEx       OffloadType = "regex"        // 正则匹配
 	OffloadMLInference OffloadType = "ml_inference" // ML推理
 )
 
@@ -68,50 +68,50 @@ const (
 
 // SmartNICDevice SmartNIC 设备
 type SmartNICDevice struct {
-	ID           string      `json:"id"`
-	Name         string      `json:"name"`
-	Type         DeviceType  `json:"type"`
-	State        DeviceState `json:"state"`
-	PCIeAddr     string      `json:"pcie_addr"`
-	VendorID     string      `json:"vendor_id"`
-	DeviceID     string      `json:"device_id"`
-	SerialNum    string      `json:"serial_num"`
-	FirmwareVer  string      `json:"firmware_ver"`
-	NumCores     int         `json:"num_cores"`
-	Memory       uint64      `json:"memory"`        // bytes
-	NumPorts     int         `json:"num_ports"`
-	MaxOffloads  int         `json:"max_offloads"`
-	Offloads     []OffloadType `json:"supported_offloads"`
-	Speed        uint64      `json:"speed"`          // Gbps
-	Temperature  float64     `json:"temperature"`
-	PowerUsage   float64     `json:"power_usage"`
-	Stats        DeviceStats `json:"stats"`
-	CreatedAt    time.Time   `json:"created_at"`
-	UpdatedAt    time.Time   `json:"updated_at"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Type        DeviceType    `json:"type"`
+	State       DeviceState   `json:"state"`
+	PCIeAddr    string        `json:"pcie_addr"`
+	VendorID    string        `json:"vendor_id"`
+	DeviceID    string        `json:"device_id"`
+	SerialNum   string        `json:"serial_num"`
+	FirmwareVer string        `json:"firmware_ver"`
+	NumCores    int           `json:"num_cores"`
+	Memory      uint64        `json:"memory"` // bytes
+	NumPorts    int           `json:"num_ports"`
+	MaxOffloads int           `json:"max_offloads"`
+	Offloads    []OffloadType `json:"supported_offloads"`
+	Speed       uint64        `json:"speed"` // Gbps
+	Temperature float64       `json:"temperature"`
+	PowerUsage  float64       `json:"power_usage"`
+	Stats       DeviceStats   `json:"stats"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
 // DeviceStats 设备统计
 type DeviceStats struct {
-	RXPackets     uint64 `json:"rx_packets"`
-	TXPackets     uint64 `json:"tx_packets"`
-	RXBytes       uint64 `json:"rx_bytes"`
-	TXBytes       uint64 `json:"tx_bytes"`
-	OffloadedPkts uint64 `json:"offloaded_packets"`
-	OffloadedBytes uint64 `json:"offloaded_bytes"`
-	CPUUsage      float64 `json:"cpu_usage"`    // %
-	MemoryUsage   float64 `json:"memory_usage"` // %
+	RXPackets      uint64  `json:"rx_packets"`
+	TXPackets      uint64  `json:"tx_packets"`
+	RXBytes        uint64  `json:"rx_bytes"`
+	TXBytes        uint64  `json:"tx_bytes"`
+	OffloadedPkts  uint64  `json:"offloaded_packets"`
+	OffloadedBytes uint64  `json:"offloaded_bytes"`
+	CPUUsage       float64 `json:"cpu_usage"`    // %
+	MemoryUsage    float64 `json:"memory_usage"` // %
 }
 
 // OffloadFunction 卸载功能实例
 type OffloadFunction struct {
-	ID          string       `json:"id"`
-	DeviceID    string       `json:"device_id"`
-	Type        OffloadType  `json:"type"`
-	State       OffloadState `json:"state"`
-	Config      map[string]string `json:"config,omitempty"`
-	Stats       OffloadStats `json:"stats"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	ID        string            `json:"id"`
+	DeviceID  string            `json:"device_id"`
+	Type      OffloadType       `json:"type"`
+	State     OffloadState      `json:"state"`
+	Config    map[string]string `json:"config,omitempty"`
+	Stats     OffloadStats      `json:"stats"`
+	CreatedAt time.Time         `json:"created_at"`
+	UpdatedAt time.Time         `json:"updated_at"`
 }
 
 // OffloadStats 卸载统计
@@ -125,11 +125,11 @@ type OffloadStats struct {
 
 // Manager SmartNIC 卸载管理器
 type Manager struct {
-	mu        sync.RWMutex
-	devices   map[string]*SmartNICDevice
-	offloads  map[string]*OffloadFunction
-	closed    bool
-	stopCh    chan struct{}
+	mu       sync.RWMutex
+	devices  map[string]*SmartNICDevice
+	offloads map[string]*OffloadFunction
+	closed   bool
+	stopCh   chan struct{}
 }
 
 // NewManager 创建管理器

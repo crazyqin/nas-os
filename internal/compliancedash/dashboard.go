@@ -11,36 +11,36 @@ import (
 // 对标群晖 Security Advisor 和 TrueNAS STIG Compliance
 // 提供统一的安全合规状态监控和可视化
 type ComplianceDashboardManager struct {
-	mu        sync.RWMutex
-	config    *DashboardConfig
-	checks    map[string]*ComplianceCheck
-	results   map[string]*CheckResult
-	score     *ComplianceScore
-	trends    []ScoreTrend
-	ctx       context.Context
-	cancel    context.CancelFunc
-	wg        sync.WaitGroup
+	mu      sync.RWMutex
+	config  *DashboardConfig
+	checks  map[string]*ComplianceCheck
+	results map[string]*CheckResult
+	score   *ComplianceScore
+	trends  []ScoreTrend
+	ctx     context.Context
+	cancel  context.CancelFunc
+	wg      sync.WaitGroup
 }
 
 // DashboardConfig 仪表盘配置
 type DashboardConfig struct {
-	Enabled          bool          `json:"enabled"`
-	CheckInterval    time.Duration `json:"check_interval"`
-	AutoRemediate    bool          `json:"auto_remediate"`
-	NotifyOnBreach   bool          `json:"notify_on_breach"`
-	ScoreThreshold   int           `json:"score_threshold"`   // 低于此分数告警
-	RetentionDays    int           `json:"retention_days"`    // 趋势数据保留天数
+	Enabled        bool          `json:"enabled"`
+	CheckInterval  time.Duration `json:"check_interval"`
+	AutoRemediate  bool          `json:"auto_remediate"`
+	NotifyOnBreach bool          `json:"notify_on_breach"`
+	ScoreThreshold int           `json:"score_threshold"` // 低于此分数告警
+	RetentionDays  int           `json:"retention_days"`  // 趋势数据保留天数
 }
 
 // ComplianceCheck 合规检查项
 type ComplianceCheck struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Category    CheckCategory     `json:"category"`
-	Severity    CheckSeverity     `json:"severity"`
-	Description string            `json:"description"`
-	Framework   string            `json:"framework"`   // CIS, STIG, GDPR, etc.
-	AutoFix     bool              `json:"auto_fix"`
+	ID          string              `json:"id"`
+	Name        string              `json:"name"`
+	Category    CheckCategory       `json:"category"`
+	Severity    CheckSeverity       `json:"severity"`
+	Description string              `json:"description"`
+	Framework   string              `json:"framework"` // CIS, STIG, GDPR, etc.
+	AutoFix     bool                `json:"auto_fix"`
 	CheckFunc   func() *CheckResult `json:"-"`
 }
 
@@ -48,14 +48,14 @@ type ComplianceCheck struct {
 type CheckCategory string
 
 const (
-	CategoryAccess    CheckCategory = "access_control"
-	CategoryNetwork   CheckCategory = "network_security"
-	CategoryStorage   CheckCategory = "storage_security"
-	CategoryAudit     CheckCategory = "audit_logging"
+	CategoryAccess     CheckCategory = "access_control"
+	CategoryNetwork    CheckCategory = "network_security"
+	CategoryStorage    CheckCategory = "storage_security"
+	CategoryAudit      CheckCategory = "audit_logging"
 	CategoryEncryption CheckCategory = "encryption"
-	CategoryUpdate    CheckCategory = "system_updates"
-	CategoryBackup    CheckCategory = "backup_protection"
-	CategoryPassword  CheckCategory = "password_policy"
+	CategoryUpdate     CheckCategory = "system_updates"
+	CategoryBackup     CheckCategory = "backup_protection"
+	CategoryPassword   CheckCategory = "password_policy"
 )
 
 // CheckSeverity 检查严重级别
@@ -71,32 +71,32 @@ const (
 
 // CheckResult 检查结果
 type CheckResult struct {
-	CheckID     string        `json:"check_id"`
-	Passed      bool          `json:"passed"`
-	Score       int           `json:"score"`       // 0-100
-	Message     string        `json:"message"`
-	Details     string        `json:"details,omitempty"`
-	Remediated  bool          `json:"remediated"`
-	CheckedAt   time.Time     `json:"checked_at"`
-	Duration    time.Duration `json:"duration"`
+	CheckID    string        `json:"check_id"`
+	Passed     bool          `json:"passed"`
+	Score      int           `json:"score"` // 0-100
+	Message    string        `json:"message"`
+	Details    string        `json:"details,omitempty"`
+	Remediated bool          `json:"remediated"`
+	CheckedAt  time.Time     `json:"checked_at"`
+	Duration   time.Duration `json:"duration"`
 }
 
 // ComplianceScore 合规评分
 type ComplianceScore struct {
-	Overall        int                      `json:"overall"`         // 0-100
-	ByCategory     map[CheckCategory]int    `json:"by_category"`
-	TotalChecks    int                      `json:"total_checks"`
-	PassedChecks   int                      `json:"passed_checks"`
-	FailedChecks   int                      `json:"failed_checks"`
-	CriticalFails  int                      `json:"critical_fails"`
-	LastUpdated    time.Time                `json:"last_updated"`
+	Overall       int                   `json:"overall"` // 0-100
+	ByCategory    map[CheckCategory]int `json:"by_category"`
+	TotalChecks   int                   `json:"total_checks"`
+	PassedChecks  int                   `json:"passed_checks"`
+	FailedChecks  int                   `json:"failed_checks"`
+	CriticalFails int                   `json:"critical_fails"`
+	LastUpdated   time.Time             `json:"last_updated"`
 }
 
 // ScoreTrend 评分趋势
 type ScoreTrend struct {
-	Timestamp   time.Time `json:"timestamp"`
-	Score       int       `json:"score"`
-	Category    string    `json:"category,omitempty"`
+	Timestamp time.Time `json:"timestamp"`
+	Score     int       `json:"score"`
+	Category  string    `json:"category,omitempty"`
 }
 
 // NewComplianceDashboardManager 创建合规仪表盘管理器

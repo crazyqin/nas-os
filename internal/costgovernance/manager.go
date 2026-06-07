@@ -126,14 +126,14 @@ func (m *Manager) UpdateBudgetSpent(id string, spent float64) error {
 		percent := (spent / b.Amount) * 100
 		if percent >= threshold {
 			alert := &CostAlert{
-				ID:         fmt.Sprintf("alert-%s-%.0f-%d", id, threshold, time.Now().Unix()),
-				BudgetID:   id,
-				Provider:   b.Provider,
-				Severity:   m.calcSeverity(percent),
-				Message:    fmt.Sprintf("预算「%s」已使用 %.1f%%（阈值 %.0f%%）", b.Name, percent, threshold),
-				Threshold:  threshold,
-				Actual:     percent,
-				CreatedAt:  time.Now(),
+				ID:        fmt.Sprintf("alert-%s-%.0f-%d", id, threshold, time.Now().Unix()),
+				BudgetID:  id,
+				Provider:  b.Provider,
+				Severity:  m.calcSeverity(percent),
+				Message:   fmt.Sprintf("预算「%s」已使用 %.1f%%（阈值 %.0f%%）", b.Name, percent, threshold),
+				Threshold: threshold,
+				Actual:    percent,
+				CreatedAt: time.Now(),
 			}
 			m.alerts = append(m.alerts, alert)
 		}
@@ -231,14 +231,14 @@ func (m *Manager) GenerateReport(provider CloudProvider, start, end time.Time) *
 	defer m.mu.RUnlock()
 
 	report := &CostReport{
-		ID:               fmt.Sprintf("report-%s-%d", provider, time.Now().Unix()),
-		Provider:         provider,
-		PeriodStart:      start,
-		PeriodEnd:        end,
-		ByService:        make(map[string]float64),
-		ByRegion:         make(map[string]float64),
-		ByResourceType:   make(map[ResourceType]float64),
-		GeneratedAt:      time.Now(),
+		ID:             fmt.Sprintf("report-%s-%d", provider, time.Now().Unix()),
+		Provider:       provider,
+		PeriodStart:    start,
+		PeriodEnd:      end,
+		ByService:      make(map[string]float64),
+		ByRegion:       make(map[string]float64),
+		ByResourceType: make(map[ResourceType]float64),
+		GeneratedAt:    time.Now(),
 	}
 
 	// 汇总资源成本

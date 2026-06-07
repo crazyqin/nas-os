@@ -479,7 +479,7 @@ func (h *Handlers) batchRecovery(c *gin.Context) {
 
 // AddHookRequest 添加钩子请求.
 type AddHookRequest struct {
-	Container string        `json:"container" binding:"required"`
+	Container string       `json:"container" binding:"required"`
 	Hook      RecoveryHook `json:"hook" binding:"required"`
 }
 

@@ -88,11 +88,11 @@ func TestManualSessionLifecycle(t *testing.T) {
 	// 手动添加会话
 	m.mu.Lock()
 	m.sessions["test-1"] = &TerminalSession{
-		ID:         "test-1",
-		User:       "admin",
-		Status:     "active",
-		Cols:       80,
-		Rows:       24,
+		ID:     "test-1",
+		User:   "admin",
+		Status: "active",
+		Cols:   80,
+		Rows:   24,
 	}
 	m.mu.Unlock()
 

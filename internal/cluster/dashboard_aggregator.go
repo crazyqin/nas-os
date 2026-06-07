@@ -174,35 +174,35 @@ type StorageSummary struct {
 
 // NodeStorageInfo 节点存储信息
 type NodeStorageInfo struct {
-	NodeID       string      `json:"node_id"`
-	NodeName     string      `json:"node_name"`
-	Pools        []PoolInfo  `json:"pools"`
+	NodeID       string       `json:"node_id"`
+	NodeName     string       `json:"node_name"`
+	Pools        []PoolInfo   `json:"pools"`
 	Volumes      []VolumeInfo `json:"volumes"`
-	TotalGB      float64     `json:"total_gb"`
-	UsedGB       float64     `json:"used_gb"`
-	FreeGB       float64     `json:"free_gb"`
-	UsagePercent float64     `json:"usage_percent"`
+	TotalGB      float64      `json:"total_gb"`
+	UsedGB       float64      `json:"used_gb"`
+	FreeGB       float64      `json:"free_gb"`
+	UsagePercent float64      `json:"usage_percent"`
 }
 
 // PoolInfo 存储池信息
 type PoolInfo struct {
-	Name        string `json:"name"`
-	Type        string `json:"type"` // zfs, btrfs, lvm
-	Status      string `json:"status"`
-	TotalGB     float64 `json:"total_gb"`
-	UsedGB      float64 `json:"used_gb"`
-	FreeGB      float64 `json:"free_gb"`
-	Health      string `json:"health"`
+	Name    string  `json:"name"`
+	Type    string  `json:"type"` // zfs, btrfs, lvm
+	Status  string  `json:"status"`
+	TotalGB float64 `json:"total_gb"`
+	UsedGB  float64 `json:"used_gb"`
+	FreeGB  float64 `json:"free_gb"`
+	Health  string  `json:"health"`
 }
 
 // VolumeInfo 卷信息
 type VolumeInfo struct {
-	Name        string `json:"name"`
-	Pool        string `json:"pool"`
-	SizeGB      float64 `json:"size_gb"`
-	UsedGB      float64 `json:"used_gb"`
-	Status      string `json:"status"`
-	MountPoint  string `json:"mount_point"`
+	Name       string  `json:"name"`
+	Pool       string  `json:"pool"`
+	SizeGB     float64 `json:"size_gb"`
+	UsedGB     float64 `json:"used_gb"`
+	Status     string  `json:"status"`
+	MountPoint string  `json:"mount_point"`
 }
 
 // ContainerSummary 容器汇总
@@ -228,25 +228,25 @@ type ContainerSummary struct {
 
 // NodeContainerInfo 节点容器信息
 type NodeContainerInfo struct {
-	NodeID         string              `json:"node_id"`
-	NodeName       string              `json:"node_name"`
-	Containers     []ContainerInfo     `json:"containers"`
-	RunningCount   int                 `json:"running_count"`
-	StoppedCount   int                 `json:"stopped_count"`
-	TotalCPUUsage  float64             `json:"total_cpu_usage"`
-	TotalMemUsage  uint64              `json:"total_mem_usage"`
+	NodeID        string          `json:"node_id"`
+	NodeName      string          `json:"node_name"`
+	Containers    []ContainerInfo `json:"containers"`
+	RunningCount  int             `json:"running_count"`
+	StoppedCount  int             `json:"stopped_count"`
+	TotalCPUUsage float64         `json:"total_cpu_usage"`
+	TotalMemUsage uint64          `json:"total_mem_usage"`
 }
 
 // ContainerInfo 容器信息
 type ContainerInfo struct {
-	ID        string            `json:"id"`
-	Name      string            `json:"name"`
-	Image     string            `json:"image"`
-	Status    string            `json:"status"`
-	CPUUsage  float64           `json:"cpu_usage"`
-	MemUsage  uint64            `json:"mem_usage"`
-	Ports     []string          `json:"ports"`
-	Labels    map[string]string `json:"labels"`
+	ID       string            `json:"id"`
+	Name     string            `json:"name"`
+	Image    string            `json:"image"`
+	Status   string            `json:"status"`
+	CPUUsage float64           `json:"cpu_usage"`
+	MemUsage uint64            `json:"mem_usage"`
+	Ports    []string          `json:"ports"`
+	Labels   map[string]string `json:"labels"`
 }
 
 // ServiceSummary 服务汇总
@@ -278,11 +278,11 @@ type NodeServiceInfo struct {
 
 // ServiceInfo 服务信息
 type ServiceInfo struct {
-	Name        string            `json:"name"`
-	Status      string            `json:"status"`
-	Port        int               `json:"port,omitempty"`
-	Version     string            `json:"version,omitempty"`
-	Labels      map[string]string `json:"labels,omitempty"`
+	Name    string            `json:"name"`
+	Status  string            `json:"status"`
+	Port    int               `json:"port,omitempty"`
+	Version string            `json:"version,omitempty"`
+	Labels  map[string]string `json:"labels,omitempty"`
 }
 
 // ResourceTrend 资源趋势
@@ -308,10 +308,10 @@ type TrendPoint struct {
 
 // TimeSeriesPoint 时间序列数据点
 type TimeSeriesPoint struct {
-	Timestamp time.Time        `json:"timestamp"`
-	Cluster   ClusterOverview  `json:"cluster"`
-	Nodes     NodeSummary      `json:"nodes"`
-	Storage   StorageSummary   `json:"storage"`
+	Timestamp time.Time       `json:"timestamp"`
+	Cluster   ClusterOverview `json:"cluster"`
+	Nodes     NodeSummary     `json:"nodes"`
+	Storage   StorageSummary  `json:"storage"`
 }
 
 // NewDashboardAggregator 创建仪表板聚合器

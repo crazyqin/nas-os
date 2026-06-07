@@ -392,8 +392,8 @@ func (h *Handlers) failover(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":     "故障转移完成",
-		"new_master":  req.TargetNode,
+		"message":    "故障转移完成",
+		"new_master": req.TargetNode,
 	})
 }
 

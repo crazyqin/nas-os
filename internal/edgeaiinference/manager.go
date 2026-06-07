@@ -37,10 +37,10 @@ type ManagerConfig struct {
 func NewManager(cfg *ManagerConfig) (*Manager, error) {
 	if cfg.SchedulerCfg == nil {
 		cfg.SchedulerCfg = &SchedulerConfig{
-			Strategy:        "priority",
-			MaxBatchSize:    8,
-			BatchTimeoutMs:  100,
-			MaxQueueSize:    1000,
+			Strategy:         "priority",
+			MaxBatchSize:     8,
+			BatchTimeoutMs:   100,
+			MaxQueueSize:     1000,
 			EnablePreemption: false,
 		}
 	}
@@ -529,8 +529,8 @@ func (m *Manager) saveConfig() error {
 	}
 
 	data := map[string]interface{}{
-		"models":      m.models,
-		"quotas":      m.quotas,
+		"models":       m.models,
+		"quotas":       m.quotas,
 		"schedulerCfg": m.schedulerCfg,
 	}
 

@@ -26,19 +26,19 @@ func createTestDir(t *testing.T) string {
 
 	// 创建各种类型的测试文件
 	files := map[string]string{
-		"images/photo.jpg":      "fake jpg content for test",
-		"images/picture.png":    "fake png",
-		"videos/movie.mp4":      "fake video content here",
-		"documents/report.pdf":  "fake pdf content",
-		"documents/notes.txt":   "hello world",
-		"archives/data.zip":     "fake zip content",
-		"code/main.go":          "package main",
-		"code/utils.py":         "print('hello')",
-		"logs/app.log":          "2026-01-01 INFO test log",
-		"cache/temp.cache":      "cached data",
-		"temp_file.tmp":         "temporary data",
-		"other/random.dat":      "random data",
-		"subdir/deep/file.txt":  "deep file",
+		"images/photo.jpg":     "fake jpg content for test",
+		"images/picture.png":   "fake png",
+		"videos/movie.mp4":     "fake video content here",
+		"documents/report.pdf": "fake pdf content",
+		"documents/notes.txt":  "hello world",
+		"archives/data.zip":    "fake zip content",
+		"code/main.go":         "package main",
+		"code/utils.py":        "print('hello')",
+		"logs/app.log":         "2026-01-01 INFO test log",
+		"cache/temp.cache":     "cached data",
+		"temp_file.tmp":        "temporary data",
+		"other/random.dat":     "random data",
+		"subdir/deep/file.txt": "deep file",
 	}
 
 	for relPath, content := range files {

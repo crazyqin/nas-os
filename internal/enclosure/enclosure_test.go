@@ -69,13 +69,13 @@ func TestSlotDiskInfo_Fields(t *testing.T) {
 
 func TestSensor_Fields(t *testing.T) {
 	sensor := Sensor{
-		ID:           0,
-		Name:         "温度传感器 0",
-		Type:         SensorTemperature,
-		Value:        42.5,
-		Unit:         "°C",
+		ID:            0,
+		Name:          "温度传感器 0",
+		Type:          SensorTemperature,
+		Value:         42.5,
+		Unit:          "°C",
 		ThresholdHigh: 60.0,
-		Status:       SensorNormal,
+		Status:        SensorNormal,
 	}
 
 	assert.Equal(t, 0, sensor.ID)

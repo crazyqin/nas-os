@@ -13,12 +13,12 @@ import (
 
 // Manager 审计报告管理器.
 type Manager struct {
-	reports    map[string]*AuditReport
-	findings   map[string]*Finding
-	checks     map[string]*ComplianceCheck
-	events     []*AuditEvent
-	scans      map[string]*SecurityScanResult
-	mu         sync.RWMutex
+	reports  map[string]*AuditReport
+	findings map[string]*Finding
+	checks   map[string]*ComplianceCheck
+	events   []*AuditEvent
+	scans    map[string]*SecurityScanResult
+	mu       sync.RWMutex
 }
 
 // NewManager 创建审计报告管理器.

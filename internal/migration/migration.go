@@ -51,44 +51,44 @@ const (
 
 // Task 迁移任务.
 type Task struct {
-	ID           string     `json:"id"`
-	Name         string     `json:"name"`
-	SourceDevice string     `json:"sourceDevice"`
-	TargetDevice string     `json:"targetDevice"`
-	SourcePath   string     `json:"sourcePath"`
-	TargetPath   string     `json:"targetPath"`
-	Mode         Mode       `json:"mode"`
-	Status       Status     `json:"status"`
-	Progress     int        `json:"progress"`  // 百分比 0-100
-	Speed        int64      `json:"speed"`     // bytes/sec
-	RemainingSec int64      `json:"remainingSec"`
-	TotalSize    int64      `json:"totalSize"`
-	Transferred  int64      `json:"transferred"`
-	TotalFiles   int64      `json:"totalFiles"`
-	FilesDone    int64      `json:"filesDone"`
-	Error        string     `json:"error,omitempty"`
-	CreatedAt    time.Time  `json:"createdAt"`
-	StartedAt    time.Time  `json:"startedAt,omitempty"`
-	FinishedAt   time.Time  `json:"finishedAt,omitempty"`
-	SnapshotID   string     `json:"snapshotId,omitempty"` // 回滚快照
+	ID           string    `json:"id"`
+	Name         string    `json:"name"`
+	SourceDevice string    `json:"sourceDevice"`
+	TargetDevice string    `json:"targetDevice"`
+	SourcePath   string    `json:"sourcePath"`
+	TargetPath   string    `json:"targetPath"`
+	Mode         Mode      `json:"mode"`
+	Status       Status    `json:"status"`
+	Progress     int       `json:"progress"` // 百分比 0-100
+	Speed        int64     `json:"speed"`    // bytes/sec
+	RemainingSec int64     `json:"remainingSec"`
+	TotalSize    int64     `json:"totalSize"`
+	Transferred  int64     `json:"transferred"`
+	TotalFiles   int64     `json:"totalFiles"`
+	FilesDone    int64     `json:"filesDone"`
+	Error        string    `json:"error,omitempty"`
+	CreatedAt    time.Time `json:"createdAt"`
+	StartedAt    time.Time `json:"startedAt,omitempty"`
+	FinishedAt   time.Time `json:"finishedAt,omitempty"`
+	SnapshotID   string    `json:"snapshotId,omitempty"` // 回滚快照
 }
 
 // ScanResult 预扫描结果.
 type ScanResult struct {
-	TotalSize    int64  `json:"totalSize"`
-	TotalFiles   int64  `json:"totalFiles"`
-	EstimatedSec int64  `json:"estimatedSec"`
-	Incremental  bool   `json:"incremental"`
-	ChangedFiles int64  `json:"changedFiles,omitempty"`
-	ChangedSize  int64  `json:"changedSize,omitempty"`
+	TotalSize    int64 `json:"totalSize"`
+	TotalFiles   int64 `json:"totalFiles"`
+	EstimatedSec int64 `json:"estimatedSec"`
+	Incremental  bool  `json:"incremental"`
+	ChangedFiles int64 `json:"changedFiles,omitempty"`
+	ChangedSize  int64 `json:"changedSize,omitempty"`
 }
 
 // VerifyResult 验证结果.
 type VerifyResult struct {
-	Valid       bool   `json:"valid"`
+	Valid        bool  `json:"valid"`
 	CheckedFiles int64 `json:"checkedFiles"`
-	Mismatches  int64  `json:"mismatches"`
-	Duration    int64  `json:"durationMs"`
+	Mismatches   int64 `json:"mismatches"`
+	Duration     int64 `json:"durationMs"`
 }
 
 // MigrationError 迁移业务错误.
@@ -105,10 +105,10 @@ func (e *MigrationError) Error() string {
 	return e.Message
 }
 
-func (e *MigrationError) Unwrap() error { return e.Err }
-func (e *MigrationError) NotFound() bool { return e.Code == 404 }
+func (e *MigrationError) Unwrap() error    { return e.Err }
+func (e *MigrationError) NotFound() bool   { return e.Code == 404 }
 func (e *MigrationError) BadRequest() bool { return e.Code == 400 }
-func (e *MigrationError) Conflict() bool { return e.Code == 409 }
+func (e *MigrationError) Conflict() bool   { return e.Code == 409 }
 
 // 预定义错误.
 var (

@@ -99,7 +99,7 @@ func (d *Denoiser) nlmFilter(src image.Image, dst *image.RGBA) {
 // bilateralFilter 双边滤波去噪
 func (d *Denoiser) bilateralFilter(src image.Image, dst *image.RGBA) {
 	bounds := src.Bounds()
-	sigmaS := 3.0 + d.opts.Strength*5.0  // 空间 sigma
+	sigmaS := 3.0 + d.opts.Strength*5.0   // 空间 sigma
 	sigmaR := 10.0 + d.opts.Strength*40.0 // 范围 sigma
 	radius := int(math.Ceil(2 * sigmaS))
 

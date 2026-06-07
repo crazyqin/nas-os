@@ -38,16 +38,16 @@ func newTestManager() *LocaleManager {
 
 	// Load Japanese translations
 	m.LoadTranslations("ja", map[string]string{
-		"greeting":   "こんにちは、{0}！",
-		"menu.home":  "ホーム",
-		"welcome":    "ようこそ",
+		"greeting":  "こんにちは、{0}！",
+		"menu.home": "ホーム",
+		"welcome":   "ようこそ",
 	})
 
 	// Load Arabic translations
 	m.LoadTranslations("ar", map[string]string{
-		"greeting":   "مرحبا {0}",
-		"menu.home":  "الصفحة الرئيسية",
-		"welcome":    "مرحبا بكم",
+		"greeting":  "مرحبا {0}",
+		"menu.home": "الصفحة الرئيسية",
+		"welcome":   "مرحبا بكم",
 	})
 
 	return m

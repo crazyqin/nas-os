@@ -617,8 +617,8 @@ func TestExtractKeywords(t *testing.T) {
 func BenchmarkAnalyzeDocument(b *testing.B) {
 	p := NewProcessor()
 	doc := &Document{
-		ID:      "bench-doc",
-		Name:    "test.txt",
+		ID:   "bench-doc",
+		Name: "test.txt",
 		Content: "这是一篇较长的测试文档，包含多个段落和关键词。" +
 			"Docker是一个容器化平台，用于快速部署应用。" +
 			"Kubernetes是一个容器编排系统。" +

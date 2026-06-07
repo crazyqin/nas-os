@@ -19,9 +19,9 @@ const (
 type FilterAction string
 
 const (
-	ActionBlock  FilterAction = "block"  // 阻止
-	ActionAllow  FilterAction = "allow"  // 放行
-	ActionDrop   FilterAction = "drop"   // 丢弃（不响应）
+	ActionBlock FilterAction = "block" // 阻止
+	ActionAllow FilterAction = "allow" // 放行
+	ActionDrop  FilterAction = "drop"  // 丢弃（不响应）
 )
 
 // FilterListType 规则列表类型
@@ -35,10 +35,10 @@ const (
 // DNSRecord 自定义 DNS 记录.
 type DNSRecord struct {
 	ID        string        `json:"id"`
-	Name      string        `json:"name"`       // 域名
-	Type      DNSRecordType `json:"type"`       // A/AAAA/CNAME
-	Value     string        `json:"value"`      // IP 或目标域名
-	TTL       int           `json:"ttl"`        // TTL（秒）
+	Name      string        `json:"name"`  // 域名
+	Type      DNSRecordType `json:"type"`  // A/AAAA/CNAME
+	Value     string        `json:"value"` // IP 或目标域名
+	TTL       int           `json:"ttl"`   // TTL（秒）
 	Enabled   bool          `json:"enabled"`
 	CreatedAt time.Time     `json:"created_at"`
 	UpdatedAt time.Time     `json:"updated_at"`
@@ -47,11 +47,11 @@ type DNSRecord struct {
 // FilterRule 过滤规则.
 type FilterRule struct {
 	ID        string       `json:"id"`
-	Pattern   string       `json:"pattern"`    // 域名或正则模式
-	Action    FilterAction `json:"action"`     // block/allow/drop
-	ListID    string       `json:"list_id"`    // 所属规则列表
+	Pattern   string       `json:"pattern"` // 域名或正则模式
+	Action    FilterAction `json:"action"`  // block/allow/drop
+	ListID    string       `json:"list_id"` // 所属规则列表
 	Enabled   bool         `json:"enabled"`
-	HitCount  int64        `json:"hit_count"`  // 命中次数
+	HitCount  int64        `json:"hit_count"` // 命中次数
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt time.Time    `json:"updated_at"`
 }
@@ -61,7 +61,7 @@ type FilterList struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
 	Description string         `json:"description,omitempty"`
-	Type        FilterListType `json:"type"`       // block/allow
+	Type        FilterListType `json:"type"`          // block/allow
 	URL         string         `json:"url,omitempty"` // 订阅 URL
 	Enabled     bool           `json:"enabled"`
 	RuleCount   int            `json:"rule_count"`
@@ -73,8 +73,8 @@ type FilterList struct {
 type UpstreamDNS struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
-	Address   string `json:"address"`    // 如 "8.8.8.8:53", "https://dns.google/dns-query", "tls://dns.google"
-	Protocol  string `json:"protocol"`   // udp, tcp, doh, dot
+	Address   string `json:"address"`  // 如 "8.8.8.8:53", "https://dns.google/dns-query", "tls://dns.google"
+	Protocol  string `json:"protocol"` // udp, tcp, doh, dot
 	Enabled   bool   `json:"enabled"`
 	Weight    int    `json:"weight"`     // 权重（用于负载均衡）
 	IsDefault bool   `json:"is_default"` // 是否为默认上游
@@ -97,52 +97,52 @@ type QueryLog struct {
 	ClientIP   string       `json:"client_ip"`
 	ClientMAC  string       `json:"client_mac,omitempty"` // 客户端 MAC 地址
 	Domain     string       `json:"domain"`
-	Type       string       `json:"type"`                 // A, AAAA, CNAME 等
-	Answer     string       `json:"answer,omitempty"`     // 解析结果
-	IsFiltered bool         `json:"is_filtered"`          // 是否被过滤
+	Type       string       `json:"type"`                  // A, AAAA, CNAME 等
+	Answer     string       `json:"answer,omitempty"`      // 解析结果
+	IsFiltered bool         `json:"is_filtered"`           // 是否被过滤
 	FilterRule string       `json:"filter_rule,omitempty"` // 命中的规则
-	Action     FilterAction `json:"action"`               // allow/block/drop
-	Upstream   string       `json:"upstream,omitempty"`   // 使用的上游 DNS
-	Duration   int64        `json:"duration"`             // 查询耗时（毫秒）
+	Action     FilterAction `json:"action"`                // allow/block/drop
+	Upstream   string       `json:"upstream,omitempty"`    // 使用的上游 DNS
+	Duration   int64        `json:"duration"`              // 查询耗时（毫秒）
 }
 
 // FilterPolicy 过滤策略.
 type FilterPolicy struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description,omitempty"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
 	// 客户端匹配（MAC 或 IP）
-	ClientMAC   string   `json:"client_mac,omitempty"`
-	ClientIP    string   `json:"client_ip,omitempty"`
+	ClientMAC string `json:"client_mac,omitempty"`
+	ClientIP  string `json:"client_ip,omitempty"`
 	// 时间段过滤
-	StartTime   string   `json:"start_time,omitempty"` // HH:MM 格式
-	EndTime     string   `json:"end_time,omitempty"`   // HH:MM 格式
-	Weekdays    []int    `json:"weekdays,omitempty"`   // 0=周日, 1=周一, ... 6=周六
+	StartTime string `json:"start_time,omitempty"` // HH:MM 格式
+	EndTime   string `json:"end_time,omitempty"`   // HH:MM 格式
+	Weekdays  []int  `json:"weekdays,omitempty"`   // 0=周日, 1=周一, ... 6=周六
 	// 关联的规则列表
 	BlockListIDs []string `json:"block_list_ids,omitempty"`
 	AllowListIDs []string `json:"allow_list_ids,omitempty"`
 	// 自定义上游 DNS
-	UpstreamIDs  []string `json:"upstream_ids,omitempty"`
-	Enabled      bool     `json:"enabled"`
-	Priority     int      `json:"priority"` // 优先级，数值越大优先级越高
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	UpstreamIDs []string  `json:"upstream_ids,omitempty"`
+	Enabled     bool      `json:"enabled"`
+	Priority    int       `json:"priority"` // 优先级，数值越大优先级越高
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // ========== 统计结构 ==========
 
 // QueryStats 查询统计.
 type QueryStats struct {
-	TotalQueries   int64            `json:"total_queries"`
-	BlockedQueries int64            `json:"blocked_queries"`
-	AllowedQueries int64            `json:"allowed_queries"`
-	BlockRate      float64          `json:"block_rate"` // 拦截率百分比
-	UniqueDomains  int              `json:"unique_domains"`
-	UniqueClients  int              `json:"unique_clients"`
-	TopBlocked     []DomainStat     `json:"top_blocked"`
-	TopAllowed     []DomainStat     `json:"top_allowed"`
-	TopClients     []ClientStat     `json:"top_clients"`
-	HourlyStats    []HourlyStat     `json:"hourly_stats"`
+	TotalQueries   int64        `json:"total_queries"`
+	BlockedQueries int64        `json:"blocked_queries"`
+	AllowedQueries int64        `json:"allowed_queries"`
+	BlockRate      float64      `json:"block_rate"` // 拦截率百分比
+	UniqueDomains  int          `json:"unique_domains"`
+	UniqueClients  int          `json:"unique_clients"`
+	TopBlocked     []DomainStat `json:"top_blocked"`
+	TopAllowed     []DomainStat `json:"top_allowed"`
+	TopClients     []ClientStat `json:"top_clients"`
+	HourlyStats    []HourlyStat `json:"hourly_stats"`
 }
 
 // DomainStat 域名统计.
@@ -163,10 +163,10 @@ type ClientStat struct {
 
 // HourlyStat 每小时统计.
 type HourlyStat struct {
-	Hour      string `json:"hour"` // YYYY-MM-DD HH:00
-	Total     int64  `json:"total"`
-	Blocked   int64  `json:"blocked"`
-	Allowed   int64  `json:"allowed"`
+	Hour    string `json:"hour"` // YYYY-MM-DD HH:00
+	Total   int64  `json:"total"`
+	Blocked int64  `json:"blocked"`
+	Allowed int64  `json:"allowed"`
 }
 
 // DNSStatus DNS 服务状态.
@@ -329,13 +329,13 @@ type cacheKey struct {
 
 // LogStreamEvent 日志流事件.
 type LogStreamEvent struct {
-	ID        string       `json:"id"`
-	Timestamp time.Time    `json:"timestamp"`
-	ClientIP  string       `json:"client_ip"`
-	Domain    string       `json:"domain"`
-	Type      string       `json:"type"`
-	Answer    string       `json:"answer,omitempty"`
-	IsFiltered bool        `json:"is_filtered"`
-	Action    FilterAction `json:"action"`
-	Duration  int64        `json:"duration"`
+	ID         string       `json:"id"`
+	Timestamp  time.Time    `json:"timestamp"`
+	ClientIP   string       `json:"client_ip"`
+	Domain     string       `json:"domain"`
+	Type       string       `json:"type"`
+	Answer     string       `json:"answer,omitempty"`
+	IsFiltered bool         `json:"is_filtered"`
+	Action     FilterAction `json:"action"`
+	Duration   int64        `json:"duration"`
 }

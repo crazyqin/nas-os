@@ -11,22 +11,22 @@ import (
 
 // Rule defines a recycle bin cleaning rule.
 type Rule struct {
-	ID           string `json:"id"`
-	Name         string `json:"name"`
-	SharePath    string `json:"share_path"`    // path to share
-	RecyclePath  string `json:"recycle_path"`  // path to .recycle bin
-	MaxAgeDays   int    `json:"max_age_days"`  // delete items older than this
-	MaxSizeMB    int    `json:"max_size_mb"`   // max recycle bin size
-	Enabled      bool   `json:"enabled"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	SharePath   string `json:"share_path"`   // path to share
+	RecyclePath string `json:"recycle_path"` // path to .recycle bin
+	MaxAgeDays  int    `json:"max_age_days"` // delete items older than this
+	MaxSizeMB   int    `json:"max_size_mb"`  // max recycle bin size
+	Enabled     bool   `json:"enabled"`
 }
 
 // Stats holds cleaning statistics.
 type Stats struct {
-	FilesDeleted  int   `json:"files_deleted"`
-	FoldersDel    int   `json:"folders_deleted"`
-	BytesFreed    int64 `json:"bytes_freed"`
-	LastRunTime   time.Time `json:"last_run_time"`
-	LastDuration  time.Duration `json:"last_duration"`
+	FilesDeleted int           `json:"files_deleted"`
+	FoldersDel   int           `json:"folders_deleted"`
+	BytesFreed   int64         `json:"bytes_freed"`
+	LastRunTime  time.Time     `json:"last_run_time"`
+	LastDuration time.Duration `json:"last_duration"`
 }
 
 // Manager manages recycle bin cleaning.

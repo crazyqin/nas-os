@@ -19,7 +19,7 @@ func TestNewSmartFileIndex(t *testing.T) {
 
 func TestSearch(t *testing.T) {
 	sfi := NewSmartFileIndex([]string{}, 1000)
-	
+
 	// Add test entries
 	sfi.entries["/test/file1.txt"] = &IndexEntry{
 		Path:    "/test/file1.txt",
@@ -64,7 +64,7 @@ func TestGetStats(t *testing.T) {
 func TestStartStop(t *testing.T) {
 	sfi := NewSmartFileIndex([]string{}, 1000)
 	ctx := context.Background()
-	
+
 	err := sfi.Start(ctx)
 	if err != nil {
 		t.Fatal(err)

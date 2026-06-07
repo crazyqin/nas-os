@@ -218,9 +218,9 @@ func (h *Handler) StartScan(c *gin.Context) {
 	}
 
 	task := &ScanTask{
-		ID:     scanID,
-		Type:   "scan",
-		Status: "pending",
+		ID:      scanID,
+		Type:    "scan",
+		Status:  "pending",
 		Network: req.Network,
 		Config: ScanConfig{
 			Network:    req.Network,

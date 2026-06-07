@@ -26,31 +26,31 @@ type CompliancePolicy struct {
 
 // PolicyControl 策略控制项
 type PolicyControl struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Category    CheckCategory  `json:"category"`
-	Required    bool           `json:"required"`
-	Weight      float64        `json:"weight"` // 权重 0-1
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Category    CheckCategory `json:"category"`
+	Required    bool          `json:"required"`
+	Weight      float64       `json:"weight"` // 权重 0-1
 }
 
 // PolicyResult 策略评估结果
 type PolicyResult struct {
-	Standard    ComplianceStandard `json:"standard"`
-	Score       float64            `json:"score"`
-	PassRate    float64            `json:"pass_rate"`
-	Controls    []ControlResult    `json:"controls"`
-	Compliant   bool               `json:"compliant"`
-	AssessedAt  time.Time          `json:"assessed_at"`
+	Standard   ComplianceStandard `json:"standard"`
+	Score      float64            `json:"score"`
+	PassRate   float64            `json:"pass_rate"`
+	Controls   []ControlResult    `json:"controls"`
+	Compliant  bool               `json:"compliant"`
+	AssessedAt time.Time          `json:"assessed_at"`
 }
 
 // ControlResult 控制项评估结果
 type ControlResult struct {
-	ControlID   string        `json:"control_id"`
-	Name        string        `json:"name"`
-	Status      CheckStatus   `json:"status"`
-	Score       float64       `json:"score"`
-	Findings    int           `json:"findings"`
+	ControlID string      `json:"control_id"`
+	Name      string      `json:"name"`
+	Status    CheckStatus `json:"status"`
+	Score     float64     `json:"score"`
+	Findings  int         `json:"findings"`
 }
 
 // NewPolicyEngine 创建策略引擎

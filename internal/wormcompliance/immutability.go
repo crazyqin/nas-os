@@ -12,10 +12,10 @@ import (
 
 // ImmutabilityManager 不可变性管理器
 type ImmutabilityManager struct {
-	mu              sync.RWMutex
-	objects         map[string]*ProtectedObject
-	hashChainHead   string // 哈希链头
-	config          WORMConfig
+	mu            sync.RWMutex
+	objects       map[string]*ProtectedObject
+	hashChainHead string // 哈希链头
+	config        WORMConfig
 }
 
 // NewImmutabilityManager 创建不可变性管理器

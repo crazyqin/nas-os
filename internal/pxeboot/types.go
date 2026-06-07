@@ -17,12 +17,12 @@ type PXEBootManager struct {
 
 // PXEConfig PXE配置
 type PXEConfig struct {
-	Enabled      bool   `json:"enabled"`
-	TFTPServer   string `json:"tftp_server"`
-	TFTPPort     int    `json:"tftp_port"`
-	DHCPRange    string `json:"dhcp_range"`
-	BootFile     string `json:"boot_file"`
-	RootPath     string `json:"root_path"`
+	Enabled    bool   `json:"enabled"`
+	TFTPServer string `json:"tftp_server"`
+	TFTPPort   int    `json:"tftp_port"`
+	DHCPRange  string `json:"dhcp_range"`
+	BootFile   string `json:"boot_file"`
+	RootPath   string `json:"root_path"`
 }
 
 // PXEClient PXE客户端

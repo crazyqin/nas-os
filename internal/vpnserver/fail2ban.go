@@ -52,11 +52,11 @@ type Fail2BanEvent struct {
 
 // Fail2BanConfig 封禁规则配置
 type Fail2BanConfig struct {
-	Enabled               bool `json:"enabled"`
-	MaxAttempts           int  `json:"max_attempts"`
-	WindowSeconds         int  `json:"window_seconds"`
-	BanDurationSeconds    int  `json:"ban_duration_seconds"`
-	CleanupIntervalSeconds int `json:"cleanup_interval_seconds"`
+	Enabled                bool `json:"enabled"`
+	MaxAttempts            int  `json:"max_attempts"`
+	WindowSeconds          int  `json:"window_seconds"`
+	BanDurationSeconds     int  `json:"ban_duration_seconds"`
+	CleanupIntervalSeconds int  `json:"cleanup_interval_seconds"`
 }
 
 // Fail2BanStatus 封禁状态（用于API响应）
@@ -106,17 +106,17 @@ type Fail2Ban struct {
 func NewFail2Ban() *Fail2Ban {
 	f := &Fail2Ban{
 		config: Fail2BanConfig{
-			Enabled:               true,
-			MaxAttempts:           DefaultMaxAttempts,
-			WindowSeconds:         DefaultWindowSeconds,
-			BanDurationSeconds:    DefaultBanDurationSeconds,
+			Enabled:                true,
+			MaxAttempts:            DefaultMaxAttempts,
+			WindowSeconds:          DefaultWindowSeconds,
+			BanDurationSeconds:     DefaultBanDurationSeconds,
 			CleanupIntervalSeconds: DefaultCleanupIntervalSeconds,
 		},
-		attempts: make(map[string][]FailAttempt),
-		bans:     make(map[string]*BanEntry),
+		attempts:  make(map[string][]FailAttempt),
+		bans:      make(map[string]*BanEntry),
 		whitelist: make(map[string]bool),
-		events:   make([]Fail2BanEvent, 0, 100),
-		stopCh:   make(chan struct{}),
+		events:    make([]Fail2BanEvent, 0, 100),
+		stopCh:    make(chan struct{}),
 	}
 
 	// 启动后台清理协程

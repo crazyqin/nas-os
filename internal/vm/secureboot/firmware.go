@@ -35,13 +35,13 @@ type FirmwareImage struct {
 
 // FirmwareVerificationResult 固件验证结果。
 type FirmwareVerificationResult struct {
-	Valid       bool      `json:"valid"`
-	FirmwareName string   `json:"firmware_name"`
-	Version     string    `json:"version,omitempty"`
-	HashValid   bool      `json:"hash_valid"`
-	SignatureValid bool   `json:"signature_valid"`
-	Reason      string    `json:"reason,omitempty"`
-	VerifiedAt  time.Time `json:"verified_at"`
+	Valid          bool      `json:"valid"`
+	FirmwareName   string    `json:"firmware_name"`
+	Version        string    `json:"version,omitempty"`
+	HashValid      bool      `json:"hash_valid"`
+	SignatureValid bool      `json:"signature_valid"`
+	Reason         string    `json:"reason,omitempty"`
+	VerifiedAt     time.Time `json:"verified_at"`
 }
 
 // UEFIVariableStore UEFI 变量存储接口。
@@ -297,12 +297,12 @@ func (s *MemoryVariableStore) Count() int {
 
 // UEFIVariableNames 预定义的 UEFI 安全启动变量名。
 const (
-	UEFIVarPK        = "PK"
-	UEFIVarKEK       = "KEK"
-	UEFIVarDB        = "db"
-	UEFIVarDBX       = "dbx"
-	UEFIVarSecureBoot = "SecureBoot"
-	UEFIVarSetupMode = "SetupMode"
+	UEFIVarPK           = "PK"
+	UEFIVarKEK          = "KEK"
+	UEFIVarDB           = "db"
+	UEFIVarDBX          = "dbx"
+	UEFIVarSecureBoot   = "SecureBoot"
+	UEFIVarSetupMode    = "SetupMode"
 	UEFIVarDeployedMode = "DeployedMode"
 )
 

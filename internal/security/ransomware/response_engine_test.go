@@ -129,20 +129,20 @@ func (m *mockProcessKiller) IsProcessRunning(pid int) bool {
 // newTestDetectionResult 创建测试用检测结果.
 func newTestDetectionResult(level ThreatLevel, confidence float64, processPID int) *DetectionResult {
 	result := &DetectionResult{
-		ID:            "det-test-001",
-		Timestamp:     time.Now(),
-		ThreatLevel:   level,
-		DetectionType: DetectionTypeBehavior,
-		FilePath:      "/data/documents/report.docx",
-		Confidence:    confidence,
+		ID:              "det-test-001",
+		Timestamp:       time.Now(),
+		ThreatLevel:     level,
+		DetectionType:   DetectionTypeBehavior,
+		FilePath:        "/data/documents/report.docx",
+		Confidence:      confidence,
 		SuggestedAction: "隔离并终止可疑进程",
 	}
 
 	if processPID > 0 {
 		result.ProcessInfo = &ProcessInfo{
 			PID:     processPID,
-			Name:   "suspicious_process",
-			Path:   "/tmp/suspicious",
+			Name:    "suspicious_process",
+			Path:    "/tmp/suspicious",
 			CmdLine: "/tmp/suspicious --encrypt",
 			User:    "nobody",
 		}
@@ -185,9 +185,9 @@ func TestEvaluateResponseLevel(t *testing.T) {
 	engine := newTestResponseEngine(&mockThreatDetector{}, nil, nil, nil)
 
 	tests := []struct {
-		name        string
-		result      *DetectionResult
-		wantLevel   ResponseLevel
+		name      string
+		result    *DetectionResult
+		wantLevel ResponseLevel
 	}{
 		{
 			name:      "nil结果应返回告警级别",

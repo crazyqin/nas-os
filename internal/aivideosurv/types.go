@@ -113,42 +113,42 @@ type Line struct {
 
 // Camera 摄像头配置.
 type Camera struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Location    string       `json:"location"`
-	URL         string       `json:"url"`
-	Status      CameraStatus `json:"status"`
-	Resolution  string       `json:"resolution"`   // 如 "1920x1080"
-	FPS         int          `json:"fps"`
-	EnableAI    bool         `json:"enable_ai"`     // 是否启用AI检测
-	LastActive  time.Time    `json:"last_active"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	ID         string       `json:"id"`
+	Name       string       `json:"name"`
+	Location   string       `json:"location"`
+	URL        string       `json:"url"`
+	Status     CameraStatus `json:"status"`
+	Resolution string       `json:"resolution"` // 如 "1920x1080"
+	FPS        int          `json:"fps"`
+	EnableAI   bool         `json:"enable_ai"` // 是否启用AI检测
+	LastActive time.Time    `json:"last_active"`
+	CreatedAt  time.Time    `json:"created_at"`
+	UpdatedAt  time.Time    `json:"updated_at"`
 }
 
 // DetectionEvent AI检测事件.
 type DetectionEvent struct {
-	ID          string      `json:"id"`
-	CameraID    string      `json:"camera_id"`
-	Type        EventType   `json:"type"`
-	Confidence  float64     `json:"confidence"` // 置信度 0-1
-	BoundingBox BoundingBox `json:"bounding_box"`
-	Position    Point       `json:"position"`    // 目标中心点
-	Timestamp   time.Time   `json:"timestamp"`
-	FrameURL    string      `json:"frame_url"`   // 截帧图片URL
+	ID          string            `json:"id"`
+	CameraID    string            `json:"camera_id"`
+	Type        EventType         `json:"type"`
+	Confidence  float64           `json:"confidence"` // 置信度 0-1
+	BoundingBox BoundingBox       `json:"bounding_box"`
+	Position    Point             `json:"position"` // 目标中心点
+	Timestamp   time.Time         `json:"timestamp"`
+	FrameURL    string            `json:"frame_url"`            // 截帧图片URL
 	Attributes  map[string]string `json:"attributes,omitempty"` // 扩展属性
 }
 
 // ObjectTrack 目标跟踪记录.
 type ObjectTrack struct {
-	ID          string        `json:"id"`
-	ObjectType  EventType     `json:"object_type"`
-	CameraIDs   []string      `json:"camera_ids"`   // 出现过的摄像头
-	FirstSeen   time.Time     `json:"first_seen"`
-	LastSeen    time.Time     `json:"last_seen"`
-	Positions   []TrackPoint  `json:"positions"`     // 轨迹点
-	IsActive    bool          `json:"is_active"`
-	Attributes  map[string]string `json:"attributes,omitempty"`
+	ID         string            `json:"id"`
+	ObjectType EventType         `json:"object_type"`
+	CameraIDs  []string          `json:"camera_ids"` // 出现过的摄像头
+	FirstSeen  time.Time         `json:"first_seen"`
+	LastSeen   time.Time         `json:"last_seen"`
+	Positions  []TrackPoint      `json:"positions"` // 轨迹点
+	IsActive   bool              `json:"is_active"`
+	Attributes map[string]string `json:"attributes,omitempty"`
 }
 
 // TrackPoint 轨迹点.
@@ -160,14 +160,14 @@ type TrackPoint struct {
 
 // Zone 智能区域配置.
 type Zone struct {
-	ID          string   `json:"id"`
-	CameraID    string   `json:"camera_id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description,omitempty"`
-	Points      []Point  `json:"points"`       // 区域顶点（多边形）
+	ID          string      `json:"id"`
+	CameraID    string      `json:"camera_id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description,omitempty"`
+	Points      []Point     `json:"points"`      // 区域顶点（多边形）
 	AlertTypes  []AlertType `json:"alert_types"` // 触发的告警类型
-	Enabled     bool     `json:"enabled"`
-	CreatedAt   time.Time `json:"created_at"`
+	Enabled     bool        `json:"enabled"`
+	CreatedAt   time.Time   `json:"created_at"`
 }
 
 // BehaviorAlert 行为分析告警.
@@ -177,7 +177,7 @@ type BehaviorAlert struct {
 	ZoneID      string      `json:"zone_id,omitempty"`
 	Type        AlertType   `json:"type"`
 	Status      AlertStatus `json:"status"`
-	TrackID     string      `json:"track_id"`     // 关联的跟踪ID
+	TrackID     string      `json:"track_id"` // 关联的跟踪ID
 	Description string      `json:"description"`
 	BoundingBox BoundingBox `json:"bounding_box"`
 	Timestamp   time.Time   `json:"timestamp"`
@@ -189,13 +189,13 @@ type BehaviorAlert struct {
 
 // EventQuery 事件查询条件.
 type EventQuery struct {
-	CameraID   string    `json:"camera_id,omitempty"`
-	Type       EventType `json:"type,omitempty"`
-	StartTime  time.Time `json:"start_time,omitempty"`
-	EndTime    time.Time `json:"end_time,omitempty"`
-	MinConf    float64   `json:"min_confidence,omitempty"`
-	Offset     int       `json:"offset"`
-	Limit      int       `json:"limit"`
+	CameraID  string    `json:"camera_id,omitempty"`
+	Type      EventType `json:"type,omitempty"`
+	StartTime time.Time `json:"start_time,omitempty"`
+	EndTime   time.Time `json:"end_time,omitempty"`
+	MinConf   float64   `json:"min_confidence,omitempty"`
+	Offset    int       `json:"offset"`
+	Limit     int       `json:"limit"`
 }
 
 // AlertQuery 告警查询条件.
@@ -214,12 +214,12 @@ type AlertQuery struct {
 
 // SurveillanceStats 监控统计信息.
 type SurveillanceStats struct {
-	TotalCameras      int            `json:"total_cameras"`
-	OnlineCameras     int            `json:"online_cameras"`
-	TotalEvents       int            `json:"total_events"`
-	TotalAlerts       int            `json:"total_alerts"`
-	ActiveAlerts      int            `json:"active_alerts"`
-	ActiveTracks      int            `json:"active_tracks"`
-	EventsByType      map[EventType]int    `json:"events_by_type"`
-	AlertsByType      map[AlertType]int    `json:"alerts_by_type"`
+	TotalCameras  int               `json:"total_cameras"`
+	OnlineCameras int               `json:"online_cameras"`
+	TotalEvents   int               `json:"total_events"`
+	TotalAlerts   int               `json:"total_alerts"`
+	ActiveAlerts  int               `json:"active_alerts"`
+	ActiveTracks  int               `json:"active_tracks"`
+	EventsByType  map[EventType]int `json:"events_by_type"`
+	AlertsByType  map[AlertType]int `json:"alerts_by_type"`
 }

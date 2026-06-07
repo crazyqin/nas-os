@@ -30,32 +30,32 @@ const (
 
 // MediaItem 媒体项
 type MediaItem struct {
-	ID          string            `json:"id"`
-	Title       string            `json:"title"`
-	Type        MediaType         `json:"type"`
-	Year        int               `json:"year,omitempty"`
-	Rating      float64           `json:"rating,omitempty"`
-	Genres      []string          `json:"genres,omitempty"`
-	Directors   []string          `json:"directors,omitempty"`
-	Actors      []string          `json:"actors,omitempty"`
-	Summary     string            `json:"summary,omitempty"`
-	PosterURL   string            `json:"poster_url,omitempty"`
-	BackdropURL string            `json:"backdrop_url,omitempty"`
-	FilePath    string            `json:"file_path"`
-	FileSize    int64             `json:"file_size"`
-	Duration    int               `json:"duration,omitempty"` // 秒
-	Resolution  string            `json:"resolution,omitempty"`
-	PosterStatus PosterStatus    `json:"poster_status"`
-	Metadata    map[string]string `json:"metadata,omitempty"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	ID           string            `json:"id"`
+	Title        string            `json:"title"`
+	Type         MediaType         `json:"type"`
+	Year         int               `json:"year,omitempty"`
+	Rating       float64           `json:"rating,omitempty"`
+	Genres       []string          `json:"genres,omitempty"`
+	Directors    []string          `json:"directors,omitempty"`
+	Actors       []string          `json:"actors,omitempty"`
+	Summary      string            `json:"summary,omitempty"`
+	PosterURL    string            `json:"poster_url,omitempty"`
+	BackdropURL  string            `json:"backdrop_url,omitempty"`
+	FilePath     string            `json:"file_path"`
+	FileSize     int64             `json:"file_size"`
+	Duration     int               `json:"duration,omitempty"` // 秒
+	Resolution   string            `json:"resolution,omitempty"`
+	PosterStatus PosterStatus      `json:"poster_status"`
+	Metadata     map[string]string `json:"metadata,omitempty"`
+	CreatedAt    time.Time         `json:"created_at"`
+	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
 // GalleryConfig 画廊配置
 type GalleryConfig struct {
-	AutoFetchPoster   bool   `json:"auto_fetch_poster"`
-	PosterLanguage    string `json:"poster_language"` // zh-CN, en-US
-	TMDBAPIKey        string `json:"tmdb_api_key,omitempty"`
+	AutoFetchPoster   bool     `json:"auto_fetch_poster"`
+	PosterLanguage    string   `json:"poster_language"` // zh-CN, en-US
+	TMDBAPIKey        string   `json:"tmdb_api_key,omitempty"`
 	ScanPaths         []string `json:"scan_paths"`
 	ScanInterval      int      `json:"scan_interval"` // 分钟
 	MaxConcurrent     int      `json:"max_concurrent"`
@@ -202,11 +202,11 @@ func (g *Gallery) List(filter *MediaFilter) []*MediaItem {
 
 // MediaFilter 媒体过滤器
 type MediaFilter struct {
-	Type     *MediaType `json:"type,omitempty"`
-	Genre    string     `json:"genre,omitempty"`
-	Year     int        `json:"year,omitempty"`
-	MinRating float64   `json:"min_rating,omitempty"`
-	Search   string     `json:"search,omitempty"`
+	Type      *MediaType `json:"type,omitempty"`
+	Genre     string     `json:"genre,omitempty"`
+	Year      int        `json:"year,omitempty"`
+	MinRating float64    `json:"min_rating,omitempty"`
+	Search    string     `json:"search,omitempty"`
 }
 
 // Match 检查是否匹配

@@ -57,12 +57,12 @@ type CacheEntry struct {
 // CacheStats 缓存统计
 type CacheStats struct {
 	// 总体统计
-	TotalEntries  int64 `json:"total_entries"`
-	TotalSize     int64 `json:"total_size"`
-	TotalHits     int64 `json:"total_hits"`
-	TotalMisses   int64 `json:"total_misses"`
-	HitRate       float64 `json:"hit_rate"`
-	MissRate      float64 `json:"miss_rate"`
+	TotalEntries int64   `json:"total_entries"`
+	TotalSize    int64   `json:"total_size"`
+	TotalHits    int64   `json:"total_hits"`
+	TotalMisses  int64   `json:"total_misses"`
+	HitRate      float64 `json:"hit_rate"`
+	MissRate     float64 `json:"miss_rate"`
 
 	// 按层级统计
 	LevelStats map[CacheLevel]*LevelStats `json:"level_stats"`
@@ -79,23 +79,23 @@ type CacheStats struct {
 
 // LevelStats 层级统计
 type LevelStats struct {
-	Level      CacheLevel `json:"level"`
-	Entries    int64      `json:"entries"`
-	Size       int64      `json:"size"`
-	MaxSize    int64      `json:"max_size"`
-	Hits       int64      `json:"hits"`
-	Misses     int64      `json:"misses"`
-	HitRate    float64    `json:"hit_rate"`
-	Evictions  int64      `json:"evictions"`
-	Usage      float64    `json:"usage"` // 使用率 0-1
+	Level     CacheLevel `json:"level"`
+	Entries   int64      `json:"entries"`
+	Size      int64      `json:"size"`
+	MaxSize   int64      `json:"max_size"`
+	Hits      int64      `json:"hits"`
+	Misses    int64      `json:"misses"`
+	HitRate   float64    `json:"hit_rate"`
+	Evictions int64      `json:"evictions"`
+	Usage     float64    `json:"usage"` // 使用率 0-1
 }
 
 // CacheConfig 缓存配置
 type CacheConfig struct {
 	// 基础配置
-	Enabled  bool           `json:"enabled"`
-	Policy   EvictionPolicy `json:"policy"`   // 淘汰策略
-	KeyFunc  string         `json:"key_func"` // 键生成函数: "path", "hash", "custom"
+	Enabled bool           `json:"enabled"`
+	Policy  EvictionPolicy `json:"policy"`   // 淘汰策略
+	KeyFunc string         `json:"key_func"` // 键生成函数: "path", "hash", "custom"
 
 	// 内存缓存配置
 	MemoryMaxEntries int   `json:"memory_max_entries"` // 最大条目数
@@ -103,12 +103,12 @@ type CacheConfig struct {
 
 	// SSD 缓存配置
 	SSDEnabled bool   `json:"ssd_enabled"`
-	SSDPath    string `json:"ssd_path"`    // SSD 缓存目录
+	SSDPath    string `json:"ssd_path"`     // SSD 缓存目录
 	SSDMaxSize int64  `json:"ssd_max_size"` // SSD 最大字节数
 
 	// HDD 缓存配置
 	HDDEnabled bool   `json:"hdd_enabled"`
-	HDDPath    string `json:"hdd_path"`    // HDD 缓存目录
+	HDDPath    string `json:"hdd_path"`     // HDD 缓存目录
 	HDDMaxSize int64  `json:"hdd_max_size"` // HDD 最大字节数
 
 	// 混合策略权重
@@ -117,7 +117,7 @@ type CacheConfig struct {
 
 	// 预热配置
 	WarmupEnabled  bool     `json:"warmup_enabled"`
-	WarmupPaths    []string `json:"warmup_paths"`    // 预热路径
+	WarmupPaths    []string `json:"warmup_paths"`     // 预热路径
 	WarmupMaxFiles int      `json:"warmup_max_files"` // 最大预热文件数
 	WarmupMaxSize  int64    `json:"warmup_max_size"`  // 最大预热总大小
 
@@ -167,29 +167,29 @@ type WarmupRequest struct {
 
 // WarmupResult 预热结果
 type WarmupResult struct {
-	TotalFiles   int   `json:"total_files"`
-	CachedFiles  int   `json:"cached_files"`
-	FailedFiles  int   `json:"failed_files"`
-	TotalSize    int64 `json:"total_size"`
-	CachedSize   int64 `json:"cached_size"`
-	Duration     time.Duration `json:"duration"`
-	Errors       []string `json:"errors,omitempty"`
+	TotalFiles  int           `json:"total_files"`
+	CachedFiles int           `json:"cached_files"`
+	FailedFiles int           `json:"failed_files"`
+	TotalSize   int64         `json:"total_size"`
+	CachedSize  int64         `json:"cached_size"`
+	Duration    time.Duration `json:"duration"`
+	Errors      []string      `json:"errors,omitempty"`
 }
 
 // EvictionRequest 淘汰请求
 type EvictionRequest struct {
-	Level     string `json:"level,omitempty"`     // 目标层级
-	TargetSize int64 `json:"target_size,omitempty"` // 目标大小
-	MaxEntries int   `json:"max_entries,omitempty"` // 最大保留条目
-	DryRun    bool   `json:"dry_run"`
+	Level      string `json:"level,omitempty"`       // 目标层级
+	TargetSize int64  `json:"target_size,omitempty"` // 目标大小
+	MaxEntries int    `json:"max_entries,omitempty"` // 最大保留条目
+	DryRun     bool   `json:"dry_run"`
 }
 
 // EvictionResult 淘汰结果
 type EvictionResult struct {
-	EvictedCount int   `json:"evicted_count"`
-	FreedSize    int64 `json:"freed_size"`
-	Remaining    int   `json:"remaining"`
-	DryRun       bool  `json:"dry_run"`
+	EvictedCount int           `json:"evicted_count"`
+	FreedSize    int64         `json:"freed_size"`
+	Remaining    int           `json:"remaining"`
+	DryRun       bool          `json:"dry_run"`
 	Duration     time.Duration `json:"duration"`
 }
 
@@ -200,13 +200,13 @@ type GetRequest struct {
 
 // PutRequest 放入缓存请求
 type PutRequest struct {
-	Key      string     `json:"key" binding:"required"`
-	Path     string     `json:"path" binding:"required"`
-	Size     int64      `json:"size"`
-	Checksum string     `json:"checksum,omitempty"`
-	TTL      int64      `json:"ttl,omitempty"` // 秒
-	Pinned   bool       `json:"pinned,omitempty"`
-	Level    string     `json:"level,omitempty"` // 目标层级
+	Key      string `json:"key" binding:"required"`
+	Path     string `json:"path" binding:"required"`
+	Size     int64  `json:"size"`
+	Checksum string `json:"checksum,omitempty"`
+	TTL      int64  `json:"ttl,omitempty"` // 秒
+	Pinned   bool   `json:"pinned,omitempty"`
+	Level    string `json:"level,omitempty"` // 目标层级
 }
 
 // DeleteRequest 删除缓存请求
@@ -217,14 +217,14 @@ type DeleteRequest struct {
 
 // CacheInfoResponse 缓存信息响应
 type CacheInfoResponse struct {
-	Exists  bool         `json:"exists"`
-	Entry   *CacheEntry  `json:"entry,omitempty"`
+	Exists  bool          `json:"exists"`
+	Entry   *CacheEntry   `json:"entry,omitempty"`
 	Content *CacheContent `json:"content,omitempty"`
 }
 
 // CacheContent 缓存内容（用于文件数据）
 type CacheContent struct {
-	Data     []byte `json:"data,omitempty"`     // 内存中的数据
+	Data     []byte `json:"data,omitempty"`      // 内存中的数据
 	FilePath string `json:"file_path,omitempty"` // 磁盘上的路径
 	Level    string `json:"level"`
 	Size     int64  `json:"size"`

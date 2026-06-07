@@ -17,82 +17,82 @@ import (
 type KeyState string
 
 const (
-	KeyStatePreActive  KeyState = "pre_active"
-	KeyStateActive     KeyState = "active"
+	KeyStatePreActive   KeyState = "pre_active"
+	KeyStateActive      KeyState = "active"
 	KeyStateDeactivated KeyState = "deactivated"
 	KeyStateCompromised KeyState = "compromised"
-	KeyStateDestroyed  KeyState = "destroyed"
+	KeyStateDestroyed   KeyState = "destroyed"
 )
 
 // KeyAlgorithm 密钥算法
 type KeyAlgorithm string
 
 const (
-	AlgorithmAES128 KeyAlgorithm = "AES-128"
-	AlgorithmAES256 KeyAlgorithm = "AES-256"
+	AlgorithmAES128  KeyAlgorithm = "AES-128"
+	AlgorithmAES256  KeyAlgorithm = "AES-256"
 	AlgorithmRSA2048 KeyAlgorithm = "RSA-2048"
 	AlgorithmRSA4096 KeyAlgorithm = "RSA-4096"
 )
 
 // KMIPKey KMIP密钥
 type KMIPKey struct {
-	ID            string       `json:"id"`
-	Name          string       `json:"name"`
-	Algorithm     KeyAlgorithm `json:"algorithm"`
-	KeySize       int          `json:"key_size"`
-	State         KeyState     `json:"state"`
-	Usage         []string     `json:"usage"` // encrypt, decrypt, sign, verify
-	CreatedAt     time.Time    `json:"created_at"`
-	ActivatedAt   *time.Time   `json:"activated_at,omitempty"`
-	ExpiresAt     *time.Time   `json:"expires_at,omitempty"`
-	LastUsedAt    *time.Time   `json:"last_used_at,omitempty"`
-	
+	ID          string       `json:"id"`
+	Name        string       `json:"name"`
+	Algorithm   KeyAlgorithm `json:"algorithm"`
+	KeySize     int          `json:"key_size"`
+	State       KeyState     `json:"state"`
+	Usage       []string     `json:"usage"` // encrypt, decrypt, sign, verify
+	CreatedAt   time.Time    `json:"created_at"`
+	ActivatedAt *time.Time   `json:"activated_at,omitempty"`
+	ExpiresAt   *time.Time   `json:"expires_at,omitempty"`
+	LastUsedAt  *time.Time   `json:"last_used_at,omitempty"`
+
 	// KMIP特有属性
-	UniqueIdentifier string            `json:"unique_identifier"`
-	ObjectType       string            `json:"object_type"`
-	CryptographicLength int            `json:"cryptographic_length"`
-	CryptographicUsageMask int         `json:"cryptographic_usage_mask"`
-	
+	UniqueIdentifier       string `json:"unique_identifier"`
+	ObjectType             string `json:"object_type"`
+	CryptographicLength    int    `json:"cryptographic_length"`
+	CryptographicUsageMask int    `json:"cryptographic_usage_mask"`
+
 	// 元数据
-	Tags       map[string]string `json:"tags,omitempty"`
-	Metadata   map[string]string `json:"metadata,omitempty"`
+	Tags     map[string]string `json:"tags,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
 // KMIPConfig KMIP配置
 type KMIPConfig struct {
 	// 服务器配置
-	Host       string `json:"host"`
-	Port       int    `json:"port"`
-	
+	Host string `json:"host"`
+	Port int    `json:"port"`
+
 	// TLS配置
-	TLSEnabled  bool   `json:"tls_enabled"`
-	CertFile    string `json:"cert_file,omitempty"`
-	KeyFile     string `json:"key_file,omitempty"`
-	CAFile      string `json:"ca_file,omitempty"`
-	
+	TLSEnabled bool   `json:"tls_enabled"`
+	CertFile   string `json:"cert_file,omitempty"`
+	KeyFile    string `json:"key_file,omitempty"`
+	CAFile     string `json:"ca_file,omitempty"`
+
 	// 认证
-	Username    string `json:"username,omitempty"`
-	Password    string `json:"password,omitempty"`
-	
+	Username string `json:"username,omitempty"`
+	Password string `json:"password,omitempty"`
+
 	// 连接配置
-	Timeout     int    `json:"timeout"` // 秒
-	MaxRetries  int    `json:"max_retries"`
-	
+	Timeout    int `json:"timeout"` // 秒
+	MaxRetries int `json:"max_retries"`
+
 	// 密钥轮换
-	AutoRotate  bool   `json:"auto_rotate"`
-	RotateDays  int    `json:"rotate_days"`
+	AutoRotate bool `json:"auto_rotate"`
+	RotateDays int  `json:"rotate_days"`
 }
 
 // RotatePolicy 轮换策略
 type RotatePolicy struct {
-	ID              string       `json:"id"`
-	Name            string       `json:"name"`
-	KeyAlgorithm    KeyAlgorithm `json:"key_algorithm"`
-	RotateInterval  int          `json:"rotate_interval"` // 天
-	NotifyBefore    int          `json:"notify_before"`   // 提前多少天通知
-	AutoActivate    bool         `json:"auto_activate"`
-	ArchiveOldKey   bool         `json:"archive_old_key"`
-	Enabled         bool         `json:"enabled"`
+	ID             string       `json:"id"`
+	Name           string       `json:"name"`
+	KeyAlgorithm   KeyAlgorithm `json:"key_algorithm"`
+	RotateInterval int          `json:"rotate_interval"` // 天
+	NotifyBefore   int          `json:"notify_before"`   // 提前多少天通知
+	AutoActivate   bool         `json:"auto_activate"`
+	ArchiveOldKey  bool         `json:"archive_old_key"`
+	Enabled        bool         `json:"enabled"`
 }
 
 // AuditEvent 审计事件
@@ -129,7 +129,7 @@ func NewService(config *KMIPConfig) *Service {
 			RotateDays: 90,
 		}
 	}
-	
+
 	return &Service{
 		config:   config,
 		keys:     make(map[string]*KMIPKey),
@@ -142,45 +142,45 @@ func NewService(config *KMIPConfig) *Service {
 func (s *Service) Connect(ctx context.Context) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	if !s.config.TLSEnabled {
 		return fmt.Errorf("TLS is required for KMIP connection")
 	}
-	
+
 	// 加载客户端证书
 	cert, err := tls.LoadX509KeyPair(s.config.CertFile, s.config.KeyFile)
 	if err != nil {
 		return fmt.Errorf("failed to load client certificate: %w", err)
 	}
-	
+
 	// 加载CA证书
 	caCert, err := os.ReadFile(s.config.CAFile)
 	if err != nil {
 		return fmt.Errorf("failed to read CA certificate: %w", err)
 	}
-	
+
 	caCertPool := x509.NewCertPool()
 	caCertPool.AppendCertsFromPEM(caCert)
-	
+
 	// 配置TLS
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{cert},
 		RootCAs:      caCertPool,
 		MinVersion:   tls.VersionTLS12,
 	}
-	
+
 	// 连接服务器
 	addr := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)
 	conn, err := tls.Dial("tcp", addr, tlsConfig)
 	if err != nil {
 		return fmt.Errorf("failed to connect to KMIP server: %w", err)
 	}
-	
+
 	s.client = conn
-	
+
 	// 添加审计日志
 	s.addAuditEvent("connect", "", "success", "Connected to KMIP server")
-	
+
 	return nil
 }
 
@@ -188,14 +188,14 @@ func (s *Service) Connect(ctx context.Context) error {
 func (s *Service) Disconnect(ctx context.Context) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	if s.client != nil {
 		err := s.client.Close()
 		s.client = nil
 		s.addAuditEvent("disconnect", "", "success", "Disconnected from KMIP server")
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -203,19 +203,19 @@ func (s *Service) Disconnect(ctx context.Context) error {
 func (s *Service) CreateKey(ctx context.Context, key *KMIPKey) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	if key.ID == "" {
 		key.ID = generateKeyID()
 	}
-	
+
 	if key.UniqueIdentifier == "" {
 		key.UniqueIdentifier = key.ID
 	}
-	
+
 	key.State = KeyStatePreActive
 	key.CreatedAt = time.Now()
 	key.ObjectType = "SymmetricKey"
-	
+
 	// 设置密钥大小
 	switch key.Algorithm {
 	case AlgorithmAES128:
@@ -231,13 +231,13 @@ func (s *Service) CreateKey(ctx context.Context, key *KMIPKey) error {
 		key.KeySize = 4096
 		key.CryptographicLength = 4096
 	}
-	
+
 	// 设置使用掩码
 	key.CryptographicUsageMask = s.calculateUsageMask(key.Usage)
-	
+
 	s.keys[key.ID] = key
 	s.addAuditEvent("create_key", key.ID, "success", fmt.Sprintf("Created key: %s", key.Name))
-	
+
 	return nil
 }
 
@@ -245,22 +245,22 @@ func (s *Service) CreateKey(ctx context.Context, key *KMIPKey) error {
 func (s *Service) ActivateKey(ctx context.Context, keyID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	key, exists := s.keys[keyID]
 	if !exists {
 		return fmt.Errorf("key not found: %s", keyID)
 	}
-	
+
 	if key.State != KeyStatePreActive {
 		return fmt.Errorf("cannot activate key in state: %s", key.State)
 	}
-	
+
 	key.State = KeyStateActive
 	now := time.Now()
 	key.ActivatedAt = &now
-	
+
 	s.addAuditEvent("activate_key", keyID, "success", "Key activated")
-	
+
 	return nil
 }
 
@@ -268,19 +268,19 @@ func (s *Service) ActivateKey(ctx context.Context, keyID string) error {
 func (s *Service) DeactivateKey(ctx context.Context, keyID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	key, exists := s.keys[keyID]
 	if !exists {
 		return fmt.Errorf("key not found: %s", keyID)
 	}
-	
+
 	if key.State != KeyStateActive {
 		return fmt.Errorf("cannot deactivate key in state: %s", key.State)
 	}
-	
+
 	key.State = KeyStateDeactivated
 	s.addAuditEvent("deactivate_key", keyID, "success", "Key deactivated")
-	
+
 	return nil
 }
 
@@ -288,15 +288,15 @@ func (s *Service) DeactivateKey(ctx context.Context, keyID string) error {
 func (s *Service) DestroyKey(ctx context.Context, keyID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	key, exists := s.keys[keyID]
 	if !exists {
 		return fmt.Errorf("key not found: %s", keyID)
 	}
-	
+
 	key.State = KeyStateDestroyed
 	s.addAuditEvent("destroy_key", keyID, "success", "Key destroyed")
-	
+
 	return nil
 }
 
@@ -304,12 +304,12 @@ func (s *Service) DestroyKey(ctx context.Context, keyID string) error {
 func (s *Service) GetKey(ctx context.Context, keyID string) (*KMIPKey, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	key, exists := s.keys[keyID]
 	if !exists {
 		return nil, fmt.Errorf("key not found: %s", keyID)
 	}
-	
+
 	return key, nil
 }
 
@@ -317,14 +317,14 @@ func (s *Service) GetKey(ctx context.Context, keyID string) (*KMIPKey, error) {
 func (s *Service) ListKeys(ctx context.Context, state KeyState) []*KMIPKey {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	keys := make([]*KMIPKey, 0)
 	for _, key := range s.keys {
 		if state == "" || key.State == state {
 			keys = append(keys, key)
 		}
 	}
-	
+
 	return keys
 }
 
@@ -332,12 +332,12 @@ func (s *Service) ListKeys(ctx context.Context, state KeyState) []*KMIPKey {
 func (s *Service) RotateKey(ctx context.Context, keyID string) (*KMIPKey, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	oldKey, exists := s.keys[keyID]
 	if !exists {
 		return nil, fmt.Errorf("key not found: %s", keyID)
 	}
-	
+
 	// 创建新密钥
 	newKey := &KMIPKey{
 		Name:      oldKey.Name + "_rotated",
@@ -345,27 +345,27 @@ func (s *Service) RotateKey(ctx context.Context, keyID string) (*KMIPKey, error)
 		Usage:     oldKey.Usage,
 		Tags:      oldKey.Tags,
 	}
-	
+
 	// 生成新ID
 	newKey.ID = generateKeyID()
 	newKey.UniqueIdentifier = newKey.ID
 	newKey.State = KeyStatePreActive
 	newKey.CreatedAt = time.Now()
-	
+
 	// 复制密钥大小
 	newKey.KeySize = oldKey.KeySize
 	newKey.CryptographicLength = oldKey.CryptographicLength
 	newKey.CryptographicUsageMask = oldKey.CryptographicUsageMask
-	
+
 	// 停用旧密钥
 	oldKey.State = KeyStateDeactivated
-	
+
 	// 保存新密钥
 	s.keys[newKey.ID] = newKey
-	
-	s.addAuditEvent("rotate_key", keyID, "success", 
+
+	s.addAuditEvent("rotate_key", keyID, "success",
 		fmt.Sprintf("Key rotated: %s -> %s", keyID, newKey.ID))
-	
+
 	return newKey, nil
 }
 
@@ -373,11 +373,11 @@ func (s *Service) RotateKey(ctx context.Context, keyID string) (*KMIPKey, error)
 func (s *Service) AddRotatePolicy(ctx context.Context, policy *RotatePolicy) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	if policy.ID == "" {
 		policy.ID = generatePolicyID()
 	}
-	
+
 	s.policies[policy.ID] = policy
 	return nil
 }
@@ -386,12 +386,12 @@ func (s *Service) AddRotatePolicy(ctx context.Context, policy *RotatePolicy) err
 func (s *Service) ListRotatePolicies(ctx context.Context) []*RotatePolicy {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	policies := make([]*RotatePolicy, 0, len(s.policies))
 	for _, policy := range s.policies {
 		policies = append(policies, policy)
 	}
-	
+
 	return policies
 }
 
@@ -399,15 +399,15 @@ func (s *Service) ListRotatePolicies(ctx context.Context) []*RotatePolicy {
 func (s *Service) CheckAndRotateKeys(ctx context.Context) ([]string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	rotatedKeys := make([]string, 0)
 	now := time.Now()
-	
+
 	for _, key := range s.keys {
 		if key.State != KeyStateActive || key.ExpiresAt == nil {
 			continue
 		}
-		
+
 		// 检查是否需要轮换
 		if now.After(*key.ExpiresAt) {
 			// 轮换密钥
@@ -419,16 +419,16 @@ func (s *Service) CheckAndRotateKeys(ctx context.Context) ([]string, error) {
 			newKey.ID = generateKeyID()
 			newKey.State = KeyStatePreActive
 			newKey.CreatedAt = now
-			
+
 			key.State = KeyStateDeactivated
 			s.keys[newKey.ID] = newKey
-			
+
 			rotatedKeys = append(rotatedKeys, key.ID)
-			s.addAuditEvent("auto_rotate", key.ID, "success", 
+			s.addAuditEvent("auto_rotate", key.ID, "success",
 				fmt.Sprintf("Auto-rotated to %s", newKey.ID))
 		}
 	}
-	
+
 	return rotatedKeys, nil
 }
 
@@ -436,11 +436,11 @@ func (s *Service) CheckAndRotateKeys(ctx context.Context) ([]string, error) {
 func (s *Service) GetAuditLog(ctx context.Context, limit int) []AuditEvent {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	if limit <= 0 || limit > len(s.auditLog) {
 		limit = len(s.auditLog)
 	}
-	
+
 	// 返回最近的日志
 	start := len(s.auditLog) - limit
 	return s.auditLog[start:]
@@ -458,9 +458,9 @@ func (s *Service) addAuditEvent(action, keyID, status, details string) {
 		Status:    status,
 		Details:   details,
 	}
-	
+
 	s.auditLog = append(s.auditLog, event)
-	
+
 	// 限制日志数量
 	if len(s.auditLog) > 10000 {
 		s.auditLog = s.auditLog[1000:]

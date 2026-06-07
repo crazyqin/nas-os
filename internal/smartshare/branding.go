@@ -12,9 +12,9 @@ import (
 
 // BrandingEngine 品牌化引擎
 type BrandingEngine struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	configs  map[string]*BrandingConfig // ID -> config
+	mu      sync.RWMutex
+	logger  *zap.Logger
+	configs map[string]*BrandingConfig // ID -> config
 }
 
 // NewBrandingEngine 创建品牌化引擎
@@ -37,10 +37,10 @@ type BrandingRequest struct {
 
 // BrandingResponse 品牌化响应
 type BrandingResponse struct {
-	HTML       string `json:"html"`
-	CSS        string `json:"css"`
-	FullPage   string `json:"full_page"`
-	ShareID    string `json:"share_id"`
+	HTML        string    `json:"html"`
+	CSS         string    `json:"css"`
+	FullPage    string    `json:"full_page"`
+	ShareID     string    `json:"share_id"`
 	GeneratedAt time.Time `json:"generated_at"`
 }
 

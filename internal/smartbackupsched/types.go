@@ -81,12 +81,12 @@ type ScheduleConfig struct {
 
 	// 策略配置
 	Strategy       Strategy `json:"strategy"`
-	AutoStrategy   bool     `json:"autoStrategy"` // 启用 AI 自动策略选择
+	AutoStrategy   bool     `json:"autoStrategy"`             // 启用 AI 自动策略选择
 	ForceFullAfter int      `json:"forceFullAfter,omitempty"` // 每 N 次增量后强制全量
 
 	// 调度窗口
-	BackupWindows  []BackupWindow `json:"backupWindows"`
-	PeakHours      []TimeRange    `json:"peakHours,omitempty"` // 业务高峰期，避开调度
+	BackupWindows []BackupWindow `json:"backupWindows"`
+	PeakHours     []TimeRange    `json:"peakHours,omitempty"` // 业务高峰期，避开调度
 
 	// 重试策略
 	MaxRetries     int           `json:"maxRetries"`
@@ -94,8 +94,8 @@ type ScheduleConfig struct {
 	DegradedOnFail bool          `json:"degradedOnFail"` // 失败后是否降级到下一 Tier
 
 	// 保留策略
-	RetentionDays  int `json:"retentionDays"`
-	MaxBackups     int `json:"maxBackups"`
+	RetentionDays int `json:"retentionDays"`
+	MaxBackups    int `json:"maxBackups"`
 
 	// 容量规划
 	StorageWarnPercent  int `json:"storageWarnPercent"`  // 存储空间预警阈值百分比
@@ -109,9 +109,9 @@ type ScheduleConfig struct {
 
 // TargetPath 备份目标路径.
 type TargetPath struct {
-	Tier     BackupTier `json:"tier"`     // local, remote, cloud
+	Tier     BackupTier `json:"tier"` // local, remote, cloud
 	Path     string     `json:"path"`
-	Host     string     `json:"host,omitempty"`     // 异地/云端主机
+	Host     string     `json:"host,omitempty"` // 异地/云端主机
 	User     string     `json:"user,omitempty"`
 	Port     int        `json:"port,omitempty"`
 	Priority int        `json:"priority"` // 优先级，数字越小优先级越高
@@ -120,11 +120,11 @@ type TargetPath struct {
 
 // BackupWindow 备份窗口.
 type BackupWindow struct {
-	Name      string    `json:"name"`
-	StartTime string    `json:"startTime"` // HH:MM 格式
-	EndTime   string    `json:"endTime"`   // HH:MM 格式
-	Days      []string  `json:"days"`      // monday, tuesday, ...
-	Strategy  Strategy  `json:"strategy,omitempty"` // 可选，覆盖全局策略
+	Name      string   `json:"name"`
+	StartTime string   `json:"startTime"`          // HH:MM 格式
+	EndTime   string   `json:"endTime"`            // HH:MM 格式
+	Days      []string `json:"days"`               // monday, tuesday, ...
+	Strategy  Strategy `json:"strategy,omitempty"` // 可选，覆盖全局策略
 }
 
 // TimeRange 时间范围.
@@ -149,9 +149,9 @@ type ChangePattern struct {
 
 // StrategyRecommendation AI 策略推荐.
 type StrategyRecommendation struct {
-	Recommended Strategy `json:"recommended"`
-	Confidence  float64  `json:"confidence"` // 0-1
-	Reasons     []string `json:"reasons"`
+	Recommended       Strategy      `json:"recommended"`
+	Confidence        float64       `json:"confidence"` // 0-1
+	Reasons           []string      `json:"reasons"`
 	EstimatedDuration time.Duration `json:"estimatedDuration"`
 	EstimatedSize     int64         `json:"estimatedSize"` // 预估备份大小（字节）
 }
@@ -160,9 +160,9 @@ type StrategyRecommendation struct {
 
 // RiskAssessment 风险评估结果.
 type RiskAssessment struct {
-	Level           RiskLevel `json:"level"`
-	Score           float64   `json:"score"`       // 0-100，越高越危险
-	SuccessRate     float64   `json:"successRate"` // 预测成功率 0-100
+	Level           RiskLevel    `json:"level"`
+	Score           float64      `json:"score"`       // 0-100，越高越危险
+	SuccessRate     float64      `json:"successRate"` // 预测成功率 0-100
 	Factors         []RiskFactor `json:"factors"`
 	Recommendations []string     `json:"recommendations"`
 	AssessedAt      time.Time    `json:"assessedAt"`
@@ -191,19 +191,19 @@ type CapacityForecast struct {
 
 // BackupTask 备份任务.
 type BackupTask struct {
-	ID          string     `json:"id"`
-	ConfigID    string     `json:"configId"`
-	Strategy    Strategy   `json:"strategy"`
-	Tier        BackupTier `json:"tier"`
-	Status      TaskStatus `json:"status"`
-	SourcePath  string     `json:"sourcePath"`
-	TargetPath  string     `json:"targetPath"`
+	ID         string     `json:"id"`
+	ConfigID   string     `json:"configId"`
+	Strategy   Strategy   `json:"strategy"`
+	Tier       BackupTier `json:"tier"`
+	Status     TaskStatus `json:"status"`
+	SourcePath string     `json:"sourcePath"`
+	TargetPath string     `json:"targetPath"`
 
 	// 进度
-	Progress    int   `json:"progress"`    // 0-100
-	TotalSize   int64 `json:"totalSize"`
-	TotalFiles  int64 `json:"totalFiles"`
-	Speed       int64 `json:"speed"` // bytes/sec
+	Progress   int   `json:"progress"` // 0-100
+	TotalSize  int64 `json:"totalSize"`
+	TotalFiles int64 `json:"totalFiles"`
+	Speed      int64 `json:"speed"` // bytes/sec
 
 	// 时间
 	StartTime   time.Time  `json:"startTime"`
@@ -211,9 +211,9 @@ type BackupTask struct {
 	NextRetryAt *time.Time `json:"nextRetryAt,omitempty"`
 
 	// 重试信息
-	RetryCount  int    `json:"retryCount"`
-	MaxRetries  int    `json:"maxRetries"`
-	Error       string `json:"error,omitempty"`
+	RetryCount int    `json:"retryCount"`
+	MaxRetries int    `json:"maxRetries"`
+	Error      string `json:"error,omitempty"`
 
 	// 风险评估
 	RiskAssessment *RiskAssessment `json:"riskAssessment,omitempty"`
@@ -231,7 +231,7 @@ type AuditEntry struct {
 	Action    string    `json:"action"` // create, update, delete, execute, retry, degrade, alert
 	ConfigID  string    `json:"configId,omitempty"`
 	TaskID    string    `json:"taskId,omitempty"`
-	Actor     string    `json:"actor"`     // "system", "scheduler", "user"
+	Actor     string    `json:"actor"` // "system", "scheduler", "user"
 	Details   string    `json:"details"`
 	Success   bool      `json:"success"`
 }
@@ -240,16 +240,16 @@ type AuditEntry struct {
 
 // SchedulerStats 调度器统计.
 type SchedulerStats struct {
-	TotalConfigs     int     `json:"totalConfigs"`
-	EnabledConfigs   int     `json:"enabledConfigs"`
-	TotalTasks       int     `json:"totalTasks"`
-	RunningTasks     int     `json:"runningTasks"`
-	CompletedTasks   int     `json:"completedTasks"`
-	FailedTasks      int     `json:"failedTasks"`
-	RetryingTasks    int     `json:"retryingTasks"`
-	SuccessRate      float64 `json:"successRate"`
-	AvgDuration      int64   `json:"avgDuration"` // 平均耗时（秒）
-	TotalBackupSize  int64   `json:"totalBackupSize"`
+	TotalConfigs    int     `json:"totalConfigs"`
+	EnabledConfigs  int     `json:"enabledConfigs"`
+	TotalTasks      int     `json:"totalTasks"`
+	RunningTasks    int     `json:"runningTasks"`
+	CompletedTasks  int     `json:"completedTasks"`
+	FailedTasks     int     `json:"failedTasks"`
+	RetryingTasks   int     `json:"retryingTasks"`
+	SuccessRate     float64 `json:"successRate"`
+	AvgDuration     int64   `json:"avgDuration"` // 平均耗时（秒）
+	TotalBackupSize int64   `json:"totalBackupSize"`
 }
 
 // ========== 辅助 ==========

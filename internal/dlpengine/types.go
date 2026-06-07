@@ -19,70 +19,70 @@ const (
 type PatternType string
 
 const (
-	PatternRegex    PatternType = "regex"
-	PatternKeyword  PatternType = "keyword"
-	PatternNLP      PatternType = "nlp"
+	PatternRegex       PatternType = "regex"
+	PatternKeyword     PatternType = "keyword"
+	PatternNLP         PatternType = "nlp"
 	PatternFingerprint PatternType = "fingerprint"
-	PatternML       PatternType = "ml"
+	PatternML          PatternType = "ml"
 )
 
 // ViolationStatus 违规状态
 type ViolationStatus string
 
 const (
-	ViolationStatusNew        ViolationStatus = "new"
-	ViolationStatusReviewing  ViolationStatus = "reviewing"
-	ViolationStatusConfirmed  ViolationStatus = "confirmed"
+	ViolationStatusNew           ViolationStatus = "new"
+	ViolationStatusReviewing     ViolationStatus = "reviewing"
+	ViolationStatusConfirmed     ViolationStatus = "confirmed"
 	ViolationStatusFalsePositive ViolationStatus = "false_positive"
-	ViolationStatusResolved   ViolationStatus = "resolved"
-	ViolationStatusDismissed  ViolationStatus = "dismissed"
+	ViolationStatusResolved      ViolationStatus = "resolved"
+	ViolationStatusDismissed     ViolationStatus = "dismissed"
 )
 
 // TransferProtocol 传输协议
 type TransferProtocol string
 
 const (
-	ProtocolHTTP   TransferProtocol = "http"
-	ProtocolHTTPS  TransferProtocol = "https"
-	ProtocolFTP    TransferProtocol = "ftp"
-	ProtocolSMTP   TransferProtocol = "smtp"
-	ProtocolSMB    TransferProtocol = "smb"
-	ProtocolUSB    TransferProtocol = "usb"
-	ProtocolCloud  TransferProtocol = "cloud"
-	ProtocolAPI    TransferProtocol = "api"
+	ProtocolHTTP  TransferProtocol = "http"
+	ProtocolHTTPS TransferProtocol = "https"
+	ProtocolFTP   TransferProtocol = "ftp"
+	ProtocolSMTP  TransferProtocol = "smtp"
+	ProtocolSMB   TransferProtocol = "smb"
+	ProtocolUSB   TransferProtocol = "usb"
+	ProtocolCloud TransferProtocol = "cloud"
+	ProtocolAPI   TransferProtocol = "api"
 )
 
 // PolicyAction 策略动作
 type PolicyAction string
 
 const (
-	ActionBlock    PolicyAction = "block"
-	ActionWarn     PolicyAction = "warn"
+	ActionBlock      PolicyAction = "block"
+	ActionWarn       PolicyAction = "warn"
 	ActionQuarantine PolicyAction = "quarantine"
-	ActionEncrypt  PolicyAction = "encrypt"
-	ActionRedact   PolicyAction = "redact"
-	ActionLog      PolicyAction = "log"
-	ActionNotify   PolicyAction = "notify"
+	ActionEncrypt    PolicyAction = "encrypt"
+	ActionRedact     PolicyAction = "redact"
+	ActionLog        PolicyAction = "log"
+	ActionNotify     PolicyAction = "notify"
 )
 
 // DLPPolicy DLP策略
 type DLPPolicy struct {
-	ID          string           `json:"id"`
-	Name        string           `json:"name" binding:"required"`
-	Description string           `json:"description,omitempty"`
-	Enabled     bool             `json:"enabled"`
-	Priority    int              `json:"priority"`
-	Action      PolicyAction     `json:"action" binding:"required"`
-	Level       SensitivityLevel `json:"level" binding:"required"`
-	Patterns    []string         `json:"patterns" binding:"required,min=1"`
+	ID          string             `json:"id"`
+	Name        string             `json:"name" binding:"required"`
+	Description string             `json:"description,omitempty"`
+	Enabled     bool               `json:"enabled"`
+	Priority    int                `json:"priority"`
+	Action      PolicyAction       `json:"action" binding:"required"`
+	Level       SensitivityLevel   `json:"level" binding:"required"`
+	Patterns    []string           `json:"patterns" binding:"required,min=1"`
 	Channels    []TransferProtocol `json:"channels,omitempty"`
-	Users       []string         `json:"users,omitempty"`
-	Groups      []string         `json:"groups,omitempty"`
-	Exceptions  []string         `json:"exceptions,omitempty"`
-	NotifyEmail string           `json:"notify_email,omitempty"`
-	MaxMatches  int              `json:"max_matches,omitempty"`
-	CreatedAt   time.Time        `json:"created_at"`
-	UpdatedAt   time.Time        `json:"updated_at"`
+	Users       []string           `json:"users,omitempty"`
+	Groups      []string           `json:"groups,omitempty"`
+	Exceptions  []string           `json:"exceptions,omitempty"`
+	NotifyEmail string             `json:"notify_email,omitempty"`
+	MaxMatches  int                `json:"max_matches,omitempty"`
+	CreatedAt   time.Time          `json:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
 // SensitivePattern 敏感数据模式
@@ -129,10 +129,10 @@ type Violation struct {
 
 // MatchedContent 匹配内容
 type MatchedContent struct {
-	PatternName string `json:"pattern_name"`
-	Match       string `json:"match"`
-	StartPos    int    `json:"start_pos"`
-	EndPos      int    `json:"end_pos"`
+	PatternName string  `json:"pattern_name"`
+	Match       string  `json:"match"`
+	StartPos    int     `json:"start_pos"`
+	EndPos      int     `json:"end_pos"`
 	Confidence  float64 `json:"confidence"`
 }
 
@@ -156,26 +156,26 @@ type ScanResult struct {
 
 // ScanRequest 扫描请求
 type ScanRequest struct {
-	ID          string `json:"id"`
-	Content     []byte `json:"content" binding:"required"`
-	Resource    string `json:"resource" binding:"required"`
-	ContentType string `json:"content_type,omitempty"`
-	UserID      string `json:"user_id,omitempty"`
+	ID          string           `json:"id"`
+	Content     []byte           `json:"content" binding:"required"`
+	Resource    string           `json:"resource" binding:"required"`
+	ContentType string           `json:"content_type,omitempty"`
+	UserID      string           `json:"user_id,omitempty"`
 	Channel     TransferProtocol `json:"channel,omitempty"`
-	SourceIP    string `json:"source_ip,omitempty"`
-	Destination string `json:"destination,omitempty"`
+	SourceIP    string           `json:"source_ip,omitempty"`
+	Destination string           `json:"destination,omitempty"`
 }
 
 // ContentInspection 内容检查结果
 type ContentInspection struct {
-	ContentType string            `json:"content_type"`
-	Encoding    string            `json:"encoding,omitempty"`
-	Language    string            `json:"language,omitempty"`
-	HasPII      bool              `json:"has_pii"`
-	HasPHI      bool              `json:"has_phi"`
-	HasPCI      bool              `json:"has_pci"`
-	Categories  map[string]int    `json:"categories"`
-	Entities    []DetectedEntity  `json:"entities,omitempty"`
+	ContentType string           `json:"content_type"`
+	Encoding    string           `json:"encoding,omitempty"`
+	Language    string           `json:"language,omitempty"`
+	HasPII      bool             `json:"has_pii"`
+	HasPHI      bool             `json:"has_phi"`
+	HasPCI      bool             `json:"has_pci"`
+	Categories  map[string]int   `json:"categories"`
+	Entities    []DetectedEntity `json:"entities,omitempty"`
 }
 
 // DetectedEntity 检测到的实体
@@ -189,14 +189,14 @@ type DetectedEntity struct {
 
 // ScanStats 扫描统计
 type ScanStats struct {
-	TotalScans      int64            `json:"total_scans"`
-	ViolationsFound int64            `json:"violations_found"`
-	BlockedTransfers int64           `json:"blocked_transfers"`
-	ByLevel         map[SensitivityLevel]int64 `json:"by_level"`
-	ByChannel       map[TransferProtocol]int64 `json:"by_channel"`
-	ByAction        map[PolicyAction]int64     `json:"by_action"`
-	TopPatterns     []PatternStat    `json:"top_patterns"`
-	TopUsers        []UserStat       `json:"top_users"`
+	TotalScans       int64                      `json:"total_scans"`
+	ViolationsFound  int64                      `json:"violations_found"`
+	BlockedTransfers int64                      `json:"blocked_transfers"`
+	ByLevel          map[SensitivityLevel]int64 `json:"by_level"`
+	ByChannel        map[TransferProtocol]int64 `json:"by_channel"`
+	ByAction         map[PolicyAction]int64     `json:"by_action"`
+	TopPatterns      []PatternStat              `json:"top_patterns"`
+	TopUsers         []UserStat                 `json:"top_users"`
 }
 
 // PatternStat 模式统计
@@ -208,43 +208,43 @@ type PatternStat struct {
 
 // UserStat 用户统计
 type UserStat struct {
-	UserID       string `json:"user_id"`
-	UserName     string `json:"user_name"`
-	ViolationCount int64 `json:"violation_count"`
+	UserID         string `json:"user_id"`
+	UserName       string `json:"user_name"`
+	ViolationCount int64  `json:"violation_count"`
 }
 
 // DLPConfig DLP引擎配置
 type DLPConfig struct {
-	Enabled             bool    `json:"enabled"`
-	ScanTimeout         int     `json:"scan_timeout_seconds"`
-	MaxContentSize      int64   `json:"max_content_size_bytes"`
-	MinConfidence       float64 `json:"min_confidence"`
-	AutoBlock           bool    `json:"auto_block"`
-	QuarantineEnabled   bool    `json:"quarantine_enabled"`
-	QuarantinePath      string  `json:"quarantine_path"`
-	NotificationEnabled bool    `json:"notification_enabled"`
-	AuditEnabled        bool    `json:"audit_enabled"`
-	RetentionDays       int     `json:"retention_days"`
-	MaxViolationsPerUser int    `json:"max_violations_per_user"`
-	AlertThreshold      int     `json:"alert_threshold"`
-	ContentInspection   bool    `json:"content_inspection"`
+	Enabled              bool    `json:"enabled"`
+	ScanTimeout          int     `json:"scan_timeout_seconds"`
+	MaxContentSize       int64   `json:"max_content_size_bytes"`
+	MinConfidence        float64 `json:"min_confidence"`
+	AutoBlock            bool    `json:"auto_block"`
+	QuarantineEnabled    bool    `json:"quarantine_enabled"`
+	QuarantinePath       string  `json:"quarantine_path"`
+	NotificationEnabled  bool    `json:"notification_enabled"`
+	AuditEnabled         bool    `json:"audit_enabled"`
+	RetentionDays        int     `json:"retention_days"`
+	MaxViolationsPerUser int     `json:"max_violations_per_user"`
+	AlertThreshold       int     `json:"alert_threshold"`
+	ContentInspection    bool    `json:"content_inspection"`
 }
 
 // DefaultDLPConfig 默认配置
 func DefaultDLPConfig() *DLPConfig {
 	return &DLPConfig{
-		Enabled:             true,
-		ScanTimeout:         30,
-		MaxContentSize:      100 * 1024 * 1024, // 100MB
-		MinConfidence:       0.7,
-		AutoBlock:           true,
-		QuarantineEnabled:   true,
-		QuarantinePath:      "/var/quarantine/dlp",
-		NotificationEnabled: true,
-		AuditEnabled:        true,
-		RetentionDays:       90,
+		Enabled:              true,
+		ScanTimeout:          30,
+		MaxContentSize:       100 * 1024 * 1024, // 100MB
+		MinConfidence:        0.7,
+		AutoBlock:            true,
+		QuarantineEnabled:    true,
+		QuarantinePath:       "/var/quarantine/dlp",
+		NotificationEnabled:  true,
+		AuditEnabled:         true,
+		RetentionDays:        90,
 		MaxViolationsPerUser: 100,
-		AlertThreshold:      10,
-		ContentInspection:   true,
+		AlertThreshold:       10,
+		ContentInspection:    true,
 	}
 }

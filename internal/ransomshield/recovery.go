@@ -34,54 +34,54 @@ type RecoveryManager struct {
 	config RecoveryConfig
 
 	// callbacks
-	snapshotFunc   func(path string) (string, error)
-	restoreFunc    func(snapshotID, targetPath string) error
-	deleteFunc     func(snapshotID string) error
+	snapshotFunc func(path string) (string, error)
+	restoreFunc  func(snapshotID, targetPath string) error
+	deleteFunc   func(snapshotID string) error
 
 	// stats 统计
 	stats RecoveryStats
 
 	// running 运行状态
-	running bool
+	running  bool
 	stopChan chan struct{}
 }
 
 // SnapshotPolicy 快照策略
 type SnapshotPolicy struct {
-	ID           string        `json:"id"`
-	Name         string        `json:"name"`
-	Enabled      bool          `json:"enabled"`
-	Paths        []string      `json:"paths"`
-	Interval     time.Duration `json:"interval"`
-	MaxRetention int           `json:"max_retention"` // 最大保留数
-	MinRetention int           `json:"min_retention"` // 最小保留数
+	ID             string        `json:"id"`
+	Name           string        `json:"name"`
+	Enabled        bool          `json:"enabled"`
+	Paths          []string      `json:"paths"`
+	Interval       time.Duration `json:"interval"`
+	MaxRetention   int           `json:"max_retention"`    // 最大保留数
+	MinRetention   int           `json:"min_retention"`    // 最小保留数
 	RetentionByAge time.Duration `json:"retention_by_age"` // 最大保留时长
-	Type         RecoveryType  `json:"type"`
-	PreThreat    bool          `json:"pre_threat"` // 威胁前自动快照
+	Type           RecoveryType  `json:"type"`
+	PreThreat      bool          `json:"pre_threat"` // 威胁前自动快照
 }
 
 // RecoveryConfig 恢复配置
 type RecoveryConfig struct {
-	MaxTotalPoints  int           `json:"max_total_points"`
-	MaxDiskUsageGB  int64         `json:"max_disk_usage_gb"`
-	CleanupInterval time.Duration `json:"cleanup_interval"`
-	VerifyOnCreate  bool          `json:"verify_on_create"`
-	CompressionEnabled bool       `json:"compression_enabled"`
+	MaxTotalPoints     int           `json:"max_total_points"`
+	MaxDiskUsageGB     int64         `json:"max_disk_usage_gb"`
+	CleanupInterval    time.Duration `json:"cleanup_interval"`
+	VerifyOnCreate     bool          `json:"verify_on_create"`
+	CompressionEnabled bool          `json:"compression_enabled"`
 }
 
 // RecoveryStats 恢复统计
 type RecoveryStats struct {
-	TotalCreated     int64     `json:"total_created"`
-	TotalDeleted     int64     `json:"total_deleted"`
-	TotalRestored    int64     `json:"total_restored"`
-	TotalVerified    int64     `json:"total_verified"`
-	ActivePoints     int       `json:"active_points"`
-	DiskUsageBytes   int64     `json:"disk_usage_bytes"`
-	LastCleanupTime  time.Time `json:"last_cleanup_time"`
-	LastCreateTime   time.Time `json:"last_create_time"`
-	LastRestoreTime  time.Time `json:"last_restore_time"`
-	AvgCreateMs      int64     `json:"avg_create_ms"`
-	AvgRestoreMs     int64     `json:"avg_restore_ms"`
+	TotalCreated    int64     `json:"total_created"`
+	TotalDeleted    int64     `json:"total_deleted"`
+	TotalRestored   int64     `json:"total_restored"`
+	TotalVerified   int64     `json:"total_verified"`
+	ActivePoints    int       `json:"active_points"`
+	DiskUsageBytes  int64     `json:"disk_usage_bytes"`
+	LastCleanupTime time.Time `json:"last_cleanup_time"`
+	LastCreateTime  time.Time `json:"last_create_time"`
+	LastRestoreTime time.Time `json:"last_restore_time"`
+	AvgCreateMs     int64     `json:"avg_create_ms"`
+	AvgRestoreMs    int64     `json:"avg_restore_ms"`
 }
 
 // ============================================================
@@ -105,19 +105,19 @@ func (rm *RecoveryManager) initDefaultPolicies() {
 	rm.policies = []SnapshotPolicy{
 		{
 			ID: "hourly", Name: "每小时快照", Enabled: true,
-			Paths: []string{"/data"},
+			Paths:    []string{"/data"},
 			Interval: 1 * time.Hour, MaxRetention: 24, MinRetention: 6,
 			RetentionByAge: 24 * time.Hour, Type: RecoveryTypeScheduled,
 		},
 		{
 			ID: "daily", Name: "每日快照", Enabled: true,
-			Paths: []string{"/data"},
+			Paths:    []string{"/data"},
 			Interval: 24 * time.Hour, MaxRetention: 7, MinRetention: 3,
 			RetentionByAge: 7 * 24 * time.Hour, Type: RecoveryTypeScheduled,
 		},
 		{
 			ID: "pre-threat", Name: "威胁前快照", Enabled: true,
-			Paths: []string{"/data"},
+			Paths:    []string{"/data"},
 			Interval: 0, MaxRetention: 10, MinRetention: 5,
 			Type: RecoveryTypePreemptive, PreThreat: true,
 		},
@@ -202,15 +202,15 @@ func (rm *RecoveryManager) CreateRecoveryPoint(name, path, description string, r
 
 	now := time.Now()
 	rp := &RecoveryPoint{
-		ID:           uuid.New().String(),
-		Name:         name,
-		Description:  description,
-		Type:         rType,
-		Path:         snapshotID,
-		ThreatLevel:  threatLevel,
-		FilesCount:   fileCount,
-		Status:       RecoveryStatusReady,
-		CreatedAt:    now,
+		ID:          uuid.New().String(),
+		Name:        name,
+		Description: description,
+		Type:        rType,
+		Path:        snapshotID,
+		ThreatLevel: threatLevel,
+		FilesCount:  fileCount,
+		Status:      RecoveryStatusReady,
+		CreatedAt:   now,
 	}
 
 	rm.mu.Lock()
@@ -341,12 +341,12 @@ func (rm *RecoveryManager) Restore(recoveryPointID, targetPath string, dryRun bo
 
 // RestoreResult 恢复结果
 type RestoreResult struct {
-	RecoveryPointID string `json:"recovery_point_id"`
-	TargetPath      string `json:"target_path"`
-	DryRun          bool   `json:"dry_run"`
-	Status          string `json:"status"`
-	Details         string `json:"details"`
-	DurationMs      int64  `json:"duration_ms"`
+	RecoveryPointID string    `json:"recovery_point_id"`
+	TargetPath      string    `json:"target_path"`
+	DryRun          bool      `json:"dry_run"`
+	Status          string    `json:"status"`
+	Details         string    `json:"details"`
+	DurationMs      int64     `json:"duration_ms"`
 	StartTime       time.Time `json:"start_time"`
 }
 

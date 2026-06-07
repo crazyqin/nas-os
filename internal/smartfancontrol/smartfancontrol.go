@@ -16,8 +16,8 @@ import (
 type FanMode string
 
 const (
-	FanModeSilent    FanMode = "silent"    // 静音模式
-	FanModeBalanced  FanMode = "balanced"  // 均衡模式
+	FanModeSilent      FanMode = "silent"      // 静音模式
+	FanModeBalanced    FanMode = "balanced"    // 均衡模式
 	FanModePerformance FanMode = "performance" // 性能模式
 )
 
@@ -44,26 +44,26 @@ type FanInfo struct {
 
 // TemperaturePoint 温度监测点
 type TemperaturePoint struct {
-	SensorID  string    `json:"sensorId"`  // 传感器ID
-	Name      string    `json:"name"`      // 传感器名称
-	Temp      float64   `json:"temp"`      // 当前温度 (°C)
-	MaxTemp   float64   `json:"maxTemp"`   // 最高温度
+	SensorID  string    `json:"sensorId"` // 传感器ID
+	Name      string    `json:"name"`     // 传感器名称
+	Temp      float64   `json:"temp"`     // 当前温度 (°C)
+	MaxTemp   float64   `json:"maxTemp"`  // 最高温度
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // FanCurvePoint 温度-转速曲线点
 type FanCurvePoint struct {
-	Temp     float64 `json:"temp"`     // 温度 (°C)
+	Temp      float64 `json:"temp"`      // 温度 (°C)
 	DutyCycle float64 `json:"dutyCycle"` // 占空比 (%)
 }
 
 // FanProfile 风扇配置方案
 type FanProfile struct {
-	Name      string          `json:"name"`      // 方案名称
-	Mode      FanMode         `json:"mode"`      // 模式
-	Curve     []FanCurvePoint `json:"curve"`     // 温度-转速曲线
-	MinRPM    int             `json:"minRpm"`    // 最小转速
-	MaxRPM    int             `json:"maxRpm"`    // 最大转速
+	Name      string          `json:"name"`   // 方案名称
+	Mode      FanMode         `json:"mode"`   // 模式
+	Curve     []FanCurvePoint `json:"curve"`  // 温度-转速曲线
+	MinRPM    int             `json:"minRpm"` // 最小转速
+	MaxRPM    int             `json:"maxRpm"` // 最大转速
 	UpdatedAt time.Time       `json:"updatedAt"`
 }
 
@@ -77,12 +77,12 @@ type FanAlert struct {
 
 // FanStatusReport 风扇状态报告
 type FanStatusReport struct {
-	Timestamp    time.Time          `json:"timestamp"`
-	Fans         []FanInfo          `json:"fans"`
-	Temps        []TemperaturePoint `json:"temps"`
-	CurrentMode  FanMode            `json:"currentMode"`
-	ActiveProfile *FanProfile       `json:"activeProfile"`
-	Alerts       []FanAlert         `json:"alerts"`
+	Timestamp     time.Time          `json:"timestamp"`
+	Fans          []FanInfo          `json:"fans"`
+	Temps         []TemperaturePoint `json:"temps"`
+	CurrentMode   FanMode            `json:"currentMode"`
+	ActiveProfile *FanProfile        `json:"activeProfile"`
+	Alerts        []FanAlert         `json:"alerts"`
 }
 
 // ========== Manager ==========
@@ -104,12 +104,12 @@ type Manager struct {
 // NewManager 创建管理器
 func NewManager() *Manager {
 	m := &Manager{
-		fans:      make(map[string]*FanInfo),
-		temps:     make(map[string]*TemperaturePoint),
-		profiles:  make(map[string]*FanProfile),
+		fans:        make(map[string]*FanInfo),
+		temps:       make(map[string]*TemperaturePoint),
+		profiles:    make(map[string]*FanProfile),
 		currentMode: FanModeBalanced,
-		maxAlerts: 100,
-		stopCh:    make(chan struct{}),
+		maxAlerts:   100,
+		stopCh:      make(chan struct{}),
 	}
 
 	// 初始化默认配置

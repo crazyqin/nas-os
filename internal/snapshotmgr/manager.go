@@ -258,8 +258,8 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_snapshots": active + deleted,
-		"active_snapshots": active,
+		"total_snapshots":   active + deleted,
+		"active_snapshots":  active,
 		"deleted_snapshots": deleted,
 		"total_size_bytes":  totalSize,
 		"max_snapshots":     m.config.MaxSnapshots,

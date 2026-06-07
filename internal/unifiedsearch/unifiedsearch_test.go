@@ -52,15 +52,15 @@ func TestAddDocumentAndSearch(t *testing.T) {
 	manager := NewManager(config)
 
 	entry := &SearchIndex{
-		Path:       "/docs/test.md",
-		Name:       "Test Document",
-		Content:    "This is a test document about NAS storage",
+		Path:        "/docs/test.md",
+		Name:        "Test Document",
+		Content:     "This is a test document about NAS storage",
 		ContentType: ContentTypeFile,
-		MimeType:   "text/markdown",
-		Size:       1024,
-		Tags:       []string{"test", "nas"},
-		CreatedAt:  time.Now(),
-		ModifiedAt: time.Now(),
+		MimeType:    "text/markdown",
+		Size:        1024,
+		Tags:        []string{"test", "nas"},
+		CreatedAt:   time.Now(),
+		ModifiedAt:  time.Now(),
 	}
 
 	if err := manager.AddDocument(entry); err != nil {
@@ -73,9 +73,9 @@ func TestAddDocumentAndSearch(t *testing.T) {
 	}
 
 	req := &SearchQuery{
-		Query:    "NAS storage",
-		PageSize: 10,
-		Page:     1,
+		Query:     "NAS storage",
+		PageSize:  10,
+		Page:      1,
 		Highlight: true,
 	}
 
@@ -93,12 +93,12 @@ func TestRemoveDocument(t *testing.T) {
 	manager := NewManager(nil)
 
 	entry := &SearchIndex{
-		Path:       "/docs/test-remove.md",
-		Name:       "Test Remove",
-		Content:    "test content",
+		Path:        "/docs/test-remove.md",
+		Name:        "Test Remove",
+		Content:     "test content",
 		ContentType: ContentTypeFile,
-		CreatedAt:  time.Now(),
-		ModifiedAt: time.Now(),
+		CreatedAt:   time.Now(),
+		ModifiedAt:  time.Now(),
 	}
 
 	manager.AddDocument(entry)
@@ -172,12 +172,12 @@ func TestUpdateDocument(t *testing.T) {
 	manager := NewManager(nil)
 
 	entry := &SearchIndex{
-		Path:       "/docs/update-test.md",
-		Name:       "Original Name",
-		Content:    "original content",
+		Path:        "/docs/update-test.md",
+		Name:        "Original Name",
+		Content:     "original content",
 		ContentType: ContentTypeFile,
-		CreatedAt:  time.Now(),
-		ModifiedAt: time.Now(),
+		CreatedAt:   time.Now(),
+		ModifiedAt:  time.Now(),
 	}
 
 	manager.AddDocument(entry)
@@ -259,12 +259,12 @@ func TestSearchHistory(t *testing.T) {
 
 	// Add some documents first
 	entry := &SearchIndex{
-		Path:       "/docs/history-test.md",
-		Name:       "History Test",
-		Content:    "search history test content",
+		Path:        "/docs/history-test.md",
+		Name:        "History Test",
+		Content:     "search history test content",
 		ContentType: ContentTypeFile,
-		CreatedAt:  time.Now(),
-		ModifiedAt: time.Now(),
+		CreatedAt:   time.Now(),
+		ModifiedAt:  time.Now(),
 	}
 	manager.AddDocument(entry)
 

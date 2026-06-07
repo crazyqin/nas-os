@@ -24,43 +24,43 @@ const (
 type CheckType string
 
 const (
-	CheckTypeHeartbeat   CheckType = "heartbeat"   // 心跳检查
-	CheckTypeCPU         CheckType = "cpu"         // CPU 检查
-	CheckTypeMemory      CheckType = "memory"      // 内存检查
-	CheckTypeDisk        CheckType = "disk"        // 磁盘检查
-	CheckTypeNetwork     CheckType = "network"     // 网络检查
-	CheckTypeService     CheckType = "service"     // 服务检查
-	CheckTypeCustom      CheckType = "custom"      // 自定义检查
+	CheckTypeHeartbeat CheckType = "heartbeat" // 心跳检查
+	CheckTypeCPU       CheckType = "cpu"       // CPU 检查
+	CheckTypeMemory    CheckType = "memory"    // 内存检查
+	CheckTypeDisk      CheckType = "disk"      // 磁盘检查
+	CheckTypeNetwork   CheckType = "network"   // 网络检查
+	CheckTypeService   CheckType = "service"   // 服务检查
+	CheckTypeCustom    CheckType = "custom"    // 自定义检查
 )
 
 // HealthCheck 健康检查项
 type HealthCheck struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	Type        CheckType   `json:"type"`
-	NodeID      string      `json:"node_id"`
-	Level       HealthLevel `json:"level"`
-	Message     string      `json:"message,omitempty"`
-	Details     interface{} `json:"details,omitempty"`
-	Duration    time.Duration `json:"duration"`
-	LastCheck   time.Time   `json:"last_check"`
-	NextCheck   time.Time   `json:"next_check"`
-	Enabled     bool        `json:"enabled"`
-	Threshold   float64     `json:"threshold,omitempty"` // 阈值（如 CPU 使用率 80%）
+	ID        string        `json:"id"`
+	Name      string        `json:"name"`
+	Type      CheckType     `json:"type"`
+	NodeID    string        `json:"node_id"`
+	Level     HealthLevel   `json:"level"`
+	Message   string        `json:"message,omitempty"`
+	Details   interface{}   `json:"details,omitempty"`
+	Duration  time.Duration `json:"duration"`
+	LastCheck time.Time     `json:"last_check"`
+	NextCheck time.Time     `json:"next_check"`
+	Enabled   bool          `json:"enabled"`
+	Threshold float64       `json:"threshold,omitempty"` // 阈值（如 CPU 使用率 80%）
 }
 
 // ClusterHealthStatus 集群健康状态
 type ClusterHealthStatus struct {
-	ClusterName   string        `json:"cluster_name"`
-	OverallLevel  HealthLevel   `json:"overall_level"`
-	TotalNodes    int           `json:"total_nodes"`
-	HealthyNodes  int           `json:"healthy_nodes"`
-	DegradedNodes int           `json:"degraded_nodes"`
-	UnhealthyNodes int          `json:"unhealthy_nodes"`
-	OfflineNodes  int           `json:"offline_nodes"`
-	Checks        []*HealthCheck `json:"checks"`
-	LastUpdate    time.Time     `json:"last_update"`
-	Uptime        time.Duration `json:"uptime"`
+	ClusterName    string         `json:"cluster_name"`
+	OverallLevel   HealthLevel    `json:"overall_level"`
+	TotalNodes     int            `json:"total_nodes"`
+	HealthyNodes   int            `json:"healthy_nodes"`
+	DegradedNodes  int            `json:"degraded_nodes"`
+	UnhealthyNodes int            `json:"unhealthy_nodes"`
+	OfflineNodes   int            `json:"offline_nodes"`
+	Checks         []*HealthCheck `json:"checks"`
+	LastUpdate     time.Time      `json:"last_update"`
+	Uptime         time.Duration  `json:"uptime"`
 }
 
 // AlertSeverity 告警级别
@@ -75,29 +75,29 @@ const (
 
 // Alert 告警
 type Alert struct {
-	ID        string        `json:"id"`
-	Severity  AlertSeverity `json:"severity"`
-	NodeID    string        `json:"node_id"`
-	CheckID   string        `json:"check_id"`
-	Message   string        `json:"message"`
-	Details   interface{}   `json:"details,omitempty"`
-	Status    string        `json:"status"` // active, acknowledged, resolved
-	CreatedAt time.Time     `json:"created_at"`
-	UpdatedAt time.Time     `json:"updated_at"`
-	ResolvedAt *time.Time   `json:"resolved_at,omitempty"`
+	ID         string        `json:"id"`
+	Severity   AlertSeverity `json:"severity"`
+	NodeID     string        `json:"node_id"`
+	CheckID    string        `json:"check_id"`
+	Message    string        `json:"message"`
+	Details    interface{}   `json:"details,omitempty"`
+	Status     string        `json:"status"` // active, acknowledged, resolved
+	CreatedAt  time.Time     `json:"created_at"`
+	UpdatedAt  time.Time     `json:"updated_at"`
+	ResolvedAt *time.Time    `json:"resolved_at,omitempty"`
 }
 
 // AlertRule 告警规则
 type AlertRule struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	CheckType   CheckType   `json:"check_type"`
-	Condition   string      `json:"condition"` // gt, lt, eq, ne
-	Threshold   float64     `json:"threshold"`
-	Severity    AlertSeverity `json:"severity"`
-	Duration    time.Duration `json:"duration"` // 持续多久才触发
-	Enabled     bool        `json:"enabled"`
-	NodeFilter  []string    `json:"node_filter,omitempty"` // 为空表示所有节点
+	ID         string        `json:"id"`
+	Name       string        `json:"name"`
+	CheckType  CheckType     `json:"check_type"`
+	Condition  string        `json:"condition"` // gt, lt, eq, ne
+	Threshold  float64       `json:"threshold"`
+	Severity   AlertSeverity `json:"severity"`
+	Duration   time.Duration `json:"duration"` // 持续多久才触发
+	Enabled    bool          `json:"enabled"`
+	NodeFilter []string      `json:"node_filter,omitempty"` // 为空表示所有节点
 }
 
 // HealthCheckConfig 健康检查配置
@@ -162,8 +162,8 @@ type HealthChecker struct {
 
 // HealthCheckStatus 健康检查状态快照
 type HealthCheckStatus struct {
-	Timestamp time.Time          `json:"timestamp"`
-	Level     HealthLevel        `json:"level"`
+	Timestamp time.Time              `json:"timestamp"`
+	Level     HealthLevel            `json:"level"`
 	Checks    map[string]HealthLevel `json:"checks"`
 }
 
@@ -432,7 +432,7 @@ func (hc *HealthChecker) GetClusterHealth() *ClusterHealthStatus {
 	defer hc.mu.RUnlock()
 
 	status := &ClusterHealthStatus{
-		ClusterName: hc.manager.config.Name,
+		ClusterName:  hc.manager.config.Name,
 		OverallLevel: HealthLevelHealthy,
 		LastUpdate:   time.Now(),
 		Uptime:       time.Since(hc.startTime),
@@ -847,14 +847,14 @@ func (hc *HealthChecker) GetStats() map[string]interface{} {
 	defer hc.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"total_checks":    len(hc.checks),
-		"enabled_checks":  0,
-		"total_rules":     len(hc.alertRules),
-		"enabled_rules":   0,
-		"active_alerts":   0,
-		"total_alerts":    len(hc.alerts),
-		"history_count":   len(hc.history),
-		"uptime":          time.Since(hc.startTime).String(),
+		"total_checks":   len(hc.checks),
+		"enabled_checks": 0,
+		"total_rules":    len(hc.alertRules),
+		"enabled_rules":  0,
+		"active_alerts":  0,
+		"total_alerts":   len(hc.alerts),
+		"history_count":  len(hc.history),
+		"uptime":         time.Since(hc.startTime).String(),
 	}
 
 	for _, check := range hc.checks {

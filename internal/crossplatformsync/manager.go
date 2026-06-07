@@ -825,8 +825,8 @@ func timePtr(t time.Time) *time.Time { return &t }
 // ============================================================
 
 type configData struct {
-	Devices   map[string]*NASDevice `json:"devices"`
-	Tasks     map[string]*SyncTask  `json:"tasks"`
+	Devices   map[string]*NASDevice      `json:"devices"`
+	Tasks     map[string]*SyncTask       `json:"tasks"`
 	Conflicts map[string][]*FileConflict `json:"conflicts"`
 }
 

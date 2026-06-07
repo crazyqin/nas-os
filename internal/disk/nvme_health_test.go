@@ -675,12 +675,12 @@ func TestNVMeMonitor_PredictRemainingLife(t *testing.T) {
 	monitor := NewNVMeMonitor()
 
 	tests := []struct {
-		name                 string
-		info                 *NVMeHealthInfo
-		expectPrediction     bool
-		expectDaysLeftMin    int
-		expectDaysLeftMax    int
-		expectConfidence     string
+		name              string
+		info              *NVMeHealthInfo
+		expectPrediction  bool
+		expectDaysLeftMin int
+		expectDaysLeftMax int
+		expectConfidence  string
 	}{
 		{
 			name: "无使用数据",
@@ -692,10 +692,10 @@ func TestNVMeMonitor_PredictRemainingLife(t *testing.T) {
 		{
 			name: "低使用率-长时间运行",
 			info: &NVMeHealthInfo{
-				Device:        "/dev/nvme0",
-				Size:          1024 * 1024, // 1TB
-				PowerOnHours:  24 * 60,      // 60天
-				Temperature:   &NVMeTempInfo{Current: 40},
+				Device:       "/dev/nvme0",
+				Size:         1024 * 1024, // 1TB
+				PowerOnHours: 24 * 60,     // 60天
+				Temperature:  &NVMeTempInfo{Current: 40},
 				Usage: &NVMeUsageInfo{
 					PercentageUsed: 10,
 					TBW:            60,
@@ -703,16 +703,16 @@ func TestNVMeMonitor_PredictRemainingLife(t *testing.T) {
 				},
 			},
 			expectPrediction:  true,
-			expectDaysLeftMin: 300,  // 预期至少300天 (算法考虑温度和磨损影响)
+			expectDaysLeftMin: 300, // 预期至少300天 (算法考虑温度和磨损影响)
 			expectConfidence:  "high",
 		},
 		{
 			name: "中等使用率",
 			info: &NVMeHealthInfo{
-				Device:        "/dev/nvme0",
-				Size:          1024 * 1024,
-				PowerOnHours:  24 * 30, // 30天
-				Temperature:   &NVMeTempInfo{Current: 50},
+				Device:       "/dev/nvme0",
+				Size:         1024 * 1024,
+				PowerOnHours: 24 * 30, // 30天
+				Temperature:  &NVMeTempInfo{Current: 50},
 				Usage: &NVMeUsageInfo{
 					PercentageUsed: 50,
 					TBW:            300,
@@ -726,10 +726,10 @@ func TestNVMeMonitor_PredictRemainingLife(t *testing.T) {
 		{
 			name: "高使用率-高温",
 			info: &NVMeHealthInfo{
-				Device:        "/dev/nvme0",
-				Size:          1024 * 1024,
-				PowerOnHours:  24 * 7, // 7天
-				Temperature:   &NVMeTempInfo{Current: 70},
+				Device:       "/dev/nvme0",
+				Size:         1024 * 1024,
+				PowerOnHours: 24 * 7, // 7天
+				Temperature:  &NVMeTempInfo{Current: 70},
 				Usage: &NVMeUsageInfo{
 					PercentageUsed: 85,
 					TBW:            510,
@@ -744,9 +744,9 @@ func TestNVMeMonitor_PredictRemainingLife(t *testing.T) {
 		{
 			name: "短时间运行-低置信度",
 			info: &NVMeHealthInfo{
-				Device:        "/dev/nvme0",
-				Size:          1024 * 1024,
-				PowerOnHours:  24, // 1天
+				Device:       "/dev/nvme0",
+				Size:         1024 * 1024,
+				PowerOnHours: 24, // 1天
 				Usage: &NVMeUsageInfo{
 					PercentageUsed: 5,
 					TBW:            30,
@@ -810,8 +810,8 @@ func TestNVMeMonitor_GetLifePrediction(t *testing.T) {
 
 	// 添加预测后可获取
 	info := &NVMeHealthInfo{
-		Device:        "/dev/nvme0",
-		PowerOnHours:  24 * 30,
+		Device:       "/dev/nvme0",
+		PowerOnHours: 24 * 30,
 		Usage: &NVMeUsageInfo{
 			PercentageUsed: 20,
 			TBW:            100,

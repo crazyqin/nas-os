@@ -115,7 +115,7 @@ func (h *QoSHandler) handleUpdateRule(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		ID     string   `json:"id"`
+		ID     string  `json:"id"`
 		Update QoSRule `json:"update"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

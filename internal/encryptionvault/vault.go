@@ -48,12 +48,12 @@ const (
 
 // EncryptionVault 加密保险库
 type EncryptionVault struct {
-	config    VaultConfig
-	state     VaultState
-	entries   map[string]*VaultEntry
-	cipherKey []byte
-	mu        sync.RWMutex
-	attempts  int
+	config     VaultConfig
+	state      VaultState
+	entries    map[string]*VaultEntry
+	cipherKey  []byte
+	mu         sync.RWMutex
+	attempts   int
 	lastUnlock time.Time
 }
 

@@ -563,22 +563,22 @@ func TestRestoreManagerCreateTasks(t *testing.T) {
 
 	// 创建任务和快照
 	job, _ := mgr.CreateJob(ctx, &BackupJob{
-		Name:   "restore-test",
-		Source: BackupSource{Paths: []string{"/tmp/test"}},
+		Name:        "restore-test",
+		Source:      BackupSource{Paths: []string{"/tmp/test"}},
 		Destination: BackupDestination{Type: "local", Path: "/tmp/dest"},
-		Policy: BackupPolicy{Type: BackupTypeFull},
+		Policy:      BackupPolicy{Type: BackupTypeFull},
 	})
 
 	// 手动添加快照
 	mgr.mu.Lock()
 	snap := &BackupSnapshot{
-		ID:        uuid.New().String(),
-		JobID:     job.ID,
+		ID:         uuid.New().String(),
+		JobID:      job.ID,
 		BackupType: BackupTypeFull,
-		Size:      1024,
-		FileCount: 10,
-		Path:      t.TempDir(),
-		CreatedAt: time.Now(),
+		Size:       1024,
+		FileCount:  10,
+		Path:       t.TempDir(),
+		CreatedAt:  time.Now(),
 	}
 	mgr.snapshots[snap.ID] = snap
 	job.Snapshots = append(job.Snapshots, snap.ID)

@@ -22,7 +22,7 @@ const (
 // Alert represents a single alert event.
 type Alert struct {
 	ID        string    `json:"id"`
-	Source    string    `json:"source"`    // e.g., "disk", "network", "backup"
+	Source    string    `json:"source"` // e.g., "disk", "network", "backup"
 	Title     string    `json:"title"`
 	Message   string    `json:"message"`
 	Severity  Severity  `json:"severity"`
@@ -32,32 +32,32 @@ type Alert struct {
 
 // Digest represents a batch of alerts ready for delivery.
 type Digest struct {
-	ID         string    `json:"id"`
-	Period     string    `json:"period"` // e.g., "hourly", "daily"
-	Alerts     []*Alert  `json:"alerts"`
-	Critical   int       `json:"critical_count"`
-	Warning    int       `json:"warning_count"`
-	Info       int       `json:"info_count"`
-	CreatedAt  time.Time `json:"created_at"`
-	Delivered  bool      `json:"delivered"`
+	ID        string    `json:"id"`
+	Period    string    `json:"period"` // e.g., "hourly", "daily"
+	Alerts    []*Alert  `json:"alerts"`
+	Critical  int       `json:"critical_count"`
+	Warning   int       `json:"warning_count"`
+	Info      int       `json:"info_count"`
+	CreatedAt time.Time `json:"created_at"`
+	Delivered bool      `json:"delivered"`
 }
 
 // DigestConfig defines digest delivery preferences per channel.
 type DigestConfig struct {
-	Channel   string        `json:"channel"`   // e.g., "email", "telegram", "webhook"
-	Interval  time.Duration `json:"interval"`  // How often to send digests
-	MinCount  int           `json:"min_count"` // Minimum alerts before sending (0 = always)
-	Severities []Severity   `json:"severities"` // Only include these severities
+	Channel    string        `json:"channel"`    // e.g., "email", "telegram", "webhook"
+	Interval   time.Duration `json:"interval"`   // How often to send digests
+	MinCount   int           `json:"min_count"`  // Minimum alerts before sending (0 = always)
+	Severities []Severity    `json:"severities"` // Only include these severities
 }
 
 // Collector gathers alerts and produces digests.
 type Collector struct {
-	mu         sync.RWMutex
-	pending    []*Alert
-	digests    []*Digest
-	configs    map[string]*DigestConfig
-	nextID     int
-	digestID   int
+	mu       sync.RWMutex
+	pending  []*Alert
+	digests  []*Digest
+	configs  map[string]*DigestConfig
+	nextID   int
+	digestID int
 }
 
 // NewCollector creates a new alert digest collector.

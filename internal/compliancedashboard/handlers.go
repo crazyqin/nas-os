@@ -126,10 +126,10 @@ func (h *Handler) handleReports(w http.ResponseWriter, r *http.Request) {
 	}
 	reports, total := h.manager.ListReports(framework, page, pageSize)
 	writeJSON(w, map[string]interface{}{
-		"reports":   reports,
-		"total":     total,
-		"page":      page,
-		"pageSize":  pageSize,
+		"reports":  reports,
+		"total":    total,
+		"page":     page,
+		"pageSize": pageSize,
 	})
 }
 

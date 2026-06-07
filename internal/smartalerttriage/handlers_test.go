@@ -106,9 +106,9 @@ func TestClassifyAlert(t *testing.T) {
 	manager := newTestManager()
 
 	tests := []struct {
-		name     string
-		title    string
-		desc     string
+		name        string
+		title       string
+		desc        string
 		expectedCat Category
 		expectedPri Priority
 	}{

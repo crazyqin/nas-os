@@ -37,9 +37,9 @@ func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	stats := h.manager.GetTieringStats()
 	writeJSON(w, map[string]interface{}{
-		"running":        true,
-		"totalItems":     stats.TotalItems,
-		"modelAccuracy":  stats.ModelAccuracy,
+		"running":         true,
+		"totalItems":      stats.TotalItems,
+		"modelAccuracy":   stats.ModelAccuracy,
 		"totalMigrations": stats.TotalMigrations,
 	})
 }

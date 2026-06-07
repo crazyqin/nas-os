@@ -118,16 +118,16 @@ type Reminder struct {
 
 // ReminderNotification 提醒通知记录.
 type ReminderNotification struct {
-	ID         string    `json:"id"`
-	ReminderID string    `json:"reminder_id"`
-	EventID    string    `json:"event_id"`
-	UserID     string    `json:"user_id"`
-	Message    string    `json:"message"`
-	Method     string    `json:"method"` // notification / email
-	Status     string    `json:"status"` // pending / sent / failed
-	ScheduledAt time.Time `json:"scheduled_at"`
-	SentAt     *time.Time `json:"sent_at,omitempty"`
-	CreatedAt  time.Time  `json:"created_at"`
+	ID          string     `json:"id"`
+	ReminderID  string     `json:"reminder_id"`
+	EventID     string     `json:"event_id"`
+	UserID      string     `json:"user_id"`
+	Message     string     `json:"message"`
+	Method      string     `json:"method"` // notification / email
+	Status      string     `json:"status"` // pending / sent / failed
+	ScheduledAt time.Time  `json:"scheduled_at"`
+	SentAt      *time.Time `json:"sent_at,omitempty"`
+	CreatedAt   time.Time  `json:"created_at"`
 }
 
 // 预定义提醒时间点（分钟）.
@@ -139,7 +139,7 @@ var PresetReminders = []int{5, 15, 60, 1440}
 type Attendee struct {
 	Name    string `json:"name"`
 	Email   string `json:"email"`
-	Status  string `json:"status"`  // accepted / declined / tentative / needs-action
+	Status  string `json:"status"` // accepted / declined / tentative / needs-action
 	Comment string `json:"comment,omitempty"`
 }
 
@@ -161,7 +161,7 @@ const (
 type CalendarShare struct {
 	ID         string          `json:"id"`
 	CalendarID string          `json:"calendar_id"`
-	UserID     string          `json:"user"`      // 被分享用户
+	UserID     string          `json:"user"` // 被分享用户
 	Permission SharePermission `json:"permission"`
 	CreatedAt  time.Time       `json:"created_at"`
 }
@@ -188,37 +188,37 @@ type Calendar struct {
 
 // Event 日历事件.
 type Event struct {
-	ID            string          `json:"id"`
-	CalendarID    string          `json:"calendar_id" binding:"required"`
-	Title         string          `json:"title" binding:"required"`
-	Description   string          `json:"description"`
-	Location      string          `json:"location"`
-	StartTime     time.Time       `json:"start_time" binding:"required"`
-	EndTime       time.Time       `json:"end_time" binding:"required"`
-	AllDay        bool            `json:"all_day"`
-	Recurrence    *RecurrenceRule `json:"recurrence,omitempty"`
-	Reminders     []Reminder      `json:"reminders"`
-	Attendees     []Attendee      `json:"attendees"`
-	Status        EventStatus     `json:"status"`
-	CreatedAt     time.Time       `json:"created_at"`
+	ID          string          `json:"id"`
+	CalendarID  string          `json:"calendar_id" binding:"required"`
+	Title       string          `json:"title" binding:"required"`
+	Description string          `json:"description"`
+	Location    string          `json:"location"`
+	StartTime   time.Time       `json:"start_time" binding:"required"`
+	EndTime     time.Time       `json:"end_time" binding:"required"`
+	AllDay      bool            `json:"all_day"`
+	Recurrence  *RecurrenceRule `json:"recurrence,omitempty"`
+	Reminders   []Reminder      `json:"reminders"`
+	Attendees   []Attendee      `json:"attendees"`
+	Status      EventStatus     `json:"status"`
+	CreatedAt   time.Time       `json:"created_at"`
 }
 
 // Task 待办任务 (VTODO).
 type Task struct {
-	ID          string        `json:"id"`
-	CalendarID  string        `json:"calendar_id" binding:"required"`
-	Title       string        `json:"title" binding:"required"`
-	Description string        `json:"description"`
-	Status      TaskStatus    `json:"status"`
-	Priority    TaskPriority  `json:"priority"`
-	DueDate     *time.Time    `json:"due_date,omitempty"`
-	StartDate   *time.Time    `json:"start_date,omitempty"`
-	CompletedAt *time.Time    `json:"completed_at,omitempty"`
-	Progress    int           `json:"progress"` // 0-100
+	ID          string          `json:"id"`
+	CalendarID  string          `json:"calendar_id" binding:"required"`
+	Title       string          `json:"title" binding:"required"`
+	Description string          `json:"description"`
+	Status      TaskStatus      `json:"status"`
+	Priority    TaskPriority    `json:"priority"`
+	DueDate     *time.Time      `json:"due_date,omitempty"`
+	StartDate   *time.Time      `json:"start_date,omitempty"`
+	CompletedAt *time.Time      `json:"completed_at,omitempty"`
+	Progress    int             `json:"progress"` // 0-100
 	Recurrence  *RecurrenceRule `json:"recurrence,omitempty"`
-	Tags        []string      `json:"tags,omitempty"`
-	CreatedAt   time.Time     `json:"created_at"`
-	UpdatedAt   time.Time     `json:"updated_at"`
+	Tags        []string        `json:"tags,omitempty"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at"`
 }
 
 // ========== 查询参数 ==========
@@ -252,9 +252,9 @@ type ICSData struct {
 
 // CalDAVResource CalDAV 资源.
 type CalDAVResource struct {
-	Path         string `json:"path"`
-	ETag         string `json:"etag"`
-	ContentType  string `json:"content_type"`
+	Path         string    `json:"path"`
+	ETag         string    `json:"etag"`
+	ContentType  string    `json:"content_type"`
 	LastModified time.Time `json:"last_modified"`
 }
 

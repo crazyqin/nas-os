@@ -13,9 +13,9 @@ import (
 // Engine 同步核心引擎.
 // 整合 delta 计算、冲突检测、版本管理、文件传输等模块.
 type Engine struct {
-	mu      sync.RWMutex
-	task    *Task
-	store   *StateStore
+	mu       sync.RWMutex
+	task     *Task
+	store    *StateStore
 	versions *VersionManager
 	notifier *Notifier
 	watcher  *Watcher

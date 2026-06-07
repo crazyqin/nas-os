@@ -157,12 +157,12 @@ func (m *WebAppManager) ListApps(opts *ListOptions) []*WebApp {
 
 // ListOptions 列表选项
 type ListOptions struct {
-	Status    string `json:"status,omitempty"`
-	Type      string `json:"type,omitempty"`
-	SortBy    string `json:"sort_by,omitempty"` // name, created_at, status
-	SortDesc  bool   `json:"sort_desc,omitempty"`
-	Limit     int    `json:"limit,omitempty"`
-	Offset    int    `json:"offset,omitempty"`
+	Status   string `json:"status,omitempty"`
+	Type     string `json:"type,omitempty"`
+	SortBy   string `json:"sort_by,omitempty"` // name, created_at, status
+	SortDesc bool   `json:"sort_desc,omitempty"`
+	Limit    int    `json:"limit,omitempty"`
+	Offset   int    `json:"offset,omitempty"`
 }
 
 // sortApps 排序应用列表

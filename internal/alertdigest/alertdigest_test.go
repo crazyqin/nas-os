@@ -105,9 +105,9 @@ func TestConfigureDigest(t *testing.T) {
 	c := NewCollector()
 
 	c.ConfigureDigest("email", DigestConfig{
-		Channel:   "email",
-		Interval:  30 * time.Minute,
-		MinCount:  5,
+		Channel:    "email",
+		Interval:   30 * time.Minute,
+		MinCount:   5,
 		Severities: []Severity{SeverityCritical, SeverityWarning},
 	})
 

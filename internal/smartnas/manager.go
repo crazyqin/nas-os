@@ -15,12 +15,12 @@ import (
 type SubsystemType string
 
 const (
-	SubsystemStorage   SubsystemType = "storage"
-	SubsystemNetwork   SubsystemType = "network"
-	SubsystemSecurity  SubsystemType = "security"
+	SubsystemStorage     SubsystemType = "storage"
+	SubsystemNetwork     SubsystemType = "network"
+	SubsystemSecurity    SubsystemType = "security"
 	SubsystemPerformance SubsystemType = "performance"
-	SubsystemHardware  SubsystemType = "hardware"
-	SubsystemBackup    SubsystemType = "backup"
+	SubsystemHardware    SubsystemType = "hardware"
+	SubsystemBackup      SubsystemType = "backup"
 )
 
 // HealthLevel represents the health status.
@@ -46,7 +46,7 @@ const (
 // SubsystemHealth holds the health data for a single subsystem.
 type SubsystemHealth struct {
 	Type        SubsystemType `json:"type"`
-	Score       float64       `json:"score"`   // 0.0 to 100.0
+	Score       float64       `json:"score"` // 0.0 to 100.0
 	Level       HealthLevel   `json:"level"`
 	Metrics     []Metric      `json:"metrics"`
 	LastUpdated time.Time     `json:"last_updated"`
@@ -64,26 +64,26 @@ type Metric struct {
 
 // Recommendation is an actionable suggestion to improve NAS health.
 type Recommendation struct {
-	ID          string    `json:"id"`
+	ID          string        `json:"id"`
 	Subsystem   SubsystemType `json:"subsystem"`
-	Severity    Severity  `json:"severity"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Action      string    `json:"action"` // suggested action
-	CreatedAt   time.Time `json:"created_at"`
-	Dismissed   bool      `json:"dismissed"`
-	Manual      bool      `json:"manual,omitempty"` // manually added
+	Severity    Severity      `json:"severity"`
+	Title       string        `json:"title"`
+	Description string        `json:"description"`
+	Action      string        `json:"action"` // suggested action
+	CreatedAt   time.Time     `json:"created_at"`
+	Dismissed   bool          `json:"dismissed"`
+	Manual      bool          `json:"manual,omitempty"` // manually added
 }
 
 // NASHealthScore is the overall NAS health assessment.
 type NASHealthScore struct {
-	Overall      float64                       `json:"overall"`       // 0-100
-	Level        HealthLevel                    `json:"level"`
-	Subsystems   map[SubsystemType]*SubsystemHealth `json:"subsystems"`
-	TopIssues    []Recommendation               `json:"top_issues"`
-	LastUpdated  time.Time                      `json:"last_updated"`
-	Uptime       time.Duration                  `json:"uptime"`
-	Trend        string                         `json:"trend"` // improving, stable, declining
+	Overall     float64                            `json:"overall"` // 0-100
+	Level       HealthLevel                        `json:"level"`
+	Subsystems  map[SubsystemType]*SubsystemHealth `json:"subsystems"`
+	TopIssues   []Recommendation                   `json:"top_issues"`
+	LastUpdated time.Time                          `json:"last_updated"`
+	Uptime      time.Duration                      `json:"uptime"`
+	Trend       string                             `json:"trend"` // improving, stable, declining
 }
 
 // Manager orchestrates health scoring across all subsystems.
@@ -100,18 +100,18 @@ type Manager struct {
 // NewManager creates a new SmartNAS health manager.
 func NewManager() *Manager {
 	return &Manager{
-		subsystems: make(map[SubsystemType]*SubsystemHealth),
+		subsystems:      make(map[SubsystemType]*SubsystemHealth),
 		recommendations: make([]Recommendation, 0, 50),
-		startTime:  time.Now(),
-		history:    make([]NASHealthScore, 0, 100),
-		maxHistory: 100,
+		startTime:       time.Now(),
+		history:         make([]NASHealthScore, 0, 100),
+		maxHistory:      100,
 		weights: map[SubsystemType]float64{
-			SubsystemStorage:    0.30,
-			SubsystemNetwork:    0.15,
-			SubsystemSecurity:   0.20,
+			SubsystemStorage:     0.30,
+			SubsystemNetwork:     0.15,
+			SubsystemSecurity:    0.20,
 			SubsystemPerformance: 0.15,
-			SubsystemHardware:   0.10,
-			SubsystemBackup:     0.10,
+			SubsystemHardware:    0.10,
+			SubsystemBackup:      0.10,
 		},
 	}
 }

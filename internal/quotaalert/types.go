@@ -16,8 +16,8 @@ const (
 type TrendDirection string
 
 const (
-	TrendGrowing TrendDirection = "growing"
-	TrendStable  TrendDirection = "stable"
+	TrendGrowing   TrendDirection = "growing"
+	TrendStable    TrendDirection = "stable"
 	TrendShrinking TrendDirection = "shrinking"
 )
 
@@ -46,49 +46,49 @@ type QuotaRule struct {
 
 // QuotaUsage 配额使用量
 type QuotaUsage struct {
-	UserID      string    `json:"user_id"`
-	Path        string    `json:"path"`
-	UsedBytes   int64     `json:"used_bytes"`
-	UsedFiles   int64     `json:"used_files"`
-	TotalBytes  int64     `json:"total_bytes"`
-	TotalFiles  int64     `json:"total_files"`
-	UsagePercent float64  `json:"usage_percent"`
-	LastUpdated time.Time `json:"last_updated"`
+	UserID       string    `json:"user_id"`
+	Path         string    `json:"path"`
+	UsedBytes    int64     `json:"used_bytes"`
+	UsedFiles    int64     `json:"used_files"`
+	TotalBytes   int64     `json:"total_bytes"`
+	TotalFiles   int64     `json:"total_files"`
+	UsagePercent float64   `json:"usage_percent"`
+	LastUpdated  time.Time `json:"last_updated"`
 }
 
 // QuotaAlert 配额告警
 type QuotaAlert struct {
-	ID             string    `json:"id"`
-	UserID         string    `json:"user_id"`
-	Path           string    `json:"path"`
-	Level          AlertLevel `json:"level"`
-	Message        string    `json:"message"`
-	CurrentUsage   int64     `json:"current_usage"`
-	Threshold      float64   `json:"threshold"`
-	Acknowledged   bool      `json:"acknowledged"`
-	CreatedAt      time.Time `json:"created_at"`
+	ID           string     `json:"id"`
+	UserID       string     `json:"user_id"`
+	Path         string     `json:"path"`
+	Level        AlertLevel `json:"level"`
+	Message      string     `json:"message"`
+	CurrentUsage int64      `json:"current_usage"`
+	Threshold    float64    `json:"threshold"`
+	Acknowledged bool       `json:"acknowledged"`
+	CreatedAt    time.Time  `json:"created_at"`
 }
 
 // UsageTrend 使用量趋势
 type UsageTrend struct {
-	UserID          string         `json:"user_id"`
-	Path            string         `json:"path"`
-	DailyGrowth     int64          `json:"daily_growth"`
-	WeeklyGrowth    int64          `json:"weekly_growth"`
-	MonthlyGrowth   int64          `json:"monthly_growth"`
-	PredictedFullDate *time.Time   `json:"predicted_full_date"`
-	TrendDirection  TrendDirection `json:"trend_direction"`
+	UserID            string         `json:"user_id"`
+	Path              string         `json:"path"`
+	DailyGrowth       int64          `json:"daily_growth"`
+	WeeklyGrowth      int64          `json:"weekly_growth"`
+	MonthlyGrowth     int64          `json:"monthly_growth"`
+	PredictedFullDate *time.Time     `json:"predicted_full_date"`
+	TrendDirection    TrendDirection `json:"trend_direction"`
 }
 
 // CleanupSuggestion 清理建议
 type CleanupSuggestion struct {
-	ID                  string        `json:"id"`
-	UserID              string        `json:"user_id"`
-	Path                string        `json:"path"`
-	SuggestionType      SuggestionType `json:"suggestion_type"`
-	EstimatedReclaimBytes int64       `json:"estimated_reclaim_bytes"`
-	Priority            int           `json:"priority"`
-	Files               []string      `json:"files"`
+	ID                    string         `json:"id"`
+	UserID                string         `json:"user_id"`
+	Path                  string         `json:"path"`
+	SuggestionType        SuggestionType `json:"suggestion_type"`
+	EstimatedReclaimBytes int64          `json:"estimated_reclaim_bytes"`
+	Priority              int            `json:"priority"`
+	Files                 []string       `json:"files"`
 }
 
 // QuotaReport 全局配额报告
@@ -99,12 +99,12 @@ type QuotaReport struct {
 
 // UserQuotaSummary 用户配额摘要
 type UserQuotaSummary struct {
-	UserID      string              `json:"user_id"`
-	UserName    string              `json:"user_name"`
-	TotalQuota  int64               `json:"total_quota"`
-	UsedQuota   int64               `json:"used_quota"`
-	UsagePercent float64            `json:"usage_percent"`
-	Trend       *UsageTrend         `json:"trend"`
-	Alerts      []QuotaAlert        `json:"alerts"`
-	Suggestions []CleanupSuggestion `json:"suggestions"`
+	UserID       string              `json:"user_id"`
+	UserName     string              `json:"user_name"`
+	TotalQuota   int64               `json:"total_quota"`
+	UsedQuota    int64               `json:"used_quota"`
+	UsagePercent float64             `json:"usage_percent"`
+	Trend        *UsageTrend         `json:"trend"`
+	Alerts       []QuotaAlert        `json:"alerts"`
+	Suggestions  []CleanupSuggestion `json:"suggestions"`
 }

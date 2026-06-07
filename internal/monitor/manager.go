@@ -669,12 +669,12 @@ func setupDefaultRoutes(m *alerting.Manager) {
 // SendAlert 发送告警（兼容原接口）
 func (am *EnhancedAlertManager) SendAlert(ctx context.Context, alertType, level, message, source string, extra map[string]interface{}) error {
 	vars := &alerting.AlertVars{
-		AlertID:    fmt.Sprintf("alert-%d", time.Now().UnixNano()),
-		AlertName:  alertType,
-		HostName:   am.hostname,
-		HostIP:     am.hostIP,
-		Level:      alerting.AlertLevel(level),
-		Message:    message,
+		AlertID:   fmt.Sprintf("alert-%d", time.Now().UnixNano()),
+		AlertName: alertType,
+		HostName:  am.hostname,
+		HostIP:    am.hostIP,
+		Level:     alerting.AlertLevel(level),
+		Message:   message,
 		Source:    source,
 		Timestamp: time.Now(),
 		Tags:      make(map[string]string),
@@ -741,10 +741,10 @@ func (am *EnhancedAlertManager) GetAlertingStatus() map[string]interface{} {
 	status["hostname"] = am.hostname
 	status["hostIP"] = am.hostIP
 	status["legacy"] = map[string]interface{}{
-		"totalAlerts":   len(am.legacy.GetAlerts(0, 0, nil)),
-		"activeAlerts":  len(am.legacy.GetActiveAlerts()),
-		"subscribers":   len(am.legacy.GetSubscribers()),
-		"rules":         len(am.legacy.GetRules()),
+		"totalAlerts":  len(am.legacy.GetAlerts(0, 0, nil)),
+		"activeAlerts": len(am.legacy.GetActiveAlerts()),
+		"subscribers":  len(am.legacy.GetSubscribers()),
+		"rules":        len(am.legacy.GetRules()),
 	}
 	return status
 }

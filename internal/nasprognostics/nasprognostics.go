@@ -15,14 +15,14 @@ import (
 type ComponentType string
 
 const (
-	ComponentDisk     ComponentType = "disk"
-	ComponentCPU      ComponentType = "cpu"
-	ComponentMemory   ComponentType = "memory"
-	ComponentNetwork  ComponentType = "network"
-	ComponentPSU      ComponentType = "psu"
-	ComponentFan      ComponentType = "fan"
-	ComponentRAID     ComponentType = "raid"
-	ComponentPool     ComponentType = "pool"
+	ComponentDisk    ComponentType = "disk"
+	ComponentCPU     ComponentType = "cpu"
+	ComponentMemory  ComponentType = "memory"
+	ComponentNetwork ComponentType = "network"
+	ComponentPSU     ComponentType = "psu"
+	ComponentFan     ComponentType = "fan"
+	ComponentRAID    ComponentType = "raid"
+	ComponentPool    ComponentType = "pool"
 )
 
 // HealthLevel 健康等级
@@ -57,18 +57,18 @@ const (
 
 // Component 组件信息
 type Component struct {
-	ID           string        `json:"id"`
-	Type         ComponentType `json:"type"`
-	Name         string        `json:"name"`
-	Model        string        `json:"model,omitempty"`
-	SerialNumber string        `json:"serial_number,omitempty"`
-	HealthLevel  HealthLevel   `json:"health_level"`
-	HealthScore  float64       `json:"health_score"` // 0-100
-	FailureRisk  FailureRisk   `json:"failure_risk"`
-	Trend        TrendDirection `json:"trend"`
-	Metrics      []Metric      `json:"metrics"`
-	Predictions  []Prediction  `json:"predictions"`
-	LastChecked  time.Time     `json:"last_checked"`
+	ID           string            `json:"id"`
+	Type         ComponentType     `json:"type"`
+	Name         string            `json:"name"`
+	Model        string            `json:"model,omitempty"`
+	SerialNumber string            `json:"serial_number,omitempty"`
+	HealthLevel  HealthLevel       `json:"health_level"`
+	HealthScore  float64           `json:"health_score"` // 0-100
+	FailureRisk  FailureRisk       `json:"failure_risk"`
+	Trend        TrendDirection    `json:"trend"`
+	Metrics      []Metric          `json:"metrics"`
+	Predictions  []Prediction      `json:"predictions"`
+	LastChecked  time.Time         `json:"last_checked"`
 	Metadata     map[string]string `json:"metadata,omitempty"`
 }
 
@@ -88,7 +88,7 @@ type Prediction struct {
 	Probability float64       `json:"probability"` // 0.0-1.0
 	TimeToEvent time.Duration `json:"time_to_event"`
 	Description string        `json:"description"`
-	Confidence  float64       `json:"confidence"`  // 0.0-1.0
+	Confidence  float64       `json:"confidence"` // 0.0-1.0
 	GeneratedAt time.Time     `json:"generated_at"`
 	Actions     []string      `json:"actions"`
 }
@@ -97,10 +97,10 @@ type Prediction struct {
 type CapacityForecast struct {
 	ComponentID   string    `json:"component_id"`
 	ComponentName string    `json:"component_name"`
-	CurrentUsage  float64   `json:"current_usage"`  // 0.0-1.0
+	CurrentUsage  float64   `json:"current_usage"` // 0.0-1.0
 	TotalBytes    uint64    `json:"total_bytes"`
 	UsedBytes     uint64    `json:"used_bytes"`
-	GrowthRate    float64   `json:"growth_rate"`    // bytes/day
+	GrowthRate    float64   `json:"growth_rate"` // bytes/day
 	DaysRemaining int       `json:"days_remaining"`
 	FullDate      time.Time `json:"full_date"`
 	Confidence    float64   `json:"confidence"`
@@ -108,29 +108,29 @@ type CapacityForecast struct {
 
 // PerformanceTrend 性能趋势
 type PerformanceTrend struct {
-	ComponentID string        `json:"component_id"`
-	MetricName  string        `json:"metric_name"`
-	Current     float64       `json:"current"`
-	Average     float64       `json:"average"`
-	Min         float64       `json:"min"`
-	Max         float64       `json:"max"`
+	ComponentID string         `json:"component_id"`
+	MetricName  string         `json:"metric_name"`
+	Current     float64        `json:"current"`
+	Average     float64        `json:"average"`
+	Min         float64        `json:"min"`
+	Max         float64        `json:"max"`
 	Trend       TrendDirection `json:"trend"`
-	ChangeRate  float64       `json:"change_rate"` // 每天变化率
-	Period      string        `json:"period"`      // 分析周期
+	ChangeRate  float64        `json:"change_rate"` // 每天变化率
+	Period      string         `json:"period"`      // 分析周期
 }
 
 // PrognosticsReport 预后报告
 type PrognosticsReport struct {
-	ID             string              `json:"id"`
-	GeneratedAt    time.Time           `json:"generated_at"`
-	OverallHealth  HealthLevel         `json:"overall_health"`
-	OverallScore   float64             `json:"overall_score"`
-	Components     []Component         `json:"components"`
-	Predictions    []Prediction        `json:"predictions"`
-	Forecasts      []CapacityForecast  `json:"forecasts"`
-	Trends         []PerformanceTrend  `json:"trends"`
+	ID              string             `json:"id"`
+	GeneratedAt     time.Time          `json:"generated_at"`
+	OverallHealth   HealthLevel        `json:"overall_health"`
+	OverallScore    float64            `json:"overall_score"`
+	Components      []Component        `json:"components"`
+	Predictions     []Prediction       `json:"predictions"`
+	Forecasts       []CapacityForecast `json:"forecasts"`
+	Trends          []PerformanceTrend `json:"trends"`
 	Recommendations []Recommendation   `json:"recommendations"`
-	Summary        string              `json:"summary"`
+	Summary         string             `json:"summary"`
 }
 
 // Recommendation 建议
@@ -308,7 +308,7 @@ func (m *Manager) ForecastCapacity(componentID string) (*CapacityForecast, error
 
 	// 计算剩余天数
 	if growthRate > 0 {
-		remainingBytes := float64(totalBytes-usedBytes)
+		remainingBytes := float64(totalBytes - usedBytes)
 		if remainingBytes > 0 {
 			days := remainingBytes / growthRate
 			forecast.DaysRemaining = int(days)
@@ -388,12 +388,12 @@ func (m *Manager) GenerateReport() *PrognosticsReport {
 	defer m.mu.RUnlock()
 
 	report := &PrognosticsReport{
-		ID:          fmt.Sprintf("report-%d", time.Now().UnixNano()),
-		GeneratedAt: time.Now(),
-		Components:  make([]Component, 0),
-		Predictions: make([]Prediction, 0),
-		Forecasts:   make([]CapacityForecast, 0),
-		Trends:      make([]PerformanceTrend, 0),
+		ID:              fmt.Sprintf("report-%d", time.Now().UnixNano()),
+		GeneratedAt:     time.Now(),
+		Components:      make([]Component, 0),
+		Predictions:     make([]Prediction, 0),
+		Forecasts:       make([]CapacityForecast, 0),
+		Trends:          make([]PerformanceTrend, 0),
 		Recommendations: make([]Recommendation, 0),
 	}
 
@@ -478,7 +478,7 @@ func calculateSlope(metrics []Metric) float64 {
 	baseTime := metrics[0].Timestamp.Unix()
 
 	for _, m := range metrics {
-		x := float64(m.Timestamp.Unix()-baseTime)
+		x := float64(m.Timestamp.Unix() - baseTime)
 		y := m.Value
 		sumX += x
 		sumY += y

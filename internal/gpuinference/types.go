@@ -9,40 +9,40 @@ import (
 )
 
 var (
-	ErrModelNotFound      = errors.New("model not found")
-	ErrModelExists        = errors.New("model already exists")
-	ErrModelLoading       = errors.New("model is loading")
-	ErrModelNotReady      = errors.New("model not ready")
-	ErrGPUUnavailable     = errors.New("GPU unavailable")
-	ErrInsufficientVRAM   = errors.New("insufficient VRAM")
-	ErrBatchFull          = errors.New("batch is full")
-	ErrInferenceFailed    = errors.New("inference failed")
-	ErrManagerClosed      = errors.New("manager closed")
-	ErrInvalidInput       = errors.New("invalid input")
-	ErrTimeout            = errors.New("inference timeout")
-	ErrQueueFull          = errors.New("inference queue full")
+	ErrModelNotFound    = errors.New("model not found")
+	ErrModelExists      = errors.New("model already exists")
+	ErrModelLoading     = errors.New("model is loading")
+	ErrModelNotReady    = errors.New("model not ready")
+	ErrGPUUnavailable   = errors.New("GPU unavailable")
+	ErrInsufficientVRAM = errors.New("insufficient VRAM")
+	ErrBatchFull        = errors.New("batch is full")
+	ErrInferenceFailed  = errors.New("inference failed")
+	ErrManagerClosed    = errors.New("manager closed")
+	ErrInvalidInput     = errors.New("invalid input")
+	ErrTimeout          = errors.New("inference timeout")
+	ErrQueueFull        = errors.New("inference queue full")
 )
 
 // ModelStatus 模型状态
 type ModelStatus string
 
 const (
-	ModelStatusLoading  ModelStatus = "loading"
-	ModelStatusReady    ModelStatus = "ready"
-	ModelStatusRunning  ModelStatus = "running"
+	ModelStatusLoading   ModelStatus = "loading"
+	ModelStatusReady     ModelStatus = "ready"
+	ModelStatusRunning   ModelStatus = "running"
 	ModelStatusUnloading ModelStatus = "unloading"
-	ModelStatusError    ModelStatus = "error"
+	ModelStatusError     ModelStatus = "error"
 )
 
 // ModelFormat 模型格式
 type ModelFormat string
 
 const (
-	FormatONNX    ModelFormat = "onnx"
-	FormatTensorRT ModelFormat = "tensorrt"
-	FormatPyTorch  ModelFormat = "pytorch"
-	FormatOpenVINO ModelFormat = "openvino"
-	FormatGGUF     ModelFormat = "gguf"
+	FormatONNX        ModelFormat = "onnx"
+	FormatTensorRT    ModelFormat = "tensorrt"
+	FormatPyTorch     ModelFormat = "pytorch"
+	FormatOpenVINO    ModelFormat = "openvino"
+	FormatGGUF        ModelFormat = "gguf"
 	FormatSafeTensors ModelFormat = "safetensors"
 )
 
@@ -50,45 +50,45 @@ const (
 type Precision string
 
 const (
-	PrecisionFP32  Precision = "fp32"
-	PrecisionFP16  Precision = "fp16"
-	PrecisionINT8  Precision = "int8"
-	PrecisionINT4  Precision = "int4"
-	PrecisionBF16  Precision = "bf16"
+	PrecisionFP32 Precision = "fp32"
+	PrecisionFP16 Precision = "fp16"
+	PrecisionINT8 Precision = "int8"
+	PrecisionINT4 Precision = "int4"
+	PrecisionBF16 Precision = "bf16"
 )
 
 // InferenceTask 推理任务
 type InferenceTask string
 
 const (
-	TaskClassification  InferenceTask = "classification"
-	TaskDetection       InferenceTask = "detection"
-	TaskSegmentation    InferenceTask = "segmentation"
-	TaskGeneration      InferenceTask = "generation"
-	TaskEmbedding       InferenceTask = "embedding"
-	TaskOCR             InferenceTask = "ocr"
-	TaskSpeechToText    InferenceTask = "stt"
-	TaskTextToSpeech    InferenceTask = "tts"
+	TaskClassification InferenceTask = "classification"
+	TaskDetection      InferenceTask = "detection"
+	TaskSegmentation   InferenceTask = "segmentation"
+	TaskGeneration     InferenceTask = "generation"
+	TaskEmbedding      InferenceTask = "embedding"
+	TaskOCR            InferenceTask = "ocr"
+	TaskSpeechToText   InferenceTask = "stt"
+	TaskTextToSpeech   InferenceTask = "tts"
 )
 
 // Model 推理模型
 type Model struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Version     string       `json:"version"`
-	Format      ModelFormat  `json:"format"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Version     string        `json:"version"`
+	Format      ModelFormat   `json:"format"`
 	Task        InferenceTask `json:"task"`
-	Status      ModelStatus  `json:"status"`
-	Precision   Precision    `json:"precision"`
-	GPUDevice   int          `json:"gpu_device"`
-	VRAMUsage   uint64       `json:"vram_usage"`   // bytes
-	MaxBatch    int          `json:"max_batch"`
-	InputShape  []int        `json:"input_shape"`
-	OutputShape []int        `json:"output_shape"`
-	FilePath    string       `json:"file_path"`
-	LoadedAt    *time.Time   `json:"loaded_at,omitempty"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	Status      ModelStatus   `json:"status"`
+	Precision   Precision     `json:"precision"`
+	GPUDevice   int           `json:"gpu_device"`
+	VRAMUsage   uint64        `json:"vram_usage"` // bytes
+	MaxBatch    int           `json:"max_batch"`
+	InputShape  []int         `json:"input_shape"`
+	OutputShape []int         `json:"output_shape"`
+	FilePath    string        `json:"file_path"`
+	LoadedAt    *time.Time    `json:"loaded_at,omitempty"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
 // InferenceRequest 推理请求
@@ -119,26 +119,26 @@ type InferenceResult struct {
 
 // GPUDevice GPU 设备信息
 type GPUDevice struct {
-	ID           int     `json:"id"`
-	Name         string  `json:"name"`
-	TotalVRAM    uint64  `json:"total_vram"`    // bytes
-	UsedVRAM     uint64  `json:"used_vram"`
-	FreeVRAM     uint64  `json:"free_vram"`
-	Temperature  float64 `json:"temperature"`
-	PowerUsage   float64 `json:"power_usage"`
-	Utilization  float64 `json:"utilization"`   // %
+	ID           int      `json:"id"`
+	Name         string   `json:"name"`
+	TotalVRAM    uint64   `json:"total_vram"` // bytes
+	UsedVRAM     uint64   `json:"used_vram"`
+	FreeVRAM     uint64   `json:"free_vram"`
+	Temperature  float64  `json:"temperature"`
+	PowerUsage   float64  `json:"power_usage"`
+	Utilization  float64  `json:"utilization"` // %
 	LoadedModels []string `json:"loaded_models"`
 }
 
 // Manager GPU 推理管理器
 type Manager struct {
-	mu       sync.RWMutex
-	models   map[string]*Model
-	gpus     map[int]*GPUDevice
-	queue    chan *InferenceRequest
-	results  map[string]*InferenceResult
-	closed   bool
-	stopCh   chan struct{}
+	mu      sync.RWMutex
+	models  map[string]*Model
+	gpus    map[int]*GPUDevice
+	queue   chan *InferenceRequest
+	results map[string]*InferenceResult
+	closed  bool
+	stopCh  chan struct{}
 }
 
 // NewManager 创建管理器

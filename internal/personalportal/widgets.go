@@ -156,7 +156,7 @@ func (m *MockDataProvider) getNotesData() []map[string]string {
 
 // WidgetManager 小组件管理器。
 type WidgetManager struct {
-	engine     *PortalEngine
+	engine       *PortalEngine
 	dataProvider WidgetDataProvider
 }
 
@@ -171,8 +171,8 @@ func NewWidgetManager(engine *PortalEngine) *WidgetManager {
 // CreateWeatherWidget 创建天气小组件。
 func (wm *WidgetManager) CreateWeatherWidget(portalID, city string, position WidgetPosition) (*Widget, error) {
 	widget := &Widget{
-		Type:  WidgetTypeWeather,
-		Title: "天气",
+		Type:     WidgetTypeWeather,
+		Title:    "天气",
 		Position: position,
 		Config: WidgetConfig{
 			City:         city,
@@ -188,8 +188,8 @@ func (wm *WidgetManager) CreateWeatherWidget(portalID, city string, position Wid
 // CreateCalendarWidget 创建日历小组件。
 func (wm *WidgetManager) CreateCalendarWidget(portalID string, daysAhead int, position WidgetPosition) (*Widget, error) {
 	widget := &Widget{
-		Type:  WidgetTypeCalendar,
-		Title: "日历",
+		Type:     WidgetTypeCalendar,
+		Title:    "日历",
 		Position: position,
 		Config: WidgetConfig{
 			DaysAhead: daysAhead,
@@ -203,8 +203,8 @@ func (wm *WidgetManager) CreateCalendarWidget(portalID string, daysAhead int, po
 // CreateTodoWidget 创建待办小组件。
 func (wm *WidgetManager) CreateTodoWidget(portalID, listID string, maxItems int, position WidgetPosition) (*Widget, error) {
 	widget := &Widget{
-		Type:  WidgetTypeTodo,
-		Title: "待办事项",
+		Type:     WidgetTypeTodo,
+		Title:    "待办事项",
 		Position: position,
 		Config: WidgetConfig{
 			ListID:   listID,
@@ -220,8 +220,8 @@ func (wm *WidgetManager) CreateTodoWidget(portalID, listID string, maxItems int,
 // CreateHealthWidget 创建健康小组件。
 func (wm *WidgetManager) CreateHealthWidget(portalID string, position WidgetPosition) (*Widget, error) {
 	widget := &Widget{
-		Type:  WidgetTypeHealth,
-		Title: "健康",
+		Type:     WidgetTypeHealth,
+		Title:    "健康",
 		Position: position,
 		Config: WidgetConfig{
 			ShowSteps: true,
@@ -237,8 +237,8 @@ func (wm *WidgetManager) CreateHealthWidget(portalID string, position WidgetPosi
 // CreateFinanceWidget 创建财务小组件。
 func (wm *WidgetManager) CreateFinanceWidget(portalID, currency string, position WidgetPosition) (*Widget, error) {
 	widget := &Widget{
-		Type:  WidgetTypeFinance,
-		Title: "财务",
+		Type:     WidgetTypeFinance,
+		Title:    "财务",
 		Position: position,
 		Config: WidgetConfig{
 			Currency: currency,
@@ -252,9 +252,9 @@ func (wm *WidgetManager) CreateFinanceWidget(portalID, currency string, position
 // CreateMediaWidget 创建媒体小组件。
 func (wm *WidgetManager) CreateMediaWidget(portalID string, position WidgetPosition) (*Widget, error) {
 	widget := &Widget{
-		Type:  WidgetTypeMedia,
-		Title: "媒体",
-		Position: position,
+		Type:        WidgetTypeMedia,
+		Title:       "媒体",
+		Position:    position,
 		RefreshRate: 30, // 30秒
 	}
 
@@ -264,9 +264,9 @@ func (wm *WidgetManager) CreateMediaWidget(portalID string, position WidgetPosit
 // CreateClockWidget 创建时钟小组件。
 func (wm *WidgetManager) CreateClockWidget(portalID string, position WidgetPosition) (*Widget, error) {
 	widget := &Widget{
-		Type:  WidgetTypeClock,
-		Title: "时钟",
-		Position: position,
+		Type:        WidgetTypeClock,
+		Title:       "时钟",
+		Position:    position,
 		RefreshRate: 1, // 1秒
 	}
 
@@ -276,8 +276,8 @@ func (wm *WidgetManager) CreateClockWidget(portalID string, position WidgetPosit
 // CreateRSSWidget 创建 RSS 小组件。
 func (wm *WidgetManager) CreateRSSWidget(portalID string, feedURLs []string, maxArticles int, position WidgetPosition) (*Widget, error) {
 	widget := &Widget{
-		Type:  WidgetTypeRSS,
-		Title: "RSS 订阅",
+		Type:     WidgetTypeRSS,
+		Title:    "RSS 订阅",
 		Position: position,
 		Config: WidgetConfig{
 			FeedURLs:    feedURLs,
@@ -292,8 +292,8 @@ func (wm *WidgetManager) CreateRSSWidget(portalID string, feedURLs []string, max
 // CreateEmailWidget 创建邮件小组件。
 func (wm *WidgetManager) CreateEmailWidget(portalID string, mailboxes []string, position WidgetPosition) (*Widget, error) {
 	widget := &Widget{
-		Type:  WidgetTypeEmail,
-		Title: "邮件",
+		Type:     WidgetTypeEmail,
+		Title:    "邮件",
 		Position: position,
 		Config: WidgetConfig{
 			Mailboxes:  mailboxes,

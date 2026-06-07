@@ -10,8 +10,8 @@ import (
 type CloneType string
 
 const (
-	CloneTypeFull        CloneType = "full"        // 全盘克隆
-	CloneTypeIncremental CloneType = "incremental"  // 增量克隆
+	CloneTypeFull         CloneType = "full"         // 全盘克隆
+	CloneTypeIncremental  CloneType = "incremental"  // 增量克隆
 	CloneTypeDifferential CloneType = "differential" // 差异克隆
 )
 
@@ -19,47 +19,47 @@ const (
 type CloneStatus string
 
 const (
-	CloneStatusPending    CloneStatus = "pending"
-	CloneStatusRunning    CloneStatus = "running"
-	CloneStatusCompleted  CloneStatus = "completed"
-	CloneStatusFailed     CloneStatus = "failed"
-	CloneStatusCancelled  CloneStatus = "cancelled"
+	CloneStatusPending   CloneStatus = "pending"
+	CloneStatusRunning   CloneStatus = "running"
+	CloneStatusCompleted CloneStatus = "completed"
+	CloneStatusFailed    CloneStatus = "failed"
+	CloneStatusCancelled CloneStatus = "cancelled"
 )
 
 // ImageFormat 镜像格式
 type ImageFormat string
 
 const (
-	FormatRaw  ImageFormat = "raw"  // 原始镜像
+	FormatRaw   ImageFormat = "raw"   // 原始镜像
 	FormatQCOW2 ImageFormat = "qcow2" // QEMU 镜像
-	FormatVMDK ImageFormat = "vmdk" // VMware 镜像
-	FormatISO  ImageFormat = "iso"  // ISO 镜像
+	FormatVMDK  ImageFormat = "vmdk"  // VMware 镜像
+	FormatISO   ImageFormat = "iso"   // ISO 镜像
 )
 
 // DiskCloneTask 克隆任务
 type DiskCloneTask struct {
-	ID            string      `json:"id"`
-	Name          string      `json:"name"`
-	Type          CloneType   `json:"type"`
-	SourceDisk    string      `json:"sourceDisk"`    // /dev/sda
-	TargetDisk    string      `json:"targetDisk"`    // /dev/sdb 或镜像路径
-	Format        ImageFormat `json:"format,omitempty"`
-	Status        CloneStatus `json:"status"`
-	Progress      int         `json:"progress"`       // 0-100
-	BytesTotal    int64       `json:"bytesTotal"`
-	BytesCopied   int64       `json:"bytesCopied"`
-	SpeedMBps     float64     `json:"speedMBps"`     // 速度 MB/s
-	ETA           string      `json:"eta,omitempty"`  // 预计剩余时间
-	ErrorMessage  string      `json:"errorMessage,omitempty"`
-	CreatedAt     time.Time   `json:"createdAt"`
-	StartedAt     *time.Time  `json:"startedAt,omitempty"`
-	CompletedAt   *time.Time  `json:"completedAt,omitempty"`
+	ID           string      `json:"id"`
+	Name         string      `json:"name"`
+	Type         CloneType   `json:"type"`
+	SourceDisk   string      `json:"sourceDisk"` // /dev/sda
+	TargetDisk   string      `json:"targetDisk"` // /dev/sdb 或镜像路径
+	Format       ImageFormat `json:"format,omitempty"`
+	Status       CloneStatus `json:"status"`
+	Progress     int         `json:"progress"` // 0-100
+	BytesTotal   int64       `json:"bytesTotal"`
+	BytesCopied  int64       `json:"bytesCopied"`
+	SpeedMBps    float64     `json:"speedMBps"`     // 速度 MB/s
+	ETA          string      `json:"eta,omitempty"` // 预计剩余时间
+	ErrorMessage string      `json:"errorMessage,omitempty"`
+	CreatedAt    time.Time   `json:"createdAt"`
+	StartedAt    *time.Time  `json:"startedAt,omitempty"`
+	CompletedAt  *time.Time  `json:"completedAt,omitempty"`
 }
 
 // RestoreTask 恢复任务
 type RestoreTask struct {
 	ID           string      `json:"id"`
-	ImageID      string      `json:"imageId"`      // 镜像 ID
+	ImageID      string      `json:"imageId"` // 镜像 ID
 	TargetDisk   string      `json:"targetDisk"`
 	Status       CloneStatus `json:"status"`
 	Progress     int         `json:"progress"`

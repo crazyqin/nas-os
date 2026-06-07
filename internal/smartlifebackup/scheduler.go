@@ -18,18 +18,18 @@ type Scheduler struct {
 	tasks map[string]*ScheduledTask
 
 	// 停止信号
-	stopCh chan struct{}
+	stopCh  chan struct{}
 	stopped bool
 }
 
 // ScheduledTask 调度任务
 type ScheduledTask struct {
-	ID        string
-	Schedule  string
-	Func      func()
-	NextRun   time.Time
-	LastRun   time.Time
-	Enabled   bool
+	ID       string
+	Schedule string
+	Func     func()
+	NextRun  time.Time
+	LastRun  time.Time
+	Enabled  bool
 }
 
 // NewScheduler 创建调度器
@@ -67,7 +67,7 @@ func (s *Scheduler) ScheduleTask(schedule string, taskFunc func()) error {
 	defer s.mu.Unlock()
 
 	id := generateID()
-	
+
 	// 解析下次运行时间
 	nextRun, err := s.parseSchedule(schedule)
 	if err != nil {
@@ -389,10 +389,10 @@ func (s *Scheduler) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_tasks":     len(s.tasks),
-		"enabled_tasks":   enabledCount,
-		"next_run":        nextRun,
-		"is_in_window":    s.IsWithinAllowedWindow(),
-		"next_window":     s.GetNextAllowedWindow(),
+		"total_tasks":   len(s.tasks),
+		"enabled_tasks": enabledCount,
+		"next_run":      nextRun,
+		"is_in_window":  s.IsWithinAllowedWindow(),
+		"next_window":   s.GetNextAllowedWindow(),
 	}
 }

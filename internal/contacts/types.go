@@ -141,25 +141,25 @@ type ShareRequest struct {
 
 // VCard vCard 格式
 type VCard struct {
-	Version    string   `json:"version"`
-	FirstName  string   `json:"first_name"`
-	LastName   string   `json:"last_name"`
-	FullName   string   `json:"full_name"`
-	Org        string   `json:"org,omitempty"`
-	Title      string   `json:"title,omitempty"`
-	Phones     []Phone  `json:"phones,omitempty"`
-	Emails     []Email  `json:"emails,omitempty"`
-	Addresses  []Address `json:"addresses,omitempty"`
-	Note       string   `json:"note,omitempty"`
-	Birthday   string   `json:"birthday,omitempty"`
-	URL        string   `json:"url,omitempty"`
-	Photo      string   `json:"photo,omitempty"`
+	Version   string    `json:"version"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	FullName  string    `json:"full_name"`
+	Org       string    `json:"org,omitempty"`
+	Title     string    `json:"title,omitempty"`
+	Phones    []Phone   `json:"phones,omitempty"`
+	Emails    []Email   `json:"emails,omitempty"`
+	Addresses []Address `json:"addresses,omitempty"`
+	Note      string    `json:"note,omitempty"`
+	Birthday  string    `json:"birthday,omitempty"`
+	URL       string    `json:"url,omitempty"`
+	Photo     string    `json:"photo,omitempty"`
 }
 
 // MergeResult 合并结果
 type MergeResult struct {
-	Kept     *Contact   `json:"kept"`
-	Merged   []*Contact `json:"merged"`
+	Kept     *Contact          `json:"kept"`
+	Merged   []*Contact        `json:"merged"`
 	FieldMap map[string]string `json:"field_map"`
 }
 

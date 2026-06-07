@@ -27,7 +27,7 @@ func (h *Handler) handleApps(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	category := AppCategory(r.URL.Query().Get("category"))
 	apps := h.store.ListApps(r.Context(), category)
 	writeJSON(w, apps)
@@ -39,7 +39,7 @@ func (h *Handler) handleApp(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "App ID required", http.StatusBadRequest)
 		return
 	}
-	
+
 	switch r.Method {
 	case http.MethodGet:
 		app, err := h.store.GetApp(r.Context(), id)
@@ -72,7 +72,7 @@ func (h *Handler) handleSearch(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	query := r.URL.Query().Get("q")
 	apps := h.store.SearchApps(r.Context(), query)
 	writeJSON(w, apps)

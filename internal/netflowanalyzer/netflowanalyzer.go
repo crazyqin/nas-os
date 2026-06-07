@@ -95,7 +95,7 @@ type InterfaceStats struct {
 	PacketsOut   uint64    `json:"packets_out"`
 	BandwidthIn  float64   `json:"bandwidth_in_bps"`  // 当前入站带宽 (bits/s)
 	BandwidthOut float64   `json:"bandwidth_out_bps"` // 当前出站带宽 (bits/s)
-	Connections  int64     `json:"connections"`        // 当前连接数
+	Connections  int64     `json:"connections"`       // 当前连接数
 	LastUpdated  time.Time `json:"last_updated"`
 }
 
@@ -122,12 +122,12 @@ type ProtocolDistribution struct {
 
 // TrafficSnapshot 实时流量快照
 type TrafficSnapshot struct {
-	Timestamp         time.Time                `json:"timestamp"`
+	Timestamp         time.Time                 `json:"timestamp"`
 	Interfaces        map[string]InterfaceStats `json:"interfaces"`
-	TotalBandwidthIn  float64                  `json:"total_bandwidth_in_bps"`
-	TotalBandwidthOut float64                  `json:"total_bandwidth_out_bps"`
-	TotalConnections  int64                    `json:"total_connections"`
-	Protocols         []ProtocolDistribution   `json:"protocols"`
+	TotalBandwidthIn  float64                   `json:"total_bandwidth_in_bps"`
+	TotalBandwidthOut float64                   `json:"total_bandwidth_out_bps"`
+	TotalConnections  int64                     `json:"total_connections"`
+	Protocols         []ProtocolDistribution    `json:"protocols"`
 }
 
 // TrafficStats 流量统计
@@ -164,8 +164,8 @@ type GroupedStats struct {
 // TrafficAlert 流量告警
 type TrafficAlert struct {
 	ID        string    `json:"id"`
-	Type      string    `json:"type"`      // surge / connection_anomaly / ddos
-	Level     string    `json:"level"`     // info / warning / critical
+	Type      string    `json:"type"`  // surge / connection_anomaly / ddos
+	Level     string    `json:"level"` // info / warning / critical
 	Interface string    `json:"interface"`
 	Message   string    `json:"message"`
 	Value     float64   `json:"value"`
@@ -184,7 +184,7 @@ type BandwidthPolicy struct {
 	MaxInBps   uint64    `json:"max_in_bps"`  // 最大入站带宽 (bits/s)
 	MaxOutBps  uint64    `json:"max_out_bps"` // 最大出站带宽 (bits/s)
 	Enabled    bool      `json:"enabled"`
-	Priority   int       `json:"priority"`    // 优先级（数字越大优先级越高）
+	Priority   int       `json:"priority"` // 优先级（数字越大优先级越高）
 	CreatedAt  time.Time `json:"created_at"`
 }
 

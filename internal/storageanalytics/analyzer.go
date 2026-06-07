@@ -13,10 +13,10 @@ import (
 
 // Analyzer 存储分析引擎.
 type Analyzer struct {
-	mu      sync.RWMutex
-	config  *Config
-	logger  *zap.Logger
-	lastReport *StorageReport
+	mu          sync.RWMutex
+	config      *Config
+	logger      *zap.Logger
+	lastReport  *StorageReport
 	lastCollect *CollectResult
 }
 

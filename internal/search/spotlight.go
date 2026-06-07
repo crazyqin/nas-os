@@ -81,21 +81,21 @@ func (f *FileWatcher) GetChanges() []FileChange {
 
 // IndexStatus 索引状态
 type IndexStatus struct {
-	TotalFiles    int64
-	IndexedFiles  int64
-	IndexSize     int64
-	LastUpdate    time.Time
-	Status        string
-	Progress      float64
+	TotalFiles   int64
+	IndexedFiles int64
+	IndexSize    int64
+	LastUpdate   time.Time
+	Status       string
+	Progress     float64
 }
 
 // SpotlightIndexer Spotlight索引器
 type SpotlightIndexer struct {
-	engine  *Engine
-	config  SpotlightConfig
-	logger  *zap.Logger
-	status  IndexStatus
-	mu      sync.RWMutex
+	engine *Engine
+	config SpotlightConfig
+	logger *zap.Logger
+	status IndexStatus
+	mu     sync.RWMutex
 }
 
 // NewIndexer 创建索引器
@@ -140,13 +140,13 @@ func (i *SpotlightIndexer) GetStatus() *IndexStatus {
 // SpotlightService SMB Spotlight搜索服务
 // 支持中文分词、全文索引、语义搜索
 type SpotlightService struct {
-	indexer    *SpotlightIndexer
-	query      *QueryEngine
-	watcher    *FileWatcher
-	logger     *zap.Logger
-	config     SpotlightConfig
-	segmenter  *chinese.Segmenter // 中文分词器
-	mu         sync.RWMutex
+	indexer   *SpotlightIndexer
+	query     *QueryEngine
+	watcher   *FileWatcher
+	logger    *zap.Logger
+	config    SpotlightConfig
+	segmenter *chinese.Segmenter // 中文分词器
+	mu        sync.RWMutex
 }
 
 // SpotlightConfig Spotlight配置
@@ -154,34 +154,34 @@ type SpotlightConfig struct {
 	EnableContentIndex bool     `json:"enableContentIndex"`
 	IndexPaths         []string `json:"indexPaths"`
 	ExcludedPaths      []string `json:"excludedPaths"`
-	MaxIndexSize       int64    `json:"maxIndexSize"`    // 最大索引大小(MB)
-	UpdateInterval     int      `json:"updateInterval"`  // 更新间隔(秒)
+	MaxIndexSize       int64    `json:"maxIndexSize"`   // 最大索引大小(MB)
+	UpdateInterval     int      `json:"updateInterval"` // 更新间隔(秒)
 	ConcurrentWorkers  int      `json:"concurrentWorkers"`
-	EnableChineseSeg   bool     `json:"enableChineseSeg"`   // 启用中文分词
-	EnableSemantic     bool     `json:"enableSemantic"`     // 启用语义搜索
-	CacheSize          int      `json:"cacheSize"`          // 搜索缓存大小
-	MaxSearchResults   int      `json:"maxSearchResults"`   // 最大搜索结果数
+	EnableChineseSeg   bool     `json:"enableChineseSeg"` // 启用中文分词
+	EnableSemantic     bool     `json:"enableSemantic"`   // 启用语义搜索
+	CacheSize          int      `json:"cacheSize"`        // 搜索缓存大小
+	MaxSearchResults   int      `json:"maxSearchResults"` // 最大搜索结果数
 }
 
 // SpotlightQuery Spotlight搜索请求
 type SpotlightQuery struct {
-	Query       string            `json:"query"`
-	Path        string            `json:"path"`        // 搜索路径范围
-	FileTypes   []string          `json:"fileTypes"`   // 文件类型过滤
-	SizeMin     int64             `json:"sizeMin"`     // 最小文件大小
-	SizeMax     int64             `json:"sizeMax"`     // 最大文件大小
-	DateStart   time.Time         `json:"dateStart"`   // 开始日期
-	DateEnd     time.Time         `json:"dateEnd"`     // 结束日期
-	Attributes  map[string]string `json:"attributes"`  // Spotlight属性
-	Limit       int               `json:"limit"`
-	Offset      int               `json:"offset"`
+	Query      string            `json:"query"`
+	Path       string            `json:"path"`       // 搜索路径范围
+	FileTypes  []string          `json:"fileTypes"`  // 文件类型过滤
+	SizeMin    int64             `json:"sizeMin"`    // 最小文件大小
+	SizeMax    int64             `json:"sizeMax"`    // 最大文件大小
+	DateStart  time.Time         `json:"dateStart"`  // 开始日期
+	DateEnd    time.Time         `json:"dateEnd"`    // 结束日期
+	Attributes map[string]string `json:"attributes"` // Spotlight属性
+	Limit      int               `json:"limit"`
+	Offset     int               `json:"offset"`
 }
 
 // SpotlightResult Spotlight搜索结果
 type SpotlightResult struct {
 	Files       []SpotlightFile `json:"files"`
 	Total       int             `json:"total"`
-	QueryTime   int64           `json:"queryTime"` // 查询耗时(ms)
+	QueryTime   int64           `json:"queryTime"`   // 查询耗时(ms)
 	Suggestions []string        `json:"suggestions"` // 搜索建议
 }
 
@@ -336,9 +336,9 @@ func (s *SpotlightService) semanticSearchFallback(ctx context.Context, query str
 
 	// 使用扩展词搜索
 	parsedQuery := &ParsedQuery{
-		Raw:       strings.Join(expandedTerms, " "),
-		Terms:     expandedTerms,
-		Keywords:  expandedTerms,
+		Raw:      strings.Join(expandedTerms, " "),
+		Terms:    expandedTerms,
+		Keywords: expandedTerms,
 	}
 
 	files, total, _ := s.indexer.Search(ctx, parsedQuery, limit, 0)
@@ -446,8 +446,8 @@ func (s *SpotlightService) generateSuggestions(query string) []string {
 	if len(query) > 3 {
 		// 简单的拼写建议（基于常见错误）
 		commonCorrections := map[string]string{
-			"documet":  "document",
-			"exel":     "excel",
+			"documet":   "document",
+			"exel":      "excel",
 			"powerpoit": "powerpoint",
 		}
 		for wrong, correct := range commonCorrections {
@@ -495,7 +495,7 @@ func parseSize(s string) int64 {
 	var result int64
 	for _, c := range s {
 		if c >= '0' && c <= '9' {
-			result = result * 10 + int64(c - '0')
+			result = result*10 + int64(c-'0')
 		}
 	}
 	return result * multiplier
@@ -565,22 +565,22 @@ func DetectFileType(path string) string {
 
 // SpotlightAttributeMap macOS Spotlight属性映射
 var SpotlightAttributeMap = map[string]string{
-	"kMDItemDisplayName":          "name",
-	"kMDItemPath":                 "path",
-	"kMDItemFSSize":               "size",
-	"kMDItemFSCreationDate":       "created",
-	"kMDItemFSContentChangeDate":  "modified",
-	"kMDItemContentType":          "type",
-	"kMDItemKind":                 "kind",
-	"kMDItemWhereFroms":           "source",
-	"kMDItemAuthors":              "author",
-	"kMDItemTitle":                "title",
-	"kMDItemKeywords":             "keywords",
-	"kMDItemDurationSeconds":      "duration",
-	"kMDItemPixelWidth":           "width",
-	"kMDItemPixelHeight":          "height",
-	"kMDItemAudioSampleRate":      "sampleRate",
-	"kMDItemAudioBitRate":         "bitRate",
+	"kMDItemDisplayName":         "name",
+	"kMDItemPath":                "path",
+	"kMDItemFSSize":              "size",
+	"kMDItemFSCreationDate":      "created",
+	"kMDItemFSContentChangeDate": "modified",
+	"kMDItemContentType":         "type",
+	"kMDItemKind":                "kind",
+	"kMDItemWhereFroms":          "source",
+	"kMDItemAuthors":             "author",
+	"kMDItemTitle":               "title",
+	"kMDItemKeywords":            "keywords",
+	"kMDItemDurationSeconds":     "duration",
+	"kMDItemPixelWidth":          "width",
+	"kMDItemPixelHeight":         "height",
+	"kMDItemAudioSampleRate":     "sampleRate",
+	"kMDItemAudioBitRate":        "bitRate",
 }
 
 // MapToSpotlightAttributes 将内部属性映射到Spotlight格式

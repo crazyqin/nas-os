@@ -250,17 +250,17 @@ func (m *TerminalManager) GetTerminalStats(sessionID string) (map[string]interfa
 	}
 
 	stats := map[string]interface{}{
-		"session_id":      sessionID,
-		"terminal_id":     term.ID,
-		"shell":           term.Shell,
-		"status":          term.Status,
-		"rows":            term.Rows,
-		"cols":            term.Cols,
-		"working_dir":     term.WorkingDir,
-		"command_count":   len(commands),
-		"total_duration":  totalDuration,
-		"uptime":          time.Since(term.StartedAt).Seconds(),
-		"last_input_ago":  time.Since(term.LastInputAt).Seconds(),
+		"session_id":     sessionID,
+		"terminal_id":    term.ID,
+		"shell":          term.Shell,
+		"status":         term.Status,
+		"rows":           term.Rows,
+		"cols":           term.Cols,
+		"working_dir":    term.WorkingDir,
+		"command_count":  len(commands),
+		"total_duration": totalDuration,
+		"uptime":         time.Since(term.StartedAt).Seconds(),
+		"last_input_ago": time.Since(term.LastInputAt).Seconds(),
 	}
 
 	return stats, nil

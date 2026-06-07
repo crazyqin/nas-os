@@ -33,9 +33,9 @@ type Manager struct {
 
 // predictor 预测器
 type predictor struct {
-	values    []float64
+	values     []float64
 	timestamps []time.Time
-	window    int
+	window     int
 }
 
 // NewManager 创建自动扩缩容管理器

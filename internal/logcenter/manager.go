@@ -17,12 +17,12 @@ import (
 
 // Manager 日志管理器
 type Manager struct {
-	mu       sync.RWMutex
-	config   *LogConfig
-	logger   *zap.Logger
-	entries  []LogEntry
+	mu        sync.RWMutex
+	config    *LogConfig
+	logger    *zap.Logger
+	entries   []LogEntry
 	listeners []chan LogStreamMessage
-	hostname string
+	hostname  string
 }
 
 // NewManager 创建日志管理器

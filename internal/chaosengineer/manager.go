@@ -551,8 +551,8 @@ func (m *Manager) GenerateReport() *ResilienceReport {
 	defer m.mu.RUnlock()
 
 	report := &ResilienceReport{
-		ID:           uuid.New().String(),
-		GeneratedAt:  time.Now(),
+		ID:            uuid.New().String(),
+		GeneratedAt:   time.Now(),
 		ExperimentIDs: make([]string, 0),
 		Score: &ResilienceScore{
 			Breakdown: make(map[string]float64),

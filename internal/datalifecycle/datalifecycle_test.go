@@ -17,11 +17,11 @@ func TestCreateAndListPolicies(t *testing.T) {
 	m := newTestManager()
 
 	policy := LifecyclePolicy{
-		Name:        "archive-old-data",
-		Description: "归档90天未访问的数据",
-		Enabled:     true,
-		Priority:    10,
-		Type:        PolicyTypeArchival,
+		Name:         "archive-old-data",
+		Description:  "归档90天未访问的数据",
+		Enabled:      true,
+		Priority:     10,
+		Type:         PolicyTypeArchival,
 		PathPatterns: []string{"/data/**"},
 		Phases: []PhaseDefinition{
 			{
@@ -261,9 +261,9 @@ func TestCreateAndReleaseHold(t *testing.T) {
 	})
 
 	hold := ComplianceHold{
-		Type:      RetentionTypeLegal,
-		Name:      "诉讼保留",
-		FilePaths: []string{"/data/legal/doc.pdf"},
+		Type:       RetentionTypeLegal,
+		Name:       "诉讼保留",
+		FilePaths:  []string{"/data/legal/doc.pdf"},
 		CaseNumber: "CASE-2026-001",
 		IssuedBy:   "法务部",
 		Regulation: "民事诉讼法",
@@ -424,9 +424,9 @@ func TestDestructionWithComplianceHold(t *testing.T) {
 
 	// 创建合规保留
 	_, _ = m.CreateHold(ComplianceHold{
-		Name:      "诉讼保留",
-		Active:    true,
-		FilePaths: []string{"/data/legal/evidence.doc"},
+		Name:       "诉讼保留",
+		Active:     true,
+		FilePaths:  []string{"/data/legal/evidence.doc"},
 		CaseNumber: "CASE-001",
 	})
 
@@ -636,7 +636,7 @@ func TestAutoMigrateByAccessFrequency(t *testing.T) {
 		CheckInterval:   1 * time.Hour,
 		HotThreshold:    100,
 		WarmThreshold:   10,
-		ColdAgeHours:    1,  // 1小时（测试用）
+		ColdAgeHours:    1, // 1小时（测试用）
 		ArchiveAgeHours: 2, // 2小时（测试用）
 	}
 	m := NewManagerWithConfig(config)

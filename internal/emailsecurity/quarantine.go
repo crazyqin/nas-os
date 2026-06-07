@@ -12,11 +12,11 @@ import (
 
 // QuarantineManager 隔离管理器
 type QuarantineManager struct {
-	mu           sync.RWMutex
-	items        map[string]*QuarantineItem
-	retentionDays int           // 保留天数
-	maxItems     int           // 最大隔离项数
-	autoRelease  bool          // 是否自动释放低威胁项
+	mu            sync.RWMutex
+	items         map[string]*QuarantineItem
+	retentionDays int  // 保留天数
+	maxItems      int  // 最大隔离项数
+	autoRelease   bool // 是否自动释放低威胁项
 }
 
 // NewQuarantineManager 创建新的隔离管理器
@@ -211,15 +211,15 @@ func (qm *QuarantineManager) GetStats() map[string]int {
 	defer qm.mu.RUnlock()
 
 	stats := map[string]int{
-		"total":     len(qm.items),
-		"pending":   0,
-		"approved":  0,
-		"rejected":  0,
-		"released":  0,
-		"low":       0,
-		"medium":    0,
-		"high":      0,
-		"critical":  0,
+		"total":    len(qm.items),
+		"pending":  0,
+		"approved": 0,
+		"rejected": 0,
+		"released": 0,
+		"low":      0,
+		"medium":   0,
+		"high":     0,
+		"critical": 0,
 	}
 
 	for _, item := range qm.items {

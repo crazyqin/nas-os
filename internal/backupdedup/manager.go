@@ -9,27 +9,27 @@ import (
 
 // DeduplicationStats represents deduplication statistics
 type DeduplicationStats struct {
-	TotalFiles      int64   `json:"total_files"`
-	UniqueFiles     int64   `json:"unique_files"`
-	DuplicateFiles  int64   `json:"duplicate_files"`
-	TotalBytes      int64   `json:"total_bytes"`
-	UniqueBytes     int64   `json:"unique_bytes"`
-	SavedBytes      int64   `json:"saved_bytes"`
-	DedupRatio      float64 `json:"dedup_ratio"`
-	SpaceSavedPct   float64 `json:"space_saved_percent"`
-	LastRunTime     time.Time `json:"last_run_time"`
-	RunDuration     time.Duration `json:"run_duration"`
+	TotalFiles     int64         `json:"total_files"`
+	UniqueFiles    int64         `json:"unique_files"`
+	DuplicateFiles int64         `json:"duplicate_files"`
+	TotalBytes     int64         `json:"total_bytes"`
+	UniqueBytes    int64         `json:"unique_bytes"`
+	SavedBytes     int64         `json:"saved_bytes"`
+	DedupRatio     float64       `json:"dedup_ratio"`
+	SpaceSavedPct  float64       `json:"space_saved_percent"`
+	LastRunTime    time.Time     `json:"last_run_time"`
+	RunDuration    time.Duration `json:"run_duration"`
 }
 
 // ChunkInfo represents information about a deduplicated chunk
 type ChunkInfo struct {
-	Hash       string    `json:"hash"`
-	Size       int64     `json:"size"`
-	RefCount   int       `json:"ref_count"`
-	FirstSeen  time.Time `json:"first_seen"`
-	LastAccess time.Time `json:"last_access"`
-	IsCompressed bool    `json:"is_compressed"`
-	CompressedSize int64 `json:"compressed_size,omitempty"`
+	Hash           string    `json:"hash"`
+	Size           int64     `json:"size"`
+	RefCount       int       `json:"ref_count"`
+	FirstSeen      time.Time `json:"first_seen"`
+	LastAccess     time.Time `json:"last_access"`
+	IsCompressed   bool      `json:"is_compressed"`
+	CompressedSize int64     `json:"compressed_size,omitempty"`
 }
 
 // FileDedupInfo represents dedup info for a file
@@ -47,38 +47,38 @@ type FileDedupInfo struct {
 
 // DedupConfig represents deduplication configuration
 type DedupConfig struct {
-	Enabled          bool `json:"enabled"`
-	ChunkSize        int  `json:"chunk_size_kb"`
-	MinFileSize      int  `json:"min_file_size_bytes"`
-	MaxFileSize      int  `json:"max_file_size_mb"`
-	EnableCompression bool `json:"enable_compression"`
-	CompressionAlgo  string `json:"compression_algorithm"`
-	VerifyIntegrity  bool `json:"verify_integrity"`
-	RetainOriginals  bool `json:"retain_originals_days"`
-	RetainDays       int  `json:"retain_days"`
-	AutoDedup        bool `json:"auto_dedup"`
-	ScanInterval     int  `json:"scan_interval_hours"`
+	Enabled           bool   `json:"enabled"`
+	ChunkSize         int    `json:"chunk_size_kb"`
+	MinFileSize       int    `json:"min_file_size_bytes"`
+	MaxFileSize       int    `json:"max_file_size_mb"`
+	EnableCompression bool   `json:"enable_compression"`
+	CompressionAlgo   string `json:"compression_algorithm"`
+	VerifyIntegrity   bool   `json:"verify_integrity"`
+	RetainOriginals   bool   `json:"retain_originals_days"`
+	RetainDays        int    `json:"retain_days"`
+	AutoDedup         bool   `json:"auto_dedup"`
+	ScanInterval      int    `json:"scan_interval_hours"`
 }
 
 // DedupJob represents a deduplication job
 type DedupJob struct {
-	ID        string    `json:"id"`
-	Status    string    `json:"status"`
-	Path      string    `json:"path"`
-	StartTime time.Time `json:"start_time"`
-	EndTime   *time.Time `json:"end_time,omitempty"`
+	ID        string             `json:"id"`
+	Status    string             `json:"status"`
+	Path      string             `json:"path"`
+	StartTime time.Time          `json:"start_time"`
+	EndTime   *time.Time         `json:"end_time,omitempty"`
 	Stats     DeduplicationStats `json:"stats"`
-	ErrorMsg  string    `json:"error_msg,omitempty"`
+	ErrorMsg  string             `json:"error_msg,omitempty"`
 }
 
 // Manager manages backup deduplication
 type Manager struct {
-	mu      sync.RWMutex
-	chunks  map[string]*ChunkInfo
-	files   map[string]*FileDedupInfo
-	jobs    map[string]*DedupJob
-	config  DedupConfig
-	stats   DeduplicationStats
+	mu     sync.RWMutex
+	chunks map[string]*ChunkInfo
+	files  map[string]*FileDedupInfo
+	jobs   map[string]*DedupJob
+	config DedupConfig
+	stats  DeduplicationStats
 }
 
 // NewManager creates a new dedup manager
@@ -155,10 +155,10 @@ func (m *Manager) ProcessFile(filePath string, fileSize int64, data []byte) (*Fi
 
 		if _, ok := m.chunks[chunkHashStr]; !ok {
 			m.chunks[chunkHashStr] = &ChunkInfo{
-				Hash:      chunkHashStr,
-				Size:      int64(len(chunk)),
-				RefCount:  1,
-				FirstSeen: time.Now(),
+				Hash:       chunkHashStr,
+				Size:       int64(len(chunk)),
+				RefCount:   1,
+				FirstSeen:  time.Now(),
 				LastAccess: time.Now(),
 			}
 		} else {

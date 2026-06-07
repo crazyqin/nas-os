@@ -71,15 +71,15 @@ func runSyncList(cmd *cobra.Command, args []string) {
 	var result struct {
 		Code int `json:"code"`
 		Data []struct {
-			ID         string    `json:"id"`
-			Name       string    `json:"name"`
-			ProviderID string    `json:"providerId"`
-			Enabled    bool      `json:"enabled"`
-			Direction  string    `json:"direction"`
-			Mode       string    `json:"mode"`
-			Status     string    `json:"status"`
-			LastSync   time.Time `json:"lastSync"`
-			ScheduleType string  `json:"scheduleType"`
+			ID           string    `json:"id"`
+			Name         string    `json:"name"`
+			ProviderID   string    `json:"providerId"`
+			Enabled      bool      `json:"enabled"`
+			Direction    string    `json:"direction"`
+			Mode         string    `json:"mode"`
+			Status       string    `json:"status"`
+			LastSync     time.Time `json:"lastSync"`
+			ScheduleType string    `json:"scheduleType"`
 		} `json:"data"`
 	}
 
@@ -224,20 +224,20 @@ func runSyncCreate(cmd *cobra.Command, args []string) {
 
 	// 构建请求体
 	body := map[string]interface{}{
-		"name":              name,
-		"providerId":        providerID,
-		"localPath":         localPath,
-		"remotePath":        remotePath,
-		"direction":         direction,
-		"mode":              mode,
-		"scheduleType":      scheduleType,
-		"scheduleExpr":      scheduleExpr,
-		"conflictStrategy":  conflictStrategy,
-		"deleteRemote":      deleteRemote,
-		"deleteLocal":       deleteLocal,
-		"preserveModTime":   preserveModTime,
-		"checksumVerify":    checksumVerify,
-		"encrypt":           encrypt,
+		"name":             name,
+		"providerId":       providerID,
+		"localPath":        localPath,
+		"remotePath":       remotePath,
+		"direction":        direction,
+		"mode":             mode,
+		"scheduleType":     scheduleType,
+		"scheduleExpr":     scheduleExpr,
+		"conflictStrategy": conflictStrategy,
+		"deleteRemote":     deleteRemote,
+		"deleteLocal":      deleteLocal,
+		"preserveModTime":  preserveModTime,
+		"checksumVerify":   checksumVerify,
+		"encrypt":          encrypt,
 	}
 
 	if len(includePatterns) > 0 {
@@ -426,11 +426,11 @@ func runSyncStatusAll() {
 
 	var result struct {
 		Data map[string]struct {
-			TaskID    string  `json:"taskId"`
-			Status    string  `json:"status"`
-			Progress  float64 `json:"progress"`
-			Speed     int64   `json:"speed"`
-			CurrentFile string `json:"currentFile"`
+			TaskID      string  `json:"taskId"`
+			Status      string  `json:"status"`
+			Progress    float64 `json:"progress"`
+			Speed       int64   `json:"speed"`
+			CurrentFile string  `json:"currentFile"`
 		} `json:"data"`
 	}
 
@@ -477,23 +477,23 @@ func showTaskStatus(taskID string) {
 
 	var result struct {
 		Data struct {
-			TaskID          string  `json:"taskId"`
-			Status          string  `json:"status"`
-			StartTime       string  `json:"startTime"`
-			EndTime         string  `json:"endTime"`
-			TotalFiles      int64   `json:"totalFiles"`
-			ProcessedFiles  int64   `json:"processedFiles"`
-			TotalBytes      int64   `json:"totalBytes"`
-			TransferredBytes int64  `json:"transferredBytes"`
-			Speed           int64   `json:"speed"`
-			Progress        float64 `json:"progress"`
-			CurrentFile     string  `json:"currentFile"`
-			CurrentAction   string  `json:"currentAction"`
-			UploadedFiles   int64   `json:"uploadedFiles"`
-			DownloadedFiles int64   `json:"downloadedFiles"`
-			SkippedFiles    int64   `json:"skippedFiles"`
-			FailedFiles     int64   `json:"failedFiles"`
-			DeletedFiles    int64   `json:"deletedFiles"`
+			TaskID           string  `json:"taskId"`
+			Status           string  `json:"status"`
+			StartTime        string  `json:"startTime"`
+			EndTime          string  `json:"endTime"`
+			TotalFiles       int64   `json:"totalFiles"`
+			ProcessedFiles   int64   `json:"processedFiles"`
+			TotalBytes       int64   `json:"totalBytes"`
+			TransferredBytes int64   `json:"transferredBytes"`
+			Speed            int64   `json:"speed"`
+			Progress         float64 `json:"progress"`
+			CurrentFile      string  `json:"currentFile"`
+			CurrentAction    string  `json:"currentAction"`
+			UploadedFiles    int64   `json:"uploadedFiles"`
+			DownloadedFiles  int64   `json:"downloadedFiles"`
+			SkippedFiles     int64   `json:"skippedFiles"`
+			FailedFiles      int64   `json:"failedFiles"`
+			DeletedFiles     int64   `json:"deletedFiles"`
 		} `json:"data"`
 	}
 
@@ -552,16 +552,16 @@ func runSyncHistory(cmd *cobra.Command, args []string) {
 
 	var result struct {
 		Data struct {
-			TaskID       string `json:"taskId"`
-			Status       string `json:"status"`
-			StartTime    string `json:"startTime"`
-			EndTime      string `json:"endTime"`
-			TotalFiles   int64  `json:"totalFiles"`
-			UploadedFiles int64 `json:"uploadedFiles"`
-			DownloadedFiles int64 `json:"downloadedFiles"`
-			FailedFiles  int64  `json:"failedFiles"`
-			Conflicts    []struct {
-				Path      string `json:"path"`
+			TaskID          string `json:"taskId"`
+			Status          string `json:"status"`
+			StartTime       string `json:"startTime"`
+			EndTime         string `json:"endTime"`
+			TotalFiles      int64  `json:"totalFiles"`
+			UploadedFiles   int64  `json:"uploadedFiles"`
+			DownloadedFiles int64  `json:"downloadedFiles"`
+			FailedFiles     int64  `json:"failedFiles"`
+			Conflicts       []struct {
+				Path       string `json:"path"`
 				Resolution string `json:"resolution"`
 			} `json:"conflicts"`
 			Errors []struct {
@@ -665,9 +665,9 @@ func runSyncVersions(cmd *cobra.Command, args []string) {
 	if err == nil {
 		var tasksResult struct {
 			Data []struct {
-				ID   string `json:"id"`
-				Name string `json:"name"`
-				LocalPath string `json:"localPath"`
+				ID         string `json:"id"`
+				Name       string `json:"name"`
+				LocalPath  string `json:"localPath"`
 				RemotePath string `json:"remotePath"`
 			} `json:"data"`
 		}
@@ -805,8 +805,8 @@ func pollSyncStatus(taskID string, timeout int) {
 
 		var result struct {
 			Data struct {
-				Status   float64 `json:"progress"`
-				CurrentFile string `json:"currentFile"`
+				Status      float64 `json:"progress"`
+				CurrentFile string  `json:"currentFile"`
 			} `json:"data"`
 		}
 

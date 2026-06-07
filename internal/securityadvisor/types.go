@@ -14,15 +14,15 @@ import (
 
 // SecurityScore 综合安全评分
 type SecurityScore struct {
-	Overall      int       `json:"overall"`       // 0-100 综合安全分数
-	Vulnerability int      `json:"vulnerability"` // 漏洞评分
-	Malware       int      `json:"malware"`       // 恶意软件评分
-	Network       int      `json:"network"`       // 网络安全评分
-	Account       int      `json:"account"`       // 账户安全评分
-	FileIntegrity int      `json:"file_integrity"` // 文件完整性评分
-	Compliance    int      `json:"compliance"`    // 合规评分
-	Level         string   `json:"level"`         // "good", "warning", "critical", "danger"
-	Grade         string   `json:"grade"`         // "A", "B", "C", "D", "F"
+	Overall       int       `json:"overall"`        // 0-100 综合安全分数
+	Vulnerability int       `json:"vulnerability"`  // 漏洞评分
+	Malware       int       `json:"malware"`        // 恶意软件评分
+	Network       int       `json:"network"`        // 网络安全评分
+	Account       int       `json:"account"`        // 账户安全评分
+	FileIntegrity int       `json:"file_integrity"` // 文件完整性评分
+	Compliance    int       `json:"compliance"`     // 合规评分
+	Level         string    `json:"level"`          // "good", "warning", "critical", "danger"
+	Grade         string    `json:"grade"`          // "A", "B", "C", "D", "F"
 	UpdatedAt     time.Time `json:"updated_at"`
 	Summary       string    `json:"summary,omitempty"`
 	Password      int       `json:"password,omitempty"`
@@ -96,15 +96,15 @@ type SecurityCheck struct {
 
 // VulnerabilityScan 漏洞扫描配置
 type VulnerabilityScan struct {
-	Enabled          bool     `json:"enabled"`
-	ScanSystem       bool     `json:"scan_system"`       // 系统漏洞
-	ScanServices     bool     `json:"scan_services"`     // 服务漏洞
-	ScanConfig       bool     `json:"scan_config"`       // 配置漏洞
-	ScanPackages     bool     `json:"scan_packages"`     // 软件包漏洞
-	ScanPorts        bool     `json:"scan_ports"`        // 端口漏洞
-	ExcludeCVEs      []string `json:"exclude_cves"`      // 排除的CVE
-	CriticalPorts    []int    `json:"critical_ports"`    // 关键端口
-	MaxConcurrent    int      `json:"max_concurrent"`    // 最大并发
+	Enabled       bool     `json:"enabled"`
+	ScanSystem    bool     `json:"scan_system"`    // 系统漏洞
+	ScanServices  bool     `json:"scan_services"`  // 服务漏洞
+	ScanConfig    bool     `json:"scan_config"`    // 配置漏洞
+	ScanPackages  bool     `json:"scan_packages"`  // 软件包漏洞
+	ScanPorts     bool     `json:"scan_ports"`     // 端口漏洞
+	ExcludeCVEs   []string `json:"exclude_cves"`   // 排除的CVE
+	CriticalPorts []int    `json:"critical_ports"` // 关键端口
+	MaxConcurrent int      `json:"max_concurrent"` // 最大并发
 }
 
 // DefaultVulnerabilityScan 默认漏洞扫描配置
@@ -124,15 +124,15 @@ func DefaultVulnerabilityScan() VulnerabilityScan {
 
 // Vulnerability 漏洞详情
 type Vulnerability struct {
-	ID          string    `json:"id"`          // CVE ID 或自定义ID
-	Severity    string    `json:"severity"`    // "critical", "high", "medium", "low"
+	ID          string    `json:"id"`       // CVE ID 或自定义ID
+	Severity    string    `json:"severity"` // "critical", "high", "medium", "low"
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
-	Affected    string    `json:"affected"`    // 受影响组件
-	FixedIn     string    `json:"fixed_in"`    // 修复版本
-	Reference   string    `json:"reference"`   // 参考链接
+	Affected    string    `json:"affected"`  // 受影响组件
+	FixedIn     string    `json:"fixed_in"`  // 修复版本
+	Reference   string    `json:"reference"` // 参考链接
 	DetectedAt  time.Time `json:"detected_at"`
-	CVSS        float64   `json:"cvss"`        // CVSS评分
+	CVSS        float64   `json:"cvss"` // CVSS评分
 }
 
 // ============================================================
@@ -141,14 +141,14 @@ type Vulnerability struct {
 
 // MalwareDetection 恶意软件检测配置
 type MalwareDetection struct {
-	Enabled          bool     `json:"enabled"`
-	ScanSignatures   bool     `json:"scan_signatures"`   // 特征扫描
-	ScanBehavior     bool     `json:"scan_behavior"`     // 行为检测
-	ScanPaths        []string `json:"scan_paths"`        // 扫描路径
-	ExcludePaths     []string `json:"exclude_paths"`     // 排除路径
-	SignatureDBPath  string   `json:"signature_db_path"` // 特征库路径
-	MaxFileSize      int64    `json:"max_file_size"`     // 最大文件大小
-	QuarantinePath   string   `json:"quarantine_path"`   // 隔离路径
+	Enabled         bool     `json:"enabled"`
+	ScanSignatures  bool     `json:"scan_signatures"`   // 特征扫描
+	ScanBehavior    bool     `json:"scan_behavior"`     // 行为检测
+	ScanPaths       []string `json:"scan_paths"`        // 扫描路径
+	ExcludePaths    []string `json:"exclude_paths"`     // 排除路径
+	SignatureDBPath string   `json:"signature_db_path"` // 特征库路径
+	MaxFileSize     int64    `json:"max_file_size"`     // 最大文件大小
+	QuarantinePath  string   `json:"quarantine_path"`   // 隔离路径
 }
 
 // DefaultMalwareDetection 默认恶意软件检测配置
@@ -168,9 +168,9 @@ func DefaultMalwareDetection() MalwareDetection {
 type MalwareThreat struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
-	Type        string    `json:"type"`     // "virus", "trojan", "ransomware", "spyware", "adware", "rootkit"
+	Type        string    `json:"type"` // "virus", "trojan", "ransomware", "spyware", "adware", "rootkit"
 	Path        string    `json:"path"`
-	Hash        string    `json:"hash"`     // 文件哈希
+	Hash        string    `json:"hash"` // 文件哈希
 	Size        int64     `json:"size"`
 	DetectedAt  time.Time `json:"detected_at"`
 	Severity    string    `json:"severity"` // "critical", "high", "medium", "low"
@@ -240,16 +240,16 @@ type FirewallRule struct {
 
 // NetworkConnection 网络连接信息
 type NetworkConnection struct {
-	LocalAddr   string    `json:"local_addr"`
-	LocalPort   int       `json:"local_port"`
-	RemoteAddr  string    `json:"remote_addr"`
-	RemotePort  int       `json:"remote_port"`
-	Protocol    string    `json:"protocol"`
-	State       string    `json:"state"`
-	PID         int       `json:"pid"`
-	Process     string    `json:"process"`
+	LocalAddr     string    `json:"local_addr"`
+	LocalPort     int       `json:"local_port"`
+	RemoteAddr    string    `json:"remote_addr"`
+	RemotePort    int       `json:"remote_port"`
+	Protocol      string    `json:"protocol"`
+	State         string    `json:"state"`
+	PID           int       `json:"pid"`
+	Process       string    `json:"process"`
 	EstablishedAt time.Time `json:"established_at"`
-	Risk        string    `json:"risk"` // "suspicious", "normal", "blocked"
+	Risk          string    `json:"risk"` // "suspicious", "normal", "blocked"
 }
 
 // ============================================================
@@ -258,15 +258,15 @@ type NetworkConnection struct {
 
 // AccountSecurity 账户安全配置
 type AccountSecurity struct {
-	Enabled              bool `json:"enabled"`
-	CheckWeakPasswords   bool `json:"check_weak_passwords"`
-	CheckMFA             bool `json:"check_mfa"`
-	CheckLoginAnomalies  bool `json:"check_login_anomalies"`
-	CheckPrivileges      bool `json:"check_privileges"`
-	PasswordPolicy       PasswordPolicy `json:"password_policy"`
-	MaxFailedLogins      int  `json:"max_failed_logins"`
-	LockoutDuration      int  `json:"lockout_duration"` // 分钟
-	SessionTimeout       int  `json:"session_timeout"`  // 分钟
+	Enabled             bool           `json:"enabled"`
+	CheckWeakPasswords  bool           `json:"check_weak_passwords"`
+	CheckMFA            bool           `json:"check_mfa"`
+	CheckLoginAnomalies bool           `json:"check_login_anomalies"`
+	CheckPrivileges     bool           `json:"check_privileges"`
+	PasswordPolicy      PasswordPolicy `json:"password_policy"`
+	MaxFailedLogins     int            `json:"max_failed_logins"`
+	LockoutDuration     int            `json:"lockout_duration"` // 分钟
+	SessionTimeout      int            `json:"session_timeout"`  // 分钟
 }
 
 // PasswordPolicy 密码策略
@@ -305,31 +305,31 @@ func DefaultAccountSecurity() AccountSecurity {
 
 // UserAccount 用户账户信息
 type UserAccount struct {
-	Username       string    `json:"username"`
-	UID            int       `json:"uid"`
-	Group          string    `json:"group"`
-	HomeDir        string    `json:"home_dir"`
-	Shell          string    `json:"shell"`
-	PasswordAge    int       `json:"password_age"` // 天数
-	LastLogin      time.Time `json:"last_login"`
-	FailedLogins   int       `json:"failed_logins"`
-	MFAEnabled     bool      `json:"mfa_enabled"`
-	Privileged     bool      `json:"privileged"`   // sudo 权限
-	Locked         bool      `json:"locked"`
-	PasswordStrength string  `json:"password_strength"` // "weak", "medium", "strong"
+	Username         string    `json:"username"`
+	UID              int       `json:"uid"`
+	Group            string    `json:"group"`
+	HomeDir          string    `json:"home_dir"`
+	Shell            string    `json:"shell"`
+	PasswordAge      int       `json:"password_age"` // 天数
+	LastLogin        time.Time `json:"last_login"`
+	FailedLogins     int       `json:"failed_logins"`
+	MFAEnabled       bool      `json:"mfa_enabled"`
+	Privileged       bool      `json:"privileged"` // sudo 权限
+	Locked           bool      `json:"locked"`
+	PasswordStrength string    `json:"password_strength"` // "weak", "medium", "strong"
 }
 
 // LoginEvent 登录事件
 type LoginEvent struct {
-	ID        string    `json:"id"`
-	Username  string    `json:"username"`
-	SourceIP  string    `json:"source_ip"`
-	Timestamp time.Time `json:"timestamp"`
-	Success   bool      `json:"success"`
-	Method    string    `json:"method"` // "password", "key", "mfa", "sso"
-	Reason    string    `json:"reason,omitempty"` // 失败原因
-	GeoLocation string  `json:"geo_location,omitempty"`
-	Device    string    `json:"device,omitempty"`
+	ID          string    `json:"id"`
+	Username    string    `json:"username"`
+	SourceIP    string    `json:"source_ip"`
+	Timestamp   time.Time `json:"timestamp"`
+	Success     bool      `json:"success"`
+	Method      string    `json:"method"`           // "password", "key", "mfa", "sso"
+	Reason      string    `json:"reason,omitempty"` // 失败原因
+	GeoLocation string    `json:"geo_location,omitempty"`
+	Device      string    `json:"device,omitempty"`
 }
 
 // ============================================================
@@ -338,19 +338,19 @@ type LoginEvent struct {
 
 // FileIntegrity 文件完整性监控配置
 type FileIntegrity struct {
-	Enabled         bool     `json:"enabled"`
-	MonitoredPaths  []string `json:"monitored_paths"`
-	CriticalFiles   []string `json:"critical_files"`
-	HashAlgorithm   string   `json:"hash_algorithm"` // "sha256", "sha512", "md5"
-	ScanInterval    int      `json:"scan_interval"`  // 秒
-	AlertOnChange    bool     `json:"alert_on_change"`
-	AutoBaseline     bool     `json:"auto_baseline"`
+	Enabled        bool     `json:"enabled"`
+	MonitoredPaths []string `json:"monitored_paths"`
+	CriticalFiles  []string `json:"critical_files"`
+	HashAlgorithm  string   `json:"hash_algorithm"` // "sha256", "sha512", "md5"
+	ScanInterval   int      `json:"scan_interval"`  // 秒
+	AlertOnChange  bool     `json:"alert_on_change"`
+	AutoBaseline   bool     `json:"auto_baseline"`
 }
 
 // DefaultFileIntegrity 默认文件完整性配置
 func DefaultFileIntegrity() FileIntegrity {
 	return FileIntegrity{
-		Enabled:       true,
+		Enabled:        true,
 		MonitoredPaths: []string{"/etc", "/usr/bin", "/usr/sbin"},
 		CriticalFiles: []string{
 			"/etc/passwd",
@@ -362,37 +362,37 @@ func DefaultFileIntegrity() FileIntegrity {
 		},
 		HashAlgorithm: "sha256",
 		ScanInterval:  3600,
-		AlertOnChange:  true,
-		AutoBaseline:   true,
+		AlertOnChange: true,
+		AutoBaseline:  true,
 	}
 }
 
 // FileBaseline 文件基线信息
 type FileBaseline struct {
-	Path         string    `json:"path"`
-	Hash         string    `json:"hash"`
-	Size         int64     `json:"size"`
-	Permission   string    `json:"permission"`
-	Owner        string    `json:"owner"`
-	Group        string    `json:"group"`
-	ModifiedAt   time.Time `json:"modified_at"`
-	BaselineAt   time.Time `json:"baseline_at"`
-	Algorithm    string    `json:"algorithm"`
+	Path       string    `json:"path"`
+	Hash       string    `json:"hash"`
+	Size       int64     `json:"size"`
+	Permission string    `json:"permission"`
+	Owner      string    `json:"owner"`
+	Group      string    `json:"group"`
+	ModifiedAt time.Time `json:"modified_at"`
+	BaselineAt time.Time `json:"baseline_at"`
+	Algorithm  string    `json:"algorithm"`
 }
 
 // FileChange 文件变更信息
 type FileChange struct {
-	Path        string    `json:"path"`
-	ChangeType  string    `json:"change_type"` // "modified", "deleted", "created", "permission_changed"
-	OldHash     string    `json:"old_hash,omitempty"`
-	NewHash     string    `json:"new_hash,omitempty"`
-	OldPerm     string    `json:"old_perm,omitempty"`
-	NewPerm     string    `json:"new_perm,omitempty"`
-	OldOwner    string    `json:"old_owner,omitempty"`
-	NewOwner    string    `json:"new_owner,omitempty"`
-	DetectedAt  time.Time `json:"detected_at"`
-	Severity    string    `json:"severity"` // "critical", "high", "medium", "low"
-	Verified    bool      `json:"verified"`
+	Path       string    `json:"path"`
+	ChangeType string    `json:"change_type"` // "modified", "deleted", "created", "permission_changed"
+	OldHash    string    `json:"old_hash,omitempty"`
+	NewHash    string    `json:"new_hash,omitempty"`
+	OldPerm    string    `json:"old_perm,omitempty"`
+	NewPerm    string    `json:"new_perm,omitempty"`
+	OldOwner   string    `json:"old_owner,omitempty"`
+	NewOwner   string    `json:"new_owner,omitempty"`
+	DetectedAt time.Time `json:"detected_at"`
+	Severity   string    `json:"severity"` // "critical", "high", "medium", "low"
+	Verified   bool      `json:"verified"`
 }
 
 // ============================================================
@@ -401,14 +401,14 @@ type FileChange struct {
 
 // HardeningRule 加固规则
 type HardeningRule struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Category    string `json:"category"` // "system", "network", "account", "service", "file", "crypto"
-	Severity    string `json:"severity"` // "critical", "high", "medium", "low"
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Rationale   string `json:"rationale"`
-	Remediation string `json:"remediation"`
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	Category    string   `json:"category"` // "system", "network", "account", "service", "file", "crypto"
+	Severity    string   `json:"severity"` // "critical", "high", "medium", "low"
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Rationale   string   `json:"rationale"`
+	Remediation string   `json:"remediation"`
 	Commands    []string `json:"commands,omitempty"` // 修复命令
 	Reference   string   `json:"reference,omitempty"`
 	Automated   bool     `json:"automated"` // 是否可自动修复
@@ -447,35 +447,35 @@ type ComplianceStandard struct {
 
 // ComplianceCheck 合规检查项
 type ComplianceCheck struct {
-	ID          string `json:"id"`
-	Standard    string `json:"standard"` // "CIS", "GDPR", "等保2.0"
-	ControlID   string `json:"control_id"`
-	Category    string `json:"category"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Requirement string `json:"requirement"`
-	Status      string `json:"status"` // "compliant", "non_compliant", "partial", "not_applicable"
-	Evidence    string `json:"evidence,omitempty"`
-	Gap         string `json:"gap,omitempty"`
-	Remediation string `json:"remediation,omitempty"`
+	ID          string    `json:"id"`
+	Standard    string    `json:"standard"` // "CIS", "GDPR", "等保2.0"
+	ControlID   string    `json:"control_id"`
+	Category    string    `json:"category"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Requirement string    `json:"requirement"`
+	Status      string    `json:"status"` // "compliant", "non_compliant", "partial", "not_applicable"
+	Evidence    string    `json:"evidence,omitempty"`
+	Gap         string    `json:"gap,omitempty"`
+	Remediation string    `json:"remediation,omitempty"`
 	CheckedAt   time.Time `json:"checked_at"`
 }
 
 // ComplianceReport 合规报告
 type ComplianceReport struct {
-	ID           string           `json:"id"`
-	Standard     string           `json:"standard"`
-	Version      string           `json:"version"`
-	GeneratedAt  time.Time        `json:"generated_at"`
-	Score        int              `json:"score"` // 0-100
-	Status       string           `json:"status"` // "compliant", "non_compliant", "partial"
-	TotalChecks  int              `json:"total_checks"`
-	Passed       int              `json:"passed"`
-	Failed       int              `json:"failed"`
-	Partial      int              `json:"partial"`
-	NotApplicable int             `json:"not_applicable"`
-	Checks       []ComplianceCheck `json:"checks"`
-	Summary      string           `json:"summary"`
+	ID            string            `json:"id"`
+	Standard      string            `json:"standard"`
+	Version       string            `json:"version"`
+	GeneratedAt   time.Time         `json:"generated_at"`
+	Score         int               `json:"score"`  // 0-100
+	Status        string            `json:"status"` // "compliant", "non_compliant", "partial"
+	TotalChecks   int               `json:"total_checks"`
+	Passed        int               `json:"passed"`
+	Failed        int               `json:"failed"`
+	Partial       int               `json:"partial"`
+	NotApplicable int               `json:"not_applicable"`
+	Checks        []ComplianceCheck `json:"checks"`
+	Summary       string            `json:"summary"`
 }
 
 // CISBenchmark CIS基准检查
@@ -495,44 +495,44 @@ type CISBenchmark struct {
 
 // AuditLog 审计日志
 type AuditLog struct {
-	ID         string    `json:"id"`
-	Timestamp  time.Time `json:"timestamp"`
-	EventType  string    `json:"event_type"` // "login", "logout", "config_change", "file_access", "admin_action", "security_event"
-	Category   string    `json:"category"`   // "authentication", "authorization", "system", "data", "security"
-	Username   string    `json:"username"`
-	SourceIP   string    `json:"source_ip"`
-	Resource   string    `json:"resource"`
-	Action     string    `json:"action"`
-	Result     string    `json:"result"` // "success", "failure", "denied"
-	Details    string    `json:"details,omitempty"`
-	Severity   string    `json:"severity"` // "critical", "high", "medium", "low", "info"
-	UserAgent  string    `json:"user_agent,omitempty"`
-	SessionID  string    `json:"session_id,omitempty"`
+	ID        string    `json:"id"`
+	Timestamp time.Time `json:"timestamp"`
+	EventType string    `json:"event_type"` // "login", "logout", "config_change", "file_access", "admin_action", "security_event"
+	Category  string    `json:"category"`   // "authentication", "authorization", "system", "data", "security"
+	Username  string    `json:"username"`
+	SourceIP  string    `json:"source_ip"`
+	Resource  string    `json:"resource"`
+	Action    string    `json:"action"`
+	Result    string    `json:"result"` // "success", "failure", "denied"
+	Details   string    `json:"details,omitempty"`
+	Severity  string    `json:"severity"` // "critical", "high", "medium", "low", "info"
+	UserAgent string    `json:"user_agent,omitempty"`
+	SessionID string    `json:"session_id,omitempty"`
 }
 
 // AuditLogQuery 审计日志查询
 type AuditLogQuery struct {
-	StartTime  time.Time `json:"start_time"`
-	EndTime    time.Time `json:"end_time"`
-	EventType  string    `json:"event_type,omitempty"`
-	Category   string    `json:"category,omitempty"`
-	Username   string    `json:"username,omitempty"`
-	SourceIP   string    `json:"source_ip,omitempty"`
-	Severity   string    `json:"severity,omitempty"`
-	Result     string    `json:"result,omitempty"`
-	Keyword    string    `json:"keyword,omitempty"`
-	Page       int       `json:"page"`
-	PageSize   int       `json:"page_size"`
-	SortBy     string    `json:"sort_by"`
-	SortOrder  string    `json:"sort_order"`
+	StartTime time.Time `json:"start_time"`
+	EndTime   time.Time `json:"end_time"`
+	EventType string    `json:"event_type,omitempty"`
+	Category  string    `json:"category,omitempty"`
+	Username  string    `json:"username,omitempty"`
+	SourceIP  string    `json:"source_ip,omitempty"`
+	Severity  string    `json:"severity,omitempty"`
+	Result    string    `json:"result,omitempty"`
+	Keyword   string    `json:"keyword,omitempty"`
+	Page      int       `json:"page"`
+	PageSize  int       `json:"page_size"`
+	SortBy    string    `json:"sort_by"`
+	SortOrder string    `json:"sort_order"`
 }
 
 // AuditLogResult 审计日志查询结果
 type AuditLogResult struct {
-	Total    int         `json:"total"`
-	Page     int         `json:"page"`
-	PageSize int         `json:"page_size"`
-	Logs     []AuditLog  `json:"logs"`
+	Total    int        `json:"total"`
+	Page     int        `json:"page"`
+	PageSize int        `json:"page_size"`
+	Logs     []AuditLog `json:"logs"`
 }
 
 // ============================================================
@@ -572,21 +572,21 @@ type ThreatMatch struct {
 
 // ThreatReport 威胁报告
 type ThreatReport struct {
-	ID              string               `json:"id"`
-	GeneratedAt     time.Time            `json:"generated_at"`
-	Score           SecurityScore        `json:"score"`
-	Vulnerabilities []Vulnerability      `json:"vulnerabilities"`
-	Malware         []MalwareThreat      `json:"malware"`
-	NetworkIssues   []OpenPort           `json:"network_issues"`
-	AccountIssues   []UserAccount        `json:"account_issues"`
-	FileChanges     []FileChange         `json:"file_changes"`
+	ID              string                `json:"id"`
+	GeneratedAt     time.Time             `json:"generated_at"`
+	Score           SecurityScore         `json:"score"`
+	Vulnerabilities []Vulnerability       `json:"vulnerabilities"`
+	Malware         []MalwareThreat       `json:"malware"`
+	NetworkIssues   []OpenPort            `json:"network_issues"`
+	AccountIssues   []UserAccount         `json:"account_issues"`
+	FileChanges     []FileChange          `json:"file_changes"`
 	Hardening       []HardeningSuggestion `json:"hardening"`
-	Compliance      []ComplianceReport   `json:"compliance"`
-	AuditSummary    AuditSummary         `json:"audit_summary"`
-	ThreatMatches   []ThreatMatch        `json:"threat_matches"`
-	Recommendations []Recommendation     `json:"recommendations"`
-	Summary         string               `json:"summary"`
-	Duration        time.Duration        `json:"duration"`
+	Compliance      []ComplianceReport    `json:"compliance"`
+	AuditSummary    AuditSummary          `json:"audit_summary"`
+	ThreatMatches   []ThreatMatch         `json:"threat_matches"`
+	Recommendations []Recommendation      `json:"recommendations"`
+	Summary         string                `json:"summary"`
+	Duration        time.Duration         `json:"duration"`
 }
 
 // Recommendation 安全建议
@@ -603,33 +603,33 @@ type Recommendation struct {
 
 // AuditSummary 审计摘要
 type AuditSummary struct {
-	TotalEvents   int            `json:"total_events"`
-	ByEventType   map[string]int `json:"by_event_type"`
-	BySeverity    map[string]int `json:"by_severity"`
-	FailedLogins  int            `json:"failed_logins"`
-	SuccessLogins int            `json:"success_logins"`
-	ConfigChanges int            `json:"config_changes"`
-	SecurityEvents int           `json:"security_events"`
-	TopUsers      []UserActivity `json:"top_users"`
-	TopIPs        []IPActivity   `json:"top_ips"`
-	Period        string         `json:"period"`
+	TotalEvents    int            `json:"total_events"`
+	ByEventType    map[string]int `json:"by_event_type"`
+	BySeverity     map[string]int `json:"by_severity"`
+	FailedLogins   int            `json:"failed_logins"`
+	SuccessLogins  int            `json:"success_logins"`
+	ConfigChanges  int            `json:"config_changes"`
+	SecurityEvents int            `json:"security_events"`
+	TopUsers       []UserActivity `json:"top_users"`
+	TopIPs         []IPActivity   `json:"top_ips"`
+	Period         string         `json:"period"`
 }
 
 // UserActivity 用户活动统计
 type UserActivity struct {
-	Username    string `json:"username"`
-	EventCount  int    `json:"event_count"`
-	FailedLogins int   `json:"failed_logins"`
-	LastActive  time.Time `json:"last_active"`
+	Username     string    `json:"username"`
+	EventCount   int       `json:"event_count"`
+	FailedLogins int       `json:"failed_logins"`
+	LastActive   time.Time `json:"last_active"`
 }
 
 // IPActivity IP活动统计
 type IPActivity struct {
-	IP          string `json:"ip"`
-	EventCount  int    `json:"event_count"`
-	FailedLogins int   `json:"failed_logins"`
-	Country     string `json:"country,omitempty"`
-	LastActive  time.Time `json:"last_active"`
+	IP           string    `json:"ip"`
+	EventCount   int       `json:"event_count"`
+	FailedLogins int       `json:"failed_logins"`
+	Country      string    `json:"country,omitempty"`
+	LastActive   time.Time `json:"last_active"`
 }
 
 // ============================================================
@@ -644,9 +644,9 @@ type ManagerConfig struct {
 	AccountSecurity   AccountSecurity   `json:"account_security"`
 	FileIntegrity     FileIntegrity     `json:"file_integrity"`
 	ScoreWeight       ScoreWeight       `json:"score_weight"`
-	AutoFix           bool              `json:"auto_fix"`           // 自动修复
-	ReportInterval    int               `json:"report_interval"`    // 报告间隔（小时）
-	AlertThreshold    int               `json:"alert_threshold"`    // 告警阈值分数
+	AutoFix           bool              `json:"auto_fix"`        // 自动修复
+	ReportInterval    int               `json:"report_interval"` // 报告间隔（小时）
+	AlertThreshold    int               `json:"alert_threshold"` // 告警阈值分数
 }
 
 // DefaultManagerConfig 默认管理器配置
@@ -698,18 +698,18 @@ func DefaultScanConfig() ScanConfig {
 
 // SecurityReport 安全扫描报告
 type SecurityReport struct {
-	ID              string               `json:"id"`
-	ScanTime        time.Time            `json:"scan_time"`
-	Duration        time.Duration        `json:"duration"`
-	Checks          []SecurityCheck      `json:"checks"`
-	OverallScore    int                  `json:"overall_score"`
-	SecurityLevel   string               `json:"security_level"`
-	TotalIssues     int                  `json:"total_issues"`
-	CriticalIssues  int                  `json:"critical_issues"`
-	WarningIssues   int                  `json:"warning_issues"`
-	InfoIssues      int                  `json:"info_issues"`
-	Recommendations []Recommendation     `json:"recommendations"`
-	Summary         string               `json:"summary,omitempty"`
+	ID              string           `json:"id"`
+	ScanTime        time.Time        `json:"scan_time"`
+	Duration        time.Duration    `json:"duration"`
+	Checks          []SecurityCheck  `json:"checks"`
+	OverallScore    int              `json:"overall_score"`
+	SecurityLevel   string           `json:"security_level"`
+	TotalIssues     int              `json:"total_issues"`
+	CriticalIssues  int              `json:"critical_issues"`
+	WarningIssues   int              `json:"warning_issues"`
+	InfoIssues      int              `json:"info_issues"`
+	Recommendations []Recommendation `json:"recommendations"`
+	Summary         string           `json:"summary,omitempty"`
 }
 
 // PortScanResult 端口扫描结果
@@ -737,9 +737,9 @@ func DefaultPortRiskConfig() PortRiskConfig {
 
 // CriticalFileConfig 关键文件配置
 type CriticalFileConfig struct {
-	Paths          []string `json:"paths"`
-	MaxPermission  string   `json:"max_permission"`
-	RequiredOwner  string   `json:"required_owner"`
+	Paths         []string `json:"paths"`
+	MaxPermission string   `json:"max_permission"`
+	RequiredOwner string   `json:"required_owner"`
 }
 
 // DefaultCriticalFileConfig 默认关键文件配置
@@ -772,7 +772,7 @@ func DefaultSSLCheckConfig() SSLCheckConfig {
 
 // UpdateCheckConfig 系统更新检查配置
 type UpdateCheckConfig struct {
-	Enabled      bool `json:"enabled"`
+	Enabled       bool `json:"enabled"`
 	CheckSecurity bool `json:"check_security"`
 	CheckBugfix   bool `json:"check_bugfix"`
 	AutoUpdate    bool `json:"auto_update"`
@@ -781,7 +781,7 @@ type UpdateCheckConfig struct {
 // DefaultUpdateCheckConfig 默认系统更新检查配置
 func DefaultUpdateCheckConfig() UpdateCheckConfig {
 	return UpdateCheckConfig{
-		Enabled:      true,
+		Enabled:       true,
 		CheckSecurity: true,
 		CheckBugfix:   true,
 		AutoUpdate:    false,

@@ -26,10 +26,10 @@ type TunnelManager struct {
 	httpClient *http.Client
 
 	// Tunnel状态
-	tunnelID   string
-	publicURL  string
-	state      TunnelState
-	connected  bool
+	tunnelID  string
+	publicURL string
+	state     TunnelState
+	connected bool
 
 	// Tunnel进程
 	cloudflaredPath string
@@ -47,17 +47,17 @@ type TunnelManager struct {
 // TunnelConfig 配置
 type TunnelConfig struct {
 	// 认证配置
-	APIToken     string `json:"api_token"`     // Cloudflare API Token
-	CertPath     string `json:"cert_path"`     // 证书路径(.cert文件)
-	TunnelToken  string `json:"tunnel_token"`  // Tunnel Token (快速配置方式)
+	APIToken    string `json:"api_token"`    // Cloudflare API Token
+	CertPath    string `json:"cert_path"`    // 证书路径(.cert文件)
+	TunnelToken string `json:"tunnel_token"` // Tunnel Token (快速配置方式)
 
 	// Tunnel配置
-	TunnelName   string            `json:"tunnel_name"`   // Tunnel名称
-	AccountID    string            `json:"account_id"`    // Cloudflare Account ID
-	ZoneID       string            `json:"zone_id"`       // Zone ID
-	Domain       string            `json:"domain"`        // 绑定域名
-	Subdomain    string            `json:"subdomain"`     // 子域名
-	Origins      map[string]string `json:"origins"`       // 路由配置: hostname -> origin URL
+	TunnelName string            `json:"tunnel_name"` // Tunnel名称
+	AccountID  string            `json:"account_id"`  // Cloudflare Account ID
+	ZoneID     string            `json:"zone_id"`     // Zone ID
+	Domain     string            `json:"domain"`      // 绑定域名
+	Subdomain  string            `json:"subdomain"`   // 子域名
+	Origins    map[string]string `json:"origins"`     // 路由配置: hostname -> origin URL
 
 	// 运行配置
 	AutoStart    bool          `json:"auto_start"`    // 自动启动
@@ -85,13 +85,13 @@ const (
 
 // TunnelEvent 事件
 type TunnelEvent struct {
-	Type      string       `json:"type"`
-	State     TunnelState  `json:"state,omitempty"`
-	TunnelID  string       `json:"tunnel_id,omitempty"`
-	PublicURL string       `json:"public_url,omitempty"`
-	Error     error        `json:"error,omitempty"`
-	Message   string       `json:"message,omitempty"`
-	Timestamp time.Time    `json:"timestamp"`
+	Type      string      `json:"type"`
+	State     TunnelState `json:"state,omitempty"`
+	TunnelID  string      `json:"tunnel_id,omitempty"`
+	PublicURL string      `json:"public_url,omitempty"`
+	Error     error       `json:"error,omitempty"`
+	Message   string      `json:"message,omitempty"`
+	Timestamp time.Time   `json:"timestamp"`
 }
 
 // TunnelEventHandler 事件处理器
@@ -99,16 +99,16 @@ type TunnelEventHandler func(event *TunnelEvent)
 
 // TunnelStats 统计信息
 type TunnelStats struct {
-	State         TunnelState `json:"state"`
-	TunnelID      string      `json:"tunnel_id"`
-	PublicURL     string      `json:"public_url"`
-	Connections   int         `json:"connections"`
-	BytesTx       int64       `json:"bytes_tx"`
-	BytesRx       int64       `json:"bytes_rx"`
+	State         TunnelState   `json:"state"`
+	TunnelID      string        `json:"tunnel_id"`
+	PublicURL     string        `json:"public_url"`
+	Connections   int           `json:"connections"`
+	BytesTx       int64         `json:"bytes_tx"`
+	BytesRx       int64         `json:"bytes_rx"`
 	Uptime        time.Duration `json:"uptime"`
-	LastConnected time.Time   `json:"last_connected"`
-	Reconnects    int         `json:"reconnects"`
-	Errors        int         `json:"errors"`
+	LastConnected time.Time     `json:"last_connected"`
+	Reconnects    int           `json:"reconnects"`
+	Errors        int           `json:"errors"`
 }
 
 // TunnelRoute 路由配置
@@ -131,9 +131,9 @@ type TunnelInfo struct {
 // Connection 连接信息
 type Connection struct {
 	ID          string    `json:"id"`
-	ColoID      string    `json:"colo_id"`      // 数据中心ID
-	ColoName    string    `json:"colo_name"`    // 数据中心名称
-	OriginIP    string    `json:"origin_ip"`    // 源IP
+	ColoID      string    `json:"colo_id"`   // 数据中心ID
+	ColoName    string    `json:"colo_name"` // 数据中心名称
+	OriginIP    string    `json:"origin_ip"` // 源IP
 	ConnectedAt time.Time `json:"connected_at"`
 	IsHealthy   bool      `json:"is_healthy"`
 }
@@ -361,7 +361,7 @@ func (tm *TunnelManager) createConfigFile() error {
 
 	// 构建配置
 	config := map[string]interface{}{
-		"tunnel": tm.tunnelID,
+		"tunnel":           tm.tunnelID,
 		"credentials-file": filepath.Join(configDir, fmt.Sprintf("%s.json", tm.tunnelID)),
 	}
 
@@ -572,9 +572,9 @@ func (tm *TunnelManager) reconnect() {
 		tm.mu.Unlock()
 
 		tm.emitEvent(&TunnelEvent{
-			Type:      "reconnecting",
-			State:     TunnelStateReconnecting,
-			Message:   fmt.Sprintf("重连尝试 %d/%d", retry+1, tm.config.MaxRetries),
+			Type:    "reconnecting",
+			State:   TunnelStateReconnecting,
+			Message: fmt.Sprintf("重连尝试 %d/%d", retry+1, tm.config.MaxRetries),
 		})
 
 		select {
@@ -761,7 +761,7 @@ func (tm *TunnelManager) emitEvent(event *TunnelEvent) {
 
 // tunnelLogWriter 日志写入器
 type tunnelLogWriter struct {
-	tm    *TunnelManager
+	tm     *TunnelManager
 	prefix string
 }
 

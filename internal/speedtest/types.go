@@ -7,14 +7,14 @@ import (
 
 // TestResult 测速结果.
 type TestResult struct {
-	ID           string    `json:"id"`
-	ServerName   string    `json:"server_name"`
-	ServerURL    string    `json:"server_url"`
-	DownloadSpeed float64  `json:"download_speed"` // Mbps
-	UploadSpeed   float64  `json:"upload_speed"`   // Mbps
-	Latency       float64  `json:"latency"`         // ms
-	Jitter        float64  `json:"jitter"`          // ms
-	PacketLoss    float64  `json:"packet_loss"`     // percentage
+	ID            string    `json:"id"`
+	ServerName    string    `json:"server_name"`
+	ServerURL     string    `json:"server_url"`
+	DownloadSpeed float64   `json:"download_speed"` // Mbps
+	UploadSpeed   float64   `json:"upload_speed"`   // Mbps
+	Latency       float64   `json:"latency"`        // ms
+	Jitter        float64   `json:"jitter"`         // ms
+	PacketLoss    float64   `json:"packet_loss"`    // percentage
 	Timestamp     time.Time `json:"timestamp"`
 }
 

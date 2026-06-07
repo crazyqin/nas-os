@@ -12,15 +12,15 @@ import (
 
 // Manager 合规审计管理器
 type Manager struct {
-	checks      map[string]ComplianceCheck
-	config      *ScanConfig
-	store       *Store
-	logger      *zap.Logger
-	mu          sync.RWMutex
-	stopChan    chan struct{}
-	running     bool
-	lastScan    *ComplianceReport
-	lastScanMu  sync.RWMutex
+	checks       map[string]ComplianceCheck
+	config       *ScanConfig
+	store        *Store
+	logger       *zap.Logger
+	mu           sync.RWMutex
+	stopChan     chan struct{}
+	running      bool
+	lastScan     *ComplianceReport
+	lastScanMu   sync.RWMutex
 	scoreHistory []ScoreTrend
 }
 
@@ -89,10 +89,10 @@ func (m *Manager) ListChecks() []CheckInfo {
 
 // CheckInfo 检查项信息
 type CheckInfo struct {
-	Name        string              `json:"name"`
-	Standard    ComplianceStandard  `json:"standard"`
-	Category    CheckCategory       `json:"category"`
-	Description string              `json:"description"`
+	Name        string             `json:"name"`
+	Standard    ComplianceStandard `json:"standard"`
+	Category    CheckCategory      `json:"category"`
+	Description string             `json:"description"`
 }
 
 // UpdateConfig 更新扫描配置
@@ -199,11 +199,11 @@ func (m *Manager) RunFullScan(ctx context.Context) *ComplianceReport {
 			Start: time.Now().AddDate(0, 0, -1),
 			End:   time.Now(),
 		},
-		Summary:     &ReportSummary{},
-		Standards:   make([]*StandardReport, 0),
-		Findings:    make([]*Finding, 0),
+		Summary:      &ReportSummary{},
+		Standards:    make([]*StandardReport, 0),
+		Findings:     make([]*Finding, 0),
 		Remediations: make([]*RemediationItem, 0),
-		Format:      FormatJSON,
+		Format:       FormatJSON,
 	}
 
 	// 按标准分组
@@ -329,11 +329,11 @@ func (m *Manager) RunStandardScan(ctx context.Context, standard ComplianceStanda
 			Start: time.Now().AddDate(0, 0, -1),
 			End:   time.Now(),
 		},
-		Summary:     &ReportSummary{},
-		Standards:   make([]*StandardReport, 0),
-		Findings:    make([]*Finding, 0),
+		Summary:      &ReportSummary{},
+		Standards:    make([]*StandardReport, 0),
+		Findings:     make([]*Finding, 0),
 		Remediations: make([]*RemediationItem, 0),
-		Format:      FormatJSON,
+		Format:       FormatJSON,
 	}
 
 	results := make([]*CheckResult, 0)

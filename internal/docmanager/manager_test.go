@@ -427,7 +427,7 @@ func TestAutoClassify(t *testing.T) {
 
 	// PDF类
 	doc3, _ := m.CreateDocument(CreateDocumentRequest{
-		Title:   "文档.pdf",
+		Title:    "文档.pdf",
 		MimeType: "application/pdf",
 	})
 	cat3, err := m.AutoClassify(doc3.ID)

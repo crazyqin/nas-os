@@ -11,13 +11,13 @@ import (
 // MetricsCollector 指标收集器
 type MetricsCollector struct {
 	// 流量窗口
-	windows     []*TrafficWindow
-	windowSize  time.Duration
-	maxWindows  int
+	windows    []*TrafficWindow
+	windowSize time.Duration
+	maxWindows int
 
 	// 延迟统计
-	latencies   []time.Duration
-	maxLatency  int
+	latencies  []time.Duration
+	maxLatency int
 
 	// 后端指标
 	backendMetrics map[string]*BackendMetrics
@@ -27,19 +27,19 @@ type MetricsCollector struct {
 
 // BackendMetrics 后端指标
 type BackendMetrics struct {
-	BackendID      string        `json:"backend_id"`
-	Requests       int64         `json:"requests"`
-	Errors         int64         `json:"errors"`
-	BytesSent      int64         `json:"bytes_sent"`
-	BytesRecv      int64         `json:"bytes_recv"`
-	TotalLatency   time.Duration `json:"total_latency"`
-	MinLatency     time.Duration `json:"min_latency"`
-	MaxLatency     time.Duration `json:"max_latency"`
-	AvgLatency     time.Duration `json:"avg_latency"`
-	P50Latency     time.Duration `json:"p50_latency"`
-	P95Latency     time.Duration `json:"p95_latency"`
-	P99Latency     time.Duration `json:"p99_latency"`
-	LastRequestAt  time.Time     `json:"last_request_at"`
+	BackendID     string        `json:"backend_id"`
+	Requests      int64         `json:"requests"`
+	Errors        int64         `json:"errors"`
+	BytesSent     int64         `json:"bytes_sent"`
+	BytesRecv     int64         `json:"bytes_recv"`
+	TotalLatency  time.Duration `json:"total_latency"`
+	MinLatency    time.Duration `json:"min_latency"`
+	MaxLatency    time.Duration `json:"max_latency"`
+	AvgLatency    time.Duration `json:"avg_latency"`
+	P50Latency    time.Duration `json:"p50_latency"`
+	P95Latency    time.Duration `json:"p95_latency"`
+	P99Latency    time.Duration `json:"p99_latency"`
+	LastRequestAt time.Time     `json:"last_request_at"`
 
 	latencySamples []time.Duration
 	mu             sync.RWMutex
@@ -73,7 +73,7 @@ func (mc *MetricsCollector) getOrCreateBackendMetrics(backendID string) *Backend
 	bm, exists := mc.backendMetrics[backendID]
 	if !exists {
 		bm = &BackendMetrics{
-			BackendID: backendID,
+			BackendID:  backendID,
 			MinLatency: time.Duration(^uint64(0) >> 1), // MaxDuration
 		}
 		mc.backendMetrics[backendID] = bm

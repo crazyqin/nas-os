@@ -22,9 +22,9 @@ import (
 type WatermarkType string
 
 const (
-	WatermarkVisible   WatermarkType = "visible"   // 可见水印
-	WatermarkInvisible WatermarkType = "invisible" // 隐形水印（LSB）
-	WatermarkMetadata  WatermarkType = "metadata"  // 元数据水印
+	WatermarkVisible     WatermarkType = "visible"     // 可见水印
+	WatermarkInvisible   WatermarkType = "invisible"   // 隐形水印（LSB）
+	WatermarkMetadata    WatermarkType = "metadata"    // 元数据水印
 	WatermarkFingerprint WatermarkType = "fingerprint" // 指纹水印（每份不同）
 )
 
@@ -32,44 +32,44 @@ const (
 type WatermarkPosition string
 
 const (
-	PositionCenter  WatermarkPosition = "center"
-	PositionTopLeft WatermarkPosition = "top-left"
-	PositionTopRight WatermarkPosition = "top-right"
-	PositionBottomLeft WatermarkPosition = "bottom-left"
+	PositionCenter      WatermarkPosition = "center"
+	PositionTopLeft     WatermarkPosition = "top-left"
+	PositionTopRight    WatermarkPosition = "top-right"
+	PositionBottomLeft  WatermarkPosition = "bottom-left"
 	PositionBottomRight WatermarkPosition = "bottom-right"
-	PositionTiled   WatermarkPosition = "tiled" // 平铺
+	PositionTiled       WatermarkPosition = "tiled" // 平铺
 )
 
 // WatermarkConfig 水印配置
 type WatermarkConfig struct {
-	Type       WatermarkType     `json:"type"`
-	Text       string            `json:"text"`
-	Position   WatermarkPosition `json:"position"`
-	Opacity    float64           `json:"opacity"`    // 0.0 - 1.0
-	FontSize   int               `json:"fontSize"`
-	Color      string            `json:"color"`
-	Angle      float64           `json:"angle"`      // 旋转角度
-	Spacing    int               `json:"spacing"`    // 平铺间距
-	EmbedID    string            `json:"embedId"`    // 嵌入追踪ID
+	Type     WatermarkType     `json:"type"`
+	Text     string            `json:"text"`
+	Position WatermarkPosition `json:"position"`
+	Opacity  float64           `json:"opacity"` // 0.0 - 1.0
+	FontSize int               `json:"fontSize"`
+	Color    string            `json:"color"`
+	Angle    float64           `json:"angle"`   // 旋转角度
+	Spacing  int               `json:"spacing"` // 平铺间距
+	EmbedID  string            `json:"embedId"` // 嵌入追踪ID
 }
 
 // WatermarkRecord 水印记录
 type WatermarkRecord struct {
-	ID          string        `json:"id"`
-	SourceFile  string        `json:"sourceFile"`
-	OutputFile  string        `json:"outputFile"`
-	Config      WatermarkConfig `json:"config"`
-	EmbedID     string        `json:"embedId"`
-	CreatedAt   time.Time     `json:"createdAt"`
-	FileHash    string        `json:"fileHash"`
+	ID         string          `json:"id"`
+	SourceFile string          `json:"sourceFile"`
+	OutputFile string          `json:"outputFile"`
+	Config     WatermarkConfig `json:"config"`
+	EmbedID    string          `json:"embedId"`
+	CreatedAt  time.Time       `json:"createdAt"`
+	FileHash   string          `json:"fileHash"`
 }
 
 // WatermarkManager 水印管理器
 type WatermarkManager struct {
-	mu       sync.RWMutex
-	records  []WatermarkRecord
-	secret   []byte
-	baseDir  string
+	mu      sync.RWMutex
+	records []WatermarkRecord
+	secret  []byte
+	baseDir string
 }
 
 // NewWatermarkManager 创建水印管理器
@@ -248,7 +248,7 @@ func (m *WatermarkManager) drawVisibleText(img *image.RGBA, config WatermarkConf
 	switch config.Position {
 	case PositionCenter:
 		startX = bounds.Dx()/2 - len(text)*4
-		startY = bounds.Dy()/2
+		startY = bounds.Dy() / 2
 	case PositionTopRight:
 		startX = bounds.Dx() - len(text)*8 - 10
 		startY = 20

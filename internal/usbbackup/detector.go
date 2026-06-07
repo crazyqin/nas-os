@@ -211,18 +211,18 @@ type lsblkJSON struct {
 
 // lsblkDevice lsblk 设备条目.
 type lsblkDevice struct {
-	Name       string         `json:"name"`
-	Path       string         `json:"path"`
-	Label      string         `json:"label"`
-	UUID       string         `json:"uuid"`
-	FSType     string         `json:"fstype"`
-	Size       int64          `json:"size"`
-	Vendor     string         `json:"vendor"`
-	Model      string         `json:"model"`
-	Serial     string         `json:"serial"`
-	Mountpoint string         `json:"mountpoint"`
-	Hotplug    int            `json:"hotplug"`
-	Tran       string         `json:"tran"`
+	Name       string        `json:"name"`
+	Path       string        `json:"path"`
+	Label      string        `json:"label"`
+	UUID       string        `json:"uuid"`
+	FSType     string        `json:"fstype"`
+	Size       int64         `json:"size"`
+	Vendor     string        `json:"vendor"`
+	Model      string        `json:"model"`
+	Serial     string        `json:"serial"`
+	Mountpoint string        `json:"mountpoint"`
+	Hotplug    int           `json:"hotplug"`
+	Tran       string        `json:"tran"`
 	Children   []lsblkDevice `json:"children"`
 }
 

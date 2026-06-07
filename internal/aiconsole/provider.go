@@ -41,10 +41,10 @@ type ProviderChatResponse struct {
 
 // ProviderConfig 提供者配置.
 type ProviderConfig struct {
-	Name     ModelProvider `json:"name"`
-	Endpoint string        `json:"endpoint"`
-	APIKey   string        `json:"apiKey,omitempty"`
-	Region   string        `json:"region,omitempty"`  // AWS 区域等
+	Name     ModelProvider     `json:"name"`
+	Endpoint string            `json:"endpoint"`
+	APIKey   string            `json:"apiKey,omitempty"`
+	Region   string            `json:"region,omitempty"` // AWS 区域等
 	Extra    map[string]string `json:"extra,omitempty"`
 }
 

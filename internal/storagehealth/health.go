@@ -9,39 +9,39 @@ import (
 
 // StorageHealthMonitor 存储健康监控 - 学习 TrueNAS ZFS 健康检查
 type StorageHealthMonitor struct {
-	mu          sync.RWMutex
-	pools       map[string]*StoragePool
-	alerts      map[string]*HealthAlert
-	checks      map[string]*HealthCheck
-	thresholds  *HealthThresholds
-	alertChan   chan *HealthAlert
-	stopChan    chan struct{}
+	mu         sync.RWMutex
+	pools      map[string]*StoragePool
+	alerts     map[string]*HealthAlert
+	checks     map[string]*HealthCheck
+	thresholds *HealthThresholds
+	alertChan  chan *HealthAlert
+	stopChan   chan struct{}
 }
 
 // StoragePool 存储池
 type StoragePool struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Status      PoolStatus        `json:"status"`
-	Health      HealthStatus      `json:"health"`
-	TotalSize   int64             `json:"total_size"`
-	UsedSize    int64             `json:"used_size"`
-	FreeSize    int64             `json:"free_size"`
-	Fragmentation float64         `json:"fragmentation"`
-	Devices     []*StorageDevice  `json:"devices"`
-	Scrub       *ScrubStatus      `json:"scrub,omitempty"`
-	Timestamp   time.Time         `json:"timestamp"`
-	Metadata    map[string]string `json:"metadata,omitempty"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Status        PoolStatus        `json:"status"`
+	Health        HealthStatus      `json:"health"`
+	TotalSize     int64             `json:"total_size"`
+	UsedSize      int64             `json:"used_size"`
+	FreeSize      int64             `json:"free_size"`
+	Fragmentation float64           `json:"fragmentation"`
+	Devices       []*StorageDevice  `json:"devices"`
+	Scrub         *ScrubStatus      `json:"scrub,omitempty"`
+	Timestamp     time.Time         `json:"timestamp"`
+	Metadata      map[string]string `json:"metadata,omitempty"`
 }
 
 // PoolStatus 存储池状态
 type PoolStatus string
 
 const (
-	PoolStatusOnline  PoolStatus = "online"
+	PoolStatusOnline   PoolStatus = "online"
 	PoolStatusDegraded PoolStatus = "degraded"
-	PoolStatusFaulted PoolStatus = "faulted"
-	PoolStatusOffline PoolStatus = "offline"
+	PoolStatusFaulted  PoolStatus = "faulted"
+	PoolStatusOffline  PoolStatus = "offline"
 )
 
 // HealthStatus 健康状态
@@ -56,65 +56,65 @@ const (
 
 // StorageDevice 存储设备
 type StorageDevice struct {
-	ID         string       `json:"id"`
-	Name       string       `json:"name"`
-	Type       string       `json:"type"`
-	Status     DeviceStatus `json:"status"`
-	Health     HealthStatus `json:"health"`
-	Size       int64        `json:"size"`
-	Used       int64        `json:"used"`
-	Temperature float64     `json:"temperature"`
-	PowerOnHours int64      `json:"power_on_hours"`
-	ReallocatedSectors int64 `json:"reallocated_sectors"`
-	PendingSectors int64   `json:"pending_sectors"`
-	Errors     int64        `json:"errors"`
-	Timestamp  time.Time    `json:"timestamp"`
+	ID                 string       `json:"id"`
+	Name               string       `json:"name"`
+	Type               string       `json:"type"`
+	Status             DeviceStatus `json:"status"`
+	Health             HealthStatus `json:"health"`
+	Size               int64        `json:"size"`
+	Used               int64        `json:"used"`
+	Temperature        float64      `json:"temperature"`
+	PowerOnHours       int64        `json:"power_on_hours"`
+	ReallocatedSectors int64        `json:"reallocated_sectors"`
+	PendingSectors     int64        `json:"pending_sectors"`
+	Errors             int64        `json:"errors"`
+	Timestamp          time.Time    `json:"timestamp"`
 }
 
 // DeviceStatus 设备状态
 type DeviceStatus string
 
 const (
-	DeviceOnline  DeviceStatus = "online"
-	DeviceFailed  DeviceStatus = "failed"
+	DeviceOnline   DeviceStatus = "online"
+	DeviceFailed   DeviceStatus = "failed"
 	DeviceDegraded DeviceStatus = "degraded"
-	DeviceRemoved DeviceStatus = "removed"
+	DeviceRemoved  DeviceStatus = "removed"
 )
 
 // ScrubStatus 清理状态
 type ScrubStatus struct {
-	State     string    `json:"state"`
-	Progress  float64   `json:"progress"`
-	StartedAt time.Time `json:"started_at"`
+	State     string     `json:"state"`
+	Progress  float64    `json:"progress"`
+	StartedAt time.Time  `json:"started_at"`
 	ETA       *time.Time `json:"eta,omitempty"`
-	Errors    int64     `json:"errors"`
+	Errors    int64      `json:"errors"`
 }
 
 // HealthAlert 健康告警
 type HealthAlert struct {
-	ID         string       `json:"id"`
-	Type       AlertType    `json:"type"`
+	ID         string        `json:"id"`
+	Type       AlertType     `json:"type"`
 	Severity   AlertSeverity `json:"severity"`
-	Source     string       `json:"source"`
-	Message    string       `json:"message"`
-	Details    string       `json:"details,omitempty"`
-	Timestamp  time.Time    `json:"timestamp"`
-	Resolved   bool         `json:"resolved"`
-	ResolvedAt *time.Time   `json:"resolved_at,omitempty"`
+	Source     string        `json:"source"`
+	Message    string        `json:"message"`
+	Details    string        `json:"details,omitempty"`
+	Timestamp  time.Time     `json:"timestamp"`
+	Resolved   bool          `json:"resolved"`
+	ResolvedAt *time.Time    `json:"resolved_at,omitempty"`
 }
 
 // AlertType 告警类型
 type AlertType string
 
 const (
-	AlertDiskFailure   AlertType = "disk_failure"
-	AlertDiskWarning   AlertType = "disk_warning"
-	AlertPoolDegraded  AlertType = "pool_degraded"
-	AlertPoolFaulted   AlertType = "pool_faulted"
-	AlertSpaceLow      AlertType = "space_low"
-	AlertTempHigh      AlertType = "temperature_high"
-	AlertSMARTWarning  AlertType = "smart_warning"
-	AlertScrubError    AlertType = "scrub_error"
+	AlertDiskFailure  AlertType = "disk_failure"
+	AlertDiskWarning  AlertType = "disk_warning"
+	AlertPoolDegraded AlertType = "pool_degraded"
+	AlertPoolFaulted  AlertType = "pool_faulted"
+	AlertSpaceLow     AlertType = "space_low"
+	AlertTempHigh     AlertType = "temperature_high"
+	AlertSMARTWarning AlertType = "smart_warning"
+	AlertScrubError   AlertType = "scrub_error"
 )
 
 // AlertSeverity 告警级别
@@ -154,34 +154,34 @@ const (
 type CheckStatus string
 
 const (
-	CheckRunning  CheckStatus = "running"
-	CheckPassed   CheckStatus = "passed"
-	CheckFailed   CheckStatus = "failed"
-	CheckWarning  CheckStatus = "warning"
+	CheckRunning CheckStatus = "running"
+	CheckPassed  CheckStatus = "passed"
+	CheckFailed  CheckStatus = "failed"
+	CheckWarning CheckStatus = "warning"
 )
 
 // HealthThresholds 健康阈值
 type HealthThresholds struct {
-	SpaceWarningPercent  float64 `json:"space_warning_percent"`
-	SpaceCriticalPercent float64 `json:"space_critical_percent"`
-	TempWarningCelsius   float64 `json:"temp_warning_celsius"`
-	TempCriticalCelsius  float64 `json:"temp_critical_celsius"`
-	MaxReallocatedSectors int64  `json:"max_reallocated_sectors"`
-	MaxPendingSectors    int64   `json:"max_pending_sectors"`
-	MaxErrors            int64   `json:"max_errors"`
+	SpaceWarningPercent   float64 `json:"space_warning_percent"`
+	SpaceCriticalPercent  float64 `json:"space_critical_percent"`
+	TempWarningCelsius    float64 `json:"temp_warning_celsius"`
+	TempCriticalCelsius   float64 `json:"temp_critical_celsius"`
+	MaxReallocatedSectors int64   `json:"max_reallocated_sectors"`
+	MaxPendingSectors     int64   `json:"max_pending_sectors"`
+	MaxErrors             int64   `json:"max_errors"`
 }
 
 // NewStorageHealthMonitor 创建存储健康监控
 func NewStorageHealthMonitor(thresholds *HealthThresholds) *StorageHealthMonitor {
 	if thresholds == nil {
 		thresholds = &HealthThresholds{
-			SpaceWarningPercent:  80,
-			SpaceCriticalPercent: 95,
-			TempWarningCelsius:   45,
-			TempCriticalCelsius:  55,
+			SpaceWarningPercent:   80,
+			SpaceCriticalPercent:  95,
+			TempWarningCelsius:    45,
+			TempCriticalCelsius:   55,
 			MaxReallocatedSectors: 10,
-			MaxPendingSectors:    5,
-			MaxErrors:            100,
+			MaxPendingSectors:     5,
+			MaxErrors:             100,
 		}
 	}
 

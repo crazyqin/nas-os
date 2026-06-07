@@ -59,19 +59,19 @@ var (
 
 // Device 硬件设备信息
 type Device struct {
-	ID           string            `json:"id"`            // 设备唯一标识
-	Name         string            `json:"name"`          // 设备名称
-	Type         string            `json:"type"`          // 设备类型
-	Model        string            `json:"model"`         // 设备型号
-	Serial       string            `json:"serial"`        // 序列号
-	Manufacturer string            `json:"manufacturer"`  // 制造商
-	Firmware     string            `json:"firmware"`      // 固件版本
-	Capacity     int64             `json:"capacity"`      // 容量(字节)
-	InstallDate  time.Time         `json:"install_date"`  // 安装日期
-	Location     string            `json:"location"`      // 安装位置
-	Tags         map[string]string `json:"tags"`          // 自定义标签
-	CreatedAt    time.Time         `json:"created_at"`    // 创建时间
-	UpdatedAt    time.Time         `json:"updated_at"`    // 更新时间
+	ID           string            `json:"id"`           // 设备唯一标识
+	Name         string            `json:"name"`         // 设备名称
+	Type         string            `json:"type"`         // 设备类型
+	Model        string            `json:"model"`        // 设备型号
+	Serial       string            `json:"serial"`       // 序列号
+	Manufacturer string            `json:"manufacturer"` // 制造商
+	Firmware     string            `json:"firmware"`     // 固件版本
+	Capacity     int64             `json:"capacity"`     // 容量(字节)
+	InstallDate  time.Time         `json:"install_date"` // 安装日期
+	Location     string            `json:"location"`     // 安装位置
+	Tags         map[string]string `json:"tags"`         // 自定义标签
+	CreatedAt    time.Time         `json:"created_at"`   // 创建时间
+	UpdatedAt    time.Time         `json:"updated_at"`   // 更新时间
 }
 
 // SMARTData SMART监控数据

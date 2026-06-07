@@ -23,36 +23,36 @@ func NewAnalyzer(manager *Manager) *Analyzer {
 
 // CostAnalysisResult 成本分析结果.
 type CostAnalysisResult struct {
-	TotalCost       float64                    `json:"total_cost"`
-	AverageCost     float64                    `json:"average_cost"`
-	MaxCost         float64                    `json:"max_cost"`
-	MinCost         float64                    `json:"min_cost"`
-	StdDev          float64                    `json:"std_dev"`
-	ByCategory      map[string]float64         `json:"by_category"`
-	ByDepartment    map[string]float64         `json:"by_department"`
-	ByProvider      map[string]float64         `json:"by_provider"`
-	TrendAnalysis   *TrendAnalysis             `json:"trend_analysis"`
-	Anomalies       []AnomalyDetection         `json:"anomalies"`
+	TotalCost     float64            `json:"total_cost"`
+	AverageCost   float64            `json:"average_cost"`
+	MaxCost       float64            `json:"max_cost"`
+	MinCost       float64            `json:"min_cost"`
+	StdDev        float64            `json:"std_dev"`
+	ByCategory    map[string]float64 `json:"by_category"`
+	ByDepartment  map[string]float64 `json:"by_department"`
+	ByProvider    map[string]float64 `json:"by_provider"`
+	TrendAnalysis *TrendAnalysis     `json:"trend_analysis"`
+	Anomalies     []AnomalyDetection `json:"anomalies"`
 }
 
 // TrendAnalysis 趋势分析结果.
 type TrendAnalysis struct {
-	Direction    Trend   `json:"direction"`     // up, down, stable
-	GrowthRate   float64 `json:"growth_rate"`   // 月增长率
-	Forecast3M   float64 `json:"forecast_3m"`   // 3个月预测
-	Forecast6M   float64 `json:"forecast_6m"`   // 6个月预测
-	Forecast12M  float64 `json:"forecast_12m"`  // 12个月预测
-	Confidence   float64 `json:"confidence"`    // 置信度
+	Direction   Trend   `json:"direction"`    // up, down, stable
+	GrowthRate  float64 `json:"growth_rate"`  // 月增长率
+	Forecast3M  float64 `json:"forecast_3m"`  // 3个月预测
+	Forecast6M  float64 `json:"forecast_6m"`  // 6个月预测
+	Forecast12M float64 `json:"forecast_12m"` // 12个月预测
+	Confidence  float64 `json:"confidence"`   // 置信度
 }
 
 // AnomalyDetection 异常检测.
 type AnomalyDetection struct {
-	Date        time.Time `json:"date"`
-	Category    string    `json:"category"`
-	Amount      float64   `json:"amount"`
-	Expected    float64   `json:"expected"`
-	Deviation   float64   `json:"deviation"`
-	Severity    string    `json:"severity"` // low, medium, high
+	Date      time.Time `json:"date"`
+	Category  string    `json:"category"`
+	Amount    float64   `json:"amount"`
+	Expected  float64   `json:"expected"`
+	Deviation float64   `json:"deviation"`
+	Severity  string    `json:"severity"` // low, medium, high
 }
 
 // AnalyzeCosts 分析成本数据.
@@ -292,8 +292,8 @@ func (a *Analyzer) AnalyzeOptimizationImpact() *OptimizationImpact {
 	opts := a.manager.GetOptimizations()
 
 	impact := &OptimizationImpact{
-		ByType:       make(map[string]float64),
-		ByDepartment: make(map[string]float64),
+		ByType:          make(map[string]float64),
+		ByDepartment:    make(map[string]float64),
 		Recommendations: make([]string, 0),
 	}
 
@@ -340,8 +340,8 @@ func (a *Analyzer) AnalyzeOptimizationImpact() *OptimizationImpact {
 
 // HealthScore 健康度评分.
 type HealthScore struct {
-	Score       float64  `json:"score"`        // 0-100
-	Grade       string   `json:"grade"`        // A, B, C, D, F
+	Score       float64  `json:"score"` // 0-100
+	Grade       string   `json:"grade"` // A, B, C, D, F
 	Factors     []Factor `json:"factors"`
 	Suggestions []string `json:"suggestions"`
 }

@@ -368,12 +368,12 @@ func TestMetrics(t *testing.T) {
 
 	// 更新性能指标
 	metrics := &PerformanceMetrics{
-		IOPSRead:      1000,
-		IOPSWrite:     500,
+		IOPSRead:        1000,
+		IOPSWrite:       500,
 		ThroughputRead:  1024 * 1024 * 100,
 		ThroughputWrite: 1024 * 1024 * 50,
-		LatencyRead:   0.5,
-		LatencyWrite:  1.2,
+		LatencyRead:     0.5,
+		LatencyWrite:    1.2,
 	}
 	err := m.UpdateMetrics("test-draid", metrics)
 	if err != nil {

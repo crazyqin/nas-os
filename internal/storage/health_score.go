@@ -285,10 +285,10 @@ func (e *HealthScoreEngine) PredictFailure(device string) *HealthTrend {
 	if !ok || len(points) < 3 {
 		// 数据不足，无法预测
 		return &HealthTrend{
-			Device:           device,
-			Scores:           points,
+			Device:             device,
+			Scores:             points,
 			FailureProbability: 0,
-			Confidence:       0,
+			Confidence:         0,
 		}
 	}
 

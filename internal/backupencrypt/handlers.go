@@ -93,9 +93,9 @@ func (h *Handler) ListBackups(c *gin.Context) {
 // RestoreBackup handles POST /api/v1/backup/restore
 func (h *Handler) RestoreBackup(c *gin.Context) {
 	var req struct {
-		BackupID  string `json:"backup_id" binding:"required"`
-		DestPath  string `json:"dest_path" binding:"required"`
-		KeyID     string `json:"key_id" binding:"required"`
+		BackupID string `json:"backup_id" binding:"required"`
+		DestPath string `json:"dest_path" binding:"required"`
+		KeyID    string `json:"key_id" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {

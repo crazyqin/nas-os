@@ -410,7 +410,7 @@ func (h *Handlers) submitEmail(c *gin.Context) {
 	if item == nil {
 		// 无匹配策略，放行
 		c.JSON(http.StatusOK, SuccessResponse(map[string]interface{}{
-			"queued": false,
+			"queued":  false,
 			"message": "邮件已放行，无需审核",
 		}))
 		return

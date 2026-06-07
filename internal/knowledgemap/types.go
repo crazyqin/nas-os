@@ -8,15 +8,15 @@ import "time"
 type NodeType string
 
 const (
-	NodeTypeConcept    NodeType = "concept"    // 概念
-	NodeTypeArticle    NodeType = "article"    // 文章
-	NodeTypeNote       NodeType = "note"       // 笔记
-	NodeTypeBook       NodeType = "book"       // 书籍
-	NodeTypeCourse     NodeType = "course"     // 课程
-	NodeTypeProject    NodeType = "project"    // 项目
-	NodeTypeTool       NodeType = "tool"       // 工具
-	NodeTypePerson     NodeType = "person"     // 人物
-	NodeTypeCustom     NodeType = "custom"     // 自定义
+	NodeTypeConcept NodeType = "concept" // 概念
+	NodeTypeArticle NodeType = "article" // 文章
+	NodeTypeNote    NodeType = "note"    // 笔记
+	NodeTypeBook    NodeType = "book"    // 书籍
+	NodeTypeCourse  NodeType = "course"  // 课程
+	NodeTypeProject NodeType = "project" // 项目
+	NodeTypeTool    NodeType = "tool"    // 工具
+	NodeTypePerson  NodeType = "person"  // 人物
+	NodeTypeCustom  NodeType = "custom"  // 自定义
 )
 
 // RelationType 关联关系类型
@@ -38,25 +38,25 @@ const (
 type ClassificationDimension string
 
 const (
-	DimensionTopic  ClassificationDimension = "topic"  // 主题
-	DimensionDomain ClassificationDimension = "domain" // 领域
+	DimensionTopic   ClassificationDimension = "topic"   // 主题
+	DimensionDomain  ClassificationDimension = "domain"  // 领域
 	DimensionProject ClassificationDimension = "project" // 项目
 )
 
 // KnowledgeNode 知识节点
 type KnowledgeNode struct {
-	ID          string    `json:"id"`
-	Title       string    `json:"title" binding:"required"`
-	Content     string    `json:"content,omitempty"`
-	Type        NodeType  `json:"type" binding:"required"`
-	Tags        []string  `json:"tags,omitempty"`
-	Source      string    `json:"source,omitempty"`
-	SourceURL   string    `json:"source_url,omitempty"`
-	Importance  int       `json:"importance"` // 1-5 重要度
-	Mastery     int       `json:"mastery"`    // 0-100 掌握度
-	ReviewCount int       `json:"review_count"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID          string     `json:"id"`
+	Title       string     `json:"title" binding:"required"`
+	Content     string     `json:"content,omitempty"`
+	Type        NodeType   `json:"type" binding:"required"`
+	Tags        []string   `json:"tags,omitempty"`
+	Source      string     `json:"source,omitempty"`
+	SourceURL   string     `json:"source_url,omitempty"`
+	Importance  int        `json:"importance"` // 1-5 重要度
+	Mastery     int        `json:"mastery"`    // 0-100 掌握度
+	ReviewCount int        `json:"review_count"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
 	LastReview  *time.Time `json:"last_review,omitempty"`
 }
 
@@ -89,21 +89,21 @@ type GraphData struct {
 
 // GraphNode 图谱节点
 type GraphNode struct {
-	ID       string   `json:"id"`
-	Label    string   `json:"label"`
-	Type     NodeType `json:"type"`
-	Size     int      `json:"size"`     // 节点大小(基于关联数)
-	Color    string   `json:"color"`    // 节点颜色
-	Tags     []string `json:"tags,omitempty"`
+	ID    string   `json:"id"`
+	Label string   `json:"label"`
+	Type  NodeType `json:"type"`
+	Size  int      `json:"size"`  // 节点大小(基于关联数)
+	Color string   `json:"color"` // 节点颜色
+	Tags  []string `json:"tags,omitempty"`
 }
 
 // GraphEdge 图谱边
 type GraphEdge struct {
-	Source   string       `json:"source"`
-	Target   string       `json:"target"`
-	Type     RelationType `json:"type"`
-	Weight   float64      `json:"weight"`
-	Label    string       `json:"label,omitempty"`
+	Source string       `json:"source"`
+	Target string       `json:"target"`
+	Type   RelationType `json:"type"`
+	Weight float64      `json:"weight"`
+	Label  string       `json:"label,omitempty"`
 }
 
 // SearchQuery 搜索查询
@@ -119,21 +119,21 @@ type SearchQuery struct {
 
 // SearchResult 搜索结果
 type SearchResult struct {
-	Nodes      []*KnowledgeNode `json:"nodes"`
-	Total      int              `json:"total"`
-	Relevance  []float64        `json:"relevance,omitempty"` // 相关度得分
+	Nodes     []*KnowledgeNode `json:"nodes"`
+	Total     int              `json:"total"`
+	Relevance []float64        `json:"relevance,omitempty"` // 相关度得分
 }
 
 // LearningStats 学习统计
 type LearningStats struct {
-	TotalNodes      int            `json:"total_nodes"`
-	TotalRelations  int            `json:"total_relations"`
-	NodesByType     map[NodeType]int `json:"nodes_by_type"`
-	NodesByTag      map[string]int   `json:"nodes_by_tag"`
-	GrowthTrend     []DailyGrowth   `json:"growth_trend"`
-	ActiveDays      int            `json:"active_days"`
-	AvgMastery      float64        `json:"avg_mastery"`
-	ReviewPending   int            `json:"review_pending"`
+	TotalNodes     int              `json:"total_nodes"`
+	TotalRelations int              `json:"total_relations"`
+	NodesByType    map[NodeType]int `json:"nodes_by_type"`
+	NodesByTag     map[string]int   `json:"nodes_by_tag"`
+	GrowthTrend    []DailyGrowth    `json:"growth_trend"`
+	ActiveDays     int              `json:"active_days"`
+	AvgMastery     float64          `json:"avg_mastery"`
+	ReviewPending  int              `json:"review_pending"`
 }
 
 // DailyGrowth 每日增长
@@ -145,15 +145,15 @@ type DailyGrowth struct {
 
 // ImportData 导入数据
 type ImportData struct {
-	Format    string           `json:"format" binding:"required"` // markdown, json
-	Content   string           `json:"content" binding:"required"`
-	Overwrite bool             `json:"overwrite,omitempty"`
+	Format    string `json:"format" binding:"required"` // markdown, json
+	Content   string `json:"content" binding:"required"`
+	Overwrite bool   `json:"overwrite,omitempty"`
 }
 
 // ExportData 导出数据
 type ExportData struct {
-	Format   string `json:"format" binding:"required"` // markdown, json
-	NodeIDs  []string `json:"node_ids,omitempty"`      // 为空则导出全部
+	Format  string   `json:"format" binding:"required"` // markdown, json
+	NodeIDs []string `json:"node_ids,omitempty"`        // 为空则导出全部
 }
 
 // MarkdownExport Markdown导出格式

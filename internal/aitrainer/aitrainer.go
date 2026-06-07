@@ -56,38 +56,38 @@ const (
 type DeviceStatus string
 
 const (
-	DeviceStatusIdle      DeviceStatus = "idle"
-	DeviceStatusBusy      DeviceStatus = "busy"
-	DeviceStatusError     DeviceStatus = "error"
-	DeviceStatusOffline   DeviceStatus = "offline"
+	DeviceStatusIdle    DeviceStatus = "idle"
+	DeviceStatusBusy    DeviceStatus = "busy"
+	DeviceStatusError   DeviceStatus = "error"
+	DeviceStatusOffline DeviceStatus = "offline"
 )
 
 // Model AI模型
 type Model struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	Description string      `json:"description,omitempty"`
-	Type        ModelType   `json:"type"`
-	Status      ModelStatus `json:"status"`
-	Version     string      `json:"version"`
-	Framework   string      `json:"framework"`
-	Path        string      `json:"path"`
-	Size        int64       `json:"size"`
-	Tags        []string    `json:"tags,omitempty"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description,omitempty"`
+	Type        ModelType     `json:"type"`
+	Status      ModelStatus   `json:"status"`
+	Version     string        `json:"version"`
+	Framework   string        `json:"framework"`
+	Path        string        `json:"path"`
+	Size        int64         `json:"size"`
+	Tags        []string      `json:"tags,omitempty"`
 	Metrics     *ModelMetrics `json:"metrics,omitempty"`
-	CreatedAt   time.Time   `json:"created_at"`
-	UpdatedAt   time.Time   `json:"updated_at"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
 // ModelMetrics 模型指标
 type ModelMetrics struct {
-	Accuracy    float64 `json:"accuracy,omitempty"`
-	Loss        float64 `json:"loss,omitempty"`
-	F1Score     float64 `json:"f1_score,omitempty"`
-	Precision   float64 `json:"precision,omitempty"`
-	Recall      float64 `json:"recall,omitempty"`
-	Epochs      int     `json:"epochs,omitempty"`
-	TrainTime   float64 `json:"train_time,omitempty"`
+	Accuracy  float64 `json:"accuracy,omitempty"`
+	Loss      float64 `json:"loss,omitempty"`
+	F1Score   float64 `json:"f1_score,omitempty"`
+	Precision float64 `json:"precision,omitempty"`
+	Recall    float64 `json:"recall,omitempty"`
+	Epochs    int     `json:"epochs,omitempty"`
+	TrainTime float64 `json:"train_time,omitempty"`
 }
 
 // Dataset 数据集
@@ -114,19 +114,19 @@ type DatasetSplit struct {
 
 // TrainingTask 训练任务
 type TrainingTask struct {
-	ID         string      `json:"id"`
-	Name       string      `json:"name"`
-	ModelID    string      `json:"model_id"`
-	DatasetID  string      `json:"dataset_id"`
-	Status     TaskStatus  `json:"status"`
-	Config     *TrainConfig `json:"config"`
-	Progress   float64     `json:"progress"`
-	Epoch      int         `json:"epoch"`
-	Metrics    *TrainMetrics `json:"metrics,omitempty"`
-	Error      string      `json:"error,omitempty"`
-	StartTime  *time.Time  `json:"start_time,omitempty"`
-	EndTime    *time.Time  `json:"end_time,omitempty"`
-	CreatedAt  time.Time   `json:"created_at"`
+	ID        string        `json:"id"`
+	Name      string        `json:"name"`
+	ModelID   string        `json:"model_id"`
+	DatasetID string        `json:"dataset_id"`
+	Status    TaskStatus    `json:"status"`
+	Config    *TrainConfig  `json:"config"`
+	Progress  float64       `json:"progress"`
+	Epoch     int           `json:"epoch"`
+	Metrics   *TrainMetrics `json:"metrics,omitempty"`
+	Error     string        `json:"error,omitempty"`
+	StartTime *time.Time    `json:"start_time,omitempty"`
+	EndTime   *time.Time    `json:"end_time,omitempty"`
+	CreatedAt time.Time     `json:"created_at"`
 }
 
 // TrainConfig 训练配置
@@ -144,26 +144,26 @@ type TrainConfig struct {
 
 // TrainMetrics 训练指标
 type TrainMetrics struct {
-	Epoch     int     `json:"epoch"`
-	Loss      float64 `json:"loss"`
-	ValLoss   float64 `json:"val_loss"`
-	Accuracy  float64 `json:"accuracy"`
-	ValAcc    float64 `json:"val_acc"`
-	LR        float64 `json:"lr"`
-	ETA       string  `json:"eta,omitempty"`
+	Epoch    int     `json:"epoch"`
+	Loss     float64 `json:"loss"`
+	ValLoss  float64 `json:"val_loss"`
+	Accuracy float64 `json:"accuracy"`
+	ValAcc   float64 `json:"val_acc"`
+	LR       float64 `json:"lr"`
+	ETA      string  `json:"eta,omitempty"`
 }
 
 // ComputeDevice 计算设备
 type ComputeDevice struct {
-	ID        string       `json:"id"`
-	Name      string       `json:"name"`
-	Type      DeviceType   `json:"type"`
-	Status    DeviceStatus `json:"status"`
-	Memory    int64        `json:"memory"`
-	UsedMem   int64        `json:"used_mem"`
-	Util      float64      `json:"util"`
-	Temp      float64      `json:"temp,omitempty"`
-	TaskID    string       `json:"task_id,omitempty"`
+	ID      string       `json:"id"`
+	Name    string       `json:"name"`
+	Type    DeviceType   `json:"type"`
+	Status  DeviceStatus `json:"status"`
+	Memory  int64        `json:"memory"`
+	UsedMem int64        `json:"used_mem"`
+	Util    float64      `json:"util"`
+	Temp    float64      `json:"temp,omitempty"`
+	TaskID  string       `json:"task_id,omitempty"`
 }
 
 // DeployedModel 已部署模型

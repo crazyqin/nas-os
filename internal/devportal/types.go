@@ -42,9 +42,9 @@ const (
 type DeliveryStatus string
 
 const (
-	DeliveryPending DeliveryStatus = "pending"
-	DeliverySuccess DeliveryStatus = "success"
-	DeliveryFailed  DeliveryStatus = "failed"
+	DeliveryPending  DeliveryStatus = "pending"
+	DeliverySuccess  DeliveryStatus = "success"
+	DeliveryFailed   DeliveryStatus = "failed"
 	DeliveryRetrying DeliveryStatus = "retrying"
 )
 
@@ -80,11 +80,11 @@ const (
 type APIScope string
 
 const (
-	ScopeRead     APIScope = "read"
-	ScopeWrite    APIScope = "write"
-	ScopeAdmin    APIScope = "admin"
-	ScopeDelete   APIScope = "delete"
-	ScopeWebhook  APIScope = "webhook"
+	ScopeRead      APIScope = "read"
+	ScopeWrite     APIScope = "write"
+	ScopeAdmin     APIScope = "admin"
+	ScopeDelete    APIScope = "delete"
+	ScopeWebhook   APIScope = "webhook"
 	ScopeDevPortal APIScope = "devportal"
 )
 
@@ -97,8 +97,8 @@ type APIKey struct {
 	OwnerID     string       `json:"owner_id"`
 	Status      APIKeyStatus `json:"status"`
 	Scopes      []APIScope   `json:"scopes"`
-	RateLimit   int          `json:"rate_limit"`    // 每分钟请求数
-	DailyQuota  int          `json:"daily_quota"`   // 每日配额
+	RateLimit   int          `json:"rate_limit"`  // 每分钟请求数
+	DailyQuota  int          `json:"daily_quota"` // 每日配额
 	UsedToday   int          `json:"used_today"`
 	TotalCalls  int64        `json:"total_calls"`
 	LastUsedAt  *time.Time   `json:"last_used_at,omitempty"`
@@ -110,58 +110,58 @@ type APIKey struct {
 
 // WebhookEndpoint Webhook端点
 type WebhookEndpoint struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	URL         string         `json:"url"`
-	OwnerID     string         `json:"owner_id"`
-	Status      WebhookStatus  `json:"status"`
-	Events      []WebhookEvent `json:"events"`
-	Secret      string         `json:"secret"`
-	Headers     map[string]string `json:"headers,omitempty"`
-	RetryCount  int            `json:"retry_count"`
-	MaxRetries  int            `json:"max_retries"`
-	Timeout     int            `json:"timeout"` // 秒
-	TotalSent   int64          `json:"total_sent"`
-	TotalFailed int64          `json:"total_failed"`
-	LastDeliveredAt *time.Time `json:"last_delivered_at,omitempty"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
+	ID              string            `json:"id"`
+	Name            string            `json:"name"`
+	URL             string            `json:"url"`
+	OwnerID         string            `json:"owner_id"`
+	Status          WebhookStatus     `json:"status"`
+	Events          []WebhookEvent    `json:"events"`
+	Secret          string            `json:"secret"`
+	Headers         map[string]string `json:"headers,omitempty"`
+	RetryCount      int               `json:"retry_count"`
+	MaxRetries      int               `json:"max_retries"`
+	Timeout         int               `json:"timeout"` // 秒
+	TotalSent       int64             `json:"total_sent"`
+	TotalFailed     int64             `json:"total_failed"`
+	LastDeliveredAt *time.Time        `json:"last_delivered_at,omitempty"`
+	CreatedAt       time.Time         `json:"created_at"`
+	UpdatedAt       time.Time         `json:"updated_at"`
 }
 
 // WebhookDelivery Webhook投递记录
 type WebhookDelivery struct {
-	ID         string         `json:"id"`
-	WebhookID  string         `json:"webhook_id"`
-	Event      WebhookEvent   `json:"event"`
-	URL        string         `json:"url"`
-	StatusCode int            `json:"status_code"`
-	RequestBody  string       `json:"request_body,omitempty"`
-	ResponseBody string       `json:"response_body,omitempty"`
-	Attempts   int            `json:"attempts"`
-	Status     DeliveryStatus `json:"status"`
-	Error      string         `json:"error,omitempty"`
-	Duration   int64          `json:"duration_ms"`
-	CreatedAt  time.Time      `json:"created_at"`
-	NextRetryAt *time.Time    `json:"next_retry_at,omitempty"`
+	ID           string         `json:"id"`
+	WebhookID    string         `json:"webhook_id"`
+	Event        WebhookEvent   `json:"event"`
+	URL          string         `json:"url"`
+	StatusCode   int            `json:"status_code"`
+	RequestBody  string         `json:"request_body,omitempty"`
+	ResponseBody string         `json:"response_body,omitempty"`
+	Attempts     int            `json:"attempts"`
+	Status       DeliveryStatus `json:"status"`
+	Error        string         `json:"error,omitempty"`
+	Duration     int64          `json:"duration_ms"`
+	CreatedAt    time.Time      `json:"created_at"`
+	NextRetryAt  *time.Time     `json:"next_retry_at,omitempty"`
 }
 
 // DeveloperApp 开发者应用
 type DeveloperApp struct {
-	ID           string          `json:"id"`
-	Name         string          `json:"name"`
-	Description  string          `json:"description"`
-	OwnerID      string          `json:"owner_id"`
-	ClientID     string          `json:"client_id"`
-	ClientSecret string          `json:"client_secret"`
-	RedirectURIs []string        `json:"redirect_uris"`
+	ID           string           `json:"id"`
+	Name         string           `json:"name"`
+	Description  string           `json:"description"`
+	OwnerID      string           `json:"owner_id"`
+	ClientID     string           `json:"client_id"`
+	ClientSecret string           `json:"client_secret"`
+	RedirectURIs []string         `json:"redirect_uris"`
 	GrantTypes   []OAuthGrantType `json:"grant_types"`
-	Scopes       []APIScope      `json:"scopes"`
-	Status       AppStatus       `json:"status"`
-	Website      string          `json:"website,omitempty"`
-	LogoURL      string          `json:"logo_url,omitempty"`
-	APIKeyID     string          `json:"api_key_id,omitempty"`
-	CreatedAt    time.Time       `json:"created_at"`
-	UpdatedAt    time.Time       `json:"updated_at"`
+	Scopes       []APIScope       `json:"scopes"`
+	Status       AppStatus        `json:"status"`
+	Website      string           `json:"website,omitempty"`
+	LogoURL      string           `json:"logo_url,omitempty"`
+	APIKeyID     string           `json:"api_key_id,omitempty"`
+	CreatedAt    time.Time        `json:"created_at"`
+	UpdatedAt    time.Time        `json:"updated_at"`
 }
 
 // OAuthToken OAuth2令牌
@@ -177,11 +177,11 @@ type OAuthToken struct {
 
 // UsageRecord 使用量记录
 type UsageRecord struct {
-	Date      string `json:"date"` // YYYY-MM-DD
-	Total     int    `json:"total"`
-	Success   int    `json:"success"`
-	Failed    int    `json:"failed"`
-	AvgLatency int64 `json:"avg_latency_ms"`
+	Date       string `json:"date"` // YYYY-MM-DD
+	Total      int    `json:"total"`
+	Success    int    `json:"success"`
+	Failed     int    `json:"failed"`
+	AvgLatency int64  `json:"avg_latency_ms"`
 }
 
 // QuotaConfig 配额配置
@@ -205,26 +205,26 @@ type OpenAPISpec struct {
 
 // DevPortalConfig 开发者门户配置
 type DevPortalConfig struct {
-	Quota          QuotaConfig `json:"quota"`
-	WebhookMaxRetries int     `json:"webhook_max_retries"`
-	WebhookTimeout    int     `json:"webhook_timeout"`
-	TokenExpiry       int     `json:"token_expiry"` // 秒
-	RefreshExpiry     int     `json:"refresh_expiry"` // 秒
+	Quota             QuotaConfig `json:"quota"`
+	WebhookMaxRetries int         `json:"webhook_max_retries"`
+	WebhookTimeout    int         `json:"webhook_timeout"`
+	TokenExpiry       int         `json:"token_expiry"`   // 秒
+	RefreshExpiry     int         `json:"refresh_expiry"` // 秒
 }
 
 var (
-	ErrAPIKeyNotFound    = errors.New("api key not found")
-	ErrAPIKeyExists      = errors.New("api key already exists")
-	ErrAPIKeyRevoked     = errors.New("api key is revoked")
-	ErrAPIKeyExpired     = errors.New("api key is expired")
-	ErrWebhookNotFound   = errors.New("webhook not found")
-	ErrWebhookExists     = errors.New("webhook already exists")
-	ErrAppNotFound       = errors.New("developer app not found")
-	ErrAppExists         = errors.New("developer app already exists")
-	ErrQuotaExceeded     = errors.New("quota exceeded")
-	ErrRateLimitExceeded = errors.New("rate limit exceeded")
-	ErrInvalidScope      = errors.New("invalid scope")
-	ErrInvalidGrantType  = errors.New("invalid grant type")
-	ErrDeliveryNotFound  = errors.New("delivery not found")
+	ErrAPIKeyNotFound     = errors.New("api key not found")
+	ErrAPIKeyExists       = errors.New("api key already exists")
+	ErrAPIKeyRevoked      = errors.New("api key is revoked")
+	ErrAPIKeyExpired      = errors.New("api key is expired")
+	ErrWebhookNotFound    = errors.New("webhook not found")
+	ErrWebhookExists      = errors.New("webhook already exists")
+	ErrAppNotFound        = errors.New("developer app not found")
+	ErrAppExists          = errors.New("developer app already exists")
+	ErrQuotaExceeded      = errors.New("quota exceeded")
+	ErrRateLimitExceeded  = errors.New("rate limit exceeded")
+	ErrInvalidScope       = errors.New("invalid scope")
+	ErrInvalidGrantType   = errors.New("invalid grant type")
+	ErrDeliveryNotFound   = errors.New("delivery not found")
 	ErrInvalidRedirectURI = errors.New("invalid redirect uri")
 )

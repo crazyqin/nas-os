@@ -21,11 +21,11 @@ type SearchCache struct {
 
 // CacheEntry 缓存条目
 type CacheEntry struct {
-	Key       string         `json:"key"`
+	Key       string          `json:"key"`
 	Response  *SearchResponse `json:"response"`
-	CreatedAt time.Time      `json:"createdAt"`
-	ExpiresAt time.Time      `json:"expiresAt"`
-	HitCount  int64          `json:"hitCount"`
+	CreatedAt time.Time       `json:"createdAt"`
+	ExpiresAt time.Time       `json:"expiresAt"`
+	HitCount  int64           `json:"hitCount"`
 }
 
 // CacheStats 缓存统计

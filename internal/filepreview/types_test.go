@@ -175,8 +175,8 @@ func TestDetectModel3DFormat(t *testing.T) {
 
 func TestGetThumbnailDimensions(t *testing.T) {
 	tests := []struct {
-		size          ThumbnailSize
-		expectedWidth int
+		size           ThumbnailSize
+		expectedWidth  int
 		expectedHeight int
 	}{
 		{SizeSmall, 150, 150},
@@ -199,12 +199,12 @@ func TestGetThumbnailDimensions(t *testing.T) {
 
 func TestIsSupported(t *testing.T) {
 	tests := []struct {
-		filename      string
-		imageSupport   bool
-		videoSupport   bool
-		audioSupport   bool
+		filename        string
+		imageSupport    bool
+		videoSupport    bool
+		audioSupport    bool
 		documentSupport bool
-		model3DSupport bool
+		model3DSupport  bool
 	}{
 		{"photo.jpg", true, false, false, false, false},
 		{"video.mp4", false, true, false, false, false},

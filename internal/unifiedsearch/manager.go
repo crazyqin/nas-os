@@ -17,13 +17,13 @@ import (
 // Manager 统一搜索管理器
 type Manager struct {
 	mu          sync.RWMutex
-	index       map[string]*SearchIndex   // id -> index entry
-	pathIndex   map[string]string         // path -> id
-	tagIndex    map[string][]string       // tag -> []id
-	typeIndex   map[ContentType][]string  // type -> []id
+	index       map[string]*SearchIndex  // id -> index entry
+	pathIndex   map[string]string        // path -> id
+	tagIndex    map[string][]string      // tag -> []id
+	typeIndex   map[ContentType][]string // type -> []id
 	tasks       map[string]*IndexTask
 	history     []*SearchHistory
-	hotSearches map[string]int            // query -> count
+	hotSearches map[string]int // query -> count
 	stats       *IndexStats
 	config      *SearchConfig
 	stopChan    chan struct{}
@@ -32,14 +32,14 @@ type Manager struct {
 
 // SearchConfig 搜索配置
 type SearchConfig struct {
-	MaxHistory       int  `json:"max_history"`
-	MaxHotSearches   int  `json:"max_hot_searches"`
-	FuzzyThreshold   float64 `json:"fuzzy_threshold"`
-	HighlightPre     string `json:"highlight_pre"`
-	HighlightPost    string `json:"highlight_post"`
-	SummaryLength    int  `json:"summary_length"`
-	MaxPageSize      int  `json:"max_page_size"`
-	DefaultPageSize  int  `json:"default_page_size"`
+	MaxHistory      int     `json:"max_history"`
+	MaxHotSearches  int     `json:"max_hot_searches"`
+	FuzzyThreshold  float64 `json:"fuzzy_threshold"`
+	HighlightPre    string  `json:"highlight_pre"`
+	HighlightPost   string  `json:"highlight_post"`
+	SummaryLength   int     `json:"summary_length"`
+	MaxPageSize     int     `json:"max_page_size"`
+	DefaultPageSize int     `json:"default_page_size"`
 }
 
 // DefaultSearchConfig 默认搜索配置
@@ -970,10 +970,10 @@ func (m *Manager) addSearchHistory(query string, resultCount int) {
 	defer m.mu.Unlock()
 
 	history := &SearchHistory{
-		ID:         uuid.New().String(),
-		Query:      query,
+		ID:          uuid.New().String(),
+		Query:       query,
 		ResultCount: resultCount,
-		SearchedAt: time.Now(),
+		SearchedAt:  time.Now(),
 	}
 
 	m.history = append(m.history, history)

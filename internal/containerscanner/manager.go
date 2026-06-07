@@ -63,10 +63,10 @@ func (m *Manager) ScanImage(ctx context.Context, req ScanRequest) (*ScanResult, 
 	startTime := time.Now()
 
 	result := &ScanResult{
-		ID:       scanID,
-		Image:    req.Image,
-		Registry: req.Registry,
-		Status:   ScanStatusRunning,
+		ID:        scanID,
+		Image:     req.Image,
+		Registry:  req.Registry,
+		Status:    ScanStatusRunning,
 		ScannedAt: startTime,
 	}
 

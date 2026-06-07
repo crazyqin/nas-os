@@ -25,19 +25,19 @@ const (
 
 // ShareLink 共享链接
 type ShareLink struct {
-	ID          string          `json:"id"`
-	Path        string          `json:"path"`
-	Name        string          `json:"name"`
-	Token       string          `json:"token"`
-	Permission  SharePermission `json:"permission"`
-	Password    string          `json:"password,omitempty"`
-	MaxDownloads int            `json:"maxDownloads"`
-	DownloadCount int           `json:"downloadCount"`
-	ExpiresAt   *time.Time      `json:"expiresAt"`
-	CreatedBy   string          `json:"createdBy"`
-	CreatedAt   time.Time       `json:"createdAt"`
-	IsActive    bool            `json:"isActive"`
-	AccessLog   []AccessEntry   `json:"accessLog"`
+	ID            string          `json:"id"`
+	Path          string          `json:"path"`
+	Name          string          `json:"name"`
+	Token         string          `json:"token"`
+	Permission    SharePermission `json:"permission"`
+	Password      string          `json:"password,omitempty"`
+	MaxDownloads  int             `json:"maxDownloads"`
+	DownloadCount int             `json:"downloadCount"`
+	ExpiresAt     *time.Time      `json:"expiresAt"`
+	CreatedBy     string          `json:"createdBy"`
+	CreatedAt     time.Time       `json:"createdAt"`
+	IsActive      bool            `json:"isActive"`
+	AccessLog     []AccessEntry   `json:"accessLog"`
 }
 
 // AccessEntry 访问记录
@@ -59,9 +59,9 @@ type ShareStats struct {
 
 // WebShareManager WebShare管理器
 type WebShareManager struct {
-	mu       sync.RWMutex
-	links    map[string]*ShareLink
-	config   *WebShareConfig
+	mu     sync.RWMutex
+	links  map[string]*ShareLink
+	config *WebShareConfig
 }
 
 // WebShareConfig WebShare配置

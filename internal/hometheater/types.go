@@ -153,19 +153,19 @@ const (
 
 // MediaLibrary 媒体库.
 type MediaLibrary struct {
-	ID          string    `json:"id"`          // 唯一标识
-	Name        string    `json:"name"`        // 媒体库名称
-	Path        string    `json:"path"`        // 根目录路径
-	Type        MediaType `json:"type"`        // 媒体类型
-	Description string    `json:"description"` // 描述
-	Enabled     bool      `json:"enabled"`     // 是否启用
-	AutoScan    bool      `json:"auto_scan"`   // 是否自动扫描
-	ScanInterval int      `json:"scan_interval"` // 扫描间隔（分钟）
-	MovieCount  int       `json:"movie_count"`  // 电影数量
-	ShowCount   int       `json:"show_count"`   // 剧集数量
-	TotalSize   int64     `json:"total_size"`   // 总大小（字节）
-	CreatedAt   time.Time `json:"created_at"`   // 创建时间
-	UpdatedAt   time.Time `json:"updated_at"`   // 更新时间
+	ID           string    `json:"id"`            // 唯一标识
+	Name         string    `json:"name"`          // 媒体库名称
+	Path         string    `json:"path"`          // 根目录路径
+	Type         MediaType `json:"type"`          // 媒体类型
+	Description  string    `json:"description"`   // 描述
+	Enabled      bool      `json:"enabled"`       // 是否启用
+	AutoScan     bool      `json:"auto_scan"`     // 是否自动扫描
+	ScanInterval int       `json:"scan_interval"` // 扫描间隔（分钟）
+	MovieCount   int       `json:"movie_count"`   // 电影数量
+	ShowCount    int       `json:"show_count"`    // 剧集数量
+	TotalSize    int64     `json:"total_size"`    // 总大小（字节）
+	CreatedAt    time.Time `json:"created_at"`    // 创建时间
+	UpdatedAt    time.Time `json:"updated_at"`    // 更新时间
 }
 
 // Movie 电影信息.
@@ -205,30 +205,30 @@ type Movie struct {
 
 // TVShow 电视剧信息.
 type TVShow struct {
-	ID            string       `json:"id"`             // 唯一标识
-	LibraryID     string       `json:"library_id"`     // 所属媒体库ID
-	Title         string       `json:"title"`          // 标题
-	OriginalTitle string       `json:"original_title"` // 原始标题
-	Year          int          `json:"year"`           // 首播年份
-	EndYear       int          `json:"end_year"`       // 完结年份
-	Rating        float64      `json:"rating"`         // 评分
-	VoteCount     int          `json:"vote_count"`     // 投票数
-	Overview      string       `json:"overview"`       // 简介
-	Genres        []string     `json:"genres"`         // 类型
-	Tags          []string     `json:"tags"`           // 标签
-	Network       string       `json:"network"`        // 播出网络
-	Status        string       `json:"status"`         // 状态（returning/ended/cancelled）
-	SeasonCount   int          `json:"season_count"`   // 季数
-	EpisodeCount  int          `json:"episode_count"`  // 集数
-	Runtime       int          `json:"runtime"`        // 平均时长（分钟）
-	FirstAirDate  string       `json:"first_air_date"` // 首播日期
-	PosterPath    string       `json:"poster_path"`    // 海报路径
-	BackdropPath  string       `json:"backdrop_path"`  // 背景图路径
-	TMDBID        int          `json:"tmdb_id"`        // TMDB ID
-	IMDBID        string       `json:"imdb_id"`        // IMDB ID
-	Seasons       []*Season    `json:"seasons"`        // 季列表
-	CreatedAt     time.Time    `json:"created_at"`     // 入库时间
-	UpdatedAt     time.Time    `json:"updated_at"`     // 更新时间
+	ID            string    `json:"id"`             // 唯一标识
+	LibraryID     string    `json:"library_id"`     // 所属媒体库ID
+	Title         string    `json:"title"`          // 标题
+	OriginalTitle string    `json:"original_title"` // 原始标题
+	Year          int       `json:"year"`           // 首播年份
+	EndYear       int       `json:"end_year"`       // 完结年份
+	Rating        float64   `json:"rating"`         // 评分
+	VoteCount     int       `json:"vote_count"`     // 投票数
+	Overview      string    `json:"overview"`       // 简介
+	Genres        []string  `json:"genres"`         // 类型
+	Tags          []string  `json:"tags"`           // 标签
+	Network       string    `json:"network"`        // 播出网络
+	Status        string    `json:"status"`         // 状态（returning/ended/cancelled）
+	SeasonCount   int       `json:"season_count"`   // 季数
+	EpisodeCount  int       `json:"episode_count"`  // 集数
+	Runtime       int       `json:"runtime"`        // 平均时长（分钟）
+	FirstAirDate  string    `json:"first_air_date"` // 首播日期
+	PosterPath    string    `json:"poster_path"`    // 海报路径
+	BackdropPath  string    `json:"backdrop_path"`  // 背景图路径
+	TMDBID        int       `json:"tmdb_id"`        // TMDB ID
+	IMDBID        string    `json:"imdb_id"`        // IMDB ID
+	Seasons       []*Season `json:"seasons"`        // 季列表
+	CreatedAt     time.Time `json:"created_at"`     // 入库时间
+	UpdatedAt     time.Time `json:"updated_at"`     // 更新时间
 }
 
 // Season 季信息.
@@ -273,56 +273,56 @@ type Episode struct {
 
 // VideoInfo 视频信息.
 type VideoInfo struct {
-	Codec         VideoCodec `json:"codec"`          // 视频编码
-	Width         int        `json:"width"`          // 宽度
-	Height        int        `json:"height"`         // 高度
-	Bitrate       int        `json:"bitrate"`        // 码率（kbps）
-	FrameRate     float64    `json:"frame_rate"`     // 帧率
-	AspectRatio   string     `json:"aspect_ratio"`   // 宽高比
-	Profile       string     `json:"profile"`        // 编码配置
-	Level         string     `json:"level"`          // 编码级别
-	PixelFormat   string     `json:"pixel_format"`   // 像素格式
-	ColorSpace    string     `json:"color_space"`    // 色彩空间
-	ColorRange    string     `json:"color_range"`    // 色彩范围
-	HDR           *HDRInfo   `json:"hdr,omitempty"`  // HDR信息
-	Duration      float64    `json:"duration"`       // 时长（秒）
-	Container     string     `json:"container"`      // 容器格式
-	BitDepth      int        `json:"bit_depth"`      // 位深度
+	Codec       VideoCodec `json:"codec"`         // 视频编码
+	Width       int        `json:"width"`         // 宽度
+	Height      int        `json:"height"`        // 高度
+	Bitrate     int        `json:"bitrate"`       // 码率（kbps）
+	FrameRate   float64    `json:"frame_rate"`    // 帧率
+	AspectRatio string     `json:"aspect_ratio"`  // 宽高比
+	Profile     string     `json:"profile"`       // 编码配置
+	Level       string     `json:"level"`         // 编码级别
+	PixelFormat string     `json:"pixel_format"`  // 像素格式
+	ColorSpace  string     `json:"color_space"`   // 色彩空间
+	ColorRange  string     `json:"color_range"`   // 色彩范围
+	HDR         *HDRInfo   `json:"hdr,omitempty"` // HDR信息
+	Duration    float64    `json:"duration"`      // 时长（秒）
+	Container   string     `json:"container"`     // 容器格式
+	BitDepth    int        `json:"bit_depth"`     // 位深度
 }
 
 // HDRInfo HDR信息.
 type HDRInfo struct {
-	Type     string `json:"type"`      // HDR10, HDR10+, DolbyVision, HLG
-	MaxCLL   int    `json:"max_cll"`   // MaxCLL (nits)
-	MaxFALL  int    `json:"max_fall"`  // MaxFALL (nits)
+	Type      string `json:"type"`       // HDR10, HDR10+, DolbyVision, HLG
+	MaxCLL    int    `json:"max_cll"`    // MaxCLL (nits)
+	MaxFALL   int    `json:"max_fall"`   // MaxFALL (nits)
 	DVProfile string `json:"dv_profile"` // Dolby Vision Profile
 }
 
 // AudioTrack 音轨信息.
 type AudioTrack struct {
-	Index     int        `json:"index"`     // 流索引
-	Codec     AudioCodec `json:"codec"`     // 音频编码
-	Channels  int        `json:"channels"`  // 声道数
-	ChannelLayout string `json:"channel_layout"` // 声道布局（stereo, 5.1, 7.1）
-	Bitrate   int        `json:"bitrate"`   // 码率（kbps）
-	SampleRate int       `json:"sample_rate"` // 采样率（Hz）
-	Language  string     `json:"language"`  // 语言
-	Title     string     `json:"title"`     // 标题
-	IsDefault bool       `json:"is_default"` // 是否默认
-	IsCommentary bool   `json:"is_commentary"` // 是否评论音轨
+	Index         int        `json:"index"`          // 流索引
+	Codec         AudioCodec `json:"codec"`          // 音频编码
+	Channels      int        `json:"channels"`       // 声道数
+	ChannelLayout string     `json:"channel_layout"` // 声道布局（stereo, 5.1, 7.1）
+	Bitrate       int        `json:"bitrate"`        // 码率（kbps）
+	SampleRate    int        `json:"sample_rate"`    // 采样率（Hz）
+	Language      string     `json:"language"`       // 语言
+	Title         string     `json:"title"`          // 标题
+	IsDefault     bool       `json:"is_default"`     // 是否默认
+	IsCommentary  bool       `json:"is_commentary"`  // 是否评论音轨
 }
 
 // Subtitle 字幕信息.
 type Subtitle struct {
-	ID       string         `json:"id"`        // 唯一标识
-	Index    int            `json:"index"`     // 流索引
-	Format   SubtitleFormat `json:"format"`    // 字幕格式
-	Language string         `json:"language"`  // 语言
-	Title    string         `json:"title"`     // 标题
-	IsDefault bool         `json:"is_default"` // 是否默认
-	IsForced bool          `json:"is_forced"`  // 是否强制字幕
-	IsExternal bool        `json:"is_external"` // 是否外部字幕
-	FilePath string         `json:"file_path"` // 外部字幕文件路径
+	ID         string         `json:"id"`          // 唯一标识
+	Index      int            `json:"index"`       // 流索引
+	Format     SubtitleFormat `json:"format"`      // 字幕格式
+	Language   string         `json:"language"`    // 语言
+	Title      string         `json:"title"`       // 标题
+	IsDefault  bool           `json:"is_default"`  // 是否默认
+	IsForced   bool           `json:"is_forced"`   // 是否强制字幕
+	IsExternal bool           `json:"is_external"` // 是否外部字幕
+	FilePath   string         `json:"file_path"`   // 外部字幕文件路径
 }
 
 // TranscodeProfile 转码配置.
@@ -373,16 +373,16 @@ const (
 
 // Playlist 播放列表.
 type Playlist struct {
-	ID          string       `json:"id"`          // 唯一标识
-	Name        string       `json:"name"`        // 列表名称
-	Description string       `json:"description"` // 描述
-	UserID      string       `json:"user_id"`     // 用户ID
-	Items       []*MediaItem `json:"items"`       // 媒体项列表
-	CurrentIndex int         `json:"current_index"` // 当前播放索引
-	Shuffle     bool         `json:"shuffle"`     // 是否随机播放
-	Repeat      RepeatMode   `json:"repeat"`      // 循环模式
-	CreatedAt   time.Time    `json:"created_at"`  // 创建时间
-	UpdatedAt   time.Time    `json:"updated_at"`  // 更新时间
+	ID           string       `json:"id"`            // 唯一标识
+	Name         string       `json:"name"`          // 列表名称
+	Description  string       `json:"description"`   // 描述
+	UserID       string       `json:"user_id"`       // 用户ID
+	Items        []*MediaItem `json:"items"`         // 媒体项列表
+	CurrentIndex int          `json:"current_index"` // 当前播放索引
+	Shuffle      bool         `json:"shuffle"`       // 是否随机播放
+	Repeat       RepeatMode   `json:"repeat"`        // 循环模式
+	CreatedAt    time.Time    `json:"created_at"`    // 创建时间
+	UpdatedAt    time.Time    `json:"updated_at"`    // 更新时间
 }
 
 // RepeatMode 循环模式.
@@ -409,36 +409,36 @@ type MediaItem struct {
 
 // StreamSession 流媒体会话.
 type StreamSession struct {
-	ID          string          `json:"id"`           // 会话ID
-	MediaID     string          `json:"media_id"`     // 媒体ID
-	UserID      string          `json:"user_id"`      // 用户ID
-	Protocol    StreamProtocol  `json:"protocol"`     // 协议
-	Profile     *TranscodeProfile `json:"profile"`    // 转码配置
-	State       PlaybackState   `json:"state"`        // 播放状态
-	Position    float64         `json:"position"`     // 当前位置（秒）
-	DeviceID    string          `json:"device_id"`    // 设备ID
-	DeviceName  string          `json:"device_name"`  // 设备名称
-	ClientIP    string          `json:"client_ip"`    // 客户端IP
-	UserAgent   string          `json:"user_agent"`   // 用户代理
-	Bitrate     int             `json:"bitrate"`      // 当前码率
-	Bandwidth   int             `json:"bandwidth"`    // 估计带宽
-	StartTime   time.Time       `json:"start_time"`   // 开始时间
-	LastHeartbeat time.Time     `json:"last_heartbeat"` // 最后心跳
+	ID            string            `json:"id"`             // 会话ID
+	MediaID       string            `json:"media_id"`       // 媒体ID
+	UserID        string            `json:"user_id"`        // 用户ID
+	Protocol      StreamProtocol    `json:"protocol"`       // 协议
+	Profile       *TranscodeProfile `json:"profile"`        // 转码配置
+	State         PlaybackState     `json:"state"`          // 播放状态
+	Position      float64           `json:"position"`       // 当前位置（秒）
+	DeviceID      string            `json:"device_id"`      // 设备ID
+	DeviceName    string            `json:"device_name"`    // 设备名称
+	ClientIP      string            `json:"client_ip"`      // 客户端IP
+	UserAgent     string            `json:"user_agent"`     // 用户代理
+	Bitrate       int               `json:"bitrate"`        // 当前码率
+	Bandwidth     int               `json:"bandwidth"`      // 估计带宽
+	StartTime     time.Time         `json:"start_time"`     // 开始时间
+	LastHeartbeat time.Time         `json:"last_heartbeat"` // 最后心跳
 }
 
 // TranscodeJob 转码任务.
 type TranscodeJob struct {
-	ID         string            `json:"id"`          // 任务ID
-	MediaID    string            `json:"media_id"`    // 媒体ID
-	ProfileID  string            `json:"profile_id"`  // 配置ID
-	Status     TranscodeStatus   `json:"status"`      // 任务状态
-	Progress   float64           `json:"progress"`    // 进度百分比
-	InputPath  string            `json:"input_path"`  // 输入路径
-	OutputPath string            `json:"output_path"` // 输出路径
-	Error      string            `json:"error"`       // 错误信息
-	StartTime  time.Time         `json:"start_time"`  // 开始时间
-	EndTime    *time.Time        `json:"end_time"`    // 结束时间
-	Stats      *TranscodeStats   `json:"stats"`       // 转码统计
+	ID         string          `json:"id"`          // 任务ID
+	MediaID    string          `json:"media_id"`    // 媒体ID
+	ProfileID  string          `json:"profile_id"`  // 配置ID
+	Status     TranscodeStatus `json:"status"`      // 任务状态
+	Progress   float64         `json:"progress"`    // 进度百分比
+	InputPath  string          `json:"input_path"`  // 输入路径
+	OutputPath string          `json:"output_path"` // 输出路径
+	Error      string          `json:"error"`       // 错误信息
+	StartTime  time.Time       `json:"start_time"`  // 开始时间
+	EndTime    *time.Time      `json:"end_time"`    // 结束时间
+	Stats      *TranscodeStats `json:"stats"`       // 转码统计
 }
 
 // TranscodeStatus 转码状态.
@@ -459,44 +459,44 @@ const (
 
 // TranscodeStats 转码统计.
 type TranscodeStats struct {
-	Duration     float64 `json:"duration"`      // 已转码时长（秒）
+	Duration      float64 `json:"duration"`       // 已转码时长（秒）
 	TotalDuration float64 `json:"total_duration"` // 总时长（秒）
-	Speed        float64 `json:"speed"`         // 转码速度（倍速）
-	FPS          float64 `json:"fps"`           // 帧率
-	Bitrate      int     `json:"bitrate"`       // 当前码率（kbps）
-	Size         int64   `json:"size"`          // 已输出大小（字节）
-	FrameCount   int64   `json:"frame_count"`   // 已处理帧数
+	Speed         float64 `json:"speed"`          // 转码速度（倍速）
+	FPS           float64 `json:"fps"`            // 帧率
+	Bitrate       int     `json:"bitrate"`        // 当前码率（kbps）
+	Size          int64   `json:"size"`           // 已输出大小（字节）
+	FrameCount    int64   `json:"frame_count"`    // 已处理帧数
 }
 
 // DLNADevice DLNA设备.
 type DLNADevice struct {
-	ID         string    `json:"id"`          // 设备ID
-	Name       string    `json:"name"`        // 设备名称
-	Type       string    `json:"type"`        // 设备类型
-	UDN        string    `json:"udn"`         // 唯一设备名
-	Location   string    `json:"location"`    // 设备地址
-	IconURL    string    `json:"icon_url"`    // 图标URL
-	Manufacturer string  `json:"manufacturer"` // 制造商
-	ModelName  string    `json:"model_name"`  // 型号
-	Capabilities []string `json:"capabilities"` // 支持的格式
-	Online     bool      `json:"online"`      // 是否在线
-	LastSeen   time.Time `json:"last_seen"`   // 最后发现时间
+	ID           string    `json:"id"`           // 设备ID
+	Name         string    `json:"name"`         // 设备名称
+	Type         string    `json:"type"`         // 设备类型
+	UDN          string    `json:"udn"`          // 唯一设备名
+	Location     string    `json:"location"`     // 设备地址
+	IconURL      string    `json:"icon_url"`     // 图标URL
+	Manufacturer string    `json:"manufacturer"` // 制造商
+	ModelName    string    `json:"model_name"`   // 型号
+	Capabilities []string  `json:"capabilities"` // 支持的格式
+	Online       bool      `json:"online"`       // 是否在线
+	LastSeen     time.Time `json:"last_seen"`    // 最后发现时间
 }
 
 // UserConfig 用户配置.
 type UserConfig struct {
-	UserID          string         `json:"user_id"`          // 用户ID
-	PreferredLang   string         `json:"preferred_lang"`   // 首选语言
-	SubtitleEnabled bool           `json:"subtitle_enabled"` // 是否显示字幕
-	SubtitleLang    string         `json:"subtitle_lang"`    // 字幕语言
-	SubtitleSize    int            `json:"subtitle_size"`    // 字幕大小
-	AudioLang       string         `json:"audio_lang"`       // 音频语言首选
-	AutoPlay        bool           `json:"auto_play"`        // 是否自动播放下一集
-	DefaultQuality  string         `json:"default_quality"`  // 默认画质
-	HWAccelEnabled  bool           `json:"hw_accel_enabled"` // 是否启用硬件加速
-	MaxBandwidth    int            `json:"max_bandwidth"`    // 最大带宽（kbps）
-	Theme           string         `json:"theme"`            // 主题
-	ViewMode        string         `json:"view_mode"`        // 视图模式
+	UserID          string `json:"user_id"`          // 用户ID
+	PreferredLang   string `json:"preferred_lang"`   // 首选语言
+	SubtitleEnabled bool   `json:"subtitle_enabled"` // 是否显示字幕
+	SubtitleLang    string `json:"subtitle_lang"`    // 字幕语言
+	SubtitleSize    int    `json:"subtitle_size"`    // 字幕大小
+	AudioLang       string `json:"audio_lang"`       // 音频语言首选
+	AutoPlay        bool   `json:"auto_play"`        // 是否自动播放下一集
+	DefaultQuality  string `json:"default_quality"`  // 默认画质
+	HWAccelEnabled  bool   `json:"hw_accel_enabled"` // 是否启用硬件加速
+	MaxBandwidth    int    `json:"max_bandwidth"`    // 最大带宽（kbps）
+	Theme           string `json:"theme"`            // 主题
+	ViewMode        string `json:"view_mode"`        // 视图模式
 }
 
 // ScanResult 扫描结果.

@@ -10,25 +10,25 @@ import (
 )
 
 var (
-	ErrCollectionNotFound  = errors.New("collection not found")
-	ErrCollectionExists    = errors.New("collection already exists")
-	ErrVectorNotFound      = errors.New("vector not found")
-	ErrDimensionMismatch   = errors.New("vector dimension mismatch")
-	ErrInvalidConfig       = errors.New("invalid configuration")
-	ErrIndexBuildFailed    = errors.New("index build failed")
-	ErrDBClosed            = errors.New("database closed")
-	ErrEmptyCollection     = errors.New("collection is empty")
-	ErrInvalidMetric       = errors.New("invalid distance metric")
+	ErrCollectionNotFound = errors.New("collection not found")
+	ErrCollectionExists   = errors.New("collection already exists")
+	ErrVectorNotFound     = errors.New("vector not found")
+	ErrDimensionMismatch  = errors.New("vector dimension mismatch")
+	ErrInvalidConfig      = errors.New("invalid configuration")
+	ErrIndexBuildFailed   = errors.New("index build failed")
+	ErrDBClosed           = errors.New("database closed")
+	ErrEmptyCollection    = errors.New("collection is empty")
+	ErrInvalidMetric      = errors.New("invalid distance metric")
 )
 
 // DistanceMetric 距离度量类型
 type DistanceMetric string
 
 const (
-	MetricCosine    DistanceMetric = "cosine"
-	MetricEuclidean DistanceMetric = "euclidean"
+	MetricCosine     DistanceMetric = "cosine"
+	MetricEuclidean  DistanceMetric = "euclidean"
 	MetricDotProduct DistanceMetric = "dot_product"
-	MetricManhattan DistanceMetric = "manhattan"
+	MetricManhattan  DistanceMetric = "manhattan"
 )
 
 // IndexType 索引类型
@@ -57,24 +57,24 @@ type SearchResult struct {
 
 // Collection 向量集合
 type Collection struct {
-	Name        string         `json:"name"`
-	Dimension   int            `json:"dimension"`
-	Metric      DistanceMetric `json:"metric"`
-	IndexType   IndexType      `json:"index_type"`
-	Count       int64          `json:"count"`
-	Vectors     map[string]*Vector `json:"-"`
-	mu          sync.RWMutex   `json:"-"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
+	Name      string             `json:"name"`
+	Dimension int                `json:"dimension"`
+	Metric    DistanceMetric     `json:"metric"`
+	IndexType IndexType          `json:"index_type"`
+	Count     int64              `json:"count"`
+	Vectors   map[string]*Vector `json:"-"`
+	mu        sync.RWMutex       `json:"-"`
+	CreatedAt time.Time          `json:"created_at"`
+	UpdatedAt time.Time          `json:"updated_at"`
 }
 
 // SearchOptions 搜索选项
 type SearchOptions struct {
-	TopK         int                    `json:"top_k"`
-	Filter       map[string]interface{} `json:"filter,omitempty"`
-	IncludeMeta  bool                   `json:"include_meta"`
-	EfSearch     int                    `json:"ef_search,omitempty"` // HNSW
-	NProbe       int                    `json:"n_probe,omitempty"`  // IVF
+	TopK        int                    `json:"top_k"`
+	Filter      map[string]interface{} `json:"filter,omitempty"`
+	IncludeMeta bool                   `json:"include_meta"`
+	EfSearch    int                    `json:"ef_search,omitempty"` // HNSW
+	NProbe      int                    `json:"n_probe,omitempty"`   // IVF
 }
 
 // Database 向量数据库

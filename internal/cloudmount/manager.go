@@ -15,31 +15,31 @@ import (
 type CloudProvider string
 
 const (
-	ProviderS3         CloudProvider = "s3"
-	ProviderOSS        CloudProvider = "oss"
-	ProviderOneDrive   CloudProvider = "onedrive"
+	ProviderS3          CloudProvider = "s3"
+	ProviderOSS         CloudProvider = "oss"
+	ProviderOneDrive    CloudProvider = "onedrive"
 	ProviderGoogleDrive CloudProvider = "google_drive"
-	ProviderDropbox    CloudProvider = "dropbox"
-	ProviderSFTP       CloudProvider = "sftp"
+	ProviderDropbox     CloudProvider = "dropbox"
+	ProviderSFTP        CloudProvider = "sftp"
 )
 
 // MountStatus 挂载状态
 type MountStatus string
 
 const (
-	StatusMounted    MountStatus = "mounted"
-	StatusUnmounted  MountStatus = "unmounted"
-	StatusError      MountStatus = "error"
-	StatusSyncing    MountStatus = "syncing"
+	StatusMounted   MountStatus = "mounted"
+	StatusUnmounted MountStatus = "unmounted"
+	StatusError     MountStatus = "error"
+	StatusSyncing   MountStatus = "syncing"
 )
 
 // CacheStrategy 缓存策略
 type CacheStrategy string
 
 const (
-	CacheNone     CacheStrategy = "none"      // 不缓存
-	CacheMetadata CacheStrategy = "metadata"  // 只缓存元数据
-	CacheAll      CacheStrategy = "all"       // 缓存元数据和文件内容
+	CacheNone     CacheStrategy = "none"     // 不缓存
+	CacheMetadata CacheStrategy = "metadata" // 只缓存元数据
+	CacheAll      CacheStrategy = "all"      // 缓存元数据和文件内容
 )
 
 // MountOptions 挂载选项
@@ -54,16 +54,16 @@ type MountOptions struct {
 
 // MountPoint 挂载点
 type MountPoint struct {
-	ID         string        `json:"id"`
-	Name       string        `json:"name"`
-	Provider   CloudProvider `json:"provider"`
-	Bucket     string        `json:"bucket"`     // bucket/container 名称
-	LocalPath  string        `json:"localPath"`  // 本地挂载路径
-	Status     MountStatus   `json:"status"`
-	Options    MountOptions  `json:"options"`
-	AccountID  string        `json:"accountId"`  // 关联的账号ID
-	CreatedAt  time.Time     `json:"createdAt"`
-	MountedAt  time.Time     `json:"mountedAt,omitempty"`
+	ID        string        `json:"id"`
+	Name      string        `json:"name"`
+	Provider  CloudProvider `json:"provider"`
+	Bucket    string        `json:"bucket"`    // bucket/container 名称
+	LocalPath string        `json:"localPath"` // 本地挂载路径
+	Status    MountStatus   `json:"status"`
+	Options   MountOptions  `json:"options"`
+	AccountID string        `json:"accountId"` // 关联的账号ID
+	CreatedAt time.Time     `json:"createdAt"`
+	MountedAt time.Time     `json:"mountedAt,omitempty"`
 	ErrorMsg  string        `json:"errorMsg,omitempty"`
 }
 
@@ -79,12 +79,12 @@ type SyncStatus struct {
 
 // TransferStats 传输统计
 type TransferStats struct {
-	UploadSpeed   int64     `json:"uploadSpeed"`   // KB/s
-	DownloadSpeed int64     `json:"downloadSpeed"` // KB/s
-	TotalUpload   int64     `json:"totalUpload"`   // MB
-	TotalDownload int64     `json:"totalDownload"` // MB
-	ActiveTransfers int     `json:"activeTransfers"`
-	UpdatedAt     time.Time `json:"updatedAt"`
+	UploadSpeed     int64     `json:"uploadSpeed"`   // KB/s
+	DownloadSpeed   int64     `json:"downloadSpeed"` // KB/s
+	TotalUpload     int64     `json:"totalUpload"`   // MB
+	TotalDownload   int64     `json:"totalDownload"` // MB
+	ActiveTransfers int       `json:"activeTransfers"`
+	UpdatedAt       time.Time `json:"updatedAt"`
 }
 
 // CloudAccount 云账号
@@ -101,7 +101,7 @@ type CloudAccount struct {
 
 // AuthConfig 认证配置
 type AuthConfig struct {
-	Type      string `json:"type"`      // key/token/oauth
+	Type      string `json:"type"` // key/token/oauth
 	AccessKey string `json:"accessKey,omitempty"`
 	SecretKey string `json:"secretKey,omitempty"`
 	Token     string `json:"token,omitempty"`
@@ -113,14 +113,14 @@ type AuthConfig struct {
 
 // Manager 云存储挂载管理器
 type Manager struct {
-	mu              sync.RWMutex
-	accounts        map[string]*CloudAccount
-	mounts          map[string]*MountPoint
-	syncStatuses    map[string]*SyncStatus
-	transferStats   *TransferStats
-	uploadLimit     int64 // KB/s
-	downloadLimit   int64 // KB/s
-	nextID          int
+	mu            sync.RWMutex
+	accounts      map[string]*CloudAccount
+	mounts        map[string]*MountPoint
+	syncStatuses  map[string]*SyncStatus
+	transferStats *TransferStats
+	uploadLimit   int64 // KB/s
+	downloadLimit int64 // KB/s
+	nextID        int
 }
 
 // NewManager 创建管理器

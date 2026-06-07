@@ -15,21 +15,21 @@ import (
 type TaskType string
 
 const (
-	TaskTypePowerOn  TaskType = "power_on"  // 开机
-	TaskTypePowerOff TaskType = "power_off" // 关机
-	TaskTypeRestart  TaskType = "restart"   // 重启
+	TaskTypePowerOn   TaskType = "power_on"  // 开机
+	TaskTypePowerOff  TaskType = "power_off" // 关机
+	TaskTypeRestart   TaskType = "restart"   // 重启
 	TaskTypeHibernate TaskType = "hibernate" // 休眠
-	TaskTypeWakeUp   TaskType = "wake_up"   // 唤醒
+	TaskTypeWakeUp    TaskType = "wake_up"   // 唤醒
 )
 
 // ScheduleRule 调度规则
 type ScheduleRule struct {
-	Type     string `json:"type"`     // once/daily/weekly/monthly/custom
-	Weekday  int    `json:"weekday"`  // 0=周日, 1-6=周一到周六
-	DayOfMonth int  `json:"dayOfMonth"` // 每月几号
-	Time     string `json:"time"`     // HH:MM 格式
-	Date     string `json:"date"`     // YYYY-MM-DD 一次性任务用
-	CronExpr string `json:"cronExpr,omitempty"` // 自定义cron表达式
+	Type       string `json:"type"`               // once/daily/weekly/monthly/custom
+	Weekday    int    `json:"weekday"`            // 0=周日, 1-6=周一到周六
+	DayOfMonth int    `json:"dayOfMonth"`         // 每月几号
+	Time       string `json:"time"`               // HH:MM 格式
+	Date       string `json:"date"`               // YYYY-MM-DD 一次性任务用
+	CronExpr   string `json:"cronExpr,omitempty"` // 自定义cron表达式
 }
 
 // ScheduleTask 调度任务
@@ -54,29 +54,29 @@ type Holiday struct {
 
 // PowerEvent 电源事件
 type PowerEvent struct {
-	ID        string    `json:"id"`
-	TaskID    string    `json:"taskId"`
-	TaskName  string    `json:"taskName"`
-	TaskType  TaskType  `json:"taskType"`
-	ExecTime  time.Time `json:"execTime"`
-	Success   bool      `json:"success"`
-	Message   string    `json:"message,omitempty"`
+	ID       string    `json:"id"`
+	TaskID   string    `json:"taskId"`
+	TaskName string    `json:"taskName"`
+	TaskType TaskType  `json:"taskType"`
+	ExecTime time.Time `json:"execTime"`
+	Success  bool      `json:"success"`
+	Message  string    `json:"message,omitempty"`
 }
 
 // UPSStatus UPS状态
 type UPSStatus struct {
-	Battery    int   `json:"battery"`    // 电量百分比 0-100
-	OnBattery  bool  `json:"onBattery"`  // 是否电池供电
-	Estimated  int   `json:"estimated"`  // 预计续航（分钟）
-	LoadPercent int  `json:"loadPercent"` // 负载百分比
-	UpdatedAt  time.Time `json:"updatedAt"`
+	Battery     int       `json:"battery"`     // 电量百分比 0-100
+	OnBattery   bool      `json:"onBattery"`   // 是否电池供电
+	Estimated   int       `json:"estimated"`   // 预计续航（分钟）
+	LoadPercent int       `json:"loadPercent"` // 负载百分比
+	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
 // DayTasks 日历单日任务
 type DayTasks struct {
-	Day     int            `json:"Day"`
-	Tasks   []ScheduleTask `json:"tasks"`
-	IsHoliday bool         `json:"isHoliday"`
+	Day       int            `json:"Day"`
+	Tasks     []ScheduleTask `json:"tasks"`
+	IsHoliday bool           `json:"isHoliday"`
 }
 
 // ScheduleCalendar 月度日历

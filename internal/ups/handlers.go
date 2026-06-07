@@ -53,11 +53,11 @@ func (h *Handlers) getHealthScore(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 		"data": gin.H{
-			"score":        score,
-			"status":       status.Status,
-			"battery":      status.BatteryLevel,
-			"temperature":  status.Temperature,
-			"load":         status.LoadPercent,
+			"score":       score,
+			"status":      status.Status,
+			"battery":     status.BatteryLevel,
+			"temperature": status.Temperature,
+			"load":        status.LoadPercent,
 		},
 	})
 }

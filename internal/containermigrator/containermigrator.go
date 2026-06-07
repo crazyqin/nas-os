@@ -44,28 +44,28 @@ type VolumeMount struct {
 
 // Host 主机信息
 type Host struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	Address      string    `json:"address"`
-	OS           string    `json:"os"`
-	CPUCores     int       `json:"cpu_cores"`
-	TotalMemory  int64     `json:"total_memory_mb"`
-	UsedMemory   int64     `json:"used_memory_mb"`
-	Containers   int       `json:"containers"`
-	MaxContainers int      `json:"max_containers"`
-	Status       string    `json:"status"`
-	Labels       map[string]string `json:"labels"`
-	LastPing     time.Time `json:"last_ping"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Address       string            `json:"address"`
+	OS            string            `json:"os"`
+	CPUCores      int               `json:"cpu_cores"`
+	TotalMemory   int64             `json:"total_memory_mb"`
+	UsedMemory    int64             `json:"used_memory_mb"`
+	Containers    int               `json:"containers"`
+	MaxContainers int               `json:"max_containers"`
+	Status        string            `json:"status"`
+	Labels        map[string]string `json:"labels"`
+	LastPing      time.Time         `json:"last_ping"`
 }
 
 // Snapshot 容器快照
 type Snapshot struct {
-	ID          string    `json:"id"`
-	ContainerID string    `json:"container_id"`
-	HostID      string    `json:"host_id"`
-	Size        int64     `json:"size_bytes"`
-	State       string    `json:"state"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID          string     `json:"id"`
+	ContainerID string     `json:"container_id"`
+	HostID      string     `json:"host_id"`
+	Size        int64      `json:"size_bytes"`
+	State       string     `json:"state"`
+	CreatedAt   time.Time  `json:"created_at"`
 	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
 }
 
@@ -101,14 +101,14 @@ type MigrationConfig struct {
 
 // MigrationStats 迁移统计
 type MigrationStats struct {
-	TotalMigrations   int     `json:"total_migrations"`
-	Successful        int     `json:"successful"`
-	Failed            int     `json:"failed"`
-	InProgress        int     `json:"in_progress"`
-	AvgDurationSec    float64 `json:"avg_duration_sec"`
-	TotalBytesSynced  int64   `json:"total_bytes_synced"`
-	TotalContainers   int     `json:"total_containers"`
-	TotalHosts        int     `json:"total_hosts"`
+	TotalMigrations  int     `json:"total_migrations"`
+	Successful       int     `json:"successful"`
+	Failed           int     `json:"failed"`
+	InProgress       int     `json:"in_progress"`
+	AvgDurationSec   float64 `json:"avg_duration_sec"`
+	TotalBytesSynced int64   `json:"total_bytes_synced"`
+	TotalContainers  int     `json:"total_containers"`
+	TotalHosts       int     `json:"total_hosts"`
 }
 
 // ContainerMigrator 容器热迁移管理器

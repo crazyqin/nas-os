@@ -358,8 +358,8 @@ func (h *Handlers) listFilterPolicies(c *gin.Context) {
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
-			"total":     len(policies),
-			"policies":  policies,
+			"total":    len(policies),
+			"policies": policies,
 		},
 	})
 }

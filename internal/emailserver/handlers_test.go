@@ -131,12 +131,12 @@ func TestCreateFilterRule(t *testing.T) {
 	r, _ := setupTestRouter()
 
 	reqBody := CreateFilterRuleRequest{
-		Name:       "Spam Filter",
-		Priority:   1,
-		Condition:  "subject",
-		MatchType:  "contains",
-		MatchValue: "spam",
-		Action:     "move",
+		Name:        "Spam Filter",
+		Priority:    1,
+		Condition:   "subject",
+		MatchType:   "contains",
+		MatchValue:  "spam",
+		Action:      "move",
 		ActionValue: "spam",
 	}
 	body, _ := json.Marshal(reqBody)
@@ -166,8 +166,8 @@ func TestAntispamConfig(t *testing.T) {
 	enabled := true
 	threshold := 75
 	reqBody := UpdateAntispamRequest{
-		Enabled:   &enabled,
-		Threshold: &threshold,
+		Enabled:        &enabled,
+		Threshold:      &threshold,
 		BlacklistAddrs: []string{"spammer@evil.com"},
 	}
 	body, _ := json.Marshal(reqBody)

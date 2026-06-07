@@ -30,53 +30,53 @@ const (
 type KeyState string
 
 const (
-	KeyStatePreActive  KeyState = "PreActive"
-	KeyStateActive     KeyState = "Active"
+	KeyStatePreActive   KeyState = "PreActive"
+	KeyStateActive      KeyState = "Active"
 	KeyStateDeactivated KeyState = "Deactivated"
 	KeyStateCompromised KeyState = "Compromised"
-	KeyStateDestroyed  KeyState = "Destroyed"
+	KeyStateDestroyed   KeyState = "Destroyed"
 )
 
 // KeyType represents the type of cryptographic key
 type KeyType string
 
 const (
-	KeyTypeAES   KeyType = "AES"
-	KeyTypeRSA   KeyType = "RSA"
-	KeyTypeEC    KeyType = "EC"
-	KeyTypeHMAC  KeyType = "HMAC"
+	KeyTypeAES  KeyType = "AES"
+	KeyTypeRSA  KeyType = "RSA"
+	KeyTypeEC   KeyType = "EC"
+	KeyTypeHMAC KeyType = "HMAC"
 )
 
 // KMIPKey represents a managed cryptographic key
 type KMIPKey struct {
-	ID            string    `json:"id"`
-	Name          string    `json:"name"`
-	Type          KeyType   `json:"type"`
-	State         KeyState  `json:"state"`
-	Algorithm     string    `json:"algorithm"`
-	KeySize       int       `json:"key_size"`
-	ActivationDate time.Time `json:"activation_date"`
-	DeactivationDate *time.Time `json:"deactivation_date,omitempty"`
-	ProtectStopDate  *time.Time `json:"protect_stop_date,omitempty"`
-	RotationInterval time.Duration `json:"rotation_interval"`
-	UsageCount   int64     `json:"usage_count"`
-	MaxUsage     int64     `json:"max_usage"`
-	Metadata     map[string]string `json:"metadata,omitempty"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ID               string            `json:"id"`
+	Name             string            `json:"name"`
+	Type             KeyType           `json:"type"`
+	State            KeyState          `json:"state"`
+	Algorithm        string            `json:"algorithm"`
+	KeySize          int               `json:"key_size"`
+	ActivationDate   time.Time         `json:"activation_date"`
+	DeactivationDate *time.Time        `json:"deactivation_date,omitempty"`
+	ProtectStopDate  *time.Time        `json:"protect_stop_date,omitempty"`
+	RotationInterval time.Duration     `json:"rotation_interval"`
+	UsageCount       int64             `json:"usage_count"`
+	MaxUsage         int64             `json:"max_usage"`
+	Metadata         map[string]string `json:"metadata,omitempty"`
+	CreatedAt        time.Time         `json:"created_at"`
+	UpdatedAt        time.Time         `json:"updated_at"`
 }
 
 // KMIPConfig configures the KMIP client
 type KMIPConfig struct {
-	Endpoint     string        `json:"endpoint"`      // KMIP server endpoint
-	Port         int           `json:"port"`          // Default: 5696
-	Version      KMIPVersion   `json:"version"`       // KMIP protocol version
-	TLSConfig    *TLSConfig    `json:"tls_config"`
-	Timeout      time.Duration `json:"timeout"`       // Request timeout
-	RetryCount   int           `json:"retry_count"`
-	RetryDelay   time.Duration `json:"retry_delay"`
-	CacheTTL     time.Duration `json:"cache_ttl"`     // Key cache TTL
-	AutoRotate   bool          `json:"auto_rotate"`   // Auto-rotate expired keys
+	Endpoint   string        `json:"endpoint"` // KMIP server endpoint
+	Port       int           `json:"port"`     // Default: 5696
+	Version    KMIPVersion   `json:"version"`  // KMIP protocol version
+	TLSConfig  *TLSConfig    `json:"tls_config"`
+	Timeout    time.Duration `json:"timeout"` // Request timeout
+	RetryCount int           `json:"retry_count"`
+	RetryDelay time.Duration `json:"retry_delay"`
+	CacheTTL   time.Duration `json:"cache_ttl"`   // Key cache TTL
+	AutoRotate bool          `json:"auto_rotate"` // Auto-rotate expired keys
 }
 
 // TLSConfig configures TLS for KMIP connection
@@ -103,15 +103,15 @@ func DefaultKMIPConfig() KMIPConfig {
 
 // Client is the KMIP client
 type Client struct {
-	mu       sync.RWMutex
-	config   KMIPConfig
-	logger   *zap.Logger
-	keys     map[string]*KMIPKey
-	cache    map[string]*cacheEntry
+	mu         sync.RWMutex
+	config     KMIPConfig
+	logger     *zap.Logger
+	keys       map[string]*KMIPKey
+	cache      map[string]*cacheEntry
 	httpClient *http.Client
-	ctx      context.Context
-	cancel   context.CancelFunc
-	wg       sync.WaitGroup
+	ctx        context.Context
+	cancel     context.CancelFunc
+	wg         sync.WaitGroup
 }
 
 type cacheEntry struct {
@@ -331,11 +331,11 @@ func (c *Client) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_keys":   len(c.keys),
-		"cached_keys":  len(c.cache),
-		"key_states":    stateCounts,
-		"auto_rotate":   c.config.AutoRotate,
-		"endpoint":      c.config.Endpoint,
+		"total_keys":  len(c.keys),
+		"cached_keys": len(c.cache),
+		"key_states":  stateCounts,
+		"auto_rotate": c.config.AutoRotate,
+		"endpoint":    c.config.Endpoint,
 	}
 }
 

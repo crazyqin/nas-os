@@ -23,41 +23,41 @@ const (
 type AlertType string
 
 const (
-	AlertBandwidthSpike   AlertType = "bandwidth_spike"
-	AlertSuspiciousConn   AlertType = "suspicious_connection"
-	AlertPortScan         AlertType = "port_scan"
-	AlertDDoS             AlertType = "ddos_detected"
-	AlertDataExfil        AlertType = "data_exfiltration"
-	AlertUnusualProtocol  AlertType = "unusual_protocol"
+	AlertBandwidthSpike  AlertType = "bandwidth_spike"
+	AlertSuspiciousConn  AlertType = "suspicious_connection"
+	AlertPortScan        AlertType = "port_scan"
+	AlertDDoS            AlertType = "ddos_detected"
+	AlertDataExfil       AlertType = "data_exfiltration"
+	AlertUnusualProtocol AlertType = "unusual_protocol"
 )
 
 // TrafficRecord represents a traffic record
 type TrafficRecord struct {
-	ID          string    `json:"id"`
-	SrcIP       string    `json:"src_ip"`
-	DstIP       string    `json:"dst_ip"`
-	SrcPort     int       `json:"src_port"`
-	DstPort     int       `json:"dst_port"`
-	Protocol    string    `json:"protocol"`
-	BytesIn     int64     `json:"bytes_in"`
-	BytesOut    int64     `json:"bytes_out"`
-	PacketsIn   int64     `json:"packets_in"`
-	PacketsOut  int64     `json:"packets_out"`
-	Duration    int64     `json:"duration_ms"`
-	Timestamp   time.Time `json:"timestamp"`
+	ID         string    `json:"id"`
+	SrcIP      string    `json:"src_ip"`
+	DstIP      string    `json:"dst_ip"`
+	SrcPort    int       `json:"src_port"`
+	DstPort    int       `json:"dst_port"`
+	Protocol   string    `json:"protocol"`
+	BytesIn    int64     `json:"bytes_in"`
+	BytesOut   int64     `json:"bytes_out"`
+	PacketsIn  int64     `json:"packets_in"`
+	PacketsOut int64     `json:"packets_out"`
+	Duration   int64     `json:"duration_ms"`
+	Timestamp  time.Time `json:"timestamp"`
 }
 
 // Alert represents a network alert
 type Alert struct {
-	ID          string        `json:"id"`
-	Type        AlertType     `json:"type"`
-	Severity    AlertSeverity `json:"severity"`
-	Source      string        `json:"source"`
-	Destination string        `json:"destination"`
-	Description string        `json:"description"`
-	Details     string        `json:"details"`
-	Acknowledged bool         `json:"acknowledged"`
-	Timestamp   time.Time     `json:"timestamp"`
+	ID           string        `json:"id"`
+	Type         AlertType     `json:"type"`
+	Severity     AlertSeverity `json:"severity"`
+	Source       string        `json:"source"`
+	Destination  string        `json:"destination"`
+	Description  string        `json:"description"`
+	Details      string        `json:"details"`
+	Acknowledged bool          `json:"acknowledged"`
+	Timestamp    time.Time     `json:"timestamp"`
 }
 
 // BandwidthRecord represents bandwidth usage at a point in time
@@ -74,17 +74,17 @@ type BandwidthRecord struct {
 
 // ConnectionInfo represents an active connection
 type ConnectionInfo struct {
-	SrcIP      string    `json:"src_ip"`
-	DstIP      string    `json:"dst_ip"`
-	SrcPort    int       `json:"src_port"`
-	DstPort    int       `json:"dst_port"`
-	Protocol   string    `json:"protocol"`
-	State      string    `json:"state"`
-	PID        int       `json:"pid"`
-	Process    string    `json:"process"`
-	BytesIn    int64     `json:"bytes_in"`
-	BytesOut   int64     `json:"bytes_out"`
-	StartTime  time.Time `json:"start_time"`
+	SrcIP     string    `json:"src_ip"`
+	DstIP     string    `json:"dst_ip"`
+	SrcPort   int       `json:"src_port"`
+	DstPort   int       `json:"dst_port"`
+	Protocol  string    `json:"protocol"`
+	State     string    `json:"state"`
+	PID       int       `json:"pid"`
+	Process   string    `json:"process"`
+	BytesIn   int64     `json:"bytes_in"`
+	BytesOut  int64     `json:"bytes_out"`
+	StartTime time.Time `json:"start_time"`
 }
 
 // SentinelStats represents network sentinel statistics
@@ -100,26 +100,26 @@ type SentinelStats struct {
 
 // Config holds network sentinel configuration
 type Config struct {
-	Enabled            bool  `json:"enabled"`
-	MonitorInterval    int   `json:"monitor_interval_seconds"`
-	AlertThresholdBps  int64 `json:"alert_threshold_bps"`
-	DDoSThreshold      int   `json:"ddos_threshold_pps"`
-	PortScanThreshold  int   `json:"port_scan_threshold"`
-	TrafficRetentionH  int   `json:"traffic_retention_hours"`
-	AlertRetentionDays int   `json:"alert_retention_days"`
-	EnableDeepInspection bool `json:"enable_deep_inspection"`
+	Enabled              bool  `json:"enabled"`
+	MonitorInterval      int   `json:"monitor_interval_seconds"`
+	AlertThresholdBps    int64 `json:"alert_threshold_bps"`
+	DDoSThreshold        int   `json:"ddos_threshold_pps"`
+	PortScanThreshold    int   `json:"port_scan_threshold"`
+	TrafficRetentionH    int   `json:"traffic_retention_hours"`
+	AlertRetentionDays   int   `json:"alert_retention_days"`
+	EnableDeepInspection bool  `json:"enable_deep_inspection"`
 }
 
 // Manager manages network sentinel
 type Manager struct {
-	config       *Config
-	traffic      []*TrafficRecord
-	alerts       []*Alert
-	bandwidth    []*BandwidthRecord
-	connections  []*ConnectionInfo
-	mu           sync.RWMutex
-	ctx          context.Context
-	cancel       context.CancelFunc
+	config      *Config
+	traffic     []*TrafficRecord
+	alerts      []*Alert
+	bandwidth   []*BandwidthRecord
+	connections []*ConnectionInfo
+	mu          sync.RWMutex
+	ctx         context.Context
+	cancel      context.CancelFunc
 }
 
 // NewManager creates a new network sentinel manager
@@ -217,8 +217,8 @@ func (m *Manager) GetStats() *SentinelStats {
 	defer m.mu.RUnlock()
 
 	stats := &SentinelStats{
-		TotalAlerts:      len(m.alerts),
-		TotalTrafficRecs: len(m.traffic),
+		TotalAlerts:       len(m.alerts),
+		TotalTrafficRecs:  len(m.traffic),
 		ActiveConnections: len(m.connections),
 	}
 

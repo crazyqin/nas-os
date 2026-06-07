@@ -20,7 +20,7 @@ type FileInfo struct {
 	Size    int64     `json:"size"`
 	ModTime time.Time `json:"mod_time"`
 	IsDir   bool      `json:"is_dir"`
-	Hash    string    `json:"hash,omitempty"` // 文件哈希值
+	Hash    string    `json:"hash,omitempty"`    // 文件哈希值
 	Version string    `json:"version,omitempty"` // 版本号
 }
 
@@ -32,57 +32,57 @@ type FileInfo struct {
 type ProviderType string
 
 const (
-	ProviderS3             ProviderType = "s3"
-	ProviderS3Compatible   ProviderType = "s3_compatible"
-	ProviderAliyunOSS      ProviderType = "aliyun_oss"
-	ProviderTencentCOS     ProviderType = "tencent_cos"
-	ProviderAWSS3          ProviderType = "aws_s3"
-	ProviderBackblazeB2    ProviderType = "backblaze_b2"
-	ProviderWebDAV         ProviderType = "webdav"
-	ProviderGoogleDrive    ProviderType = "google_drive"
-	ProviderOneDrive       ProviderType = "onedrive"
-	ProviderDropbox        ProviderType = "dropbox"
-	Provider115            ProviderType = "115"
-	ProviderQuark          ProviderType = "quark"
-	ProviderBaidu          ProviderType = "baidu"
-	ProviderBaiduPan       ProviderType = "baidu_pan"
-	ProviderAliyunPan      ProviderType = "aliyun_pan"
+	ProviderS3           ProviderType = "s3"
+	ProviderS3Compatible ProviderType = "s3_compatible"
+	ProviderAliyunOSS    ProviderType = "aliyun_oss"
+	ProviderTencentCOS   ProviderType = "tencent_cos"
+	ProviderAWSS3        ProviderType = "aws_s3"
+	ProviderBackblazeB2  ProviderType = "backblaze_b2"
+	ProviderWebDAV       ProviderType = "webdav"
+	ProviderGoogleDrive  ProviderType = "google_drive"
+	ProviderOneDrive     ProviderType = "onedrive"
+	ProviderDropbox      ProviderType = "dropbox"
+	Provider115          ProviderType = "115"
+	ProviderQuark        ProviderType = "quark"
+	ProviderBaidu        ProviderType = "baidu"
+	ProviderBaiduPan     ProviderType = "baidu_pan"
+	ProviderAliyunPan    ProviderType = "aliyun_pan"
 )
 
 // ProviderConfig 云存储提供商配置
 type ProviderConfig struct {
-	ID            string       `json:"id,omitempty"`           // 配置 ID
-	Name          string       `json:"name,omitempty"`         // 配置名称
-	Provider      ProviderType `json:"provider"`
-	Type          ProviderType `json:"type,omitempty"`         // 别名
-	Endpoint      string       `json:"endpoint,omitempty"`
-	Region        string       `json:"region,omitempty"`
-	Bucket        string       `json:"bucket,omitempty"`
-	AccessKey     string       `json:"access_key"`
-	SecretKey     string       `json:"secret_key"`
-	PathStyle     bool         `json:"path_style,omitempty"`
-	Insecure      bool         `json:"insecure,omitempty"`     // 跳过 TLS 验证
-	Timeout       int          `json:"timeout,omitempty"`      // 超时秒数
-	AccessToken   string       `json:"access_token,omitempty"`
-	RefreshToken  string       `json:"refresh_token,omitempty"`
-	UserID        string       `json:"user_id,omitempty"`
-	DriveID       string       `json:"drive_id,omitempty"`
-	ClientID      string       `json:"client_id,omitempty"`    // OAuth2 Client ID
-	ClientSecret  string       `json:"client_secret,omitempty"` // OAuth2 Client Secret
-	RootFolderID  string       `json:"root_folder_id,omitempty"` // 根文件夹 ID
-	TenantID      string       `json:"tenant_id,omitempty"`    // 租户 ID (Azure等)
-	Enabled       bool         `json:"enabled,omitempty"`       // 是否启用
+	ID           string       `json:"id,omitempty"`   // 配置 ID
+	Name         string       `json:"name,omitempty"` // 配置名称
+	Provider     ProviderType `json:"provider"`
+	Type         ProviderType `json:"type,omitempty"` // 别名
+	Endpoint     string       `json:"endpoint,omitempty"`
+	Region       string       `json:"region,omitempty"`
+	Bucket       string       `json:"bucket,omitempty"`
+	AccessKey    string       `json:"access_key"`
+	SecretKey    string       `json:"secret_key"`
+	PathStyle    bool         `json:"path_style,omitempty"`
+	Insecure     bool         `json:"insecure,omitempty"` // 跳过 TLS 验证
+	Timeout      int          `json:"timeout,omitempty"`  // 超时秒数
+	AccessToken  string       `json:"access_token,omitempty"`
+	RefreshToken string       `json:"refresh_token,omitempty"`
+	UserID       string       `json:"user_id,omitempty"`
+	DriveID      string       `json:"drive_id,omitempty"`
+	ClientID     string       `json:"client_id,omitempty"`      // OAuth2 Client ID
+	ClientSecret string       `json:"client_secret,omitempty"`  // OAuth2 Client Secret
+	RootFolderID string       `json:"root_folder_id,omitempty"` // 根文件夹 ID
+	TenantID     string       `json:"tenant_id,omitempty"`      // 租户 ID (Azure等)
+	Enabled      bool         `json:"enabled,omitempty"`        // 是否启用
 }
 
 // SyncOpType 同步操作类型
 type SyncOpType string
 
 const (
-	SyncOpSkip      SyncOpType = "skip"
-	SyncOpUpload    SyncOpType = "upload"
-	SyncOpDownload  SyncOpType = "download"
-	SyncOpDelete    SyncOpType = "delete"
-	SyncOpConflict  SyncOpType = "conflict"
+	SyncOpSkip         SyncOpType = "skip"
+	SyncOpUpload       SyncOpType = "upload"
+	SyncOpDownload     SyncOpType = "download"
+	SyncOpDelete       SyncOpType = "delete"
+	SyncOpConflict     SyncOpType = "conflict"
 	SyncOpDeleteLocal  SyncOpType = "delete_local"
 	SyncOpDeleteRemote SyncOpType = "delete_remote"
 )
@@ -101,23 +101,23 @@ type SyncOperation struct {
 type ConflictStrategy string
 
 const (
-	ConflictStrategySkip    ConflictStrategy = "skip"
-	ConflictStrategyLocal   ConflictStrategy = "local"
-	ConflictStrategyRemote  ConflictStrategy = "remote"
-	ConflictStrategyNewer   ConflictStrategy = "newer"
-	ConflictStrategyRename  ConflictStrategy = "rename"
-	ConflictStrategyAsk     ConflictStrategy = "ask"
+	ConflictStrategySkip   ConflictStrategy = "skip"
+	ConflictStrategyLocal  ConflictStrategy = "local"
+	ConflictStrategyRemote ConflictStrategy = "remote"
+	ConflictStrategyNewer  ConflictStrategy = "newer"
+	ConflictStrategyRename ConflictStrategy = "rename"
+	ConflictStrategyAsk    ConflictStrategy = "ask"
 )
 
 // ConflictInfo 冲突信息
 type ConflictInfo struct {
-	Path           string    `json:"path"`
-	LocalModTime   time.Time `json:"local_mod_time"`
-	RemoteModTime  time.Time `json:"remote_mod_time"`
-	LocalSize      int64     `json:"local_size"`
-	RemoteSize     int64     `json:"remote_size"`
-	LocalHash      string    `json:"local_hash,omitempty"`
-	RemoteHash     string    `json:"remote_hash,omitempty"`
+	Path          string    `json:"path"`
+	LocalModTime  time.Time `json:"local_mod_time"`
+	RemoteModTime time.Time `json:"remote_mod_time"`
+	LocalSize     int64     `json:"local_size"`
+	RemoteSize    int64     `json:"remote_size"`
+	LocalHash     string    `json:"local_hash,omitempty"`
+	RemoteHash    string    `json:"remote_hash,omitempty"`
 }
 
 // ============================================================
@@ -128,11 +128,11 @@ type ConflictInfo struct {
 type CloudBackend string
 
 const (
-	BackendS3      CloudBackend = "s3"
-	BackendAzure   CloudBackend = "azure_blob"
-	BackendGCS     CloudBackend = "gcs"
-	BackendOSS     CloudBackend = "aliyun_oss"
-	BackendMinIO   CloudBackend = "minio"
+	BackendS3    CloudBackend = "s3"
+	BackendAzure CloudBackend = "azure_blob"
+	BackendGCS   CloudBackend = "gcs"
+	BackendOSS   CloudBackend = "aliyun_oss"
+	BackendMinIO CloudBackend = "minio"
 )
 
 // IsValid 检查后端类型是否有效
@@ -165,10 +165,10 @@ const (
 type SyncMode string
 
 const (
-	SyncModeBidirectional SyncMode = "bidirect"      // 双向同步
-	SyncModeUploadOnly    SyncMode = "upload"         // 单向上传
-	SyncModeDownloadOnly  SyncMode = "download"       // 单向下载
-	SyncModeSync          SyncMode = "sync"           // 同步（兼容旧接口）
+	SyncModeBidirectional SyncMode = "bidirect" // 双向同步
+	SyncModeUploadOnly    SyncMode = "upload"   // 单向上传
+	SyncModeDownloadOnly  SyncMode = "download" // 单向下载
+	SyncModeSync          SyncMode = "sync"     // 同步（兼容旧接口）
 )
 
 // IsValid 检查同步模式是否有效
@@ -210,22 +210,22 @@ func (p ConflictPolicy) IsValid() bool {
 type TaskStatus string
 
 const (
-	StatusIdle     TaskStatus = "idle"
-	StatusSyncing  TaskStatus = "running"
-	StatusPaused   TaskStatus = "paused"
-	StatusError    TaskStatus = "error"
-	StatusDisabled TaskStatus = "disabled"
+	StatusIdle      TaskStatus = "idle"
+	StatusSyncing   TaskStatus = "running"
+	StatusPaused    TaskStatus = "paused"
+	StatusError     TaskStatus = "error"
+	StatusDisabled  TaskStatus = "disabled"
 	StatusCompleted TaskStatus = "completed"
 	StatusCancelled TaskStatus = "cancelled"
-	StatusFailed   TaskStatus = "failed"
+	StatusFailed    TaskStatus = "failed"
 
 	// 兼容 sync_engine.go 使用的常量
-	TaskStatusIdle       = StatusIdle
-	TaskStatusRunning    = StatusSyncing
-	TaskStatusPaused     = StatusPaused
-	TaskStatusCompleted  = StatusCompleted
-	TaskStatusCancelled  = StatusCancelled
-	TaskStatusFailed     = StatusFailed
+	TaskStatusIdle      = StatusIdle
+	TaskStatusRunning   = StatusSyncing
+	TaskStatusPaused    = StatusPaused
+	TaskStatusCompleted = StatusCompleted
+	TaskStatusCancelled = StatusCancelled
+	TaskStatusFailed    = StatusFailed
 )
 
 // ============================================================
@@ -236,9 +236,9 @@ const (
 type ScheduleType string
 
 const (
-	ScheduleManual    ScheduleType = "manual"     // 手动触发
-	ScheduleCron      ScheduleType = "cron"       // 定时同步
-	ScheduleRealtime  ScheduleType = "realtime"   // 实时同步
+	ScheduleManual   ScheduleType = "manual"   // 手动触发
+	ScheduleCron     ScheduleType = "cron"     // 定时同步
+	ScheduleRealtime ScheduleType = "realtime" // 实时同步
 
 	// 兼容旧接口
 	ScheduleTypeManual   = ScheduleManual
@@ -255,12 +255,12 @@ type ConnectionConfig struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
 	Backend     CloudBackend `json:"backend"`
-	Endpoint    string       `json:"endpoint,omitempty"`    // S3/MinIO 端点
-	Region      string       `json:"region,omitempty"`      // S3/Azure 区域
-	Bucket      string       `json:"bucket"`                // 存储桶/容器名称
+	Endpoint    string       `json:"endpoint,omitempty"` // S3/MinIO 端点
+	Region      string       `json:"region,omitempty"`   // S3/Azure 区域
+	Bucket      string       `json:"bucket"`             // 存储桶/容器名称
 	AccessKey   string       `json:"access_key"`
 	SecretKey   string       `json:"secret_key"`
-	BasePath    string       `json:"base_path,omitempty"`   // 远端基础路径
+	BasePath    string       `json:"base_path,omitempty"`    // 远端基础路径
 	AccountName string       `json:"account_name,omitempty"` // Azure 账户名
 	ProjectID   string       `json:"project_id,omitempty"`   // GCS 项目ID
 	UseSSL      bool         `json:"use_ssl"`
@@ -374,43 +374,43 @@ func DefaultTransferConfig() TransferConfig {
 
 // SyncTask 同步任务
 type SyncTask struct {
-	ID             string         `json:"id"`
-	Name           string         `json:"name"`
-	ConnectionID   string         `json:"connection_id"`
-	ProviderID     string         `json:"provider_id"`         // 提供商 ID（兼容旧接口）
-	LocalPath      string         `json:"local_path"`
-	RemotePath     string         `json:"remote_path"`
-	Mode           SyncMode       `json:"mode"`
-	Direction      SyncMode       `json:"direction"`          // 同步方向，用于 sync_engine
-	ConflictPolicy ConflictPolicy `json:"conflict_policy"`
+	ID               string           `json:"id"`
+	Name             string           `json:"name"`
+	ConnectionID     string           `json:"connection_id"`
+	ProviderID       string           `json:"provider_id"` // 提供商 ID（兼容旧接口）
+	LocalPath        string           `json:"local_path"`
+	RemotePath       string           `json:"remote_path"`
+	Mode             SyncMode         `json:"mode"`
+	Direction        SyncMode         `json:"direction"` // 同步方向，用于 sync_engine
+	ConflictPolicy   ConflictPolicy   `json:"conflict_policy"`
 	ConflictStrategy ConflictStrategy `json:"conflict_strategy"` // 用于冲突解决器
-	Filter         FileFilter     `json:"filter"`
-	Schedule       SyncSchedule   `json:"schedule"`
-	Transfer       TransferConfig `json:"transfer"`
-	Status         TaskStatus     `json:"status"`
-	Enabled        bool           `json:"enabled"`
-	ScheduleType   ScheduleType   `json:"schedule_type"`       // 调度类型（兼容旧接口）
-	ScheduleExpr   string         `json:"schedule_expr,omitempty"` // cron 表达式（兼容旧接口）
+	Filter           FileFilter       `json:"filter"`
+	Schedule         SyncSchedule     `json:"schedule"`
+	Transfer         TransferConfig   `json:"transfer"`
+	Status           TaskStatus       `json:"status"`
+	Enabled          bool             `json:"enabled"`
+	ScheduleType     ScheduleType     `json:"schedule_type"`           // 调度类型（兼容旧接口）
+	ScheduleExpr     string           `json:"schedule_expr,omitempty"` // cron 表达式（兼容旧接口）
 
 	// 同步引擎字段
-	IncludePatterns  []string `json:"include_patterns,omitempty"`  // 包含的 glob 模式
-	ExcludePatterns  []string `json:"exclude_patterns,omitempty"`  // 排除的 glob 模式
-	MaxFileSize      int64    `json:"max_file_size,omitempty"`     // 最大文件大小
-	ChecksumVerify   bool     `json:"checksum_verify,omitempty"`   // 校验和验证
-	PreserveModTime  bool     `json:"preserve_mod_time,omitempty"` // 保留修改时间
-	DeleteLocal      bool     `json:"delete_local,omitempty"`      // 删除本地多余文件
-	DeleteRemote     bool     `json:"delete_remote,omitempty"`     // 删除远程多余文件
+	IncludePatterns []string `json:"include_patterns,omitempty"`  // 包含的 glob 模式
+	ExcludePatterns []string `json:"exclude_patterns,omitempty"`  // 排除的 glob 模式
+	MaxFileSize     int64    `json:"max_file_size,omitempty"`     // 最大文件大小
+	ChecksumVerify  bool     `json:"checksum_verify,omitempty"`   // 校验和验证
+	PreserveModTime bool     `json:"preserve_mod_time,omitempty"` // 保留修改时间
+	DeleteLocal     bool     `json:"delete_local,omitempty"`      // 删除本地多余文件
+	DeleteRemote    bool     `json:"delete_remote,omitempty"`     // 删除远程多余文件
 
 	// 统计信息
-	LastSyncTime    *time.Time `json:"last_sync_time,omitempty"`
-	LastSyncResult  string     `json:"last_sync_result,omitempty"`
-	TotalFiles      int64      `json:"total_files"`
-	TotalSize       int64      `json:"total_size"`
-	SyncedFiles     int64      `json:"synced_files"`
-	SkippedFiles    int64      `json:"skipped_files"`
-	FailedFiles     int64      `json:"failed_files"`
-	LastError       string     `json:"last_error,omitempty"`
-	ErrorCount      int        `json:"error_count"`
+	LastSyncTime   *time.Time `json:"last_sync_time,omitempty"`
+	LastSyncResult string     `json:"last_sync_result,omitempty"`
+	TotalFiles     int64      `json:"total_files"`
+	TotalSize      int64      `json:"total_size"`
+	SyncedFiles    int64      `json:"synced_files"`
+	SkippedFiles   int64      `json:"skipped_files"`
+	FailedFiles    int64      `json:"failed_files"`
+	LastError      string     `json:"last_error,omitempty"`
+	ErrorCount     int        `json:"error_count"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -448,38 +448,38 @@ func (t *SyncTask) Validate() error {
 
 // SyncStatus 同步状态详情
 type SyncStatus struct {
-	TaskID          string       `json:"task_id"`
-	TaskName        string       `json:"task_name"`
-	Status          TaskStatus   `json:"status"`
-	Progress        float64      `json:"progress"`       // 0-100
-	CurrentFile     string       `json:"current_file"`
-	CurrentAction   string       `json:"current_action"` // upload/download/delete/skip
-	TotalBytes      int64        `json:"total_bytes"`
-	BytesTotal      int64        `json:"bytes_total"`
-	BytesSynced     int64        `json:"bytes_synced"`
-	SpeedBps        int64        `json:"speed_bps"`      // 当前速度 (bytes/sec)
-	ETASeconds      int          `json:"eta_seconds"`    // 预计剩余秒数
-	StartedAt       *time.Time   `json:"started_at,omitempty"`
-	EstimatedEnd    *time.Time   `json:"estimated_end,omitempty"`
-	StartTime       time.Time    `json:"start_time"`
-	EndTime         time.Time    `json:"end_time"`
-	TotalFiles      int64        `json:"total_files"`
-	ProcessedFiles  int64        `json:"processed_files"`
-	UploadedFiles   int64        `json:"uploaded_files"`
-	DownloadedFiles int64        `json:"downloaded_files"`
-	DeletedFiles    int64        `json:"deleted_files"`
-	SkippedFiles    int64        `json:"skipped_files"`
-	FailedFiles     int64        `json:"failed_files"`
-	TransferredBytes int64       `json:"transferred_bytes"`
-	Speed           int64        `json:"speed"`          // KB/s
-	Conflicts       []ConflictInfo `json:"conflicts,omitempty"`
-	Errors          []SyncError  `json:"errors,omitempty"`
+	TaskID           string         `json:"task_id"`
+	TaskName         string         `json:"task_name"`
+	Status           TaskStatus     `json:"status"`
+	Progress         float64        `json:"progress"` // 0-100
+	CurrentFile      string         `json:"current_file"`
+	CurrentAction    string         `json:"current_action"` // upload/download/delete/skip
+	TotalBytes       int64          `json:"total_bytes"`
+	BytesTotal       int64          `json:"bytes_total"`
+	BytesSynced      int64          `json:"bytes_synced"`
+	SpeedBps         int64          `json:"speed_bps"`   // 当前速度 (bytes/sec)
+	ETASeconds       int            `json:"eta_seconds"` // 预计剩余秒数
+	StartedAt        *time.Time     `json:"started_at,omitempty"`
+	EstimatedEnd     *time.Time     `json:"estimated_end,omitempty"`
+	StartTime        time.Time      `json:"start_time"`
+	EndTime          time.Time      `json:"end_time"`
+	TotalFiles       int64          `json:"total_files"`
+	ProcessedFiles   int64          `json:"processed_files"`
+	UploadedFiles    int64          `json:"uploaded_files"`
+	DownloadedFiles  int64          `json:"downloaded_files"`
+	DeletedFiles     int64          `json:"deleted_files"`
+	SkippedFiles     int64          `json:"skipped_files"`
+	FailedFiles      int64          `json:"failed_files"`
+	TransferredBytes int64          `json:"transferred_bytes"`
+	Speed            int64          `json:"speed"` // KB/s
+	Conflicts        []ConflictInfo `json:"conflicts,omitempty"`
+	Errors           []SyncError    `json:"errors,omitempty"`
 }
 
 // SyncError 同步错误
 type SyncError struct {
 	Path      string    `json:"path"`
-	Action    string    `json:"action"`    // upload/download/delete_remote/delete_local
+	Action    string    `json:"action"` // upload/download/delete_remote/delete_local
 	Error     string    `json:"error"`
 	Time      time.Time `json:"time"`
 	Timestamp time.Time `json:"timestamp"`
@@ -495,14 +495,14 @@ type ProviderInfo struct {
 
 // ProviderItem 已配置的提供商实例
 type ProviderItem struct {
-	ID        string       `json:"id"`
-	Name      string       `json:"name"`
-	Type      ProviderType `json:"type"`
-	Enabled   bool         `json:"enabled"`
-	Bucket    string       `json:"bucket,omitempty"`
+	ID        string         `json:"id"`
+	Name      string         `json:"name"`
+	Type      ProviderType   `json:"type"`
+	Enabled   bool           `json:"enabled"`
+	Bucket    string         `json:"bucket,omitempty"`
 	Config    ProviderConfig `json:"config,omitempty"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt time.Time    `json:"updated_at"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
 }
 
 // SupportedProviders 返回支持的云存储提供商列表
@@ -536,14 +536,14 @@ type SyncLog struct {
 
 // StorageUsage 存储空间用量
 type StorageUsage struct {
-	ConnectionID string `json:"connection_id"`
+	ConnectionID string       `json:"connection_id"`
 	Backend      CloudBackend `json:"backend"`
-	Bucket       string `json:"bucket"`
-	TotalBytes   int64  `json:"total_bytes"`
-	UsedBytes    int64  `json:"used_bytes"`
-	FreeBytes    int64  `json:"free_bytes"`
-	ObjectCount  int64  `json:"object_count"`
-	QuotaBytes   int64  `json:"quota_bytes,omitempty"` // 配额, 0=无限
+	Bucket       string       `json:"bucket"`
+	TotalBytes   int64        `json:"total_bytes"`
+	UsedBytes    int64        `json:"used_bytes"`
+	FreeBytes    int64        `json:"free_bytes"`
+	ObjectCount  int64        `json:"object_count"`
+	QuotaBytes   int64        `json:"quota_bytes,omitempty"` // 配额, 0=无限
 }
 
 // SyncStats 同步统计汇总
@@ -585,28 +585,28 @@ type CreateConnectionRequest struct {
 
 // UpdateConnectionRequest 更新连接请求
 type UpdateConnectionRequest struct {
-	Name        string       `json:"name,omitempty"`
-	Endpoint    string       `json:"endpoint,omitempty"`
-	Region      string       `json:"region,omitempty"`
-	Bucket      string       `json:"bucket,omitempty"`
-	AccessKey   string       `json:"access_key,omitempty"`
-	SecretKey   string       `json:"secret_key,omitempty"`
-	BasePath    string       `json:"base_path,omitempty"`
-	AccountName string       `json:"account_name,omitempty"`
-	ProjectID   string       `json:"project_id,omitempty"`
-	UseSSL      *bool        `json:"use_ssl,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Endpoint    string `json:"endpoint,omitempty"`
+	Region      string `json:"region,omitempty"`
+	Bucket      string `json:"bucket,omitempty"`
+	AccessKey   string `json:"access_key,omitempty"`
+	SecretKey   string `json:"secret_key,omitempty"`
+	BasePath    string `json:"base_path,omitempty"`
+	AccountName string `json:"account_name,omitempty"`
+	ProjectID   string `json:"project_id,omitempty"`
+	UseSSL      *bool  `json:"use_ssl,omitempty"`
 }
 
 // CreateTaskRequest 创建同步任务请求
 type CreateTaskRequest struct {
-	Name           string         `json:"name" binding:"required"`
-	ConnectionID   string         `json:"connection_id" binding:"required"`
-	LocalPath      string         `json:"local_path" binding:"required"`
-	RemotePath     string         `json:"remote_path" binding:"required"`
-	Mode           SyncMode       `json:"mode" binding:"required"`
-	ConflictPolicy ConflictPolicy `json:"conflict_policy"`
-	Filter         *FileFilter    `json:"filter,omitempty"`
-	Schedule       *SyncSchedule  `json:"schedule,omitempty"`
+	Name           string          `json:"name" binding:"required"`
+	ConnectionID   string          `json:"connection_id" binding:"required"`
+	LocalPath      string          `json:"local_path" binding:"required"`
+	RemotePath     string          `json:"remote_path" binding:"required"`
+	Mode           SyncMode        `json:"mode" binding:"required"`
+	ConflictPolicy ConflictPolicy  `json:"conflict_policy"`
+	Filter         *FileFilter     `json:"filter,omitempty"`
+	Schedule       *SyncSchedule   `json:"schedule,omitempty"`
 	Transfer       *TransferConfig `json:"transfer,omitempty"`
 }
 

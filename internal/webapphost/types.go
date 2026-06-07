@@ -15,7 +15,7 @@ type WebApp struct {
 	DisplayName string            `json:"display_name"`
 	Description string            `json:"description"`
 	Version     string            `json:"version"`
-	Type        string            `json:"type"` // docker, static, proxy
+	Type        string            `json:"type"`   // docker, static, proxy
 	Status      string            `json:"status"` // stopped, starting, running, stopping, error
 	Domain      string            `json:"domain,omitempty"`
 	Path        string            `json:"path"`
@@ -51,12 +51,12 @@ type PortMapping struct {
 
 // ResourceLimit 资源限制
 type ResourceLimit struct {
-	CPUShares  int64  `json:"cpu_shares"`  // CPU 份额
-	MemoryMB   int64  `json:"memory_mb"`   // 内存限制(MB)
-	MemorySwap int64  `json:"memory_swap"` // 交换内存限制(MB)
-	CPUQuota   int64  `json:"cpu_quota"`   // CPU 配额(微秒)
-	PidsLimit  int64  `json:"pids_limit"`  // 进程数限制
-	IOWeight   int    `json:"io_weight"`   // IO 权重
+	CPUShares  int64 `json:"cpu_shares"`  // CPU 份额
+	MemoryMB   int64 `json:"memory_mb"`   // 内存限制(MB)
+	MemorySwap int64 `json:"memory_swap"` // 交换内存限制(MB)
+	CPUQuota   int64 `json:"cpu_quota"`   // CPU 配额(微秒)
+	PidsLimit  int64 `json:"pids_limit"`  // 进程数限制
+	IOWeight   int   `json:"io_weight"`   // IO 权重
 }
 
 // AppTemplate 应用模板
@@ -91,12 +91,12 @@ type AppTemplate struct {
 
 // EnvVarDef 环境变量定义
 type EnvVarDef struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Default     string `json:"default,omitempty"`
-	Required    bool   `json:"required"`
-	Secret      bool   `json:"secret"`
-	Type        string `json:"type"` // string, number, boolean, select
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Default     string   `json:"default,omitempty"`
+	Required    bool     `json:"required"`
+	Secret      bool     `json:"secret"`
+	Type        string   `json:"type"` // string, number, boolean, select
 	Options     []string `json:"options,omitempty"`
 }
 
@@ -133,41 +133,41 @@ type HealthCheckDef struct {
 
 // DeployConfig 部署配置
 type DeployConfig struct {
-	AppName     string            `json:"app_name"`
-	TemplateID  string            `json:"template_id,omitempty"`
-	Type        string            `json:"type"` // docker, static, proxy
-	Image       string            `json:"image,omitempty"`
-	Version     string            `json:"version"`
-	Domain      string            `json:"domain,omitempty"`
-	Path        string            `json:"path"`
-	Port        int               `json:"port"`
-	SSLEnabled  bool              `json:"ssl_enabled"`
-	EnvVars     map[string]string `json:"env_vars,omitempty"`
-	Volumes     []VolumeMount     `json:"volumes,omitempty"`
-	Ports       []PortMapping     `json:"ports,omitempty"`
-	Resources   ResourceLimit     `json:"resources"`
-	Labels      map[string]string `json:"labels,omitempty"`
-	Config      map[string]string `json:"config,omitempty"`
-	SourcePath  string            `json:"source_path,omitempty"` // 静态文件路径
-	TargetURL   string            `json:"target_url,omitempty"` // 反向代理目标
-	AutoStart   bool              `json:"auto_start"`
-	RestartPolicy string          `json:"restart_policy"` // always, on-failure, unless-stopped, no
+	AppName       string            `json:"app_name"`
+	TemplateID    string            `json:"template_id,omitempty"`
+	Type          string            `json:"type"` // docker, static, proxy
+	Image         string            `json:"image,omitempty"`
+	Version       string            `json:"version"`
+	Domain        string            `json:"domain,omitempty"`
+	Path          string            `json:"path"`
+	Port          int               `json:"port"`
+	SSLEnabled    bool              `json:"ssl_enabled"`
+	EnvVars       map[string]string `json:"env_vars,omitempty"`
+	Volumes       []VolumeMount     `json:"volumes,omitempty"`
+	Ports         []PortMapping     `json:"ports,omitempty"`
+	Resources     ResourceLimit     `json:"resources"`
+	Labels        map[string]string `json:"labels,omitempty"`
+	Config        map[string]string `json:"config,omitempty"`
+	SourcePath    string            `json:"source_path,omitempty"` // 静态文件路径
+	TargetURL     string            `json:"target_url,omitempty"`  // 反向代理目标
+	AutoStart     bool              `json:"auto_start"`
+	RestartPolicy string            `json:"restart_policy"` // always, on-failure, unless-stopped, no
 }
 
 // AppMetrics 应用指标
 type AppMetrics struct {
-	AppID       string    `json:"app_id"`
-	CPUUsage    float64   `json:"cpu_usage"`    // CPU 使用率(%)
-	MemoryUsage int64     `json:"memory_usage"` // 内存使用(bytes)
-	MemoryLimit int64     `json:"memory_limit"` // 内存限制(bytes)
-	DiskUsage   int64     `json:"disk_usage"`   // 磁盘使用(bytes)
-	NetworkRx   int64     `json:"network_rx"`   // 网络接收(bytes)
-	NetworkTx   int64   `json:"network_tx"`   // 网络发送(bytes)
-	Uptime      int64     `json:"uptime"`       // 运行时间(秒)
-	RequestCount int64    `json:"request_count"` // 请求总数
-	ErrorCount  int64     `json:"error_count"`  // 错误数
-	AvgResponse float64   `json:"avg_response"` // 平均响应时间(ms)
-	Timestamp   time.Time `json:"timestamp"`
+	AppID        string    `json:"app_id"`
+	CPUUsage     float64   `json:"cpu_usage"`     // CPU 使用率(%)
+	MemoryUsage  int64     `json:"memory_usage"`  // 内存使用(bytes)
+	MemoryLimit  int64     `json:"memory_limit"`  // 内存限制(bytes)
+	DiskUsage    int64     `json:"disk_usage"`    // 磁盘使用(bytes)
+	NetworkRx    int64     `json:"network_rx"`    // 网络接收(bytes)
+	NetworkTx    int64     `json:"network_tx"`    // 网络发送(bytes)
+	Uptime       int64     `json:"uptime"`        // 运行时间(秒)
+	RequestCount int64     `json:"request_count"` // 请求总数
+	ErrorCount   int64     `json:"error_count"`   // 错误数
+	AvgResponse  float64   `json:"avg_response"`  // 平均响应时间(ms)
+	Timestamp    time.Time `json:"timestamp"`
 }
 
 // AlertRule 告警规则
@@ -186,42 +186,42 @@ type AlertRule struct {
 
 // DomainConfig 域名配置
 type DomainConfig struct {
-	Domain      string    `json:"domain"`
-	AppID       string    `json:"app_id"`
-	SSLEnabled  bool      `json:"ssl_enabled"`
-	CertID      string    `json:"cert_id,omitempty"`
-	RedirectHTTPS bool    `json:"redirect_https"`
-	Headers     map[string]string `json:"headers,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	Domain        string            `json:"domain"`
+	AppID         string            `json:"app_id"`
+	SSLEnabled    bool              `json:"ssl_enabled"`
+	CertID        string            `json:"cert_id,omitempty"`
+	RedirectHTTPS bool              `json:"redirect_https"`
+	Headers       map[string]string `json:"headers,omitempty"`
+	CreatedAt     time.Time         `json:"created_at"`
+	UpdatedAt     time.Time         `json:"updated_at"`
 }
 
 // RouteRule 路由规则
 type RouteRule struct {
-	ID        string    `json:"id"`
-	Domain    string    `json:"domain"`
-	Path      string    `json:"path"`
-	AppID     string    `json:"app_id"`
-	Priority  int       `json:"priority"`
-	StripPath bool      `json:"strip_path"`
+	ID        string            `json:"id"`
+	Domain    string            `json:"domain"`
+	Path      string            `json:"path"`
+	AppID     string            `json:"app_id"`
+	Priority  int               `json:"priority"`
+	StripPath bool              `json:"strip_path"`
 	Headers   map[string]string `json:"headers,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt time.Time         `json:"created_at"`
 }
 
 // SSLEntry SSL 证书条目
 type SSLEntry struct {
-	ID          string    `json:"id"`
-	Domain      string    `json:"domain"`
-	CertPath    string    `json:"cert_path"`
-	KeyPath     string    `json:"key_path"`
-	Issuer      string    `json:"issuer"`
-	NotBefore   time.Time `json:"not_before"`
-	NotAfter    time.Time `json:"not_after"`
-	AutoRenew   bool      `json:"auto_renew"`
-	Provider    string    `json:"provider"` // letsencrypt, selfsigned, custom
-	Status      string    `json:"status"` // active, expired, pending, error
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID        string    `json:"id"`
+	Domain    string    `json:"domain"`
+	CertPath  string    `json:"cert_path"`
+	KeyPath   string    `json:"key_path"`
+	Issuer    string    `json:"issuer"`
+	NotBefore time.Time `json:"not_before"`
+	NotAfter  time.Time `json:"not_after"`
+	AutoRenew bool      `json:"auto_renew"`
+	Provider  string    `json:"provider"` // letsencrypt, selfsigned, custom
+	Status    string    `json:"status"`   // active, expired, pending, error
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // MarketApp 市场应用
@@ -259,15 +259,15 @@ type MarketCategory struct {
 
 // WebAppManager Web 应用管理器
 type WebAppManager struct {
-	mu          sync.RWMutex
-	apps        map[string]*WebApp
-	templates   map[string]*AppTemplate
-	domains     map[string]*DomainConfig
-	routes      map[string]*RouteRule
-	sslEntries  map[string]*SSLEntry
-	alerts      map[string]*AlertRule
-	metrics     map[string]*AppMetrics
-	config      *ManagerConfig
+	mu         sync.RWMutex
+	apps       map[string]*WebApp
+	templates  map[string]*AppTemplate
+	domains    map[string]*DomainConfig
+	routes     map[string]*RouteRule
+	sslEntries map[string]*SSLEntry
+	alerts     map[string]*AlertRule
+	metrics    map[string]*AppMetrics
+	config     *ManagerConfig
 }
 
 // ManagerConfig 管理器配置

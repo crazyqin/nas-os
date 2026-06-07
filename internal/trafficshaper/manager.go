@@ -9,13 +9,13 @@ import (
 
 // Manager 流量整形管理器
 type Manager struct {
-	mu          sync.RWMutex
-	config      *TrafficShaperConfig
-	rules       map[string]*TrafficRule
-	classes     map[string]*TrafficClass
-	stats       map[string]*TrafficStats
-	events      []*TrafficEvent
-	ruleCounter int
+	mu           sync.RWMutex
+	config       *TrafficShaperConfig
+	rules        map[string]*TrafficRule
+	classes      map[string]*TrafficClass
+	stats        map[string]*TrafficStats
+	events       []*TrafficEvent
+	ruleCounter  int
 	classCounter int
 	eventCounter int
 }

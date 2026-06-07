@@ -428,8 +428,8 @@ func TestRAIDZCalculator_ROIScore(t *testing.T) {
 
 	// 低成本扩容方案
 	lowCostPlan := &ExpansionPlan{
-		NewDiskCount:         2,
-		CostPerGBAdded:       0.5,
+		NewDiskCount:          2,
+		CostPerGBAdded:        0.5,
 		CapacityGrowthPercent: 100,
 	}
 
@@ -437,8 +437,8 @@ func TestRAIDZCalculator_ROIScore(t *testing.T) {
 
 	// 高成本扩容方案
 	highCostPlan := &ExpansionPlan{
-		NewDiskCount:         10,
-		CostPerGBAdded:       10.0,
+		NewDiskCount:          10,
+		CostPerGBAdded:        10.0,
 		CapacityGrowthPercent: 20,
 	}
 
@@ -481,7 +481,7 @@ func TestParityDiskCalculation(t *testing.T) {
 	calc := DefaultRAIDZCalculator()
 
 	tests := []struct {
-		level         RAIDZLevel
+		level          RAIDZLevel
 		expectedParity int
 	}{
 		{RAIDZ1, 1},

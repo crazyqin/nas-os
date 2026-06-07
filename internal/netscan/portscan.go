@@ -79,7 +79,7 @@ func (ps *PortScanner) Scan(ctx context.Context) ([]Port, error) {
 // scanTCP TCP 端口扫描.
 func (ps *PortScanner) scanTCP(ctx context.Context, host string, port int) Port {
 	addr := fmt.Sprintf("%s:%d", host, port)
-	
+
 	ctx, cancel := context.WithTimeout(ctx, ps.config.Timeout)
 	defer cancel()
 

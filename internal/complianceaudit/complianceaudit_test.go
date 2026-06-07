@@ -46,7 +46,7 @@ func newMockCheck(name string, standard ComplianceStandard, status CheckStatus) 
 	}
 }
 
-func (c *mockComplianceCheck) Name() string                { return c.name }
+func (c *mockComplianceCheck) Name() string                 { return c.name }
 func (c *mockComplianceCheck) Standard() ComplianceStandard { return c.standard }
 func (c *mockComplianceCheck) Category() CheckCategory      { return c.category }
 func (c *mockComplianceCheck) Description() string          { return c.description }
@@ -1143,11 +1143,11 @@ func TestRemediator_GetRemediation(t *testing.T) {
 	rm := NewRemediator(nil)
 
 	result := &CheckResult{
-		Name:     "test",
-		Category: CategoryPasswordPolicy,
-		Status:   StatusFail,
+		Name:      "test",
+		Category:  CategoryPasswordPolicy,
+		Status:    StatusFail,
 		RiskLevel: RiskHigh,
-		Message:  "密码策略不合规",
+		Message:   "密码策略不合规",
 	}
 
 	rem := rm.GetRemediation(result)
@@ -1295,9 +1295,9 @@ func TestBuiltinCheck_GetRemediation(t *testing.T) {
 	}
 
 	result := &CheckResult{
-		Name:     "test",
-		Category: CategoryPasswordPolicy,
-		Status:   StatusFail,
+		Name:      "test",
+		Category:  CategoryPasswordPolicy,
+		Status:    StatusFail,
 		RiskLevel: RiskHigh,
 	}
 
@@ -1345,9 +1345,9 @@ func BenchmarkPolicyEngine_Evaluate(b *testing.B) {
 func BenchmarkReporter_GenerateFullReport(b *testing.B) {
 	r := NewReporter(nil)
 	report := &ComplianceReport{
-		Summary:     &ReportSummary{OverallScore: 80, TotalChecks: 10, Passed: 8, Failed: 2},
-		Standards:   make([]*StandardReport, 0),
-		Findings:    make([]*Finding, 0),
+		Summary:      &ReportSummary{OverallScore: 80, TotalChecks: 10, Passed: 8, Failed: 2},
+		Standards:    make([]*StandardReport, 0),
+		Findings:     make([]*Finding, 0),
 		Remediations: make([]*RemediationItem, 0),
 	}
 
@@ -1356,4 +1356,3 @@ func BenchmarkReporter_GenerateFullReport(b *testing.B) {
 		r.GenerateFullReport(report, nil, nil)
 	}
 }
-

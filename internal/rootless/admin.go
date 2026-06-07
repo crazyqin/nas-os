@@ -27,27 +27,27 @@ type RootlessAdminManager struct {
 // RootlessConfig 无Root管理配置
 type RootlessConfig struct {
 	Enabled         bool     `json:"enabled"`
-	AdminGroup      string   `json:"admin_group"`       // 管理员组名
-	AllowedCommands []string `json:"allowed_commands"`   // 允许的命令白名单
-	DeniedPaths     []string `json:"denied_paths"`       // 禁止访问的路径
-	MaxSessionTime  int      `json:"max_session_time"`   // 最大会话时间(分钟)
+	AdminGroup      string   `json:"admin_group"`      // 管理员组名
+	AllowedCommands []string `json:"allowed_commands"` // 允许的命令白名单
+	DeniedPaths     []string `json:"denied_paths"`     // 禁止访问的路径
+	MaxSessionTime  int      `json:"max_session_time"` // 最大会话时间(分钟)
 	AuditEnabled    bool     `json:"audit_enabled"`
 	SudoersDir      string   `json:"sudoers_dir"`
 }
 
 // AdminProfile 管理员配置文件
 type AdminProfile struct {
-	UserID       string          `json:"user_id"`
-	Username     string          `json:"username"`
-	Group        string          `json:"group"`
-	Privileges   []Privilege     `json:"privileges"`
-	IsActive     bool            `json:"is_active"`
-	LastLogin    time.Time       `json:"last_login"`
-	LoginCount   int             `json:"login_count"`
-	CreatedAt    time.Time       `json:"created_at"`
-	UpdatedAt    time.Time       `json:"updated_at"`
-	MaxSessions  int             `json:"max_sessions"`
-	CurrSessions int             `json:"current_sessions"`
+	UserID       string      `json:"user_id"`
+	Username     string      `json:"username"`
+	Group        string      `json:"group"`
+	Privileges   []Privilege `json:"privileges"`
+	IsActive     bool        `json:"is_active"`
+	LastLogin    time.Time   `json:"last_login"`
+	LoginCount   int         `json:"login_count"`
+	CreatedAt    time.Time   `json:"created_at"`
+	UpdatedAt    time.Time   `json:"updated_at"`
+	MaxSessions  int         `json:"max_sessions"`
+	CurrSessions int         `json:"current_sessions"`
 }
 
 // Privilege 权限
@@ -59,24 +59,24 @@ type Privilege struct {
 
 // AuditLogEntry 审计日志条目
 type AuditLogEntry struct {
-	Timestamp   time.Time `json:"timestamp"`
-	UserID      string    `json:"user_id"`
-	Username    string    `json:"username"`
-	Action      string    `json:"action"`
-	Resource    string    `json:"resource"`
-	Command     string    `json:"command"`
-	Success     bool      `json:"success"`
-	ErrorMsg    string    `json:"error_msg,omitempty"`
-	IPAddress   string    `json:"ip_address"`
-	SessionID   string    `json:"session_id"`
+	Timestamp time.Time `json:"timestamp"`
+	UserID    string    `json:"user_id"`
+	Username  string    `json:"username"`
+	Action    string    `json:"action"`
+	Resource  string    `json:"resource"`
+	Command   string    `json:"command"`
+	Success   bool      `json:"success"`
+	ErrorMsg  string    `json:"error_msg,omitempty"`
+	IPAddress string    `json:"ip_address"`
+	SessionID string    `json:"session_id"`
 }
 
 // AuditLogger 审计日志记录器
 type AuditLogger struct {
-	mu       sync.Mutex
-	logFile  string
-	entries  []AuditLogEntry
-	maxSize  int
+	mu      sync.Mutex
+	logFile string
+	entries []AuditLogEntry
+	maxSize int
 }
 
 // NewRootlessAdminManager 创建无Root管理员管理器
@@ -164,13 +164,13 @@ func (m *RootlessAdminManager) RegisterAdmin(username string, privileges []Privi
 	}
 
 	profile := &AdminProfile{
-		UserID:     u.Uid,
-		Username:   username,
-		Group:      m.config.AdminGroup,
-		Privileges: privileges,
-		IsActive:   true,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+		UserID:      u.Uid,
+		Username:    username,
+		Group:       m.config.AdminGroup,
+		Privileges:  privileges,
+		IsActive:    true,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 		MaxSessions: 3,
 	}
 
@@ -297,7 +297,12 @@ func (m *RootlessAdminManager) ExecuteCommand(username string, cmd string, args 
 			Resource:  "command",
 			Command:   cmd,
 			Success:   err == nil,
-			ErrorMsg:  func() string { if err != nil { return err.Error() }; return "" }(),
+			ErrorMsg: func() string {
+				if err != nil {
+					return err.Error()
+				}
+				return ""
+			}(),
 		})
 	}
 

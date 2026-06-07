@@ -9,11 +9,11 @@ import (
 
 // Manager 健康评分管理器
 type Manager struct {
-	mu       sync.RWMutex
-	current  *HealthReport
-	history  []*TrendPoint
-	alerts   []*HealthAlert
-	stats    *HealthStats
+	mu      sync.RWMutex
+	current *HealthReport
+	history []*TrendPoint
+	alerts  []*HealthAlert
+	stats   *HealthStats
 }
 
 // NewManager 创建管理器

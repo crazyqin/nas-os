@@ -14,27 +14,27 @@ import (
 // Engine 智能告警引擎.
 // 负责告警的创建、知识库匹配、关联分析、升级和静默管理.
 type Engine struct {
-	alerts     map[string]*SmartAlert    // id -> alert
+	alerts     map[string]*SmartAlert        // id -> alert
 	knowledge  map[Category][]KnowledgeEntry // 知识库：按分类索引
-	rootCauses map[string]*RootCause     // 根因索引
-	silences   map[string]*SilenceRule   // 静默规则
-	escPolicy  EscalationPolicy         // 升级策略
+	rootCauses map[string]*RootCause         // 根因索引
+	silences   map[string]*SilenceRule       // 静默规则
+	escPolicy  EscalationPolicy              // 升级策略
 	logger     *zap.Logger
 	mu         sync.RWMutex
 }
 
 // KnowledgeEntry 知识库条目.
 type KnowledgeEntry struct {
-	ID              string             `json:"id"`
-	Keywords        []string           `json:"keywords"`         // 匹配关键词
-	Title           string             `json:"title"`
-	Summary         string             `json:"summary"`          // 根因概述
-	Category        Category           `json:"category"`
-	Severity        Severity           `json:"severity"`
-	Steps           []TroubleshootStep `json:"steps"`            // 排查步骤
-	FixCommands     []FixCommand       `json:"fix_commands"`     // 修复命令
-	References      []string           `json:"references"`       // 参考链接
-	RootCauseKey    string             `json:"root_cause_key"`   // 用于关联分析的根因标识
+	ID           string             `json:"id"`
+	Keywords     []string           `json:"keywords"` // 匹配关键词
+	Title        string             `json:"title"`
+	Summary      string             `json:"summary"` // 根因概述
+	Category     Category           `json:"category"`
+	Severity     Severity           `json:"severity"`
+	Steps        []TroubleshootStep `json:"steps"`          // 排查步骤
+	FixCommands  []FixCommand       `json:"fix_commands"`   // 修复命令
+	References   []string           `json:"references"`     // 参考链接
+	RootCauseKey string             `json:"root_cause_key"` // 用于关联分析的根因标识
 }
 
 // NewEngine 创建智能告警引擎.

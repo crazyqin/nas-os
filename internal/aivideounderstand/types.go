@@ -19,27 +19,27 @@ type VideoAnalysis struct {
 
 // Scene 视频场景.
 type Scene struct {
-	ID           string    `json:"id"`
-	AnalysisID   string    `json:"analysis_id"`
-	StartTime    float64   `json:"start_time"`
-	EndTime      float64   `json:"end_time"`
-	Description  string    `json:"description"`
-	Tags         []string  `json:"tags"`
-	Confidence   float64   `json:"confidence"`
+	ID            string   `json:"id"`
+	AnalysisID    string   `json:"analysis_id"`
+	StartTime     float64  `json:"start_time"`
+	EndTime       float64  `json:"end_time"`
+	Description   string   `json:"description"`
+	Tags          []string `json:"tags"`
+	Confidence    float64  `json:"confidence"`
 	ThumbnailPath string   `json:"thumbnail_path,omitempty"`
-	SceneType    string    `json:"scene_type"` // action/dialogue/transition/landscape/indoor/outdoor
+	SceneType     string   `json:"scene_type"` // action/dialogue/transition/landscape/indoor/outdoor
 }
 
 // DetectedObject 检测到的物体.
 type DetectedObject struct {
-	ID           string  `json:"id"`
-	AnalysisID   string  `json:"analysis_id"`
-	Label        string  `json:"label"`
-	Confidence   float64 `json:"confidence"`
-	BoundingBox  BoundingBox `json:"bounding_box"`
-	FirstSeen    float64 `json:"first_seen"`
-	LastSeen     float64 `json:"last_seen"`
-	TrackID      int     `json:"track_id"`
+	ID          string      `json:"id"`
+	AnalysisID  string      `json:"analysis_id"`
+	Label       string      `json:"label"`
+	Confidence  float64     `json:"confidence"`
+	BoundingBox BoundingBox `json:"bounding_box"`
+	FirstSeen   float64     `json:"first_seen"`
+	LastSeen    float64     `json:"last_seen"`
+	TrackID     int         `json:"track_id"`
 }
 
 // BoundingBox 边界框.
@@ -52,32 +52,32 @@ type BoundingBox struct {
 
 // VideoSearchQuery 视频搜索查询.
 type VideoSearchQuery struct {
-	Query        string   `json:"query"`
-	MinConfidence float64  `json:"min_confidence,omitempty"`
-	SceneTypes   []string `json:"scene_types,omitempty"`
-	Tags         []string `json:"tags,omitempty"`
-	DateFrom     *time.Time `json:"date_from,omitempty"`
-	DateTo       *time.Time `json:"date_to,omitempty"`
-	MaxResults   int      `json:"max_results,omitempty"`
+	Query         string     `json:"query"`
+	MinConfidence float64    `json:"min_confidence,omitempty"`
+	SceneTypes    []string   `json:"scene_types,omitempty"`
+	Tags          []string   `json:"tags,omitempty"`
+	DateFrom      *time.Time `json:"date_from,omitempty"`
+	DateTo        *time.Time `json:"date_to,omitempty"`
+	MaxResults    int        `json:"max_results,omitempty"`
 }
 
 // VideoSearchResult 视频搜索结果.
 type VideoSearchResult struct {
-	VideoPath     string   `json:"video_path"`
+	VideoPath      string  `json:"video_path"`
 	MatchingScenes []Scene `json:"matching_scenes"`
-	TotalMatches  int      `json:"total_matches"`
+	TotalMatches   int     `json:"total_matches"`
 	RelevanceScore float64 `json:"relevance_score"`
 }
 
 // VideoHighlight 视频高光时刻.
 type VideoHighlight struct {
-	ID           string  `json:"id"`
-	AnalysisID   string  `json:"analysis_id"`
-	StartTime    float64 `json:"start_time"`
-	EndTime      float64 `json:"end_time"`
-	Reason       string  `json:"reason"`
-	Score        float64 `json:"score"`
-	ThumbnailPath string `json:"thumbnail_path,omitempty"`
+	ID            string  `json:"id"`
+	AnalysisID    string  `json:"analysis_id"`
+	StartTime     float64 `json:"start_time"`
+	EndTime       float64 `json:"end_time"`
+	Reason        string  `json:"reason"`
+	Score         float64 `json:"score"`
+	ThumbnailPath string  `json:"thumbnail_path,omitempty"`
 }
 
 // AnalysisStats 分析统计信息.

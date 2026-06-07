@@ -9,16 +9,16 @@ import (
 
 // ContentAnalysis represents analysis results
 type ContentAnalysis struct {
-	ID          string    `json:"id"`
-	FilePath    string    `json:"file_path"`
-	Category    string    `json:"category"`
-	Tags        []string  `json:"tags"`
-	Summary     string    `json:"summary,omitempty"`
-	Sentiment   string    `json:"sentiment,omitempty"`
-	Language    string    `json:"language,omitempty"`
-	Confidence  float64   `json:"confidence"`
-	AnalyzedAt  time.Time `json:"analyzed_at"`
-	ProcessingMs int64    `json:"processing_ms"`
+	ID           string    `json:"id"`
+	FilePath     string    `json:"file_path"`
+	Category     string    `json:"category"`
+	Tags         []string  `json:"tags"`
+	Summary      string    `json:"summary,omitempty"`
+	Sentiment    string    `json:"sentiment,omitempty"`
+	Language     string    `json:"language,omitempty"`
+	Confidence   float64   `json:"confidence"`
+	AnalyzedAt   time.Time `json:"analyzed_at"`
+	ProcessingMs int64     `json:"processing_ms"`
 }
 
 // AnalysisConfig defines analysis behavior
@@ -34,13 +34,13 @@ type AnalysisConfig struct {
 // AIContentAnalyzer provides AI-powered content analysis
 // Inspired by Synology Photos AI and AI Office
 type AIContentAnalyzer struct {
-	mu          sync.RWMutex
-	analyses    map[string]*ContentAnalysis
-	config      AnalysisConfig
-	running     bool
-	stopCh      chan struct{}
-	workers     int
-	queue       chan string
+	mu       sync.RWMutex
+	analyses map[string]*ContentAnalysis
+	config   AnalysisConfig
+	running  bool
+	stopCh   chan struct{}
+	workers  int
+	queue    chan string
 }
 
 // NewAIContentAnalyzer creates a new AIContentAnalyzer instance

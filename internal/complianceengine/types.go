@@ -74,10 +74,10 @@ const (
 type TaskStatus string
 
 const (
-	TaskPending   TaskStatus = "pending"
+	TaskPending    TaskStatus = "pending"
 	TaskInProgress TaskStatus = "in_progress"
-	TaskCompleted TaskStatus = "completed"
-	TaskFailed    TaskStatus = "failed"
+	TaskCompleted  TaskStatus = "completed"
+	TaskFailed     TaskStatus = "failed"
 )
 
 // ReportFormat 报告格式
@@ -102,55 +102,55 @@ type EngineConfig struct {
 
 // ComplianceRule 合规规则
 type ComplianceRule struct {
-	ID          string           `json:"id"`
+	ID          string             `json:"id"`
 	Standard    ComplianceStandard `json:"standard"`
-	Category    RuleCategory     `json:"category"`
-	Severity    Severity         `json:"severity"`
-	Title       string           `json:"title"`
-	Description string           `json:"description"`
-	Requirement string           `json:"requirement"`
-	Remediation string           `json:"remediation"`
-	Enabled     bool             `json:"enabled"`
-	CreatedAt   time.Time        `json:"created_at"`
-	UpdatedAt   time.Time        `json:"updated_at"`
+	Category    RuleCategory       `json:"category"`
+	Severity    Severity           `json:"severity"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	Requirement string             `json:"requirement"`
+	Remediation string             `json:"remediation"`
+	Enabled     bool               `json:"enabled"`
+	CreatedAt   time.Time          `json:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
 // ComplianceScan 合规扫描
 type ComplianceScan struct {
-	ID          string        `json:"id"`
+	ID          string               `json:"id"`
 	Standards   []ComplianceStandard `json:"standards"`
-	Status      ScanStatus    `json:"status"`
-	Score       float64       `json:"score"`
-	TotalRules  int           `json:"total_rules"`
-	PassedRules int           `json:"passed_rules"`
-	FailedRules int           `json:"failed_rules"`
-	WarnRules   int           `json:"warn_rules"`
-	SkipRules   int           `json:"skip_rules"`
-	ErrorRules  int           `json:"error_rules"`
-	Checks      []CheckDetail `json:"checks"`
-	StartTime   time.Time     `json:"start_time"`
-	EndTime     time.Time     `json:"end_time"`
-	Duration    time.Duration `json:"duration"`
+	Status      ScanStatus           `json:"status"`
+	Score       float64              `json:"score"`
+	TotalRules  int                  `json:"total_rules"`
+	PassedRules int                  `json:"passed_rules"`
+	FailedRules int                  `json:"failed_rules"`
+	WarnRules   int                  `json:"warn_rules"`
+	SkipRules   int                  `json:"skip_rules"`
+	ErrorRules  int                  `json:"error_rules"`
+	Checks      []CheckDetail        `json:"checks"`
+	StartTime   time.Time            `json:"start_time"`
+	EndTime     time.Time            `json:"end_time"`
+	Duration    time.Duration        `json:"duration"`
 }
 
 // CheckDetail 检查详情
 type CheckDetail struct {
-	RuleID    string      `json:"rule_id"`
-	Result    CheckResult `json:"result"`
-	Message   string      `json:"message"`
-	CheckedAt time.Time   `json:"checked_at"`
+	RuleID    string        `json:"rule_id"`
+	Result    CheckResult   `json:"result"`
+	Message   string        `json:"message"`
+	CheckedAt time.Time     `json:"checked_at"`
 	Duration  time.Duration `json:"duration"`
 }
 
 // ComplianceReport 合规报告
 type ComplianceReport struct {
-	ID          string           `json:"id"`
-	Title       string           `json:"title"`
-	Format      ReportFormat     `json:"format"`
-	ScanID      string           `json:"scan_id"`
+	ID          string               `json:"id"`
+	Title       string               `json:"title"`
+	Format      ReportFormat         `json:"format"`
+	ScanID      string               `json:"scan_id"`
 	Standards   []ComplianceStandard `json:"standards"`
-	Summary     ReportSummary    `json:"summary"`
-	GeneratedAt time.Time        `json:"generated_at"`
+	Summary     ReportSummary        `json:"summary"`
+	GeneratedAt time.Time            `json:"generated_at"`
 }
 
 // ReportSummary 报告摘要
@@ -196,33 +196,33 @@ type RemediationTask struct {
 
 // ComplianceStats 合规统计
 type ComplianceStats struct {
-	TotalScans     int        `json:"total_scans"`
-	SuccessfulScans int       `json:"successful_scans"`
-	FailedScans    int        `json:"failed_scans"`
-	LastScanTime   *time.Time `json:"last_scan_time"`
-	LastScanStatus ScanStatus `json:"last_scan_status"`
-	AverageScore   float64    `json:"average_score"`
-	TotalAlerts    int        `json:"total_alerts"`
-	ActiveAlerts   int        `json:"active_alerts"`
-	TotalTasks     int        `json:"total_tasks"`
-	PendingTasks   int        `json:"pending_tasks"`
-	CompletedTasks int        `json:"completed_tasks"`
+	TotalScans      int        `json:"total_scans"`
+	SuccessfulScans int        `json:"successful_scans"`
+	FailedScans     int        `json:"failed_scans"`
+	LastScanTime    *time.Time `json:"last_scan_time"`
+	LastScanStatus  ScanStatus `json:"last_scan_status"`
+	AverageScore    float64    `json:"average_score"`
+	TotalAlerts     int        `json:"total_alerts"`
+	ActiveAlerts    int        `json:"active_alerts"`
+	TotalTasks      int        `json:"total_tasks"`
+	PendingTasks    int        `json:"pending_tasks"`
+	CompletedTasks  int        `json:"completed_tasks"`
 }
 
 // GetSnapshot 获取统计快照
 func (s *ComplianceStats) GetSnapshot() *ComplianceStats {
 	return &ComplianceStats{
-		TotalScans:     s.TotalScans,
+		TotalScans:      s.TotalScans,
 		SuccessfulScans: s.SuccessfulScans,
-		FailedScans:    s.FailedScans,
-		LastScanTime:   s.LastScanTime,
-		LastScanStatus: s.LastScanStatus,
-		AverageScore:   s.AverageScore,
-		TotalAlerts:    s.TotalAlerts,
-		ActiveAlerts:   s.ActiveAlerts,
-		TotalTasks:     s.TotalTasks,
-		PendingTasks:   s.PendingTasks,
-		CompletedTasks: s.CompletedTasks,
+		FailedScans:     s.FailedScans,
+		LastScanTime:    s.LastScanTime,
+		LastScanStatus:  s.LastScanStatus,
+		AverageScore:    s.AverageScore,
+		TotalAlerts:     s.TotalAlerts,
+		ActiveAlerts:    s.ActiveAlerts,
+		TotalTasks:      s.TotalTasks,
+		PendingTasks:    s.PendingTasks,
+		CompletedTasks:  s.CompletedTasks,
 	}
 }
 
@@ -237,35 +237,35 @@ func (s *ComplianceStats) UpdateScore(score float64) {
 
 // GapAnalysis 差距分析
 type GapAnalysis struct {
-	ID         string           `json:"id"`
-	Standards  []ComplianceStandard `json:"standards"`
-	Score      float64          `json:"score"`
-	Categories []CategoryGap    `json:"categories"`
-	Gaps       []ComplianceGap  `json:"gaps"`
-	Actions    []RecommendedAction `json:"actions"`
-	GeneratedAt time.Time       `json:"generated_at"`
+	ID          string               `json:"id"`
+	Standards   []ComplianceStandard `json:"standards"`
+	Score       float64              `json:"score"`
+	Categories  []CategoryGap        `json:"categories"`
+	Gaps        []ComplianceGap      `json:"gaps"`
+	Actions     []RecommendedAction  `json:"actions"`
+	GeneratedAt time.Time            `json:"generated_at"`
 }
 
 // CategoryGap 分类差距
 type CategoryGap struct {
-	Category   RuleCategory `json:"category"`
-	TotalChecks int         `json:"total_checks"`
-	Passed      int         `json:"passed"`
-	Failed      int         `json:"failed"`
-	GapCount    int         `json:"gap_count"`
-	Score       float64     `json:"score"`
+	Category    RuleCategory `json:"category"`
+	TotalChecks int          `json:"total_checks"`
+	Passed      int          `json:"passed"`
+	Failed      int          `json:"failed"`
+	GapCount    int          `json:"gap_count"`
+	Score       float64      `json:"score"`
 }
 
 // ComplianceGap 合规差距
 type ComplianceGap struct {
-	RuleID      string   `json:"rule_id"`
+	RuleID      string             `json:"rule_id"`
 	Standard    ComplianceStandard `json:"standard"`
-	Severity    Severity `json:"severity"`
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Current     string   `json:"current"`
-	Required    string   `json:"required"`
-	Impact      string   `json:"impact"`
+	Severity    Severity           `json:"severity"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	Current     string             `json:"current"`
+	Required    string             `json:"required"`
+	Impact      string             `json:"impact"`
 }
 
 // RecommendedAction 推荐行动

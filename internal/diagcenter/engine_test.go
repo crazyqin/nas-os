@@ -219,8 +219,8 @@ func TestDiagResult(t *testing.T) {
 				Severity: SeverityInfo,
 			},
 		},
-		Alerts:  []Alert{},
-		Summary: "系统健康",
+		Alerts:   []Alert{},
+		Summary:  "系统健康",
 		Duration: 5 * time.Second,
 	}
 

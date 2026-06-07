@@ -128,10 +128,10 @@ func TestThumbnailGenerator_Resize(t *testing.T) {
 		wantWidth  int
 		wantHeight int
 	}{
-		{100, 100, 100, 50},   // 按宽度缩放
-		{200, 50, 100, 50},    // 按高度缩放
-		{400, 200, 200, 100},  // 不缩放（原图更小）
-		{50, 50, 50, 25},      // 小缩略图
+		{100, 100, 100, 50},  // 按宽度缩放
+		{200, 50, 100, 50},   // 按高度缩放
+		{400, 200, 200, 100}, // 不缩放（原图更小）
+		{50, 50, 50, 25},     // 小缩略图
 	}
 
 	for _, tt := range tests {
@@ -156,9 +156,9 @@ func TestThumbnailGenerator_GetOutputSize(t *testing.T) {
 		wantHeight int
 	}{
 		{&PreviewRequest{Width: 300, Height: 200}, 300, 200},
-		{&PreviewRequest{Width: 300}, 300, 300},        // 默认高度
-		{&PreviewRequest{Height: 200}, 200, 200},       // 默认宽度
-		{&PreviewRequest{}, 300, 300},                  // 使用默认值
+		{&PreviewRequest{Width: 300}, 300, 300},  // 默认高度
+		{&PreviewRequest{Height: 200}, 200, 200}, // 默认宽度
+		{&PreviewRequest{}, 300, 300},            // 使用默认值
 	}
 
 	for _, tt := range tests {
@@ -192,12 +192,12 @@ func TestHasAlphaChannel(t *testing.T) {
 		model    color.Model
 		expected bool
 	}{
-		{color.RGBAModel, true},      // RGBA 有透明通道
-		{color.NRGBAModel, true},     // NRGBA 有透明通道
-		{color.AlphaModel, true},     // Alpha 有透明通道
-		{color.GrayModel, false},     // Gray 没有透明通道
-		{color.RGBA64Model, true},    // RGBA64 有透明通道
-		{color.NRGBA64Model, true},   // NRGBA64 有透明通道
+		{color.RGBAModel, true},    // RGBA 有透明通道
+		{color.NRGBAModel, true},   // NRGBA 有透明通道
+		{color.AlphaModel, true},   // Alpha 有透明通道
+		{color.GrayModel, false},   // Gray 没有透明通道
+		{color.RGBA64Model, true},  // RGBA64 有透明通道
+		{color.NRGBA64Model, true}, // NRGBA64 有透明通道
 	}
 
 	for _, tt := range tests {

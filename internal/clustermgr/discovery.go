@@ -14,9 +14,9 @@ import (
 // ServiceDiscoveryConfig 服务发现配置.
 type ServiceDiscoveryConfig struct {
 	// 服务注册配置
-	RegisterEnabled   bool          `json:"registerEnabled"`   // 启用服务注册
-	RegisterTTL       time.Duration `json:"registerTTL"`       // 注册TTL
-	RegisterInterval  time.Duration `json:"registerInterval"`  // 注册间隔
+	RegisterEnabled  bool          `json:"registerEnabled"`  // 启用服务注册
+	RegisterTTL      time.Duration `json:"registerTTL"`      // 注册TTL
+	RegisterInterval time.Duration `json:"registerInterval"` // 注册间隔
 
 	// 健康检查配置
 	HealthCheckEnabled  bool          `json:"healthCheckEnabled"`  // 启用健康检查
@@ -31,12 +31,12 @@ type ServiceDiscoveryConfig struct {
 	CacheTTL          time.Duration `json:"cacheTTL"`          // 缓存TTL
 
 	// gRPC配置
-	GRPCEnabled  bool   `json:"grpcEnabled"`  // 启用gRPC
-	GRPCPort     int    `json:"grpcPort"`     // gRPC端口
+	GRPCEnabled bool `json:"grpcEnabled"` // 启用gRPC
+	GRPCPort    int  `json:"grpcPort"`    // gRPC端口
 
 	// HTTP配置
-	HTTPEnabled  bool   `json:"httpEnabled"`  // 启用HTTP
-	HTTPPort     int    `json:"httpPort"`     // HTTP端口
+	HTTPEnabled bool `json:"httpEnabled"` // 启用HTTP
+	HTTPPort    int  `json:"httpPort"`    // HTTP端口
 }
 
 // DefaultServiceDiscoveryConfig 返回默认服务发现配置.

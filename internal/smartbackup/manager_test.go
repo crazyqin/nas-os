@@ -210,10 +210,10 @@ func TestListTargets(t *testing.T) {
 		LocalPath: "/backup1",
 	})
 	manager.CreateTarget(&BackupTarget{
-		Name:   "target-2",
-		Type:   TargetTypeS3,
+		Name:     "target-2",
+		Type:     TargetTypeS3,
 		Endpoint: "https://s3.amazonaws.com",
-		Bucket: "my-bucket",
+		Bucket:   "my-bucket",
 	})
 
 	targets := manager.ListTargets()
@@ -277,8 +277,8 @@ func TestAnalyzeStrategyThreeTwoOne(t *testing.T) {
 
 	// 测试不满足3-2-1规则的情况
 	analysis := &StrategyAnalysis{
-		DataType:   "documents",
-		DataSizeGB: 50,
+		DataType:    "documents",
+		DataSizeGB:  50,
 		TargetCount: 1,
 	}
 
@@ -378,11 +378,11 @@ func TestVerifyBackup(t *testing.T) {
 
 	// 记录成功的执行
 	execution := &BackupExecution{
-		PolicyID:   "policy-1",
-		BackupType: BackupTypeFull,
-		Status:     BackupStatusSuccess,
-		SizeBytes:  1024 * 1024,
-		FilesTotal: 100,
+		PolicyID:    "policy-1",
+		BackupType:  BackupTypeFull,
+		Status:      BackupStatusSuccess,
+		SizeBytes:   1024 * 1024,
+		FilesTotal:  100,
 		FilesCopied: 100,
 	}
 	manager.RecordExecution(execution)
@@ -416,11 +416,11 @@ func TestTestRecovery(t *testing.T) {
 	manager := NewManager(logger)
 
 	execution := &BackupExecution{
-		PolicyID:   "policy-1",
-		BackupType: BackupTypeFull,
-		Status:     BackupStatusSuccess,
-		SizeBytes:  1024 * 1024,
-		FilesTotal: 100,
+		PolicyID:    "policy-1",
+		BackupType:  BackupTypeFull,
+		Status:      BackupStatusSuccess,
+		SizeBytes:   1024 * 1024,
+		FilesTotal:  100,
 		FilesCopied: 100,
 	}
 	manager.RecordExecution(execution)
@@ -438,10 +438,10 @@ func TestGetVerification(t *testing.T) {
 	manager := NewManager(logger)
 
 	execution := &BackupExecution{
-		PolicyID:   "policy-1",
-		BackupType: BackupTypeFull,
-		Status:     BackupStatusSuccess,
-		FilesTotal: 50,
+		PolicyID:    "policy-1",
+		BackupType:  BackupTypeFull,
+		Status:      BackupStatusSuccess,
+		FilesTotal:  50,
 		FilesCopied: 50,
 	}
 	manager.RecordExecution(execution)
@@ -458,10 +458,10 @@ func TestListVerifications(t *testing.T) {
 	manager := NewManager(logger)
 
 	exec1 := &BackupExecution{
-		PolicyID:   "policy-1",
-		BackupType: BackupTypeFull,
-		Status:     BackupStatusSuccess,
-		FilesTotal: 50,
+		PolicyID:    "policy-1",
+		BackupType:  BackupTypeFull,
+		Status:      BackupStatusSuccess,
+		FilesTotal:  50,
 		FilesCopied: 50,
 	}
 	manager.RecordExecution(exec1)

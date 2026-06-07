@@ -10,33 +10,33 @@ import (
 type HealthLevel string
 
 const (
-	LevelHealthy  HealthLevel = "healthy"   // 健康
-	LevelDegraded HealthLevel = "degraded"  // 降级
-	LevelCritical HealthLevel = "critical"  // 严重
-	LevelUnknown  HealthLevel = "unknown"   // 未知
+	LevelHealthy  HealthLevel = "healthy"  // 健康
+	LevelDegraded HealthLevel = "degraded" // 降级
+	LevelCritical HealthLevel = "critical" // 严重
+	LevelUnknown  HealthLevel = "unknown"  // 未知
 )
 
 // ProbeCategory 探针类别
 type ProbeCategory = string
 
 const (
-	CategoryHardware ProbeCategory = "hardware"  // 硬件
-	CategorySoftware ProbeCategory = "software"  // 软件
-	CategoryNetwork  ProbeCategory = "network"   // 网络
-	CategoryService  ProbeCategory = "service"   // 服务
+	CategoryHardware ProbeCategory = "hardware" // 硬件
+	CategorySoftware ProbeCategory = "software" // 软件
+	CategoryNetwork  ProbeCategory = "network"  // 网络
+	CategoryService  ProbeCategory = "service"  // 服务
 )
 
 // MetricType 指标类型
 type MetricType string
 
 const (
-	MetricCPU    MetricType = "cpu"      // CPU
-	MetricMemory MetricType = "memory"   // 内存
-	MetricDisk   MetricType = "disk"     // 磁盘
-	MetricTemp   MetricType = "temp"     // 温度
-	MetricSMART  MetricType = "smart"    // SMART
-	MetricNet    MetricType = "network"  // 网络
-	MetricLoad   MetricType = "load"     // 负载
+	MetricCPU    MetricType = "cpu"     // CPU
+	MetricMemory MetricType = "memory"  // 内存
+	MetricDisk   MetricType = "disk"    // 磁盘
+	MetricTemp   MetricType = "temp"    // 温度
+	MetricSMART  MetricType = "smart"   // SMART
+	MetricNet    MetricType = "network" // 网络
+	MetricLoad   MetricType = "load"    // 负载
 )
 
 // AlertSeverity 告警严重程度
@@ -81,10 +81,10 @@ type StatusSummary struct {
 
 // TrendAnalysis 趋势分析
 type TrendAnalysis struct {
-	Direction  string             `json:"direction"`  // improving/stable/degrading
-	ScoreDelta float64            `json:"score_delta"`
-	Prediction *TrendPrediction   `json:"prediction,omitempty"`
-	History    []*HistoryRecord   `json:"history"`
+	Direction  string           `json:"direction"` // improving/stable/degrading
+	ScoreDelta float64          `json:"score_delta"`
+	Prediction *TrendPrediction `json:"prediction,omitempty"`
+	History    []*HistoryRecord `json:"history"`
 }
 
 // TrendPrediction 趋势预测
@@ -96,27 +96,27 @@ type TrendPrediction struct {
 
 // HealthStatus 健康状态
 type HealthStatus struct {
-	Timestamp time.Time              `json:"timestamp"`
-	Uptime    time.Duration          `json:"uptime"`
-	Level     HealthLevel            `json:"level"`
-	Score     float64                `json:"score"`
-	Summary   *StatusSummary         `json:"summary"`
+	Timestamp time.Time               `json:"timestamp"`
+	Uptime    time.Duration           `json:"uptime"`
+	Level     HealthLevel             `json:"level"`
+	Score     float64                 `json:"score"`
+	Summary   *StatusSummary          `json:"summary"`
 	Probes    map[string]*ProbeResult `json:"probes"`
-	Trend     *TrendAnalysis         `json:"trend,omitempty"`
-	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	Trend     *TrendAnalysis          `json:"trend,omitempty"`
+	Metadata  map[string]interface{}  `json:"metadata,omitempty"`
 }
 
 // HealthReport 健康报告
 type HealthReport struct {
-	GeneratedAt    time.Time               `json:"generated_at"`
-	Summary        *StatusSummary          `json:"summary"`
-	Score          float64                 `json:"score"`
-	Level          HealthLevel             `json:"level"`
-	Probes         map[string]*ProbeResult `json:"probes"`
-	Alerts         []*Alert                `json:"alerts"`
-	Trend          *TrendAnalysis          `json:"trend,omitempty"`
-	TopIssues      []*ProbeResult          `json:"top_issues,omitempty"`
-	Recommendations []string               `json:"recommendations"`
+	GeneratedAt     time.Time               `json:"generated_at"`
+	Summary         *StatusSummary          `json:"summary"`
+	Score           float64                 `json:"score"`
+	Level           HealthLevel             `json:"level"`
+	Probes          map[string]*ProbeResult `json:"probes"`
+	Alerts          []*Alert                `json:"alerts"`
+	Trend           *TrendAnalysis          `json:"trend,omitempty"`
+	TopIssues       []*ProbeResult          `json:"top_issues,omitempty"`
+	Recommendations []string                `json:"recommendations"`
 }
 
 // Rule 检查规则
@@ -124,7 +124,7 @@ type Rule struct {
 	Name      string        `json:"name"`
 	Type      MetricType    `json:"type"`
 	Category  ProbeCategory `json:"category,omitempty"`
-	Operator  string        `json:"operator"`  // gt/lt/gte/lte/eq
+	Operator  string        `json:"operator"` // gt/lt/gte/lte/eq
 	Threshold float64       `json:"threshold"`
 	Level     HealthLevel   `json:"level"`
 	Message   string        `json:"message"`
@@ -167,12 +167,12 @@ type HistoryRecord struct {
 
 // Config 配置
 type Config struct {
-	AutoStart    bool          `json:"auto_start"`     // 自动启动
-	Interval     time.Duration `json:"interval"`       // 检测间隔
-	Timeout      time.Duration `json:"timeout"`        // 单次探测超时
-	HistorySize  int           `json:"history_size"`   // 历史记录大小
-	TrendWindow  int           `json:"trend_window"`   // 趋势分析窗口
-	EnableTrend  bool          `json:"enable_trend"`   // 启用趋势分析
+	AutoStart     bool          `json:"auto_start"`     // 自动启动
+	Interval      time.Duration `json:"interval"`       // 检测间隔
+	Timeout       time.Duration `json:"timeout"`        // 单次探测超时
+	HistorySize   int           `json:"history_size"`   // 历史记录大小
+	TrendWindow   int           `json:"trend_window"`   // 趋势分析窗口
+	EnableTrend   bool          `json:"enable_trend"`   // 启用趋势分析
 	AlertCooldown time.Duration `json:"alert_cooldown"` // 告警冷却期
 }
 

@@ -19,9 +19,9 @@ func NewTieringAnalyzer(co *CostOptimizer) *TieringAnalyzer {
 type StorageScheme string
 
 const (
-	SchemeAllSSD  StorageScheme = "all_ssd"   // 全 SSD
-	SchemeHybrid  StorageScheme = "hybrid"    // 混合 SSD + HDD
-	SchemeAllHDD  StorageScheme = "all_hdd"   // 全 HDD
+	SchemeAllSSD StorageScheme = "all_ssd" // 全 SSD
+	SchemeHybrid StorageScheme = "hybrid"  // 混合 SSD + HDD
+	SchemeAllHDD StorageScheme = "all_hdd" // 全 HDD
 )
 
 // SchemeProfile 存储方案定义
@@ -91,33 +91,33 @@ var DefaultSchemeProfiles = map[StorageScheme]SchemeProfile{
 
 // TieringResult 分层对比结果
 type TieringResult struct {
-	TotalDataBytes  int64           `json:"total_data_bytes"`
-	CurrentCost     float64         `json:"current_cost"`
-	Schemes         []SchemeCompare `json:"schemes"`
-	BestScheme      StorageScheme   `json:"best_scheme"`
-	BestSavings     float64         `json:"best_savings"`
+	TotalDataBytes  int64              `json:"total_data_bytes"`
+	CurrentCost     float64            `json:"current_cost"`
+	Schemes         []SchemeCompare    `json:"schemes"`
+	BestScheme      StorageScheme      `json:"best_scheme"`
+	BestSavings     float64            `json:"best_savings"`
 	Recommendations []TieringRecommend `json:"recommendations"`
 }
 
 // SchemeCompare 方案对比
 type SchemeCompare struct {
-	Scheme       StorageScheme      `json:"scheme"`
-	Name         string             `json:"name"`
-	Description  string             `json:"description"`
-	MonthlyCost  float64            `json:"monthly_cost"`
-	AnnualCost   float64            `json:"annual_cost"`
-	SavingsVsCurrent float64        `json:"savings_vs_current"`
-	SavingsPercent   float64        `json:"savings_percent"`
-	CostByTier   map[StorageTier]float64 `json:"cost_by_tier"`
-	Performance  SchemePerformance  `json:"performance"`
-	Allocation   []TierAllocation   `json:"allocation"`
+	Scheme           StorageScheme           `json:"scheme"`
+	Name             string                  `json:"name"`
+	Description      string                  `json:"description"`
+	MonthlyCost      float64                 `json:"monthly_cost"`
+	AnnualCost       float64                 `json:"annual_cost"`
+	SavingsVsCurrent float64                 `json:"savings_vs_current"`
+	SavingsPercent   float64                 `json:"savings_percent"`
+	CostByTier       map[StorageTier]float64 `json:"cost_by_tier"`
+	Performance      SchemePerformance       `json:"performance"`
+	Allocation       []TierAllocation        `json:"allocation"`
 }
 
 // SchemePerformance 方案性能
 type SchemePerformance struct {
-	ReadSpeed  string `json:"read_speed"`
-	WriteSpeed string `json:"write_speed"`
-	Latency    string `json:"latency"`
+	ReadSpeed   string `json:"read_speed"`
+	WriteSpeed  string `json:"write_speed"`
+	Latency     string `json:"latency"`
 	Reliability string `json:"reliability"`
 }
 
@@ -132,10 +132,10 @@ type TierAllocation struct {
 
 // TieringRecommend 分层建议
 type TieringRecommend struct {
-	Priority    string  `json:"priority"`
-	Scheme      string  `json:"scheme"`
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
+	Priority        string  `json:"priority"`
+	Scheme          string  `json:"scheme"`
+	Title           string  `json:"title"`
+	Description     string  `json:"description"`
 	SavingsPerMonth float64 `json:"savings_per_month"`
 	SavingsPerYear  float64 `json:"savings_per_year"`
 }

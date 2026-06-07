@@ -54,20 +54,20 @@ func (c *CostCalculator) CalculateRequestCost(requests int) float64 {
 // CalculateTotalCost 计算总成本
 func (c *CostCalculator) CalculateTotalCost(item *BackupItem) float64 {
 	sizeGB := float64(item.Size) / (1024 * 1024 * 1024)
-	
+
 	// 存储成本（按月计算）
 	storageCost := c.CalculateCost(item.Tier, sizeGB)
-	
+
 	return storageCost
 }
 
 // EstimateSavings 估算迁移到其他层级的节省
 func (c *CostCalculator) EstimateSavings(item *BackupItem, targetTier StorageTier) float64 {
 	sizeGB := float64(item.Size) / (1024 * 1024 * 1024)
-	
+
 	currentCost := c.CalculateCost(item.Tier, sizeGB)
 	targetCost := targetTierCost(sizeGB, targetTier, c.costConfig)
-	
+
 	return currentCost - targetCost
 }
 
@@ -113,7 +113,7 @@ func (c *CostCalculator) GenerateReport(backups map[string]*BackupItem) *CostRep
 		if !ok {
 			continue
 		}
-		
+
 		sizeGB := float64(item.Size) / (1024 * 1024 * 1024)
 		stat.StorageGB += sizeGB
 		stat.BackupCount++
@@ -254,8 +254,8 @@ func (c *CostCalculator) GetCostBreakdown(backups map[string]*BackupItem) map[st
 		}
 
 		tiers[string(tier)] = map[string]interface{}{
-			"size_gb":     totalSize,
-			"count":       count,
+			"size_gb":      totalSize,
+			"count":        count,
 			"monthly_cost": totalCost,
 		}
 	}
@@ -269,25 +269,25 @@ func (c *CostCalculator) CompareStrategies(backups map[string]*BackupItem, strat
 
 	for _, strategy := range strategies {
 		totalCost := 0.0
-		
+
 		for _, item := range backups {
 			sizeGB := float64(item.Size) / (1024 * 1024 * 1024)
-			
+
 			// 根据策略确定应该在哪个层级
 			age := time.Since(item.CreatedAt)
 			var targetTier StorageTier
-			
+
 			for _, rule := range strategy.RetentionRules {
 				if rule.RetainDays > 0 && age <= time.Duration(rule.RetainDays)*24*time.Hour {
 					targetTier = rule.StorageTier
 					break
 				}
 			}
-			
+
 			if targetTier == "" {
 				targetTier = StorageTierArchive
 			}
-			
+
 			totalCost += c.CalculateCost(targetTier, sizeGB)
 		}
 

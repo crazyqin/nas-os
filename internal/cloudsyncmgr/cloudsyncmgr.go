@@ -14,40 +14,40 @@ import (
 
 // ProviderConfig 云提供商
 type ProviderConfig struct {
-	ID              string            `json:"id"`
-	Name            string            `json:"name"`
-	Type            ProviderType      `json:"type"`
-	AuthMethod      AuthMethod        `json:"auth_method"`
-	Endpoint        string            `json:"endpoint"`
-	Region          string            `json:"region"`
-	Bucket          string            `json:"bucket"`
-	AccessKey       string            `json:"access_key,omitempty"`
-	SecretKey       string            `json:"secret_key,omitempty"`
-	Token           string            `json:"token,omitempty"`
-	MaxRetries      int               `json:"max_retries"`
-	Timeout         int               `json:"timeout"` // 秒
-	Enabled         bool              `json:"enabled"`
-	Status          ProviderStatus    `json:"status"`
-	Metadata        map[string]string `json:"metadata,omitempty"`
-	LastCheck       time.Time         `json:"last_check"`
-	CreatedAt       time.Time         `json:"created_at"`
+	ID         string            `json:"id"`
+	Name       string            `json:"name"`
+	Type       ProviderType      `json:"type"`
+	AuthMethod AuthMethod        `json:"auth_method"`
+	Endpoint   string            `json:"endpoint"`
+	Region     string            `json:"region"`
+	Bucket     string            `json:"bucket"`
+	AccessKey  string            `json:"access_key,omitempty"`
+	SecretKey  string            `json:"secret_key,omitempty"`
+	Token      string            `json:"token,omitempty"`
+	MaxRetries int               `json:"max_retries"`
+	Timeout    int               `json:"timeout"` // 秒
+	Enabled    bool              `json:"enabled"`
+	Status     ProviderStatus    `json:"status"`
+	Metadata   map[string]string `json:"metadata,omitempty"`
+	LastCheck  time.Time         `json:"last_check"`
+	CreatedAt  time.Time         `json:"created_at"`
 }
 
 // ProviderType 提供商类型
 type ProviderType string
 
 const (
-	ProviderTypeAWS      ProviderType = "aws_s3"
-	ProviderTypeAzure    ProviderType = "azure_blob"
-	ProviderTypeGCS      ProviderType = "gcs"
-	ProviderTypeAlibaba  ProviderType = "alibaba_oss"
-	ProviderTypeTencent  ProviderType = "tencent_cos"
-	ProviderTypeMinIO    ProviderType = "minio"
-	ProviderTypeDropbox  ProviderType = "dropbox"
+	ProviderTypeAWS         ProviderType = "aws_s3"
+	ProviderTypeAzure       ProviderType = "azure_blob"
+	ProviderTypeGCS         ProviderType = "gcs"
+	ProviderTypeAlibaba     ProviderType = "alibaba_oss"
+	ProviderTypeTencent     ProviderType = "tencent_cos"
+	ProviderTypeMinIO       ProviderType = "minio"
+	ProviderTypeDropbox     ProviderType = "dropbox"
 	ProviderTypeGoogleDrive ProviderType = "google_drive"
-	ProviderTypeOneDrive ProviderType = "onedrive"
-	ProviderTypeWebDAV   ProviderType = "webdav"
-	ProviderTypeSFTP     ProviderType = "sftp"
+	ProviderTypeOneDrive    ProviderType = "onedrive"
+	ProviderTypeWebDAV      ProviderType = "webdav"
+	ProviderTypeSFTP        ProviderType = "sftp"
 )
 
 // AuthMethod 认证方法
@@ -73,46 +73,46 @@ const (
 
 // CloudSyncTask 同步任务
 type CloudSyncTask struct {
-	ID              string            `json:"id"`
-	Name            string            `json:"name"`
-	Description     string            `json:"description"`
-	ProviderID      string            `json:"provider_id"`
-	LocalPath       string            `json:"local_path"`
-	RemotePath      string            `json:"remote_path"`
-	Direction       SyncDirection     `json:"direction"`
-	SyncMode        SyncMode          `json:"sync_mode"`
-	Schedule        SyncSchedule      `json:"schedule"`
-	Filters         []SyncFilter      `json:"filters"`
-	Options         SyncOptions       `json:"options"`
-	Encryption      EncryptionConfig  `json:"encryption"`
-	Enabled         bool              `json:"enabled"`
-	Status          TaskStatus        `json:"status"`
-	Stats           TaskStats         `json:"stats"`
-	Metadata        map[string]string `json:"metadata,omitempty"`
-	LastSync        time.Time         `json:"last_sync"`
-	NextSync        time.Time         `json:"next_sync"`
-	CreatedAt       time.Time         `json:"created_at"`
-	UpdatedAt       time.Time         `json:"updated_at"`
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	ProviderID  string            `json:"provider_id"`
+	LocalPath   string            `json:"local_path"`
+	RemotePath  string            `json:"remote_path"`
+	Direction   SyncDirection     `json:"direction"`
+	SyncMode    SyncMode          `json:"sync_mode"`
+	Schedule    SyncSchedule      `json:"schedule"`
+	Filters     []SyncFilter      `json:"filters"`
+	Options     SyncOptions       `json:"options"`
+	Encryption  EncryptionConfig  `json:"encryption"`
+	Enabled     bool              `json:"enabled"`
+	Status      TaskStatus        `json:"status"`
+	Stats       TaskStats         `json:"stats"`
+	Metadata    map[string]string `json:"metadata,omitempty"`
+	LastSync    time.Time         `json:"last_sync"`
+	NextSync    time.Time         `json:"next_sync"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
 // SyncDirection 同步方向
 type SyncDirection string
 
 const (
-	SyncDirectionUpload   SyncDirection = "upload"   // 本地 -> 云端
-	SyncDirectionDownload SyncDirection = "download" // 云端 -> 本地
+	SyncDirectionUpload        SyncDirection = "upload"        // 本地 -> 云端
+	SyncDirectionDownload      SyncDirection = "download"      // 云端 -> 本地
 	SyncDirectionBidirectional SyncDirection = "bidirectional" // 双向
-	SyncDirectionMirror   SyncDirection = "mirror"   // 镜像（本地为准）
+	SyncDirectionMirror        SyncDirection = "mirror"        // 镜像（本地为准）
 )
 
 // SyncMode 同步模式
 type SyncMode string
 
 const (
-	SyncModeIncremental SyncMode = "incremental" // 增量同步
-	SyncModeFull        SyncMode = "full"        // 全量同步
+	SyncModeIncremental  SyncMode = "incremental"  // 增量同步
+	SyncModeFull         SyncMode = "full"         // 全量同步
 	SyncModeDifferential SyncMode = "differential" // 差异同步
-	SyncModeRealtime    SyncMode = "realtime"    // 实时同步
+	SyncModeRealtime     SyncMode = "realtime"     // 实时同步
 )
 
 // SyncSchedule 同步调度
@@ -127,73 +127,73 @@ type SyncSchedule struct {
 
 // SyncFilter 同步过滤器
 type SyncFilter struct {
-	Type     FilterType `json:"type"`
-	Pattern  string     `json:"pattern"`
-	Exclude  bool       `json:"exclude"`
+	Type    FilterType `json:"type"`
+	Pattern string     `json:"pattern"`
+	Exclude bool       `json:"exclude"`
 }
 
 // FilterType 过滤类型
 type FilterType string
 
 const (
-	FilterTypeFile     FilterType = "file"
-	FilterTypeFolder   FilterType = "folder"
-	FilterTypeSize     FilterType = "size"
-	FilterTypeDate     FilterType = "date"
-	FilterTypeRegex    FilterType = "regex"
+	FilterTypeFile   FilterType = "file"
+	FilterTypeFolder FilterType = "folder"
+	FilterTypeSize   FilterType = "size"
+	FilterTypeDate   FilterType = "date"
+	FilterTypeRegex  FilterType = "regex"
 )
 
 // SyncOptions 同步选项
 type SyncOptions struct {
-	DeleteExtraneous   bool `json:"delete_extraneous"`
-	PreserveTimestamps bool `json:"preserve_timestamps"`
-	PreservePerms      bool `json:"preserve_permissions"`
-	Compress           bool `json:"compress"`
-	BandwidthLimit     int  `json:"bandwidth_limit"` // KB/s
-	Concurrency        int  `json:"concurrency"`
-	ChunkSize          int  `json:"chunk_size"` // 字节
-	Checksum           bool `json:"checksum"`
-	DryRun             bool `json:"dry_run"`
-	Verbose            bool `json:"verbose"`
+	DeleteExtraneous   bool  `json:"delete_extraneous"`
+	PreserveTimestamps bool  `json:"preserve_timestamps"`
+	PreservePerms      bool  `json:"preserve_permissions"`
+	Compress           bool  `json:"compress"`
+	BandwidthLimit     int   `json:"bandwidth_limit"` // KB/s
+	Concurrency        int   `json:"concurrency"`
+	ChunkSize          int   `json:"chunk_size"` // 字节
+	Checksum           bool  `json:"checksum"`
+	DryRun             bool  `json:"dry_run"`
+	Verbose            bool  `json:"verbose"`
 	MaxFileSize        int64 `json:"max_file_size"` // 字节
 	MinFileSize        int64 `json:"min_file_size"`
 }
 
 // EncryptionConfig 加密配置
 type EncryptionConfig struct {
-	Enabled    bool   `json:"enabled"`
-	Algorithm  string `json:"algorithm"`
-	Key        string `json:"key,omitempty"`
-	Salt       string `json:"salt,omitempty"`
+	Enabled   bool   `json:"enabled"`
+	Algorithm string `json:"algorithm"`
+	Key       string `json:"key,omitempty"`
+	Salt      string `json:"salt,omitempty"`
 }
 
 // TaskStatus 任务状态
 type TaskStatus string
 
 const (
-	TaskStatusIdle     TaskStatus = "idle"
-	TaskStatusSyncing  TaskStatus = "syncing"
-	TaskStatusPaused   TaskStatus = "paused"
-	TaskStatusError    TaskStatus = "error"
+	TaskStatusIdle      TaskStatus = "idle"
+	TaskStatusSyncing   TaskStatus = "syncing"
+	TaskStatusPaused    TaskStatus = "paused"
+	TaskStatusError     TaskStatus = "error"
 	TaskStatusCompleted TaskStatus = "completed"
 )
 
 // TaskStats 任务统计
 type TaskStats struct {
-	FilesUploaded    int64     `json:"files_uploaded"`
-	FilesDownloaded  int64     `json:"files_downloaded"`
-	FilesDeleted     int64     `json:"files_deleted"`
-	FilesSkipped     int64     `json:"files_skipped"`
-	FilesFailed      int64     `json:"files_failed"`
-	BytesUploaded    int64     `json:"bytes_uploaded"`
-	BytesDownloaded  int64     `json:"bytes_downloaded"`
-	TotalFiles       int64     `json:"total_files"`
-	TotalBytes       int64     `json:"total_bytes"`
-	Progress         float64   `json:"progress"` // 0-100
-	StartTime        time.Time `json:"start_time"`
-	EndTime          time.Time `json:"end_time"`
-	Duration         int64     `json:"duration"` // 秒
-	AvgSpeedMBps     float64   `json:"avg_speed_mbps"`
+	FilesUploaded   int64     `json:"files_uploaded"`
+	FilesDownloaded int64     `json:"files_downloaded"`
+	FilesDeleted    int64     `json:"files_deleted"`
+	FilesSkipped    int64     `json:"files_skipped"`
+	FilesFailed     int64     `json:"files_failed"`
+	BytesUploaded   int64     `json:"bytes_uploaded"`
+	BytesDownloaded int64     `json:"bytes_downloaded"`
+	TotalFiles      int64     `json:"total_files"`
+	TotalBytes      int64     `json:"total_bytes"`
+	Progress        float64   `json:"progress"` // 0-100
+	StartTime       time.Time `json:"start_time"`
+	EndTime         time.Time `json:"end_time"`
+	Duration        int64     `json:"duration"` // 秒
+	AvgSpeedMBps    float64   `json:"avg_speed_mbps"`
 }
 
 // ========== 同步管理器 ==========
@@ -210,44 +210,44 @@ type CloudSyncManager struct {
 
 // ManagerConfig 管理器配置
 type ManagerConfig struct {
-	MaxProviders      int    `json:"max_providers"`
-	MaxTasks          int    `json:"max_tasks"`
-	DefaultConcurrency int   `json:"default_concurrency"`
-	DefaultChunkSize  int    `json:"default_chunk_size"`
-	MaxBandwidthMBps  int    `json:"max_bandwidth_mbps"`
-	RetryAttempts     int    `json:"retry_attempts"`
-	RetryDelay        int    `json:"retry_delay"` // 秒
-	EnableEncryption  bool   `json:"enable_encryption"`
-	EnableCompression bool   `json:"enable_compression"`
-	LogLevel          string `json:"log_level"`
-	TempDir           string `json:"temp_dir"`
+	MaxProviders       int    `json:"max_providers"`
+	MaxTasks           int    `json:"max_tasks"`
+	DefaultConcurrency int    `json:"default_concurrency"`
+	DefaultChunkSize   int    `json:"default_chunk_size"`
+	MaxBandwidthMBps   int    `json:"max_bandwidth_mbps"`
+	RetryAttempts      int    `json:"retry_attempts"`
+	RetryDelay         int    `json:"retry_delay"` // 秒
+	EnableEncryption   bool   `json:"enable_encryption"`
+	EnableCompression  bool   `json:"enable_compression"`
+	LogLevel           string `json:"log_level"`
+	TempDir            string `json:"temp_dir"`
 }
 
 // ManagerStats 管理器统计
 type ManagerStats struct {
-	TotalProviders   int       `json:"total_providers"`
-	OnlineProviders  int       `json:"online_providers"`
-	TotalTasks       int       `json:"total_tasks"`
-	ActiveTasks      int       `json:"active_tasks"`
-	TotalSynced      int64     `json:"total_synced"`
-	TotalBytes       int64     `json:"total_bytes"`
-	SuccessRate      float64   `json:"success_rate"`
-	LastSyncTime     time.Time `json:"last_sync_time"`
+	TotalProviders  int       `json:"total_providers"`
+	OnlineProviders int       `json:"online_providers"`
+	TotalTasks      int       `json:"total_tasks"`
+	ActiveTasks     int       `json:"active_tasks"`
+	TotalSynced     int64     `json:"total_synced"`
+	TotalBytes      int64     `json:"total_bytes"`
+	SuccessRate     float64   `json:"success_rate"`
+	LastSyncTime    time.Time `json:"last_sync_time"`
 }
 
 // SyncHistory 同步历史
 type SyncHistory struct {
-	ID          string     `json:"id"`
-	TaskID      string     `json:"task_id"`
-	TaskName    string     `json:"task_name"`
+	ID          string        `json:"id"`
+	TaskID      string        `json:"task_id"`
+	TaskName    string        `json:"task_name"`
 	Direction   SyncDirection `json:"direction"`
-	Status      TaskStatus `json:"status"`
-	FilesSynced int64      `json:"files_synced"`
-	BytesSynced int64      `json:"bytes_synced"`
-	Duration    int64      `json:"duration"`
-	Error       string     `json:"error,omitempty"`
-	StartTime   time.Time  `json:"start_time"`
-	EndTime     time.Time  `json:"end_time"`
+	Status      TaskStatus    `json:"status"`
+	FilesSynced int64         `json:"files_synced"`
+	BytesSynced int64         `json:"bytes_synced"`
+	Duration    int64         `json:"duration"`
+	Error       string        `json:"error,omitempty"`
+	StartTime   time.Time     `json:"start_time"`
+	EndTime     time.Time     `json:"end_time"`
 }
 
 // NewCloudSyncManager 创建云同步管理器
@@ -558,9 +558,9 @@ func (m *CloudSyncManager) StartSync(taskID string) (*SyncResult, error) {
 	startTime := time.Now()
 
 	result := &SyncResult{
-		TaskID:    taskID,
-		StartTime: startTime,
-		Status:    TaskStatusCompleted,
+		TaskID:      taskID,
+		StartTime:   startTime,
+		Status:      TaskStatusCompleted,
 		FilesSynced: 100,
 		BytesSynced: 1024 * 1024 * 100, // 100MB
 	}

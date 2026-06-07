@@ -14,7 +14,7 @@ import (
 // Manager 即时通讯管理器.
 type Manager struct {
 	channels map[string]*Channel
-	messages map[string]*Message      // messageID -> Message
+	messages map[string]*Message         // messageID -> Message
 	members  map[string][]*ChannelMember // channelID -> members
 	mu       sync.RWMutex
 }

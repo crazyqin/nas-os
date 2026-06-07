@@ -9,34 +9,34 @@ import (
 
 // MediaCenter 智能媒体中心
 type MediaCenter struct {
-	mu          sync.RWMutex
-	movies      map[string]*Movie
-	photos      map[string]*Photo
-	playlists   map[string]*Playlist
-	libraries   map[string]*Library
-	items       map[string]*MediaItem
-	sessions    map[string]*Session
-	config      *Config
+	mu        sync.RWMutex
+	movies    map[string]*Movie
+	photos    map[string]*Photo
+	playlists map[string]*Playlist
+	libraries map[string]*Library
+	items     map[string]*MediaItem
+	sessions  map[string]*Session
+	config    *Config
 }
 
 // Movie 电影信息
 type Movie struct {
-	ID          string    `json:"id"`
-	Title       string    `json:"title"`
-	Year        int       `json:"year"`
-	Genre       []string  `json:"genre"`
-	Director    string    `json:"director"`
-	Actors      []string  `json:"actors"`
-	Poster      string    `json:"poster"`
-	Plot        string    `json:"plot"`
-	Rating      float64   `json:"rating"`
-	Duration    int       `json:"duration"`
-	Resolution  string    `json:"resolution"`
-	Codec       string    `json:"codec"`
-	Subtitles   []string  `json:"subtitles"`
-	FilePath    string    `json:"file_path"`
-	WatchedAt   time.Time `json:"watched_at"`
-	AddedAt     time.Time `json:"added_at"`
+	ID         string    `json:"id"`
+	Title      string    `json:"title"`
+	Year       int       `json:"year"`
+	Genre      []string  `json:"genre"`
+	Director   string    `json:"director"`
+	Actors     []string  `json:"actors"`
+	Poster     string    `json:"poster"`
+	Plot       string    `json:"plot"`
+	Rating     float64   `json:"rating"`
+	Duration   int       `json:"duration"`
+	Resolution string    `json:"resolution"`
+	Codec      string    `json:"codec"`
+	Subtitles  []string  `json:"subtitles"`
+	FilePath   string    `json:"file_path"`
+	WatchedAt  time.Time `json:"watched_at"`
+	AddedAt    time.Time `json:"added_at"`
 }
 
 // Photo 照片信息
@@ -60,13 +60,13 @@ type Photo struct {
 
 // ExifData EXIF信息
 type ExifData struct {
-	Camera      string    `json:"camera"`
-	Lens        string    `json:"lens"`
-	ISO         int       `json:"iso"`
-	Aperture    float64   `json:"aperture"`
+	Camera       string   `json:"camera"`
+	Lens         string   `json:"lens"`
+	ISO          int      `json:"iso"`
+	Aperture     float64  `json:"aperture"`
 	ShutterSpeed string   `json:"shutter_speed"`
-	FocalLength float64   `json:"focal_length"`
-	GPS         *GPSData  `json:"gps"`
+	FocalLength  float64  `json:"focal_length"`
+	GPS          *GPSData `json:"gps"`
 }
 
 // GPSData GPS信息
@@ -78,11 +78,11 @@ type GPSData struct {
 
 // Face 人脸信息
 type Face struct {
-	ID        string    `json:"id"`
-	PersonID  string    `json:"person_id"`
-	Name      string    `json:"name"`
-	Bounds    *Bounds   `json:"bounds"`
-	Confidence float64  `json:"confidence"`
+	ID         string  `json:"id"`
+	PersonID   string  `json:"person_id"`
+	Name       string  `json:"name"`
+	Bounds     *Bounds `json:"bounds"`
+	Confidence float64 `json:"confidence"`
 }
 
 // Bounds 边界框
@@ -114,13 +114,13 @@ type Library struct {
 
 // Config 配置
 type Config struct {
-	ScanInterval    time.Duration `json:"scan_interval"`
-	AutoScan        bool          `json:"auto_scan"`
-	ThumbnailSize   int           `json:"thumbnail_size"`
-	FaceDetection   bool          `json:"face_detection"`
-	AutoTag         bool          `json:"auto_tag"`
-	TranscodeEnabled bool         `json:"transcode_enabled"`
-	MaxBitrate      int           `json:"max_bitrate"`
+	ScanInterval     time.Duration `json:"scan_interval"`
+	AutoScan         bool          `json:"auto_scan"`
+	ThumbnailSize    int           `json:"thumbnail_size"`
+	FaceDetection    bool          `json:"face_detection"`
+	AutoTag          bool          `json:"auto_tag"`
+	TranscodeEnabled bool          `json:"transcode_enabled"`
+	MaxBitrate       int           `json:"max_bitrate"`
 }
 
 // NewMediaCenter 创建媒体中心
@@ -240,7 +240,7 @@ func (mc *MediaCenter) ListSessions(userID string) []*Session {
 func (mc *MediaCenter) AddMovie(ctx context.Context, movie *Movie) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
-	
+
 	movie.AddedAt = time.Now()
 	mc.movies[movie.ID] = movie
 	return nil
@@ -250,7 +250,7 @@ func (mc *MediaCenter) AddMovie(ctx context.Context, movie *Movie) error {
 func (mc *MediaCenter) GetMovie(ctx context.Context, id string) (*Movie, error) {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
-	
+
 	movie, exists := mc.movies[id]
 	if !exists {
 		return nil, fmt.Errorf("movie not found: %s", id)
@@ -262,7 +262,7 @@ func (mc *MediaCenter) GetMovie(ctx context.Context, id string) (*Movie, error) 
 func (mc *MediaCenter) SearchMovies(ctx context.Context, query string) ([]*Movie, error) {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
-	
+
 	var results []*Movie
 	for _, movie := range mc.movies {
 		if contains(movie.Title, query) || contains(movie.Director, query) {
@@ -276,7 +276,7 @@ func (mc *MediaCenter) SearchMovies(ctx context.Context, query string) ([]*Movie
 func (mc *MediaCenter) AddPhoto(ctx context.Context, photo *Photo) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
-	
+
 	photo.AddedAt = time.Now()
 	mc.photos[photo.ID] = photo
 	return nil
@@ -286,7 +286,7 @@ func (mc *MediaCenter) AddPhoto(ctx context.Context, photo *Photo) error {
 func (mc *MediaCenter) GetPhoto(ctx context.Context, id string) (*Photo, error) {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
-	
+
 	photo, exists := mc.photos[id]
 	if !exists {
 		return nil, fmt.Errorf("photo not found: %s", id)
@@ -298,7 +298,7 @@ func (mc *MediaCenter) GetPhoto(ctx context.Context, id string) (*Photo, error) 
 func (mc *MediaCenter) SearchPhotosByText(ctx context.Context, query string) ([]*Photo, error) {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
-	
+
 	var results []*Photo
 	for _, photo := range mc.photos {
 		if matchPhotoByQuery(photo, query) {
@@ -312,7 +312,7 @@ func (mc *MediaCenter) SearchPhotosByText(ctx context.Context, query string) ([]
 func (mc *MediaCenter) SearchPhotosByFace(ctx context.Context, personID string) ([]*Photo, error) {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
-	
+
 	var results []*Photo
 	for _, photo := range mc.photos {
 		for _, face := range photo.Faces {
@@ -329,7 +329,7 @@ func (mc *MediaCenter) SearchPhotosByFace(ctx context.Context, personID string) 
 func (mc *MediaCenter) CreatePlaylist(ctx context.Context, playlist *Playlist) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
-	
+
 	playlist.CreatedAt = time.Now()
 	playlist.UpdatedAt = time.Now()
 	mc.playlists[playlist.ID] = playlist
@@ -340,12 +340,12 @@ func (mc *MediaCenter) CreatePlaylist(ctx context.Context, playlist *Playlist) e
 func (mc *MediaCenter) AddToPlaylist(ctx context.Context, playlistID, itemID string) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
-	
+
 	playlist, exists := mc.playlists[playlistID]
 	if !exists {
 		return fmt.Errorf("playlist not found: %s", playlistID)
 	}
-	
+
 	playlist.Items = append(playlist.Items, itemID)
 	playlist.UpdatedAt = time.Now()
 	return nil
@@ -355,12 +355,12 @@ func (mc *MediaCenter) AddToPlaylist(ctx context.Context, playlistID, itemID str
 func (mc *MediaCenter) ScanLibrary(ctx context.Context, libraryID string) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
-	
+
 	library, exists := mc.libraries[libraryID]
 	if !exists {
 		return fmt.Errorf("library not found: %s", libraryID)
 	}
-	
+
 	library.ScannedAt = time.Now()
 	return nil
 }
@@ -369,7 +369,7 @@ func (mc *MediaCenter) ScanLibrary(ctx context.Context, libraryID string) error 
 func (mc *MediaCenter) CreateLibrary(ctx context.Context, library *Library) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
-	
+
 	library.ScannedAt = time.Now()
 	mc.libraries[library.ID] = library
 	return nil
@@ -379,10 +379,10 @@ func (mc *MediaCenter) CreateLibrary(ctx context.Context, library *Library) erro
 func (mc *MediaCenter) GetStats(ctx context.Context) map[string]interface{} {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
-	
+
 	return map[string]interface{}{
-		"total_movies":   len(mc.movies),
-		"total_photos":   len(mc.photos),
+		"total_movies":    len(mc.movies),
+		"total_photos":    len(mc.photos),
 		"total_playlists": len(mc.playlists),
 		"total_libraries": len(mc.libraries),
 	}
@@ -392,12 +392,12 @@ func (mc *MediaCenter) GetStats(ctx context.Context) map[string]interface{} {
 func (mc *MediaCenter) UpdateWatchProgress(ctx context.Context, movieID string, progress float64) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
-	
+
 	movie, exists := mc.movies[movieID]
 	if !exists {
 		return fmt.Errorf("movie not found: %s", movieID)
 	}
-	
+
 	movie.WatchedAt = time.Now()
 	return nil
 }
@@ -406,12 +406,12 @@ func (mc *MediaCenter) UpdateWatchProgress(ctx context.Context, movieID string, 
 func (mc *MediaCenter) ToggleFavorite(ctx context.Context, photoID string) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
-	
+
 	photo, exists := mc.photos[photoID]
 	if !exists {
 		return fmt.Errorf("photo not found: %s", photoID)
 	}
-	
+
 	photo.IsFavorite = !photo.IsFavorite
 	return nil
 }
@@ -420,15 +420,15 @@ func (mc *MediaCenter) ToggleFavorite(ctx context.Context, photoID string) error
 func (mc *MediaCenter) GetRecentMovies(ctx context.Context, limit int) []*Movie {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
-	
+
 	var movies []*Movie
 	for _, movie := range mc.movies {
 		movies = append(movies, movie)
 	}
-	
+
 	// 按观看时间排序
 	sortMoviesByWatchTime(movies)
-	
+
 	if len(movies) > limit {
 		return movies[:limit]
 	}
@@ -439,15 +439,15 @@ func (mc *MediaCenter) GetRecentMovies(ctx context.Context, limit int) []*Movie 
 func (mc *MediaCenter) GetRecentPhotos(ctx context.Context, limit int) []*Photo {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
-	
+
 	var photos []*Photo
 	for _, photo := range mc.photos {
 		photos = append(photos, photo)
 	}
-	
+
 	// 按添加时间排序
 	sortPhotosByAddedTime(photos)
-	
+
 	if len(photos) > limit {
 		return photos[:limit]
 	}
@@ -476,19 +476,19 @@ func matchPhotoByQuery(photo *Photo, query string) bool {
 			return true
 		}
 	}
-	
+
 	// 检查相册
 	for _, album := range photo.Albums {
 		if contains(album, query) {
 			return true
 		}
 	}
-	
+
 	// 检查文件名
 	if contains(photo.Filename, query) {
 		return true
 	}
-	
+
 	return false
 }
 

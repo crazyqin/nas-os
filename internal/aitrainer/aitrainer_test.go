@@ -367,9 +367,9 @@ func TestTrainingTaskErrors(t *testing.T) {
 
 	// 创建任务
 	task, _ := m.CreateTrainingTask("错误测试", model.ID, ds.ID, &TrainConfig{
-		Epochs:  5,
+		Epochs:    5,
 		BatchSize: 16,
-		Device:  "cpu",
+		Device:    "cpu",
 	})
 
 	// 启动任务
@@ -425,9 +425,9 @@ func TestShutdown(t *testing.T) {
 	model, _ := m.CreateModel("关闭测试模型", "", ModelTypeClassification, "pytorch")
 	ds, _ := m.CreateDataset("关闭测试数据集", "", "/data/shutdown", "image", 100)
 	task, _ := m.CreateTrainingTask("关闭测试", model.ID, ds.ID, &TrainConfig{
-		Epochs:  5,
+		Epochs:    5,
 		BatchSize: 16,
-		Device:  "cpu",
+		Device:    "cpu",
 	})
 
 	ctx := context.Background()

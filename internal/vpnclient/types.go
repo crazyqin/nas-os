@@ -52,23 +52,23 @@ const (
 
 // VPNProfile represents a VPN connection profile.
 type VPNProfile struct {
-	ID          string           `json:"id"`
-	Name        string           `json:"name"`
-	Protocol    Protocol         `json:"protocol"`
-	ServerAddr  string           `json:"server_addr"`
-	ServerPort  int              `json:"server_port"`
-	AuthType    AuthType         `json:"auth_type"`
-	Username    string           `json:"username,omitempty"`
-	Password    string           `json:"password,omitempty"`
-	CertFile    string           `json:"cert_file,omitempty"`
-	KeyFile     string           `json:"key_file,omitempty"`
-	CAFile      string           `json:"ca_file,omitempty"`
-	ConfigFile  string           `json:"config_file,omitempty"`
-	AutoConnect bool             `json:"auto_connect"`
-	Enabled     bool             `json:"enabled"`
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Protocol    Protocol          `json:"protocol"`
+	ServerAddr  string            `json:"server_addr"`
+	ServerPort  int               `json:"server_port"`
+	AuthType    AuthType          `json:"auth_type"`
+	Username    string            `json:"username,omitempty"`
+	Password    string            `json:"password,omitempty"`
+	CertFile    string            `json:"cert_file,omitempty"`
+	KeyFile     string            `json:"key_file,omitempty"`
+	CAFile      string            `json:"ca_file,omitempty"`
+	ConfigFile  string            `json:"config_file,omitempty"`
+	AutoConnect bool              `json:"auto_connect"`
+	Enabled     bool              `json:"enabled"`
 	Metadata    map[string]string `json:"metadata,omitempty"`
-	CreatedAt   time.Time        `json:"created_at"`
-	UpdatedAt   time.Time        `json:"updated_at"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
 // VPNConnection represents an active VPN connection.
@@ -100,32 +100,32 @@ type TrafficStats struct {
 
 // TrafficSnapshot represents a point-in-time traffic measurement.
 type TrafficSnapshot struct {
-	Timestamp  time.Time    `json:"timestamp"`
-	RxBytes    int64        `json:"rx_bytes"`
-	TxBytes    int64        `json:"tx_bytes"`
-	RxRate     float64      `json:"rx_rate"` // bytes per second
-	TxRate     float64      `json:"tx_rate"` // bytes per second
-	Connection string       `json:"connection_id"`
+	Timestamp  time.Time `json:"timestamp"`
+	RxBytes    int64     `json:"rx_bytes"`
+	TxBytes    int64     `json:"tx_bytes"`
+	RxRate     float64   `json:"rx_rate"` // bytes per second
+	TxRate     float64   `json:"tx_rate"` // bytes per second
+	Connection string    `json:"connection_id"`
 }
 
 // TrafficHistory holds historical traffic data.
 type TrafficHistory struct {
-	ProfileID  string            `json:"profile_id"`
-	Period     string            `json:"period"` // "hour", "day", "week", "month"
-	Snapshots  []TrafficSnapshot `json:"snapshots"`
-	TotalRx    int64             `json:"total_rx"`
-	TotalTx    int64             `json:"total_tx"`
-	StartTime  time.Time         `json:"start_time"`
-	EndTime    time.Time         `json:"end_time"`
+	ProfileID string            `json:"profile_id"`
+	Period    string            `json:"period"` // "hour", "day", "week", "month"
+	Snapshots []TrafficSnapshot `json:"snapshots"`
+	TotalRx   int64             `json:"total_rx"`
+	TotalTx   int64             `json:"total_tx"`
+	StartTime time.Time         `json:"start_time"`
+	EndTime   time.Time         `json:"end_time"`
 }
 
 // TrafficAlert represents a traffic threshold alert.
 type TrafficAlert struct {
 	ID          string    `json:"id"`
 	ProfileID   string    `json:"profile_id"`
-	Threshold   int64     `json:"threshold"`   // bytes
-	Direction   string    `json:"direction"`    // "rx", "tx", "both"
-	Period      string    `json:"period"`       // "hour", "day", "month"
+	Threshold   int64     `json:"threshold"` // bytes
+	Direction   string    `json:"direction"` // "rx", "tx", "both"
+	Period      string    `json:"period"`    // "hour", "day", "month"
 	Enabled     bool      `json:"enabled"`
 	Triggered   bool      `json:"triggered"`
 	TriggeredAt time.Time `json:"triggered_at,omitempty"`
@@ -166,43 +166,43 @@ type OpenVPNConfig struct {
 
 // WireGuardConfig represents WireGuard client configuration.
 type WireGuardConfig struct {
-	PrivateKey    string   `json:"private_key"`
-	Address       string   `json:"address"`
-	DNS           []string `json:"dns"`
-	MTU           int      `json:"mtu"`
-	PublicKey      string   `json:"public_key"`
-	Endpoint      string   `json:"endpoint"`
-	AllowedIPs    []string `json:"allowed_ips"`
-	Keepalive     int      `json:"keepalive"`
-	PresharedKey  string   `json:"preshared_key,omitempty"`
+	PrivateKey   string   `json:"private_key"`
+	Address      string   `json:"address"`
+	DNS          []string `json:"dns"`
+	MTU          int      `json:"mtu"`
+	PublicKey    string   `json:"public_key"`
+	Endpoint     string   `json:"endpoint"`
+	AllowedIPs   []string `json:"allowed_ips"`
+	Keepalive    int      `json:"keepalive"`
+	PresharedKey string   `json:"preshared_key,omitempty"`
 }
 
 // L2TPConfig represents L2TP/IPSec client configuration.
 type L2TPConfig struct {
-	ServerAddr   string `json:"server_addr"`
-	ServerPort   int    `json:"server_port"`
-	Username     string `json:"username"`
-	Password     string `json:"password"`
-	PSK          string `json:"psk"` // Pre-shared key for IPSec
-	PPPAuthType  string `json:"ppp_auth_type"` // "pap", "chap", "mschap-v2"
-	MTU          int    `json:"mtu"`
-	MRU          int    `json:"mru"`
-	IdleTimeout  int    `json:"idle_timeout"`
-	DefRoute     bool   `json:"def_route"`
-	IPSecProto   string `json:"ipsec_proto"` // "ikev1", "ikev2"
-	IPSecIKE     string `json:"ipsec_ike"`   // IKE cipher suite
-	IPSecESP     string `json:"ipsec_esp"`   // ESP cipher suite
+	ServerAddr  string `json:"server_addr"`
+	ServerPort  int    `json:"server_port"`
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	PSK         string `json:"psk"`           // Pre-shared key for IPSec
+	PPPAuthType string `json:"ppp_auth_type"` // "pap", "chap", "mschap-v2"
+	MTU         int    `json:"mtu"`
+	MRU         int    `json:"mru"`
+	IdleTimeout int    `json:"idle_timeout"`
+	DefRoute    bool   `json:"def_route"`
+	IPSecProto  string `json:"ipsec_proto"` // "ikev1", "ikev2"
+	IPSecIKE    string `json:"ipsec_ike"`   // IKE cipher suite
+	IPSecESP    string `json:"ipsec_esp"`   // ESP cipher suite
 }
 
 // ManagerStatus represents the overall VPN client manager status.
 type ManagerStatus struct {
-	ActiveConnections int            `json:"active_connections"`
-	TotalProfiles     int            `json:"total_profiles"`
+	ActiveConnections int             `json:"active_connections"`
+	TotalProfiles     int             `json:"total_profiles"`
 	Connections       []VPNConnection `json:"connections"`
-	DefaultProfile    string         `json:"default_profile,omitempty"`
-	FailoverEnabled   bool           `json:"failover_enabled"`
-	AutoReconnect     bool           `json:"auto_reconnect"`
-	Uptime            time.Duration  `json:"uptime"`
+	DefaultProfile    string          `json:"default_profile,omitempty"`
+	FailoverEnabled   bool            `json:"failover_enabled"`
+	AutoReconnect     bool            `json:"auto_reconnect"`
+	Uptime            time.Duration   `json:"uptime"`
 }
 
 // CreateProfileRequest is the request to create a VPN profile.

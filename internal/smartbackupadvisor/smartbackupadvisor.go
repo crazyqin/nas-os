@@ -24,11 +24,11 @@ const (
 type BackupStrategy string
 
 const (
-	StrategyFull        BackupStrategy = "full"
-	StrategyIncremental BackupStrategy = "incremental"
+	StrategyFull         BackupStrategy = "full"
+	StrategyIncremental  BackupStrategy = "incremental"
 	StrategyDifferential BackupStrategy = "differential"
-	StrategyMirror      BackupStrategy = "mirror"
-	StrategySnapshot    BackupStrategy = "snapshot"
+	StrategyMirror       BackupStrategy = "mirror"
+	StrategySnapshot     BackupStrategy = "snapshot"
 )
 
 // DataCriticality 数据关键性
@@ -43,39 +43,39 @@ const (
 
 // BackupPolicy 备份策略建议
 type BackupPolicy struct {
-	ID                 string           `json:"id"`
-	Name               string           `json:"name"`
-	Description        string           `json:"description"`
-	Strategy           BackupStrategy   `json:"strategy"`
-	FrequencyHours     int              `json:"frequency_hours"`
-	RetentionDays      int              `json:"retention_days"`
-	RPOMinutes         int              `json:"rpo_minutes"`
-	RTOMinutes         int              `json:"rto_minutes"`
-	TargetLocation     string           `json:"target_location"`
-	EncryptionEnabled  bool             `json:"encryption_enabled"`
-	CompressionEnabled bool             `json:"compression_enabled"`
+	ID                   string         `json:"id"`
+	Name                 string         `json:"name"`
+	Description          string         `json:"description"`
+	Strategy             BackupStrategy `json:"strategy"`
+	FrequencyHours       int            `json:"frequency_hours"`
+	RetentionDays        int            `json:"retention_days"`
+	RPOMinutes           int            `json:"rpo_minutes"`
+	RTOMinutes           int            `json:"rto_minutes"`
+	TargetLocation       string         `json:"target_location"`
+	EncryptionEnabled    bool           `json:"encryption_enabled"`
+	CompressionEnabled   bool           `json:"compression_enabled"`
 	VerificationRequired bool           `json:"verification_required"`
-	Priority           int              `json:"priority"`
-	CreatedAt          time.Time        `json:"created_at"`
-	UpdatedAt          time.Time        `json:"updated_at"`
+	Priority             int            `json:"priority"`
+	CreatedAt            time.Time      `json:"created_at"`
+	UpdatedAt            time.Time      `json:"updated_at"`
 }
 
 // DataRiskAssessment 数据风险评估
 type DataRiskAssessment struct {
-	ID               string           `json:"id"`
-	DataPath         string           `json:"data_path"`
-	DataSize         int64            `json:"data_size"`
-	Criticality      DataCriticality  `json:"criticality"`
-	RiskLevel        RiskLevel        `json:"risk_level"`
-	RiskScore        float64          `json:"risk_score"`
-	RiskFactors      []RiskFactor     `json:"risk_factors"`
+	ID                string          `json:"id"`
+	DataPath          string          `json:"data_path"`
+	DataSize          int64           `json:"data_size"`
+	Criticality       DataCriticality `json:"criticality"`
+	RiskLevel         RiskLevel       `json:"risk_level"`
+	RiskScore         float64         `json:"risk_score"`
+	RiskFactors       []RiskFactor    `json:"risk_factors"`
 	RecommendedPolicy *BackupPolicy   `json:"recommended_policy"`
-	LastBackup       *time.Time       `json:"last_backup,omitempty"`
-	BackupAge        time.Duration    `json:"backup_age"`
-	DataAge          time.Duration    `json:"data_age"`
-	AccessFrequency  float64          `json:"access_frequency"`
-	ChangeRate       float64          `json:"change_rate"`
-	AssessedAt       time.Time        `json:"assessed_at"`
+	LastBackup        *time.Time      `json:"last_backup,omitempty"`
+	BackupAge         time.Duration   `json:"backup_age"`
+	DataAge           time.Duration   `json:"data_age"`
+	AccessFrequency   float64         `json:"access_frequency"`
+	ChangeRate        float64         `json:"change_rate"`
+	AssessedAt        time.Time       `json:"assessed_at"`
 }
 
 // RiskFactor 风险因素
@@ -88,32 +88,32 @@ type RiskFactor struct {
 
 // BackupVerification 备份验证
 type BackupVerification struct {
-	ID            string    `json:"id"`
-	BackupID      string    `json:"backup_id"`
-	Status        string    `json:"status"`
-	IntegrityOK   bool      `json:"integrity_ok"`
-	RestoreTest   bool      `json:"restore_test"`
-	DataComplete  bool      `json:"data_complete"`
-	VerifiedAt    time.Time `json:"verified_at"`
-	NextVerify    time.Time `json:"next_verify"`
-	Issues        []string  `json:"issues,omitempty"`
+	ID           string    `json:"id"`
+	BackupID     string    `json:"backup_id"`
+	Status       string    `json:"status"`
+	IntegrityOK  bool      `json:"integrity_ok"`
+	RestoreTest  bool      `json:"restore_test"`
+	DataComplete bool      `json:"data_complete"`
+	VerifiedAt   time.Time `json:"verified_at"`
+	NextVerify   time.Time `json:"next_verify"`
+	Issues       []string  `json:"issues,omitempty"`
 }
 
 // DisasterRecoveryPlan 灾难恢复计划
 type DisasterRecoveryPlan struct {
-	ID              string            `json:"id"`
-	Name            string            `json:"name"`
-	Description     string            `json:"description"`
-	RPOMinutes      int               `json:"rpo_minutes"`
-	RTOMinutes      int               `json:"rto_minutes"`
-	BackupSites     []BackupSite      `json:"backup_sites"`
-	RecoverySteps   []RecoveryStep    `json:"recovery_steps"`
-	TestingSchedule string            `json:"testing_schedule"`
-	LastTested      *time.Time        `json:"last_tested,omitempty"`
-	TestResult      string            `json:"test_result"`
+	ID              string             `json:"id"`
+	Name            string             `json:"name"`
+	Description     string             `json:"description"`
+	RPOMinutes      int                `json:"rpo_minutes"`
+	RTOMinutes      int                `json:"rto_minutes"`
+	BackupSites     []BackupSite       `json:"backup_sites"`
+	RecoverySteps   []RecoveryStep     `json:"recovery_steps"`
+	TestingSchedule string             `json:"testing_schedule"`
+	LastTested      *time.Time         `json:"last_tested,omitempty"`
+	TestResult      string             `json:"test_result"`
 	Contacts        []EmergencyContact `json:"contacts"`
-	CreatedAt       time.Time         `json:"created_at"`
-	UpdatedAt       time.Time         `json:"updated_at"`
+	CreatedAt       time.Time          `json:"created_at"`
+	UpdatedAt       time.Time          `json:"updated_at"`
 }
 
 // BackupSite 备份站点
@@ -144,45 +144,45 @@ type EmergencyContact struct {
 
 // BackupAdvisorStats 备份顾问统计
 type BackupAdvisorStats struct {
-	TotalPolicies      int                `json:"total_policies"`
-	ActivePolicies     int                `json:"active_policies"`
-	TotalAssessments   int                `json:"total_assessments"`
-	HighRiskItems      int                `json:"high_risk_items"`
-	CriticalRiskItems  int                `json:"critical_risk_items"`
-	AverageRiskScore   float64            `json:"average_risk_score"`
-	TotalVerifications int                `json:"total_verifications"`
+	TotalPolicies       int               `json:"total_policies"`
+	ActivePolicies      int               `json:"active_policies"`
+	TotalAssessments    int               `json:"total_assessments"`
+	HighRiskItems       int               `json:"high_risk_items"`
+	CriticalRiskItems   int               `json:"critical_risk_items"`
+	AverageRiskScore    float64           `json:"average_risk_score"`
+	TotalVerifications  int               `json:"total_verifications"`
 	FailedVerifications int               `json:"failed_verifications"`
-	DRPlans            int                `json:"dr_plans"`
-	LastAssessment     *time.Time         `json:"last_assessment,omitempty"`
-	RiskDistribution   map[RiskLevel]int  `json:"risk_distribution"`
+	DRPlans             int               `json:"dr_plans"`
+	LastAssessment      *time.Time        `json:"last_assessment,omitempty"`
+	RiskDistribution    map[RiskLevel]int `json:"risk_distribution"`
 }
 
 // SmartBackupAdvisor 智能备份顾问
 type SmartBackupAdvisor struct {
-	mu             sync.RWMutex
-	policies       map[string]*BackupPolicy
-	assessments    map[string]*DataRiskAssessment
-	verifications  []BackupVerification
-	drPlans        map[string]*DisasterRecoveryPlan
-	config         *AdvisorConfig
+	mu            sync.RWMutex
+	policies      map[string]*BackupPolicy
+	assessments   map[string]*DataRiskAssessment
+	verifications []BackupVerification
+	drPlans       map[string]*DisasterRecoveryPlan
+	config        *AdvisorConfig
 }
 
 // AdvisorConfig 顾问配置
 type AdvisorConfig struct {
-	DefaultRPO       int     `json:"default_rpo_minutes"`
-	DefaultRTO       int     `json:"default_rto_minutes"`
-	RiskThreshold    float64 `json:"risk_threshold"`
-	AutoVerify       bool    `json:"auto_verify"`
-	VerifyIntervalDays int   `json:"verify_interval_days"`
-	AlertOnHighRisk  bool    `json:"alert_on_high_risk"`
+	DefaultRPO         int     `json:"default_rpo_minutes"`
+	DefaultRTO         int     `json:"default_rto_minutes"`
+	RiskThreshold      float64 `json:"risk_threshold"`
+	AutoVerify         bool    `json:"auto_verify"`
+	VerifyIntervalDays int     `json:"verify_interval_days"`
+	AlertOnHighRisk    bool    `json:"alert_on_high_risk"`
 }
 
 // NewSmartBackupAdvisor 创建智能备份顾问
 func NewSmartBackupAdvisor(config *AdvisorConfig) *SmartBackupAdvisor {
 	if config == nil {
 		config = &AdvisorConfig{
-			DefaultRPO:         60,     // 1 hour
-			DefaultRTO:         240,    // 4 hours
+			DefaultRPO:         60,  // 1 hour
+			DefaultRTO:         240, // 4 hours
 			RiskThreshold:      0.7,
 			AutoVerify:         true,
 			VerifyIntervalDays: 7,
@@ -405,11 +405,11 @@ func (sba *SmartBackupAdvisor) MarshalJSON() ([]byte, error) {
 	defer sba.mu.RUnlock()
 
 	return json.Marshal(struct {
-		Policies      map[string]*BackupPolicy          `json:"policies"`
-		Assessments   map[string]*DataRiskAssessment     `json:"assessments"`
-		Verifications []BackupVerification               `json:"verifications"`
-		DRPlans       map[string]*DisasterRecoveryPlan   `json:"dr_plans"`
-		Config        *AdvisorConfig                     `json:"config"`
+		Policies      map[string]*BackupPolicy         `json:"policies"`
+		Assessments   map[string]*DataRiskAssessment   `json:"assessments"`
+		Verifications []BackupVerification             `json:"verifications"`
+		DRPlans       map[string]*DisasterRecoveryPlan `json:"dr_plans"`
+		Config        *AdvisorConfig                   `json:"config"`
 	}{
 		Policies:      sba.policies,
 		Assessments:   sba.assessments,

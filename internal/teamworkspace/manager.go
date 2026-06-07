@@ -41,8 +41,8 @@ type Workspace struct {
 
 // Board 看板
 type Board struct {
-	ID    string   `json:"id"`
-	Name  string   `json:"name"`
+	ID      string   `json:"id"`
+	Name    string   `json:"name"`
 	Columns []string `json:"columns"` // 列名列表
 }
 
@@ -72,11 +72,11 @@ type TaskComment struct {
 
 // CalendarEvent 日历事件
 type CalendarEvent struct {
-	ID          string    `json:"id"`
-	Title       string    `json:"title"`
-	StartTime   time.Time `json:"startTime"`
-	EndTime     time.Time `json:"endTime"`
-	Participants []string `json:"participants,omitempty"`
+	ID           string    `json:"id"`
+	Title        string    `json:"title"`
+	StartTime    time.Time `json:"startTime"`
+	EndTime      time.Time `json:"endTime"`
+	Participants []string  `json:"participants,omitempty"`
 }
 
 // SharedFile 共享文件
@@ -109,15 +109,15 @@ type Member struct {
 
 // Manager 团队工作区管理器
 type Manager struct {
-	mu         sync.RWMutex
-	workspaces map[string]*Workspace
-	members    map[string][]Member          // wsID -> members
-	boards     map[string][]*Board          // wsID -> boards
-	tasks      map[string]*Task             // taskID -> task
+	mu           sync.RWMutex
+	workspaces   map[string]*Workspace
+	members      map[string][]Member        // wsID -> members
+	boards       map[string][]*Board        // wsID -> boards
+	tasks        map[string]*Task           // taskID -> task
 	taskComments map[string][]TaskComment   // taskID -> comments
-	events     map[string][]CalendarEvent   // wsID -> events
-	files      map[string][]SharedFile      // wsID -> files
-	activities map[string][]Activity        // wsID -> activities
+	events       map[string][]CalendarEvent // wsID -> events
+	files        map[string][]SharedFile    // wsID -> files
+	activities   map[string][]Activity      // wsID -> activities
 }
 
 // NewManager 创建管理器

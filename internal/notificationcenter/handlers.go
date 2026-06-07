@@ -309,8 +309,8 @@ func (h *Handlers) EvaluateRules(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"fired":  fired,
-		"count":  len(fired),
+		"fired": fired,
+		"count": len(fired),
 	})
 }
 

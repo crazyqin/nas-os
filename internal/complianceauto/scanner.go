@@ -10,13 +10,13 @@ import (
 
 // Scanner 合规扫描引擎
 type Scanner struct {
-	mu          sync.RWMutex
-	rules       map[string]*ComplianceRule  // 规则库
-	checks      map[string]RuleCheck        // 检查函数
-	stats       *ComplianceStats            // 统计信息
-	lastScan    *ComplianceScan             // 最近扫描
-	isScanning  bool                        // 是否正在扫描
-	cancelFunc  context.CancelFunc          // 取消函数
+	mu         sync.RWMutex
+	rules      map[string]*ComplianceRule // 规则库
+	checks     map[string]RuleCheck       // 检查函数
+	stats      *ComplianceStats           // 统计信息
+	lastScan   *ComplianceScan            // 最近扫描
+	isScanning bool                       // 是否正在扫描
+	cancelFunc context.CancelFunc         // 取消函数
 }
 
 // NewScanner 创建扫描引擎
@@ -534,14 +534,14 @@ func (s *Scanner) registerCheck(ruleID string) {
 		if !exists {
 			return nil, fmt.Errorf("规则 %s 不存在", ruleID)
 		}
-		
+
 		// 模拟检查过程
 		detail := &CheckDetail{
 			RuleID:    ruleID,
 			CheckedAt: time.Now(),
 			Duration:  time.Millisecond * 100,
 		}
-		
+
 		// 根据规则类别执行不同的检查
 		switch rule.Category {
 		case CategoryAccessControl:
@@ -558,7 +558,7 @@ func (s *Scanner) registerCheck(ruleID string) {
 			detail.Result = ResultSkip
 			detail.Message = "暂未实现此规则的检查逻辑"
 		}
-		
+
 		return detail, nil
 	}
 }

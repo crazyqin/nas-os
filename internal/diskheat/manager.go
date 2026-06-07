@@ -14,33 +14,33 @@ import (
 
 // DiskMetrics 磁盘指标
 type DiskMetrics struct {
-	Device      string    `json:"device"`      // 设备名 (sda, nvme0n1 etc.)
-	Model       string    `json:"model"`       // 型号
-	MountPoint  string    `json:"mountPoint"`  // 挂载点
-	TotalBytes  int64     `json:"totalBytes"`  // 总容量
-	UsedBytes   int64     `json:"usedBytes"`   // 已用
-	FreeBytes   int64     `json:"freeBytes"`   // 可用
-	ReadOPS     int64     `json:"readOps"`     // 读操作数
-	WriteOPS    int64     `json:"writeOps"`    // 写操作数
-	ReadBytes   int64     `json:"readBytes"`   // 读字节数
-	WriteBytes  int64     `json:"writeBytes"`  // 写字节数
-	ReadLatency float64   `json:"readLatency"` // 读延迟 (ms)
-	WriteLatency float64  `json:"writeLatency"` // 写延迟 (ms)
-	Temperature float64   `json:"temperature"` // 温度
-	Health      string    `json:"health"`      // 健康状态
-	HeatScore   float64   `json:"heatScore"`   // 热度评分 0-100
-	Timestamp   time.Time `json:"timestamp"`
+	Device       string    `json:"device"`       // 设备名 (sda, nvme0n1 etc.)
+	Model        string    `json:"model"`        // 型号
+	MountPoint   string    `json:"mountPoint"`   // 挂载点
+	TotalBytes   int64     `json:"totalBytes"`   // 总容量
+	UsedBytes    int64     `json:"usedBytes"`    // 已用
+	FreeBytes    int64     `json:"freeBytes"`    // 可用
+	ReadOPS      int64     `json:"readOps"`      // 读操作数
+	WriteOPS     int64     `json:"writeOps"`     // 写操作数
+	ReadBytes    int64     `json:"readBytes"`    // 读字节数
+	WriteBytes   int64     `json:"writeBytes"`   // 写字节数
+	ReadLatency  float64   `json:"readLatency"`  // 读延迟 (ms)
+	WriteLatency float64   `json:"writeLatency"` // 写延迟 (ms)
+	Temperature  float64   `json:"temperature"`  // 温度
+	Health       string    `json:"health"`       // 健康状态
+	HeatScore    float64   `json:"heatScore"`    // 热度评分 0-100
+	Timestamp    time.Time `json:"timestamp"`
 }
 
 // HeatLevel 热度等级
 type HeatLevel string
 
 const (
-	HeatLevelCold   HeatLevel = "cold"   // 冷 (0-20)
-	HeatLevelCool   HeatLevel = "cool"   // 凉 (20-40)
-	HeatLevelWarm   HeatLevel = "warm"   // 温 (40-60)
-	HeatLevelHot    HeatLevel = "hot"    // 热 (60-80)
-	HeatLevelFire   HeatLevel = "fire"   // 极热 (80-100)
+	HeatLevelCold HeatLevel = "cold" // 冷 (0-20)
+	HeatLevelCool HeatLevel = "cool" // 凉 (20-40)
+	HeatLevelWarm HeatLevel = "warm" // 温 (40-60)
+	HeatLevelHot  HeatLevel = "hot"  // 热 (60-80)
+	HeatLevelFire HeatLevel = "fire" // 极热 (80-100)
 )
 
 // HeatPoint 热力图数据点
@@ -58,36 +58,36 @@ type HeatPoint struct {
 
 // IOBottleneck IO 瓶颈
 type IOBottleneck struct {
-	DiskID      string    `json:"diskId"`
-	Device      string    `json:"device"`
-	Type        string    `json:"type"`     // high_iops, high_latency, low_throughput
-	Severity    string    `json:"severity"` // warning, critical
-	Message     string    `json:"message"`
-	Value       float64   `json:"value"`
-	Threshold   float64   `json:"threshold"`
-	Timestamp   time.Time `json:"timestamp"`
-	Recommendation string `json:"recommendation"`
+	DiskID         string    `json:"diskId"`
+	Device         string    `json:"device"`
+	Type           string    `json:"type"`     // high_iops, high_latency, low_throughput
+	Severity       string    `json:"severity"` // warning, critical
+	Message        string    `json:"message"`
+	Value          float64   `json:"value"`
+	Threshold      float64   `json:"threshold"`
+	Timestamp      time.Time `json:"timestamp"`
+	Recommendation string    `json:"recommendation"`
 }
 
 // DiskHealthReport 磁盘健康报告
 type DiskHealthReport struct {
-	DiskID       string    `json:"diskId"`
-	Device       string    `json:"device"`
-	Model        string    `json:"model"`
-	HealthScore  float64   `json:"healthScore"` // 0-100
-	Temperature  float64   `json:"temperature"`
-	PowerOnHours int64     `json:"powerOnHours"`
-	ReallocSects int64     `json:"reallocSects"`
-	PendingSects int64     `json:"pendingSects"`
-	PredictFail  bool      `json:"predictFail"`
-	Recommendations []string `json:"recommendations,omitempty"`
-	Timestamp    time.Time `json:"timestamp"`
+	DiskID          string    `json:"diskId"`
+	Device          string    `json:"device"`
+	Model           string    `json:"model"`
+	HealthScore     float64   `json:"healthScore"` // 0-100
+	Temperature     float64   `json:"temperature"`
+	PowerOnHours    int64     `json:"powerOnHours"`
+	ReallocSects    int64     `json:"reallocSects"`
+	PendingSects    int64     `json:"pendingSects"`
+	PredictFail     bool      `json:"predictFail"`
+	Recommendations []string  `json:"recommendations,omitempty"`
+	Timestamp       time.Time `json:"timestamp"`
 }
 
 // HeatmapData 热力图数据
 type HeatmapData struct {
-	Disks      []HeatPoint      `json:"disks"`
-	Timeline   []TimelinePoint  `json:"timeline"`
+	Disks       []HeatPoint     `json:"disks"`
+	Timeline    []TimelinePoint `json:"timeline"`
 	Bottlenecks []IOBottleneck  `json:"bottlenecks"`
 	GeneratedAt time.Time       `json:"generatedAt"`
 }
@@ -226,9 +226,9 @@ func (m *Manager) detectBottlenecks(device string, metrics *DiskMetrics) {
 	if metrics.ReadLatency > 10 || metrics.WriteLatency > 10 {
 		m.bottlenecks = append(m.bottlenecks, IOBottleneck{
 			DiskID: device, Device: device, Type: "high_latency",
-			Severity: "warning",
-			Message:  fmt.Sprintf("%s 延迟过高: 读 %.1fms, 写 %.1fms", device, metrics.ReadLatency, metrics.WriteLatency),
-			Value:    (metrics.ReadLatency + metrics.WriteLatency) / 2,
+			Severity:  "warning",
+			Message:   fmt.Sprintf("%s 延迟过高: 读 %.1fms, 写 %.1fms", device, metrics.ReadLatency, metrics.WriteLatency),
+			Value:     (metrics.ReadLatency + metrics.WriteLatency) / 2,
 			Threshold: 10, Timestamp: time.Now(),
 			Recommendation: "检查磁盘健康状态，考虑升级到 SSD",
 		})
@@ -239,9 +239,9 @@ func (m *Manager) detectBottlenecks(device string, metrics *DiskMetrics) {
 	if totalIOPS > 100000 {
 		m.bottlenecks = append(m.bottlenecks, IOBottleneck{
 			DiskID: device, Device: device, Type: "high_iops",
-			Severity: "warning",
-			Message:  fmt.Sprintf("%s IOPS 过高: %d", device, totalIOPS),
-			Value:    float64(totalIOPS),
+			Severity:  "warning",
+			Message:   fmt.Sprintf("%s IOPS 过高: %d", device, totalIOPS),
+			Value:     float64(totalIOPS),
 			Threshold: 100000, Timestamp: time.Now(),
 			Recommendation: "考虑启用缓存或升级到 NVMe SSD",
 		})
@@ -252,9 +252,9 @@ func (m *Manager) detectBottlenecks(device string, metrics *DiskMetrics) {
 	if usagePercent > 90 {
 		m.bottlenecks = append(m.bottlenecks, IOBottleneck{
 			DiskID: device, Device: device, Type: "high_usage",
-			Severity: "critical",
-			Message:  fmt.Sprintf("%s 容量使用率 %.1f%%", device, usagePercent),
-			Value:    usagePercent,
+			Severity:  "critical",
+			Message:   fmt.Sprintf("%s 容量使用率 %.1f%%", device, usagePercent),
+			Value:     usagePercent,
 			Threshold: 90, Timestamp: time.Now(),
 			Recommendation: "清理无用文件或扩容",
 		})
@@ -264,9 +264,9 @@ func (m *Manager) detectBottlenecks(device string, metrics *DiskMetrics) {
 	if metrics.Temperature > 60 {
 		m.bottlenecks = append(m.bottlenecks, IOBottleneck{
 			DiskID: device, Device: device, Type: "high_temp",
-			Severity: "warning",
-			Message:  fmt.Sprintf("%s 温度过高: %.1f°C", device, metrics.Temperature),
-			Value:    metrics.Temperature,
+			Severity:  "warning",
+			Message:   fmt.Sprintf("%s 温度过高: %.1f°C", device, metrics.Temperature),
+			Value:     metrics.Temperature,
 			Threshold: 60, Timestamp: time.Now(),
 			Recommendation: "检查散热，增加风扇转速",
 		})
@@ -393,11 +393,11 @@ func (m *Manager) GetIOStats() []IOStat {
 	var stats []IOStat
 	for _, disk := range m.disks {
 		stats = append(stats, IOStat{
-			Device:    disk.Device,
-			ReadMBps:  float64(disk.ReadBytes) / 1024 / 1024,
-			WriteMBps: float64(disk.WriteBytes) / 1024 / 1024,
-			ReadIOPS:  disk.ReadOPS,
-			WriteIOPS: disk.WriteOPS,
+			Device:      disk.Device,
+			ReadMBps:    float64(disk.ReadBytes) / 1024 / 1024,
+			WriteMBps:   float64(disk.WriteBytes) / 1024 / 1024,
+			ReadIOPS:    disk.ReadOPS,
+			WriteIOPS:   disk.WriteOPS,
 			Utilization: float64(disk.UsedBytes) / float64(disk.TotalBytes) * 100,
 		})
 	}

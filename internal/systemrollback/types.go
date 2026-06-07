@@ -8,11 +8,11 @@ import (
 )
 
 var (
-	ErrSnapshotNotFound  = errors.New("snapshot not found")
-	ErrSnapshotExists    = errors.New("snapshot already exists")
-	ErrRollbackFailed    = errors.New("rollback failed")
-	ErrPolicyNotFound    = errors.New("policy not found")
-	ErrSystemBusy        = errors.New("system busy")
+	ErrSnapshotNotFound = errors.New("snapshot not found")
+	ErrSnapshotExists   = errors.New("snapshot already exists")
+	ErrRollbackFailed   = errors.New("rollback failed")
+	ErrPolicyNotFound   = errors.New("policy not found")
+	ErrSystemBusy       = errors.New("system busy")
 )
 
 // SnapshotType 快照类型.
@@ -29,46 +29,46 @@ const (
 type SnapshotStatus string
 
 const (
-	StatusCreating  SnapshotStatus = "creating"
-	StatusReady     SnapshotStatus = "ready"
-	StatusRolling   SnapshotStatus = "rolling_back"
-	StatusDeleting  SnapshotStatus = "deleting"
-	StatusFailed    SnapshotStatus = "failed"
+	StatusCreating SnapshotStatus = "creating"
+	StatusReady    SnapshotStatus = "ready"
+	StatusRolling  SnapshotStatus = "rolling_back"
+	StatusDeleting SnapshotStatus = "deleting"
+	StatusFailed   SnapshotStatus = "failed"
 )
 
 // SystemSnapshot 系统快照.
 type SystemSnapshot struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Type        SnapshotType   `json:"type"`
-	Status      SnapshotStatus `json:"status"`
-	Path        string         `json:"path"`
-	Size        int64          `json:"size"`          // bytes
-	ParentID    string         `json:"parent_id"`     // 增量快照的父快照
-	IsIncremental bool         `json:"is_incremental"`
-	Tags        []string       `json:"tags"`
-	RollbackCount int          `json:"rollback_count"`
-	LastRollback  time.Time    `json:"last_rollback"`
-	CreatedAt   time.Time      `json:"created_at"`
-	ExpiresAt   *time.Time     `json:"expires_at"`
+	ID            string         `json:"id"`
+	Name          string         `json:"name"`
+	Description   string         `json:"description"`
+	Type          SnapshotType   `json:"type"`
+	Status        SnapshotStatus `json:"status"`
+	Path          string         `json:"path"`
+	Size          int64          `json:"size"`      // bytes
+	ParentID      string         `json:"parent_id"` // 增量快照的父快照
+	IsIncremental bool           `json:"is_incremental"`
+	Tags          []string       `json:"tags"`
+	RollbackCount int            `json:"rollback_count"`
+	LastRollback  time.Time      `json:"last_rollback"`
+	CreatedAt     time.Time      `json:"created_at"`
+	ExpiresAt     *time.Time     `json:"expires_at"`
 }
 
 // SnapshotPolicy 快照策略.
 type SnapshotPolicy struct {
-	ID             string       `json:"id"`
-	Name           string       `json:"name"`
-	Enabled        bool         `json:"enabled"`
-	Schedule       string       `json:"schedule"`       // cron 表达式
-	SnapshotType   SnapshotType `json:"snapshot_type"`
-	MaxSnapshots   int          `json:"max_snapshots"`  // 最大保留数
-	RetentionDays  int          `json:"retention_days"` // 保留天数
-	AutoCleanup    bool         `json:"auto_cleanup"`
-	Incremental    bool         `json:"incremental"`
-	CompressType   string       `json:"compress_type"`  // zstd, lzo, none
-	LastRun        time.Time    `json:"last_run"`
-	NextRun        time.Time    `json:"next_run"`
-	CreatedAt      time.Time    `json:"created_at"`
+	ID            string       `json:"id"`
+	Name          string       `json:"name"`
+	Enabled       bool         `json:"enabled"`
+	Schedule      string       `json:"schedule"` // cron 表达式
+	SnapshotType  SnapshotType `json:"snapshot_type"`
+	MaxSnapshots  int          `json:"max_snapshots"`  // 最大保留数
+	RetentionDays int          `json:"retention_days"` // 保留天数
+	AutoCleanup   bool         `json:"auto_cleanup"`
+	Incremental   bool         `json:"incremental"`
+	CompressType  string       `json:"compress_type"` // zstd, lzo, none
+	LastRun       time.Time    `json:"last_run"`
+	NextRun       time.Time    `json:"next_run"`
+	CreatedAt     time.Time    `json:"created_at"`
 }
 
 // RollbackRequest 回滚请求.

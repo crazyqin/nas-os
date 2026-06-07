@@ -66,7 +66,7 @@ func NewKyber1024() *KyberKEM {
 	return &KyberKEM{algorithm: Kyber1024, level: 5}
 }
 
-func (k *KyberKEM) Name() Algorithm   { return k.algorithm }
+func (k *KyberKEM) Name() Algorithm    { return k.algorithm }
 func (k *KyberKEM) SecurityLevel() int { return k.level }
 
 // GenerateKeyPair generates a Kyber key pair (simulated via X25519).
@@ -171,7 +171,7 @@ func NewDilithium5() *DilithiumSign {
 	return &DilithiumSign{algorithm: Dilithium5, level: 5}
 }
 
-func (d *DilithiumSign) Name() Algorithm   { return d.algorithm }
+func (d *DilithiumSign) Name() Algorithm    { return d.algorithm }
 func (d *DilithiumSign) SecurityLevel() int { return d.level }
 
 // GenerateKeyPair generates a Dilithium key pair (simulated via Ed25519).
@@ -228,7 +228,7 @@ func NewHybridKyber768() *HybridKEM {
 	}
 }
 
-func (h *HybridKEM) Name() Algorithm   { return h.name }
+func (h *HybridKEM) Name() Algorithm    { return h.name }
 func (h *HybridKEM) SecurityLevel() int { return 3 }
 
 // GenerateKeyPair generates key material for both classical and PQ schemes.
@@ -330,7 +330,7 @@ func NewHybridDilithium3() *HybridSignature {
 	}
 }
 
-func (h *HybridSignature) Name() Algorithm   { return h.name }
+func (h *HybridSignature) Name() Algorithm    { return h.name }
 func (h *HybridSignature) SecurityLevel() int { return 3 }
 
 // GenerateKeyPair generates key material for both schemes.
@@ -401,7 +401,7 @@ func (h *HybridSignature) Verify(message, signature, publicKey []byte) (bool, er
 // x25519KEM wraps X25519 as a KEMScheme.
 type x25519KEM struct{}
 
-func (x *x25519KEM) Name() Algorithm   { return Algorithm("X25519") }
+func (x *x25519KEM) Name() Algorithm    { return Algorithm("X25519") }
 func (x *x25519KEM) SecurityLevel() int { return 1 }
 
 func (x *x25519KEM) GenerateKeyPair() (publicKey, privateKey []byte, err error) {
@@ -458,7 +458,7 @@ func (x *x25519KEM) Decapsulate(ciphertext, privateKey []byte) (sharedSecret []b
 // ed25519Sign wraps Ed25519 as a SignatureScheme.
 type ed25519Sign struct{}
 
-func (e *ed25519Sign) Name() Algorithm   { return Algorithm("Ed25519") }
+func (e *ed25519Sign) Name() Algorithm    { return Algorithm("Ed25519") }
 func (e *ed25519Sign) SecurityLevel() int { return 1 }
 
 func (e *ed25519Sign) GenerateKeyPair() (publicKey, privateKey []byte, err error) {

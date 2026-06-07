@@ -17,13 +17,13 @@ import (
 type VaultEncryptionManager struct {
 	mu           sync.RWMutex
 	config       VaultConfig
-	keys         map[string]*VaultKey         // 密钥ID -> 密钥
-	volumes      map[string]*EncryptedVolume  // 卷ID -> 加密卷
-	auditLogs    []AuditLog                   // 审计日志
-	stats        VaultStats                   // 统计信息
-	lockTimers   map[string]*time.Timer       // 自动锁定定时器
-	retryCounts  map[string]int               // 重试计数
-	lockoutUntil map[string]time.Time         // 锁定截止时间
+	keys         map[string]*VaultKey        // 密钥ID -> 密钥
+	volumes      map[string]*EncryptedVolume // 卷ID -> 加密卷
+	auditLogs    []AuditLog                  // 审计日志
+	stats        VaultStats                  // 统计信息
+	lockTimers   map[string]*time.Timer      // 自动锁定定时器
+	retryCounts  map[string]int              // 重试计数
+	lockoutUntil map[string]time.Time        // 锁定截止时间
 }
 
 // NewVaultEncryptionManager 创建管理器

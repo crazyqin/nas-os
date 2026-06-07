@@ -19,11 +19,11 @@ import (
 // 误报（false positive）可接受，漏报（false negative）不允许。
 type BloomFilter struct {
 	mu        sync.RWMutex
-	bits      []bool     // 位数组
-	size      uint64     // 位数组大小
-	hashCount int        // 哈希函数数量
-	count     int64      // 已插入元素数量
-	seeds     []uint64   // 各哈希函数的种子
+	bits      []bool   // 位数组
+	size      uint64   // 位数组大小
+	hashCount int      // 哈希函数数量
+	count     int64    // 已插入元素数量
+	seeds     []uint64 // 各哈希函数的种子
 }
 
 // NewBloomFilter 创建布隆过滤器。
@@ -127,10 +127,10 @@ func (bf *BloomFilter) Reset() {
 
 // lruEntry LRU 缓存条目。
 type lruEntry struct {
-	key       string
-	value     *Chunk
-	prev      *lruEntry
-	next      *lruEntry
+	key   string
+	value *Chunk
+	prev  *lruEntry
+	next  *lruEntry
 }
 
 // LRUCache LRU（最近最少使用）缓存，用于管理 chunk 元数据的内存占用。
@@ -310,15 +310,15 @@ type PageIndex struct {
 
 // PagedChunkLoader 分页加载器，避免一次性将所有 chunk 加载到内存。
 type PagedChunkLoader struct {
-	mu         sync.RWMutex
-	indexPath  string        // 索引文件路径
-	pageSize   int           // 每页条目数
-	total      int           // 总条目数
-	hashes     []string      // 全部 hash 列表（轻量，只存 hash 字符串）
-	chunks     map[string]*Chunk // 已加载的 chunk（按需加载）
-	loaded     map[int]bool  // 已加载的页
-	maxPages   int           // 内存中最多保留的页数
-	loadedPages []int        // 已加载页的顺序（用于 LRU 淘汰）
+	mu          sync.RWMutex
+	indexPath   string            // 索引文件路径
+	pageSize    int               // 每页条目数
+	total       int               // 总条目数
+	hashes      []string          // 全部 hash 列表（轻量，只存 hash 字符串）
+	chunks      map[string]*Chunk // 已加载的 chunk（按需加载）
+	loaded      map[int]bool      // 已加载的页
+	maxPages    int               // 内存中最多保留的页数
+	loadedPages []int             // 已加载页的顺序（用于 LRU 淘汰）
 }
 
 // NewPagedChunkLoader 创建分页加载器。
@@ -350,7 +350,7 @@ func (pl *PagedChunkLoader) LoadIndex() error {
 	}
 
 	var stored struct {
-		Hashes []string        `json:"hashes"`
+		Hashes []string          `json:"hashes"`
 		Chunks map[string]*Chunk `json:"chunks"`
 	}
 	if err := json.Unmarshal(data, &stored); err != nil {
@@ -496,12 +496,12 @@ func (pl *PagedChunkLoader) unloadPage(page int) {
 // MemoryStats 内存统计。
 type MemoryStats struct {
 	AllocMB      float64 `json:"allocMB"`      // 当前分配的内存 (MB)
-	TotalAllocMB float64 `json:"totalAllocMB"`  // 累计分配的内存 (MB)
-	SysMB        float64 `json:"sysMB"`         // 从系统获取的内存 (MB)
-	NumGC        uint32  `json:"numGC"`         // GC 次数
-	GCPauseMs    float64 `json:"gcPauseMs"`     // 上次 GC 暂停时间 (ms)
-	HeapInuseMB  float64 `json:"heapInuseMB"`   // 堆内存使用 (MB)
-	HeapIdleMB   float64 `json:"heapIdleMB"`    // 堆内存空闲 (MB)
+	TotalAllocMB float64 `json:"totalAllocMB"` // 累计分配的内存 (MB)
+	SysMB        float64 `json:"sysMB"`        // 从系统获取的内存 (MB)
+	NumGC        uint32  `json:"numGC"`        // GC 次数
+	GCPauseMs    float64 `json:"gcPauseMs"`    // 上次 GC 暂停时间 (ms)
+	HeapInuseMB  float64 `json:"heapInuseMB"`  // 堆内存使用 (MB)
+	HeapIdleMB   float64 `json:"heapIdleMB"`   // 堆内存空闲 (MB)
 }
 
 // getMemoryStats 获取当前内存统计。
@@ -535,9 +535,9 @@ type MemoryOptimizerConfig struct {
 	MaxPages int `json:"maxPages"` // 内存中最多保留的页数
 
 	// 内存阈值配置
-	MemoryThresholdMB   int `json:"memoryThresholdMB"`   // 触发优化的内存阈值 (MB)
-	GCThresholdPercent  int `json:"gcThresholdPercent"`   // 触发 GC 的堆使用百分比
-	CacheEvictPercent   int `json:"cacheEvictPercent"`    // 触发缓存淘汰时淘汰的百分比
+	MemoryThresholdMB  int `json:"memoryThresholdMB"`  // 触发优化的内存阈值 (MB)
+	GCThresholdPercent int `json:"gcThresholdPercent"` // 触发 GC 的堆使用百分比
+	CacheEvictPercent  int `json:"cacheEvictPercent"`  // 触发缓存淘汰时淘汰的百分比
 
 	// 监控配置
 	MonitorInterval time.Duration `json:"monitorInterval"` // 内存监控间隔
@@ -546,15 +546,15 @@ type MemoryOptimizerConfig struct {
 // DefaultMemoryOptimizerConfig 默认内存优化器配置。
 func DefaultMemoryOptimizerConfig() *MemoryOptimizerConfig {
 	return &MemoryOptimizerConfig{
-		BloomExpectedItems:  100000,
-		BloomFPRate:         0.01,
-		LRUCapacity:         10000,
-		PageSize:            1000,
-		MaxPages:            10,
-		MemoryThresholdMB:   512,
-		GCThresholdPercent:  80,
-		CacheEvictPercent:   30,
-		MonitorInterval:     30 * time.Second,
+		BloomExpectedItems: 100000,
+		BloomFPRate:        0.01,
+		LRUCapacity:        10000,
+		PageSize:           1000,
+		MaxPages:           10,
+		MemoryThresholdMB:  512,
+		GCThresholdPercent: 80,
+		CacheEvictPercent:  30,
+		MonitorInterval:    30 * time.Second,
 	}
 }
 
@@ -568,24 +568,24 @@ type MemoryOptimizer struct {
 	index       *ChunkIndex // 引用外部 ChunkIndex
 
 	// 状态
-	running   bool
-	stopCh    chan struct{}
-	stats     OptimizerStats
-	onEvict   func(hash string, chunk *Chunk) // 淘汰回调
+	running bool
+	stopCh  chan struct{}
+	stats   OptimizerStats
+	onEvict func(hash string, chunk *Chunk) // 淘汰回调
 }
 
 // OptimizerStats 优化器统计。
 type OptimizerStats struct {
-	mu                sync.RWMutex
-	TotalLookups      int64        `json:"totalLookups"`
-	BloomMisses       int64        `json:"bloomMisses"`       // bloom filter 快速拒绝次数
-	CacheHits         int64        `json:"cacheHits"`         // LRU 缓存命中次数
-	CacheMisses       int64        `json:"cacheMisses"`       // LRU 缓存未命中次数
-	GCTriggers        int64        `json:"gcTriggers"`        // GC 触发次数
-	EvictTriggers     int64        `json:"evictTriggers"`     // 缓存淘汰触发次数
-	LastMemoryStats   MemoryStats  `json:"lastMemoryStats"`
-	LastGCTime        time.Time    `json:"lastGCTime"`
-	LastEvictTime     time.Time    `json:"lastEvictTime"`
+	mu              sync.RWMutex
+	TotalLookups    int64       `json:"totalLookups"`
+	BloomMisses     int64       `json:"bloomMisses"`   // bloom filter 快速拒绝次数
+	CacheHits       int64       `json:"cacheHits"`     // LRU 缓存命中次数
+	CacheMisses     int64       `json:"cacheMisses"`   // LRU 缓存未命中次数
+	GCTriggers      int64       `json:"gcTriggers"`    // GC 触发次数
+	EvictTriggers   int64       `json:"evictTriggers"` // 缓存淘汰触发次数
+	LastMemoryStats MemoryStats `json:"lastMemoryStats"`
+	LastGCTime      time.Time   `json:"lastGCTime"`
+	LastEvictTime   time.Time   `json:"lastEvictTime"`
 }
 
 // GetSnapshot 获取统计快照。

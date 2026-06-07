@@ -11,8 +11,8 @@ import (
 
 // ONNXLoader ONNX 模型加载器
 type ONNXLoader struct {
-	mu       sync.RWMutex
-	models   map[string]interface{}
+	mu     sync.RWMutex
+	models map[string]interface{}
 }
 
 // NewONNXLoader 创建 ONNX 加载器

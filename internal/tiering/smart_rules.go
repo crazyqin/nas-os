@@ -41,23 +41,23 @@ const (
 // SmartCondition 智能规则的单个条件.
 type SmartCondition struct {
 	Type      SmartConditionType `json:"type"`      // 条件类型
-	Operator  string             `json:"operator"`   // 比较运算符: >=, <=, ==, >, <
-	Threshold int64              `json:"threshold"`  // 阈值
-	Unit      string             `json:"unit"`       // 单位: days(天), count(次), bytes(字节), mb, gb
+	Operator  string             `json:"operator"`  // 比较运算符: >=, <=, ==, >, <
+	Threshold int64              `json:"threshold"` // 阈值
+	Unit      string             `json:"unit"`      // 单位: days(天), count(次), bytes(字节), mb, gb
 }
 
 // SmartRule 智能分层规则 - 支持基于 age/frequency/size 的组合条件.
 type SmartRule struct {
-	ID          string           `json:"id"`
-	Name        string           `json:"name"`
-	Description string           `json:"description,omitempty"`
-	Enabled     bool             `json:"enabled"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	Enabled     bool   `json:"enabled"`
 
 	// 组合条件
-	Conditions   []SmartCondition `json:"conditions"`     // 条件列表
-	LogicalOp    LogicalOp        `json:"logicalOp"`      // 条件间的逻辑关系
-	FilePatterns []string         `json:"filePatterns"`   // 文件匹配模式（如 ".mp4,.mkv"）
-	ExcludePaths []string         `json:"excludePaths"`   // 排除路径
+	Conditions   []SmartCondition `json:"conditions"`   // 条件列表
+	LogicalOp    LogicalOp        `json:"logicalOp"`    // 条件间的逻辑关系
+	FilePatterns []string         `json:"filePatterns"` // 文件匹配模式（如 ".mp4,.mkv"）
+	ExcludePaths []string         `json:"excludePaths"` // 排除路径
 
 	// 目标分层
 	SourceTier TierType     `json:"sourceTier"` // 源存储层（空表示不限）
@@ -65,9 +65,9 @@ type SmartRule struct {
 	Action     PolicyAction `json:"action"`     // 动作: move/copy/archive
 
 	// 执行配置
-	Priority    int  `json:"priority"`    // 优先级（数字越大越优先执行）
-	DryRun      bool `json:"dryRun"`      // 试运行模式
-	MaxFiles    int  `json:"maxFiles"`    // 单次最大迁移文件数（0=不限）
+	Priority int  `json:"priority"` // 优先级（数字越大越优先执行）
+	DryRun   bool `json:"dryRun"`   // 试运行模式
+	MaxFiles int  `json:"maxFiles"` // 单次最大迁移文件数（0=不限）
 
 	// 调度
 	ScheduleType ScheduleType `json:"scheduleType"` // manual/interval/cron
@@ -107,10 +107,10 @@ type SmartExecuteResult struct {
 
 // PresetTemplate 分层策略预设模板.
 type PresetTemplate struct {
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	Category    string     `json:"category"` // performance/balanced/capacity/archive
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Category    string      `json:"category"` // performance/balanced/capacity/archive
 	Rules       []SmartRule `json:"rules"`
 }
 
@@ -118,15 +118,15 @@ type PresetTemplate struct {
 
 // MigrationPlan 迁移计划.
 type MigrationPlan struct {
-	ID            string             `json:"id"`
-	GeneratedAt   time.Time          `json:"generatedAt"`
-	Rules         []SmartRule        `json:"rules"`
+	ID            string              `json:"id"`
+	GeneratedAt   time.Time           `json:"generatedAt"`
+	Rules         []SmartRule         `json:"rules"`
 	Estimates     []MigrationEstimate `json:"estimates"`
-	TotalFiles    int                `json:"totalFiles"`
-	TotalBytes    int64              `json:"totalBytes"`
-	EstimatedTime time.Duration      `json:"estimatedTime"`
-	EstimatedCost *MigrationCost     `json:"estimatedCost"`
-	Summary       string             `json:"summary"`
+	TotalFiles    int                 `json:"totalFiles"`
+	TotalBytes    int64               `json:"totalBytes"`
+	EstimatedTime time.Duration       `json:"estimatedTime"`
+	EstimatedCost *MigrationCost      `json:"estimatedCost"`
+	Summary       string              `json:"summary"`
 }
 
 // MigrationEstimate 单条规则的迁移预估.
@@ -148,7 +148,7 @@ type MigrationCost struct {
 	TransferBandwidth float64 `json:"transferBandwidth"` // 使用带宽 MB/s
 
 	// 存储成本变化
-	CurrentMonthlyCost  float64 `json:"currentMonthlyCost"`  // 当前月存储成本
+	CurrentMonthlyCost   float64 `json:"currentMonthlyCost"`   // 当前月存储成本
 	ProjectedMonthlyCost float64 `json:"projectedMonthlyCost"` // 迁移后月存储成本
 	MonthlySavings       float64 `json:"monthlySavings"`       // 每月节省
 	AnnualSavings        float64 `json:"annualSavings"`        // 年度节省
@@ -451,9 +451,9 @@ func (e *AutoTierEngine) GenerateMigrationPlan() (*MigrationPlan, error) {
 	migrated := make(map[string]bool)
 
 	plan := &MigrationPlan{
-		ID:        "plan_" + uuid.New().String()[:8],
+		ID:          "plan_" + uuid.New().String()[:8],
 		GeneratedAt: time.Now(),
-		Estimates: make([]MigrationEstimate, 0),
+		Estimates:   make([]MigrationEstimate, 0),
 	}
 
 	analyzer := NewCostAnalyzer(e.manager)
@@ -530,7 +530,7 @@ func GetPresetTemplates() []PresetTemplate {
 					Conditions: []SmartCondition{
 						{Type: SmartConditionFrequency, Operator: ">=", Threshold: 10, Unit: "count"},
 					},
-					LogicalOp: LogicalOpAND,
+					LogicalOp:  LogicalOpAND,
 					TargetTier: TierTypeSSD,
 					Action:     PolicyActionMove,
 					Priority:   100,
@@ -542,7 +542,7 @@ func GetPresetTemplates() []PresetTemplate {
 					Conditions: []SmartCondition{
 						{Type: SmartConditionSize, Operator: "<=", Threshold: 100 * 1024 * 1024, Unit: "bytes"},
 					},
-					LogicalOp: LogicalOpAND,
+					LogicalOp:  LogicalOpAND,
 					TargetTier: TierTypeSSD,
 					Action:     PolicyActionMove,
 					Priority:   90,
@@ -562,7 +562,7 @@ func GetPresetTemplates() []PresetTemplate {
 					Conditions: []SmartCondition{
 						{Type: SmartConditionFrequency, Operator: ">=", Threshold: 5, Unit: "count"},
 					},
-					LogicalOp: LogicalOpAND,
+					LogicalOp:  LogicalOpAND,
 					SourceTier: TierTypeHDD,
 					TargetTier: TierTypeSSD,
 					Action:     PolicyActionMove,
@@ -575,7 +575,7 @@ func GetPresetTemplates() []PresetTemplate {
 					Conditions: []SmartCondition{
 						{Type: SmartConditionAge, Operator: ">=", Threshold: 30, Unit: "days"},
 					},
-					LogicalOp: LogicalOpAND,
+					LogicalOp:  LogicalOpAND,
 					SourceTier: TierTypeSSD,
 					TargetTier: TierTypeHDD,
 					Action:     PolicyActionMove,
@@ -596,7 +596,7 @@ func GetPresetTemplates() []PresetTemplate {
 					Conditions: []SmartCondition{
 						{Type: SmartConditionFrequency, Operator: ">=", Threshold: 20, Unit: "count"},
 					},
-					LogicalOp: LogicalOpAND,
+					LogicalOp:  LogicalOpAND,
 					TargetTier: TierTypeSSD,
 					Action:     PolicyActionMove,
 					Priority:   100,
@@ -609,7 +609,7 @@ func GetPresetTemplates() []PresetTemplate {
 					Conditions: []SmartCondition{
 						{Type: SmartConditionSize, Operator: ">=", Threshold: 1024 * 1024 * 1024, Unit: "bytes"},
 					},
-					LogicalOp: LogicalOpAND,
+					LogicalOp:  LogicalOpAND,
 					SourceTier: TierTypeSSD,
 					TargetTier: TierTypeHDD,
 					Action:     PolicyActionMove,
@@ -622,7 +622,7 @@ func GetPresetTemplates() []PresetTemplate {
 					Conditions: []SmartCondition{
 						{Type: SmartConditionAge, Operator: ">=", Threshold: 14, Unit: "days"},
 					},
-					LogicalOp: LogicalOpAND,
+					LogicalOp:  LogicalOpAND,
 					SourceTier: TierTypeSSD,
 					TargetTier: TierTypeHDD,
 					Action:     PolicyActionMove,
@@ -643,7 +643,7 @@ func GetPresetTemplates() []PresetTemplate {
 					Conditions: []SmartCondition{
 						{Type: SmartConditionAge, Operator: ">=", Threshold: 7, Unit: "days"},
 					},
-					LogicalOp: LogicalOpAND,
+					LogicalOp:  LogicalOpAND,
 					SourceTier: TierTypeSSD,
 					TargetTier: TierTypeHDD,
 					Action:     PolicyActionMove,
@@ -656,7 +656,7 @@ func GetPresetTemplates() []PresetTemplate {
 					Conditions: []SmartCondition{
 						{Type: SmartConditionAge, Operator: ">=", Threshold: 60, Unit: "days"},
 					},
-					LogicalOp: LogicalOpAND,
+					LogicalOp:  LogicalOpAND,
 					SourceTier: TierTypeHDD,
 					TargetTier: TierTypeCloud,
 					Action:     PolicyActionArchive,
@@ -670,11 +670,11 @@ func GetPresetTemplates() []PresetTemplate {
 						{Type: SmartConditionAge, Operator: ">=", Threshold: 14, Unit: "days"},
 						{Type: SmartConditionSize, Operator: ">=", Threshold: 500 * 1024 * 1024, Unit: "bytes"},
 					},
-					LogicalOp: LogicalOpAND,
+					LogicalOp:    LogicalOpAND,
 					FilePatterns: []string{".mp4", ".mkv", ".avi", ".mov", ".wmv"},
-					TargetTier: TierTypeCloud,
-					Action:     PolicyActionArchive,
-					Priority:   95,
+					TargetTier:   TierTypeCloud,
+					Action:       PolicyActionArchive,
+					Priority:     95,
 				},
 			},
 		},
@@ -857,9 +857,9 @@ func patternTrimSpace(s string) string {
 func estimateTransferTime(bytes int64, sourceTier, targetTier TierType) time.Duration {
 	// 各层间的典型传输速度 (MB/s)
 	speeds := map[TierType]float64{
-		TierTypeSSD:   500,  // SSD: ~500 MB/s
-		TierTypeHDD:   150,  // HDD: ~150 MB/s
-		TierTypeCloud: 50,   // 云: ~50 MB/s (网络受限)
+		TierTypeSSD:   500, // SSD: ~500 MB/s
+		TierTypeHDD:   150, // HDD: ~150 MB/s
+		TierTypeCloud: 50,  // 云: ~50 MB/s (网络受限)
 	}
 
 	sourceSpeed := speeds[sourceTier]

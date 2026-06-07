@@ -49,7 +49,7 @@ type Dashboard struct {
 	cacheTTL       time.Duration
 
 	// 告警
-	alerts []Alert
+	alerts  []Alert
 	alertMu sync.RWMutex
 }
 
@@ -138,7 +138,7 @@ func (d *Dashboard) refreshOverview() (*SystemOverview, error) {
 	}
 
 	overview := &SystemOverview{
-		Subsystems: make([]SubsystemStatus, 0, len(d.checkers)),
+		Subsystems:  make([]SubsystemStatus, 0, len(d.checkers)),
 		EvaluatedAt: time.Now(),
 	}
 

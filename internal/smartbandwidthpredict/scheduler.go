@@ -364,9 +364,9 @@ func (s *Scheduler) GetConfig() *Config {
 
 // PlanStats 计划统计
 type PlanStats struct {
-	TotalPlans     int     `json:"total_plans"`
-	TotalTasks     int     `json:"total_tasks"`
-	TotalMbps      float64 `json:"total_mbps"`
+	TotalPlans      int     `json:"total_plans"`
+	TotalTasks      int     `json:"total_tasks"`
+	TotalMbps       float64 `json:"total_mbps"`
 	AvgTasksPerPlan float64 `json:"avg_tasks_per_plan"`
 	AvgMbpsPerPlan  float64 `json:"avg_mbps_per_plan"`
 }

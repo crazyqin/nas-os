@@ -19,9 +19,9 @@ const (
 type ContentWidth string
 
 const (
-	ContentWidthFull    ContentWidth = "full"
-	ContentWidthBoxed   ContentWidth = "boxed"
-	ContentWidthWide    ContentWidth = "wide"
+	ContentWidthFull  ContentWidth = "full"
+	ContentWidthBoxed ContentWidth = "boxed"
+	ContentWidthWide  ContentWidth = "wide"
 )
 
 // Layout represents a page layout configuration.

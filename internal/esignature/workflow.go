@@ -18,27 +18,27 @@ type WorkflowEngine struct {
 
 // WorkflowInstance 工作流实例.
 type WorkflowInstance struct {
-	ID          string        `json:"id"`
-	WorkflowID  string        `json:"workflow_id"`
-	DocumentID  string        `json:"document_id"`
-	Status      string        `json:"status"` // running, completed, failed, cancelled
-	CurrentStep int           `json:"current_step"`
+	ID          string         `json:"id"`
+	WorkflowID  string         `json:"workflow_id"`
+	DocumentID  string         `json:"document_id"`
+	Status      string         `json:"status"` // running, completed, failed, cancelled
+	CurrentStep int            `json:"current_step"`
 	Steps       []StepInstance `json:"steps"`
-	StartedAt   time.Time     `json:"started_at"`
-	CompletedAt *time.Time    `json:"completed_at,omitempty"`
-	CreatedBy   string        `json:"created_by"`
+	StartedAt   time.Time      `json:"started_at"`
+	CompletedAt *time.Time     `json:"completed_at,omitempty"`
+	CreatedBy   string         `json:"created_by"`
 }
 
 // StepInstance 步骤实例.
 type StepInstance struct {
-	StepID      string     `json:"step_id"`
-	Name        string     `json:"name"`
-	Type        string     `json:"type"`
-	Status      string     `json:"status"` // pending, in_progress, completed, failed, skipped
-	Assignees   []string   `json:"assignees"`
+	StepID      string       `json:"step_id"`
+	Name        string       `json:"name"`
+	Type        string       `json:"type"`
+	Status      string       `json:"status"` // pending, in_progress, completed, failed, skipped
+	Assignees   []string     `json:"assignees"`
 	Results     []StepResult `json:"results,omitempty"`
-	StartedAt   *time.Time `json:"started_at,omitempty"`
-	CompletedAt *time.Time `json:"completed_at,omitempty"`
+	StartedAt   *time.Time   `json:"started_at,omitempty"`
+	CompletedAt *time.Time   `json:"completed_at,omitempty"`
 }
 
 // StepResult 步骤结果.

@@ -18,9 +18,9 @@ type Manager struct {
 	startedAt *time.Time
 
 	// 设备管理
-	devices    map[string]*AirPlayDevice
-	receiver   *AirPlayReceiver
-	sender     *AirPlaySender
+	devices  map[string]*AirPlayDevice
+	receiver *AirPlayReceiver
+	sender   *AirPlaySender
 
 	// 流管理
 	audioStreams map[string]*AudioStream
@@ -46,8 +46,8 @@ func NewManager(logger *zap.Logger) *Manager {
 	m := &Manager{
 		logger:       logger,
 		devices:      make(map[string]*AirPlayDevice),
-		audioStreams:  make(map[string]*AudioStream),
-		videoStreams:  make(map[string]*VideoStream),
+		audioStreams: make(map[string]*AudioStream),
+		videoStreams: make(map[string]*VideoStream),
 		mirrors:      make(map[string]*ScreenMirror),
 		groups:       make(map[string]*MultiRoomGroup),
 		pairings:     make([]PairingRecord, 0),
@@ -175,34 +175,34 @@ func (m *Manager) RefreshDevices() []AirPlayDevice {
 	// 模拟发现一些设备
 	mockDevices := []*AirPlayDevice{
 		{
-			ID:   "appletv-living",
-			Name: "客厅 Apple TV",
-			Type: DeviceTypeAppleTV,
-			IP:   "192.168.1.100",
-			Port: 7000,
-			Online: true,
+			ID:           "appletv-living",
+			Name:         "客厅 Apple TV",
+			Type:         DeviceTypeAppleTV,
+			IP:           "192.168.1.100",
+			Port:         7000,
+			Online:       true,
 			Capabilities: DeviceCapabilities{Audio: true, Video: true, Screen: true},
-			LastSeen: time.Now(),
+			LastSeen:     time.Now(),
 		},
 		{
-			ID:   "homepod-kitchen",
-			Name: "厨房 HomePod",
-			Type: DeviceTypeHomePod,
-			IP:   "192.168.1.101",
-			Port: 7000,
-			Online: true,
+			ID:           "homepod-kitchen",
+			Name:         "厨房 HomePod",
+			Type:         DeviceTypeHomePod,
+			IP:           "192.168.1.101",
+			Port:         7000,
+			Online:       true,
 			Capabilities: DeviceCapabilities{Audio: true, Video: false, Screen: false},
-			LastSeen: time.Now(),
+			LastSeen:     time.Now(),
 		},
 		{
-			ID:   "speaker-bedroom",
-			Name: "卧室音箱",
-			Type: DeviceTypeSpeaker,
-			IP:   "192.168.1.102",
-			Port: 7000,
-			Online: true,
+			ID:           "speaker-bedroom",
+			Name:         "卧室音箱",
+			Type:         DeviceTypeSpeaker,
+			IP:           "192.168.1.102",
+			Port:         7000,
+			Online:       true,
 			Capabilities: DeviceCapabilities{Audio: true, Video: false, Screen: false},
-			LastSeen: time.Now(),
+			LastSeen:     time.Now(),
 		},
 	}
 
@@ -282,12 +282,12 @@ func (m *Manager) Cast(targetID string, media *MediaInfo) error {
 	if device.Capabilities.Audio {
 		streamID := fmt.Sprintf("audio-%s-%d", targetID, time.Now().UnixMilli())
 		m.audioStreams[streamID] = &AudioStream{
-			ID:       streamID,
-			DeviceID: targetID,
-			Status:   StreamStatusPlaying,
-			Volume:   50,
+			ID:           streamID,
+			DeviceID:     targetID,
+			Status:       StreamStatusPlaying,
+			Volume:       50,
 			CurrentTrack: media,
-			Queue:    []MediaInfo{},
+			Queue:        []MediaInfo{},
 		}
 	}
 

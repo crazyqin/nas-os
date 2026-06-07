@@ -22,12 +22,12 @@ import (
 
 // TLSConfig holds TLS configuration for NVMe-oF.
 type TLSConfig struct {
-	Enabled    bool   `json:"enabled"`
-	CertFile   string `json:"cert_file"`
-	KeyFile    string `json:"key_file"`
-	CAFile     string `json:"ca_file"`
-	RequireMTLS bool  `json:"require_mtls"`
-	MinVersion uint16 `json:"min_version"`
+	Enabled     bool   `json:"enabled"`
+	CertFile    string `json:"cert_file"`
+	KeyFile     string `json:"key_file"`
+	CAFile      string `json:"ca_file"`
+	RequireMTLS bool   `json:"require_mtls"`
+	MinVersion  uint16 `json:"min_version"`
 }
 
 // TLSManager manages TLS certificates and connections for NVMe-oF.

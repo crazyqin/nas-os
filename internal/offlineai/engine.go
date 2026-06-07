@@ -19,7 +19,7 @@ type Engine struct {
 	models      map[string]*Model
 	gpuInfo     *GPUInfo
 	concurrency chan struct{} // 并发控制
-	running     int32        // atomic
+	running     int32         // atomic
 	stopCh      chan struct{}
 }
 
@@ -126,7 +126,7 @@ func (e *Engine) loadDefaultModel(ctx context.Context) error {
 		QuantType:   QuantQ4_0,
 		Status:      ModelStatusReady,
 		GPUSupport:  e.gpuInfo.Available,
-		MaxContext:   e.config.ContextSize,
+		MaxContext:  e.config.ContextSize,
 		LoadedAt:    time.Now(),
 		Description: "Default offline AI model",
 	})

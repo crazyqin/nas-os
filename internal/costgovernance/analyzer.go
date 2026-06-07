@@ -9,7 +9,7 @@ import (
 
 // Analyzer 成本分析器.
 type Analyzer struct {
-	mu     sync.RWMutex
+	mu      sync.RWMutex
 	manager *Manager
 	trends  map[string][]*CostTrend // provider -> trend data
 }

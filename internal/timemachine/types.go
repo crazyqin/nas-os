@@ -56,13 +56,13 @@ type BackupDevice struct {
 
 // BackupJob 备份任务
 type BackupJob struct {
-	ID         string      `json:"id"`         // 唯一标识
-	DeviceID   string      `json:"deviceId"`   // 设备 ID
-	Status     BackupStatus `json:"status"`     // 任务状态
-	StartTime  time.Time   `json:"startTime"`  // 开始时间
-	EndTime    *time.Time  `json:"endTime"`    // 结束时间
-	Size       int64       `json:"size"`       // 备份大小 (字节)
-	Duration   int64       `json:"duration"`   // 持续时间 (秒)
+	ID        string       `json:"id"`        // 唯一标识
+	DeviceID  string       `json:"deviceId"`  // 设备 ID
+	Status    BackupStatus `json:"status"`    // 任务状态
+	StartTime time.Time    `json:"startTime"` // 开始时间
+	EndTime   *time.Time   `json:"endTime"`   // 结束时间
+	Size      int64        `json:"size"`      // 备份大小 (字节)
+	Duration  int64        `json:"duration"`  // 持续时间 (秒)
 }
 
 // BackupStatus 备份状态
@@ -79,12 +79,12 @@ const (
 
 // BackupSnapshot 备份快照
 type BackupSnapshot struct {
-	ID        string    `json:"id"`        // 唯一标识
-	DeviceID  string    `json:"deviceId"`  // 设备 ID
-	JobID     string    `json:"jobId"`     // 任务 ID
-	Timestamp time.Time `json:"timestamp"` // 快照时间
-	Size      int64     `json:"size"`      // 快照大小 (字节)
-	Consistent bool     `json:"consistent"` // 一致性状态
+	ID         string    `json:"id"`         // 唯一标识
+	DeviceID   string    `json:"deviceId"`   // 设备 ID
+	JobID      string    `json:"jobId"`      // 任务 ID
+	Timestamp  time.Time `json:"timestamp"`  // 快照时间
+	Size       int64     `json:"size"`       // 快照大小 (字节)
+	Consistent bool      `json:"consistent"` // 一致性状态
 }
 
 // ========== 保留策略 ==========
@@ -120,10 +120,10 @@ type BroadcastConfig struct {
 
 // TimeMachineStats Time Machine 统计
 type TimeMachineStats struct {
-	TotalDevices   int   `json:"totalDevices"`   // 总设备数
-	ActiveDevices  int   `json:"activeDevices"`  // 活跃设备数
+	TotalDevices    int   `json:"totalDevices"`    // 总设备数
+	ActiveDevices   int   `json:"activeDevices"`   // 活跃设备数
 	TotalBackupSize int64 `json:"totalBackupSize"` // 总备份大小 (字节)
-	TodayBackups   int   `json:"todayBackups"`   // 今日备份数
+	TodayBackups    int   `json:"todayBackups"`    // 今日备份数
 }
 
 // ========== 服务状态 ==========

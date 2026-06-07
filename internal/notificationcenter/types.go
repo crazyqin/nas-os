@@ -74,38 +74,38 @@ var (
 
 // Notification 通知
 type Notification struct {
-	ID          string                 `json:"id"`
-	Title       string                 `json:"title"`
-	Content     string                 `json:"content"`
-	Priority    Priority               `json:"priority"`
-	Category    string                 `json:"category"`
-	Status      NotificationStatus     `json:"status"`
-	Channels    []Channel              `json:"channels"`
-	Source      string                 `json:"source,omitempty"`
-	Labels      map[string]string      `json:"labels,omitempty"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
-	AggKey      string                 `json:"agg_key,omitempty"`
-	AggCount    int                    `json:"agg_count"`
-	CreatedAt   time.Time              `json:"created_at"`
-	ReadAt      *time.Time             `json:"read_at,omitempty"`
-	ExpiresAt   *time.Time             `json:"expires_at,omitempty"`
+	ID        string                 `json:"id"`
+	Title     string                 `json:"title"`
+	Content   string                 `json:"content"`
+	Priority  Priority               `json:"priority"`
+	Category  string                 `json:"category"`
+	Status    NotificationStatus     `json:"status"`
+	Channels  []Channel              `json:"channels"`
+	Source    string                 `json:"source,omitempty"`
+	Labels    map[string]string      `json:"labels,omitempty"`
+	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	AggKey    string                 `json:"agg_key,omitempty"`
+	AggCount  int                    `json:"agg_count"`
+	CreatedAt time.Time              `json:"created_at"`
+	ReadAt    *time.Time             `json:"read_at,omitempty"`
+	ExpiresAt *time.Time             `json:"expires_at,omitempty"`
 }
 
 // ========== 通知模板 ==========
 
 // NotificationTemplate 通知模板
 type NotificationTemplate struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description,omitempty"`
-	Subject     string            `json:"subject"`            // 标题模板，支持 Go template
-	Body        string            `json:"body"`               // 内容模板，支持 Go template
-	Channel     Channel           `json:"channel"`            // 适用渠道
-	Priority    Priority          `json:"priority"`           // 默认优先级
-	Variables   []string          `json:"variables,omitempty"` // 可用变量列表
-	Enabled     bool              `json:"enabled"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description,omitempty"`
+	Subject     string    `json:"subject"`             // 标题模板，支持 Go template
+	Body        string    `json:"body"`                // 内容模板，支持 Go template
+	Channel     Channel   `json:"channel"`             // 适用渠道
+	Priority    Priority  `json:"priority"`            // 默认优先级
+	Variables   []string  `json:"variables,omitempty"` // 可用变量列表
+	Enabled     bool      `json:"enabled"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // ========== 通知规则 ==========
@@ -119,21 +119,21 @@ type RuleCondition struct {
 
 // NotificationRule 通知规则
 type NotificationRule struct {
-	ID          string           `json:"id"`
-	Name        string           `json:"name"`
-	Description string           `json:"description,omitempty"`
-	Enabled     bool             `json:"enabled"`
-	Priority    Priority         `json:"priority"`
-	Channels    []Channel        `json:"channels"`
-	TemplateID  string           `json:"template_id,omitempty"`
-	Conditions  []RuleCondition  `json:"conditions"`
-	Logic       string           `json:"logic"` // "and" or "or"
-	Throttle    int              `json:"throttle,omitempty"`    // 节流：N 秒内最多触发一次
-	Category    string           `json:"category,omitempty"`
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Description string            `json:"description,omitempty"`
+	Enabled     bool              `json:"enabled"`
+	Priority    Priority          `json:"priority"`
+	Channels    []Channel         `json:"channels"`
+	TemplateID  string            `json:"template_id,omitempty"`
+	Conditions  []RuleCondition   `json:"conditions"`
+	Logic       string            `json:"logic"`              // "and" or "or"
+	Throttle    int               `json:"throttle,omitempty"` // 节流：N 秒内最多触发一次
+	Category    string            `json:"category,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty"`
-	CreatedAt   time.Time        `json:"created_at"`
-	UpdatedAt   time.Time        `json:"updated_at"`
-	CreatedBy   string           `json:"created_by,omitempty"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   time.Time         `json:"updated_at"`
+	CreatedBy   string            `json:"created_by,omitempty"`
 	// 内部状态
 	lastFiredAt time.Time
 }
@@ -142,10 +142,10 @@ type NotificationRule struct {
 
 // AggregationEntry 聚合条目
 type AggregationEntry struct {
-	AggKey    string       `json:"agg_key"`
-	Count     int          `json:"count"`
-	FirstAt   time.Time    `json:"first_at"`
-	LastAt    time.Time    `json:"last_at"`
+	AggKey    string        `json:"agg_key"`
+	Count     int           `json:"count"`
+	FirstAt   time.Time     `json:"first_at"`
+	LastAt    time.Time     `json:"last_at"`
 	LastNotif *Notification `json:"last_notification,omitempty"`
 	Window    time.Duration `json:"window"`
 }
@@ -154,18 +154,18 @@ type AggregationEntry struct {
 
 // SilentPeriod 静默时段
 type SilentPeriod struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Enabled     bool      `json:"enabled"`
-	StartHour   int       `json:"start_hour"`   // 0-23
-	StartMinute int       `json:"start_minute"` // 0-59
-	EndHour     int       `json:"end_hour"`     // 0-23
-	EndMinute   int       `json:"end_minute"`   // 0-59
-	Weekdays    []int     `json:"weekdays"`     // 0=Sunday, 1=Monday, ...
-	Priority    []Priority `json:"priority"`     // 静默的优先级列表（critical 不可静默）
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Enabled     bool              `json:"enabled"`
+	StartHour   int               `json:"start_hour"`   // 0-23
+	StartMinute int               `json:"start_minute"` // 0-59
+	EndHour     int               `json:"end_hour"`     // 0-23
+	EndMinute   int               `json:"end_minute"`   // 0-59
+	Weekdays    []int             `json:"weekdays"`     // 0=Sunday, 1=Monday, ...
+	Priority    []Priority        `json:"priority"`     // 静默的优先级列表（critical 不可静默）
 	Labels      map[string]string `json:"labels,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
 // IsActive 检查当前是否在静默时段内
@@ -225,15 +225,15 @@ type UserPreference struct {
 
 // ChannelPref 单渠道偏好
 type ChannelPref struct {
-	Enabled  bool   `json:"enabled"`
-	Address  string `json:"address,omitempty"` // 邮箱、webhook URL、chat ID 等
+	Enabled bool   `json:"enabled"`
+	Address string `json:"address,omitempty"` // 邮箱、webhook URL、chat ID 等
 }
 
 // DefaultUserPreference 默认用户偏好
 func DefaultUserPreference(userID string) *UserPreference {
 	now := time.Now()
 	return &UserPreference{
-		UserID:      userID,
+		UserID: userID,
 		Channels: map[Channel]ChannelPref{
 			ChannelWebSocket: {Enabled: true},
 			ChannelEmail:     {Enabled: false},
@@ -251,8 +251,8 @@ func DefaultUserPreference(userID string) *UserPreference {
 
 // NotificationSummary 通知摘要
 type NotificationSummary struct {
-	TotalUnread int            `json:"total_unread"`
-	TotalRead   int            `json:"total_read"`
+	TotalUnread int              `json:"total_unread"`
+	TotalRead   int              `json:"total_read"`
 	ByPriority  map[Priority]int `json:"by_priority"`
 	ByCategory  map[string]int   `json:"by_category"`
 }

@@ -11,9 +11,9 @@ import (
 
 // SnapshotScanner 扫描本地目录生成快照.
 type SnapshotScanner struct {
-	checksum bool
-	skipHidden bool
-	maxSize int64
+	checksum        bool
+	skipHidden      bool
+	maxSize         int64
 	excludePatterns []string
 }
 
@@ -46,10 +46,10 @@ func (s *SnapshotScanner) SetExcludePatterns(patterns []string) *SnapshotScanner
 // Scan 扫描目录生成快照.
 func (s *SnapshotScanner) Scan(rootPath string, rev int64) (*Snapshot, error) {
 	ss := &Snapshot{
-		Rev:     rev,
+		Rev:      rev,
 		RootPath: rootPath,
-		Entries: make(map[string]*FileEntry),
-		Mtime:   time.Now(),
+		Entries:  make(map[string]*FileEntry),
+		Mtime:    time.Now(),
 	}
 
 	err := filepath.Walk(rootPath, func(fullPath string, info os.FileInfo, err error) error {
@@ -87,10 +87,10 @@ func (s *SnapshotScanner) Scan(rootPath string, rev int64) (*Snapshot, error) {
 		}
 
 		entry := &FileEntry{
-			Path:     relPath,
-			Size:     info.Size(),
-			ModTime:  info.ModTime(),
-			IsDir:    false,
+			Path:         relPath,
+			Size:         info.Size(),
+			ModTime:      info.ModTime(),
+			IsDir:        false,
 			LastSyncedAt: time.Time{},
 		}
 

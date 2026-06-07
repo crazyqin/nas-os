@@ -82,24 +82,24 @@ const (
 
 // IntegrityAlert is generated when integrity issues are detected.
 type IntegrityAlert struct {
-	Timestamp time.Time     `json:"timestamp"`
-	Severity  AlertSeverity `json:"severity"`
-	Dataset   string        `json:"dataset"`
-	Pool      string        `json:"pool"`
-	Message   string        `json:"message"`
-	ErrorCount int64        `json:"error_count"`
-	AutoFixed  bool         `json:"auto_fixed"`
+	Timestamp  time.Time     `json:"timestamp"`
+	Severity   AlertSeverity `json:"severity"`
+	Dataset    string        `json:"dataset"`
+	Pool       string        `json:"pool"`
+	Message    string        `json:"message"`
+	ErrorCount int64         `json:"error_count"`
+	AutoFixed  bool          `json:"auto_fixed"`
 }
 
 // Manager orchestrates ZFS integrity verification and repair operations.
 type Manager struct {
-	mu          sync.RWMutex
-	datasets    map[string]*DatasetHealth
-	results     []HealResult
-	alerts      []IntegrityAlert
-	schedule    ScrubSchedule
-	running     bool
-	maxHistory  int
+	mu         sync.RWMutex
+	datasets   map[string]*DatasetHealth
+	results    []HealResult
+	alerts     []IntegrityAlert
+	schedule   ScrubSchedule
+	running    bool
+	maxHistory int
 }
 
 // NewManager creates a new ZFSHealer manager with the given schedule.

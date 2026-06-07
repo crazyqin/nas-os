@@ -9,10 +9,10 @@ import (
 
 // VersionManager 版本控制管理器.
 type VersionManager struct {
-	mu             sync.RWMutex
-	config         VersionConfig
-	versions       map[string][]*FileVersion // filePath -> []FileVersion
-	totalSize      int64                     // 当前版本存储总大小
+	mu        sync.RWMutex
+	config    VersionConfig
+	versions  map[string][]*FileVersion // filePath -> []FileVersion
+	totalSize int64                     // 当前版本存储总大小
 }
 
 // NewVersionManager 创建版本控制管理器.

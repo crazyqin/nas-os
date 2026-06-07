@@ -30,27 +30,27 @@ const (
 type KeyStatus string
 
 const (
-	KeyActive    KeyStatus = "active"    // 活跃
-	KeyRotated   KeyStatus = "rotated"   // 已轮换
-	KeyRevoked   KeyStatus = "revoked"   // 已吊销
-	KeyExpired   KeyStatus = "expired"   // 已过期
+	KeyActive  KeyStatus = "active"  // 活跃
+	KeyRotated KeyStatus = "rotated" // 已轮换
+	KeyRevoked KeyStatus = "revoked" // 已吊销
+	KeyExpired KeyStatus = "expired" // 已过期
 )
 
 // ========== 密钥记录 ==========
 
 // KeyRecord 密钥记录
 type KeyRecord struct {
-	ID          string    `json:"id"`
-	Type        KeyType   `json:"type"`
-	Status      KeyStatus `json:"status"`
-	Fingerprint string    `json:"fingerprint"`  // 密钥指纹（SHA-256 前16字节）
-	Algorithm   string    `json:"algorithm"`    // AES-256-GCM, ChaCha20-Poly1305
-	KeySize     int       `json:"key_size"`
-	RotatedFrom string    `json:"rotated_from,omitempty"`
-	RotatedTo   string    `json:"rotated_to,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
-	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
-	RevokedAt   *time.Time `json:"revoked_at,omitempty"`
+	ID          string            `json:"id"`
+	Type        KeyType           `json:"type"`
+	Status      KeyStatus         `json:"status"`
+	Fingerprint string            `json:"fingerprint"` // 密钥指纹（SHA-256 前16字节）
+	Algorithm   string            `json:"algorithm"`   // AES-256-GCM, ChaCha20-Poly1305
+	KeySize     int               `json:"key_size"`
+	RotatedFrom string            `json:"rotated_from,omitempty"`
+	RotatedTo   string            `json:"rotated_to,omitempty"`
+	CreatedAt   time.Time         `json:"created_at"`
+	ExpiresAt   *time.Time        `json:"expires_at,omitempty"`
+	RevokedAt   *time.Time        `json:"revoked_at,omitempty"`
 	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
@@ -75,53 +75,53 @@ const (
 
 // AuditEvent 审计事件
 type AuditEvent struct {
-	ID          string          `json:"id"`
-	EventType   AuditEventType  `json:"event_type"`
-	ResourceID  string          `json:"resource_id"`
+	ID           string         `json:"id"`
+	EventType    AuditEventType `json:"event_type"`
+	ResourceID   string         `json:"resource_id"`
 	ResourceType string         `json:"resource_type"`
-	UserID      string          `json:"user_id"`
-	KeyID       string          `json:"key_id,omitempty"`
-	Details     string          `json:"details"`
-	Result      string          `json:"result"`  // success, failure, denied
-	IPAddress   string          `json:"ip_address,omitempty"`
-	UserAgent   string          `json:"user_agent,omitempty"`
-	Timestamp   time.Time       `json:"timestamp"`
-	RiskLevel   string          `json:"risk_level"` // low, medium, high, critical
+	UserID       string         `json:"user_id"`
+	KeyID        string         `json:"key_id,omitempty"`
+	Details      string         `json:"details"`
+	Result       string         `json:"result"` // success, failure, denied
+	IPAddress    string         `json:"ip_address,omitempty"`
+	UserAgent    string         `json:"user_agent,omitempty"`
+	Timestamp    time.Time      `json:"timestamp"`
+	RiskLevel    string         `json:"risk_level"` // low, medium, high, critical
 }
 
 // ========== 加密文件元数据 ==========
 
 // EncryptedFile 加密文件元数据
 type EncryptedFile struct {
-	ID           string    `json:"id"`
-	Path         string    `json:"path"`
-	Size         int64     `json:"size"`
-	EncryptedSize int64    `json:"encrypted_size"`
-	KeyID        string    `json:"key_id"`
-	Algorithm    string    `json:"algorithm"`
-	Nonce        string    `json:"nonce"`
-	AuthTag      string    `json:"auth_tag"`
-	Hash         string    `json:"hash"`          // 原始文件哈希
-	EncHash      string    `json:"enc_hash"`      // 加密文件哈希
-	IntegrityOK  bool      `json:"integrity_ok"`
-	CreatedAt    time.Time `json:"created_at"`
-	VerifiedAt   *time.Time `json:"verified_at,omitempty"`
+	ID            string     `json:"id"`
+	Path          string     `json:"path"`
+	Size          int64      `json:"size"`
+	EncryptedSize int64      `json:"encrypted_size"`
+	KeyID         string     `json:"key_id"`
+	Algorithm     string     `json:"algorithm"`
+	Nonce         string     `json:"nonce"`
+	AuthTag       string     `json:"auth_tag"`
+	Hash          string     `json:"hash"`     // 原始文件哈希
+	EncHash       string     `json:"enc_hash"` // 加密文件哈希
+	IntegrityOK   bool       `json:"integrity_ok"`
+	CreatedAt     time.Time  `json:"created_at"`
+	VerifiedAt    *time.Time `json:"verified_at,omitempty"`
 }
 
 // ========== 合规报告 ==========
 
 // ComplianceReport 合规报告
 type ComplianceReport struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Standard    string    `json:"standard"`     // GDPR, ISO27001, SOC2
-	Score       float64   `json:"score"`        // 合规分数 0-100
-	Passed      int       `json:"passed"`
-	Failed      int       `json:"failed"`
-	Warnings    int       `json:"warnings"`
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Standard    string            `json:"standard"` // GDPR, ISO27001, SOC2
+	Score       float64           `json:"score"`    // 合规分数 0-100
+	Passed      int               `json:"passed"`
+	Failed      int               `json:"failed"`
+	Warnings    int               `json:"warnings"`
 	Checks      []ComplianceCheck `json:"checks"`
-	GeneratedAt time.Time `json:"generated_at"`
-	ValidUntil  time.Time `json:"valid_until"`
+	GeneratedAt time.Time         `json:"generated_at"`
+	ValidUntil  time.Time         `json:"valid_until"`
 }
 
 // ComplianceCheck 合规检查项
@@ -139,12 +139,12 @@ type ComplianceCheck struct {
 
 // AuditEngine 加密审计引擎
 type AuditEngine struct {
-	mu          sync.RWMutex
-	keys        map[string]*KeyRecord
-	files       map[string]*EncryptedFile
-	events      []AuditEvent
-	reports     map[string]*ComplianceReport
-	keyStore    []byte  // 主密钥存储（实际应用中应使用HSM）
+	mu       sync.RWMutex
+	keys     map[string]*KeyRecord
+	files    map[string]*EncryptedFile
+	events   []AuditEvent
+	reports  map[string]*ComplianceReport
+	keyStore []byte // 主密钥存储（实际应用中应使用HSM）
 }
 
 // EngineOption 引擎配置选项
@@ -407,10 +407,10 @@ func (e *AuditEngine) GetAuditStats() map[string]interface{} {
 	defer e.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"total_events":    len(e.events),
-		"total_keys":      len(e.keys),
-		"total_files":     len(e.files),
-		"total_reports":   len(e.reports),
+		"total_events":  len(e.events),
+		"total_keys":    len(e.keys),
+		"total_files":   len(e.files),
+		"total_reports": len(e.reports),
 	}
 
 	activeKeys := 0

@@ -61,7 +61,7 @@ type CostPerTB struct {
 	TierType             StorageTierType `json:"tier_type"`
 	TotalCapacityTB      float64         `json:"total_capacity_tb"`
 	UsedCapacityTB       float64         `json:"used_capacity_tb"`
-	HardwareCostPerTB    float64         `json:"hardware_cost_per_tb"`    // 元/TB
+	HardwareCostPerTB    float64         `json:"hardware_cost_per_tb"`     // 元/TB
 	AnnualPowerCostPerTB float64         `json:"annual_power_cost_per_tb"` // 元/TB/年
 	AnnualMaintCostPerTB float64         `json:"annual_maint_cost_per_tb"` // 元/TB/年
 	TotalAnnualCostPerTB float64         `json:"total_annual_cost_per_tb"` // 元/TB/年（含折旧）
@@ -71,22 +71,22 @@ type CostPerTB struct {
 
 // TierComparison 存储层级成本对比结果.
 type TierComparison struct {
-	Tiers          []TierCostSummary `json:"tiers"`
-	BestValueTier  StorageTierType   `json:"best_value_tier"`
-	AnalysisNote   string            `json:"analysis_note"`
-	ComparedAt     time.Time         `json:"compared_at"`
+	Tiers         []TierCostSummary `json:"tiers"`
+	BestValueTier StorageTierType   `json:"best_value_tier"`
+	AnalysisNote  string            `json:"analysis_note"`
+	ComparedAt    time.Time         `json:"compared_at"`
 }
 
 // TierCostSummary 单层级成本摘要.
 type TierCostSummary struct {
 	TierType          StorageTierType `json:"tier_type"`
 	DisplayName       string          `json:"display_name"`
-	AvgCostPerTBYear  float64         `json:"avg_cost_per_tb_year"`   // 元/TB/年
-	AvgCostPerTBMonth float64         `json:"avg_cost_per_tb_month"`  // 元/TB/月
+	AvgCostPerTBYear  float64         `json:"avg_cost_per_tb_year"`  // 元/TB/年
+	AvgCostPerTBMonth float64         `json:"avg_cost_per_tb_month"` // 元/TB/月
 	ReadIOPS          int             `json:"read_iops"`
 	WriteIOPS         int             `json:"write_iops"`
 	ThroughputMBs     int             `json:"throughput_mbs"`
-	Reliability       string          `json:"reliability"`             // 高/中/低
+	Reliability       string          `json:"reliability"` // 高/中/低
 	RecommendedUse    string          `json:"recommended_use"`
 }
 
@@ -98,18 +98,18 @@ type GrowthDataPoint struct {
 
 // CapacityPlan 容量规划建议.
 type CapacityPlan struct {
-	PoolID              string              `json:"pool_id"`
-	PoolName            string              `json:"pool_name"`
-	CurrentCapacityTB   float64             `json:"current_capacity_tb"`
-	CurrentUsedTB       float64             `json:"current_used_tb"`
-	UsagePercent        float64             `json:"usage_percent"`
-	MonthlyGrowthRateGB float64             `json:"monthly_growth_rate_gb"`
-	MonthlyGrowthPct    float64             `json:"monthly_growth_pct"`
-	DaysUntilFull       float64             `json:"days_until_full"`
+	PoolID              string               `json:"pool_id"`
+	PoolName            string               `json:"pool_name"`
+	CurrentCapacityTB   float64              `json:"current_capacity_tb"`
+	CurrentUsedTB       float64              `json:"current_used_tb"`
+	UsagePercent        float64              `json:"usage_percent"`
+	MonthlyGrowthRateGB float64              `json:"monthly_growth_rate_gb"`
+	MonthlyGrowthPct    float64              `json:"monthly_growth_pct"`
+	DaysUntilFull       float64              `json:"days_until_full"`
 	Predictions         []CapacityPrediction `json:"predictions"`
-	Recommendations     []string            `json:"recommendations"`
-	UrgencyLevel        string              `json:"urgency_level"` // critical/warning/normal
-	PlannedAt           time.Time           `json:"planned_at"`
+	Recommendations     []string             `json:"recommendations"`
+	UrgencyLevel        string               `json:"urgency_level"` // critical/warning/normal
+	PlannedAt           time.Time            `json:"planned_at"`
 }
 
 // CapacityPrediction 容量预测数据点.
@@ -134,10 +134,10 @@ type ROIAnalysis struct {
 
 // StorageCostBreakdown 本地存储成本明细.
 type StorageCostBreakdown struct {
-	HardwareCost     float64 `json:"hardware_cost"`      // 设备购置
-	AnnualPower      float64 `json:"annual_power"`       // 年电力
-	AnnualMaint      float64 `json:"annual_maint"`       // 年维护
-	AnnualBandwidth  float64 `json:"annual_bandwidth"`   // 年带宽
+	HardwareCost     float64 `json:"hardware_cost"`    // 设备购置
+	AnnualPower      float64 `json:"annual_power"`     // 年电力
+	AnnualMaint      float64 `json:"annual_maint"`     // 年维护
+	AnnualBandwidth  float64 `json:"annual_bandwidth"` // 年带宽
 	TotalPerYear     float64 `json:"total_per_year"`
 	TotalOverPeriod  float64 `json:"total_over_period"`
 	CostPerTBPerYear float64 `json:"cost_per_tb_per_year"`
@@ -145,21 +145,21 @@ type StorageCostBreakdown struct {
 
 // CloudCostBreakdown 云存储成本明细.
 type CloudCostBreakdown struct {
-	Provider          string  `json:"provider"`
-	StoragePerYear    float64 `json:"storage_per_year"`    // 存储费
-	BandwidthPerYear  float64 `json:"bandwidth_per_year"`  // 流量费
-	RequestPerYear    float64 `json:"request_per_year"`    // 请求费
-	TotalPerYear      float64 `json:"total_per_year"`
-	TotalOverPeriod   float64 `json:"total_over_period"`
-	CostPerTBPerYear  float64 `json:"cost_per_tb_per_year"`
+	Provider         string  `json:"provider"`
+	StoragePerYear   float64 `json:"storage_per_year"`   // 存储费
+	BandwidthPerYear float64 `json:"bandwidth_per_year"` // 流量费
+	RequestPerYear   float64 `json:"request_per_year"`   // 请求费
+	TotalPerYear     float64 `json:"total_per_year"`
+	TotalOverPeriod  float64 `json:"total_over_period"`
+	CostPerTBPerYear float64 `json:"cost_per_tb_per_year"`
 }
 
 // OptimizationSuggestion 成本优化建议.
 type OptimizationSuggestion struct {
-	ID          string  `json:"id"`
-	Category    string  `json:"category"`    // tier_migrate, dedup, archive, capacity, power
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
+	ID          string `json:"id"`
+	Category    string `json:"category"` // tier_migrate, dedup, archive, capacity, power
+	Title       string `json:"title"`
+	Description string `json:"description"`
 	// PotentialSaving 预估年节省金额（元）.
 	PotentialSaving float64 `json:"potential_saving"`
 	// Priority 优先级: 1=高 2=中 3=低.
@@ -169,10 +169,10 @@ type OptimizationSuggestion struct {
 
 // OptimizationReport 成本优化报告.
 type OptimizationReport struct {
-	PoolID              string                  `json:"pool_id"`
-	TotalPotentialSaving float64                `json:"total_potential_saving"`
-	Suggestions         []OptimizationSuggestion `json:"suggestions"`
-	GeneratedAt         time.Time               `json:"generated_at"`
+	PoolID               string                   `json:"pool_id"`
+	TotalPotentialSaving float64                  `json:"total_potential_saving"`
+	Suggestions          []OptimizationSuggestion `json:"suggestions"`
+	GeneratedAt          time.Time                `json:"generated_at"`
 }
 
 // ========== 分析器 ==========
@@ -203,9 +203,9 @@ type AnalysisConfig struct {
 // DefaultAnalysisConfig 返回默认分析配置.
 func DefaultAnalysisConfig() *AnalysisConfig {
 	return &AnalysisConfig{
-		CloudStoragePricePerTBMonth: 200,   // 约¥200/TB/月
-		CloudBandwidthPricePerGB:    0.8,   // ¥0.8/GB
-		CloudRequestPricePer10k:     0.01,  // ¥0.01/万次
+		CloudStoragePricePerTBMonth: 200,  // 约¥200/TB/月
+		CloudBandwidthPricePerGB:    0.8,  // ¥0.8/GB
+		CloudRequestPricePer10k:     0.01, // ¥0.01/万次
 		DefaultAnalysisPeriodYears:  3,
 		AlertUsageThreshold:         0.85,
 	}
@@ -791,7 +791,7 @@ func calculateGrowthRate(history []GrowthDataPoint) (monthlyGB float64, monthlyP
 	firstTime := sorted[0].Timestamp
 	for _, p := range sorted {
 		x := p.Timestamp.Sub(firstTime).Hours() / 24 / 30 // 月数
-		y := float64(p.UsedBytes) / (1024 * 1024 * 1024)   // GB
+		y := float64(p.UsedBytes) / (1024 * 1024 * 1024)  // GB
 		sumX += x
 		sumY += y
 		sumXY += x * y

@@ -288,12 +288,12 @@ func (m *Manager) GetStats(ctx context.Context) (map[string]interface{}, error) 
 	}
 
 	return map[string]interface{}{
-		"total_photos":   len(m.photos),
-		"total_albums":   len(m.albums),
-		"total_persons":  len(m.persons),
-		"total_size":     totalSize,
-		"formats":        formatCount,
-		"devices":        deviceCount,
+		"total_photos":  len(m.photos),
+		"total_albums":  len(m.albums),
+		"total_persons": len(m.persons),
+		"total_size":    totalSize,
+		"formats":       formatCount,
+		"devices":       deviceCount,
 	}, nil
 }
 
@@ -517,9 +517,9 @@ func (m *Manager) GetAlbum(albumID string) (*Album, error) {
 // GetConfig 获取配置
 func (m *Manager) GetConfig() *PhotoConfig {
 	return &PhotoConfig{
-		MaxUploadSize: 100 * 1024 * 1024, // 100MB
-		Enabled:       true,
-		StoragePath:   m.storagePath,
+		MaxUploadSize:    100 * 1024 * 1024, // 100MB
+		Enabled:          true,
+		StoragePath:      m.storagePath,
 		SupportedFormats: []string{".jpg", ".jpeg", ".png", ".gif", ".webp", ".heic", ".heif", ".avif", ".bmp", ".tiff"},
 		ThumbnailConfig: &ThumbnailConfig{
 			Quality:     85,

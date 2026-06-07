@@ -214,8 +214,8 @@ func (tm *TrackerManager) calculateGreenScore(deviceID string) *GreenScore {
 	footprints, ok := tm.footprints[deviceID]
 	if !ok || len(footprints) == 0 {
 		return &GreenScore{
-			Overall:  0,
-			Grade:    "N/A",
+			Overall:   0,
+			Grade:     "N/A",
 			UpdatedAt: time.Now(),
 		}
 	}
@@ -500,9 +500,9 @@ func (tm *TrackerManager) GetDeviceSummary(deviceID string, days int) (*DeviceSu
 	score := tm.calculateGreenScore(deviceID)
 
 	return &DeviceSummary{
-		DeviceID:      deviceID,
-		DeviceName:    periodFootprints[len(periodFootprints)-1].DeviceName,
-		PeriodDays:    days,
+		DeviceID:       deviceID,
+		DeviceName:     periodFootprints[len(periodFootprints)-1].DeviceName,
+		PeriodDays:     days,
 		TotalEnergyKWh: math.Round(totalEnergy*1000) / 1000,
 		TotalCarbonKg:  math.Round(totalCarbon*1000) / 1000,
 		AvgCarbonKg:    math.Round(avgCarbon*1000) / 1000,

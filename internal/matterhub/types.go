@@ -16,36 +16,36 @@ import (
 type DeviceType string
 
 const (
-	DeviceTypeOnOffLight      DeviceType = "on_off_light"
-	DeviceTypeDimmableLight   DeviceType = "dimmable_light"
-	DeviceTypeColorLight      DeviceType = "color_light"
-	DeviceTypeOnOffSwitch     DeviceType = "on_off_switch"
-	DeviceTypeDimmableSwitch  DeviceType = "dimmable_switch"
-	DeviceTypeOnOffPlug       DeviceType = "on_off_plug"
-	DeviceTypeDimmablePlug    DeviceType = "dimmable_plug"
-	DeviceTypeThermostat      DeviceType = "thermostat"
-	DeviceTypeDoorLock        DeviceType = "door_lock"
-	DeviceTypeContactSensor   DeviceType = "contact_sensor"
-	DeviceTypeMotionSensor    DeviceType = "motion_sensor"
+	DeviceTypeOnOffLight        DeviceType = "on_off_light"
+	DeviceTypeDimmableLight     DeviceType = "dimmable_light"
+	DeviceTypeColorLight        DeviceType = "color_light"
+	DeviceTypeOnOffSwitch       DeviceType = "on_off_switch"
+	DeviceTypeDimmableSwitch    DeviceType = "dimmable_switch"
+	DeviceTypeOnOffPlug         DeviceType = "on_off_plug"
+	DeviceTypeDimmablePlug      DeviceType = "dimmable_plug"
+	DeviceTypeThermostat        DeviceType = "thermostat"
+	DeviceTypeDoorLock          DeviceType = "door_lock"
+	DeviceTypeContactSensor     DeviceType = "contact_sensor"
+	DeviceTypeMotionSensor      DeviceType = "motion_sensor"
 	DeviceTypeTemperatureSensor DeviceType = "temperature_sensor"
-	DeviceTypeHumiditySensor  DeviceType = "humidity_sensor"
-	DeviceTypeLightSensor     DeviceType = "light_sensor"
-	DeviceTypeOccupancySensor DeviceType = "occupancy_sensor"
-	DeviceTypeWindowCovering  DeviceType = "window_covering"
-	DeviceTypeFan             DeviceType = "fan"
-	DeviceTypeAirPurifier     DeviceType = "air_purifier"
-	DeviceTypeSpeaker         DeviceType = "speaker"
-	DeviceTypeOther           DeviceType = "other"
+	DeviceTypeHumiditySensor    DeviceType = "humidity_sensor"
+	DeviceTypeLightSensor       DeviceType = "light_sensor"
+	DeviceTypeOccupancySensor   DeviceType = "occupancy_sensor"
+	DeviceTypeWindowCovering    DeviceType = "window_covering"
+	DeviceTypeFan               DeviceType = "fan"
+	DeviceTypeAirPurifier       DeviceType = "air_purifier"
+	DeviceTypeSpeaker           DeviceType = "speaker"
+	DeviceTypeOther             DeviceType = "other"
 )
 
 // DeviceState 设备在线状态
 type DeviceState string
 
 const (
-	DeviceStateOnline      DeviceState = "online"
-	DeviceStateOffline     DeviceState = "offline"
+	DeviceStateOnline        DeviceState = "online"
+	DeviceStateOffline       DeviceState = "offline"
 	DeviceStateCommissioning DeviceState = "commissioning"
-	DeviceStateUnknown     DeviceState = "unknown"
+	DeviceStateUnknown       DeviceState = "unknown"
 )
 
 // CommissionStatus 配对状态
@@ -212,17 +212,17 @@ type Action struct {
 
 // Scene 场景
 type Scene struct {
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	Trigger     Trigger    `json:"trigger"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Trigger     Trigger     `json:"trigger"`
 	Conditions  []Condition `json:"conditions,omitempty"`
-	Actions     []Action   `json:"actions"`
-	Enabled     bool       `json:"enabled"`
-	LastRun     *time.Time `json:"last_run,omitempty"`
-	RunCount    int        `json:"run_count"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
+	Actions     []Action    `json:"actions"`
+	Enabled     bool        `json:"enabled"`
+	LastRun     *time.Time  `json:"last_run,omitempty"`
+	RunCount    int         `json:"run_count"`
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
 // Automation 自动化规则（场景别名）
@@ -249,49 +249,49 @@ type DeviceEvent struct {
 
 // DashboardSummary 仪表盘摘要
 type DashboardSummary struct {
-	TotalDevices       int            `json:"total_devices"`
-	OnlineDevices      int            `json:"online_devices"`
-	OfflineDevices     int            `json:"offline_devices"`
-	TotalBRs           int            `json:"total_border_routers"`
-	ActiveBRs          int            `json:"active_border_routers"`
-	TotalScenes        int            `json:"total_scenes"`
-	ActiveScenes       int            `json:"active_scenes"`
-	TotalGroups        int            `json:"total_groups"`
-	DevicesByType      map[string]int `json:"devices_by_type"`
-	DevicesByRoom      map[string]int `json:"devices_by_room"`
-	RecentEvents       []DeviceEvent  `json:"recent_events"`
-	UpdatedAt          time.Time      `json:"updated_at"`
+	TotalDevices   int            `json:"total_devices"`
+	OnlineDevices  int            `json:"online_devices"`
+	OfflineDevices int            `json:"offline_devices"`
+	TotalBRs       int            `json:"total_border_routers"`
+	ActiveBRs      int            `json:"active_border_routers"`
+	TotalScenes    int            `json:"total_scenes"`
+	ActiveScenes   int            `json:"active_scenes"`
+	TotalGroups    int            `json:"total_groups"`
+	DevicesByType  map[string]int `json:"devices_by_type"`
+	DevicesByRoom  map[string]int `json:"devices_by_room"`
+	RecentEvents   []DeviceEvent  `json:"recent_events"`
+	UpdatedAt      time.Time      `json:"updated_at"`
 }
 
 // Config 中枢配置
 type Config struct {
-	Enabled             bool   `json:"enabled"`
-	ListenAddress       string `json:"listen_address"`
-	FabricID            uint64 `json:"fabric_id"`
-	AdminVendorID       uint16 `json:"admin_vendor_id"`
-	ThreadNetworkName   string `json:"thread_network_name"`
-	ThreadChannel       uint8  `json:"thread_channel"`
-	ThreadPanID         uint16 `json:"thread_pan_id"`
-	DiscoveryEnabled    bool   `json:"discovery_enabled"`
-	AutoCommission      bool   `json:"auto_commission"`
-	CommissionTimeoutSec int   `json:"commission_timeout_sec"`
-	MaxEvents           int    `json:"max_events"`
+	Enabled              bool   `json:"enabled"`
+	ListenAddress        string `json:"listen_address"`
+	FabricID             uint64 `json:"fabric_id"`
+	AdminVendorID        uint16 `json:"admin_vendor_id"`
+	ThreadNetworkName    string `json:"thread_network_name"`
+	ThreadChannel        uint8  `json:"thread_channel"`
+	ThreadPanID          uint16 `json:"thread_pan_id"`
+	DiscoveryEnabled     bool   `json:"discovery_enabled"`
+	AutoCommission       bool   `json:"auto_commission"`
+	CommissionTimeoutSec int    `json:"commission_timeout_sec"`
+	MaxEvents            int    `json:"max_events"`
 }
 
 // DefaultConfig 返回默认配置
 func DefaultConfig() Config {
 	return Config{
-		Enabled:             true,
-		ListenAddress:       "0.0.0.0:5540",
-		FabricID:            1,
-		AdminVendorID:       0xFFF1,
-		ThreadNetworkName:   "MatterHub",
-		ThreadChannel:       15,
-		ThreadPanID:         0x1234,
-		DiscoveryEnabled:    true,
-		AutoCommission:      false,
+		Enabled:              true,
+		ListenAddress:        "0.0.0.0:5540",
+		FabricID:             1,
+		AdminVendorID:        0xFFF1,
+		ThreadNetworkName:    "MatterHub",
+		ThreadChannel:        15,
+		ThreadPanID:          0x1234,
+		DiscoveryEnabled:     true,
+		AutoCommission:       false,
 		CommissionTimeoutSec: 120,
-		MaxEvents:           1000,
+		MaxEvents:            1000,
 	}
 }
 

@@ -11,21 +11,21 @@ import (
 type PoolType string
 
 const (
-	PoolTypeAllFlash PoolType = "all_flash"     // 全NVMe池
-	PoolTypeHybrid   PoolType = "hybrid"        // NVMe缓存+HDD存储
-	PoolTypeFusion   PoolType = "fusion"        // 元数据在NVMe
+	PoolTypeAllFlash PoolType = "all_flash" // 全NVMe池
+	PoolTypeHybrid   PoolType = "hybrid"    // NVMe缓存+HDD存储
+	PoolTypeFusion   PoolType = "fusion"    // 元数据在NVMe
 )
 
 // PoolConfig defines NVMe pool configuration
 type PoolConfig struct {
-	Name         string        `json:"name"`
-	Type         PoolType      `json:"type"`
-	NVMeDevices  []string      `json:"nvme_devices"`
-	HDDDevices   []string      `json:"hdd_devices,omitempty"`
-	CacheRatio   float64       `json:"cache_ratio"`   // 缓存比例
-	BlockSize    int           `json:"block_size"`    // 块大小
-	Compression  bool          `json:"compression"`   // 压缩启用
-	Deduplication bool         `json:"deduplication"` // 去重启用
+	Name          string   `json:"name"`
+	Type          PoolType `json:"type"`
+	NVMeDevices   []string `json:"nvme_devices"`
+	HDDDevices    []string `json:"hdd_devices,omitempty"`
+	CacheRatio    float64  `json:"cache_ratio"`   // 缓存比例
+	BlockSize     int      `json:"block_size"`    // 块大小
+	Compression   bool     `json:"compression"`   // 压缩启用
+	Deduplication bool     `json:"deduplication"` // 去重启用
 }
 
 // NVMePool represents an NVMe-optimized storage pool
@@ -49,13 +49,13 @@ type NVMeDevice struct {
 
 // PoolStatus represents pool health status
 type PoolStatus struct {
-	State       string    `json:"state"`        // healthy/degraded/faulted
+	State       string    `json:"state"` // healthy/degraded/faulted
 	TotalSize   int64     `json:"total_size"`
 	UsedSize    int64     `json:"used_size"`
 	Available   int64     `json:"available"`
-	IOPSRead    int64     `json:"iops_read"`    // 读IOPS
-	IOPSWrite   int64     `json:"iops_write"`   // 写IOPS
-	Throughput  int64     `json:"throughput"`   // MB/s
+	IOPSRead    int64     `json:"iops_read"`  // 读IOPS
+	IOPSWrite   int64     `json:"iops_write"` // 写IOPS
+	Throughput  int64     `json:"throughput"` // MB/s
 	LastUpdated time.Time `json:"last_updated"`
 }
 
@@ -84,7 +84,7 @@ func (m *Manager) CreatePool(ctx context.Context, config *PoolConfig) (*NVMePool
 		config:    config,
 		createdAt: time.Now(),
 		status: PoolStatus{
-			State:      "healthy",
+			State:       "healthy",
 			LastUpdated: time.Now(),
 		},
 	}

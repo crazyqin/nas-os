@@ -23,7 +23,7 @@ type Manager struct {
 	deviceGroup map[string]*DeviceGroup
 
 	// 媒体库
-	libraries map[string]*MediaLibrary
+	libraries  map[string]*MediaLibrary
 	mediaItems map[string]*MediaItem
 
 	// 播放会话
@@ -35,11 +35,11 @@ type Manager struct {
 	ssdpRunning  bool
 
 	// 配置
-	mediaRoot   string
-	enableSSDP  bool
-	scanTicker  *time.Ticker
-	ctx         context.Context
-	cancel      context.CancelFunc
+	mediaRoot  string
+	enableSSDP bool
+	scanTicker *time.Ticker
+	ctx        context.Context
+	cancel     context.CancelFunc
 }
 
 // NewManager 创建新的 DLNA 管理器.
@@ -185,14 +185,14 @@ func (m *Manager) handleSSDPMessage(msg string, addr *net.UDPAddr) {
 func (m *Manager) discoverDevice(location, ip string) {
 	// 简化实现：创建基本设备记录
 	device := &DLNADevice{
-		ID:          uuid.New().String(),
-		UDN:         fmt.Sprintf("uuid:%s", uuid.New().String()),
-		FriendlyName: fmt.Sprintf("DLNA Device (%s)", ip),
-		DeviceType:  DeviceTypeRenderer,
-		IPAddress:   ip,
-		Location:    location,
-		IsOnline:    true,
-		LastSeenAt:  time.Now(),
+		ID:                  uuid.New().String(),
+		UDN:                 fmt.Sprintf("uuid:%s", uuid.New().String()),
+		FriendlyName:        fmt.Sprintf("DLNA Device (%s)", ip),
+		DeviceType:          DeviceTypeRenderer,
+		IPAddress:           ip,
+		Location:            location,
+		IsOnline:            true,
+		LastSeenAt:          time.Now(),
 		SupportedMediaTypes: []MediaType{MediaTypeVideo, MediaTypeAudio, MediaTypePhoto},
 	}
 
@@ -737,8 +737,8 @@ func (m *Manager) ManageQueue(deviceID string, req ManageQueueRequest) (*PlayQue
 	queue, ok := m.queues[deviceID]
 	if !ok {
 		queue = &PlayQueue{
-			ID:       uuid.New().String(),
-			DeviceID: deviceID,
+			ID:        uuid.New().String(),
+			DeviceID:  deviceID,
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
@@ -948,9 +948,9 @@ func (m *Manager) GetContentDirectory(parentID string) []*ContentDirectoryItem {
 		for _, item := range m.mediaItems {
 			if item.LibraryID == parentID {
 				items = append(items, &ContentDirectoryItem{
-					ID:       item.ID,
-					ParentID: parentID,
-					Title:    item.Title,
+					ID:        item.ID,
+					ParentID:  parentID,
+					Title:     item.Title,
 					MediaItem: item,
 				})
 			}

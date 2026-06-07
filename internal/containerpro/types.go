@@ -52,15 +52,15 @@ type NetworkIO struct {
 
 // ComposeProject Compose 项目
 type ComposeProject struct {
-	ID        string            `json:"id"`
-	Name      string            `json:"name"`
-	Path      string            `json:"path"`
-	Services  []ComposeService  `json:"services"`
-	Status    string            `json:"status"`
-	Networks  []string          `json:"networks"`
-	Volumes   []string          `json:"volumes"`
-	CreatedAt time.Time         `json:"created_at"`
-	UpdatedAt time.Time         `json:"updated_at"`
+	ID        string           `json:"id"`
+	Name      string           `json:"name"`
+	Path      string           `json:"path"`
+	Services  []ComposeService `json:"services"`
+	Status    string           `json:"status"`
+	Networks  []string         `json:"networks"`
+	Volumes   []string         `json:"volumes"`
+	CreatedAt time.Time        `json:"created_at"`
+	UpdatedAt time.Time        `json:"updated_at"`
 }
 
 // ComposeService Compose 服务定义
@@ -115,11 +115,11 @@ type Registry struct {
 
 // ContainerStats 容器统计信息
 type ContainerStats struct {
-	CPU     CPUStats    `json:"cpu"`
-	Memory  MemoryStats `json:"memory"`
-	Network NetworkIO   `json:"network"`
+	CPU     CPUStats     `json:"cpu"`
+	Memory  MemoryStats  `json:"memory"`
+	Network NetworkIO    `json:"network"`
 	BlockIO BlockIOStats `json:"block_io"`
-	PIDs    int         `json:"pids"`
+	PIDs    int          `json:"pids"`
 }
 
 // CPUStats CPU 统计

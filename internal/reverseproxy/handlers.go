@@ -227,8 +227,8 @@ func (h *ReverseProxyHandler) handleUpdateProxy(w http.ResponseWriter, r *http.R
 	}
 
 	var req struct {
-		ID   string     `json:"id"`
-		Rule ProxyRule  `json:"rule"`
+		ID   string    `json:"id"`
+		Rule ProxyRule `json:"rule"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)

@@ -191,8 +191,8 @@ func (s *AIService) Shutdown() error {
 
 // AIServiceHealth represents AI service health
 type AIServiceHealth struct {
-	Status   string                    `json:"status"`
-	Backends map[string]BackendHealth  `json:"backends"`
+	Status   string                   `json:"status"`
+	Backends map[string]BackendHealth `json:"backends"`
 }
 
 // BackendHealth represents backend health

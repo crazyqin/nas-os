@@ -54,9 +54,9 @@ func (h *Handlers) getAnalysis(c *gin.Context) {
 func (h *Handlers) getRecommendations(c *gin.Context) {
 	recommendations, savings := h.analyzer.GetRecommendations()
 	c.JSON(http.StatusOK, gin.H{
-		"recommendations":   recommendations,
-		"total_savings":     savings,
-		"total_count":       len(recommendations),
+		"recommendations": recommendations,
+		"total_savings":   savings,
+		"total_count":     len(recommendations),
 	})
 }
 

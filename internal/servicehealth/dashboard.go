@@ -15,12 +15,12 @@ import (
 
 // ServiceTopologyNode 服务拓扑节点
 type ServiceTopologyNode struct {
-	Name        string   `json:"name"`        // 服务名称
-	DisplayName string   `json:"display_name"` // 显示名称
-	Status      ServiceStatus `json:"status"`  // 当前状态
-	Score       float64  `json:"score"`       // 健康评分
-	Level       int      `json:"level"`       // 拓扑层级 (0=入口, 1=中间件, 2=存储等)
-	Tags        []string `json:"tags"`        // 标签
+	Name        string        `json:"name"`         // 服务名称
+	DisplayName string        `json:"display_name"` // 显示名称
+	Status      ServiceStatus `json:"status"`       // 当前状态
+	Score       float64       `json:"score"`        // 健康评分
+	Level       int           `json:"level"`        // 拓扑层级 (0=入口, 1=中间件, 2=存储等)
+	Tags        []string      `json:"tags"`         // 标签
 }
 
 // ServiceTopologyEdge 服务拓扑边（依赖关系）
@@ -38,49 +38,49 @@ type ServiceTopology struct {
 
 // StatusOverview 状态概览
 type StatusOverview struct {
-	Total     int     `json:"total"`      // 总服务数
-	Healthy   int     `json:"healthy"`    // 正常服务数
-	Warning   int     `json:"warning"`    // 警告服务数
-	Critical  int     `json:"critical"`   // 故障服务数
-	Unknown   int     `json:"unknown"`    // 未知服务数
-	AvgScore  float64 `json:"avg_score"`  // 平均健康评分
+	Total     int       `json:"total"`      // 总服务数
+	Healthy   int       `json:"healthy"`    // 正常服务数
+	Warning   int       `json:"warning"`    // 警告服务数
+	Critical  int       `json:"critical"`   // 故障服务数
+	Unknown   int       `json:"unknown"`    // 未知服务数
+	AvgScore  float64   `json:"avg_score"`  // 平均健康评分
 	UpdatedAt time.Time `json:"updated_at"` // 更新时间
 }
 
 // AvailabilityRecord 可用性记录
 type AvailabilityRecord struct {
-	Timestamp  time.Time     `json:"timestamp"`   // 记录时间
-	Status     ServiceStatus `json:"status"`      // 状态
-	Score      float64       `json:"score"`       // 评分
-	Uptime     float64       `json:"uptime"`      // 可用性百分比
+	Timestamp    time.Time     `json:"timestamp"`     // 记录时间
+	Status       ServiceStatus `json:"status"`        // 状态
+	Score        float64       `json:"score"`         // 评分
+	Uptime       float64       `json:"uptime"`        // 可用性百分比
 	ResponseTime time.Duration `json:"response_time"` // 响应时间
 }
 
 // ServiceAvailabilityStats 服务可用性统计
 type ServiceAvailabilityStats struct {
-	ServiceName       string                `json:"service_name"`       // 服务名称
-	Period            string                `json:"period"`             // 统计周期
-	TotalChecks       int                   `json:"total_checks"`       // 总检查次数
-	SuccessfulChecks  int                   `json:"successful_checks"`  // 成功次数
-	FailedChecks      int                   `json:"failed_checks"`      // 失败次数
-	UptimePercent     float64               `json:"uptime_percent"`     // 可用性百分比
-	AvgResponseTime   time.Duration         `json:"avg_response_time"`  // 平均响应时间
-	MaxResponseTime   time.Duration         `json:"max_response_time"`  // 最大响应时间
-	MinResponseTime   time.Duration         `json:"min_response_time"`  // 最小响应时间
-	LastDowntime      *time.Time            `json:"last_downtime"`      // 最后一次故障时间
-	TotalDowntime     time.Duration         `json:"total_downtime"`     // 总故障时间
-	Records           []AvailabilityRecord  `json:"records"`            // 详细记录
-	UpdatedAt         time.Time             `json:"updated_at"`         // 更新时间
+	ServiceName      string               `json:"service_name"`      // 服务名称
+	Period           string               `json:"period"`            // 统计周期
+	TotalChecks      int                  `json:"total_checks"`      // 总检查次数
+	SuccessfulChecks int                  `json:"successful_checks"` // 成功次数
+	FailedChecks     int                  `json:"failed_checks"`     // 失败次数
+	UptimePercent    float64              `json:"uptime_percent"`    // 可用性百分比
+	AvgResponseTime  time.Duration        `json:"avg_response_time"` // 平均响应时间
+	MaxResponseTime  time.Duration        `json:"max_response_time"` // 最大响应时间
+	MinResponseTime  time.Duration        `json:"min_response_time"` // 最小响应时间
+	LastDowntime     *time.Time           `json:"last_downtime"`     // 最后一次故障时间
+	TotalDowntime    time.Duration        `json:"total_downtime"`    // 总故障时间
+	Records          []AvailabilityRecord `json:"records"`           // 详细记录
+	UpdatedAt        time.Time            `json:"updated_at"`        // 更新时间
 }
 
 // DashboardSummary 仪表盘汇总
 type DashboardSummary struct {
-	Overview     StatusOverview                  `json:"overview"`      // 状态概览
-	Topology     ServiceTopology                 `json:"topology"`      // 服务拓扑
-	Services     []*ServiceHealth                `json:"services"`      // 服务列表
+	Overview     StatusOverview                       `json:"overview"`     // 状态概览
+	Topology     ServiceTopology                      `json:"topology"`     // 服务拓扑
+	Services     []*ServiceHealth                     `json:"services"`     // 服务列表
 	Availability map[string]*ServiceAvailabilityStats `json:"availability"` // 可用性统计
-	Alerts       []DashboardAlert                `json:"alerts"`        // 告警列表
-	UpdatedAt    time.Time                       `json:"updated_at"`    // 更新时间
+	Alerts       []DashboardAlert                     `json:"alerts"`       // 告警列表
+	UpdatedAt    time.Time                            `json:"updated_at"`   // 更新时间
 }
 
 // DashboardAlert 仪表盘告警
@@ -108,7 +108,7 @@ type ServiceDashboard struct {
 
 	// 可用性历史
 	availabilityHistory map[string][]AvailabilityRecord // 服务名 -> 历史记录
-	maxHistoryLen       int                            // 最大历史记录数
+	maxHistoryLen       int                             // 最大历史记录数
 }
 
 // NewServiceDashboard 创建服务仪表盘
@@ -479,24 +479,24 @@ func (d *ServiceDashboard) GetServiceRanking(limit int) []*ServiceHealth {
 
 // SLATarget SLA 目标配置
 type SLATarget struct {
-	Name           string  `json:"name"`            // SLA 名称
-	TargetUptime   float64 `json:"target_uptime"`   // 目标可用性百分比，如 99.9
-	PeriodDays     int     `json:"period_days"`     // 统计周期天数
+	Name           string  `json:"name"`             // SLA 名称
+	TargetUptime   float64 `json:"target_uptime"`    // 目标可用性百分比，如 99.9
+	PeriodDays     int     `json:"period_days"`      // 统计周期天数
 	MaxDowntimeMin float64 `json:"max_downtime_min"` // 最大允许故障时间（分钟）
 }
 
 // SLAResult SLA 计算结果
 type SLAResult struct {
-	ServiceName    string    `json:"service_name"`     // 服务名称
-	SLATarget      SLATarget `json:"sla_target"`       // SLA 目标
-	ActualUptime   float64   `json:"actual_uptime"`    // 实际可用性
-	TotalChecks    int       `json:"total_checks"`     // 总检查次数
-	FailedChecks   int       `json:"failed_checks"`    // 失败次数
-	TotalDowntime  time.Duration `json:"total_downtime"` // 总故障时间
-	MaxDowntime    time.Duration `json:"max_downtime"`   // 最长单次故障
-	IsCompliant    bool      `json:"is_compliant"`     // 是否达标
-	GapPercent     float64   `json:"gap_percent"`      // 与目标的差距
-	ReportTime     time.Time `json:"report_time"`      // 报告时间
+	ServiceName   string        `json:"service_name"`   // 服务名称
+	SLATarget     SLATarget     `json:"sla_target"`     // SLA 目标
+	ActualUptime  float64       `json:"actual_uptime"`  // 实际可用性
+	TotalChecks   int           `json:"total_checks"`   // 总检查次数
+	FailedChecks  int           `json:"failed_checks"`  // 失败次数
+	TotalDowntime time.Duration `json:"total_downtime"` // 总故障时间
+	MaxDowntime   time.Duration `json:"max_downtime"`   // 最长单次故障
+	IsCompliant   bool          `json:"is_compliant"`   // 是否达标
+	GapPercent    float64       `json:"gap_percent"`    // 与目标的差距
+	ReportTime    time.Time     `json:"report_time"`    // 报告时间
 }
 
 // DefaultSLATargets 默认 SLA 目标

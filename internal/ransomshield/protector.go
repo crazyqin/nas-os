@@ -54,7 +54,7 @@ type Protector struct {
 	quarantineCount int64
 
 	// running 运行状态
-	running bool
+	running  bool
 	stopChan chan struct{}
 }
 
@@ -608,14 +608,14 @@ func (p *Protector) GetProtectorStats() ProtectorStats {
 	defer p.mu.RUnlock()
 
 	return ProtectorStats{
-		HoneypotsDeployed: len(p.honeypots),
+		HoneypotsDeployed:  len(p.honeypots),
 		HoneypotsTriggered: p.countTriggeredHoneypots(),
-		RecoveryPoints:    len(p.recoveryPoints),
-		BlockedProcesses:  len(p.blockedProcesses),
-		SnapshotsCreated:  p.snapshotCount,
-		RollbacksDone:     p.rollbackCount,
-		QuarantinesDone:   p.quarantineCount,
-		BlocksTriggered:   p.blockedCount,
+		RecoveryPoints:     len(p.recoveryPoints),
+		BlockedProcesses:   len(p.blockedProcesses),
+		SnapshotsCreated:   p.snapshotCount,
+		RollbacksDone:      p.rollbackCount,
+		QuarantinesDone:    p.quarantineCount,
+		BlocksTriggered:    p.blockedCount,
 	}
 }
 

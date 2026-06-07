@@ -266,7 +266,7 @@ type SyncStatus struct {
 	LastBackupTime    *time.Time  `json:"lastBackupTime,omitempty"`
 	StorageUsed       int64       `json:"storageUsed"`
 	FailedBackups     int         `json:"failedBackups"`
-	SuccessfulBackups int        `json:"successfulBackups"`
+	SuccessfulBackups int         `json:"successfulBackups"`
 }
 
 // ========== 主结构 ==========

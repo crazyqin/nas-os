@@ -20,12 +20,12 @@ const (
 
 // 阵列状态常量
 const (
-	StatusActive    = "active"     // 正常运行
-	StatusDegraded  = "degraded"   // 降级运行（有磁盘故障）
+	StatusActive     = "active"     // 正常运行
+	StatusDegraded   = "degraded"   // 降级运行（有磁盘故障）
 	StatusRebuilding = "rebuilding" // 正在重建
-	StatusResharing = "resharing"  // 正在重分布数据
-	StatusFailed    = "failed"     // 已失败
-	StatusCreating  = "creating"   // 创建中
+	StatusResharing  = "resharing"  // 正在重分布数据
+	StatusFailed     = "failed"     // 已失败
+	StatusCreating   = "creating"   // 创建中
 )
 
 // draidLevels 存储合法的 DRAID 级别
@@ -44,13 +44,13 @@ var levelParityMap = map[string]int{
 
 // PerformanceMetrics 性能监控指标
 type PerformanceMetrics struct {
-	IOPSRead    int64     `json:"iops_read"`    // 每秒读操作数
-	IOPSWrite   int64     `json:"iops_write"`   // 每秒写操作数
-	ThroughputRead  int64 `json:"throughput_read"`  // 读吞吐量 (bytes/s)
-	ThroughputWrite int64 `json:"throughput_write"` // 写吞吐量 (bytes/s)
-	LatencyRead  float64 `json:"latency_read"`  // 读延迟 (ms)
-	LatencyWrite float64 `json:"latency_write"` // 写延迟 (ms)
-	Timestamp    time.Time `json:"timestamp"`    // 采集时间
+	IOPSRead        int64     `json:"iops_read"`        // 每秒读操作数
+	IOPSWrite       int64     `json:"iops_write"`       // 每秒写操作数
+	ThroughputRead  int64     `json:"throughput_read"`  // 读吞吐量 (bytes/s)
+	ThroughputWrite int64     `json:"throughput_write"` // 写吞吐量 (bytes/s)
+	LatencyRead     float64   `json:"latency_read"`     // 读延迟 (ms)
+	LatencyWrite    float64   `json:"latency_write"`    // 写延迟 (ms)
+	Timestamp       time.Time `json:"timestamp"`        // 采集时间
 }
 
 // DistributedSpare 分布式热备信息
@@ -63,23 +63,23 @@ type DistributedSpare struct {
 
 // DRAIDArray 表示一个 DRAID 阵列
 type DRAIDArray struct {
-	Name          string              `json:"name"`           // 阵列名称
-	Level         string              `json:"level"`          // DRAID 级别 (DRAID1/DRAID2/DRAID3)
-	Devices       []string            `json:"devices"`        // 数据+校验设备列表
+	Name              string              `json:"name"`               // 阵列名称
+	Level             string              `json:"level"`              // DRAID 级别 (DRAID1/DRAID2/DRAID3)
+	Devices           []string            `json:"devices"`            // 数据+校验设备列表
 	DistributedSpares []*DistributedSpare `json:"distributed_spares"` // 分布式热备列表
-	GroupSize     int                 `json:"group_size"`     // 每组设备数（数据盘+校验盘）
-	DataDisks     int                 `json:"data_disks"`     // 每组数据盘数量
-	ParityDisks   int                 `json:"parity_disks"`   // 每组校验盘数量
-	ChunkSize     string              `json:"chunk_size"`     // 条带大小
-	Status        string              `json:"status"`         // 阵列状态
-	TotalSize     int64               `json:"total_size"`     // 总容量 (bytes)
-	UsedSize      int64               `json:"used_size"`      // 已用容量 (bytes)
-	RebuildProgress float64           `json:"rebuild_progress"` // 重建进度 (0-100)
-	ReshareProgress float64           `json:"reshare_progress"` // 重分布进度 (0-100)
-	Metrics       *PerformanceMetrics `json:"metrics"`        // 性能指标
-	FailedDevices []string            `json:"failed_devices"` // 故障设备列表
-	CreatedAt     time.Time           `json:"created_at"`     // 创建时间
-	UpdatedAt     time.Time           `json:"updated_at"`     // 更新时间
+	GroupSize         int                 `json:"group_size"`         // 每组设备数（数据盘+校验盘）
+	DataDisks         int                 `json:"data_disks"`         // 每组数据盘数量
+	ParityDisks       int                 `json:"parity_disks"`       // 每组校验盘数量
+	ChunkSize         string              `json:"chunk_size"`         // 条带大小
+	Status            string              `json:"status"`             // 阵列状态
+	TotalSize         int64               `json:"total_size"`         // 总容量 (bytes)
+	UsedSize          int64               `json:"used_size"`          // 已用容量 (bytes)
+	RebuildProgress   float64             `json:"rebuild_progress"`   // 重建进度 (0-100)
+	ReshareProgress   float64             `json:"reshare_progress"`   // 重分布进度 (0-100)
+	Metrics           *PerformanceMetrics `json:"metrics"`            // 性能指标
+	FailedDevices     []string            `json:"failed_devices"`     // 故障设备列表
+	CreatedAt         time.Time           `json:"created_at"`         // 创建时间
+	UpdatedAt         time.Time           `json:"updated_at"`         // 更新时间
 }
 
 // Manager 管理 DRAID 阵列
@@ -162,23 +162,23 @@ func (m *Manager) CreateArray(name, level string, devices []string, spareDevices
 
 	now := time.Now()
 	m.arrays[name] = &DRAIDArray{
-		Name:          name,
-		Level:         level,
-		Devices:       devices,
+		Name:              name,
+		Level:             level,
+		Devices:           devices,
 		DistributedSpares: distSpares,
-		GroupSize:     groupSize,
-		DataDisks:     dataDisks,
-		ParityDisks:   parityDisks,
-		ChunkSize:     chunkSize,
-		Status:        StatusActive,
-		TotalSize:     int64(dataDisks) * int64(len(devices)/groupSize) * 1024 * 1024 * 1024,
-		UsedSize:      0,
-		RebuildProgress: 0,
-		ReshareProgress: 0,
-		Metrics:       &PerformanceMetrics{},
-		FailedDevices: []string{},
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		GroupSize:         groupSize,
+		DataDisks:         dataDisks,
+		ParityDisks:       parityDisks,
+		ChunkSize:         chunkSize,
+		Status:            StatusActive,
+		TotalSize:         int64(dataDisks) * int64(len(devices)/groupSize) * 1024 * 1024 * 1024,
+		UsedSize:          0,
+		RebuildProgress:   0,
+		ReshareProgress:   0,
+		Metrics:           &PerformanceMetrics{},
+		FailedDevices:     []string{},
+		CreatedAt:         now,
+		UpdatedAt:         now,
 	}
 
 	log.Printf("DRAID 阵列已创建: %s (级别: %s, 组大小: %d, 数据盘: %d, 设备数: %d)",
@@ -546,28 +546,28 @@ func (m *Manager) GetArrayStatus(name string) (map[string]interface{}, error) {
 	}
 
 	status := map[string]interface{}{
-		"name":              arr.Name,
-		"level":             arr.Level,
-		"status":            arr.Status,
-		"devices":           arr.Devices,
+		"name":               arr.Name,
+		"level":              arr.Level,
+		"status":             arr.Status,
+		"devices":            arr.Devices,
 		"distributed_spares": arr.DistributedSpares,
-		"group_size":        arr.GroupSize,
-		"data_disks":        arr.DataDisks,
-		"parity_disks":      arr.ParityDisks,
-		"chunk_size":        arr.ChunkSize,
-		"total_size":        arr.TotalSize,
-		"used_size":         arr.UsedSize,
-		"rebuild_progress":  arr.RebuildProgress,
-		"reshare_progress":  arr.ReshareProgress,
-		"failed_devices":    arr.FailedDevices,
-		"metrics":           arr.Metrics,
-		"device_count":      len(arr.Devices),
-		"spare_count":       len(arr.DistributedSpares),
-		"active_spares":     activeSpares,
-		"replacing_spares":  replacingSpares,
-		"failed_count":      len(arr.FailedDevices),
-		"created_at":        arr.CreatedAt,
-		"updated_at":        arr.UpdatedAt,
+		"group_size":         arr.GroupSize,
+		"data_disks":         arr.DataDisks,
+		"parity_disks":       arr.ParityDisks,
+		"chunk_size":         arr.ChunkSize,
+		"total_size":         arr.TotalSize,
+		"used_size":          arr.UsedSize,
+		"rebuild_progress":   arr.RebuildProgress,
+		"reshare_progress":   arr.ReshareProgress,
+		"failed_devices":     arr.FailedDevices,
+		"metrics":            arr.Metrics,
+		"device_count":       len(arr.Devices),
+		"spare_count":        len(arr.DistributedSpares),
+		"active_spares":      activeSpares,
+		"replacing_spares":   replacingSpares,
+		"failed_count":       len(arr.FailedDevices),
+		"created_at":         arr.CreatedAt,
+		"updated_at":         arr.UpdatedAt,
 	}
 	return status, nil
 }

@@ -32,12 +32,12 @@ const (
 type ShareTemplate string
 
 const (
-	TemplateMedia     ShareTemplate = "media"      // 媒体共享
-	TemplateDocument  ShareTemplate = "document"   // 文档共享
-	TemplateBackup    ShareTemplate = "backup"     // 备份共享
-	TemplateHome      ShareTemplate = "home"       // 家庭目录
-	TemplatePublic    ShareTemplate = "public"     // 公共共享
-	TemplateTeam      ShareTemplate = "team"       // 团队协作
+	TemplateMedia    ShareTemplate = "media"    // 媒体共享
+	TemplateDocument ShareTemplate = "document" // 文档共享
+	TemplateBackup   ShareTemplate = "backup"   // 备份共享
+	TemplateHome     ShareTemplate = "home"     // 家庭目录
+	TemplatePublic   ShareTemplate = "public"   // 公共共享
+	TemplateTeam     ShareTemplate = "team"     // 团队协作
 )
 
 // UserPermission 用户权限
@@ -61,33 +61,33 @@ type QuotaConfig struct {
 
 // RecycleBinConfig 回收站配置
 type RecycleBinConfig struct {
-	Enabled      bool `json:"enabled"`
-	CleanAfterDays int `json:"clean_after_days"` // 天后自动清理
+	Enabled        bool `json:"enabled"`
+	CleanAfterDays int  `json:"clean_after_days"` // 天后自动清理
 }
 
 // EncryptionConfig 加密配置
 type EncryptionConfig struct {
-	Enabled    bool   `json:"enabled"`
-	Algorithm  string `json:"algorithm"` // aes-256-xts 等
+	Enabled   bool   `json:"enabled"`
+	Algorithm string `json:"algorithm"` // aes-256-xts 等
 }
 
 // ShareConfig 共享配置
 type ShareConfig struct {
-	Name        string              `json:"name" binding:"required"`
-	Description string              `json:"description"`
-	Path        string              `json:"path"`
-	Protocols   []Protocol          `json:"protocols"`
-	Template    ShareTemplate       `json:"template"`
-	Users       []UserPermission    `json:"users"`
-	Groups      []GroupPermission   `json:"groups"`
-	Quota       QuotaConfig         `json:"quota"`
-	RecycleBin  RecycleBinConfig    `json:"recycle_bin"`
-	Encryption  EncryptionConfig    `json:"encryption"`
-	Hidden      bool                `json:"hidden"`
-	ReadOnly    bool                `json:"read_only"`
-	GuestAccess bool                `json:"guest_access"`
-	AuditLog    bool                `json:"audit_log"`
-	CreatedAt   time.Time           `json:"created_at"`
+	Name        string            `json:"name" binding:"required"`
+	Description string            `json:"description"`
+	Path        string            `json:"path"`
+	Protocols   []Protocol        `json:"protocols"`
+	Template    ShareTemplate     `json:"template"`
+	Users       []UserPermission  `json:"users"`
+	Groups      []GroupPermission `json:"groups"`
+	Quota       QuotaConfig       `json:"quota"`
+	RecycleBin  RecycleBinConfig  `json:"recycle_bin"`
+	Encryption  EncryptionConfig  `json:"encryption"`
+	Hidden      bool              `json:"hidden"`
+	ReadOnly    bool              `json:"read_only"`
+	GuestAccess bool              `json:"guest_access"`
+	AuditLog    bool              `json:"audit_log"`
+	CreatedAt   time.Time         `json:"created_at"`
 }
 
 // ShareTemplateDef 模板定义

@@ -19,14 +19,14 @@ type Migrator struct {
 	predictor *Predictor
 
 	// 迁移任务队列
-	queue     chan *MigrationTask
-	events    []MigrationEvent
-	eventMu   sync.RWMutex
+	queue   chan *MigrationTask
+	events  []MigrationEvent
+	eventMu sync.RWMutex
 
 	// 状态
-	running   bool
-	stopCh    chan struct{}
-	wg        sync.WaitGroup
+	running bool
+	stopCh  chan struct{}
+	wg      sync.WaitGroup
 }
 
 // MigrationTask 迁移任务

@@ -17,19 +17,19 @@ func TestTargetMode_Constants(t *testing.T) {
 func TestFCTarget_Fields(t *testing.T) {
 	now := time.Now()
 	target := FCTarget{
-		ID:            "fc-target-1",
-		Name:          "Production Target",
-		Alias:         "prod-fc",
-		WWPN:          "50:00:00:00:00:00:00:01",
-		WWNN:          "50:00:00:00:00:00:00:00",
-		Mode:          TargetModeTarget,
-		LUNs:          []*LUN{},
-		Ports:         []*Port{},
-		Zones:         []*Zone{},
-		MaxSessions:   64,
-		Enabled:       true,
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		ID:          "fc-target-1",
+		Name:        "Production Target",
+		Alias:       "prod-fc",
+		WWPN:        "50:00:00:00:00:00:00:01",
+		WWNN:        "50:00:00:00:00:00:00:00",
+		Mode:        TargetModeTarget,
+		LUNs:        []*LUN{},
+		Ports:       []*Port{},
+		Zones:       []*Zone{},
+		MaxSessions: 64,
+		Enabled:     true,
+		CreatedAt:   now,
+		UpdatedAt:   now,
 	}
 
 	assert.Equal(t, "fc-target-1", target.ID)

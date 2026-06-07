@@ -17,8 +17,8 @@ const (
 	Dilithium5 Algorithm = "dilithium5"
 
 	// Hybrid algorithms
-	HybridKyber768    Algorithm = "hybrid-kyber768"
-	HybridDilithium3  Algorithm = "hybrid-dilithium3"
+	HybridKyber768   Algorithm = "hybrid-kyber768"
+	HybridDilithium3 Algorithm = "hybrid-dilithium3"
 
 	// Classical algorithms
 	AlgorithmClassic Algorithm = "aes-256-gcm"
@@ -61,16 +61,16 @@ const (
 type AuditAction string
 
 const (
-	AuditKeyGenerate  AuditAction = "key_generate"
-	AuditKeyRotate    AuditAction = "key_rotate"
-	AuditKeyRevoke    AuditAction = "key_revoke"
-	AuditEncrypt      AuditAction = "encrypt"
-	AuditDecrypt      AuditAction = "decrypt"
-	AuditSign         AuditAction = "sign"
-	AuditVerify       AuditAction = "verify"
-	AuditMigrate      AuditAction = "migrate"
-	AuditExport       AuditAction = "export"
-	AuditImport       AuditAction = "import"
+	AuditKeyGenerate AuditAction = "key_generate"
+	AuditKeyRotate   AuditAction = "key_rotate"
+	AuditKeyRevoke   AuditAction = "key_revoke"
+	AuditEncrypt     AuditAction = "encrypt"
+	AuditDecrypt     AuditAction = "decrypt"
+	AuditSign        AuditAction = "sign"
+	AuditVerify      AuditAction = "verify"
+	AuditMigrate     AuditAction = "migrate"
+	AuditExport      AuditAction = "export"
+	AuditImport      AuditAction = "import"
 )
 
 // SecurityLevel 安全等级
@@ -84,22 +84,22 @@ const (
 
 // QuantumKey 量子安全密钥
 type QuantumKey struct {
-	ID            string         `json:"id"`
-	Name          string         `json:"name" binding:"required"`
-	Algorithm     Algorithm      `json:"algorithm" binding:"required"`
-	SecurityLevel SecurityLevel  `json:"security_level"`
-	Status        KeyStatus      `json:"status"`
-	PublicKey     []byte         `json:"public_key,omitempty"`
-	PrivateKey    []byte         `json:"private_key,omitempty"`
-	KeySize       int            `json:"key_size"`
-	IsHybrid      bool           `json:"is_hybrid"`
-	AlgorithmPair *AlgorithmPair `json:"algorithm_pair,omitempty"`
-	ExpiresAt     time.Time      `json:"expires_at"`
-	CreatedAt     time.Time      `json:"created_at"`
-	UpdatedAt     time.Time      `json:"updated_at"`
-	RotatedFrom   string         `json:"rotated_from,omitempty"`
-	UsageCount    int64          `json:"usage_count"`
-	MaxUsage      int64          `json:"max_usage,omitempty"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name" binding:"required"`
+	Algorithm     Algorithm         `json:"algorithm" binding:"required"`
+	SecurityLevel SecurityLevel     `json:"security_level"`
+	Status        KeyStatus         `json:"status"`
+	PublicKey     []byte            `json:"public_key,omitempty"`
+	PrivateKey    []byte            `json:"private_key,omitempty"`
+	KeySize       int               `json:"key_size"`
+	IsHybrid      bool              `json:"is_hybrid"`
+	AlgorithmPair *AlgorithmPair    `json:"algorithm_pair,omitempty"`
+	ExpiresAt     time.Time         `json:"expires_at"`
+	CreatedAt     time.Time         `json:"created_at"`
+	UpdatedAt     time.Time         `json:"updated_at"`
+	RotatedFrom   string            `json:"rotated_from,omitempty"`
+	UsageCount    int64             `json:"usage_count"`
+	MaxUsage      int64             `json:"max_usage,omitempty"`
 	Metadata      map[string]string `json:"metadata,omitempty"`
 }
 
@@ -137,25 +137,25 @@ type CipherConfig struct {
 
 // MigrationPlan 迁移计划
 type MigrationPlan struct {
-	ID              string            `json:"id"`
-	Name            string            `json:"name" binding:"required"`
-	Description     string            `json:"description,omitempty"`
-	Status          MigrationStatus   `json:"status"`
-	SourceAlgorithm Algorithm         `json:"source_algorithm"`
-	TargetAlgorithm Algorithm         `json:"target_algorithm"`
-	SourceKeyID     string            `json:"source_key_id"`
-	TargetKeyID     string            `json:"target_key_id,omitempty"`
-	TotalResources  int               `json:"total_resources"`
-	MigratedCount   int               `json:"migrated_count"`
-	FailedCount     int               `json:"failed_count"`
-	Progress        float64           `json:"progress"`
-	StartedAt       *time.Time        `json:"started_at,omitempty"`
-	CompletedAt     *time.Time        `json:"completed_at,omitempty"`
-	EstimatedEnd    *time.Time        `json:"estimated_end,omitempty"`
+	ID              string              `json:"id"`
+	Name            string              `json:"name" binding:"required"`
+	Description     string              `json:"description,omitempty"`
+	Status          MigrationStatus     `json:"status"`
+	SourceAlgorithm Algorithm           `json:"source_algorithm"`
+	TargetAlgorithm Algorithm           `json:"target_algorithm"`
+	SourceKeyID     string              `json:"source_key_id"`
+	TargetKeyID     string              `json:"target_key_id,omitempty"`
+	TotalResources  int                 `json:"total_resources"`
+	MigratedCount   int                 `json:"migrated_count"`
+	FailedCount     int                 `json:"failed_count"`
+	Progress        float64             `json:"progress"`
+	StartedAt       *time.Time          `json:"started_at,omitempty"`
+	CompletedAt     *time.Time          `json:"completed_at,omitempty"`
+	EstimatedEnd    *time.Time          `json:"estimated_end,omitempty"`
 	Resources       []MigrationResource `json:"resources,omitempty"`
-	Errors          []MigrationError  `json:"errors,omitempty"`
-	CreatedAt       time.Time         `json:"created_at"`
-	UpdatedAt       time.Time         `json:"updated_at"`
+	Errors          []MigrationError    `json:"errors,omitempty"`
+	CreatedAt       time.Time           `json:"created_at"`
+	UpdatedAt       time.Time           `json:"updated_at"`
 }
 
 // MigrationResource 迁移资源
@@ -176,36 +176,36 @@ type MigrationError struct {
 
 // CryptoAudit 加密审计
 type CryptoAudit struct {
-	ID        string      `json:"id"`
-	Action    AuditAction `json:"action"`
-	KeyID     string      `json:"key_id,omitempty"`
-	Algorithm Algorithm   `json:"algorithm,omitempty"`
-	Resource  string      `json:"resource,omitempty"`
-	UserID    string      `json:"user_id,omitempty"`
-	SourceIP  string      `json:"source_ip,omitempty"`
-	Success   bool        `json:"success"`
-	Error     string      `json:"error,omitempty"`
+	ID        string                 `json:"id"`
+	Action    AuditAction            `json:"action"`
+	KeyID     string                 `json:"key_id,omitempty"`
+	Algorithm Algorithm              `json:"algorithm,omitempty"`
+	Resource  string                 `json:"resource,omitempty"`
+	UserID    string                 `json:"user_id,omitempty"`
+	SourceIP  string                 `json:"source_ip,omitempty"`
+	Success   bool                   `json:"success"`
+	Error     string                 `json:"error,omitempty"`
 	Details   map[string]interface{} `json:"details,omitempty"`
-	Timestamp time.Time   `json:"timestamp"`
-	Duration  time.Duration `json:"duration"`
+	Timestamp time.Time              `json:"timestamp"`
+	Duration  time.Duration          `json:"duration"`
 }
 
 // EncryptRequest 加密请求
 type EncryptRequest struct {
-	Plaintext []byte    `json:"plaintext" binding:"required"`
-	KeyID     string    `json:"key_id" binding:"required"`
-	Algorithm Algorithm `json:"algorithm,omitempty"`
+	Plaintext []byte     `json:"plaintext" binding:"required"`
+	KeyID     string     `json:"key_id" binding:"required"`
+	Algorithm Algorithm  `json:"algorithm,omitempty"`
 	Mode      CipherMode `json:"mode,omitempty"`
-	AAD       []byte    `json:"aad,omitempty"` // Additional Authenticated Data
+	AAD       []byte     `json:"aad,omitempty"` // Additional Authenticated Data
 }
 
 // EncryptResponse 加密响应
 type EncryptResponse struct {
-	Ciphertext []byte    `json:"ciphertext"`
-	IV         []byte    `json:"iv,omitempty"`
-	Tag        []byte    `json:"tag,omitempty"`
-	KeyID      string    `json:"key_id"`
-	Algorithm  Algorithm `json:"algorithm"`
+	Ciphertext []byte     `json:"ciphertext"`
+	IV         []byte     `json:"iv,omitempty"`
+	Tag        []byte     `json:"tag,omitempty"`
+	KeyID      string     `json:"key_id"`
+	Algorithm  Algorithm  `json:"algorithm"`
 	Mode       CipherMode `json:"mode"`
 }
 
@@ -264,34 +264,34 @@ type KeyRotationRequest struct {
 
 // CryptoStats 加密统计
 type CryptoStats struct {
-	TotalKeys       int64            `json:"total_keys"`
-	ActiveKeys      int64            `json:"active_keys"`
-	ExpiredKeys     int64            `json:"expired_keys"`
-	TotalOperations int64            `json:"total_operations"`
-	EncryptOps      int64            `json:"encrypt_ops"`
-	DecryptOps      int64            `json:"decrypt_ops"`
-	SignOps         int64            `json:"sign_ops"`
-	VerifyOps       int64            `json:"verify_ops"`
-	ByAlgorithm     map[Algorithm]int64 `json:"by_algorithm"`
-	ByMode          map[CipherMode]int64 `json:"by_mode"`
-	MigrationsTotal  int64           `json:"migrations_total"`
-	MigrationsActive int64           `json:"migrations_active"`
+	TotalKeys        int64                `json:"total_keys"`
+	ActiveKeys       int64                `json:"active_keys"`
+	ExpiredKeys      int64                `json:"expired_keys"`
+	TotalOperations  int64                `json:"total_operations"`
+	EncryptOps       int64                `json:"encrypt_ops"`
+	DecryptOps       int64                `json:"decrypt_ops"`
+	SignOps          int64                `json:"sign_ops"`
+	VerifyOps        int64                `json:"verify_ops"`
+	ByAlgorithm      map[Algorithm]int64  `json:"by_algorithm"`
+	ByMode           map[CipherMode]int64 `json:"by_mode"`
+	MigrationsTotal  int64                `json:"migrations_total"`
+	MigrationsActive int64                `json:"migrations_active"`
 }
 
 // QuantumSafeConfig 量子安全模块配置
 type QuantumSafeConfig struct {
-	Enabled              bool           `json:"enabled"`
-	DefaultAlgorithm     Algorithm      `json:"default_algorithm"`
-	DefaultSecurityLevel SecurityLevel  `json:"default_security_level"`
-	HybridMode           bool           `json:"hybrid_mode"`
-	ClassicalAlgorithm   Algorithm      `json:"classical_algorithm"`
-	KeyRotationDays      int            `json:"key_rotation_days"`
-	MaxKeyUsage          int64          `json:"max_key_usage"`
-	AuditEnabled         bool           `json:"audit_enabled"`
-	MigrationEnabled     bool           `json:"migration_enabled"`
-	AutoMigrate          bool           `json:"auto_migrate"`
-	BackupKeys           bool           `json:"backup_keys"`
-	BackupPath           string         `json:"backup_path"`
+	Enabled              bool          `json:"enabled"`
+	DefaultAlgorithm     Algorithm     `json:"default_algorithm"`
+	DefaultSecurityLevel SecurityLevel `json:"default_security_level"`
+	HybridMode           bool          `json:"hybrid_mode"`
+	ClassicalAlgorithm   Algorithm     `json:"classical_algorithm"`
+	KeyRotationDays      int           `json:"key_rotation_days"`
+	MaxKeyUsage          int64         `json:"max_key_usage"`
+	AuditEnabled         bool          `json:"audit_enabled"`
+	MigrationEnabled     bool          `json:"migration_enabled"`
+	AutoMigrate          bool          `json:"auto_migrate"`
+	BackupKeys           bool          `json:"backup_keys"`
+	BackupPath           string        `json:"backup_path"`
 }
 
 // DefaultQuantumSafeConfig 默认配置

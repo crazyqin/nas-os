@@ -9,10 +9,10 @@ import (
 type CloudProviderType string
 
 const (
-	ProviderAliyun  CloudProviderType = "aliyun"
-	ProviderTencent CloudProviderType = "tencent"
-	ProviderAWS     CloudProviderType = "aws"
-	ProviderGDrive  CloudProviderType = "gdrive"
+	ProviderAliyun   CloudProviderType = "aliyun"
+	ProviderTencent  CloudProviderType = "tencent"
+	ProviderAWS      CloudProviderType = "aws"
+	ProviderGDrive   CloudProviderType = "gdrive"
 	ProviderOneDrive CloudProviderType = "onedrive"
 )
 
@@ -37,9 +37,9 @@ const (
 type OptimizationType string
 
 const (
-	OptOversized   OptimizationType = "oversized"
-	OptInfrequent  OptimizationType = "infrequent"
-	OptDuplicate   OptimizationType = "duplicate"
+	OptOversized  OptimizationType = "oversized"
+	OptInfrequent OptimizationType = "infrequent"
+	OptDuplicate  OptimizationType = "duplicate"
 )
 
 // CloudProvider 云提供商.
@@ -108,10 +108,10 @@ type AddProviderRequest struct {
 
 // UpdateProviderRequest 更新云提供商请求.
 type UpdateProviderRequest struct {
-	Name   *string            `json:"name,omitempty"`
-	APIKey *string            `json:"api_key,omitempty"`
-	Region *string            `json:"region,omitempty"`
-	Status *string            `json:"status,omitempty"`
+	Name   *string `json:"name,omitempty"`
+	APIKey *string `json:"api_key,omitempty"`
+	Region *string `json:"region,omitempty"`
+	Status *string `json:"status,omitempty"`
 }
 
 // GenerateReportRequest 生成报告请求.

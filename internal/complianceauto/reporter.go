@@ -19,13 +19,13 @@ const (
 
 // StoredReport 存储的报告
 type StoredReport struct {
-	ID          string       `json:"id"`          // 报告ID
-	Title       string       `json:"title"`       // 标题
-	Format      string       `json:"format"`      // 格式
-	Content     []byte       `json:"content"`     // 内容
-	GeneratedAt time.Time    `json:"generatedAt"` // 生成时间
-	ScanID      string       `json:"scanId"`      // 关联扫描ID
-	Size        int64        `json:"size"`        // 文件大小
+	ID          string    `json:"id"`          // 报告ID
+	Title       string    `json:"title"`       // 标题
+	Format      string    `json:"format"`      // 格式
+	Content     []byte    `json:"content"`     // 内容
+	GeneratedAt time.Time `json:"generatedAt"` // 生成时间
+	ScanID      string    `json:"scanId"`      // 关联扫描ID
+	Size        int64     `json:"size"`        // 文件大小
 }
 
 // Reporter 报告生成器

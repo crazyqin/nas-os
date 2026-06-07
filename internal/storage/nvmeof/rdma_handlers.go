@@ -371,9 +371,9 @@ func (h *RDMAHandlers) discoverRDMATargets(c *gin.Context) {
 	}
 
 	api.OK(c, gin.H{
-		"entries":  entries,
-		"address":  req.Address,
-		"port":     req.Port,
+		"entries": entries,
+		"address": req.Address,
+		"port":    req.Port,
 	})
 }
 

@@ -327,7 +327,7 @@ func (c *LRUCache) cleanup(ttl time.Duration) {
 
 // SearchCacheManager 搜索缓存管理器
 type SearchCacheManager struct {
-	queryCache *SearchCache
+	queryCache  *SearchCache
 	resultCache *LRUCache
 	vectorCache *SearchCache
 }

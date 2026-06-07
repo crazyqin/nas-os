@@ -36,16 +36,16 @@ func TestSetPolicy(t *testing.T) {
 	ctx := context.Background()
 
 	policy := UpdatePolicy{
-		ContainerID:       "test-container-1",
-		ContainerName:     "nginx",
-		Enabled:           true,
-		Schedule:          "0 3 * * *",
-		MaxRetries:        3,
-		RollbackOnFailure: true,
-		HealthCheckURL:    "http://localhost:8080/health",
+		ContainerID:        "test-container-1",
+		ContainerName:      "nginx",
+		Enabled:            true,
+		Schedule:           "0 3 * * *",
+		MaxRetries:         3,
+		RollbackOnFailure:  true,
+		HealthCheckURL:     "http://localhost:8080/health",
 		HealthCheckTimeout: 30,
-		NotifyOnUpdate:    true,
-		NotifyOnFailure:   true,
+		NotifyOnUpdate:     true,
+		NotifyOnFailure:    true,
 	}
 
 	result, err := m.SetPolicy(ctx, policy)

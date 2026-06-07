@@ -37,25 +37,25 @@ type Disk struct {
 
 // AccessPattern 访问模式
 type AccessPattern struct {
-	HourlyAccess [24]int     `json:"hourly_access"` // 每小时访问次数
-	DailyAccess  [7]int      `json:"daily_access"`  // 每天访问次数
-	PeakHours    []int       `json:"peak_hours"`    // 高峰时段
-	QuietHours   []int       `json:"quiet_hours"`   // 安静时段
-	LastUpdated  time.Time   `json:"last_updated"`
-	TotalRecords int         `json:"total_records"`
+	HourlyAccess [24]int       `json:"hourly_access"` // 每小时访问次数
+	DailyAccess  [7]int        `json:"daily_access"`  // 每天访问次数
+	PeakHours    []int         `json:"peak_hours"`    // 高峰时段
+	QuietHours   []int         `json:"quiet_hours"`   // 安静时段
+	LastUpdated  time.Time     `json:"last_updated"`
+	TotalRecords int           `json:"total_records"`
 	AvgInterval  time.Duration `json:"avg_interval"` // 平均访问间隔
 }
 
 // HibernatePolicy 休眠策略
 type HibernatePolicy struct {
-	Enabled          bool          `json:"enabled"`
-	IdleTimeout      time.Duration `json:"idle_timeout"`       // 空闲超时
-	StandbyTimeout   time.Duration `json:"standby_timeout"`    // 待机超时
-	SleepTimeout     time.Duration `json:"sleep_timeout"`      // 休眠超时
-	TemperatureThreshold int      `json:"temperature_threshold"` // 温度阈值
-	SpinDownLimit    int           `json:"spin_down_limit"`    // 每日休眠次数限制
-	SmartEnabled     bool          `json:"smart_enabled"`      // 启用智能学习
-	ForceHibernate   bool          `json:"force_hibernate"`    // 强制休眠模式
+	Enabled              bool          `json:"enabled"`
+	IdleTimeout          time.Duration `json:"idle_timeout"`          // 空闲超时
+	StandbyTimeout       time.Duration `json:"standby_timeout"`       // 待机超时
+	SleepTimeout         time.Duration `json:"sleep_timeout"`         // 休眠超时
+	TemperatureThreshold int           `json:"temperature_threshold"` // 温度阈值
+	SpinDownLimit        int           `json:"spin_down_limit"`       // 每日休眠次数限制
+	SmartEnabled         bool          `json:"smart_enabled"`         // 启用智能学习
+	ForceHibernate       bool          `json:"force_hibernate"`       // 强制休眠模式
 }
 
 // AccessRecord 访问记录
@@ -68,12 +68,12 @@ type AccessRecord struct {
 
 // Manager 磁盘休眠管理器
 type Manager struct {
-	mu           sync.RWMutex
-	disks        map[string]*Disk
-	patterns     map[string]*AccessPattern
-	policies     map[string]*HibernatePolicy
-	records      []AccessRecord
-	maxRecords   int
+	mu             sync.RWMutex
+	disks          map[string]*Disk
+	patterns       map[string]*AccessPattern
+	policies       map[string]*HibernatePolicy
+	records        []AccessRecord
+	maxRecords     int
 	learningWindow time.Duration
 }
 
@@ -381,9 +381,9 @@ func (m *Manager) GetHibernateReport() map[string]interface{} {
 		}
 
 		report[id] = map[string]interface{}{
-			"state":        disk.State,
-			"temperature":  disk.Temperature,
-			"access_count": disk.AccessCount,
+			"state":         disk.State,
+			"temperature":   disk.Temperature,
+			"access_count":  disk.AccessCount,
 			"spin_up_count": disk.SpinUpCount,
 		}
 	}

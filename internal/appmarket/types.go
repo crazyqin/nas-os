@@ -46,8 +46,8 @@ const (
 type ReviewAction string
 
 const (
-	ReviewApprove ReviewAction = "approve"
-	ReviewReject  ReviewAction = "reject"
+	ReviewApprove  ReviewAction = "approve"
+	ReviewReject   ReviewAction = "reject"
 	ReviewRevision ReviewAction = "revision"
 )
 
@@ -55,47 +55,47 @@ const (
 type SortOption string
 
 const (
-	SortLatest     SortOption = "latest"
-	SortRating     SortOption = "rating"
-	SortDownloads  SortOption = "downloads"
-	SortName       SortOption = "name"
+	SortLatest    SortOption = "latest"
+	SortRating    SortOption = "rating"
+	SortDownloads SortOption = "downloads"
+	SortName      SortOption = "name"
 )
 
 // AppInfo 应用信息
 type AppInfo struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	Icon        string      `json:"icon"`
-	Version     string      `json:"version"`
-	Author      string      `json:"author"`
-	Category    AppCategory `json:"category"`
-	Tags        []string    `json:"tags,omitempty"`
-	License     string      `json:"license,omitempty"`
-	Homepage    string      `json:"homepage,omitempty"`
-	Repository  string      `json:"repository,omitempty"`
-	Size        int64       `json:"size"`
-	MinCPU      int         `json:"min_cpu,omitempty"`
-	MinMemory   int64       `json:"min_memory,omitempty"`
-	MinDisk     int64       `json:"min_disk,omitempty"`
-	Dependencies []string   `json:"dependencies,omitempty"`
-	Status      AppStatus   `json:"status"`
-	Downloads   int64       `json:"downloads"`
-	Rating      float64     `json:"rating"`
-	RatingCount int         `json:"rating_count"`
-	DeveloperID string      `json:"developer_id"`
-	ReviewNote  string      `json:"review_note,omitempty"`
-	ReviewedBy  string      `json:"reviewed_by,omitempty"`
-	ReviewedAt  *time.Time  `json:"reviewed_at,omitempty"`
-	CreatedAt   time.Time   `json:"created_at"`
-	UpdatedAt   time.Time   `json:"updated_at"`
+	ID           string      `json:"id"`
+	Name         string      `json:"name"`
+	Description  string      `json:"description"`
+	Icon         string      `json:"icon"`
+	Version      string      `json:"version"`
+	Author       string      `json:"author"`
+	Category     AppCategory `json:"category"`
+	Tags         []string    `json:"tags,omitempty"`
+	License      string      `json:"license,omitempty"`
+	Homepage     string      `json:"homepage,omitempty"`
+	Repository   string      `json:"repository,omitempty"`
+	Size         int64       `json:"size"`
+	MinCPU       int         `json:"min_cpu,omitempty"`
+	MinMemory    int64       `json:"min_memory,omitempty"`
+	MinDisk      int64       `json:"min_disk,omitempty"`
+	Dependencies []string    `json:"dependencies,omitempty"`
+	Status       AppStatus   `json:"status"`
+	Downloads    int64       `json:"downloads"`
+	Rating       float64     `json:"rating"`
+	RatingCount  int         `json:"rating_count"`
+	DeveloperID  string      `json:"developer_id"`
+	ReviewNote   string      `json:"review_note,omitempty"`
+	ReviewedBy   string      `json:"reviewed_by,omitempty"`
+	ReviewedAt   *time.Time  `json:"reviewed_at,omitempty"`
+	CreatedAt    time.Time   `json:"created_at"`
+	UpdatedAt    time.Time   `json:"updated_at"`
 }
 
 // InstalledApp 已安装应用
 type InstalledApp struct {
-	AppID     string    `json:"app_id"`
-	Version   string    `json:"version"`
-	Status    string    `json:"status"` // running/stopped/error
+	AppID       string    `json:"app_id"`
+	Version     string    `json:"version"`
+	Status      string    `json:"status"` // running/stopped/error
 	InstalledAt time.Time `json:"installed_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	ConfigPath  string    `json:"config_path,omitempty"`
@@ -173,7 +173,7 @@ type InstallRequest struct {
 
 // UpdateRequest 更新请求
 type UpdateRequest struct {
-	AppID       string `json:"app_id"`
+	AppID         string `json:"app_id"`
 	TargetVersion string `json:"target_version,omitempty"`
 }
 

@@ -14,25 +14,25 @@ import (
 
 // GatewayConfig 网关配置
 type GatewayConfig struct {
-	StorageRoot   string        `json:"storageRoot"`   // 本地存储根目录
-	DefaultPolicy BucketPolicy  `json:"defaultPolicy"` // 默认桶策略
-	MaxBucketSize int64         `json:"maxBucketSize"` // 默认桶最大容量
-	MaxObjectSize int64         `json:"maxObjectSize"` // 单对象最大大小
-	EnableLogging bool          `json:"enableLogging"` // 启用访问日志
-	Region        string        `json:"region"`        // 默认区域
+	StorageRoot   string       `json:"storageRoot"`   // 本地存储根目录
+	DefaultPolicy BucketPolicy `json:"defaultPolicy"` // 默认桶策略
+	MaxBucketSize int64        `json:"maxBucketSize"` // 默认桶最大容量
+	MaxObjectSize int64        `json:"maxObjectSize"` // 单对象最大大小
+	EnableLogging bool         `json:"enableLogging"` // 启用访问日志
+	Region        string       `json:"region"`        // 默认区域
 }
 
 // Gateway S3兼容对象存储网关
 type Gateway struct {
-	config      GatewayConfig
-	buckets     map[string]*Bucket              // name -> bucket
-	objects     map[string]map[string]*Object   // bucket -> key -> object
-	lifecycle   map[string][]LifecycleRule       // bucket -> rules
-	accessLog   []AccessLog
-	stats       TrafficStats
-	mu          sync.RWMutex
-	ctx         context.Context
-	cancel      context.CancelFunc
+	config    GatewayConfig
+	buckets   map[string]*Bucket            // name -> bucket
+	objects   map[string]map[string]*Object // bucket -> key -> object
+	lifecycle map[string][]LifecycleRule    // bucket -> rules
+	accessLog []AccessLog
+	stats     TrafficStats
+	mu        sync.RWMutex
+	ctx       context.Context
+	cancel    context.CancelFunc
 }
 
 // NewGateway 创建S3网关实例

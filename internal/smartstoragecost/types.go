@@ -28,14 +28,14 @@ const (
 type StorageTier struct {
 	Type             StorageTierType `json:"type"`
 	Name             string          `json:"name"`
-	CostPerTBMonth   float64         `json:"cost_per_tb_month"`   // 每TB月成本 (元)
-	IOPSPerTB        int             `json:"iops_per_tb"`         // 每TB IOPS
-	ThroughputMBpsTB int             `json:"throughput_mbps_tb"`  // 每TB吞吐 (MB/s)
-	LatencyMs        float64         `json:"latency_ms"`          // 平均延迟 (ms)
-	Durability       string          `json:"durability"`          // 耐久性指标 "99.999999999%"
-	AvailSLA         float64         `json:"avail_sla"`           // 可用性 SLA (%)
-	MinCapacityTB    float64         `json:"min_capacity_tb"`     // 最小容量
-	MaxCapacityTB    float64         `json:"max_capacity_tb"`     // 最大容量
+	CostPerTBMonth   float64         `json:"cost_per_tb_month"`  // 每TB月成本 (元)
+	IOPSPerTB        int             `json:"iops_per_tb"`        // 每TB IOPS
+	ThroughputMBpsTB int             `json:"throughput_mbps_tb"` // 每TB吞吐 (MB/s)
+	LatencyMs        float64         `json:"latency_ms"`         // 平均延迟 (ms)
+	Durability       string          `json:"durability"`         // 耐久性指标 "99.999999999%"
+	AvailSLA         float64         `json:"avail_sla"`          // 可用性 SLA (%)
+	MinCapacityTB    float64         `json:"min_capacity_tb"`    // 最小容量
+	MaxCapacityTB    float64         `json:"max_capacity_tb"`    // 最大容量
 }
 
 // ============================================================
@@ -44,17 +44,17 @@ type StorageTier struct {
 
 // CostRecord 成本记录
 type CostRecord struct {
-	ID           string          `json:"id"`
-	Timestamp    time.Time       `json:"timestamp"`
-	TierType     StorageTierType `json:"tier_type"`
-	CapacityTB   float64         `json:"capacity_tb"`
-	UsedTB       float64         `json:"used_tb"`
-	CostPerTB    float64         `json:"cost_per_tb"`     // 每TB月成本 (元)
-	TotalCost    float64         `json:"total_cost"`       // 本月总成本 (元)
-	Category     string          `json:"category"`         // "hardware", "power", "bandwidth", "subscription"
-	Provider     string          `json:"provider"`         // "local", "aws", "azure", "aliyun", etc.
-	Region       string          `json:"region"`
-	Metadata     map[string]string `json:"metadata,omitempty"`
+	ID         string            `json:"id"`
+	Timestamp  time.Time         `json:"timestamp"`
+	TierType   StorageTierType   `json:"tier_type"`
+	CapacityTB float64           `json:"capacity_tb"`
+	UsedTB     float64           `json:"used_tb"`
+	CostPerTB  float64           `json:"cost_per_tb"` // 每TB月成本 (元)
+	TotalCost  float64           `json:"total_cost"`  // 本月总成本 (元)
+	Category   string            `json:"category"`    // "hardware", "power", "bandwidth", "subscription"
+	Provider   string            `json:"provider"`    // "local", "aws", "azure", "aliyun", etc.
+	Region     string            `json:"region"`
+	Metadata   map[string]string `json:"metadata,omitempty"`
 }
 
 // ============================================================
@@ -82,13 +82,13 @@ type ReportPeriod struct {
 
 // CostSummary 成本摘要
 type CostSummary struct {
-	TotalMonthlyCost  float64 `json:"total_monthly_cost"`   // 本月总成本 (元)
-	TotalCapacityTB   float64 `json:"total_capacity_tb"`    // 总容量 (TB)
-	TotalUsedTB       float64 `json:"total_used_tb"`        // 已用容量 (TB)
-	AvgCostPerTB      float64 `json:"avg_cost_per_tb"`      // 平均每TB月成本 (元)
-	Utilization       float64 `json:"utilization"`          // 利用率 (%)
-	WastedCost        float64 `json:"wasted_cost"`          // 闲置成本 (元)
-	CostChangePercent float64 `json:"cost_change_percent"`  // 环比变化 (%)
+	TotalMonthlyCost  float64 `json:"total_monthly_cost"`  // 本月总成本 (元)
+	TotalCapacityTB   float64 `json:"total_capacity_tb"`   // 总容量 (TB)
+	TotalUsedTB       float64 `json:"total_used_tb"`       // 已用容量 (TB)
+	AvgCostPerTB      float64 `json:"avg_cost_per_tb"`     // 平均每TB月成本 (元)
+	Utilization       float64 `json:"utilization"`         // 利用率 (%)
+	WastedCost        float64 `json:"wasted_cost"`         // 闲置成本 (元)
+	CostChangePercent float64 `json:"cost_change_percent"` // 环比变化 (%)
 }
 
 // TierCostDetail 单层级成本详情
@@ -136,33 +136,33 @@ type YearOverYearChange struct {
 
 // Forecast 成本预测结果
 type Forecast struct {
-	GeneratedAt     time.Time         `json:"generated_at"`
-	HorizonMonths   int               `json:"horizon_months"`
-	CurrentCost     float64           `json:"current_monthly_cost"`
-	ProjectedCosts  []ForecastPoint   `json:"projected_costs"`
-	GrowthModel     string            `json:"growth_model"` // "linear", "exponential", "seasonal"
-	GrowthRate      float64           `json:"growth_rate"`  // 月增长率 (%)
-	RSquared        float64           `json:"r_squared"`    // 拟合优度
-	ConfidenceLevel float64           `json:"confidence_level"`
+	GeneratedAt     time.Time          `json:"generated_at"`
+	HorizonMonths   int                `json:"horizon_months"`
+	CurrentCost     float64            `json:"current_monthly_cost"`
+	ProjectedCosts  []ForecastPoint    `json:"projected_costs"`
+	GrowthModel     string             `json:"growth_model"` // "linear", "exponential", "seasonal"
+	GrowthRate      float64            `json:"growth_rate"`  // 月增长率 (%)
+	RSquared        float64            `json:"r_squared"`    // 拟合优度
+	ConfidenceLevel float64            `json:"confidence_level"`
 	Scenarios       []ForecastScenario `json:"scenarios"`
 }
 
 // ForecastPoint 预测数据点
 type ForecastPoint struct {
-	Month           time.Time `json:"month"`
-	ProjectedCost   float64   `json:"projected_cost"`
-	LowerBound      float64   `json:"lower_bound"` // 置信下界
-	UpperBound      float64   `json:"upper_bound"` // 置信上界
-	ProjectedTB     float64   `json:"projected_tb"`
+	Month         time.Time `json:"month"`
+	ProjectedCost float64   `json:"projected_cost"`
+	LowerBound    float64   `json:"lower_bound"` // 置信下界
+	UpperBound    float64   `json:"upper_bound"` // 置信上界
+	ProjectedTB   float64   `json:"projected_tb"`
 }
 
 // ForecastScenario 预测场景
 type ForecastScenario struct {
-	Name            string  `json:"name"`             // "optimistic", "baseline", "pessimistic"
-	Description     string  `json:"description"`
-	GrowthRate      float64 `json:"growth_rate"`      // 月增长率 (%)
-	TotalCost12Mo   float64 `json:"total_cost_12mo"`  // 12个月总成本
-	AvgMonthlyCost  float64 `json:"avg_monthly_cost"` // 月均成本
+	Name           string  `json:"name"` // "optimistic", "baseline", "pessimistic"
+	Description    string  `json:"description"`
+	GrowthRate     float64 `json:"growth_rate"`      // 月增长率 (%)
+	TotalCost12Mo  float64 `json:"total_cost_12mo"`  // 12个月总成本
+	AvgMonthlyCost float64 `json:"avg_monthly_cost"` // 月均成本
 }
 
 // ============================================================
@@ -171,35 +171,35 @@ type ForecastScenario struct {
 
 // Optimization 优化建议
 type Optimization struct {
-	GeneratedAt       time.Time              `json:"generated_at"`
-	TotalSaving       float64                `json:"total_annual_saving"` // 年节省总额 (元)
-	SavingPercent     float64                `json:"saving_percent"`      // 节省比例 (%)
-	Suggestions       []OptimizationSuggestion `json:"suggestions"`
-	QuickWins         []QuickWin             `json:"quick_wins"`
-	StrategicMoves    []StrategicMove        `json:"strategic_moves"`
-	RiskAssessment    RiskAssessment         `json:"risk_assessment"`
+	GeneratedAt    time.Time                `json:"generated_at"`
+	TotalSaving    float64                  `json:"total_annual_saving"` // 年节省总额 (元)
+	SavingPercent  float64                  `json:"saving_percent"`      // 节省比例 (%)
+	Suggestions    []OptimizationSuggestion `json:"suggestions"`
+	QuickWins      []QuickWin               `json:"quick_wins"`
+	StrategicMoves []StrategicMove          `json:"strategic_moves"`
+	RiskAssessment RiskAssessment           `json:"risk_assessment"`
 }
 
 // OptimizationSuggestion 优化建议项
 type OptimizationSuggestion struct {
-	ID          string  `json:"id"`
-	Title       string  `json:"title"`
-	Category    string  `json:"category"`    // "tiering", "rightsizing", "compression", "dedup", "cloud_migration"
-	Priority    string  `json:"priority"`    // "critical", "high", "medium", "low"
-	Impact      string  `json:"impact"`      // "high", "medium", "low"
-	Effort      string  `json:"effort"`      // "low", "medium", "high"
-	SavingEst   float64 `json:"saving_est"`  // 预估年节省 (元)
-	Description string  `json:"description"`
-	Rationale   string  `json:"rationale"`
+	ID          string   `json:"id"`
+	Title       string   `json:"title"`
+	Category    string   `json:"category"`   // "tiering", "rightsizing", "compression", "dedup", "cloud_migration"
+	Priority    string   `json:"priority"`   // "critical", "high", "medium", "low"
+	Impact      string   `json:"impact"`     // "high", "medium", "low"
+	Effort      string   `json:"effort"`     // "low", "medium", "high"
+	SavingEst   float64  `json:"saving_est"` // 预估年节省 (元)
+	Description string   `json:"description"`
+	Rationale   string   `json:"rationale"`
 	Steps       []string `json:"steps,omitempty"`
 }
 
 // QuickWin 快速优化项（低投入高回报）
 type QuickWin struct {
-	Title        string  `json:"title"`
-	SavingEst    float64 `json:"saving_est"`
-	DaysToImplement int  `json:"days_to_implement"`
-	Description  string  `json:"description"`
+	Title           string  `json:"title"`
+	SavingEst       float64 `json:"saving_est"`
+	DaysToImplement int     `json:"days_to_implement"`
+	Description     string  `json:"description"`
 }
 
 // StrategicMove 战略优化项（长期规划）
@@ -213,9 +213,9 @@ type StrategicMove struct {
 
 // RiskAssessment 风险评估
 type RiskAssessment struct {
-	OverallRisk   string   `json:"overall_risk"` // "low", "medium", "high"
-	RiskFactors   []string `json:"risk_factors"`
-	Mitigations   []string `json:"mitigations"`
+	OverallRisk string   `json:"overall_risk"` // "low", "medium", "high"
+	RiskFactors []string `json:"risk_factors"`
+	Mitigations []string `json:"mitigations"`
 }
 
 // ============================================================
@@ -224,44 +224,44 @@ type RiskAssessment struct {
 
 // CompareRequest 多方案对比请求
 type CompareRequest struct {
-	Scenarios     []CompareScenario `json:"scenarios" binding:"required,min=2"`
-	PeriodMonths  int               `json:"period_months"`  // 对比周期 (月), 默认 36
-	CapacityTB    float64           `json:"capacity_tb"`    // 目标容量 (TB)
-	GrowthRate    float64           `json:"growth_rate"`    // 月增长率 (%)
+	Scenarios    []CompareScenario `json:"scenarios" binding:"required,min=2"`
+	PeriodMonths int               `json:"period_months"` // 对比周期 (月), 默认 36
+	CapacityTB   float64           `json:"capacity_tb"`   // 目标容量 (TB)
+	GrowthRate   float64           `json:"growth_rate"`   // 月增长率 (%)
 }
 
 // CompareScenario 对比方案
 type CompareScenario struct {
-	Name           string  `json:"name"`
-	TierType       StorageTierType `json:"tier_type"`
-	InitialCost    float64 `json:"initial_cost"`     // 初始投入 (元)
-	MonthlyPerTB   float64 `json:"monthly_per_tb"`   // 每TB月成本 (元)
-	GrowthCap      float64 `json:"growth_cap"`       // 扩容成本系数
-	IncludeCloud   bool    `json:"include_cloud"`    // 是否含云备份
+	Name         string          `json:"name"`
+	TierType     StorageTierType `json:"tier_type"`
+	InitialCost  float64         `json:"initial_cost"`   // 初始投入 (元)
+	MonthlyPerTB float64         `json:"monthly_per_tb"` // 每TB月成本 (元)
+	GrowthCap    float64         `json:"growth_cap"`     // 扩容成本系数
+	IncludeCloud bool            `json:"include_cloud"`  // 是否含云备份
 }
 
 // CompareResult 对比结果
 type CompareResult struct {
-	GeneratedAt    time.Time         `json:"generated_at"`
-	PeriodMonths   int               `json:"period_months"`
-	CapacityTB     float64           `json:"capacity_tb"`
-	Results        []ScenarioResult  `json:"results"`
-	BestOption     string            `json:"best_option"`
-	BestSavings    float64           `json:"best_savings"`
-	Analysis       string            `json:"analysis"`
+	GeneratedAt  time.Time        `json:"generated_at"`
+	PeriodMonths int              `json:"period_months"`
+	CapacityTB   float64          `json:"capacity_tb"`
+	Results      []ScenarioResult `json:"results"`
+	BestOption   string           `json:"best_option"`
+	BestSavings  float64          `json:"best_savings"`
+	Analysis     string           `json:"analysis"`
 }
 
 // ScenarioResult 单方案结果
 type ScenarioResult struct {
-	Name           string  `json:"name"`
+	Name           string          `json:"name"`
 	TierType       StorageTierType `json:"tier_type"`
-	TotalCost      float64 `json:"total_cost"`       // 周期总成本
-	MonthlyCost    float64 `json:"monthly_cost"`     // 月均成本
-	CostPerTB      float64 `json:"cost_per_tb"`      // 每TB月成本
-	FinalCapacity  float64 `json:"final_capacity"`   // 最终容量
-	TotalSavings   float64 `json:"total_savings"`    // 相比最贵方案节省
-	SavingsPercent float64 `json:"savings_percent"`
-	Rank           int     `json:"rank"`
+	TotalCost      float64         `json:"total_cost"`     // 周期总成本
+	MonthlyCost    float64         `json:"monthly_cost"`   // 月均成本
+	CostPerTB      float64         `json:"cost_per_tb"`    // 每TB月成本
+	FinalCapacity  float64         `json:"final_capacity"` // 最终容量
+	TotalSavings   float64         `json:"total_savings"`  // 相比最贵方案节省
+	SavingsPercent float64         `json:"savings_percent"`
+	Rank           int             `json:"rank"`
 }
 
 // ============================================================

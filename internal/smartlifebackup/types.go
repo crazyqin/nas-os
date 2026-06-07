@@ -20,21 +20,21 @@ type BackupPolicy struct {
 	CompressionType CompressionType `json:"compression_type"`
 	Deduplication   bool            `json:"deduplication"`
 	ColdStorageAge  time.Duration   `json:"cold_storage_age"` // 超过此时间转为冷存储
-	ArchiveAge      time.Duration   `json:"archive_age"`     // 超过此时间归档
+	ArchiveAge      time.Duration   `json:"archive_age"`      // 超过此时间归档
 	CreatedAt       time.Time       `json:"created_at"`
 	UpdatedAt       time.Time       `json:"updated_at"`
 }
 
 // RetentionRule 备份保留规则
 type RetentionRule struct {
-	Name       string        `json:"name"`
-	Priority   int           `json:"priority"`
-	RetainDays int           `json:"retain_days"` // 保留天数
-	KeepCount  int           `json:"keep_count"`  // 保留数量
-	Interval   TimeInterval  `json:"interval"`    // 保留间隔
-	StorageTier StorageTier   `json:"storage_tier"` // 存储层级
-	Compress   bool          `json:"compress"`    // 是否压缩
-	Encrypt    bool          `json:"encrypt"`     // 是否加密
+	Name        string       `json:"name"`
+	Priority    int          `json:"priority"`
+	RetainDays  int          `json:"retain_days"`  // 保留天数
+	KeepCount   int          `json:"keep_count"`   // 保留数量
+	Interval    TimeInterval `json:"interval"`     // 保留间隔
+	StorageTier StorageTier  `json:"storage_tier"` // 存储层级
+	Compress    bool         `json:"compress"`     // 是否压缩
+	Encrypt     bool         `json:"encrypt"`      // 是否加密
 }
 
 // TimeInterval 时间间隔类型
@@ -104,17 +104,17 @@ type BackupItem struct {
 
 // LifecycleTask 生命周期任务
 type LifecycleTask struct {
-	ID          string          `json:"id"`
-	Type        TaskType        `json:"type"`
-	Status      TaskStatus      `json:"status"`
-	BackupID    string          `json:"backup_id,omitempty"`
-	SourceTier  StorageTier     `json:"source_tier,omitempty"`
-	TargetTier  StorageTier     `json:"target_tier,omitempty"`
-	StartTime   time.Time       `json:"start_time"`
-	EndTime     time.Time       `json:"end_time,omitempty"`
-	Error       string          `json:"error,omitempty"`
-	Progress    int             `json:"progress"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	ID         string                 `json:"id"`
+	Type       TaskType               `json:"type"`
+	Status     TaskStatus             `json:"status"`
+	BackupID   string                 `json:"backup_id,omitempty"`
+	SourceTier StorageTier            `json:"source_tier,omitempty"`
+	TargetTier StorageTier            `json:"target_tier,omitempty"`
+	StartTime  time.Time              `json:"start_time"`
+	EndTime    time.Time              `json:"end_time,omitempty"`
+	Error      string                 `json:"error,omitempty"`
+	Progress   int                    `json:"progress"`
+	Metadata   map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // TaskType 任务类型
@@ -162,28 +162,28 @@ type StorageCost struct {
 	WarmCostPerGB    float64 `json:"warm_cost_per_gb"`
 	ColdCostPerGB    float64 `json:"cold_cost_per_gb"`
 	ArchiveCostPerGB float64 `json:"archive_cost_per_gb"`
-	
+
 	// 传输成本（每GB）
 	TransferCostPerGB float64 `json:"transfer_cost_per_gb"`
-	
+
 	// API调用成本
 	RequestCostPer1000 float64 `json:"request_cost_per_1000"`
 }
 
 // CostReport 成本报告
 type CostReport struct {
-	GeneratedAt    time.Time       `json:"generated_at"`
-	Period         string          `json:"period"`
-	
+	GeneratedAt time.Time `json:"generated_at"`
+	Period      string    `json:"period"`
+
 	// 各层级存储量和成本
-	TierBreakdown  []TierCost      `json:"tier_breakdown"`
-	
+	TierBreakdown []TierCost `json:"tier_breakdown"`
+
 	// 总计
-	TotalStorageGB float64         `json:"total_storage_gb"`
-	TotalCost      float64         `json:"total_cost"`
-	
+	TotalStorageGB float64 `json:"total_storage_gb"`
+	TotalCost      float64 `json:"total_cost"`
+
 	// 优化建议
-	Suggestions    []CostSuggestion `json:"suggestions,omitempty"`
+	Suggestions []CostSuggestion `json:"suggestions,omitempty"`
 }
 
 // TierCost 各层级成本
@@ -209,23 +209,23 @@ type CostSuggestion struct {
 // ScheduleConfig 调度配置
 type ScheduleConfig struct {
 	// 避开的高峰时段
-	PeakHours      []PeakHour `json:"peak_hours"`
-	
+	PeakHours []PeakHour `json:"peak_hours"`
+
 	// 允许执行的时段
 	AllowedWindows []TimeWindow `json:"allowed_windows"`
-	
+
 	// 最大并发任务数
-	MaxConcurrent  int `json:"max_concurrent"`
-	
+	MaxConcurrent int `json:"max_concurrent"`
+
 	// 任务优先级
 	DefaultPriority int `json:"default_priority"`
 }
 
 // PeakHour 高峰时段
 type PeakHour struct {
-	StartHour int `json:"start_hour"` // 0-23
-	EndHour   int `json:"end_hour"`   // 0-23
-	Days      []int `json:"days"`     // 0=周日, 1=周一, ..., 6=周六
+	StartHour int   `json:"start_hour"` // 0-23
+	EndHour   int   `json:"end_hour"`   // 0-23
+	Days      []int `json:"days"`       // 0=周日, 1=周一, ..., 6=周六
 }
 
 // TimeWindow 时间窗口
@@ -241,15 +241,15 @@ type TimeWindow struct {
 
 // LifecycleStats 生命周期统计
 type LifecycleStats struct {
-	TotalBackups       int64                    `json:"total_backups"`
-	ActiveBackups      int64                    `json:"active_backups"`
-	ExpiredBackups     int64                    `json:"expired_backups"`
-	TierDistribution   map[StorageTier]int64    `json:"tier_distribution"`
-	TotalSizeGB        float64                  `json:"total_size_gb"`
-	CompressionRatio   float64                  `json:"compression_ratio"`
-	DeduplicationRatio float64                  `json:"deduplication_ratio"`
-	TasksProcessed     int64                    `json:"tasks_processed"`
-	LastCleanupTime    *time.Time               `json:"last_cleanup_time,omitempty"`
+	TotalBackups       int64                 `json:"total_backups"`
+	ActiveBackups      int64                 `json:"active_backups"`
+	ExpiredBackups     int64                 `json:"expired_backups"`
+	TierDistribution   map[StorageTier]int64 `json:"tier_distribution"`
+	TotalSizeGB        float64               `json:"total_size_gb"`
+	CompressionRatio   float64               `json:"compression_ratio"`
+	DeduplicationRatio float64               `json:"deduplication_ratio"`
+	TasksProcessed     int64                 `json:"tasks_processed"`
+	LastCleanupTime    *time.Time            `json:"last_cleanup_time,omitempty"`
 }
 
 // ============================================================================
@@ -258,7 +258,7 @@ type LifecycleStats struct {
 
 // LifecycleRequest 生命周期API请求
 type LifecycleRequest struct {
-	Action    string          `json:"action"`    // create, update, execute, dry_run
+	Action    string          `json:"action"` // create, update, execute, dry_run
 	Policy    *BackupPolicy   `json:"policy,omitempty"`
 	BackupIDs []string        `json:"backup_ids,omitempty"`
 	Options   *ExecuteOptions `json:"options,omitempty"`
@@ -266,18 +266,18 @@ type LifecycleRequest struct {
 
 // LifecycleResponse 生命周期API响应
 type LifecycleResponse struct {
-	Success bool            `json:"success"`
-	Message string          `json:"message,omitempty"`
-	Data    interface{}     `json:"data,omitempty"`
-	TaskID  string          `json:"task_id,omitempty"`
+	Success bool        `json:"success"`
+	Message string      `json:"message,omitempty"`
+	Data    interface{} `json:"data,omitempty"`
+	TaskID  string      `json:"task_id,omitempty"`
 }
 
 // ExecuteOptions 执行选项
 type ExecuteOptions struct {
-	DryRun       bool          `json:"dry_run"`
-	ForceTier    *StorageTier  `json:"force_tier,omitempty"`
-	MaxItems     int           `json:"max_items"`
-	Timeout      time.Duration `json:"timeout"`
+	DryRun    bool          `json:"dry_run"`
+	ForceTier *StorageTier  `json:"force_tier,omitempty"`
+	MaxItems  int           `json:"max_items"`
+	Timeout   time.Duration `json:"timeout"`
 }
 
 // ============================================================================
@@ -295,49 +295,49 @@ func DefaultBackupPolicy() *BackupPolicy {
 		CompressionType: CompressionGzip,
 		Deduplication:   true,
 		ColdStorageAge:  30 * 24 * time.Hour,  // 30天后转冷存储
-		ArchiveAge:      365 * 24 * time.Hour,  // 1年后归档
+		ArchiveAge:      365 * 24 * time.Hour, // 1年后归档
 		CreatedAt:       now,
 		UpdatedAt:       now,
 		RetentionRules: []RetentionRule{
 			{
-				Name:       "7天内每日保留",
-				Priority:   1,
-				RetainDays: 7,
-				KeepCount:  7,
-				Interval:   TimeIntervalDaily,
+				Name:        "7天内每日保留",
+				Priority:    1,
+				RetainDays:  7,
+				KeepCount:   7,
+				Interval:    TimeIntervalDaily,
 				StorageTier: StorageTierHot,
-				Compress:   true,
-				Encrypt:    false,
+				Compress:    true,
+				Encrypt:     false,
 			},
 			{
-				Name:       "30天内每周保留",
-				Priority:   2,
-				RetainDays: 30,
-				KeepCount:  4,
-				Interval:   TimeIntervalWeekly,
+				Name:        "30天内每周保留",
+				Priority:    2,
+				RetainDays:  30,
+				KeepCount:   4,
+				Interval:    TimeIntervalWeekly,
 				StorageTier: StorageTierWarm,
-				Compress:   true,
-				Encrypt:    false,
+				Compress:    true,
+				Encrypt:     false,
 			},
 			{
-				Name:       "12月内每月保留",
-				Priority:   3,
-				RetainDays: 365,
-				KeepCount:  12,
-				Interval:   TimeIntervalMonthly,
+				Name:        "12月内每月保留",
+				Priority:    3,
+				RetainDays:  365,
+				KeepCount:   12,
+				Interval:    TimeIntervalMonthly,
 				StorageTier: StorageTierCold,
-				Compress:   true,
-				Encrypt:    true,
+				Compress:    true,
+				Encrypt:     true,
 			},
 			{
-				Name:       "1年以上归档",
-				Priority:   4,
-				RetainDays: 0, // 0 表示永久保留
-				KeepCount:  0,
-				Interval:   TimeIntervalYearly,
+				Name:        "1年以上归档",
+				Priority:    4,
+				RetainDays:  0, // 0 表示永久保留
+				KeepCount:   0,
+				Interval:    TimeIntervalYearly,
 				StorageTier: StorageTierArchive,
-				Compress:   true,
-				Encrypt:    true,
+				Compress:    true,
+				Encrypt:     true,
 			},
 		},
 	}
@@ -346,12 +346,12 @@ func DefaultBackupPolicy() *BackupPolicy {
 // DefaultStorageCost 返回默认存储成本配置
 func DefaultStorageCost() *StorageCost {
 	return &StorageCost{
-		HotCostPerGB:      0.023,  // $0.023/GB/月
-		WarmCostPerGB:     0.0125, // $0.0125/GB/月
-		ColdCostPerGB:     0.004,  // $0.004/GB/月
-		ArchiveCostPerGB:  0.00099, // $0.00099/GB/月
-		TransferCostPerGB: 0.09,   // $0.09/GB
-		RequestCostPer1000: 0.005, // $0.005/1000 requests
+		HotCostPerGB:       0.023,   // $0.023/GB/月
+		WarmCostPerGB:      0.0125,  // $0.0125/GB/月
+		ColdCostPerGB:      0.004,   // $0.004/GB/月
+		ArchiveCostPerGB:   0.00099, // $0.00099/GB/月
+		TransferCostPerGB:  0.09,    // $0.09/GB
+		RequestCostPer1000: 0.005,   // $0.005/1000 requests
 	}
 }
 

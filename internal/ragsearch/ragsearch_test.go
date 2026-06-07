@@ -560,9 +560,9 @@ func TestGenerateHighlight(t *testing.T) {
 	content := "This is a long document about NAS storage systems and how to configure them properly for home use"
 
 	tests := []struct {
-		name      string
-		tokens    []string
-		empty     bool
+		name   string
+		tokens []string
+		empty  bool
 	}{
 		{"found", []string{"nas", "storage"}, false},
 		{"not found", []string{"xyz", "abc"}, false},

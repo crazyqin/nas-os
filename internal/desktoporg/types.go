@@ -6,49 +6,49 @@ import (
 
 // DesktopIcon 桌面图标
 type DesktopIcon struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	IconURL     string    `json:"icon_url"`
-	AppID       string    `json:"app_id"`                // 关联的应用ID
-	Type        IconType  `json:"type"`                  // 图标类型
-	Position    Position  `json:"position"`              // 位置
-	GroupID     string    `json:"group_id,omitempty"`    // 所属分组ID
-	ScreenID    string    `json:"screen_id"`             // 所属屏幕ID
-	Size        IconSize  `json:"size"`                  // 图标大小
-	Visible     bool      `json:"visible"`               // 是否可见
-	Locked      bool      `json:"locked"`                // 是否锁定位置
-	Command     string    `json:"command,omitempty"`     // 启动命令
-	Tooltip     string    `json:"tooltip,omitempty"`     // 提示信息
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	IconURL   string    `json:"icon_url"`
+	AppID     string    `json:"app_id"`             // 关联的应用ID
+	Type      IconType  `json:"type"`               // 图标类型
+	Position  Position  `json:"position"`           // 位置
+	GroupID   string    `json:"group_id,omitempty"` // 所属分组ID
+	ScreenID  string    `json:"screen_id"`          // 所属屏幕ID
+	Size      IconSize  `json:"size"`               // 图标大小
+	Visible   bool      `json:"visible"`            // 是否可见
+	Locked    bool      `json:"locked"`             // 是否锁定位置
+	Command   string    `json:"command,omitempty"`  // 启动命令
+	Tooltip   string    `json:"tooltip,omitempty"`  // 提示信息
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // IconType 图标类型
 type IconType string
 
 const (
-	IconTypeApp       IconType = "app"        // 应用图标
-	IconTypeFile      IconType = "file"       // 文件快捷方式
-	IconTypeFolder    IconType = "folder"     // 文件夹
-	IconTypeWidget    IconType = "widget"     // 小组件
-	IconTypeShortcut  IconType = "shortcut"   // 快捷方式
-	IconTypeSeparator IconType = "separator"  // 分隔符
+	IconTypeApp       IconType = "app"       // 应用图标
+	IconTypeFile      IconType = "file"      // 文件快捷方式
+	IconTypeFolder    IconType = "folder"    // 文件夹
+	IconTypeWidget    IconType = "widget"    // 小组件
+	IconTypeShortcut  IconType = "shortcut"  // 快捷方式
+	IconTypeSeparator IconType = "separator" // 分隔符
 )
 
 // Position 图标位置
 type Position struct {
-	X      int    `json:"x"`      // X坐标（网格单位）
-	Y      int    `json:"y"`      // Y坐标（网格单位）
-	Index  int    `json:"index"`  // 排序索引
+	X     int `json:"x"`     // X坐标（网格单位）
+	Y     int `json:"y"`     // Y坐标（网格单位）
+	Index int `json:"index"` // 排序索引
 }
 
 // IconSize 图标大小
 type IconSize string
 
 const (
-	SizeSmall  IconSize = "small"   // 小图标 48x48
-	SizeMedium IconSize = "medium"  // 中图标 64x64
-	SizeLarge  IconSize = "large"   // 大图标 96x96
+	SizeSmall  IconSize = "small"  // 小图标 48x48
+	SizeMedium IconSize = "medium" // 中图标 64x64
+	SizeLarge  IconSize = "large"  // 大图标 96x96
 )
 
 // IconGroup 图标分组
@@ -56,13 +56,13 @@ type IconGroup struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
 	Description string      `json:"description,omitempty"`
-	Icon        string      `json:"icon,omitempty"`        // 分组图标URL
-	Color       string      `json:"color,omitempty"`       // 分组颜色
-	Position    Position    `json:"position"`              // 分组在桌面的位置
-	ScreenID    string      `json:"screen_id"`             // 所属屏幕ID
-	Collapsed   bool        `json:"collapsed"`             // 是否折叠
-	IconIDs     []string    `json:"icon_ids"`              // 包含的图标ID列表
-	Layout      GroupLayout `json:"layout"`                // 分组内布局
+	Icon        string      `json:"icon,omitempty"`  // 分组图标URL
+	Color       string      `json:"color,omitempty"` // 分组颜色
+	Position    Position    `json:"position"`        // 分组在桌面的位置
+	ScreenID    string      `json:"screen_id"`       // 所属屏幕ID
+	Collapsed   bool        `json:"collapsed"`       // 是否折叠
+	IconIDs     []string    `json:"icon_ids"`        // 包含的图标ID列表
+	Layout      GroupLayout `json:"layout"`          // 分组内布局
 	CreatedAt   time.Time   `json:"created_at"`
 	UpdatedAt   time.Time   `json:"updated_at"`
 }
@@ -71,9 +71,9 @@ type IconGroup struct {
 type GroupLayout string
 
 const (
-	LayoutGrid    GroupLayout = "grid"     // 网格布局
-	LayoutList    GroupLayout = "list"     // 列表布局
-	LayoutCircle  GroupLayout = "circle"   // 环形布局
+	LayoutGrid   GroupLayout = "grid"   // 网格布局
+	LayoutList   GroupLayout = "list"   // 列表布局
+	LayoutCircle GroupLayout = "circle" // 环形布局
 )
 
 // DesktopLayout 桌面布局配置
@@ -85,20 +85,20 @@ type DesktopLayout struct {
 	Screens     []ScreenLayout `json:"screens"`
 	GridSize    GridSize       `json:"grid_size"`
 	Theme       LayoutTheme    `json:"theme"`
-	IconOrder   []string       `json:"icon_order"`  // 全局图标排序
+	IconOrder   []string       `json:"icon_order"` // 全局图标排序
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 }
 
 // ScreenLayout 屏幕布局
 type ScreenLayout struct {
-	ScreenID    string   `json:"screen_id"`
-	Name        string   `json:"name"`
-	Resolution  Size     `json:"resolution"`
-	IconIDs     []string `json:"icon_ids"`
-	GroupIDs    []string `json:"group_ids"`
-	Background  string   `json:"background,omitempty"`  // 背景图片URL
-	Primary     bool     `json:"primary"`                // 是否主屏幕
+	ScreenID   string   `json:"screen_id"`
+	Name       string   `json:"name"`
+	Resolution Size     `json:"resolution"`
+	IconIDs    []string `json:"icon_ids"`
+	GroupIDs   []string `json:"group_ids"`
+	Background string   `json:"background,omitempty"` // 背景图片URL
+	Primary    bool     `json:"primary"`              // 是否主屏幕
 }
 
 // GridSize 网格大小配置
@@ -119,8 +119,8 @@ type Size struct {
 // LayoutTheme 布局主题
 type LayoutTheme struct {
 	Background    string `json:"background,omitempty"`
-	IconStyle     string `json:"icon_style"`      // icon_style: flat, material, skeuomorphic
-	LabelPosition string `json:"label_position"`  // bottom, right, hidden
+	IconStyle     string `json:"icon_style"`     // icon_style: flat, material, skeuomorphic
+	LabelPosition string `json:"label_position"` // bottom, right, hidden
 	LabelColor    string `json:"label_color"`
 	ShowGrid      bool   `json:"show_grid"`
 	AnimateIcons  bool   `json:"animate_icons"`
@@ -197,8 +197,8 @@ type APIResponse struct {
 
 // ListResponse 列表响应
 type ListResponse struct {
-	Items      interface{} `json:"items"`
-	Total      int         `json:"total"`
-	Page       int         `json:"page"`
-	PageSize   int         `json:"page_size"`
+	Items    interface{} `json:"items"`
+	Total    int         `json:"total"`
+	Page     int         `json:"page"`
+	PageSize int         `json:"page_size"`
 }

@@ -29,46 +29,46 @@ type ResumableUpload struct {
 // UploadProgress 上传进度信息.
 type UploadProgress struct {
 	// 文件标识
-	FileID      string    `json:"fileId"`      // 文件唯一标识（任务ID + 文件路径哈希）
-	LocalPath   string    `json:"localPath"`   // 本地文件路径
-	RemotePath  string    `json:"remotePath"`  // 远程文件路径
-	ProviderID  string    `json:"providerId"`  // 提供商ID
-	TaskID      string    `json:"taskId"`      // 同步任务ID
+	FileID     string `json:"fileId"`     // 文件唯一标识（任务ID + 文件路径哈希）
+	LocalPath  string `json:"localPath"`  // 本地文件路径
+	RemotePath string `json:"remotePath"` // 远程文件路径
+	ProviderID string `json:"providerId"` // 提供商ID
+	TaskID     string `json:"taskId"`     // 同步任务ID
 
 	// 文件信息
-	FileSize    int64     `json:"fileSize"`    // 文件总大小
-	FileHash    string    `json:"fileHash"`    // 文件哈希（用于验证）
+	FileSize int64  `json:"fileSize"` // 文件总大小
+	FileHash string `json:"fileHash"` // 文件哈希（用于验证）
 
 	// 上传状态
-	Status      UploadStatus `json:"status"`    // 上传状态
-	StartTime   time.Time    `json:"startTime"` // 开始时间
-	UpdateTime  time.Time    `json:"updateTime"` // 最后更新时间
+	Status     UploadStatus `json:"status"`     // 上传状态
+	StartTime  time.Time    `json:"startTime"`  // 开始时间
+	UpdateTime time.Time    `json:"updateTime"` // 最后更新时间
 
 	// 上传进度
-	UploadedSize  int64 `json:"uploadedSize"`  // 已上传大小
-	UploadedChunks int  `json:"uploadedChunks"` // 已上传分片数
-	TotalChunks    int  `json:"totalChunks"`    // 总分片数
+	UploadedSize   int64 `json:"uploadedSize"`   // 已上传大小
+	UploadedChunks int   `json:"uploadedChunks"` // 已上传分片数
+	TotalChunks    int   `json:"totalChunks"`    // 总分片数
 
 	// 会话信息（用于断点续传）
-	SessionID    string `json:"sessionId,omitempty"`    // 上传会话ID
-	SessionData  string `json:"sessionData,omitempty"`  // 会话数据（不同提供商格式不同）
+	SessionID   string `json:"sessionId,omitempty"`   // 上传会话ID
+	SessionData string `json:"sessionData,omitempty"` // 会话数据（不同提供商格式不同）
 
 	// 错误信息
-	LastError   string    `json:"lastError,omitempty"`   // 最后错误
-	RetryCount  int       `json:"retryCount"`            // 重试次数
-	MaxRetries  int       `json:"maxRetries"`            // 最大重试次数
+	LastError  string `json:"lastError,omitempty"` // 最后错误
+	RetryCount int    `json:"retryCount"`          // 重试次数
+	MaxRetries int    `json:"maxRetries"`          // 最大重试次数
 }
 
 // UploadStatus 上传状态.
 type UploadStatus string
 
 const (
-	UploadStatusPending    UploadStatus = "pending"    // 待上传
+	UploadStatusPending    UploadStatus = "pending"     // 待上传
 	UploadStatusInProgress UploadStatus = "in_progress" // 上传中
-	UploadStatusPaused     UploadStatus = "paused"     // 已暂停
-	UploadStatusCompleted  UploadStatus = "completed"  // 已完成
-	UploadStatusFailed     UploadStatus = "failed"     // 失败
-	UploadStatusCancelled  UploadStatus = "cancelled"  // 已取消
+	UploadStatusPaused     UploadStatus = "paused"      // 已暂停
+	UploadStatusCompleted  UploadStatus = "completed"   // 已完成
+	UploadStatusFailed     UploadStatus = "failed"      // 失败
+	UploadStatusCancelled  UploadStatus = "cancelled"   // 已取消
 )
 
 // NewResumableUpload 创建断点续传管理器.
@@ -429,14 +429,14 @@ func (r *ResumableUpload) GetProgressPercent(fileID string) (float64, error) {
 
 // Stats 统计信息.
 type ResumableUploadStats struct {
-	TotalUploads     int   `json:"totalUploads"`
-	PendingUploads   int   `json:"pendingUploads"`
-	InProgressUploads int  `json:"inProgressUploads"`
-	PausedUploads    int   `json:"pausedUploads"`
-	CompletedUploads int   `json:"completedUploads"`
-	FailedUploads    int   `json:"failedUploads"`
-	TotalBytes       int64 `json:"totalBytes"`
-	UploadedBytes    int64 `json:"uploadedBytes"`
+	TotalUploads      int   `json:"totalUploads"`
+	PendingUploads    int   `json:"pendingUploads"`
+	InProgressUploads int   `json:"inProgressUploads"`
+	PausedUploads     int   `json:"pausedUploads"`
+	CompletedUploads  int   `json:"completedUploads"`
+	FailedUploads     int   `json:"failedUploads"`
+	TotalBytes        int64 `json:"totalBytes"`
+	UploadedBytes     int64 `json:"uploadedBytes"`
 }
 
 // GetStats 获取统计信息.

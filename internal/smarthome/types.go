@@ -31,17 +31,17 @@ const (
 type DeviceType string
 
 const (
-	DeviceTypeLight       DeviceType = "light"
-	DeviceTypeSwitch      DeviceType = "switch"
-	DeviceTypeSensor      DeviceType = "sensor"
-	DeviceTypeThermostat  DeviceType = "thermostat"
-	DeviceTypeCamera      DeviceType = "camera"
-	DeviceTypeLock        DeviceType = "lock"
-	DeviceTypePlug        DeviceType = "plug"
-	DeviceTypeFan         DeviceType = "fan"
-	DeviceTypeCurtain     DeviceType = "curtain"
-	DeviceTypeSpeaker     DeviceType = "speaker"
-	DeviceTypeOther       DeviceType = "other"
+	DeviceTypeLight      DeviceType = "light"
+	DeviceTypeSwitch     DeviceType = "switch"
+	DeviceTypeSensor     DeviceType = "sensor"
+	DeviceTypeThermostat DeviceType = "thermostat"
+	DeviceTypeCamera     DeviceType = "camera"
+	DeviceTypeLock       DeviceType = "lock"
+	DeviceTypePlug       DeviceType = "plug"
+	DeviceTypeFan        DeviceType = "fan"
+	DeviceTypeCurtain    DeviceType = "curtain"
+	DeviceTypeSpeaker    DeviceType = "speaker"
+	DeviceTypeOther      DeviceType = "other"
 )
 
 // DeviceStatus represents device online status
@@ -82,13 +82,13 @@ const (
 type ComparisonOperator string
 
 const (
-	OpEqual         ComparisonOperator = "eq"
-	OpNotEqual      ComparisonOperator = "neq"
-	OpGreaterThan   ComparisonOperator = "gt"
-	OpLessThan      ComparisonOperator = "lt"
-	OpGreaterEqual  ComparisonOperator = "gte"
-	OpLessEqual     ComparisonOperator = "lte"
-	OpContains      ComparisonOperator = "contains"
+	OpEqual        ComparisonOperator = "eq"
+	OpNotEqual     ComparisonOperator = "neq"
+	OpGreaterThan  ComparisonOperator = "gt"
+	OpLessThan     ComparisonOperator = "lt"
+	OpGreaterEqual ComparisonOperator = "gte"
+	OpLessEqual    ComparisonOperator = "lte"
+	OpContains     ComparisonOperator = "contains"
 )
 
 // ============================================================
@@ -139,29 +139,29 @@ type Group struct {
 
 // Trigger represents an automation trigger
 type Trigger struct {
-	Type      TriggerType `json:"type"`
-	DeviceID  string      `json:"device_id,omitempty"`
-	Field     string      `json:"field,omitempty"`
-	CronExpr  string      `json:"cron_expr,omitempty"`
-	TimeStr   string      `json:"time_str,omitempty"`
+	Type     TriggerType `json:"type"`
+	DeviceID string      `json:"device_id,omitempty"`
+	Field    string      `json:"field,omitempty"`
+	CronExpr string      `json:"cron_expr,omitempty"`
+	TimeStr  string      `json:"time_str,omitempty"`
 }
 
 // Condition represents an automation condition
 type Condition struct {
-	DeviceID string           `json:"device_id"`
-	Field    string           `json:"field"`
-	Value    any              `json:"value"`
+	DeviceID string             `json:"device_id"`
+	Field    string             `json:"field"`
+	Value    any                `json:"value"`
 	Operator ComparisonOperator `json:"operator"`
 }
 
 // Action represents an automation action
 type Action struct {
-	Type       ActionType         `json:"type"`
-	DeviceID   string             `json:"device_id,omitempty"`
-	SceneID    string             `json:"scene_id,omitempty"`
-	Message    string             `json:"message,omitempty"`
-	Properties map[string]any     `json:"properties,omitempty"`
-	DelayMs    int64              `json:"delay_ms,omitempty"`
+	Type       ActionType     `json:"type"`
+	DeviceID   string         `json:"device_id,omitempty"`
+	SceneID    string         `json:"scene_id,omitempty"`
+	Message    string         `json:"message,omitempty"`
+	Properties map[string]any `json:"properties,omitempty"`
+	DelayMs    int64          `json:"delay_ms,omitempty"`
 }
 
 // Scene represents a smart home scene/automation
@@ -219,18 +219,18 @@ type EnergyStats struct {
 // DashboardSummary represents the dashboard summary
 
 type DashboardSummary struct {
-	TotalDevices    int            `json:"total_devices"`
-	OnlineDevices   int            `json:"online_devices"`
-	OfflineDevices  int            `json:"offline_devices"`
-	TotalRooms      int            `json:"total_rooms"`
-	TotalScenes     int            `json:"total_scenes"`
-	ActiveScenes    int            `json:"active_scenes"`
-	DevicesByType   map[string]int `json:"devices_by_type"`
-	DevicesByRoom   map[string]int `json:"devices_by_room"`
-	TotalEnergyKWh  float64        `json:"total_energy_kwh"`
-	TodayEnergyKWh  float64        `json:"today_energy_kwh"`
-	RecentEvents    []DeviceEvent  `json:"recent_events"`
-	UpdatedAt       time.Time      `json:"updated_at"`
+	TotalDevices   int            `json:"total_devices"`
+	OnlineDevices  int            `json:"online_devices"`
+	OfflineDevices int            `json:"offline_devices"`
+	TotalRooms     int            `json:"total_rooms"`
+	TotalScenes    int            `json:"total_scenes"`
+	ActiveScenes   int            `json:"active_scenes"`
+	DevicesByType  map[string]int `json:"devices_by_type"`
+	DevicesByRoom  map[string]int `json:"devices_by_room"`
+	TotalEnergyKWh float64        `json:"total_energy_kwh"`
+	TodayEnergyKWh float64        `json:"today_energy_kwh"`
+	RecentEvents   []DeviceEvent  `json:"recent_events"`
+	UpdatedAt      time.Time      `json:"updated_at"`
 }
 
 // DeviceEvent represents a device event
@@ -244,18 +244,18 @@ type DeviceEvent struct {
 
 // Config represents smart home configuration
 type Config struct {
-	Enabled           bool   `json:"enabled"`
-	MatterEnabled     bool   `json:"matter_enabled"`
-	HomeKitEnabled    bool   `json:"homekit_enabled"`
-	MQTTBroker        string `json:"mqtt_broker"`
-	MQTTPort          int    `json:"mqtt_port"`
-	MQTTUsername      string `json:"mqtt_username"`
-	MQTTPassword      string `json:"mqtt_password"`
-	ZigbeePort        string `json:"zigbee_port"`
-	ZWavePort         string `json:"zwave_port"`
-	DiscoveryEnabled  bool   `json:"discovery_enabled"`
-	AutoAddDevices    bool   `json:"auto_add_devices"`
-	MaxEvents         int    `json:"max_events"`
+	Enabled          bool   `json:"enabled"`
+	MatterEnabled    bool   `json:"matter_enabled"`
+	HomeKitEnabled   bool   `json:"homekit_enabled"`
+	MQTTBroker       string `json:"mqtt_broker"`
+	MQTTPort         int    `json:"mqtt_port"`
+	MQTTUsername     string `json:"mqtt_username"`
+	MQTTPassword     string `json:"mqtt_password"`
+	ZigbeePort       string `json:"zigbee_port"`
+	ZWavePort        string `json:"zwave_port"`
+	DiscoveryEnabled bool   `json:"discovery_enabled"`
+	AutoAddDevices   bool   `json:"auto_add_devices"`
+	MaxEvents        int    `json:"max_events"`
 }
 
 // Manager manages smart home devices and automations

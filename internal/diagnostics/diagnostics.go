@@ -17,30 +17,30 @@ import (
 
 // DiagnosticReport 诊断报告
 type DiagnosticReport struct {
-	ID          string           `json:"id"`
-	Timestamp   time.Time        `json:"timestamp"`
-	Duration    time.Duration    `json:"duration"`
-	Score       int              `json:"score"`       // 健康评分 0-100
-	Status      string           `json:"status"`      // excellent/good/fair/poor/critical
-	CPU         *CPUDiag         `json:"cpu"`
-	Memory      *MemoryDiag      `json:"memory"`
-	Disk        *DiskDiag        `json:"disk"`
-	Network     *NetworkDiag     `json:"network"`
-	Problems    []Problem        `json:"problems"`
-	Suggestions []Suggestion     `json:"suggestions"`
-	Summary     string           `json:"summary"`
+	ID          string        `json:"id"`
+	Timestamp   time.Time     `json:"timestamp"`
+	Duration    time.Duration `json:"duration"`
+	Score       int           `json:"score"`  // 健康评分 0-100
+	Status      string        `json:"status"` // excellent/good/fair/poor/critical
+	CPU         *CPUDiag      `json:"cpu"`
+	Memory      *MemoryDiag   `json:"memory"`
+	Disk        *DiskDiag     `json:"disk"`
+	Network     *NetworkDiag  `json:"network"`
+	Problems    []Problem     `json:"problems"`
+	Suggestions []Suggestion  `json:"suggestions"`
+	Summary     string        `json:"summary"`
 }
 
 // CPUDiag CPU诊断信息
 type CPUDiag struct {
-	Usage       float64  `json:"usage"`       // 使用率 (%)
-	LoadAvg1    float64  `json:"loadAvg1"`    // 1分钟负载
-	LoadAvg5    float64  `json:"loadAvg5"`    // 5分钟负载
-	LoadAvg15   float64  `json:"loadAvg15"`   // 15分钟负载
-	Cores       int      `json:"cores"`       // 核心数
-	Temperature float64  `json:"temperature"` // 温度 (°C)
-	Score       int      `json:"score"`       // 单项评分
-	Status      string   `json:"status"`
+	Usage       float64 `json:"usage"`       // 使用率 (%)
+	LoadAvg1    float64 `json:"loadAvg1"`    // 1分钟负载
+	LoadAvg5    float64 `json:"loadAvg5"`    // 5分钟负载
+	LoadAvg15   float64 `json:"loadAvg15"`   // 15分钟负载
+	Cores       int     `json:"cores"`       // 核心数
+	Temperature float64 `json:"temperature"` // 温度 (°C)
+	Score       int     `json:"score"`       // 单项评分
+	Status      string  `json:"status"`
 }
 
 // MemoryDiag 内存诊断信息
@@ -78,22 +78,22 @@ type PartitionInfo struct {
 
 // NetworkDiag 网络诊断信息
 type NetworkDiag struct {
-	Interfaces  []InterfaceInfo `json:"interfaces"`
-	Connectivity bool           `json:"connectivity"`
-	Latency     float64         `json:"latency"` // ms
-	Score       int             `json:"score"`
-	Status      string          `json:"status"`
+	Interfaces   []InterfaceInfo `json:"interfaces"`
+	Connectivity bool            `json:"connectivity"`
+	Latency      float64         `json:"latency"` // ms
+	Score        int             `json:"score"`
+	Status       string          `json:"status"`
 }
 
 // InterfaceInfo 网络接口信息
 type InterfaceInfo struct {
-	Name      string `json:"name"`
-	IP        string `json:"ip"`
-	Status    string `json:"status"` // up/down
-	RxBytes   uint64 `json:"rxBytes"`
-	TxBytes   uint64 `json:"txBytes"`
-	RxErrors  uint64 `json:"rxErrors"`
-	TxErrors  uint64 `json:"txErrors"`
+	Name     string `json:"name"`
+	IP       string `json:"ip"`
+	Status   string `json:"status"` // up/down
+	RxBytes  uint64 `json:"rxBytes"`
+	TxBytes  uint64 `json:"txBytes"`
+	RxErrors uint64 `json:"rxErrors"`
+	TxErrors uint64 `json:"txErrors"`
 }
 
 // Problem 检测到的问题

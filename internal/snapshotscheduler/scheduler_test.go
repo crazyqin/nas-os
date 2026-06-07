@@ -193,8 +193,8 @@ func TestUpdateSchedule(t *testing.T) {
 	s.CreateSchedule(sched)
 
 	err := s.UpdateSchedule(sched.ID, &Schedule{
-		Name:     "updated-schedule",
-		Enabled:  false,
+		Name:      "updated-schedule",
+		Enabled:   false,
 		Frequency: FreqHourly,
 	})
 	if err != nil {

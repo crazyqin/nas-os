@@ -11,8 +11,8 @@ import (
 // TestPipelineValidation 测试流水线验证
 func TestPipelineValidation(t *testing.T) {
 	tests := []struct {
-		name    string
-		wantErr bool
+		name     string
+		wantErr  bool
 		pipeline *Pipeline
 	}{
 		{

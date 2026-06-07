@@ -81,24 +81,24 @@ type ScrubPolicy struct {
 
 // ScrubRecord 擦洗记录.
 type ScrubRecord struct {
-	ID        string      `json:"id"`         // 记录ID
-	PolicyID  string      `json:"policy_id"`  // 策略ID
-	Pool      string      `json:"pool"`       // 存储池
-	Status    ScrubStatus `json:"status"`     // 状态
-	StartTime time.Time   `json:"start_time"` // 开始时间
-	EndTime   time.Time   `json:"end_time"`   // 结束时间
-	Duration  time.Duration `json:"duration"` // 耗时
-	Errors    int         `json:"errors"`     // 错误数
-	Repaired  int         `json:"repaired"`   // 修复数
-	Summary   string      `json:"summary"`    // 摘要
+	ID        string        `json:"id"`         // 记录ID
+	PolicyID  string        `json:"policy_id"`  // 策略ID
+	Pool      string        `json:"pool"`       // 存储池
+	Status    ScrubStatus   `json:"status"`     // 状态
+	StartTime time.Time     `json:"start_time"` // 开始时间
+	EndTime   time.Time     `json:"end_time"`   // 结束时间
+	Duration  time.Duration `json:"duration"`   // 耗时
+	Errors    int           `json:"errors"`     // 错误数
+	Repaired  int           `json:"repaired"`   // 修复数
+	Summary   string        `json:"summary"`    // 摘要
 }
 
 // ScrubStats 擦洗统计.
 type ScrubStats struct {
-	TotalPolicies  int64     `json:"total_policies"`  // 总策略数
-	ActivePolicies int64     `json:"active_policies"` // 活跃策略数
-	TotalScrubs    int64     `json:"total_scrubs"`    // 总擦洗次数
-	TotalErrors    int64     `json:"total_errors"`    // 总错误数
+	TotalPolicies  int64      `json:"total_policies"`  // 总策略数
+	ActivePolicies int64      `json:"active_policies"` // 活跃策略数
+	TotalScrubs    int64      `json:"total_scrubs"`    // 总擦洗次数
+	TotalErrors    int64      `json:"total_errors"`    // 总错误数
 	LastScrubTime  *time.Time `json:"last_scrub_time"` // 最后擦洗时间
 }
 

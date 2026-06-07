@@ -424,15 +424,15 @@ func (m *Manager) CreatePolicy(name, volume string, snapshotType SnapshotType, s
 	now := time.Now()
 
 	policy := &SnapshotPolicy{
-		ID:         id,
-		Name:       name,
-		Volume:     volume,
-		Type:       snapshotType,
-		Enabled:    true,
-		Schedule:   schedule,
-		Retention:  retention,
-		CreatedAt:  now,
-		UpdatedAt:  now,
+		ID:        id,
+		Name:      name,
+		Volume:    volume,
+		Type:      snapshotType,
+		Enabled:   true,
+		Schedule:  schedule,
+		Retention: retention,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
 	m.policies[id] = policy

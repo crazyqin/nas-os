@@ -42,11 +42,11 @@ const (
 type MergeStrategy string
 
 const (
-	MergeKeepNewest MergeStrategy = "keep_newest" // 保留最新
-	MergeKeepOldest MergeStrategy = "keep_oldest" // 保留最旧
+	MergeKeepNewest  MergeStrategy = "keep_newest"  // 保留最新
+	MergeKeepOldest  MergeStrategy = "keep_oldest"  // 保留最旧
 	MergeKeepLargest MergeStrategy = "keep_largest" // 保留最大
-	MergeKeepBest   MergeStrategy = "keep_best"   // 保留质量最佳
-	MergeManual     MergeStrategy = "manual"      // 手动选择
+	MergeKeepBest    MergeStrategy = "keep_best"    // 保留质量最佳
+	MergeManual      MergeStrategy = "manual"       // 手动选择
 )
 
 // FileEntry 文件条目
@@ -68,118 +68,118 @@ type FileEntry struct {
 
 // DuplicateGroup 重复文件组
 type DuplicateGroup struct {
-	ID          string          `json:"id"`
-	Files       []*FileEntry    `json:"files"`
-	Similarity  float64         `json:"similarity"`  // 0.0 ~ 1.0
-	DedupType   DedupStrategy   `json:"dedup_type"`
-	Status      DuplicateStatus `json:"status"`
-	Recommended *FileEntry      `json:"recommended,omitempty"` // 推荐保留的文件
-	TotalSize   int64           `json:"total_size"`
-	SaveableSize int64          `json:"saveable_size"` // 可节省空间
-	CreatedAt   time.Time       `json:"created_at"`
-	UpdatedAt   time.Time       `json:"updated_at"`
+	ID           string          `json:"id"`
+	Files        []*FileEntry    `json:"files"`
+	Similarity   float64         `json:"similarity"` // 0.0 ~ 1.0
+	DedupType    DedupStrategy   `json:"dedup_type"`
+	Status       DuplicateStatus `json:"status"`
+	Recommended  *FileEntry      `json:"recommended,omitempty"` // 推荐保留的文件
+	TotalSize    int64           `json:"total_size"`
+	SaveableSize int64           `json:"saveable_size"` // 可节省空间
+	CreatedAt    time.Time       `json:"created_at"`
+	UpdatedAt    time.Time       `json:"updated_at"`
 }
 
 // ScanResult 扫描结果
 type ScanResult struct {
-	ID            string           `json:"id"`
-	ScanPath      string           `json:"scan_path"`
-	TotalFiles    int              `json:"total_files"`
-	ScannedFiles  int              `json:"scanned_files"`
-	DuplicateGroups []*DuplicateGroup `json:"duplicate_groups"`
-	TotalSize     int64            `json:"total_size"`
-	DuplicateSize int64            `json:"duplicate_size"`
-	SaveableSize  int64            `json:"saveable_size"`
-	SimilarityThreshold float64    `json:"similarity_threshold"`
-	StartTime     time.Time        `json:"start_time"`
-	EndTime       time.Time        `json:"end_time"`
-	Duration      time.Duration    `json:"duration"`
-	Status        DuplicateStatus  `json:"status"`
+	ID                  string            `json:"id"`
+	ScanPath            string            `json:"scan_path"`
+	TotalFiles          int               `json:"total_files"`
+	ScannedFiles        int               `json:"scanned_files"`
+	DuplicateGroups     []*DuplicateGroup `json:"duplicate_groups"`
+	TotalSize           int64             `json:"total_size"`
+	DuplicateSize       int64             `json:"duplicate_size"`
+	SaveableSize        int64             `json:"saveable_size"`
+	SimilarityThreshold float64           `json:"similarity_threshold"`
+	StartTime           time.Time         `json:"start_time"`
+	EndTime             time.Time         `json:"end_time"`
+	Duration            time.Duration     `json:"duration"`
+	Status              DuplicateStatus   `json:"status"`
 }
 
 // DedupRequest 去重请求
 type DedupRequest struct {
-	Paths              []string       `json:"paths" binding:"required"`
-	Strategy           DedupStrategy  `json:"strategy,omitempty"`
+	Paths               []string      `json:"paths" binding:"required"`
+	Strategy            DedupStrategy `json:"strategy,omitempty"`
 	SimilarityThreshold float64       `json:"similarity_threshold,omitempty"` // 0.0 ~ 1.0
-	FileTypes          []FileType     `json:"file_types,omitempty"`
-	MinSize            int64          `json:"min_size,omitempty"`
-	MaxSize            int64          `json:"max_size,omitempty"`
-	ExcludePatterns    []string       `json:"exclude_patterns,omitempty"`
-	Recursive          bool           `json:"recursive"`
-	DryRun             bool           `json:"dry_run"`
+	FileTypes           []FileType    `json:"file_types,omitempty"`
+	MinSize             int64         `json:"min_size,omitempty"`
+	MaxSize             int64         `json:"max_size,omitempty"`
+	ExcludePatterns     []string      `json:"exclude_patterns,omitempty"`
+	Recursive           bool          `json:"recursive"`
+	DryRun              bool          `json:"dry_run"`
 }
 
 // MergeRequest 合并请求
 type MergeRequest struct {
-	GroupID        string        `json:"group_id" binding:"required"`
-	KeepFileID     string        `json:"keep_file_id,omitempty"`
-	Strategy       MergeStrategy `json:"strategy,omitempty"`
-	DeleteOthers   bool          `json:"delete_others"`
-	CreateBackup   bool          `json:"create_backup"`
+	GroupID      string        `json:"group_id" binding:"required"`
+	KeepFileID   string        `json:"keep_file_id,omitempty"`
+	Strategy     MergeStrategy `json:"strategy,omitempty"`
+	DeleteOthers bool          `json:"delete_others"`
+	CreateBackup bool          `json:"create_backup"`
 }
 
 // DedupReport 去重报告
 type DedupReport struct {
-	ID               string    `json:"id"`
-	ScanResultID     string    `json:"scan_result_id"`
-	TotalFiles       int       `json:"total_files"`
-	DuplicatesFound  int       `json:"duplicates_found"`
-	GroupsResolved   int       `json:"groups_resolved"`
-	FilesDeleted     int       `json:"files_deleted"`
-	FilesMerged      int       `json:"files_merged"`
-	SpaceSaved       int64     `json:"space_saved"`
-	StartTime        time.Time `json:"start_time"`
-	EndTime          time.Time `json:"end_time"`
-	Duration         time.Duration `json:"duration"`
-	Errors           []string  `json:"errors,omitempty"`
+	ID              string        `json:"id"`
+	ScanResultID    string        `json:"scan_result_id"`
+	TotalFiles      int           `json:"total_files"`
+	DuplicatesFound int           `json:"duplicates_found"`
+	GroupsResolved  int           `json:"groups_resolved"`
+	FilesDeleted    int           `json:"files_deleted"`
+	FilesMerged     int           `json:"files_merged"`
+	SpaceSaved      int64         `json:"space_saved"`
+	StartTime       time.Time     `json:"start_time"`
+	EndTime         time.Time     `json:"end_time"`
+	Duration        time.Duration `json:"duration"`
+	Errors          []string      `json:"errors,omitempty"`
 }
 
 // AIAnalysisResult AI 分析结果
 type AIAnalysisResult struct {
-	FileID       string            `json:"file_id"`
-	Similarity   float64           `json:"similarity"`
-	Features     map[string]float64 `json:"features"` // 特征向量
-	ContentType  string            `json:"content_type"`
-	IsDuplicate  bool              `json:"is_duplicate"`
-	Confidence   float64           `json:"confidence"`
-	Suggestions  []string          `json:"suggestions,omitempty"`
-	AnalyzedAt   time.Time         `json:"analyzed_at"`
+	FileID      string             `json:"file_id"`
+	Similarity  float64            `json:"similarity"`
+	Features    map[string]float64 `json:"features"` // 特征向量
+	ContentType string             `json:"content_type"`
+	IsDuplicate bool               `json:"is_duplicate"`
+	Confidence  float64            `json:"confidence"`
+	Suggestions []string           `json:"suggestions,omitempty"`
+	AnalyzedAt  time.Time          `json:"analyzed_at"`
 }
 
 // DedupConfig 去重配置
 type DedupConfig struct {
-	Enabled              bool           `json:"enabled"`
-	DefaultStrategy      DedupStrategy  `json:"default_strategy"`
-	SimilarityThreshold  float64        `json:"similarity_threshold"`
-	MaxConcurrentScans   int            `json:"max_concurrent_scans"`
-	ScanIntervalMinutes  int            `json:"scan_interval_minutes"`
-	AutoMerge            bool           `json:"auto_merge"`
-	AutoMergeStrategy    MergeStrategy  `json:"auto_merge_strategy"`
-	CreateBackup         bool           `json:"create_backup"`
-	BackupPath           string         `json:"backup_path"`
-	ExcludedPaths        []string       `json:"excluded_paths,omitempty"`
-	MinFileSize          int64          `json:"min_file_size"`
-	MaxFileSize          int64          `json:"max_file_size"`
-	EnableAI             bool           `json:"enable_ai"`
+	Enabled               bool          `json:"enabled"`
+	DefaultStrategy       DedupStrategy `json:"default_strategy"`
+	SimilarityThreshold   float64       `json:"similarity_threshold"`
+	MaxConcurrentScans    int           `json:"max_concurrent_scans"`
+	ScanIntervalMinutes   int           `json:"scan_interval_minutes"`
+	AutoMerge             bool          `json:"auto_merge"`
+	AutoMergeStrategy     MergeStrategy `json:"auto_merge_strategy"`
+	CreateBackup          bool          `json:"create_backup"`
+	BackupPath            string        `json:"backup_path"`
+	ExcludedPaths         []string      `json:"excluded_paths,omitempty"`
+	MinFileSize           int64         `json:"min_file_size"`
+	MaxFileSize           int64         `json:"max_file_size"`
+	EnableAI              bool          `json:"enable_ai"`
 	AIConfidenceThreshold float64       `json:"ai_confidence_threshold"`
 }
 
 // DefaultDedupConfig 默认去重配置
 func DefaultDedupConfig() *DedupConfig {
 	return &DedupConfig{
-		Enabled:              true,
-		DefaultStrategy:      StrategyAuto,
-		SimilarityThreshold:  0.85,
-		MaxConcurrentScans:   3,
-		ScanIntervalMinutes:  60,
-		AutoMerge:            false,
-		AutoMergeStrategy:    MergeKeepNewest,
-		CreateBackup:         true,
-		BackupPath:           "/backup/dedup",
-		MinFileSize:          1024,       // 1KB
-		MaxFileSize:          1073741824, // 1GB
-		EnableAI:             true,
+		Enabled:               true,
+		DefaultStrategy:       StrategyAuto,
+		SimilarityThreshold:   0.85,
+		MaxConcurrentScans:    3,
+		ScanIntervalMinutes:   60,
+		AutoMerge:             false,
+		AutoMergeStrategy:     MergeKeepNewest,
+		CreateBackup:          true,
+		BackupPath:            "/backup/dedup",
+		MinFileSize:           1024,       // 1KB
+		MaxFileSize:           1073741824, // 1GB
+		EnableAI:              true,
 		AIConfidenceThreshold: 0.9,
 	}
 }

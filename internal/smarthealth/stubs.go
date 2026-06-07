@@ -15,9 +15,9 @@ type PatrolConfig struct {
 
 // HealthCheckResult 健康检查结果
 type HealthCheckResult struct {
-	Score   int           `json:"score"`
-	Status  string        `json:"status"`
-	Checks  []CheckResult `json:"checks"`
+	Score  int           `json:"score"`
+	Status string        `json:"status"`
+	Checks []CheckResult `json:"checks"`
 }
 
 // CheckResult 检查结果

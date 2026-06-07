@@ -49,24 +49,24 @@ const (
 
 // ShareLink 分享链接
 type ShareLink struct {
-	ID             string    `json:"id"`
-	Name           string    `json:"name"`
-	FilePath       string    `json:"file_path"`
-	CreatorID      string    `json:"creator_id"`
-	CreatorName    string    `json:"creator_name,omitempty"`
-	Password       string    `json:"password,omitempty"`
-	ExpiresAt      *time.Time `json:"expires_at,omitempty"`
-	MaxDownloads   int       `json:"max_downloads,omitempty"`   // 0 表示无限制
-	DownloadCount  int       `json:"download_count"`
-	ViewCount      int       `json:"view_count"`
-	AllowPreview   bool      `json:"allow_preview"`
-	AllowDownload  bool      `json:"allow_download"`
-	AllowUpload    bool      `json:"allow_upload"`
-	IsActive       bool      `json:"is_active"`
-	BrandingID     string    `json:"branding_id,omitempty"`
-	ShortURL       string    `json:"short_url"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	ID            string     `json:"id"`
+	Name          string     `json:"name"`
+	FilePath      string     `json:"file_path"`
+	CreatorID     string     `json:"creator_id"`
+	CreatorName   string     `json:"creator_name,omitempty"`
+	Password      string     `json:"password,omitempty"`
+	ExpiresAt     *time.Time `json:"expires_at,omitempty"`
+	MaxDownloads  int        `json:"max_downloads,omitempty"` // 0 表示无限制
+	DownloadCount int        `json:"download_count"`
+	ViewCount     int        `json:"view_count"`
+	AllowPreview  bool       `json:"allow_preview"`
+	AllowDownload bool       `json:"allow_download"`
+	AllowUpload   bool       `json:"allow_upload"`
+	IsActive      bool       `json:"is_active"`
+	BrandingID    string     `json:"branding_id,omitempty"`
+	ShortURL      string     `json:"short_url"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
 }
 
 // ShareBranding 分享品牌配置

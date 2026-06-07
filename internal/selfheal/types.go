@@ -80,25 +80,25 @@ type HealResult struct {
 
 // HealRecord 检查与修复记录（持久化）.
 type HealRecord struct {
-	ID            int64     `json:"id"`
-	CheckName     string    `json:"check_name"`
-	Category      string    `json:"category"`
-	Status        string    `json:"status"`
-	Message       string    `json:"message"`
-	Details       string    `json:"details,omitempty"` // JSON 字符串
-	HealAction    string    `json:"heal_action"`
-	HealSuccess   *bool     `json:"heal_success,omitempty"`
-	HealMessage   string    `json:"heal_message,omitempty"`
-	CreatedAt     time.Time `json:"created_at"`
+	ID          int64     `json:"id"`
+	CheckName   string    `json:"check_name"`
+	Category    string    `json:"category"`
+	Status      string    `json:"status"`
+	Message     string    `json:"message"`
+	Details     string    `json:"details,omitempty"` // JSON 字符串
+	HealAction  string    `json:"heal_action"`
+	HealSuccess *bool     `json:"heal_success,omitempty"`
+	HealMessage string    `json:"heal_message,omitempty"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 // OverallStatus 整体健康状态.
 type OverallStatus struct {
-	Status    Status        `json:"status"`
-	Timestamp time.Time     `json:"timestamp"`
+	Status    Status         `json:"status"`
+	Timestamp time.Time      `json:"timestamp"`
 	Summary   *StatusSummary `json:"summary"`
 	Checks    []*CheckResult `json:"checks"`
-	Healed    int           `json:"healed"` // 本轮自愈次数
+	Healed    int            `json:"healed"` // 本轮自愈次数
 }
 
 // StatusSummary 状态摘要.
@@ -112,8 +112,8 @@ type StatusSummary struct {
 
 // StrategyConfig 自愈策略配置.
 type StrategyConfig struct {
-	DefaultAction HealAction          `json:"default_action"` // 全局默认策略
-	Overrides     map[string]HealAction `json:"overrides"`    // 按检查项覆盖
-	CheckInterval time.Duration       `json:"check_interval"` // 定期检查间隔
-	Enabled       bool                `json:"enabled"`        // 是否启用调度
+	DefaultAction HealAction            `json:"default_action"` // 全局默认策略
+	Overrides     map[string]HealAction `json:"overrides"`      // 按检查项覆盖
+	CheckInterval time.Duration         `json:"check_interval"` // 定期检查间隔
+	Enabled       bool                  `json:"enabled"`        // 是否启用调度
 }

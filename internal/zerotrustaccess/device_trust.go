@@ -13,17 +13,17 @@ import (
 
 // DeviceFingerprint 设备指纹
 type DeviceFingerprint struct {
-	DeviceID      string            `json:"device_id"`
-	HardwareHash  string            `json:"hardware_hash"`
-	OSHash        string            `json:"os_hash"`
-	NetworkHash   string            `json:"network_hash"`
-	BrowserHash   string            `json:"browser_hash,omitempty"`
-	CompositeHash string            `json:"composite_hash"`
+	DeviceID      string                `json:"device_id"`
+	HardwareHash  string                `json:"hardware_hash"`
+	OSHash        string                `json:"os_hash"`
+	NetworkHash   string                `json:"network_hash"`
+	BrowserHash   string                `json:"browser_hash,omitempty"`
+	CompositeHash string                `json:"composite_hash"`
 	Components    FingerprintComponents `json:"components"`
-	CollectedAt   time.Time         `json:"collected_at"`
-	ExpiresAt     time.Time         `json:"expires_at"`
-	TrustScore    float64           `json:"trust_score"` // 0-100
-	IsStable      bool              `json:"is_stable"`   // 指纹是否稳定
+	CollectedAt   time.Time             `json:"collected_at"`
+	ExpiresAt     time.Time             `json:"expires_at"`
+	TrustScore    float64               `json:"trust_score"` // 0-100
+	IsStable      bool                  `json:"is_stable"`   // 指纹是否稳定
 }
 
 // FingerprintComponents 指纹组件
@@ -36,23 +36,23 @@ type FingerprintComponents struct {
 
 // HardwareFingerprint 硬件指纹
 type HardwareFingerprint struct {
-	CPUModel     string `json:"cpu_model"`
-	CPUCores     int    `json:"cpu_cores"`
-	MemoryMB     int64  `json:"memory_mb"`
-	DiskSerial   string `json:"disk_serial"`
-	MACAddress   string `json:"mac_address"`
-	BIOSVersion  string `json:"bios_version"`
-	BoardSerial  string `json:"board_serial"`
-	GPUModel     string `json:"gpu_model,omitempty"`
+	CPUModel    string `json:"cpu_model"`
+	CPUCores    int    `json:"cpu_cores"`
+	MemoryMB    int64  `json:"memory_mb"`
+	DiskSerial  string `json:"disk_serial"`
+	MACAddress  string `json:"mac_address"`
+	BIOSVersion string `json:"bios_version"`
+	BoardSerial string `json:"board_serial"`
+	GPUModel    string `json:"gpu_model,omitempty"`
 }
 
 // OSFingerprint 操作系统指纹
 type OSFingerprint struct {
-	Name        string `json:"name"`
-	Version     string `json:"version"`
-	Build       string `json:"build"`
-	Arch        string `json:"arch"`
-	Hostname    string `json:"hostname"`
+	Name          string `json:"name"`
+	Version       string `json:"version"`
+	Build         string `json:"build"`
+	Arch          string `json:"arch"`
+	Hostname      string `json:"hostname"`
 	KernelVersion string `json:"kernel_version"`
 }
 
@@ -69,36 +69,36 @@ type NetworkFingerprint struct {
 
 // BrowserFingerprint 浏览器指纹
 type BrowserFingerprint struct {
-	UserAgent    string   `json:"user_agent"`
-	Language     string   `json:"language"`
-	Timezone     string   `json:"timezone"`
-	ScreenRes    string   `json:"screen_res"`
-	Fonts        []string `json:"fonts,omitempty"`
-	Plugins      []string `json:"plugins,omitempty"`
-	WebGL        string   `json:"webgl,omitempty"`
+	UserAgent string   `json:"user_agent"`
+	Language  string   `json:"language"`
+	Timezone  string   `json:"timezone"`
+	ScreenRes string   `json:"screen_res"`
+	Fonts     []string `json:"fonts,omitempty"`
+	Plugins   []string `json:"plugins,omitempty"`
+	WebGL     string   `json:"webgl,omitempty"`
 }
 
 // ========== 信任评估 ==========
 
 // TrustAssessment 信任评估
 type TrustAssessment struct {
-	DeviceID        string              `json:"device_id"`
-	OverallScore    float64             `json:"overall_score"` // 0-100
-	TrustLevel      TrustLevel          `json:"trust_level"`
-	Factors         []TrustFactor       `json:"factors"`
-	Anomalies       []Anomaly           `json:"anomalies"`
-	Recommendations []string            `json:"recommendations"`
-	AssessedAt      time.Time           `json:"assessed_at"`
-	ValidUntil      time.Time           `json:"valid_until"`
+	DeviceID        string        `json:"device_id"`
+	OverallScore    float64       `json:"overall_score"` // 0-100
+	TrustLevel      TrustLevel    `json:"trust_level"`
+	Factors         []TrustFactor `json:"factors"`
+	Anomalies       []Anomaly     `json:"anomalies"`
+	Recommendations []string      `json:"recommendations"`
+	AssessedAt      time.Time     `json:"assessed_at"`
+	ValidUntil      time.Time     `json:"valid_until"`
 }
 
 // TrustFactor 信任因素
 type TrustFactor struct {
-	Name      string  `json:"name"`
-	Category  string  `json:"category"` // "hardware", "software", "behavior", "compliance"
-	Score     float64 `json:"score"`    // 0-100
-	Weight    float64 `json:"weight"`   // 权重 0-1
-	Details   string  `json:"details"`
+	Name     string  `json:"name"`
+	Category string  `json:"category"` // "hardware", "software", "behavior", "compliance"
+	Score    float64 `json:"score"`    // 0-100
+	Weight   float64 `json:"weight"`   // 权重 0-1
+	Details  string  `json:"details"`
 }
 
 // Anomaly 异常
@@ -122,15 +122,15 @@ type DeviceTrustManager struct {
 
 // TrustConfig 信任配置
 type TrustConfig struct {
-	FingerprintExpiry    time.Duration `json:"fingerprint_expiry"`
-	AssessmentExpiry     time.Duration `json:"assessment_expiry"`
-	MaxAnomalyAge        time.Duration `json:"max_anomaly_age"`
-	MinTrustScore        float64       `json:"min_trust_score"`
-	AnomalyThreshold     int           `json:"anomaly_threshold"`
-	ComplianceWeight     float64       `json:"compliance_weight"`
-	HardwareWeight       float64       `json:"hardware_weight"`
-	BehaviorWeight       float64       `json:"behavior_weight"`
-	NetworkWeight        float64       `json:"network_weight"`
+	FingerprintExpiry time.Duration `json:"fingerprint_expiry"`
+	AssessmentExpiry  time.Duration `json:"assessment_expiry"`
+	MaxAnomalyAge     time.Duration `json:"max_anomaly_age"`
+	MinTrustScore     float64       `json:"min_trust_score"`
+	AnomalyThreshold  int           `json:"anomaly_threshold"`
+	ComplianceWeight  float64       `json:"compliance_weight"`
+	HardwareWeight    float64       `json:"hardware_weight"`
+	BehaviorWeight    float64       `json:"behavior_weight"`
+	NetworkWeight     float64       `json:"network_weight"`
 }
 
 // NewDeviceTrustManager 创建设备信任管理器
@@ -219,11 +219,11 @@ func (m *DeviceTrustManager) AssessTrust(deviceID string, device *Device) *Trust
 	defer m.mu.Unlock()
 
 	assessment := &TrustAssessment{
-		DeviceID:   deviceID,
-		AssessedAt: time.Now(),
-		ValidUntil: time.Now().Add(m.config.AssessmentExpiry),
-		Factors:    make([]TrustFactor, 0),
-		Anomalies:  make([]Anomaly, 0),
+		DeviceID:        deviceID,
+		AssessedAt:      time.Now(),
+		ValidUntil:      time.Now().Add(m.config.AssessmentExpiry),
+		Factors:         make([]TrustFactor, 0),
+		Anomalies:       make([]Anomaly, 0),
 		Recommendations: make([]string, 0),
 	}
 

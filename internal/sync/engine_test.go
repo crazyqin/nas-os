@@ -11,7 +11,7 @@ import (
 
 // mockProvider 实现 Provider 接口的内存 mock.
 type mockProvider struct {
-	mu   sync.RWMutex
+	mu    sync.RWMutex
 	files map[string]*FileEntry
 }
 
@@ -402,13 +402,13 @@ func TestEngine_SyncUpload(t *testing.T) {
 	_ = os.WriteFile(filepath.Join(localDir, "b.txt"), []byte("bbb"), 0600)
 
 	task := &Task{
-		ID:        "test-upload",
-		Name:      "Test Upload",
-		LocalPath: localDir,
+		ID:         "test-upload",
+		Name:       "Test Upload",
+		LocalPath:  localDir,
 		RemotePath: "/remote/test",
-		Direction: DirectionUpload,
-		Enabled:   true,
-		WatchMode: "scan",
+		Direction:  DirectionUpload,
+		Enabled:    true,
+		WatchMode:  "scan",
 	}
 
 	provider := newMockProvider()

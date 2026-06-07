@@ -166,9 +166,9 @@ func TestGetPredictions(t *testing.T) {
 	m := NewManager(TierConfig{DecayFactor: 0.95})
 	m.items["p1"] = &DataItem{
 		ID: "p1", CurrentTier: TierCold, AccessCount: 100,
-		LastAccess: time.Now(),
+		LastAccess:    time.Now(),
 		AccessPattern: []AccessPoint{{Timestamp: time.Now(), ReadBytes: 1000}},
-		CreatedAt: time.Now().Add(-30 * 24 * time.Hour),
+		CreatedAt:     time.Now().Add(-30 * 24 * time.Hour),
 	}
 	predictions := m.GetPredictions()
 	_ = predictions // may or may not have predictions depending on heat

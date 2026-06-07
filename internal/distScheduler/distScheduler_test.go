@@ -27,8 +27,8 @@ func setupTestNode(id string) *Node {
 			GPU:    ResourceInfo{Total: 1, Used: 0, Available: 1, Unit: "count"},
 			Disk:   ResourceInfo{Total: 1000, Used: 200, Available: 800, Unit: "GB"},
 		},
-		Tags:    map[string]string{"zone": "a"},
-		LastHB:  time.Now(),
+		Tags:   map[string]string{"zone": "a"},
+		LastHB: time.Now(),
 	}
 }
 

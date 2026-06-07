@@ -59,8 +59,8 @@ type response struct {
 // startScan 启动扫描
 func (h *Handlers) startScan(c *gin.Context) {
 	var req struct {
-		Paths       []string     `json:"paths"`
-		ScanConfig  *ScanConfig  `json:"scan_config"`
+		Paths      []string    `json:"paths"`
+		ScanConfig *ScanConfig `json:"scan_config"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})

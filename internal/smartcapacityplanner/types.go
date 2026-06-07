@@ -7,59 +7,59 @@ import (
 
 // CapacitySnapshot 容量快照.
 type CapacitySnapshot struct {
-	ID          string    `json:"id"`
-	TotalBytes  int64     `json:"total_bytes"`  // 总容量
-	UsedBytes   int64     `json:"used_bytes"`   // 已使用容量
-	FreeBytes   int64     `json:"free_bytes"`   // 剩余容量
-	UsageRate   float64   `json:"usage_rate"`   // 使用率 (0-1)
-	MountPoint  string    `json:"mount_point"`  // 挂载点
-	FileSystem  string    `json:"file_system"`  // 文件系统类型
-	Timestamp   time.Time `json:"timestamp"`
+	ID         string    `json:"id"`
+	TotalBytes int64     `json:"total_bytes"` // 总容量
+	UsedBytes  int64     `json:"used_bytes"`  // 已使用容量
+	FreeBytes  int64     `json:"free_bytes"`  // 剩余容量
+	UsageRate  float64   `json:"usage_rate"`  // 使用率 (0-1)
+	MountPoint string    `json:"mount_point"` // 挂载点
+	FileSystem string    `json:"file_system"` // 文件系统类型
+	Timestamp  time.Time `json:"timestamp"`
 }
 
 // ForecastResult 预测结果.
 type ForecastResult struct {
-	ID              string    `json:"id"`
-	ModelType       string    `json:"model_type"`       // linear, exponential, seasonal
-	PredictedUsage  float64   `json:"predicted_usage"`  // 预测使用率
-	PredictedDate   time.Time `json:"predicted_date"`   // 预测日期
-	Confidence      float64   `json:"confidence"`       // 置信度 (0-1)
-	GrowthRate      float64   `json:"growth_rate"`      // 增长率
-	Timestamp       time.Time `json:"timestamp"`
+	ID             string    `json:"id"`
+	ModelType      string    `json:"model_type"`      // linear, exponential, seasonal
+	PredictedUsage float64   `json:"predicted_usage"` // 预测使用率
+	PredictedDate  time.Time `json:"predicted_date"`  // 预测日期
+	Confidence     float64   `json:"confidence"`      // 置信度 (0-1)
+	GrowthRate     float64   `json:"growth_rate"`     // 增长率
+	Timestamp      time.Time `json:"timestamp"`
 }
 
 // GrowthTrend 增长趋势.
 type GrowthTrend struct {
-	ID            string    `json:"id"`
-	Period        string    `json:"period"`         // daily, weekly, monthly
-	GrowthBytes   int64     `json:"growth_bytes"`   // 增长字节数
-	GrowthRate    float64   `json:"growth_rate"`    // 增长率
-	StartDate     time.Time `json:"start_date"`
-	EndDate       time.Time `json:"end_date"`
-	Timestamp     time.Time `json:"timestamp"`
+	ID          string    `json:"id"`
+	Period      string    `json:"period"`       // daily, weekly, monthly
+	GrowthBytes int64     `json:"growth_bytes"` // 增长字节数
+	GrowthRate  float64   `json:"growth_rate"`  // 增长率
+	StartDate   time.Time `json:"start_date"`
+	EndDate     time.Time `json:"end_date"`
+	Timestamp   time.Time `json:"timestamp"`
 }
 
 // CapacityPlan 容量规划建议.
 type CapacityPlan struct {
-	ID               string    `json:"id"`
-	CurrentUsage     float64   `json:"current_usage"`     // 当前使用率
-	PredictedUsage   float64   `json:"predicted_usage"`   // 预测使用率
-	DaysUntilFull    int       `json:"days_until_full"`   // 预计多少天后满
-	RecommendedAction string  `json:"recommended_action"` // 建议操作
-	RecommendedSize  int64     `json:"recommended_size"`  // 建议扩容大小
-	Priority         string    `json:"priority"`          // high, medium, low
-	Timestamp        time.Time `json:"timestamp"`
+	ID                string    `json:"id"`
+	CurrentUsage      float64   `json:"current_usage"`      // 当前使用率
+	PredictedUsage    float64   `json:"predicted_usage"`    // 预测使用率
+	DaysUntilFull     int       `json:"days_until_full"`    // 预计多少天后满
+	RecommendedAction string    `json:"recommended_action"` // 建议操作
+	RecommendedSize   int64     `json:"recommended_size"`   // 建议扩容大小
+	Priority          string    `json:"priority"`           // high, medium, low
+	Timestamp         time.Time `json:"timestamp"`
 }
 
 // Alert 告警信息.
 type Alert struct {
-	ID          string    `json:"id"`
-	Level       string    `json:"level"`       // critical, warning, info
-	Message     string    `json:"message"`
-	Threshold   float64   `json:"threshold"`   // 触发阈值
-	Current     float64   `json:"current"`     // 当前值
-	IsRead      bool      `json:"is_read"`
-	Timestamp   time.Time `json:"timestamp"`
+	ID        string    `json:"id"`
+	Level     string    `json:"level"` // critical, warning, info
+	Message   string    `json:"message"`
+	Threshold float64   `json:"threshold"` // 触发阈值
+	Current   float64   `json:"current"`   // 当前值
+	IsRead    bool      `json:"is_read"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // ForecastModel 预测模型类型.

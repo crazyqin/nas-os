@@ -270,10 +270,10 @@ func TestContainerLifecycle(t *testing.T) {
 
 	// 创建
 	c, err := cm.Create(CreateRequest{
-		Name:     "test-ct",
-		Template: "ubuntu-22.04",
+		Name:      "test-ct",
+		Template:  "ubuntu-22.04",
 		Resources: ResourceLimit{CPUCores: 2, MemoryMB: 1024, DiskGB: 20},
-		Network:  NetworkConfig{Mode: NetworkModeNone},
+		Network:   NetworkConfig{Mode: NetworkModeNone},
 	})
 	if err != nil {
 		t.Fatalf("创建容器失败: %v", err)
@@ -495,8 +495,8 @@ func TestManagerIntegration(t *testing.T) {
 
 	// 创建容器
 	ct, err := mgr.CreateContainer(CreateRequest{
-		Name:     "integration-test",
-		Template: "debian-12",
+		Name:      "integration-test",
+		Template:  "debian-12",
 		Resources: ResourceLimit{CPUCores: 2, MemoryMB: 1024, DiskGB: 20},
 		Network: NetworkConfig{
 			Mode:      NetworkModeStatic,
@@ -567,10 +567,10 @@ func TestManagerTemplateWorkflow(t *testing.T) {
 
 	// 用自定义模板创建容器
 	ct, err := mgr.CreateContainer(CreateRequest{
-		Name:     "arch-ct",
-		Template: "custom-arch",
+		Name:      "arch-ct",
+		Template:  "custom-arch",
 		Resources: ResourceLimit{CPUCores: 1, MemoryMB: 256},
-		Network:  NetworkConfig{Mode: NetworkModeNone},
+		Network:   NetworkConfig{Mode: NetworkModeNone},
 	})
 	if err != nil {
 		t.Fatalf("创建容器失败: %v", err)
@@ -589,10 +589,10 @@ func TestManagerTemplateWorkflow(t *testing.T) {
 func TestManagerCreateWithInvalidTemplate(t *testing.T) {
 	mgr := NewManager()
 	_, err := mgr.CreateContainer(CreateRequest{
-		Name:     "bad-tpl",
-		Template: "nonexistent-template",
+		Name:      "bad-tpl",
+		Template:  "nonexistent-template",
 		Resources: ResourceLimit{CPUCores: 1, MemoryMB: 256},
-		Network:  NetworkConfig{Mode: NetworkModeNone},
+		Network:   NetworkConfig{Mode: NetworkModeNone},
 	})
 	if err == nil {
 		t.Error("不存在的模板应返回错误")
@@ -602,10 +602,10 @@ func TestManagerCreateWithInvalidTemplate(t *testing.T) {
 func TestManagerCreateWithInvalidNetwork(t *testing.T) {
 	mgr := NewManager()
 	_, err := mgr.CreateContainer(CreateRequest{
-		Name:     "bad-net",
-		Template: "ubuntu-22.04",
+		Name:      "bad-net",
+		Template:  "ubuntu-22.04",
 		Resources: ResourceLimit{CPUCores: 1, MemoryMB: 256},
-		Network:  NetworkConfig{Mode: NetworkModeStatic}, // 缺少 IP
+		Network:   NetworkConfig{Mode: NetworkModeStatic}, // 缺少 IP
 	})
 	if err == nil {
 		t.Error("无效网络配置应返回错误")

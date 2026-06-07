@@ -594,20 +594,20 @@ func (m *BtrfsScrubManager) generateReport(volumeName string) *ScrubReport {
 	}
 
 	report := &ScrubReport{
-		ID:             fmt.Sprintf("scrub-%d", time.Now().UnixNano()),
-		VolumeName:     volumeName,
-		Mode:           progress.Mode,
-		Status:         progress.Status,
-		StartTime:      *progress.StartTime,
-		EndTime:        time.Now(),
-		Duration:       time.Since(*progress.StartTime),
-		DataScanned:    progress.DataScanned,
-		ErrorDetails:   []ScrubErrorDetail{},
-		ErrorSummary:   ScrubErrorSummary{},
-		RepairSummary:  ScrubRepairSummary{},
-		HealthScore:    100 - int(progress.Errors),
+		ID:              fmt.Sprintf("scrub-%d", time.Now().UnixNano()),
+		VolumeName:      volumeName,
+		Mode:            progress.Mode,
+		Status:          progress.Status,
+		StartTime:       *progress.StartTime,
+		EndTime:         time.Now(),
+		Duration:        time.Since(*progress.StartTime),
+		DataScanned:     progress.DataScanned,
+		ErrorDetails:    []ScrubErrorDetail{},
+		ErrorSummary:    ScrubErrorSummary{},
+		RepairSummary:   ScrubRepairSummary{},
+		HealthScore:     100 - int(progress.Errors),
 		Recommendations: []string{},
-		GeneratedAt:    time.Now(),
+		GeneratedAt:     time.Now(),
 	}
 
 	// 如果有错误，添加建议

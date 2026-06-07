@@ -70,18 +70,18 @@ type DocCategory struct {
 
 // Collaborator 协作者
 type Collaborator struct {
-	UserID    string     `json:"userId"`
+	UserID     string     `json:"userId"`
 	Permission Permission `json:"permission"`
-	DocID     string     `json:"docId"`
+	DocID      string     `json:"docId"`
 }
 
 // SearchResult 搜索结果
 type SearchResult struct {
-	DocID      string  `json:"docId"`
-	Title      string  `json:"title"`
-	Snippet    string  `json:"snippet"`
-	MatchText  string  `json:"matchText"`
-	Relevance  float64 `json:"relevance"`
+	DocID     string  `json:"docId"`
+	Title     string  `json:"title"`
+	Snippet   string  `json:"snippet"`
+	MatchText string  `json:"matchText"`
+	Relevance float64 `json:"relevance"`
 }
 
 // ========== Manager ==========
@@ -90,10 +90,10 @@ type SearchResult struct {
 type Manager struct {
 	mu            sync.RWMutex
 	docs          map[string]*Document
-	versions      map[string][]DocVersion    // docID -> versions
-	comments      map[string][]Comment       // docID -> comments
+	versions      map[string][]DocVersion // docID -> versions
+	comments      map[string][]Comment    // docID -> comments
 	templates     map[string]*Template
-	collaborators map[string][]Collaborator  // docID -> collaborators
+	collaborators map[string][]Collaborator // docID -> collaborators
 	categories    map[string]*DocCategory
 }
 

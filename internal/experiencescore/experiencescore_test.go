@@ -45,13 +45,13 @@ func TestCalculateScore(t *testing.T) {
 func TestUpdateQuality(t *testing.T) {
 	m := NewManager()
 	quality := &StorageQuality{
-		DeviceID:        "ssd1",
-		DeviceName:      "NVMe SSD",
-		IOPSScore:       95.0,
-		LatencyScore:    98.0,
-		ThroughputScore: 92.0,
+		DeviceID:         "ssd1",
+		DeviceName:       "NVMe SSD",
+		IOPSScore:        95.0,
+		LatencyScore:     98.0,
+		ThroughputScore:  92.0,
 		ReliabilityScore: 99.0,
-		OverallScore:    96.0,
+		OverallScore:     96.0,
 	}
 	m.UpdateQuality(quality)
 }

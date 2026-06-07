@@ -528,14 +528,14 @@ func (m *Manager) GenerateReport(framework ComplianceFramework) *ComplianceRepor
 		} else {
 			report.FailedChecks++
 			report.Findings = append(report.Findings, ReportFinding{
-				ID:               fmt.Sprintf("find-%d", time.Now().UnixNano()),
-				Category:         c.category,
-				Title:            c.title,
-				Description:      c.description,
-				Severity:         c.severity,
-				AffectedAssets:   c.affectedAssets,
-				Remediation:      c.remediation,
-				Status:           "open",
+				ID:             fmt.Sprintf("find-%d", time.Now().UnixNano()),
+				Category:       c.category,
+				Title:          c.title,
+				Description:    c.description,
+				Severity:       c.severity,
+				AffectedAssets: c.affectedAssets,
+				Remediation:    c.remediation,
+				Status:         "open",
 			})
 		}
 	}

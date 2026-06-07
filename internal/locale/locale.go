@@ -44,12 +44,12 @@ type TranslationEntry struct {
 
 // LocaleManager manages translations and locale settings
 type LocaleManager struct {
-	mu              sync.RWMutex
-	defaultLang     string
-	currentLang     string
-	languages       map[string]Language
-	translations    map[string]map[string]*TranslationEntry // lang -> key -> entry
-	pluralFuncs     map[string]func(int) string             // lang -> plural rule function
+	mu           sync.RWMutex
+	defaultLang  string
+	currentLang  string
+	languages    map[string]Language
+	translations map[string]map[string]*TranslationEntry // lang -> key -> entry
+	pluralFuncs  map[string]func(int) string             // lang -> plural rule function
 }
 
 // NewManager creates a new LocaleManager with a default language

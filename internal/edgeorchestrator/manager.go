@@ -33,8 +33,8 @@ func (e *NotFoundError) Error() string {
 
 // InsufficientResourceError 资源不足
 type InsufficientResourceError struct {
-	Resource string
-	Required float64
+	Resource  string
+	Required  float64
 	Available float64
 }
 

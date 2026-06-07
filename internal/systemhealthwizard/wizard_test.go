@@ -110,8 +110,8 @@ func TestCalculateScore(t *testing.T) {
 	w := New()
 	session := &WizardSession{
 		Results: map[CheckStep]*StepResult{
-			StepDiskHealth:     {Status: StatusPass},
-			StepMemoryTest:     {Status: StatusWarn},
+			StepDiskHealth:          {Status: StatusPass},
+			StepMemoryTest:          {Status: StatusWarn},
 			StepNetworkConnectivity: {Status: StatusPass},
 		},
 	}

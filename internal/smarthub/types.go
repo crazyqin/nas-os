@@ -10,13 +10,13 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	ErrDeviceNotFound    = errors.New("device not found")
-	ErrDeviceOffline     = errors.New("device offline")
-	ErrSceneNotFound     = errors.New("scene not found")
+	ErrDeviceNotFound       = errors.New("device not found")
+	ErrDeviceOffline        = errors.New("device offline")
+	ErrSceneNotFound        = errors.New("scene not found")
 	ErrProtocolNotSupported = errors.New("protocol not supported")
-	ErrInvalidCommand    = errors.New("invalid command")
-	ErrHubNotRunning     = errors.New("hub not running")
-	ErrDuplicateDevice   = errors.New("duplicate device")
+	ErrInvalidCommand       = errors.New("invalid command")
+	ErrHubNotRunning        = errors.New("hub not running")
+	ErrDuplicateDevice      = errors.New("duplicate device")
 )
 
 // ========== 设备协议 ==========
@@ -25,12 +25,12 @@ var (
 type Protocol string
 
 const (
-	ProtocolZigbee  Protocol = "zigbee"
-	ProtocolZWave   Protocol = "zwave"
-	ProtocolWiFi    Protocol = "wifi"
-	ProtocolBLE     Protocol = "ble"
-	ProtocolMatter  Protocol = "matter"
-	ProtocolThread  Protocol = "thread"
+	ProtocolZigbee Protocol = "zigbee"
+	ProtocolZWave  Protocol = "zwave"
+	ProtocolWiFi   Protocol = "wifi"
+	ProtocolBLE    Protocol = "ble"
+	ProtocolMatter Protocol = "matter"
+	ProtocolThread Protocol = "thread"
 )
 
 // ========== 设备类型 ==========
@@ -68,19 +68,19 @@ const (
 
 // Device 智能设备.
 type Device struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Type        DeviceType        `json:"type"`
-	Protocol    Protocol          `json:"protocol"`
-	Room        string            `json:"room"`
-	State       DeviceState       `json:"state"`
-	Properties  map[string]string `json:"properties"`
-	Battery     int               `json:"battery"`     // 0-100, -1=不适用
-	Firmware    string            `json:"firmware"`
-	LastSeen    time.Time         `json:"last_seen"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
-	Tags        []string          `json:"tags"`
+	ID         string            `json:"id"`
+	Name       string            `json:"name"`
+	Type       DeviceType        `json:"type"`
+	Protocol   Protocol          `json:"protocol"`
+	Room       string            `json:"room"`
+	State      DeviceState       `json:"state"`
+	Properties map[string]string `json:"properties"`
+	Battery    int               `json:"battery"` // 0-100, -1=不适用
+	Firmware   string            `json:"firmware"`
+	LastSeen   time.Time         `json:"last_seen"`
+	CreatedAt  time.Time         `json:"created_at"`
+	UpdatedAt  time.Time         `json:"updated_at"`
+	Tags       []string          `json:"tags"`
 }
 
 // ========== 场景定义 ==========
@@ -103,9 +103,9 @@ type Scene struct {
 type TriggerType string
 
 const (
-	TriggerManual   TriggerType = "manual"
-	TriggerSchedule TriggerType = "schedule"
-	TriggerDevice   TriggerType = "device"
+	TriggerManual    TriggerType = "manual"
+	TriggerSchedule  TriggerType = "schedule"
+	TriggerDevice    TriggerType = "device"
 	TriggerCondition TriggerType = "condition"
 )
 
@@ -121,15 +121,15 @@ type SceneAction struct {
 
 // Automation 自动化规则.
 type Automation struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	Enabled     bool        `json:"enabled"`
-	Conditions  []Condition `json:"conditions"`
-	Actions     []SceneAction `json:"actions"`
-	LogicOp     string      `json:"logic_op"` // "and" / "or"
-	LastTrigger time.Time   `json:"last_trigger"`
-	TriggerCount int64      `json:"trigger_count"`
-	CreatedAt   time.Time   `json:"created_at"`
+	ID           string        `json:"id"`
+	Name         string        `json:"name"`
+	Enabled      bool          `json:"enabled"`
+	Conditions   []Condition   `json:"conditions"`
+	Actions      []SceneAction `json:"actions"`
+	LogicOp      string        `json:"logic_op"` // "and" / "or"
+	LastTrigger  time.Time     `json:"last_trigger"`
+	TriggerCount int64         `json:"trigger_count"`
+	CreatedAt    time.Time     `json:"created_at"`
 }
 
 // Condition 触发条件.
@@ -144,33 +144,33 @@ type Condition struct {
 
 // EnergyRecord 能耗记录.
 type EnergyRecord struct {
-	DeviceID   string    `json:"device_id"`
-	Timestamp  time.Time `json:"timestamp"`
-	Power      float64   `json:"power"`      // 瓦特
-	Energy     float64   `json:"energy"`     // 千瓦时
-	Voltage    float64   `json:"voltage"`
-	Current    float64   `json:"current"`
+	DeviceID  string    `json:"device_id"`
+	Timestamp time.Time `json:"timestamp"`
+	Power     float64   `json:"power"`  // 瓦特
+	Energy    float64   `json:"energy"` // 千瓦时
+	Voltage   float64   `json:"voltage"`
+	Current   float64   `json:"current"`
 }
 
 // EnergyStats 能耗统计.
 type EnergyStats struct {
-	DeviceID      string  `json:"device_id"`
-	TotalEnergy   float64 `json:"total_energy"`   // 千瓦时
-	AvgPower      float64 `json:"avg_power"`       // 瓦特
-	PeakPower     float64 `json:"peak_power"`
-	DailyCost     float64 `json:"daily_cost"`      // 元
-	MonthlyCost   float64 `json:"monthly_cost"`
+	DeviceID        string  `json:"device_id"`
+	TotalEnergy     float64 `json:"total_energy"` // 千瓦时
+	AvgPower        float64 `json:"avg_power"`    // 瓦特
+	PeakPower       float64 `json:"peak_power"`
+	DailyCost       float64 `json:"daily_cost"` // 元
+	MonthlyCost     float64 `json:"monthly_cost"`
 	CarbonFootprint float64 `json:"carbon_footprint"` // kg CO2
 }
 
 // HubConfig 中枢配置.
 type HubConfig struct {
-	ListenAddr     string        `json:"listen_addr"`
-	ZigbeePort     string        `json:"zigbee_port"`
-	ZWavePort      string        `json:"zwave_port"`
-	MQTTBroker     string        `json:"mqtt_broker"`
+	ListenAddr        string        `json:"listen_addr"`
+	ZigbeePort        string        `json:"zigbee_port"`
+	ZWavePort         string        `json:"zwave_port"`
+	MQTTBroker        string        `json:"mqtt_broker"`
 	DiscoveryInterval time.Duration `json:"discovery_interval"`
-	DeviceTimeout  time.Duration  `json:"device_timeout"`
-	EnableEnergy   bool           `json:"enable_energy"`
-	TariffPerKWh   float64        `json:"tariff_per_kwh"` // 电价
+	DeviceTimeout     time.Duration `json:"device_timeout"`
+	EnableEnergy      bool          `json:"enable_energy"`
+	TariffPerKWh      float64       `json:"tariff_per_kwh"` // 电价
 }

@@ -31,10 +31,10 @@ func TestAddDataItem(t *testing.T) {
 	sdt := NewSmartDataTiering(nil)
 
 	item := &DataItem{
-		ID:          "test_item_1",
-		Path:        "/data/test.txt",
-		Size:        1024 * 1024, // 1MB
-		AccessCount: 100,
+		ID:           "test_item_1",
+		Path:         "/data/test.txt",
+		Size:         1024 * 1024, // 1MB
+		AccessCount:  100,
 		LastAccessed: time.Now(),
 		LastModified: time.Now(),
 		CreatedAt:    time.Now().Add(-24 * time.Hour),
@@ -79,10 +79,10 @@ func TestTemperatureEvaluation(t *testing.T) {
 	sdt := NewSmartDataTiering(nil)
 
 	tests := []struct {
-		name           string
-		accessCount    int64
-		lastAccessed   time.Duration
-		expectedTemp   DataTemperature
+		name         string
+		accessCount  int64
+		lastAccessed time.Duration
+		expectedTemp DataTemperature
 	}{
 		{"Hot - frequent access", 100, 1 * time.Hour, TempHot},
 		{"Warm - moderate access", 10, 3 * 24 * time.Hour, TempWarm},

@@ -117,13 +117,13 @@ func TestAuditLogger_LogFailoverEnd(t *testing.T) {
 
 	// Success case
 	event := &FailoverEvent{
-		ID:        "failover-1",
-		FromNode:  "node-1",
-		ToNode:    "node-2",
-		Reason:    "test",
-		Success:   true,
-		Sessions:  5,
-		Duration:  100 * time.Millisecond,
+		ID:       "failover-1",
+		FromNode: "node-1",
+		ToNode:   "node-2",
+		Reason:   "test",
+		Success:  true,
+		Sessions: 5,
+		Duration: 100 * time.Millisecond,
 	}
 
 	auditLogger.LogFailoverEnd(event)
@@ -640,10 +640,10 @@ func TestContainsString(t *testing.T) {
 
 func TestContainsQuery(t *testing.T) {
 	event := AuditEvent{
-		Message:  "failover started",
-		Source:   "node-1",
-		Target:   "node-2",
-		NodeID:   "node-1",
+		Message:   "failover started",
+		Source:    "node-1",
+		Target:    "node-2",
+		NodeID:    "node-1",
 		SessionID: "session-1",
 		Details: map[string]interface{}{
 			"key": "value",

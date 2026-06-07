@@ -19,21 +19,21 @@ const (
 
 // Container Docker容器
 type Container struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Image       string         `json:"image"`
-	State       ContainerState `json:"state"`
-	Status      string         `json:"status"`
-	Ports       []PortMapping  `json:"ports"`
-	Volumes     []string       `json:"volumes"`
-	Networks    []string       `json:"networks"`
-	CPUPercent  float64        `json:"cpuPercent"`
-	MemBytes    int64          `json:"memBytes"`
-	MemLimit    int64          `json:"memLimit"`
-	CreatedAt   time.Time      `json:"createdAt"`
-	StartedAt   time.Time      `json:"startedAt"`
-	Restarts    int            `json:"restarts"`
-	Health      string         `json:"health"`
+	ID         string         `json:"id"`
+	Name       string         `json:"name"`
+	Image      string         `json:"image"`
+	State      ContainerState `json:"state"`
+	Status     string         `json:"status"`
+	Ports      []PortMapping  `json:"ports"`
+	Volumes    []string       `json:"volumes"`
+	Networks   []string       `json:"networks"`
+	CPUPercent float64        `json:"cpuPercent"`
+	MemBytes   int64          `json:"memBytes"`
+	MemLimit   int64          `json:"memLimit"`
+	CreatedAt  time.Time      `json:"createdAt"`
+	StartedAt  time.Time      `json:"startedAt"`
+	Restarts   int            `json:"restarts"`
+	Health     string         `json:"health"`
 }
 
 // PortMapping 端口映射
@@ -46,13 +46,13 @@ type PortMapping struct {
 
 // ComposeProject Docker Compose项目
 type ComposeProject struct {
-	Name       string             `json:"name"`
-	Services   []ComposeService   `json:"services"`
-	Networks   []string           `json:"networks"`
-	Volumes    []string           `json:"volumes"`
-	Status     string             `json:"status"`
-	ConfigPath string             `json:"configPath"`
-	CreatedAt  time.Time          `json:"createdAt"`
+	Name       string           `json:"name"`
+	Services   []ComposeService `json:"services"`
+	Networks   []string         `json:"networks"`
+	Volumes    []string         `json:"volumes"`
+	Status     string           `json:"status"`
+	ConfigPath string           `json:"configPath"`
+	CreatedAt  time.Time        `json:"createdAt"`
 }
 
 // ComposeService Compose服务
@@ -78,12 +78,12 @@ type Image struct {
 
 // Network Docker网络
 type Network struct {
-	Name     string   `json:"name"`
-	Driver   string   `json:"driver"`
-	Subnet   string   `json:"subnet"`
-	Gateway  string   `json:"gateway"`
-	IPRange  string   `json:"ipRange"`
-	Internal bool     `json:"internal"`
+	Name     string `json:"name"`
+	Driver   string `json:"driver"`
+	Subnet   string `json:"subnet"`
+	Gateway  string `json:"gateway"`
+	IPRange  string `json:"ipRange"`
+	Internal bool   `json:"internal"`
 }
 
 // Manager Docker管理器

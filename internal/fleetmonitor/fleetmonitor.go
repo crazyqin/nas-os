@@ -37,77 +37,77 @@ type ClusterDevice struct {
 type DeviceType string
 
 const (
-	DeviceTypeNAS       DeviceType = "nas"
-	DeviceTypeServer    DeviceType = "server"
-	DeviceTypeSwitch    DeviceType = "switch"
-	DeviceTypeUPS       DeviceType = "ups"
-	DeviceTypeRouter    DeviceType = "router"
-	DeviceTypeStorage   DeviceType = "storage"
+	DeviceTypeNAS     DeviceType = "nas"
+	DeviceTypeServer  DeviceType = "server"
+	DeviceTypeSwitch  DeviceType = "switch"
+	DeviceTypeUPS     DeviceType = "ups"
+	DeviceTypeRouter  DeviceType = "router"
+	DeviceTypeStorage DeviceType = "storage"
 )
 
 // DeviceLocation 设备位置
 type DeviceLocation struct {
-	Rack   string `json:"rack"`
-	Row    string `json:"row"`
-	Unit   int    `json:"unit"`
-	Site   string `json:"site"`
-	City   string `json:"city"`
+	Rack    string `json:"rack"`
+	Row     string `json:"row"`
+	Unit    int    `json:"unit"`
+	Site    string `json:"site"`
+	City    string `json:"city"`
 	Country string `json:"country"`
 }
 
 // DeviceResources 设备资源
 type DeviceResources struct {
-	CPU        CPUInfo        `json:"cpu"`
-	Memory     MemoryInfo     `json:"memory"`
-	Storage    []StorageInfo  `json:"storage"`
-	Network    []NetworkInfo  `json:"network"`
+	CPU         CPUInfo         `json:"cpu"`
+	Memory      MemoryInfo      `json:"memory"`
+	Storage     []StorageInfo   `json:"storage"`
+	Network     []NetworkInfo   `json:"network"`
 	Temperature TemperatureInfo `json:"temperature"`
 }
 
 // CPUInfo CPU 信息
 type CPUInfo struct {
-	Model       string    `json:"model"`
-	Cores       int       `json:"cores"`
-	Threads     int       `json:"threads"`
-	FrequencyGHz float64  `json:"frequency_ghz"`
-	UsagePercent float64  `json:"usage_percent"`
-	LoadAvg1    float64   `json:"load_avg_1"`
-	LoadAvg5    float64   `json:"load_avg_5"`
-	LoadAvg15   float64   `json:"load_avg_15"`
+	Model        string  `json:"model"`
+	Cores        int     `json:"cores"`
+	Threads      int     `json:"threads"`
+	FrequencyGHz float64 `json:"frequency_ghz"`
+	UsagePercent float64 `json:"usage_percent"`
+	LoadAvg1     float64 `json:"load_avg_1"`
+	LoadAvg5     float64 `json:"load_avg_5"`
+	LoadAvg15    float64 `json:"load_avg_15"`
 }
 
 // MemoryInfo 内存信息
 type MemoryInfo struct {
-	TotalGB     float64 `json:"total_gb"`
-	UsedGB      float64 `json:"used_gb"`
-	AvailableGB float64 `json:"available_gb"`
+	TotalGB      float64 `json:"total_gb"`
+	UsedGB       float64 `json:"used_gb"`
+	AvailableGB  float64 `json:"available_gb"`
 	UsagePercent float64 `json:"usage_percent"`
-	SwapTotalGB float64 `json:"swap_total_gb"`
-	SwapUsedGB  float64 `json:"swap_used_gb"`
+	SwapTotalGB  float64 `json:"swap_total_gb"`
+	SwapUsedGB   float64 `json:"swap_used_gb"`
 }
 
 // StorageInfo 存储信息
 type StorageInfo struct {
-	Name        string  `json:"name"`
-	Type        string  `json:"type"`
-	TotalGB     float64 `json:"total_gb"`
-	UsedGB      float64 `json:"used_gb"`
-	AvailableGB float64 `json:"available_gb"`
+	Name         string  `json:"name"`
+	Type         string  `json:"type"`
+	TotalGB      float64 `json:"total_gb"`
+	UsedGB       float64 `json:"used_gb"`
+	AvailableGB  float64 `json:"available_gb"`
 	UsagePercent float64 `json:"usage_percent"`
-	Health      string  `json:"health"`
-	Temperature float64 `json:"temperature"`
+	Health       string  `json:"health"`
+	Temperature  float64 `json:"temperature"`
 }
 
 // NetworkInfo 网络信息
 type NetworkInfo struct {
-	Name        string  `json:"name"`
-	SpeedMbps   int     `json:"speed_mbps"`
-	IP          string  `json:"ip"`
-	MAC         string  `json:"mac"`
-	BytesSent   int64   `json:"bytes_sent"`
-	BytesRecv   int64   `json:"bytes_recv"`
-	Errors      int64   `json:"errors"`
-	Up          bool    `json:"up"`
+	Name      string `json:"name"`
+	SpeedMbps int    `json:"speed_mbps"`
+	IP        string `json:"ip"`
+	MAC       string `json:"mac"`
+	BytesSent int64  `json:"bytes_sent"`
+	BytesRecv int64  `json:"bytes_recv"`
+	Errors    int64  `json:"errors"`
+	Up        bool   `json:"up"`
 }
 
 // TemperatureInfo 温度信息
@@ -122,9 +122,9 @@ type TemperatureInfo struct {
 type DeviceStatus string
 
 const (
-	DeviceStatusOnline     DeviceStatus = "online"
-	DeviceStatusOffline    DeviceStatus = "offline"
-	DeviceStatusDegraded   DeviceStatus = "degraded"
+	DeviceStatusOnline      DeviceStatus = "online"
+	DeviceStatusOffline     DeviceStatus = "offline"
+	DeviceStatusDegraded    DeviceStatus = "degraded"
 	DeviceStatusMaintenance DeviceStatus = "maintenance"
 )
 
@@ -142,11 +142,11 @@ const (
 
 // MetricPoint 指标点
 type MetricPoint struct {
-	Timestamp time.Time   `json:"timestamp"`
-	DeviceID  string      `json:"device_id"`
-	Metric    string      `json:"metric"`
-	Value     float64     `json:"value"`
-	Unit      string      `json:"unit"`
+	Timestamp time.Time         `json:"timestamp"`
+	DeviceID  string            `json:"device_id"`
+	Metric    string            `json:"metric"`
+	Value     float64           `json:"value"`
+	Unit      string            `json:"unit"`
 	Tags      map[string]string `json:"tags,omitempty"`
 }
 
@@ -162,32 +162,32 @@ type MetricSeries struct {
 
 // Alert 告警
 type Alert struct {
-	ID          string       `json:"id"`
-	DeviceID    string       `json:"device_id"`
-	DeviceName  string       `json:"device_name"`
-	RuleID      string       `json:"rule_id"`
-	RuleName    string       `json:"rule_name"`
-	Level       AlertLevel   `json:"level"`
-	Category    AlertCategory `json:"category"`
-	Title       string       `json:"title"`
-	Message     string       `json:"message"`
-	Value       float64      `json:"value"`
-	Threshold   float64      `json:"threshold"`
-	Status      AlertStatus  `json:"status"`
-	AcknowledgedBy string   `json:"acknowledged_by,omitempty"`
-	ResolvedAt  *time.Time   `json:"resolved_at,omitempty"`
-	Metadata    map[string]string `json:"metadata,omitempty"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	ID             string            `json:"id"`
+	DeviceID       string            `json:"device_id"`
+	DeviceName     string            `json:"device_name"`
+	RuleID         string            `json:"rule_id"`
+	RuleName       string            `json:"rule_name"`
+	Level          AlertLevel        `json:"level"`
+	Category       AlertCategory     `json:"category"`
+	Title          string            `json:"title"`
+	Message        string            `json:"message"`
+	Value          float64           `json:"value"`
+	Threshold      float64           `json:"threshold"`
+	Status         AlertStatus       `json:"status"`
+	AcknowledgedBy string            `json:"acknowledged_by,omitempty"`
+	ResolvedAt     *time.Time        `json:"resolved_at,omitempty"`
+	Metadata       map[string]string `json:"metadata,omitempty"`
+	CreatedAt      time.Time         `json:"created_at"`
+	UpdatedAt      time.Time         `json:"updated_at"`
 }
 
 // AlertLevel 告警级别
 type AlertLevel string
 
 const (
-	AlertLevelInfo     AlertLevel = "info"
-	AlertLevelWarning  AlertLevel = "warning"
-	AlertLevelCritical AlertLevel = "critical"
+	AlertLevelInfo      AlertLevel = "info"
+	AlertLevelWarning   AlertLevel = "warning"
+	AlertLevelCritical  AlertLevel = "critical"
 	AlertLevelEmergency AlertLevel = "emergency"
 )
 
@@ -195,13 +195,13 @@ const (
 type AlertCategory string
 
 const (
-	AlertCategoryCPU       AlertCategory = "cpu"
-	AlertCategoryMemory    AlertCategory = "memory"
-	AlertCategoryStorage   AlertCategory = "storage"
-	AlertCategoryNetwork   AlertCategory = "network"
+	AlertCategoryCPU         AlertCategory = "cpu"
+	AlertCategoryMemory      AlertCategory = "memory"
+	AlertCategoryStorage     AlertCategory = "storage"
+	AlertCategoryNetwork     AlertCategory = "network"
 	AlertCategoryTemperature AlertCategory = "temperature"
-	AlertCategoryService   AlertCategory = "service"
-	AlertCategorySecurity  AlertCategory = "security"
+	AlertCategoryService     AlertCategory = "service"
+	AlertCategorySecurity    AlertCategory = "security"
 )
 
 // AlertStatus 告警状态
@@ -216,18 +216,18 @@ const (
 
 // AlertRule 告警规则
 type AlertRule struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Description string       `json:"description"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
 	Category    AlertCategory `json:"category"`
-	Metric      string       `json:"metric"`
-	Condition   string       `json:"condition"` // gt, lt, eq, gte, lte
-	Threshold   float64      `json:"threshold"`
-	Duration    int          `json:"duration"` // 秒
-	Level       AlertLevel   `json:"level"`
-	Enabled     bool         `json:"enabled"`
+	Metric      string        `json:"metric"`
+	Condition   string        `json:"condition"` // gt, lt, eq, gte, lte
+	Threshold   float64       `json:"threshold"`
+	Duration    int           `json:"duration"` // 秒
+	Level       AlertLevel    `json:"level"`
+	Enabled     bool          `json:"enabled"`
 	Actions     []AlertAction `json:"actions"`
-	CreatedAt   time.Time    `json:"created_at"`
+	CreatedAt   time.Time     `json:"created_at"`
 }
 
 // AlertAction 告警动作
@@ -241,19 +241,19 @@ type AlertAction struct {
 
 // FleetMonitor 集群监控管理器
 type FleetMonitor struct {
-	mu       sync.RWMutex
-	devices  map[string]*ClusterDevice
-	metrics  map[string][]MetricPoint
-	alerts   map[string]*Alert
-	rules    map[string]*AlertRule
-	config   MonitorConfig
-	stats    MonitorStats
+	mu      sync.RWMutex
+	devices map[string]*ClusterDevice
+	metrics map[string][]MetricPoint
+	alerts  map[string]*Alert
+	rules   map[string]*AlertRule
+	config  MonitorConfig
+	stats   MonitorStats
 }
 
 // MonitorConfig 监控配置
 type MonitorConfig struct {
 	MetricsRetentionDays int    `json:"metrics_retention_days"`
-	CollectionInterval   int    `json:"collection_interval"` // 秒
+	CollectionInterval   int    `json:"collection_interval"`  // 秒
 	AlertCheckInterval   int    `json:"alert_check_interval"` // 秒
 	MaxDevices           int    `json:"max_devices"`
 	MaxAlerts            int    `json:"max_alerts"`
@@ -269,17 +269,17 @@ type MonitorConfig struct {
 
 // MonitorStats 监控统计
 type MonitorStats struct {
-	TotalDevices     int       `json:"total_devices"`
-	OnlineDevices    int       `json:"online_devices"`
-	OfflineDevices   int       `json:"offline_devices"`
-	TotalAlerts      int       `json:"total_alerts"`
-	ActiveAlerts     int       `json:"active_alerts"`
-	CriticalAlerts   int       `json:"critical_alerts"`
-	WarningAlerts    int       `json:"warning_alerts"`
-	TotalMetrics     int       `json:"total_metrics"`
-	HealthScore      float64   `json:"health_score"`
-	LastCollection   time.Time `json:"last_collection"`
-	LastAlertCheck   time.Time `json:"last_alert_check"`
+	TotalDevices   int       `json:"total_devices"`
+	OnlineDevices  int       `json:"online_devices"`
+	OfflineDevices int       `json:"offline_devices"`
+	TotalAlerts    int       `json:"total_alerts"`
+	ActiveAlerts   int       `json:"active_alerts"`
+	CriticalAlerts int       `json:"critical_alerts"`
+	WarningAlerts  int       `json:"warning_alerts"`
+	TotalMetrics   int       `json:"total_metrics"`
+	HealthScore    float64   `json:"health_score"`
+	LastCollection time.Time `json:"last_collection"`
+	LastAlertCheck time.Time `json:"last_alert_check"`
 }
 
 // NewFleetMonitor 创建集群监控管理器
@@ -800,14 +800,14 @@ func (m *FleetMonitor) calculateDeviceScore(device *ClusterDevice) float64 {
 
 // FleetHealth 集群健康状态
 type FleetHealth struct {
-	Timestamp       time.Time                 `json:"timestamp"`
-	TotalDevices    int                       `json:"total_devices"`
-	HealthyDevices  int                       `json:"healthy_devices"`
-	WarningDevices  int                       `json:"warning_devices"`
-	CriticalDevices int                       `json:"critical_devices"`
-	OverallScore    float64                   `json:"overall_score"`
-	OverallHealth   HealthStatus              `json:"overall_health"`
-	Devices         map[string]DeviceHealth   `json:"devices"`
+	Timestamp       time.Time               `json:"timestamp"`
+	TotalDevices    int                     `json:"total_devices"`
+	HealthyDevices  int                     `json:"healthy_devices"`
+	WarningDevices  int                     `json:"warning_devices"`
+	CriticalDevices int                     `json:"critical_devices"`
+	OverallScore    float64                 `json:"overall_score"`
+	OverallHealth   HealthStatus            `json:"overall_health"`
+	Devices         map[string]DeviceHealth `json:"devices"`
 }
 
 // DeviceHealth 设备健康状态

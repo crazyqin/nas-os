@@ -25,18 +25,19 @@ func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 // RegisterRoutes 注册路由到 gin.RouterGroup.
 //
 // 注册的路由：
-//   POST   /smartalerttriage/ingest              - 接收告警
-//   GET    /smartalerttriage/list                - 告警列表
-//   GET    /smartalerttriage/:id                 - 获取告警详情
-//   POST   /smartalerttriage/:id/acknowledge     - 确认告警
-//   POST   /smartalerttriage/:id/resolve         - 解决告警
-//   GET    /smartalerttriage/stats               - 告警统计
-//   GET    /smartalerttriage/trend               - 告警趋势
-//   GET    /smartalerttriage/groups              - 聚合组列表
-//   GET    /smartalerttriage/rootcause/:id       - 根因详情
-//   POST   /smartalerttriage/suppression         - 创建抑制规则
-//   GET    /smartalerttriage/suppression          - 列出抑制规则
-//   DELETE /smartalerttriage/suppression/:id      - 删除抑制规则
+//
+//	POST   /smartalerttriage/ingest              - 接收告警
+//	GET    /smartalerttriage/list                - 告警列表
+//	GET    /smartalerttriage/:id                 - 获取告警详情
+//	POST   /smartalerttriage/:id/acknowledge     - 确认告警
+//	POST   /smartalerttriage/:id/resolve         - 解决告警
+//	GET    /smartalerttriage/stats               - 告警统计
+//	GET    /smartalerttriage/trend               - 告警趋势
+//	GET    /smartalerttriage/groups              - 聚合组列表
+//	GET    /smartalerttriage/rootcause/:id       - 根因详情
+//	POST   /smartalerttriage/suppression         - 创建抑制规则
+//	GET    /smartalerttriage/suppression          - 列出抑制规则
+//	DELETE /smartalerttriage/suppression/:id      - 删除抑制规则
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	triage := r.Group("/smartalerttriage")
 	{

@@ -31,31 +31,31 @@ const (
 
 // AuditConfig 审计配置.
 type AuditConfig struct {
-	Enabled           bool                `json:"enabled"`
-	ScheduleType      AuditScheduleType   `json:"schedule_type"`
-	ScheduleTime      string              `json:"schedule_time"`       // "02:00" for daily
-	ScheduleDay       int                 `json:"schedule_day"`        // 0-6 for weekly, 1-31 for monthly
-	Standards         []ComplianceStandard `json:"standards"`
+	Enabled           bool                       `json:"enabled"`
+	ScheduleType      AuditScheduleType          `json:"schedule_type"`
+	ScheduleTime      string                     `json:"schedule_time"` // "02:00" for daily
+	ScheduleDay       int                        `json:"schedule_day"`  // 0-6 for weekly, 1-31 for monthly
+	Standards         []ComplianceStandard       `json:"standards"`
 	BaselineStandards []SecurityBaselineStandard `json:"baseline_standards"`
-	AlertOnViolation  bool                `json:"alert_on_violation"`
-	AlertThreshold    int                 `json:"alert_threshold"`     // 分数低于此值触发告警
-	RetentionDays     int                 `json:"retention_days"`      // 报告保留天数
+	AlertOnViolation  bool                       `json:"alert_on_violation"`
+	AlertThreshold    int                        `json:"alert_threshold"` // 分数低于此值触发告警
+	RetentionDays     int                        `json:"retention_days"`  // 报告保留天数
 }
 
 // AuditResult 审计结果.
 type AuditResult struct {
-	ID                  string              `json:"id"`
-	StartTime           time.Time           `json:"start_time"`
-	EndTime             time.Time           `json:"end_time"`
-	Duration            time.Duration       `json:"duration"`
-	ComplianceReports   []*ComplianceReport `json:"compliance_reports,omitempty"`
-	BaselineReports     []*BaselineReport   `json:"baseline_reports,omitempty"`
-	OverallScore        int                 `json:"overall_score"`
-	TotalViolations     int                 `json:"total_violations"`
-	CriticalViolations  int                 `json:"critical_violations"`
-	Alerts              []AuditAlert        `json:"alerts,omitempty"`
-	Status              ScanStatus          `json:"status"`
-	Summary             string              `json:"summary"`
+	ID                 string              `json:"id"`
+	StartTime          time.Time           `json:"start_time"`
+	EndTime            time.Time           `json:"end_time"`
+	Duration           time.Duration       `json:"duration"`
+	ComplianceReports  []*ComplianceReport `json:"compliance_reports,omitempty"`
+	BaselineReports    []*BaselineReport   `json:"baseline_reports,omitempty"`
+	OverallScore       int                 `json:"overall_score"`
+	TotalViolations    int                 `json:"total_violations"`
+	CriticalViolations int                 `json:"critical_violations"`
+	Alerts             []AuditAlert        `json:"alerts,omitempty"`
+	Status             ScanStatus          `json:"status"`
+	Summary            string              `json:"summary"`
 }
 
 // AuditAlert 审计告警.
@@ -86,14 +86,14 @@ func (h *LogAlertHandler) HandleAlert(alert AuditAlert) error {
 
 // AutoAuditEngine 自动化审计引擎.
 type AutoAuditEngine struct {
-	config         AuditConfig
-	reportGen      *ReportGenerator
+	config          AuditConfig
+	reportGen       *ReportGenerator
 	baselineScanner *SecurityBaselineScanner
-	alertHandlers  []AlertHandler
-	results        []*AuditResult
-	mu             sync.RWMutex
-	stopCh         chan struct{}
-	running        bool
+	alertHandlers   []AlertHandler
+	results         []*AuditResult
+	mu              sync.RWMutex
+	stopCh          chan struct{}
+	running         bool
 }
 
 // NewAutoAuditEngine 创建自动化审计引擎.
@@ -544,14 +544,14 @@ func (e *AutoAuditEngine) GetAuditStatus() map[string]interface{} {
 	latest := e.GetLatestResult()
 
 	status := map[string]interface{}{
-		"enabled":       config.Enabled,
-		"running":       e.running,
-		"schedule_type": config.ScheduleType,
-		"schedule_time": config.ScheduleTime,
-		"total_results": len(e.results),
-		"standards":     config.Standards,
+		"enabled":            config.Enabled,
+		"running":            e.running,
+		"schedule_type":      config.ScheduleType,
+		"schedule_time":      config.ScheduleTime,
+		"total_results":      len(e.results),
+		"standards":          config.Standards,
 		"baseline_standards": config.BaselineStandards,
-		"alert_threshold": config.AlertThreshold,
+		"alert_threshold":    config.AlertThreshold,
 	}
 
 	if latest != nil {

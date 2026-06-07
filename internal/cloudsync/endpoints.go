@@ -14,26 +14,26 @@ import (
 // HealthStatus 同步队列健康状态.
 type HealthStatus struct {
 	QueueDepth       int64 `json:"queue_depth"`
-	ActiveTasks     int64 `json:"active_tasks"`
-	PendingTasks    int64 `json:"pending_tasks"`
-	FailedTasks     int64 `json:"failed_tasks"`
-	TotalProviders  int64 `json:"total_providers"`
+	ActiveTasks      int64 `json:"active_tasks"`
+	PendingTasks     int64 `json:"pending_tasks"`
+	FailedTasks      int64 `json:"failed_tasks"`
+	TotalProviders   int64 `json:"total_providers"`
 	HealthyProviders int64 `json:"healthy_providers"`
-	UptimeSeconds   int64 `json:"uptime_seconds"`
+	UptimeSeconds    int64 `json:"uptime_seconds"`
 }
 
 // syncMetrics 同步 Prometheus 指标.
 type syncMetrics struct {
-	TasksTotal        atomic.Int64
-	TasksCompleted    atomic.Int64
-	TasksFailed       atomic.Int64
-	BytesTransferred  atomic.Int64
-	BytesUploaded     atomic.Int64
-	BytesDownloaded   atomic.Int64
-	ErrorsTotal       atomic.Int64
-	QueueSize         atomic.Int64
-	ActiveWorkers     atomic.Int64
-	StartTime         int64 // Unix 秒，启动时间
+	TasksTotal       atomic.Int64
+	TasksCompleted   atomic.Int64
+	TasksFailed      atomic.Int64
+	BytesTransferred atomic.Int64
+	BytesUploaded    atomic.Int64
+	BytesDownloaded  atomic.Int64
+	ErrorsTotal      atomic.Int64
+	QueueSize        atomic.Int64
+	ActiveWorkers    atomic.Int64
+	StartTime        int64 // Unix 秒，启动时间
 }
 
 // globalMetrics 全局指标实例（daemon 启动时初始化）.

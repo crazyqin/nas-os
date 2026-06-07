@@ -55,7 +55,6 @@ const (
 	OpNotEqual     Operator = "!="
 )
 
-
 // ========== 错误定义 ==========
 
 var (
@@ -91,9 +90,9 @@ type CustomAlertRule struct {
 	Annotations map[string]string `json:"annotations,omitempty"`
 
 	// 作用范围
-	Scope       RuleScope `json:"scope,omitempty"`
-	Targets     []string  `json:"targets,omitempty"`     // 具体目标（如磁盘名、服务名）
-	Exclude     []string  `json:"exclude,omitempty"`     // 排除目标
+	Scope   RuleScope `json:"scope,omitempty"`
+	Targets []string  `json:"targets,omitempty"` // 具体目标（如磁盘名、服务名）
+	Exclude []string  `json:"exclude,omitempty"` // 排除目标
 
 	// 抑制配置
 	InhibitBy   []string `json:"inhibit_by,omitempty"`   // 被哪些规则抑制
@@ -110,10 +109,10 @@ type CustomAlertRule struct {
 	CreatedBy string `json:"created_by,omitempty"`
 
 	// 内部状态（不持久化）
-	pendingSince time.Time
-	fireCount    int
+	pendingSince  time.Time
+	fireCount     int
 	lastEvaluated time.Time
-	mu           sync.RWMutex
+	mu            sync.RWMutex
 }
 
 // RuleScope 规则作用范围
@@ -127,29 +126,29 @@ type RuleScope struct {
 
 // AlertAction 告警动作
 type AlertAction struct {
-	Type       string            `json:"type"` // notify, webhook, script, email
-	Target     string            `json:"target,omitempty"`
-	Params     map[string]string `json:"params,omitempty"`
-	Enabled    bool              `json:"enabled"`
-	Delay      int               `json:"delay,omitempty"` // 延迟执行（秒）
-	Repeat     int               `json:"repeat,omitempty"` // 重复次数
-	RepeatInterval int           `json:"repeat_interval,omitempty"` // 重复间隔（秒）
+	Type           string            `json:"type"` // notify, webhook, script, email
+	Target         string            `json:"target,omitempty"`
+	Params         map[string]string `json:"params,omitempty"`
+	Enabled        bool              `json:"enabled"`
+	Delay          int               `json:"delay,omitempty"`           // 延迟执行（秒）
+	Repeat         int               `json:"repeat,omitempty"`          // 重复次数
+	RepeatInterval int               `json:"repeat_interval,omitempty"` // 重复间隔（秒）
 }
 
 // NewCustomAlertRule 创建新规则
 func NewCustomAlertRule(name string, group RuleGroup, metric MetricType) *CustomAlertRule {
 	return &CustomAlertRule{
-		ID:        generateRuleID(),
-		Name:      name,
-		Group:     group,
-		Metric:    metric,
-		Enabled:   true,
-		Level:     AlertLevelWarning,
-		Operator:  OpGreaterThan,
-		Duration:  60, // 默认持续1分钟
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-		Labels:    make(map[string]string),
+		ID:          generateRuleID(),
+		Name:        name,
+		Group:       group,
+		Metric:      metric,
+		Enabled:     true,
+		Level:       AlertLevelWarning,
+		Operator:    OpGreaterThan,
+		Duration:    60, // 默认持续1分钟
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+		Labels:      make(map[string]string),
 		Annotations: make(map[string]string),
 	}
 }
@@ -172,7 +171,7 @@ func (r *CustomAlertRule) Evaluate(value float64) bool {
 				return false // 还未达到持续时间
 			}
 
-		 elapsed := time.Since(r.pendingSince).Seconds()
+			elapsed := time.Since(r.pendingSince).Seconds()
 			if elapsed < float64(r.Duration) {
 				r.fireCount++
 				return false
@@ -328,8 +327,8 @@ type CustomRuleManager struct {
 	logger *zap.Logger
 	mu     sync.RWMutex
 
-	rules    map[string]*CustomAlertRule    // 按ID索引
-	ruleList []*CustomAlertRule             // 规则列表
+	rules    map[string]*CustomAlertRule      // 按ID索引
+	ruleList []*CustomAlertRule               // 规则列表
 	groups   map[RuleGroup][]*CustomAlertRule // 按分组索引
 
 	// 数据库持久化
@@ -347,9 +346,9 @@ type CustomRuleManager struct {
 
 // RuleManagerConfig 规则管理器配置
 type RuleManagerConfig struct {
-	MaxRules        int           `json:"max_rules"`         // 最大规则数量
-	CheckInterval   time.Duration `json:"check_interval"`    // 检查间隔
-	DefaultDuration int           `json:"default_duration"`  // 默认持续时间（秒）
+	MaxRules        int           `json:"max_rules"`        // 最大规则数量
+	CheckInterval   time.Duration `json:"check_interval"`   // 检查间隔
+	DefaultDuration int           `json:"default_duration"` // 默认持续时间（秒）
 }
 
 // DefaultRuleManagerConfig 默认配置
@@ -867,12 +866,12 @@ func (mgr *CustomRuleManager) GetStats() RuleManagerStats {
 	defer mgr.mu.RUnlock()
 
 	stats := RuleManagerStats{
-		TotalRules:  len(mgr.ruleList),
+		TotalRules:   len(mgr.ruleList),
 		EnabledRules: 0,
-		Templates:   0,
-		ByGroup:     make(map[RuleGroup]int),
-		ByMetric:    make(map[MetricType]int),
-		ByLevel:     make(map[AlertLevel]int),
+		Templates:    0,
+		ByGroup:      make(map[RuleGroup]int),
+		ByMetric:     make(map[MetricType]int),
+		ByLevel:      make(map[AlertLevel]int),
 	}
 
 	for _, rule := range mgr.ruleList {
@@ -892,12 +891,12 @@ func (mgr *CustomRuleManager) GetStats() RuleManagerStats {
 
 // RuleManagerStats 规则管理器统计
 type RuleManagerStats struct {
-	TotalRules   int                    `json:"total_rules"`
-	EnabledRules int                    `json:"enabled_rules"`
-	Templates    int                    `json:"templates"`
-	ByGroup      map[RuleGroup]int      `json:"by_group"`
-	ByMetric     map[MetricType]int     `json:"by_metric"`
-	ByLevel      map[AlertLevel]int     `json:"by_level"`
+	TotalRules   int                `json:"total_rules"`
+	EnabledRules int                `json:"enabled_rules"`
+	Templates    int                `json:"templates"`
+	ByGroup      map[RuleGroup]int  `json:"by_group"`
+	ByMetric     map[MetricType]int `json:"by_metric"`
+	ByLevel      map[AlertLevel]int `json:"by_level"`
 }
 
 // ========== 告警对象 ==========
@@ -935,8 +934,8 @@ type CustomAlert struct {
 type AlertStatus string
 
 const (
-	AlertStatusPending AlertStatus = "pending" // 等待中（未达到持续时间）
-	AlertStatusFiring  AlertStatus = "firing"  // 触发中
+	AlertStatusPending  AlertStatus = "pending"  // 等待中（未达到持续时间）
+	AlertStatusFiring   AlertStatus = "firing"   // 触发中
 	AlertStatusResolved AlertStatus = "resolved" // 已恢复
 	AlertStatusSilenced AlertStatus = "silenced" // 已静默
 )

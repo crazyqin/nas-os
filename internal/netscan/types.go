@@ -33,18 +33,18 @@ const (
 
 // Device 网络设备.
 type Device struct {
-	IP          string            `json:"ip"`
-	MAC         string            `json:"mac,omitempty"`
-	Hostname    string            `json:"hostname,omitempty"`
-	Vendor      string            `json:"vendor,omitempty"`
-	State       DeviceState       `json:"state"`
-	OpenPorts   []Port            `json:"openPorts,omitempty"`
-	Services    []Service         `json:"services,omitempty"`
-	OS          string            `json:"os,omitempty"`
-	TTL         int               `json:"ttl,omitempty"`
-	RTT         time.Duration     `json:"rtt,omitempty"`
-	LastSeen    time.Time         `json:"lastSeen"`
-	Properties  map[string]string `json:"properties,omitempty"`
+	IP         string            `json:"ip"`
+	MAC        string            `json:"mac,omitempty"`
+	Hostname   string            `json:"hostname,omitempty"`
+	Vendor     string            `json:"vendor,omitempty"`
+	State      DeviceState       `json:"state"`
+	OpenPorts  []Port            `json:"openPorts,omitempty"`
+	Services   []Service         `json:"services,omitempty"`
+	OS         string            `json:"os,omitempty"`
+	TTL        int               `json:"ttl,omitempty"`
+	RTT        time.Duration     `json:"rtt,omitempty"`
+	LastSeen   time.Time         `json:"lastSeen"`
+	Properties map[string]string `json:"properties,omitempty"`
 }
 
 // Port 端口信息.
@@ -68,19 +68,19 @@ type Service struct {
 
 // ScanTarget 扫描目标.
 type ScanTarget struct {
-	IP       string   `json:"ip"`
-	Ports    []int    `json:"ports,omitempty"`
+	IP        string     `json:"ip"`
+	Ports     []int      `json:"ports,omitempty"`
 	Protocols []Protocol `json:"protocols,omitempty"`
 }
 
 // ScanResult 扫描结果.
 type ScanResult struct {
-	Target    ScanTarget  `json:"target"`
-	Devices   []Device    `json:"devices"`
-	StartTime time.Time   `json:"startTime"`
-	EndTime   time.Time   `json:"endTime"`
+	Target    ScanTarget    `json:"target"`
+	Devices   []Device      `json:"devices"`
+	StartTime time.Time     `json:"startTime"`
+	EndTime   time.Time     `json:"endTime"`
 	Duration  time.Duration `json:"duration"`
-	Error     string      `json:"error,omitempty"`
+	Error     string        `json:"error,omitempty"`
 }
 
 // DiscoveryConfig 设备发现配置.
@@ -156,24 +156,24 @@ type Topology struct {
 
 // ScanTask 扫描任务.
 type ScanTask struct {
-	ID         string        `json:"id"`
-	Type       string        `json:"type"` // discovery, portscan, servicedetect, topology
-	Target     string        `json:"target"`
-	Status     string        `json:"status"` // pending, running, completed, failed, cancelled
-	Progress   float64       `json:"progress"`
-	Result     interface{}   `json:"result,omitempty"`
-	Error      string        `json:"error,omitempty"`
-	StartTime  time.Time     `json:"startTime"`
-	EndTime    time.Time     `json:"endTime"`
-	Duration   time.Duration `json:"duration"`
-	Config     interface{}   `json:"config"`
+	ID        string        `json:"id"`
+	Type      string        `json:"type"` // discovery, portscan, servicedetect, topology
+	Target    string        `json:"target"`
+	Status    string        `json:"status"` // pending, running, completed, failed, cancelled
+	Progress  float64       `json:"progress"`
+	Result    interface{}   `json:"result,omitempty"`
+	Error     string        `json:"error,omitempty"`
+	StartTime time.Time     `json:"startTime"`
+	EndTime   time.Time     `json:"endTime"`
+	Duration  time.Duration `json:"duration"`
+	Config    interface{}   `json:"config"`
 }
 
 // TaskManager 扫描任务管理器.
 type TaskManager struct {
-	mu       sync.RWMutex
-	tasks    map[string]*ScanTask
-	workerCh chan struct{}
+	mu         sync.RWMutex
+	tasks      map[string]*ScanTask
+	workerCh   chan struct{}
 	maxWorkers int
 }
 

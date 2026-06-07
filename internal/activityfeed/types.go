@@ -21,16 +21,16 @@ const (
 type ServiceType string
 
 const (
-	ServiceFileOps    ServiceType = "file_ops"
-	ServiceUserAuth   ServiceType = "user_auth"
-	ServiceSystem     ServiceType = "system"
-	ServiceBackup     ServiceType = "backup"
-	ServiceNetwork    ServiceType = "network"
-	ServiceStorage    ServiceType = "storage"
-	ServiceDocker     ServiceType = "docker"
-	ServiceScheduled  ServiceType = "scheduled"
-	ServiceSecurity   ServiceType = "security"
-	ServiceOther      ServiceType = "other"
+	ServiceFileOps   ServiceType = "file_ops"
+	ServiceUserAuth  ServiceType = "user_auth"
+	ServiceSystem    ServiceType = "system"
+	ServiceBackup    ServiceType = "backup"
+	ServiceNetwork   ServiceType = "network"
+	ServiceStorage   ServiceType = "storage"
+	ServiceDocker    ServiceType = "docker"
+	ServiceScheduled ServiceType = "scheduled"
+	ServiceSecurity  ServiceType = "security"
+	ServiceOther     ServiceType = "other"
 )
 
 // ActivityActor 表示执行活动的实体（用户或系统组件）。

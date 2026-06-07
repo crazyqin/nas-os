@@ -43,21 +43,21 @@ const (
 
 // MetricPoint 指标点
 type MetricPoint struct {
-	Timestamp time.Time   `json:"timestamp"`
-	Value     float64     `json:"value"`
+	Timestamp time.Time         `json:"timestamp"`
+	Value     float64           `json:"value"`
 	Labels    map[string]string `json:"labels,omitempty"`
 }
 
 // MetricSeries 指标序列
 type MetricSeries struct {
-	Name      string        `json:"name"`
-	Type      MetricType    `json:"type"`
-	Unit      string        `json:"unit"`
-	Points    []MetricPoint `json:"points"`
-	Min       float64       `json:"min"`
-	Max       float64       `json:"max"`
-	Avg       float64       `json:"avg"`
-	Current   float64       `json:"current"`
+	Name    string        `json:"name"`
+	Type    MetricType    `json:"type"`
+	Unit    string        `json:"unit"`
+	Points  []MetricPoint `json:"points"`
+	Min     float64       `json:"min"`
+	Max     float64       `json:"max"`
+	Avg     float64       `json:"avg"`
+	Current float64       `json:"current"`
 }
 
 // DashboardWidget 仪表盘组件
@@ -83,31 +83,31 @@ type Size struct {
 }
 
 type Threshold struct {
-	Value float64   `json:"value"`
+	Value float64    `json:"value"`
 	Level AlertLevel `json:"level"`
-	Color string    `json:"color"`
+	Color string     `json:"color"`
 }
 
 // SystemAlert 系统告警
 type SystemAlert struct {
-	ID        string    `json:"id"`
+	ID        string     `json:"id"`
 	Level     AlertLevel `json:"level"`
-	Metric    string    `json:"metric"`
-	Message   string    `json:"message"`
-	Value     float64   `json:"value"`
-	Threshold float64   `json:"threshold"`
-	Timestamp time.Time `json:"timestamp"`
-	Acked     bool      `json:"acked"`
+	Metric    string     `json:"metric"`
+	Message   string     `json:"message"`
+	Value     float64    `json:"value"`
+	Threshold float64    `json:"threshold"`
+	Timestamp time.Time  `json:"timestamp"`
+	Acked     bool       `json:"acked"`
 }
 
 // NetdataWidget Netdata集成组件
 type NetdataWidget struct {
-	metrics    map[string]*MetricSeries
-	widgets    map[string]*DashboardWidget
-	alerts     []*SystemAlert
-	dataPath   string
-	mu         sync.RWMutex
-	maxPoints  int
+	metrics   map[string]*MetricSeries
+	widgets   map[string]*DashboardWidget
+	alerts    []*SystemAlert
+	dataPath  string
+	mu        sync.RWMutex
+	maxPoints int
 }
 
 // NewNetdataWidget 创建Netdata组件

@@ -37,23 +37,23 @@ var statusOrder = map[HealthStatus]int{
 
 // ComponentHealth 单个组件的健康信息.
 type ComponentHealth struct {
-	Name      string                 `json:"name"`           // 组件名称
-	Status    HealthStatus           `json:"status"`         // 健康状态
-	Message   string                 `json:"message"`        // 状态描述
-	CheckedAt time.Time              `json:"checkedAt"`      // 检查时间
-	Duration  string                 `json:"duration"`       // 检查耗时
+	Name      string                 `json:"name"`              // 组件名称
+	Status    HealthStatus           `json:"status"`            // 健康状态
+	Message   string                 `json:"message"`           // 状态描述
+	CheckedAt time.Time              `json:"checkedAt"`         // 检查时间
+	Duration  string                 `json:"duration"`          // 检查耗时
 	Details   map[string]interface{} `json:"details,omitempty"` // 详细数据
 }
 
 // SystemHealth 系统整体健康报告.
 type SystemHealth struct {
-	Status     HealthStatus      `json:"status"`      // 整体健康状态
-	Message    string            `json:"message"`     // 状态描述
-	Hostname   string            `json:"hostname"`    // 主机名
-	CheckedAt  time.Time         `json:"checkedAt"`   // 检查时间
-	Duration   string            `json:"duration"`    // 总检查耗时
-	Components []*ComponentHealth `json:"components"`  // 各组件健康信息
-	Summary    map[string]int    `json:"summary"`     // 各状态数量统计
+	Status     HealthStatus       `json:"status"`     // 整体健康状态
+	Message    string             `json:"message"`    // 状态描述
+	Hostname   string             `json:"hostname"`   // 主机名
+	CheckedAt  time.Time          `json:"checkedAt"`  // 检查时间
+	Duration   string             `json:"duration"`   // 总检查耗时
+	Components []*ComponentHealth `json:"components"` // 各组件健康信息
+	Summary    map[string]int     `json:"summary"`    // 各状态数量统计
 }
 
 // HealthCheckConfig 健康检查配置.
@@ -106,9 +106,9 @@ func DefaultHealthCheckConfig() *HealthCheckConfig {
 			"8.8.8.8",
 			"114.114.114.114",
 		},
-		PingTimeout:    5,
-		CoreServices:   []string{"smbd", "nfs-kernel-server", "docker"},
-		ParallelCheck:  true,
+		PingTimeout:   5,
+		CoreServices:  []string{"smbd", "nfs-kernel-server", "docker"},
+		ParallelCheck: true,
 	}
 }
 

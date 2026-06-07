@@ -14,13 +14,13 @@ import (
 
 // Manager 邮件服务器管理器.
 type Manager struct {
-	accounts  map[string]*EmailAccount
-	messages  map[string]*EmailMessage
-	rules     map[string]*FilterRule
-	smtpCfg   *SMTPConfig
-	imapCfg   *IMAPConfig
-	antispam  *AntispamConfig
-	mu        sync.RWMutex
+	accounts map[string]*EmailAccount
+	messages map[string]*EmailMessage
+	rules    map[string]*FilterRule
+	smtpCfg  *SMTPConfig
+	imapCfg  *IMAPConfig
+	antispam *AntispamConfig
+	mu       sync.RWMutex
 }
 
 // NewManager 创建邮件服务器管理器.
@@ -43,8 +43,8 @@ func NewManager() *Manager {
 			EnableTLS: true,
 		},
 		antispam: &AntispamConfig{
-			Enabled:   true,
-			Threshold: 50,
+			Enabled:    true,
+			Threshold:  50,
 			RejectSpam: false,
 		},
 	}
@@ -608,13 +608,13 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_accounts":  totalAccounts,
-		"active_accounts": activeAccounts,
-		"total_messages":  totalMessages,
-		"folder_counts":   folderCounts,
-		"filter_rules":    len(m.rules),
-		"smtp_enabled":    m.smtpCfg.Enabled,
-		"imap_enabled":    m.imapCfg.Enabled,
+		"total_accounts":   totalAccounts,
+		"active_accounts":  activeAccounts,
+		"total_messages":   totalMessages,
+		"folder_counts":    folderCounts,
+		"filter_rules":     len(m.rules),
+		"smtp_enabled":     m.smtpCfg.Enabled,
+		"imap_enabled":     m.imapCfg.Enabled,
 		"antispam_enabled": m.antispam.Enabled,
 	}
 }

@@ -53,17 +53,17 @@ type FleetCostConfig struct {
 func DefaultFleetCostConfig() FleetCostConfig {
 	return FleetCostConfig{
 		NodeCount:                5,
-		BaseNodeCostMonthly:      500.0,   // 单节点基础成本500元/月
-		FleetSoftwareCostMonthly: 200.0,   // Fleet管理软件200元/月
-		NetworkInterconnectCost:  150.0,   // 网络互联150元/月
-		CoordinationCostFactor:   0.05,    // 5%协调开销
-		OpsStaffCostMonthly:      3000.0,  // 运维人员3000元/月
-		MonitoringCostMonthly:    100.0,   // 监控系统100元/月
-		BackupSyncCostMonthly:    200.0,   // 跨节点备份200元/月
-		HARedundancyFactor:       0.2,     // HA冗余20%额外成本
-		AutomationFactor:         0.7,     // 70%自动化程度
-		AvgNodeStorageTB:         20.0,    // 单节点20TB
-		AvgNodeBandwidthCost:     50.0,    // 单节点带宽50元/月
+		BaseNodeCostMonthly:      500.0,  // 单节点基础成本500元/月
+		FleetSoftwareCostMonthly: 200.0,  // Fleet管理软件200元/月
+		NetworkInterconnectCost:  150.0,  // 网络互联150元/月
+		CoordinationCostFactor:   0.05,   // 5%协调开销
+		OpsStaffCostMonthly:      3000.0, // 运维人员3000元/月
+		MonitoringCostMonthly:    100.0,  // 监控系统100元/月
+		BackupSyncCostMonthly:    200.0,  // 跨节点备份200元/月
+		HARedundancyFactor:       0.2,    // HA冗余20%额外成本
+		AutomationFactor:         0.7,    // 70%自动化程度
+		AvgNodeStorageTB:         20.0,   // 单节点20TB
+		AvgNodeBandwidthCost:     50.0,   // 单节点带宽50元/月
 	}
 }
 
@@ -289,12 +289,12 @@ func NewFleetCostCalculator(config FleetCostConfig) *FleetCostCalculator {
 func (c *FleetCostCalculator) Analyze() *FleetCostAnalysis {
 	now := time.Now()
 	analysis := &FleetCostAnalysis{
-		ID:            fmt.Sprintf("fleet_cost_analysis_%d", now.Unix()),
-		AnalysisTime:  now,
-		Config:        c.config,
-		CostBreakdown: make(map[string]float64),
+		ID:                fmt.Sprintf("fleet_cost_analysis_%d", now.Unix()),
+		AnalysisTime:      now,
+		Config:            c.config,
+		CostBreakdown:     make(map[string]float64),
 		CostOptimizations: make([]FleetCostOptimization, 0),
-		Risks:         make([]string, 0),
+		Risks:             make([]string, 0),
 	}
 
 	// ========== 计算直接成本 ==========
@@ -380,7 +380,7 @@ func (c *FleetCostCalculator) Analyze() *FleetCostAnalysis {
 	analysis.EfficiencySavings = analysis.BaseNodesCost * 0.1 // 假设10%效率提升
 
 	// 共享资源节省（备份、监控共享）
-	standaloneBackupCost := 300.0 * float64(c.config.NodeCount) // 单节点备份300元
+	standaloneBackupCost := 300.0 * float64(c.config.NodeCount)    // 单节点备份300元
 	standaloneMonitoringCost := 50.0 * float64(c.config.NodeCount) // 单节点监控50元
 	analysis.SharedResourceSavings = (standaloneBackupCost - analysis.BackupSyncCost) +
 		(standaloneMonitoringCost - analysis.MonitoringCost)
@@ -437,14 +437,14 @@ func (c *FleetCostCalculator) AnalyzeScenario(nodeCount int) *FleetScenarioAnaly
 	c.config.NodeCount = originalCount
 
 	result := &FleetScenarioAnalysis{
-		Scenario:        fmt.Sprintf("%d节点Fleet", nodeCount),
-		NodeCount:       nodeCount,
-		FleetCost:       fleetCostRound(analysis.TotalMonthlyCost, 2),
-		StandaloneCost:  fleetCostRound(analysis.StandaloneTotalCost, 2),
-		CostDifference:  fleetCostRound(analysis.FleetCostDifference, 2),
-		SavingRate:      fleetCostRound(analysis.FleetROI, 2),
-		ROI:             fleetCostRound(analysis.FleetROI, 2),
-		Recommendation:  "待评估",
+		Scenario:       fmt.Sprintf("%d节点Fleet", nodeCount),
+		NodeCount:      nodeCount,
+		FleetCost:      fleetCostRound(analysis.TotalMonthlyCost, 2),
+		StandaloneCost: fleetCostRound(analysis.StandaloneTotalCost, 2),
+		CostDifference: fleetCostRound(analysis.FleetCostDifference, 2),
+		SavingRate:     fleetCostRound(analysis.FleetROI, 2),
+		ROI:            fleetCostRound(analysis.FleetROI, 2),
+		Recommendation: "待评估",
 	}
 
 	// 根据ROI判断推荐状态
@@ -481,10 +481,10 @@ func (c *FleetCostCalculator) AnalyzeCostCurve() *FleetCostBenefitCurve {
 		analysis := c.Analyze()
 
 		point := FleetCostCurvePoint{
-			NodeCount:      nodeCount,
-			FleetCost:      analysis.TotalMonthlyCost,
-			CostPerNode:    analysis.AvgCostPerNode,
-			CostPerTB:      analysis.CostPerTB,
+			NodeCount:       nodeCount,
+			FleetCost:       analysis.TotalMonthlyCost,
+			CostPerNode:     analysis.AvgCostPerNode,
+			CostPerTB:       analysis.CostPerTB,
 			EfficiencyScore: analysis.CostBenefitScore,
 		}
 
@@ -536,7 +536,7 @@ func (c *FleetCostCalculator) calculateCostBenefitScore(analysis *FleetCostAnaly
 
 	// 单节点成本效率（最高10分）
 	// 对比行业平均水平（假设600元/月）
- avgIndustryCost := 600.0
+	avgIndustryCost := 600.0
 	if analysis.AvgCostPerNode < avgIndustryCost*0.7 {
 		score += 10
 	} else if analysis.AvgCostPerNode < avgIndustryCost*0.9 {
@@ -565,15 +565,15 @@ func (c *FleetCostCalculator) generateOptimizations(analysis *FleetCostAnalysis)
 	if c.config.AutomationFactor < 0.8 {
 		savings := (1 - c.config.AutomationFactor) * 0.3 * c.config.OpsStaffCostMonthly
 		opts = append(opts, FleetCostOptimization{
-			ID:            fmt.Sprintf("opt_%d", idCounter),
-			Type:          "automation",
-			Description:   "提高自动化运维程度，减少人工干预",
-			CurrentCost:   analysis.OpsStaffCost,
-			OptimizedCost: analysis.OpsStaffCost * 0.7,
-			Savings:       fleetCostRound(savings, 2),
-			Difficulty:    "medium",
+			ID:             fmt.Sprintf("opt_%d", idCounter),
+			Type:           "automation",
+			Description:    "提高自动化运维程度，减少人工干预",
+			CurrentCost:    analysis.OpsStaffCost,
+			OptimizedCost:  analysis.OpsStaffCost * 0.7,
+			Savings:        fleetCostRound(savings, 2),
+			Difficulty:     "medium",
 			EstimatedWeeks: 4,
-			ROIScore:      savings * 10,
+			ROIScore:       savings * 10,
 		})
 		idCounter++
 	}
@@ -581,15 +581,15 @@ func (c *FleetCostCalculator) generateOptimizations(analysis *FleetCostAnalysis)
 	// 监控系统优化
 	if analysis.MonitoringCost > 150 {
 		opts = append(opts, FleetCostOptimization{
-			ID:            fmt.Sprintf("opt_%d", idCounter),
-			Type:          "monitoring",
-			Description:   "优化监控系统，使用开源方案降低成本",
-			CurrentCost:   analysis.MonitoringCost,
-			OptimizedCost: analysis.MonitoringCost * 0.6,
-			Savings:       fleetCostRound(analysis.MonitoringCost*0.4, 2),
-			Difficulty:    "easy",
+			ID:             fmt.Sprintf("opt_%d", idCounter),
+			Type:           "monitoring",
+			Description:    "优化监控系统，使用开源方案降低成本",
+			CurrentCost:    analysis.MonitoringCost,
+			OptimizedCost:  analysis.MonitoringCost * 0.6,
+			Savings:        fleetCostRound(analysis.MonitoringCost*0.4, 2),
+			Difficulty:     "easy",
 			EstimatedWeeks: 2,
-			ROIScore:      analysis.MonitoringCost * 4,
+			ROIScore:       analysis.MonitoringCost * 4,
 		})
 		idCounter++
 	}
@@ -598,15 +598,15 @@ func (c *FleetCostCalculator) generateOptimizations(analysis *FleetCostAnalysis)
 	if c.config.NodeCount > 10 {
 		savings := analysis.BaseNodesCost * 0.15 // 大Fleet可整合15%
 		opts = append(opts, FleetCostOptimization{
-			ID:            fmt.Sprintf("opt_%d", idCounter),
-			Type:          "consolidation",
-			Description:   "整合低利用率节点，提高资源效率",
-			CurrentCost:   analysis.BaseNodesCost,
-			OptimizedCost: analysis.BaseNodesCost * 0.85,
-			Savings:       fleetCostRound(savings, 2),
-			Difficulty:    "hard",
+			ID:             fmt.Sprintf("opt_%d", idCounter),
+			Type:           "consolidation",
+			Description:    "整合低利用率节点，提高资源效率",
+			CurrentCost:    analysis.BaseNodesCost,
+			OptimizedCost:  analysis.BaseNodesCost * 0.85,
+			Savings:        fleetCostRound(savings, 2),
+			Difficulty:     "hard",
 			EstimatedWeeks: 8,
-			ROIScore:      savings * 5,
+			ROIScore:       savings * 5,
 		})
 		idCounter++
 	}
@@ -614,15 +614,15 @@ func (c *FleetCostCalculator) generateOptimizations(analysis *FleetCostAnalysis)
 	// 网络优化
 	if analysis.NetworkCost > 200 {
 		opts = append(opts, FleetCostOptimization{
-			ID:            fmt.Sprintf("opt_%d", idCounter),
-			Type:          "network",
-			Description:   "优化网络架构，减少专线依赖",
-			CurrentCost:   analysis.NetworkCost,
-			OptimizedCost: analysis.NetworkCost * 0.7,
-			Savings:       fleetCostRound(analysis.NetworkCost*0.3, 2),
-			Difficulty:    "medium",
+			ID:             fmt.Sprintf("opt_%d", idCounter),
+			Type:           "network",
+			Description:    "优化网络架构，减少专线依赖",
+			CurrentCost:    analysis.NetworkCost,
+			OptimizedCost:  analysis.NetworkCost * 0.7,
+			Savings:        fleetCostRound(analysis.NetworkCost*0.3, 2),
+			Difficulty:     "medium",
 			EstimatedWeeks: 4,
-			ROIScore:      analysis.NetworkCost * 3,
+			ROIScore:       analysis.NetworkCost * 3,
 		})
 		idCounter++
 	}
@@ -630,15 +630,15 @@ func (c *FleetCostCalculator) generateOptimizations(analysis *FleetCostAnalysis)
 	// 备份优化
 	if analysis.BackupSyncCost > 300 {
 		opts = append(opts, FleetCostOptimization{
-			ID:            fmt.Sprintf("opt_%d", idCounter),
-			Type:          "backup",
-			Description:   "优化备份策略，使用增量备份减少带宽",
-			CurrentCost:   analysis.BackupSyncCost,
-			OptimizedCost: analysis.BackupSyncCost * 0.6,
-			Savings:       fleetCostRound(analysis.BackupSyncCost*0.4, 2),
-			Difficulty:    "easy",
+			ID:             fmt.Sprintf("opt_%d", idCounter),
+			Type:           "backup",
+			Description:    "优化备份策略，使用增量备份减少带宽",
+			CurrentCost:    analysis.BackupSyncCost,
+			OptimizedCost:  analysis.BackupSyncCost * 0.6,
+			Savings:        fleetCostRound(analysis.BackupSyncCost*0.4, 2),
+			Difficulty:     "easy",
 			EstimatedWeeks: 2,
-			ROIScore:      analysis.BackupSyncCost * 4,
+			ROIScore:       analysis.BackupSyncCost * 4,
 		})
 		idCounter++
 	}
@@ -697,7 +697,7 @@ func (c *FleetCostCalculator) generateRisks(analysis *FleetCostAnalysis) []strin
 func (c *FleetCostCalculator) findBreakpoint(curve *FleetCostBenefitCurve) int {
 	for _, point := range curve.DataPoints {
 		// Fleet成本效益开始优于单节点的节点数
-		standaloneCost := c.config.BaseNodeCostMonthly * float64(point.NodeCount) +
+		standaloneCost := c.config.BaseNodeCostMonthly*float64(point.NodeCount) +
 			c.config.OpsStaffCostMonthly + 300.0*float64(point.NodeCount) +
 			50.0*float64(point.NodeCount) + c.config.AvgNodeBandwidthCost*float64(point.NodeCount)
 
@@ -863,7 +863,7 @@ func GenerateFleetCostReport(config FleetCostConfig) string {
 
 func fleetCostRound(val float64, precision int) float64 {
 	factor := math.Pow10(precision)
-	return math.Round(val * factor) / factor
+	return math.Round(val*factor) / factor
 }
 
 func fleetCostBoolToStr(b bool) string {

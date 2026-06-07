@@ -41,13 +41,13 @@ type Manager struct {
 	enabled bool
 
 	// 自动化配置
-	autoMigrateEnabled  bool          // 启用自动迁移
-	autoCleanupEnabled  bool          // 启用自动清理
-	checkInterval       time.Duration // 检查间隔
-	hotThreshold        int64         // 热数据访问次数阈值
-	warmThreshold       int64         // 温数据访问次数阈值
-	coldAgeHours        int           // 冷数据判断时长（小时）
-	archiveAgeHours     int           // 归档数据判断时长（小时）
+	autoMigrateEnabled bool          // 启用自动迁移
+	autoCleanupEnabled bool          // 启用自动清理
+	checkInterval      time.Duration // 检查间隔
+	hotThreshold       int64         // 热数据访问次数阈值
+	warmThreshold      int64         // 温数据访问次数阈值
+	coldAgeHours       int           // 冷数据判断时长（小时）
+	archiveAgeHours    int           // 归档数据判断时长（小时）
 
 	// 停止信号
 	stopCh chan struct{}

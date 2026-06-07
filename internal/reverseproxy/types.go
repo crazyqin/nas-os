@@ -25,22 +25,22 @@ type ProxyConfig struct {
 
 // ProxyRule 代理规则
 type ProxyRule struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	Domain       string            `json:"domain"`
-	TargetURL    string            `json:"target_url"`
-	Path         string            `json:"path"`
-	Enabled      bool              `json:"enabled"`
-	SSLEnabled   bool              `json:"ssl_enabled"`
-	SSLCert      string            `json:"ssl_cert,omitempty"`
-	SSLKey       string            `json:"ssl_key,omitempty"`
-	Headers      map[string]string `json:"headers,omitempty"`
-	LoadBalancing string           `json:"load_balancing,omitempty"`
-	RateLimit    int               `json:"rate_limit,omitempty"`
-	CreatedAt    time.Time         `json:"created_at"`
-	UpdatedAt    time.Time         `json:"updated_at"`
-	RequestCount int64             `json:"request_count"`
-	LastAccess   time.Time         `json:"last_access,omitempty"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Domain        string            `json:"domain"`
+	TargetURL     string            `json:"target_url"`
+	Path          string            `json:"path"`
+	Enabled       bool              `json:"enabled"`
+	SSLEnabled    bool              `json:"ssl_enabled"`
+	SSLCert       string            `json:"ssl_cert,omitempty"`
+	SSLKey        string            `json:"ssl_key,omitempty"`
+	Headers       map[string]string `json:"headers,omitempty"`
+	LoadBalancing string            `json:"load_balancing,omitempty"`
+	RateLimit     int               `json:"rate_limit,omitempty"`
+	CreatedAt     time.Time         `json:"created_at"`
+	UpdatedAt     time.Time         `json:"updated_at"`
+	RequestCount  int64             `json:"request_count"`
+	LastAccess    time.Time         `json:"last_access,omitempty"`
 }
 
 // ProxyStats 代理统计

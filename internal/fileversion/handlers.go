@@ -45,7 +45,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 // CreateVersionRequest 创建版本请求
 type CreateVersionRequest struct {
-	FilePath  string `json:"file_path" binding:"required"`
+	FilePath    string `json:"file_path" binding:"required"`
 	Description string `json:"description"`
 }
 

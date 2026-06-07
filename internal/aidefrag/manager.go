@@ -10,14 +10,14 @@ import (
 
 // Manager AI 磁盘碎片整理管理器.
 type Manager struct {
-	mu       sync.RWMutex
-	config   DefragConfig
-	disks    map[string]*DiskInfo
-	jobs     map[string]*DefragJob
-	policies map[string]*DefragPolicy
-	running  bool
+	mu         sync.RWMutex
+	config     DefragConfig
+	disks      map[string]*DiskInfo
+	jobs       map[string]*DefragJob
+	policies   map[string]*DefragPolicy
+	running    bool
 	defragging bool
-	stopCh   chan struct{}
+	stopCh     chan struct{}
 }
 
 // NewManager 创建管理器.

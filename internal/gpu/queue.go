@@ -10,10 +10,10 @@ import (
 // TaskQueue 任务队列
 // 支持优先级队列，高优先级任务优先处理
 type TaskQueue struct {
-	maxSize  int
-	queues   map[AllocationPriority]*list.List // 按优先级分组
-	count    int
-	mu       sync.RWMutex
+	maxSize int
+	queues  map[AllocationPriority]*list.List // 按优先级分组
+	count   int
+	mu      sync.RWMutex
 }
 
 // NewTaskQueue 创建任务队列
@@ -161,9 +161,9 @@ func (q *TaskQueue) GetAllTasks() []*GPUTask {
 
 // PoolAllocator 资源池分配器
 type PoolAllocator struct {
-	pool    *Pool
+	pool     *Pool
 	strategy string
-	mu      sync.RWMutex
+	mu       sync.RWMutex
 }
 
 // NewPoolAllocator 创建分配器
@@ -344,13 +344,13 @@ func (p *Pool) GetPoolMetrics() *PoolMetrics {
 	defer p.mu.RUnlock()
 
 	metrics := &PoolMetrics{
-		Timestamp:     time.Now(),
-		DeviceCount:   len(p.devices),
-		ActiveTasks:   0,
-		QueueLength:   p.queue.Length(),
-		TotalMemory:   0,
-		UsedMemory:    0,
-		Utilization:   0,
+		Timestamp:   time.Now(),
+		DeviceCount: len(p.devices),
+		ActiveTasks: 0,
+		QueueLength: p.queue.Length(),
+		TotalMemory: 0,
+		UsedMemory:  0,
+		Utilization: 0,
 	}
 
 	for _, device := range p.devices {
@@ -362,14 +362,14 @@ func (p *Pool) GetPoolMetrics() *PoolMetrics {
 		}
 
 		metrics.DeviceMetrics = append(metrics.DeviceMetrics, DeviceMetric{
-			ID:         device.Device.ID,
-			Name:       device.Device.Name,
-			MemoryUsed: device.MemoryUsed,
-			MemoryFree: device.Device.MemoryTotal - device.MemoryUsed,
+			ID:          device.Device.ID,
+			Name:        device.Device.Name,
+			MemoryUsed:  device.MemoryUsed,
+			MemoryFree:  device.Device.MemoryTotal - device.MemoryUsed,
 			Temperature: device.Device.Temperature,
-			PowerUsage: device.Device.PowerUsage,
-			LoadScore:  device.LoadScore,
-			Health:     device.HealthStatus,
+			PowerUsage:  device.Device.PowerUsage,
+			LoadScore:   device.LoadScore,
+			Health:      device.HealthStatus,
 		})
 	}
 
@@ -382,24 +382,24 @@ func (p *Pool) GetPoolMetrics() *PoolMetrics {
 
 // PoolMetrics 资源池指标
 type PoolMetrics struct {
-	Timestamp     time.Time       `json:"timestamp"`
-	DeviceCount   int             `json:"deviceCount"`
-	ActiveTasks   int             `json:"activeTasks"`
-	QueueLength   int             `json:"queueLength"`
-	TotalMemory   uint64          `json:"totalMemory"`
-	UsedMemory    uint64          `json:"usedMemory"`
-	Utilization   float64         `json:"utilization"`
-	DeviceMetrics []DeviceMetric  `json:"deviceMetrics"`
+	Timestamp     time.Time      `json:"timestamp"`
+	DeviceCount   int            `json:"deviceCount"`
+	ActiveTasks   int            `json:"activeTasks"`
+	QueueLength   int            `json:"queueLength"`
+	TotalMemory   uint64         `json:"totalMemory"`
+	UsedMemory    uint64         `json:"usedMemory"`
+	Utilization   float64        `json:"utilization"`
+	DeviceMetrics []DeviceMetric `json:"deviceMetrics"`
 }
 
 // DeviceMetric 设备指标
 type DeviceMetric struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	MemoryUsed  uint64    `json:"memoryUsed"`
-	MemoryFree  uint64    `json:"memoryFree"`
-	Temperature int       `json:"temperature"`
-	PowerUsage  uint64    `json:"powerUsage"`
-	LoadScore   float64   `json:"loadScore"`
-	Health      string    `json:"health"`
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	MemoryUsed  uint64  `json:"memoryUsed"`
+	MemoryFree  uint64  `json:"memoryFree"`
+	Temperature int     `json:"temperature"`
+	PowerUsage  uint64  `json:"powerUsage"`
+	LoadScore   float64 `json:"loadScore"`
+	Health      string  `json:"health"`
 }

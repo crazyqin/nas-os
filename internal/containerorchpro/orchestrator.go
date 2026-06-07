@@ -52,39 +52,39 @@ type HealthCheck struct {
 
 // ResourceLimit 资源限制
 type ResourceLimit struct {
-	CPU    float64 `json:"cpu"`    // CPU 核数
-	Memory string  `json:"memory"` // 内存限制
+	CPU    float64  `json:"cpu"`    // CPU 核数
+	Memory string   `json:"memory"` // 内存限制
 	IO     *IOLimit `json:"io,omitempty"`
 }
 
 // IOLimit IO 限制
 type IOLimit struct {
-	ReadBPS  string `json:"read_bps"`
-	WriteBPS string `json:"write_bps"`
-	ReadIOPS int    `json:"read_iops"`
-	WriteIOPS int   `json:"write_iops"`
+	ReadBPS   string `json:"read_bps"`
+	WriteBPS  string `json:"write_bps"`
+	ReadIOPS  int    `json:"read_iops"`
+	WriteIOPS int    `json:"write_iops"`
 }
 
 // Service 容器服务定义
 type Service struct {
-	Name          string            `json:"name"`
-	Image         string            `json:"image"`
-	Tag           string            `json:"tag"`
-	Ports         []PortMapping     `json:"ports,omitempty"`
-	Volumes       []VolumeMount     `json:"volumes,omitempty"`
-	Environment   map[string]string `json:"environment,omitempty"`
-	Command       []string          `json:"command,omitempty"`
-	Entrypoint    []string          `json:"entrypoint,omitempty"`
-	WorkingDir    string            `json:"working_dir,omitempty"`
-	User          string            `json:"user,omitempty"`
-	Restart       RestartPolicy     `json:"restart"`
-	HealthCheck   *HealthCheck      `json:"health_check,omitempty"`
-	Resources     *ResourceLimit    `json:"resources,omitempty"`
-	DependsOn     []string          `json:"depends_on,omitempty"`
-	Networks      []string          `json:"networks,omitempty"`
-	Labels        map[string]string `json:"labels,omitempty"`
-	Privileged    bool              `json:"privileged"`
-	ReadOnly      bool              `json:"read_only"`
+	Name        string            `json:"name"`
+	Image       string            `json:"image"`
+	Tag         string            `json:"tag"`
+	Ports       []PortMapping     `json:"ports,omitempty"`
+	Volumes     []VolumeMount     `json:"volumes,omitempty"`
+	Environment map[string]string `json:"environment,omitempty"`
+	Command     []string          `json:"command,omitempty"`
+	Entrypoint  []string          `json:"entrypoint,omitempty"`
+	WorkingDir  string            `json:"working_dir,omitempty"`
+	User        string            `json:"user,omitempty"`
+	Restart     RestartPolicy     `json:"restart"`
+	HealthCheck *HealthCheck      `json:"health_check,omitempty"`
+	Resources   *ResourceLimit    `json:"resources,omitempty"`
+	DependsOn   []string          `json:"depends_on,omitempty"`
+	Networks    []string          `json:"networks,omitempty"`
+	Labels      map[string]string `json:"labels,omitempty"`
+	Privileged  bool              `json:"privileged"`
+	ReadOnly    bool              `json:"read_only"`
 }
 
 // PortMapping 端口映射
@@ -137,38 +137,38 @@ type Volume struct {
 
 // ServiceInstance 服务实例
 type ServiceInstance struct {
-	ID          string        `json:"id"`
-	ServiceName string        `json:"service_name"`
-	StackID     string        `json:"stack_id"`
-	NodeID      string        `json:"node_id"`
-	Status      ServiceStatus `json:"status"`
-	Health      string        `json:"health"` // healthy, unhealthy, starting
-	IP          string        `json:"ip"`
-	Ports       []int         `json:"ports"`
-	StartedAt   time.Time     `json:"started_at"`
-	RestartCount int          `json:"restart_count"`
-	CPUUsage    float64       `json:"cpu_usage"`
-	MemoryUsage int64         `json:"memory_usage"`
+	ID           string        `json:"id"`
+	ServiceName  string        `json:"service_name"`
+	StackID      string        `json:"stack_id"`
+	NodeID       string        `json:"node_id"`
+	Status       ServiceStatus `json:"status"`
+	Health       string        `json:"health"` // healthy, unhealthy, starting
+	IP           string        `json:"ip"`
+	Ports        []int         `json:"ports"`
+	StartedAt    time.Time     `json:"started_at"`
+	RestartCount int           `json:"restart_count"`
+	CPUUsage     float64       `json:"cpu_usage"`
+	MemoryUsage  int64         `json:"memory_usage"`
 }
 
 // ClusterNode 集群节点
 type ClusterNode struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	IP          string    `json:"ip"`
-	Status      string    `json:"status"` // online, offline, draining
-	Role        string    `json:"role"`   // manager, worker
-	Labels      map[string]string `json:"labels,omitempty"`
-	Resources   NodeResources `json:"resources"`
-	LastSeen    time.Time `json:"last_seen"`
+	ID        string            `json:"id"`
+	Name      string            `json:"name"`
+	IP        string            `json:"ip"`
+	Status    string            `json:"status"` // online, offline, draining
+	Role      string            `json:"role"`   // manager, worker
+	Labels    map[string]string `json:"labels,omitempty"`
+	Resources NodeResources     `json:"resources"`
+	LastSeen  time.Time         `json:"last_seen"`
 }
 
 // NodeResources 节点资源
 type NodeResources struct {
-	CPU     int   `json:"cpu"`      // CPU 核数
-	Memory  int64 `json:"memory"`   // 内存字节
-	Disk    int64 `json:"disk"`     // 磁盘字节
-	GPU     int   `json:"gpu"`      // GPU 数量
+	CPU    int   `json:"cpu"`    // CPU 核数
+	Memory int64 `json:"memory"` // 内存字节
+	Disk   int64 `json:"disk"`   // 磁盘字节
+	GPU    int   `json:"gpu"`    // GPU 数量
 }
 
 // Manager 容器编排管理器

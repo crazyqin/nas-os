@@ -35,9 +35,9 @@ func setupTestEngine(t *testing.T) (*Engine, *gin.Engine) {
 
 	// 索引一些测试文件
 	testFiles := map[string]string{
-		"hello.txt":   "Hello World, this is a greeting",
-		"search.txt":  "Full text search is a powerful feature",
-		"readme.md":   "# Project\n\nWelcome to the NAS-OS project",
+		"hello.txt":  "Hello World, this is a greeting",
+		"search.txt": "Full text search is a powerful feature",
+		"readme.md":  "# Project\n\nWelcome to the NAS-OS project",
 	}
 	for name, content := range testFiles {
 		path := filepath.Join(dir, name)

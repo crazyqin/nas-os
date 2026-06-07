@@ -24,14 +24,14 @@ const (
 type BanReason string
 
 const (
-	BanReasonLoginFailure    BanReason = "login_failure"     // 登录失败次数过多
-	BanReasonBruteForce      BanReason = "brute_force"       // 暴力破解
-	BanReasonPortScan        BanReason = "port_scan"         // 端口扫描
-	BanReasonRateLimit       BanReason = "rate_limit"        // 频率限制
-	BanReasonSuspicious      BanReason = "suspicious"        // 可疑行为
-	BanReasonManual          BanReason = "manual"            // 手动封禁
-	BanReasonReputationLow   BanReason = "reputation_low"    // 信誉分过低
-	BanReasonAbnormalPattern BanReason = "abnormal_pattern"  // 异常模式
+	BanReasonLoginFailure    BanReason = "login_failure"    // 登录失败次数过多
+	BanReasonBruteForce      BanReason = "brute_force"      // 暴力破解
+	BanReasonPortScan        BanReason = "port_scan"        // 端口扫描
+	BanReasonRateLimit       BanReason = "rate_limit"       // 频率限制
+	BanReasonSuspicious      BanReason = "suspicious"       // 可疑行为
+	BanReasonManual          BanReason = "manual"           // 手动封禁
+	BanReasonReputationLow   BanReason = "reputation_low"   // 信誉分过低
+	BanReasonAbnormalPattern BanReason = "abnormal_pattern" // 异常模式
 )
 
 // ThreatLevel 威胁等级
@@ -60,21 +60,21 @@ const (
 // IPProtectionConfig IP 防护配置
 type IPProtectionConfig struct {
 	// 登录失败检测
-	LoginFailureThreshold  int           `json:"login_failure_threshold" yaml:"login_failure_threshold"`   // 失败次数阈值，默认 5
-	LoginFailureWindow     time.Duration `json:"login_failure_window" yaml:"login_failure_window"`         // 检测窗口，默认 10 分钟
-	AutoBanDuration        time.Duration `json:"auto_ban_duration" yaml:"auto_ban_duration"`               // 自动封禁时长，默认 1 小时
-	EnableAutoBan          bool          `json:"enable_auto_ban" yaml:"enable_auto_ban"`                   // 是否启用自动封禁
+	LoginFailureThreshold int           `json:"login_failure_threshold" yaml:"login_failure_threshold"` // 失败次数阈值，默认 5
+	LoginFailureWindow    time.Duration `json:"login_failure_window" yaml:"login_failure_window"`       // 检测窗口，默认 10 分钟
+	AutoBanDuration       time.Duration `json:"auto_ban_duration" yaml:"auto_ban_duration"`             // 自动封禁时长，默认 1 小时
+	EnableAutoBan         bool          `json:"enable_auto_ban" yaml:"enable_auto_ban"`                 // 是否启用自动封禁
 
 	// 频率限制
-	RateLimitRequestsPerSecond float64       `json:"rate_limit_rps" yaml:"rate_limit_rps"`      // 每秒请求数，默认 10
-	RateLimitBurst             int           `json:"rate_limit_burst" yaml:"rate_limit_burst"`  // 突发容量，默认 20
+	RateLimitRequestsPerSecond float64       `json:"rate_limit_rps" yaml:"rate_limit_rps"`         // 每秒请求数，默认 10
+	RateLimitBurst             int           `json:"rate_limit_burst" yaml:"rate_limit_burst"`     // 突发容量，默认 20
 	RateLimitCleanupInterval   time.Duration `json:"rate_limit_cleanup" yaml:"rate_limit_cleanup"` // 清理间隔
 
 	// 异常检测
-	PortScanThreshold    int           `json:"port_scan_threshold" yaml:"port_scan_threshold"`     // 端口扫描阈值，默认 20 个端口
-	PortScanWindow       time.Duration `json:"port_scan_window" yaml:"port_scan_window"`           // 端口扫描检测窗口
-	BruteForceThreshold  int           `json:"brute_force_threshold" yaml:"brute_force_threshold"` // 暴力破解阈值
-	BruteForceWindow     time.Duration `json:"brute_force_window" yaml:"brute_force_window"`       // 暴力破解检测窗口
+	PortScanThreshold   int           `json:"port_scan_threshold" yaml:"port_scan_threshold"`     // 端口扫描阈值，默认 20 个端口
+	PortScanWindow      time.Duration `json:"port_scan_window" yaml:"port_scan_window"`           // 端口扫描检测窗口
+	BruteForceThreshold int           `json:"brute_force_threshold" yaml:"brute_force_threshold"` // 暴力破解阈值
+	BruteForceWindow    time.Duration `json:"brute_force_window" yaml:"brute_force_window"`       // 暴力破解检测窗口
 
 	// 信誉评分
 	InitialReputationScore int `json:"initial_reputation_score" yaml:"initial_reputation_score"` // 初始信誉分，默认 100
@@ -93,25 +93,25 @@ type IPProtectionConfig struct {
 // DefaultIPProtectionConfig 返回默认配置
 func DefaultIPProtectionConfig() *IPProtectionConfig {
 	return &IPProtectionConfig{
-		LoginFailureThreshold:  5,
-		LoginFailureWindow:     10 * time.Minute,
-		AutoBanDuration:        1 * time.Hour,
-		EnableAutoBan:          true,
+		LoginFailureThreshold:      5,
+		LoginFailureWindow:         10 * time.Minute,
+		AutoBanDuration:            1 * time.Hour,
+		EnableAutoBan:              true,
 		RateLimitRequestsPerSecond: 10,
 		RateLimitBurst:             20,
 		RateLimitCleanupInterval:   5 * time.Minute,
-		PortScanThreshold:     20,
-		PortScanWindow:        5 * time.Minute,
-		BruteForceThreshold:   10,
-		BruteForceWindow:      5 * time.Minute,
-		InitialReputationScore: 100,
-		MinReputationScore:    20,
-		LoginFailurePenalty:   10,
-		ScanPenalty:           30,
-		RateLimitPenalty:      5,
-		ReputationRecoverRate: 1,
-		WhitelistedIPs:        []string{"127.0.0.1", "::1"},
-		BlacklistedIPs:        []string{},
+		PortScanThreshold:          20,
+		PortScanWindow:             5 * time.Minute,
+		BruteForceThreshold:        10,
+		BruteForceWindow:           5 * time.Minute,
+		InitialReputationScore:     100,
+		MinReputationScore:         20,
+		LoginFailurePenalty:        10,
+		ScanPenalty:                30,
+		RateLimitPenalty:           5,
+		ReputationRecoverRate:      1,
+		WhitelistedIPs:             []string{"127.0.0.1", "::1"},
+		BlacklistedIPs:             []string{},
 	}
 }
 
@@ -119,19 +119,19 @@ func DefaultIPProtectionConfig() *IPProtectionConfig {
 
 // IPRecord IP 记录
 type IPRecord struct {
-	IP                net.IP        `json:"ip"`
-	IPString          string        `json:"ip_string"`
-	IsIPv6            bool          `json:"is_ipv6"`
-	ReputationScore   int           `json:"reputation_score"`
-	IsBanned          bool          `json:"is_banned"`
-	BanReason         BanReason     `json:"ban_reason,omitempty"`
-	BanExpiry         time.Time     `json:"ban_expiry,omitempty"`
-	BanCount          int           `json:"ban_count"`
+	IP                 net.IP       `json:"ip"`
+	IPString           string       `json:"ip_string"`
+	IsIPv6             bool         `json:"is_ipv6"`
+	ReputationScore    int          `json:"reputation_score"`
+	IsBanned           bool         `json:"is_banned"`
+	BanReason          BanReason    `json:"ban_reason,omitempty"`
+	BanExpiry          time.Time    `json:"ban_expiry,omitempty"`
+	BanCount           int          `json:"ban_count"`
 	TotalLoginFailures int          `json:"total_login_failures"`
-	TotalRequests     int64         `json:"total_requests"`
-	FirstSeen         time.Time     `json:"first_seen"`
-	LastSeen          time.Time     `json:"last_seen"`
-	mu                sync.RWMutex  `json:"-"`
+	TotalRequests      int64        `json:"total_requests"`
+	FirstSeen          time.Time    `json:"first_seen"`
+	LastSeen           time.Time    `json:"last_seen"`
+	mu                 sync.RWMutex `json:"-"`
 }
 
 // LoginAttempt 登录尝试记录
@@ -154,43 +154,43 @@ type AccessRecord struct {
 
 // BanRecord 封禁记录
 type BanRecord struct {
-	ID        string    `json:"id"`
-	IP        string    `json:"ip"`
-	IsIPv6    bool      `json:"is_ipv6"`
-	Reason    BanReason `json:"reason"`
+	ID        string        `json:"id"`
+	IP        string        `json:"ip"`
+	IsIPv6    bool          `json:"is_ipv6"`
+	Reason    BanReason     `json:"reason"`
 	Duration  time.Duration `json:"duration"`
-	StartTime time.Time `json:"start_time"`
-	EndTime   time.Time `json:"end_time"`
-	IsActive  bool      `json:"is_active"`
-	Details   string    `json:"details,omitempty"`
+	StartTime time.Time     `json:"start_time"`
+	EndTime   time.Time     `json:"end_time"`
+	IsActive  bool          `json:"is_active"`
+	Details   string        `json:"details,omitempty"`
 }
 
 // IPStats IP 统计信息
 type IPStats struct {
-	IP              string        `json:"ip"`
-	ReputationScore int           `json:"reputation_score"`
-	ThreatLevel     ThreatLevel   `json:"threat_level"`
-	IsBanned        bool          `json:"is_banned"`
-	BanReason       BanReason     `json:"ban_reason,omitempty"`
-	BanExpiry       time.Time     `json:"ban_expiry,omitempty"`
-	BanCount        int           `json:"ban_count"`
-	TotalRequests   int64         `json:"total_requests"`
-	FirstSeen       time.Time     `json:"first_seen"`
-	LastSeen        time.Time     `json:"last_seen"`
-	RecentFailures  int           `json:"recent_failures"`
-	RecentPorts     int           `json:"recent_ports_scanned"`
+	IP              string      `json:"ip"`
+	ReputationScore int         `json:"reputation_score"`
+	ThreatLevel     ThreatLevel `json:"threat_level"`
+	IsBanned        bool        `json:"is_banned"`
+	BanReason       BanReason   `json:"ban_reason,omitempty"`
+	BanExpiry       time.Time   `json:"ban_expiry,omitempty"`
+	BanCount        int         `json:"ban_count"`
+	TotalRequests   int64       `json:"total_requests"`
+	FirstSeen       time.Time   `json:"first_seen"`
+	LastSeen        time.Time   `json:"last_seen"`
+	RecentFailures  int         `json:"recent_failures"`
+	RecentPorts     int         `json:"recent_ports_scanned"`
 }
 
 // GlobalStats 全局统计
 type GlobalStats struct {
-	TotalIPsTracked   int       `json:"total_ips_tracked"`
-	ActiveBans        int       `json:"active_bans"`
-	TotalBans         int       `json:"total_bans"`
-	WhitelistedIPs    int       `json:"whitelisted_ips"`
-	BlacklistedIPs    int       `json:"blacklisted_ips"`
-	AvgReputation     float64   `json:"avg_reputation"`
-	LowReputationIPs  int       `json:"low_reputation_ips"`
-	LastUpdated       time.Time `json:"last_updated"`
+	TotalIPsTracked  int       `json:"total_ips_tracked"`
+	ActiveBans       int       `json:"active_bans"`
+	TotalBans        int       `json:"total_bans"`
+	WhitelistedIPs   int       `json:"whitelisted_ips"`
+	BlacklistedIPs   int       `json:"blacklisted_ips"`
+	AvgReputation    float64   `json:"avg_reputation"`
+	LowReputationIPs int       `json:"low_reputation_ips"`
+	LastUpdated      time.Time `json:"last_updated"`
 }
 
 // DetectionResult 检测结果
@@ -206,24 +206,24 @@ type DetectionResult struct {
 
 // AllowListEntry 白名单条目
 type AllowListEntry struct {
-	IP          string    `json:"ip"`
-	IsIPv6      bool      `json:"is_ipv6"`
-	Subnet      string    `json:"subnet,omitempty"` // CIDR 表示，如 192.168.1.0/24
-	Comment     string    `json:"comment,omitempty"`
-	AddedAt     time.Time `json:"added_at"`
-	ExpiresAt   time.Time `json:"expires_at,omitempty"` // 空表示永不过期
-	IsActive    bool      `json:"is_active"`
+	IP        string    `json:"ip"`
+	IsIPv6    bool      `json:"is_ipv6"`
+	Subnet    string    `json:"subnet,omitempty"` // CIDR 表示，如 192.168.1.0/24
+	Comment   string    `json:"comment,omitempty"`
+	AddedAt   time.Time `json:"added_at"`
+	ExpiresAt time.Time `json:"expires_at,omitempty"` // 空表示永不过期
+	IsActive  bool      `json:"is_active"`
 }
 
 // DenyListEntry 黑名单条目
 type DenyListEntry struct {
-	IP          string    `json:"ip"`
-	IsIPv6      bool      `json:"is_ipv6"`
-	Subnet      string    `json:"subnet,omitempty"`
-	Reason      BanReason `json:"reason"`
-	Comment     string    `json:"comment,omitempty"`
-	AddedAt     time.Time `json:"added_at"`
-	ExpiresAt   time.Time `json:"expires_at,omitempty"`
-	IsActive    bool      `json:"is_active"`
-	AutoBan     bool      `json:"auto_ban"` // 是否自动封禁产生
+	IP        string    `json:"ip"`
+	IsIPv6    bool      `json:"is_ipv6"`
+	Subnet    string    `json:"subnet,omitempty"`
+	Reason    BanReason `json:"reason"`
+	Comment   string    `json:"comment,omitempty"`
+	AddedAt   time.Time `json:"added_at"`
+	ExpiresAt time.Time `json:"expires_at,omitempty"`
+	IsActive  bool      `json:"is_active"`
+	AutoBan   bool      `json:"auto_ban"` // 是否自动封禁产生
 }

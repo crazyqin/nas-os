@@ -304,9 +304,9 @@ func TestProcessAIPrompt(t *testing.T) {
 	m := setupTestManager(t)
 
 	tests := []struct {
-		name           string
-		prompt         string
-		expectMasked   bool
+		name         string
+		prompt       string
+		expectMasked bool
 	}{
 		{
 			name:         "包含敏感数据",
@@ -635,13 +635,13 @@ func TestEngineRuleManagement(t *testing.T) {
 
 	// Add custom rule
 	rule := &MaskingRule{
-		Name:        "测试规则",
-		DataType:    DataTypeName,
-		Strategy:    StrategyMask,
-		Enabled:     true,
-		KeepPrefix:  1,
-		KeepSuffix:  0,
-		MaskChar:    "*",
+		Name:       "测试规则",
+		DataType:   DataTypeName,
+		Strategy:   StrategyMask,
+		Enabled:    true,
+		KeepPrefix: 1,
+		KeepSuffix: 0,
+		MaskChar:   "*",
 	}
 
 	if err := engine.AddRule(rule); err != nil {

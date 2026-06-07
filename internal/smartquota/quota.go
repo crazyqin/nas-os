@@ -45,11 +45,11 @@ type Alert struct {
 	ID          string    `json:"id"`
 	QuotaID     string    `json:"quotaId"`
 	QuotaName   string    `json:"quotaName"`
-	Threshold   float64   `json:"threshold"`   // 触发阈值百分比
+	Threshold   float64   `json:"threshold"` // 触发阈值百分比
 	UsedBytes   int64     `json:"usedBytes"`
 	LimitBytes  int64     `json:"limitBytes"`
 	UsagePct    float64   `json:"usagePct"`
-	Level       string    `json:"level"`       // warning / critical / full
+	Level       string    `json:"level"` // warning / critical / full
 	Message     string    `json:"message"`
 	TriggeredAt time.Time `json:"triggeredAt"`
 	Acked       bool      `json:"acked"`
@@ -57,13 +57,13 @@ type Alert struct {
 
 // Prediction 使用量预测
 type Prediction struct {
-	QuotaID         string    `json:"quotaId"`
-	CurrentUsed     int64     `json:"currentUsed"`
-	LimitBytes      int64     `json:"limitBytes"`
-	DailyGrowthRate float64   `json:"dailyGrowthRate"` // 日均增长字节
+	QuotaID         string     `json:"quotaId"`
+	CurrentUsed     int64      `json:"currentUsed"`
+	LimitBytes      int64      `json:"limitBytes"`
+	DailyGrowthRate float64    `json:"dailyGrowthRate"`       // 日均增长字节
 	ExhaustDate     *time.Time `json:"exhaustDate,omitempty"` // 预计用尽日期
-	DaysRemaining   float64   `json:"daysRemaining"`
-	Trend           string    `json:"trend"` // increasing / stable / decreasing
+	DaysRemaining   float64    `json:"daysRemaining"`
+	Trend           string     `json:"trend"` // increasing / stable / decreasing
 }
 
 // CleanupSuggestion 清理建议
@@ -77,58 +77,58 @@ type CleanupSuggestion struct {
 
 // HistoryStats 历史统计
 type HistoryStats struct {
-	QuotaID   string           `json:"quotaId"`
-	Period    string           `json:"period"` // day / week / month
-	Records   []UsageRecord    `json:"records"`
-	AvgUsage  int64            `json:"avgUsage"`
-	MaxUsage  int64            `json:"maxUsage"`
-	MinUsage  int64            `json:"minUsage"`
-	Growth    int64            `json:"growth"` // 周期内净增长
+	QuotaID  string        `json:"quotaId"`
+	Period   string        `json:"period"` // day / week / month
+	Records  []UsageRecord `json:"records"`
+	AvgUsage int64         `json:"avgUsage"`
+	MaxUsage int64         `json:"maxUsage"`
+	MinUsage int64         `json:"minUsage"`
+	Growth   int64         `json:"growth"` // 周期内净增长
 }
 
 // QuotaConfig 配额配置
 type QuotaConfig struct {
-	ID             string     `json:"id"`
-	Name           string     `json:"name"`
-	Level          QuotaLevel `json:"level"`
-	OwnerID        string     `json:"ownerId"`        // 拥有者ID（用户/组/项目）
-	ParentID       string     `json:"parentId,omitempty"` // 父配额ID（用于继承）
-	LimitBytes     int64      `json:"limitBytes"`     // 配额上限
-	UsedBytes      int64      `json:"usedBytes"`      // 已使用量
-	Policy         QuotaPolicy `json:"policy"`
-	MaxAutoExpand  int64      `json:"maxAutoExpand,omitempty"` // 弹性策略最大扩展值
-	AlertsSent     map[float64]bool `json:"-"`         // 已发送告警记录
-	History        []UsageRecord    `json:"-"`         // 历史使用量
-	CreatedAt      time.Time  `json:"createdAt"`
-	UpdatedAt      time.Time  `json:"updatedAt"`
+	ID            string           `json:"id"`
+	Name          string           `json:"name"`
+	Level         QuotaLevel       `json:"level"`
+	OwnerID       string           `json:"ownerId"`            // 拥有者ID（用户/组/项目）
+	ParentID      string           `json:"parentId,omitempty"` // 父配额ID（用于继承）
+	LimitBytes    int64            `json:"limitBytes"`         // 配额上限
+	UsedBytes     int64            `json:"usedBytes"`          // 已使用量
+	Policy        QuotaPolicy      `json:"policy"`
+	MaxAutoExpand int64            `json:"maxAutoExpand,omitempty"` // 弹性策略最大扩展值
+	AlertsSent    map[float64]bool `json:"-"`                       // 已发送告警记录
+	History       []UsageRecord    `json:"-"`                       // 历史使用量
+	CreatedAt     time.Time        `json:"createdAt"`
+	UpdatedAt     time.Time        `json:"updatedAt"`
 }
 
 // QuotaTemplate 配额模板
 type QuotaTemplate struct {
-	Name       string     `json:"name"`
-	Level      QuotaLevel `json:"level"`
-	LimitBytes int64      `json:"limitBytes"`
+	Name       string      `json:"name"`
+	Level      QuotaLevel  `json:"level"`
+	LimitBytes int64       `json:"limitBytes"`
 	Policy     QuotaPolicy `json:"policy"`
 }
 
 // DefaultTemplates 默认配额模板
 var DefaultTemplates = []QuotaTemplate{
-	{Name: "family_user", Level: LevelUser, LimitBytes: 1024 * 1024 * 1024 * 1024, Policy: PolicySoft},      // 1TB
-	{Name: "office_user", Level: LevelUser, LimitBytes: 500 * 1024 * 1024 * 1024, Policy: PolicyHard},       // 500GB
-	{Name: "media_user", Level: LevelUser, LimitBytes: 2 * 1024 * 1024 * 1024 * 1024, Policy: PolicyElastic}, // 2TB
-	{Name: "group_default", Level: LevelGroup, LimitBytes: 5 * 1024 * 1024 * 1024 * 1024, Policy: PolicySoft}, // 5TB
+	{Name: "family_user", Level: LevelUser, LimitBytes: 1024 * 1024 * 1024 * 1024, Policy: PolicySoft},             // 1TB
+	{Name: "office_user", Level: LevelUser, LimitBytes: 500 * 1024 * 1024 * 1024, Policy: PolicyHard},              // 500GB
+	{Name: "media_user", Level: LevelUser, LimitBytes: 2 * 1024 * 1024 * 1024 * 1024, Policy: PolicyElastic},       // 2TB
+	{Name: "group_default", Level: LevelGroup, LimitBytes: 5 * 1024 * 1024 * 1024 * 1024, Policy: PolicySoft},      // 5TB
 	{Name: "project_default", Level: LevelProject, LimitBytes: 10 * 1024 * 1024 * 1024 * 1024, Policy: PolicyHard}, // 10TB
 }
 
 // QuotaManager 配额管理器
 type QuotaManager struct {
-	quotas    map[string]*QuotaConfig
-	alerts    []*Alert
-	mu        sync.RWMutex
-	ctx       context.Context
-	cancel    context.CancelFunc
-	nextID    int
-	onAlert   func(alert *Alert) // 告警回调
+	quotas  map[string]*QuotaConfig
+	alerts  []*Alert
+	mu      sync.RWMutex
+	ctx     context.Context
+	cancel  context.CancelFunc
+	nextID  int
+	onAlert func(alert *Alert) // 告警回调
 }
 
 // NewQuotaManager 创建配额管理器
@@ -393,7 +393,7 @@ func (qm *QuotaManager) PredictUsage(id string) (*Prediction, error) {
 
 	// 预计用尽日期
 	if pred.DailyGrowthRate > 0 {
-		remaining := float64(q.LimitBytes-q.UsedBytes)
+		remaining := float64(q.LimitBytes - q.UsedBytes)
 		daysLeft := remaining / pred.DailyGrowthRate
 		pred.DaysRemaining = daysLeft
 		exhaustDate := time.Now().Add(time.Duration(daysLeft * 24 * float64(time.Hour)))

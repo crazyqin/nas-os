@@ -1278,4 +1278,3 @@ func TestGranularityConstants(t *testing.T) {
 		t.Errorf("GranularityDaily = %s, want daily", GranularityDaily)
 	}
 }
-

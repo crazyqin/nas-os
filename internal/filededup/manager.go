@@ -242,12 +242,12 @@ func NewManager(config *ManagerConfig) *Manager {
 		config = DefaultConfig()
 	}
 	return &Manager{
-		config:      config,
-		files:       make(map[string]*FileInfo),
-		hashGroups:  make(map[string][]string),
-		tasks:       make(map[string]*DedupTask),
+		config:       config,
+		files:        make(map[string]*FileInfo),
+		hashGroups:   make(map[string][]string),
+		tasks:        make(map[string]*DedupTask),
 		excludeRules: make([]*ExcludeRule, 0),
-		reports:     make([]*DedupReport, 0),
+		reports:      make([]*DedupReport, 0),
 	}
 }
 

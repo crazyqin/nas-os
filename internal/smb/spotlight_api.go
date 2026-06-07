@@ -96,14 +96,14 @@ func (h *SpotlightAPIHandler) Search(c *gin.Context) {
 // Query: q, scope, limit, offset, sort, type
 func (h *SpotlightAPIHandler) SearchGet(c *gin.Context) {
 	req := &SpotlightSearchRequest{
-		Query:      c.Query("q"),
-		Scope:      c.QueryArray("scope"),
-		Attributes: c.QueryArray("attr"),
-		SortBy:     c.Query("sort"),
-		FileType:   c.Query("type"),
-		FuzzyMatch: c.Query("fuzzy") == "true",
+		Query:         c.Query("q"),
+		Scope:         c.QueryArray("scope"),
+		Attributes:    c.QueryArray("attr"),
+		SortBy:        c.Query("sort"),
+		FileType:      c.Query("type"),
+		FuzzyMatch:    c.Query("fuzzy") == "true",
 		ContentSearch: c.Query("content") == "true",
-		Extensions: c.QueryArray("ext"),
+		Extensions:    c.QueryArray("ext"),
 	}
 
 	// 解析数值参数
@@ -176,20 +176,20 @@ func (h *SpotlightAPIHandler) GetStats(c *gin.Context) {
 
 	// 添加更多统计信息
 	stats := gin.H{
-		"enabled":       status.Enabled,
-		"status":        status.Status,
-		"totalFiles":    status.TotalFiles,
-		"indexedFiles":  status.IndexedFiles,
-		"indexedSize":   status.IndexedSize,
-		"progress":      status.Progress,
-		"lastUpdate":    status.LastUpdate,
-		"sharePaths":    status.SharePaths,
+		"enabled":        status.Enabled,
+		"status":         status.Status,
+		"totalFiles":     status.TotalFiles,
+		"indexedFiles":   status.IndexedFiles,
+		"indexedSize":    status.IndexedSize,
+		"progress":       status.Progress,
+		"lastUpdate":     status.LastUpdate,
+		"sharePaths":     status.SharePaths,
 		"contentIndexed": status.ContentIndexed,
 		"performance": gin.H{
-			"cacheSize":         h.service.integration.config.CacheSize,
-			"cacheTTLSeconds":   h.service.integration.config.CacheTTLSeconds,
+			"cacheSize":           h.service.integration.config.CacheSize,
+			"cacheTTLSeconds":     h.service.integration.config.CacheTTLSeconds,
 			"maxConcurrentSearch": h.service.integration.config.MaxConcurrentSearch,
-			"indexBatchSize":    h.service.integration.config.IndexBatchSize,
+			"indexBatchSize":      h.service.integration.config.IndexBatchSize,
 		},
 	}
 
@@ -324,7 +324,7 @@ func (h *SpotlightAPIHandler) UpdateShareConfig(c *gin.Context) {
 		return
 	}
 
-	h.logger.Info("Spotlight共享配置更新", 
+	h.logger.Info("Spotlight共享配置更新",
 		zap.String("share", name),
 		zap.Bool("enabled", config.Enabled))
 

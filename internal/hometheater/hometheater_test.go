@@ -692,13 +692,13 @@ func TestStreamer_BandwidthEstimation(t *testing.T) {
 
 func TestCalculateScale(t *testing.T) {
 	tests := []struct {
-		name       string
-		width      int
-		height     int
-		maxW       int
-		maxH       int
-		wantW      int
-		wantH      int
+		name   string
+		width  int
+		height int
+		maxW   int
+		maxH   int
+		wantW  int
+		wantH  int
 	}{
 		{"不需要缩放", 1280, 720, 1920, 1080, 1280, 720},
 		{"宽度超限", 3840, 2160, 1920, 1080, 1920, 1080},

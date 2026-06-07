@@ -225,14 +225,14 @@ func (m *Manager) AnalyzeGrowth() (*GrowthAnalysis, error) {
 		}
 
 		growthRates = append(growthRates, GrowthRate{
-			DataType:          dt,
-			DailyGrowthBytes:  dailyGrowth,
-			WeeklyGrowthBytes: dailyGrowth * 7,
+			DataType:           dt,
+			DailyGrowthBytes:   dailyGrowth,
+			WeeklyGrowthBytes:  dailyGrowth * 7,
 			MonthlyGrowthBytes: dailyGrowth * 30,
-			GrowthPercent:     growthPercent,
-			Trend:             trend,
-			CurrentSizeBytes:  last,
-			TotalShare:        share,
+			GrowthPercent:      growthPercent,
+			Trend:              trend,
+			CurrentSizeBytes:   last,
+			TotalShare:         share,
 		})
 
 		totalDailyGrowth += dailyGrowth

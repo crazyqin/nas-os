@@ -15,48 +15,48 @@ import (
 
 // StatusAggregator 状态聚合器
 type StatusAggregator struct {
-	config     FleetConfig
-	nodeStatus map[string]*NodeDetailedStatus
+	config      FleetConfig
+	nodeStatus  map[string]*NodeDetailedStatus
 	fleetStatus *FleetStatus
-	logger     *zap.Logger
-	mu         sync.RWMutex
-	ctx        context.Context
-	cancel     context.CancelFunc
-	dataFile   string
+	logger      *zap.Logger
+	mu          sync.RWMutex
+	ctx         context.Context
+	cancel      context.CancelFunc
+	dataFile    string
 }
 
 // NodeDetailedStatus 节点详细状态
 type NodeDetailedStatus struct {
-	DeviceID       string                 `json:"deviceId"`
-	Name           string                 `json:"name"`
-	Status         string                 `json:"status"`
-	HealthScore    int                    `json:"healthScore"` // 0-100
-	Metrics        map[string]interface{} `json:"metrics"`
-	Services       []ServiceHealth        `json:"services"`
-	Alerts         []AlertInfo            `json:"alerts"`
-	LastHeartbeat  time.Time              `json:"lastHeartbeat"`
-	Uptime         time.Duration          `json:"uptime"`
-	CPUUsage       float64                `json:"cpuUsage"`
-	MemoryUsage    float64                `json:"memoryUsage"`
-	DiskUsage      float64                `json:"diskUsage"`
-	NetworkInBytes uint64                 `json:"networkInBytes"`
-	NetworkOutBytes uint64                `json:"networkOutBytes"`
-	Temperature    float64                `json:"temperature"` // 设备温度
+	DeviceID        string                 `json:"deviceId"`
+	Name            string                 `json:"name"`
+	Status          string                 `json:"status"`
+	HealthScore     int                    `json:"healthScore"` // 0-100
+	Metrics         map[string]interface{} `json:"metrics"`
+	Services        []ServiceHealth        `json:"services"`
+	Alerts          []AlertInfo            `json:"alerts"`
+	LastHeartbeat   time.Time              `json:"lastHeartbeat"`
+	Uptime          time.Duration          `json:"uptime"`
+	CPUUsage        float64                `json:"cpuUsage"`
+	MemoryUsage     float64                `json:"memoryUsage"`
+	DiskUsage       float64                `json:"diskUsage"`
+	NetworkInBytes  uint64                 `json:"networkInBytes"`
+	NetworkOutBytes uint64                 `json:"networkOutBytes"`
+	Temperature     float64                `json:"temperature"` // 设备温度
 }
 
 // ServiceHealth 服务健康状态
 type ServiceHealth struct {
-	Name   string `json:"name"`
-	Status string `json:"status"` // running, stopped, error
-	Port   int    `json:"port"`
+	Name   string        `json:"name"`
+	Status string        `json:"status"` // running, stopped, error
+	Port   int           `json:"port"`
 	Uptime time.Duration `json:"uptime"`
 }
 
 // AlertInfo 告警信息
 type AlertInfo struct {
 	AlertID   string    `json:"alertId"`
-	Type      string    `json:"type"`    // cpu, memory, disk, network, temperature
-	Level     string    `json:"level"`   // info, warning, critical
+	Type      string    `json:"type"`  // cpu, memory, disk, network, temperature
+	Level     string    `json:"level"` // info, warning, critical
 	Message   string    `json:"message"`
 	Timestamp time.Time `json:"timestamp"`
 	Resolved  bool      `json:"resolved"`
@@ -83,7 +83,7 @@ type FleetStatus struct {
 // NewStatusAggregator 创建状态聚合器
 func NewStatusAggregator(config FleetConfig, logger *zap.Logger) (*StatusAggregator, error) {
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	sa := &StatusAggregator{
 		config:      config,
 		nodeStatus:  make(map[string]*NodeDetailedStatus),
@@ -93,12 +93,12 @@ func NewStatusAggregator(config FleetConfig, logger *zap.Logger) (*StatusAggrega
 		cancel:      cancel,
 		dataFile:    filepath.Join(config.DataDir, "status.json"),
 	}
-	
+
 	// 加载持久化数据
 	if err := sa.loadState(); err != nil {
 		logger.Warn("加载状态数据失败", zap.Error(err))
 	}
-	
+
 	return sa, nil
 }
 
@@ -118,12 +118,12 @@ func (sa *StatusAggregator) Stop() {
 func (sa *StatusAggregator) GetNodeStatus(deviceID string) (*NodeDetailedStatus, error) {
 	sa.mu.RLock()
 	defer sa.mu.RUnlock()
-	
+
 	status, ok := sa.nodeStatus[deviceID]
 	if !ok {
 		return nil, fmt.Errorf("节点状态不存在: %s", deviceID)
 	}
-	
+
 	return status, nil
 }
 
@@ -131,7 +131,7 @@ func (sa *StatusAggregator) GetNodeStatus(deviceID string) (*NodeDetailedStatus,
 func (sa *StatusAggregator) GetFleetStatus() *FleetStatus {
 	sa.mu.RLock()
 	defer sa.mu.RUnlock()
-	
+
 	return sa.fleetStatus
 }
 
@@ -139,7 +139,7 @@ func (sa *StatusAggregator) GetFleetStatus() *FleetStatus {
 func (sa *StatusAggregator) UpdateNodeMetrics(deviceID string, metrics map[string]interface{}) {
 	sa.mu.Lock()
 	defer sa.mu.Unlock()
-	
+
 	status, ok := sa.nodeStatus[deviceID]
 	if !ok {
 		status = &NodeDetailedStatus{
@@ -154,12 +154,12 @@ func (sa *StatusAggregator) UpdateNodeMetrics(deviceID string, metrics map[strin
 		}
 		sa.nodeStatus[deviceID] = status
 	}
-	
+
 	// 更新指标
 	for k, v := range metrics {
 		status.Metrics[k] = v
 	}
-	
+
 	// 更新具体字段
 	if cpu, ok := metrics["cpuUsage"].(float64); ok {
 		status.CPUUsage = cpu
@@ -173,13 +173,13 @@ func (sa *StatusAggregator) UpdateNodeMetrics(deviceID string, metrics map[strin
 	if temp, ok := metrics["temperature"].(float64); ok {
 		status.Temperature = temp
 	}
-	
+
 	status.LastHeartbeat = time.Now()
 	status.Status = "active"
-	
+
 	// 计算健康分数
 	status.HealthScore = sa.calculateHealthScore(status)
-	
+
 	// 更新舰队状态
 	sa.updateFleetStatus()
 }
@@ -188,7 +188,7 @@ func (sa *StatusAggregator) UpdateNodeMetrics(deviceID string, metrics map[strin
 func (sa *StatusAggregator) SetNodeStatus(deviceID string, status *NodeDetailedStatus) {
 	sa.mu.Lock()
 	defer sa.mu.Unlock()
-	
+
 	sa.nodeStatus[deviceID] = status
 	sa.updateFleetStatus()
 }
@@ -197,7 +197,7 @@ func (sa *StatusAggregator) SetNodeStatus(deviceID string, status *NodeDetailedS
 func (sa *StatusAggregator) RemoveNode(deviceID string) {
 	sa.mu.Lock()
 	defer sa.mu.Unlock()
-	
+
 	delete(sa.nodeStatus, deviceID)
 	sa.updateFleetStatus()
 }
@@ -205,35 +205,35 @@ func (sa *StatusAggregator) RemoveNode(deviceID string) {
 // calculateHealthScore 计算健康分数
 func (sa *StatusAggregator) calculateHealthScore(status *NodeDetailedStatus) int {
 	score := 100
-	
+
 	// CPU 使用率扣分
 	if status.CPUUsage > 80 {
 		score -= 20
 	} else if status.CPUUsage > 60 {
 		score -= 10
 	}
-	
+
 	// 内存使用率扣分
 	if status.MemoryUsage > 90 {
 		score -= 15
 	} else if status.MemoryUsage > 75 {
 		score -= 8
 	}
-	
+
 	// 磁盘使用率扣分
 	if status.DiskUsage > 90 {
 		score -= 20
 	} else if status.DiskUsage > 80 {
 		score -= 10
 	}
-	
+
 	// 温度扣分
 	if status.Temperature > 70 {
 		score -= 15
 	} else if status.Temperature > 60 {
 		score -= 5
 	}
-	
+
 	// 告警扣分
 	for _, alert := range status.Alerts {
 		if !alert.Resolved {
@@ -245,18 +245,18 @@ func (sa *StatusAggregator) calculateHealthScore(status *NodeDetailedStatus) int
 			}
 		}
 	}
-	
+
 	// 心跳超时扣分
 	heartbeatAge := time.Since(status.LastHeartbeat)
 	if heartbeatAge > sa.config.HeartbeatTimeout {
 		score -= 30
 		status.Status = "offline"
 	}
-	
+
 	if score < 0 {
 		score = 0
 	}
-	
+
 	return score
 }
 
@@ -272,10 +272,10 @@ func (sa *StatusAggregator) updateFleetStatus() {
 	sa.fleetStatus.TotalDiskUsage = 0
 	sa.fleetStatus.ActiveAlerts = 0
 	sa.fleetStatus.NodeSummary = make(map[string]string)
-	
+
 	for _, status := range sa.nodeStatus {
 		sa.fleetStatus.NodeSummary[status.DeviceID] = status.Status
-		
+
 		switch status.Status {
 		case "active":
 			if status.HealthScore >= 80 {
@@ -290,21 +290,21 @@ func (sa *StatusAggregator) updateFleetStatus() {
 		case "offline":
 			sa.fleetStatus.OfflineNodes++
 		}
-		
+
 		for _, alert := range status.Alerts {
 			if !alert.Resolved {
 				sa.fleetStatus.ActiveAlerts++
 			}
 		}
 	}
-	
+
 	// 计算平均值
 	if sa.fleetStatus.ActiveNodes > 0 {
 		sa.fleetStatus.TotalCPUUsage /= float64(sa.fleetStatus.ActiveNodes)
 		sa.fleetStatus.TotalMemoryUsage /= float64(sa.fleetStatus.ActiveNodes)
 		sa.fleetStatus.TotalDiskUsage /= float64(sa.fleetStatus.ActiveNodes)
 	}
-	
+
 	// 计算整体健康分数
 	sa.fleetStatus.OverallHealth = sa.calculateFleetHealth()
 	sa.fleetStatus.LastUpdated = time.Now()
@@ -315,12 +315,12 @@ func (sa *StatusAggregator) calculateFleetHealth() int {
 	if len(sa.nodeStatus) == 0 {
 		return 100
 	}
-	
+
 	totalScore := 0
 	for _, status := range sa.nodeStatus {
 		totalScore += status.HealthScore
 	}
-	
+
 	return totalScore / len(sa.nodeStatus)
 }
 
@@ -333,7 +333,7 @@ func (sa *StatusAggregator) loadState() error {
 		}
 		return err
 	}
-	
+
 	return json.Unmarshal(data, &sa.nodeStatus)
 }
 
@@ -341,11 +341,11 @@ func (sa *StatusAggregator) loadState() error {
 func (sa *StatusAggregator) saveState() error {
 	sa.mu.RLock()
 	defer sa.mu.RUnlock()
-	
+
 	data, err := json.Marshal(sa.nodeStatus)
 	if err != nil {
 		return err
 	}
-	
+
 	return os.WriteFile(sa.dataFile, data, 0640)
 }

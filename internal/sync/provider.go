@@ -45,10 +45,10 @@ func (r *RemoteScanner) Scan(ctx context.Context, remotePath string, rev int64) 
 		// 远程可能为空目录
 		if isRemoteNotFound(err) {
 			return &Snapshot{
-				Rev:     rev,
+				Rev:      rev,
 				RootPath: remotePath,
-				Entries: make(map[string]*FileEntry),
-				Mtime:   now(),
+				Entries:  make(map[string]*FileEntry),
+				Mtime:    now(),
 			}, nil
 		}
 		return nil, err

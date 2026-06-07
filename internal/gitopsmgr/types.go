@@ -41,29 +41,29 @@ const (
 
 // GitRepo represents a connected Git repository
 type GitRepo struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	URL         string      `json:"url"`
-	Branch      string      `json:"branch"`
-	Path        string      `json:"path"`
-	AuthType    string      `json:"auth_type"` // ssh, token, basic
-	Connected   bool        `json:"connected"`
-	LastSync    *time.Time  `json:"last_sync,omitempty"`
-	SyncPolicy  SyncPolicy  `json:"sync_policy"`
-	Labels      []string    `json:"labels,omitempty"`
-	CreatedAt   time.Time   `json:"created_at"`
-	UpdatedAt   time.Time   `json:"updated_at"`
+	ID         string     `json:"id"`
+	Name       string     `json:"name"`
+	URL        string     `json:"url"`
+	Branch     string     `json:"branch"`
+	Path       string     `json:"path"`
+	AuthType   string     `json:"auth_type"` // ssh, token, basic
+	Connected  bool       `json:"connected"`
+	LastSync   *time.Time `json:"last_sync,omitempty"`
+	SyncPolicy SyncPolicy `json:"sync_policy"`
+	Labels     []string   `json:"labels,omitempty"`
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
 // SyncPolicy defines synchronization behavior
 type SyncPolicy struct {
-	AutoSync      bool          `json:"auto_sync"`
-	Interval      time.Duration `json:"interval"`
-	Prune         bool          `json:"prune"`
-	SelfHeal      bool          `json:"self_heal"`
-	RetryLimit    int           `json:"retry_limit"`
-	Timeout       time.Duration `json:"timeout"`
-	IgnoreDiffs   []string      `json:"ignore_diffs,omitempty"`
+	AutoSync    bool          `json:"auto_sync"`
+	Interval    time.Duration `json:"interval"`
+	Prune       bool          `json:"prune"`
+	SelfHeal    bool          `json:"self_heal"`
+	RetryLimit  int           `json:"retry_limit"`
+	Timeout     time.Duration `json:"timeout"`
+	IgnoreDiffs []string      `json:"ignore_diffs,omitempty"`
 }
 
 // DriftDetection represents a detected configuration drift
@@ -82,16 +82,16 @@ type DriftDetection struct {
 
 // DeploymentState represents a deployment record
 type DeploymentState struct {
-	ID          string          `json:"id"`
-	RepoID      string          `json:"repo_id"`
-	CommitSHA   string          `json:"commit_sha"`
-	Version     string          `json:"version"`
-	Status      DeploymentStatus `json:"status"`
-	Resources   []ResourceRef   `json:"resources"`
-	SyncedAt    time.Time       `json:"synced_at"`
-	RolledBackAt *time.Time     `json:"rolled_back_at,omitempty"`
-	RollbackFrom string         `json:"rollback_from,omitempty"`
-	Message     string          `json:"message,omitempty"`
+	ID           string           `json:"id"`
+	RepoID       string           `json:"repo_id"`
+	CommitSHA    string           `json:"commit_sha"`
+	Version      string           `json:"version"`
+	Status       DeploymentStatus `json:"status"`
+	Resources    []ResourceRef    `json:"resources"`
+	SyncedAt     time.Time        `json:"synced_at"`
+	RolledBackAt *time.Time       `json:"rolled_back_at,omitempty"`
+	RollbackFrom string           `json:"rollback_from,omitempty"`
+	Message      string           `json:"message,omitempty"`
 }
 
 // ResourceRef references a deployed resource
@@ -103,9 +103,9 @@ type ResourceRef struct {
 
 // SyncRequest is the request body for triggering sync
 type SyncRequest struct {
-	RepoID  string `json:"repo_id" binding:"required"`
-	Force   bool   `json:"force"`
-	DryRun  bool   `json:"dry_run"`
+	RepoID string `json:"repo_id" binding:"required"`
+	Force  bool   `json:"force"`
+	DryRun bool   `json:"dry_run"`
 }
 
 // RollbackRequest is the request body for rollback

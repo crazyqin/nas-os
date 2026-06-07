@@ -365,8 +365,8 @@ func TestReportWithMultipleDevices(t *testing.T) {
 	// 添加多个设备的读数，时间间隔10分钟
 	now := time.Now()
 	devices := []struct {
-		id   string
-		name string
+		id    string
+		name  string
 		power float64
 	}{
 		{"nas-01", "主 NAS", 65},

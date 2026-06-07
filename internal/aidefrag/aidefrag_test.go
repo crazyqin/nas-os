@@ -17,13 +17,13 @@ func newTestManager() *Manager {
 func TestRegisterDisk(t *testing.T) {
 	m := newTestManager()
 	disk := &DiskInfo{
-		ID:         "disk-1",
-		Device:     "/dev/sda1",
-		MountPoint: "/data",
-		FileSystem: FsBtrfs,
-		TotalBytes: 1024 * 1024 * 1024 * 500,
-		UsedBytes:  1024 * 1024 * 1024 * 300,
-		FreeBytes:  1024 * 1024 * 1024 * 200,
+		ID:          "disk-1",
+		Device:      "/dev/sda1",
+		MountPoint:  "/data",
+		FileSystem:  FsBtrfs,
+		TotalBytes:  1024 * 1024 * 1024 * 500,
+		UsedBytes:   1024 * 1024 * 1024 * 300,
+		FreeBytes:   1024 * 1024 * 1024 * 200,
 		FragPercent: 15.5,
 	}
 	if err := m.RegisterDisk(disk); err != nil {
@@ -84,7 +84,7 @@ func TestStopDefrag(t *testing.T) {
 func TestAnalyzeFragments(t *testing.T) {
 	m := newTestManager()
 	_ = m.RegisterDisk(&DiskInfo{ID: "d1", Device: "/dev/sda1", FileSystem: FsBtrfs})
- frags, err := m.AnalyzeFragments("d1")
+	frags, err := m.AnalyzeFragments("d1")
 	if err != nil {
 		t.Fatalf("AnalyzeFragments failed: %v", err)
 	}

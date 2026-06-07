@@ -594,10 +594,10 @@ type mockBaselineChecker struct {
 	status   CheckItemStatus
 }
 
-func (m *mockBaselineChecker) Category() BaselineCategory             { return m.cat }
-func (m *mockBaselineChecker) Name() string                           { return m.name }
-func (m *mockBaselineChecker) Standard() SecurityBaselineStandard     { return m.standard }
-func (m *mockBaselineChecker) Reference() string                      { return m.ref }
+func (m *mockBaselineChecker) Category() BaselineCategory         { return m.cat }
+func (m *mockBaselineChecker) Name() string                       { return m.name }
+func (m *mockBaselineChecker) Standard() SecurityBaselineStandard { return m.standard }
+func (m *mockBaselineChecker) Reference() string                  { return m.ref }
 func (m *mockBaselineChecker) Check(ctx context.Context) BaselineCheckResult {
 	return BaselineCheckResult{
 		CheckID:   "mock_" + m.name,

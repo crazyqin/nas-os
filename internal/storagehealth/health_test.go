@@ -8,13 +8,13 @@ import (
 
 func TestStorageHealthMonitor_RegisterPool(t *testing.T) {
 	thresholds := &HealthThresholds{
-		SpaceWarningPercent:  80,
-		SpaceCriticalPercent: 95,
-		TempWarningCelsius:   45,
-		TempCriticalCelsius:  55,
+		SpaceWarningPercent:   80,
+		SpaceCriticalPercent:  95,
+		TempWarningCelsius:    45,
+		TempCriticalCelsius:   55,
 		MaxReallocatedSectors: 10,
-		MaxPendingSectors:    5,
-		MaxErrors:            100,
+		MaxPendingSectors:     5,
+		MaxErrors:             100,
 	}
 
 	monitor := NewStorageHealthMonitor(thresholds)
@@ -25,17 +25,17 @@ func TestStorageHealthMonitor_RegisterPool(t *testing.T) {
 		Status:    PoolStatusOnline,
 		Health:    HealthHealthy,
 		TotalSize: 1024 * 1024 * 1024 * 1024, // 1TB
-		UsedSize:  1024 * 1024 * 1024 * 512,   // 512GB
-		FreeSize:  1024 * 1024 * 1024 * 512,   // 512GB
+		UsedSize:  1024 * 1024 * 1024 * 512,  // 512GB
+		FreeSize:  1024 * 1024 * 1024 * 512,  // 512GB
 		Devices: []*StorageDevice{
 			{
-				ID:          "disk1",
-				Name:        "sda",
-				Type:        "HDD",
-				Status:      DeviceOnline,
-				Health:      HealthHealthy,
-				Size:        1024 * 1024 * 1024 * 500, // 500GB
-				Temperature: 35.5,
+				ID:           "disk1",
+				Name:         "sda",
+				Type:         "HDD",
+				Status:       DeviceOnline,
+				Health:       HealthHealthy,
+				Size:         1024 * 1024 * 1024 * 500, // 500GB
+				Temperature:  35.5,
 				PowerOnHours: 1000,
 			},
 		},
@@ -86,8 +86,8 @@ func TestStorageHealthMonitor_UpdatePoolStatus(t *testing.T) {
 
 func TestStorageHealthMonitor_DeviceAlerts(t *testing.T) {
 	thresholds := &HealthThresholds{
-		TempWarningCelsius:   45,
-		TempCriticalCelsius:  55,
+		TempWarningCelsius:    45,
+		TempCriticalCelsius:   55,
 		MaxReallocatedSectors: 10,
 	}
 
@@ -98,9 +98,9 @@ func TestStorageHealthMonitor_DeviceAlerts(t *testing.T) {
 		Name: "Test Pool",
 		Devices: []*StorageDevice{
 			{
-				ID:                "disk1",
-				Name:              "sda",
-				Temperature:       50, // Above warning threshold
+				ID:                 "disk1",
+				Name:               "sda",
+				Temperature:        50, // Above warning threshold
 				ReallocatedSectors: 15, // Above threshold
 			},
 		},

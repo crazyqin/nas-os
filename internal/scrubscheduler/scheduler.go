@@ -52,7 +52,7 @@ func NewScheduler(logger *slog.Logger, config *ScrubSchedulerConfig, executor ZF
 		schedules:   make(map[string]*ScrubSchedule),
 		statuses:    make(map[string]*ScrubStatus),
 		history:     make([]*ScrubHistory, 0, 64),
-		cronParser: cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow),
+		cronParser:  cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow),
 		cronEntries: make(map[string]cron.EntryID),
 		cronRunner: cron.New(cron.WithParser(cron.NewParser(
 			cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow,
@@ -368,11 +368,11 @@ func (s *ScrubScheduler) startScrubForPool(ctx context.Context, pool string) {
 	s.mu.Lock()
 	if err != nil {
 		s.statuses[pool] = &ScrubStatus{
-			PoolName:   pool,
-			State:      ScrubStateFailed,
-			StartTime:  now,
-			EndTime:    now,
-			Errors:     []string{err.Error()},
+			PoolName:  pool,
+			State:     ScrubStateFailed,
+			StartTime: now,
+			EndTime:   now,
+			Errors:    []string{err.Error()},
 		}
 		s.logger.Error("failed to start scrub", "pool", pool, "error", err)
 	} else {

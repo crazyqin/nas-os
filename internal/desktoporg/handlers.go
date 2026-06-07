@@ -408,10 +408,10 @@ func (h *DesktopHandler) SetDefaultLayout(c *gin.Context) {
 // AddScreen 添加屏幕
 func (h *DesktopHandler) AddScreen(c *gin.Context) {
 	var req struct {
-		Name       string `json:"name" binding:"required"`
-		Width      int    `json:"width" binding:"required"`
-		Height     int    `json:"height" binding:"required"`
-		Primary    bool   `json:"primary"`
+		Name    string `json:"name" binding:"required"`
+		Width   int    `json:"width" binding:"required"`
+		Height  int    `json:"height" binding:"required"`
+		Primary bool   `json:"primary"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {

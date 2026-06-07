@@ -48,15 +48,15 @@ const (
 
 // BandwidthConfig 带宽控制配置.
 type BandwidthConfig struct {
-	UploadBytesPerSec   int64 `json:"upload_bytes_per_sec"`    // 上传限速，0=不限
-	DownloadBytesPerSec int64 `json:"download_bytes_per_sec"`  // 下载限速，0=不限
+	UploadBytesPerSec   int64 `json:"upload_bytes_per_sec"`   // 上传限速，0=不限
+	DownloadBytesPerSec int64 `json:"download_bytes_per_sec"` // 下载限速，0=不限
 }
 
 // VersionConfig 版本历史配置.
 type VersionConfig struct {
-	Enabled    bool `json:"enabled"`     // 是否启用版本历史
-	MaxVersions int `json:"max_versions"` // 最大保留版本数
-	RetentionDays int `json:"retention_days"` // 版本保留天数
+	Enabled       bool `json:"enabled"`        // 是否启用版本历史
+	MaxVersions   int  `json:"max_versions"`   // 最大保留版本数
+	RetentionDays int  `json:"retention_days"` // 版本保留天数
 }
 
 // SyncConfig 同步配置.
@@ -77,25 +77,25 @@ type SyncConfig struct {
 
 // FileEntry 文件条目（本地/远端通用）.
 type FileEntry struct {
-	Path         string      `json:"path"`
-	Size         int64       `json:"size"`
-	ModTime      time.Time   `json:"mod_time"`
-	Checksum     string      `json:"checksum"`
-	IsDir        bool        `json:"is_dir"`
-	Version      int64       `json:"version"`
-	SyncStatus   SyncStatus  `json:"sync_status"`
-	LastSyncedAt *time.Time  `json:"last_synced_at,omitempty"`
-	Error        string      `json:"error,omitempty"`
+	Path         string     `json:"path"`
+	Size         int64      `json:"size"`
+	ModTime      time.Time  `json:"mod_time"`
+	Checksum     string     `json:"checksum"`
+	IsDir        bool       `json:"is_dir"`
+	Version      int64      `json:"version"`
+	SyncStatus   SyncStatus `json:"sync_status"`
+	LastSyncedAt *time.Time `json:"last_synced_at,omitempty"`
+	Error        string     `json:"error,omitempty"`
 }
 
 // SyncEvent 同步事件.
 type SyncEvent struct {
-	Type      string     `json:"type"`       // "sync_start", "sync_complete", "conflict", "error", "file_synced"
-	Path      string     `json:"path"`
-	Direction string     `json:"direction"`  // "upload", "download", "bidirectional"
-	Timestamp time.Time  `json:"timestamp"`
-	Error     string     `json:"error,omitempty"`
-	Details   string     `json:"details,omitempty"`
+	Type      string    `json:"type"` // "sync_start", "sync_complete", "conflict", "error", "file_synced"
+	Path      string    `json:"path"`
+	Direction string    `json:"direction"` // "upload", "download", "bidirectional"
+	Timestamp time.Time `json:"timestamp"`
+	Error     string    `json:"error,omitempty"`
+	Details   string    `json:"details,omitempty"`
 }
 
 // EventHandler 同步事件回调.
@@ -142,21 +142,21 @@ type SyncEngine struct {
 	conflictResolver *ConflictResolver
 
 	// 控制
-	ctx    context.Context
-	cancel context.CancelFunc
+	ctx     context.Context
+	cancel  context.CancelFunc
 	running bool
 }
 
 // SyncStats 同步统计.
 type SyncStats struct {
-	TotalFiles     int       `json:"total_files"`
-	SyncedFiles    int       `json:"synced_files"`
-	ConflictFiles  int       `json:"conflict_files"`
-	ErrorFiles     int       `json:"error_files"`
-	UploadedBytes  int64     `json:"uploaded_bytes"`
-	DownloadedBytes int64    `json:"downloaded_bytes"`
-	StartTime      time.Time `json:"start_time"`
-	EndTime        *time.Time `json:"end_time,omitempty"`
+	TotalFiles      int        `json:"total_files"`
+	SyncedFiles     int        `json:"synced_files"`
+	ConflictFiles   int        `json:"conflict_files"`
+	ErrorFiles      int        `json:"error_files"`
+	UploadedBytes   int64      `json:"uploaded_bytes"`
+	DownloadedBytes int64      `json:"downloaded_bytes"`
+	StartTime       time.Time  `json:"start_time"`
+	EndTime         *time.Time `json:"end_time,omitempty"`
 }
 
 // SyncDB 同步状态数据库接口.
@@ -176,11 +176,11 @@ type SyncDB interface {
 // NewSyncEngine 创建同步引擎.
 func NewSyncEngine(cfg *SyncConfig, remote RemoteStorage, db SyncDB) *SyncEngine {
 	engine := &SyncEngine{
-		config:       cfg,
-		remote:       remote,
-		db:           db,
-		localIndex:   make(map[string]*FileEntry),
-		remoteIndex:  make(map[string]*FileEntry),
+		config:           cfg,
+		remote:           remote,
+		db:               db,
+		localIndex:       make(map[string]*FileEntry),
+		remoteIndex:      make(map[string]*FileEntry),
 		conflictResolver: NewConflictResolver(cfg.ConflictPolicy),
 	}
 
@@ -442,7 +442,7 @@ func (e *SyncEngine) buildIndex(local, remote []*FileEntry) {
 
 // SyncAction 同步动作.
 type SyncAction struct {
-	Type     string     // "upload", "download", "delete_local", "delete_remote", "conflict"
+	Type     string // "upload", "download", "delete_local", "delete_remote", "conflict"
 	Path     string
 	Local    *FileEntry
 	Remote   *FileEntry
@@ -499,10 +499,10 @@ func (e *SyncEngine) resolveAction(path string, local, remote, previous *FileEnt
 		if localChanged && remoteChanged {
 			// 冲突
 			return &SyncAction{
-				Type:   "conflict",
-				Path:   path,
-				Local:  local,
-				Remote: remote,
+				Type:     "conflict",
+				Path:     path,
+				Local:    local,
+				Remote:   remote,
 				Previous: previous,
 			}
 		}

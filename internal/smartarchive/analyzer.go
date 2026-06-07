@@ -30,7 +30,7 @@ type Analyzer struct {
 
 // AccessSnapshot 访问快照.
 type AccessSnapshot struct {
-	Timestamp time.Time                `json:"timestamp"`
+	Timestamp time.Time                 `json:"timestamp"`
 	Patterns  map[string]*AccessPattern `json:"patterns"`
 	Summary   *AccessSummary            `json:"summary"`
 }
@@ -49,11 +49,11 @@ type AccessSummary struct {
 
 // AnalysisResult 分析结果.
 type AnalysisResult struct {
-	Timestamp    time.Time                       `json:"timestamp"`
-	Summary      *AccessSummary                  `json:"summary"`
-	Patterns     map[string]*AccessPattern        `json:"patterns"`
-	Recommendations []ArchiveRecommendation       `json:"recommendations"`
-	Insights     []string                         `json:"insights"`
+	Timestamp       time.Time                 `json:"timestamp"`
+	Summary         *AccessSummary            `json:"summary"`
+	Patterns        map[string]*AccessPattern `json:"patterns"`
+	Recommendations []ArchiveRecommendation   `json:"recommendations"`
+	Insights        []string                  `json:"insights"`
 }
 
 // ArchiveRecommendation 归档建议.
@@ -63,20 +63,20 @@ type ArchiveRecommendation struct {
 	TargetTier  StorageTier   `json:"targetTier"`
 	Action      ArchiveAction `json:"action"`
 	Reason      string        `json:"reason"`
-	Priority    int           `json:"priority"` // 1-10
+	Priority    int           `json:"priority"`   // 1-10
 	Confidence  float64       `json:"confidence"` // 0-1
-	EstSaving   int64         `json:"estSaving"` // 预计节省空间
+	EstSaving   int64         `json:"estSaving"`  // 预计节省空间
 }
 
 // TrendData 趋势数据.
 type TrendData struct {
-	Period      string    `json:"period"`
-	StartValue  float64   `json:"startValue"`
-	EndValue    float64   `json:"endValue"`
-	Change      float64   `json:"change"`
-	ChangeRate  float64   `json:"changeRate"`
-	Direction   string    `json:"direction"` // up/down/stable
-	Confidence  float64   `json:"confidence"`
+	Period     string  `json:"period"`
+	StartValue float64 `json:"startValue"`
+	EndValue   float64 `json:"endValue"`
+	Change     float64 `json:"change"`
+	ChangeRate float64 `json:"changeRate"`
+	Direction  string  `json:"direction"` // up/down/stable
+	Confidence float64 `json:"confidence"`
 }
 
 // NewAnalyzer 创建分析器.

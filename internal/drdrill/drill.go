@@ -125,12 +125,12 @@ func (m *Manager) ExecutePlan(ctx context.Context, planID string) (*DrillExecuti
 	}
 
 	exec := &DrillExecution{
-		ID:        uuid.New().String(),
-		PlanID:    plan.ID,
-		PlanName:  plan.Name,
-		Mode:      plan.Mode,
-		Status:    ExecRunning,
-		StartTime: time.Now(),
+		ID:          uuid.New().String(),
+		PlanID:      plan.ID,
+		PlanName:    plan.Name,
+		Mode:        plan.Mode,
+		Status:      ExecRunning,
+		StartTime:   time.Now(),
 		StepResults: make([]StepResult, len(plan.Steps)),
 	}
 

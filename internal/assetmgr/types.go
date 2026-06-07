@@ -89,47 +89,47 @@ const (
 
 // Asset 资产信息.
 type Asset struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	Type        AssetType   `json:"type"`
-	Status      AssetStatus `json:"status"`
-	IPAddress   string      `json:"ip_address"`
-	MACAddress  string      `json:"mac_address"`
-	Location    string      `json:"location"`
-	Department  string      `json:"department"`
-	Owner       string      `json:"owner"`
-	SerialNumber string     `json:"serial_number"`
-	Manufacturer string     `json:"manufacturer"`
-	Model       string      `json:"model"`
-	PurchaseDate time.Time  `json:"purchase_date"`
-	WarrantyEnd  time.Time  `json:"warranty_end"`
-	Hardware    *HardwareInfo `json:"hardware,omitempty"`
-	Software    *SoftwareInfo `json:"software,omitempty"`
-	Tags        map[string]string `json:"tags"`
-	Notes       string      `json:"notes"`
-	CreatedAt   time.Time   `json:"created_at"`
-	UpdatedAt   time.Time   `json:"updated_at"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	Type         AssetType         `json:"type"`
+	Status       AssetStatus       `json:"status"`
+	IPAddress    string            `json:"ip_address"`
+	MACAddress   string            `json:"mac_address"`
+	Location     string            `json:"location"`
+	Department   string            `json:"department"`
+	Owner        string            `json:"owner"`
+	SerialNumber string            `json:"serial_number"`
+	Manufacturer string            `json:"manufacturer"`
+	Model        string            `json:"model"`
+	PurchaseDate time.Time         `json:"purchase_date"`
+	WarrantyEnd  time.Time         `json:"warranty_end"`
+	Hardware     *HardwareInfo     `json:"hardware,omitempty"`
+	Software     *SoftwareInfo     `json:"software,omitempty"`
+	Tags         map[string]string `json:"tags"`
+	Notes        string            `json:"notes"`
+	CreatedAt    time.Time         `json:"created_at"`
+	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
 // HardwareInfo 硬件信息.
 type HardwareInfo struct {
-	CPUModel    string  `json:"cpu_model"`
-	CPUCores    int     `json:"cpu_cores"`
-	CPUGHz      float64 `json:"cpu_ghz"`
-	RAMGB       int     `json:"ram_gb"`
-	RAMType     string  `json:"ram_type"`
+	CPUModel     string     `json:"cpu_model"`
+	CPUCores     int        `json:"cpu_cores"`
+	CPUGHz       float64    `json:"cpu_ghz"`
+	RAMGB        int        `json:"ram_gb"`
+	RAMType      string     `json:"ram_type"`
 	StorageDisks []DiskInfo `json:"storage_disks"`
-	GPUModel    string  `json:"gpu_model"`
-	NetworkPorts int    `json:"network_ports"`
-	PowerSupply string  `json:"power_supply"`
-	ChassisType string  `json:"chassis_type"`
+	GPUModel     string     `json:"gpu_model"`
+	NetworkPorts int        `json:"network_ports"`
+	PowerSupply  string     `json:"power_supply"`
+	ChassisType  string     `json:"chassis_type"`
 }
 
 // DiskInfo 磁盘信息.
 type DiskInfo struct {
-	Model   string `json:"model"`
-	Type    string `json:"type"` // ssd/hdd/nvme
-	SizeGB  int    `json:"size_gb"`
+	Model     string `json:"model"`
+	Type      string `json:"type"` // ssd/hdd/nvme
+	SizeGB    int    `json:"size_gb"`
 	Interface string `json:"interface"` // sata/sas/nvme
 }
 
@@ -152,22 +152,22 @@ type Application struct {
 
 // AssetGroup 资产分组.
 type AssetGroup struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	AssetIDs    []string `json:"asset_ids"`
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	AssetIDs    []string          `json:"asset_ids"`
 	Tags        map[string]string `json:"tags"`
-	CreatedAt   time.Time `json:"created_at"`
+	CreatedAt   time.Time         `json:"created_at"`
 }
 
 // MaintenanceSchedule 维护计划.
 type MaintenanceSchedule struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	AssetIDs    []string  `json:"asset_ids"`
-	Description string    `json:"description"`
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	AssetIDs    []string `json:"asset_ids"`
+	Description string   `json:"description"`
 	// IntervalDays 维护间隔天数.
-	IntervalDays int      `json:"interval_days"`
+	IntervalDays int `json:"interval_days"`
 	// LastMaintenance 上次维护时间.
 	LastMaintenance time.Time `json:"last_maintenance"`
 	// NextMaintenance 下次维护时间.
@@ -178,12 +178,12 @@ type MaintenanceSchedule struct {
 
 // ScanResult 扫描结果.
 type ScanResult struct {
-	ID          string      `json:"id"`
-	ScanRange   string      `json:"scan_range"`
-	StartTime   time.Time   `json:"start_time"`
-	EndTime     time.Time   `json:"end_time"`
-	TotalFound  int         `json:"total_found"`
-	NewDevices  int         `json:"new_devices"`
-	Assets      []*Asset    `json:"assets"`
-	Status      string      `json:"status"` // running/completed/failed
+	ID         string    `json:"id"`
+	ScanRange  string    `json:"scan_range"`
+	StartTime  time.Time `json:"start_time"`
+	EndTime    time.Time `json:"end_time"`
+	TotalFound int       `json:"total_found"`
+	NewDevices int       `json:"new_devices"`
+	Assets     []*Asset  `json:"assets"`
+	Status     string    `json:"status"` // running/completed/failed
 }

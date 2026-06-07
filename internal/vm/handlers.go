@@ -458,12 +458,16 @@ func (h *Handlers) HandlePCIDevices(w http.ResponseWriter, r *http.Request) {
 
 // ========== 小写方法名别名（测试兼容） ==========
 
-func (h *Handlers) handleListVMs(w http.ResponseWriter, r *http.Request) { h.HandleListVMs(w, r) }
+func (h *Handlers) handleListVMs(w http.ResponseWriter, r *http.Request)  { h.HandleListVMs(w, r) }
 func (h *Handlers) handleListISOs(w http.ResponseWriter, r *http.Request) { h.HandleListISOs(w, r) }
-func (h *Handlers) handleListSnapshots(w http.ResponseWriter, r *http.Request) { h.HandleListSnapshots(w, r) }
-func (h *Handlers) handleListTemplates(w http.ResponseWriter, r *http.Request) { h.HandleListTemplates(w, r) }
+func (h *Handlers) handleListSnapshots(w http.ResponseWriter, r *http.Request) {
+	h.HandleListSnapshots(w, r)
+}
+func (h *Handlers) handleListTemplates(w http.ResponseWriter, r *http.Request) {
+	h.HandleListTemplates(w, r)
+}
 func (h *Handlers) handleUSBDevices(w http.ResponseWriter, r *http.Request) { h.HandleUSBDevices(w, r) }
 func (h *Handlers) handlePCIDevices(w http.ResponseWriter, r *http.Request) { h.HandlePCIDevices(w, r) }
-func (h *Handlers) handleISO(w http.ResponseWriter, r *http.Request) { h.HandleISO(w, r) }
-func (h *Handlers) handleVM(w http.ResponseWriter, r *http.Request) { h.HandleVM(w, r) }
-func (h *Handlers) handleCreateVM(w http.ResponseWriter, r *http.Request) { h.HandleCreateVM(w, r) }
+func (h *Handlers) handleISO(w http.ResponseWriter, r *http.Request)        { h.HandleISO(w, r) }
+func (h *Handlers) handleVM(w http.ResponseWriter, r *http.Request)         { h.HandleVM(w, r) }
+func (h *Handlers) handleCreateVM(w http.ResponseWriter, r *http.Request)   { h.HandleCreateVM(w, r) }

@@ -179,27 +179,27 @@ type RDMAGID struct {
 // RDMADeviceStats RDMA 设备统计
 type RDMADeviceStats struct {
 	// 发送统计
-	TxBytes    uint64 `json:"txBytes"`
-	TxPackets  uint64 `json:"txPackets"`
-	TxErrors   uint64 `json:"txErrors"`
-	TxDropped  uint64 `json:"txDropped"`
+	TxBytes   uint64 `json:"txBytes"`
+	TxPackets uint64 `json:"txPackets"`
+	TxErrors  uint64 `json:"txErrors"`
+	TxDropped uint64 `json:"txDropped"`
 
 	// 接收统计
-	RxBytes    uint64 `json:"rxBytes"`
-	RxPackets  uint64 `json:"rxPackets"`
-	RxErrors   uint64 `json:"rxErrors"`
-	RxDropped  uint64 `json:"rxDropped"`
+	RxBytes   uint64 `json:"rxBytes"`
+	RxPackets uint64 `json:"rxPackets"`
+	RxErrors  uint64 `json:"rxErrors"`
+	RxDropped uint64 `json:"rxDropped"`
 
 	// RDMA 特定统计
-	RDMAReadOps   uint64 `json:"rdmaReadOps"`
-	RDMAWriteOps  uint64 `json:"rdmaWriteOps"`
-	RDMASendOps   uint64 `json:"rdmaSendOps"`
-	RDMARecvOps   uint64 `json:"rdmaRecvOps"`
+	RDMAReadOps  uint64 `json:"rdmaReadOps"`
+	RDMAWriteOps uint64 `json:"rdmaWriteOps"`
+	RDMASendOps  uint64 `json:"rdmaSendOps"`
+	RDMARecvOps  uint64 `json:"rdmaRecvOps"`
 
 	// 队列统计
-	QPCount    int    `json:"qpCount"`
-	CQCount    int    `json:"cqCount"`
-	SRQCount   int    `json:"srqCount"`
+	QPCount  int `json:"qpCount"`
+	CQCount  int `json:"cqCount"`
+	SRQCount int `json:"srqCount"`
 }
 
 // ========== RDMA 配置 ==========
@@ -306,34 +306,34 @@ type RDMAReconnectConfig struct {
 // DefaultRDMAConfig 默认 RDMA 配置
 func DefaultRDMAConfig() *RDMAConfig {
 	return &RDMAConfig{
-		Enabled:         true,
-		TransportType:   RDMATransportRoCEv2,
-		QueueDepth:      128,
-		SQDepth:         128,
-		RQDepth:         128,
-		CQDepth:         256,
-		MaxWR:           128,
-		MaxInlineData:   4096,
-		ZeroCopy:        true,
-		PollMode:        true,
-		CPUAffinity:     []int{},
-		PortConfig:      RDMAPortConfig{
-			PortNum:    1,
-			GIDIndex:   0,
+		Enabled:       true,
+		TransportType: RDMATransportRoCEv2,
+		QueueDepth:    128,
+		SQDepth:       128,
+		RQDepth:       128,
+		CQDepth:       256,
+		MaxWR:         128,
+		MaxInlineData: 4096,
+		ZeroCopy:      true,
+		PollMode:      true,
+		CPUAffinity:   []int{},
+		PortConfig: RDMAPortConfig{
+			PortNum:     1,
+			GIDIndex:    0,
 			ServicePort: 4420,
-			MTU:        9000,
+			MTU:         9000,
 		},
-		Performance:     RDMAPerformanceConfig{
-			MaxIOSize:        128,
-			BatchSize:        32,
-			ReadAhead:        512,
+		Performance: RDMAPerformanceConfig{
+			MaxIOSize:         128,
+			BatchSize:         32,
+			ReadAhead:         512,
 			PacketAggregation: true,
-			FlowControl:      true,
+			FlowControl:       true,
 		},
-		Reconnect:       RDMAReconnectConfig{
-			Delay:             10,
-			MaxAttempts:       30,
-			Timeout:           60,
+		Reconnect: RDMAReconnectConfig{
+			Delay:              10,
+			MaxAttempts:        30,
+			Timeout:            60,
 			ExponentialBackoff: true,
 		},
 	}
@@ -435,12 +435,12 @@ type RDMATargetConfig struct {
 // DefaultRDMATargetConfig 默认 RDMA Target 配置
 func DefaultRDMATargetConfig() *RDMATargetConfig {
 	return &RDMATargetConfig{
-		PortNum:    1,
-		GIDIndex:   0,
+		PortNum:     1,
+		GIDIndex:    0,
 		ServicePort: 4420,
-		QueueDepth: 128,
-		MTU:        9000,
-		Enabled:    true,
+		QueueDepth:  128,
+		MTU:         9000,
+		Enabled:     true,
 	}
 }
 
@@ -589,16 +589,16 @@ type RDMAPerformanceStats struct {
 	MaxLatency uint64 `json:"maxLatency"` // 微秒
 
 	// 队列统计
-	SQDepth   int `json:"sqDepth"`
-	RQDepth   int `json:"rqDepth"`
-	CQDepth   int `json:"cqDepth"`
-	ActiveQP  int `json:"activeQp"`
+	SQDepth  int `json:"sqDepth"`
+	RQDepth  int `json:"rqDepth"`
+	CQDepth  int `json:"cqDepth"`
+	ActiveQP int `json:"activeQp"`
 
 	// 错误统计
-	RDMAErrors  uint64 `json:"rdmaErrors"`
-	TxErrors    uint64 `json:"txErrors"`
-	RxErrors    uint64 `json:"rxErrors"`
-	Timeouts    uint64 `json:"timeouts"`
+	RDMAErrors uint64 `json:"rdmaErrors"`
+	TxErrors   uint64 `json:"txErrors"`
+	RxErrors   uint64 `json:"rxErrors"`
+	Timeouts   uint64 `json:"timeouts"`
 
 	// 重连统计
 	ReconnectCount uint64 `json:"reconnectCount"`
@@ -686,14 +686,14 @@ func (m *RDMAManager) scanDevices() {
 
 	// 模拟设备扫描
 	m.devices["mlx5_0"] = &RDMADevice{
-		Name:          "mlx5_0",
-		TransportType: RDMATransportRoCEv2,
+		Name:            "mlx5_0",
+		TransportType:   RDMATransportRoCEv2,
 		FirmwareVersion: "16.32.1010",
-		NodeGUID:      "50:6b:4b:0d:00:00:00:00",
-		Ports:         1,
-		MTU:           9000,
-		MaxBandwidth:  100,
-		State:         RDMADeviceStateUp,
+		NodeGUID:        "50:6b:4b:0d:00:00:00:00",
+		Ports:           1,
+		MTU:             9000,
+		MaxBandwidth:    100,
+		State:           RDMADeviceStateUp,
 		PortInfo: []RDMAPortInfo{
 			{
 				PortNum:    1,
@@ -707,10 +707,10 @@ func (m *RDMAManager) scanDevices() {
 		},
 		GIDs: []RDMAGID{
 			{
-				Index:      0,
-				GID:        "fe80:0000:0000:0000:526b:4b0d:0000:0000",
-				Type:       "RoCEv2",
-				IPAddress:  "192.168.100.100",
+				Index:     0,
+				GID:       "fe80:0000:0000:0000:526b:4b0d:0000:0000",
+				Type:      "RoCEv2",
+				IPAddress: "192.168.100.100",
 			},
 		},
 	}

@@ -138,13 +138,13 @@ func (g *ThumbnailGenerator) GetImageInfo(ctx context.Context, filePath string) 
 	}
 
 	return &ImageInfo{
-		FilePath:    filePath,
-		Format:      format,
-		Width:       imgConfig.Width,
-		Height:      imgConfig.Height,
-		FileSize:    info.Size(),
-		ColorSpace:  "RGB", // 默认色彩空间
-		HasAlpha:    hasAlphaChannel(imgConfig.ColorModel),
+		FilePath:   filePath,
+		Format:     format,
+		Width:      imgConfig.Width,
+		Height:     imgConfig.Height,
+		FileSize:   info.Size(),
+		ColorSpace: "RGB", // 默认色彩空间
+		HasAlpha:   hasAlphaChannel(imgConfig.ColorModel),
 	}, nil
 }
 
@@ -180,14 +180,14 @@ func (g *ThumbnailGenerator) generateFromStandard(ctx context.Context, filePath 
 
 	stat, _ := os.Stat(outputPath)
 	return &PreviewResult{
-		FilePath:      filePath,
-		FileType:      FileTypeImage,
-		PreviewPath:   outputPath,
-		ContentType:   getContentType(format),
-		Width:         width,
-		Height:        height,
-		FileSize:      stat.Size(),
-		GeneratedAt:   stat.ModTime(),
+		FilePath:    filePath,
+		FileType:    FileTypeImage,
+		PreviewPath: outputPath,
+		ContentType: getContentType(format),
+		Width:       width,
+		Height:      height,
+		FileSize:    stat.Size(),
+		GeneratedAt: stat.ModTime(),
 	}, nil
 }
 

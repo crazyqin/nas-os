@@ -10,12 +10,12 @@ import (
 
 // Manager 能源仪表盘管理器
 type Manager struct {
-	mu           sync.RWMutex
-	settings     *EnergySettings
-	budget       *EnergyBudget
-	readings     []*PowerReading
-	records      []*EnergyRecord
-	devices      map[string]*DevicePower
+	mu            sync.RWMutex
+	settings      *EnergySettings
+	budget        *EnergyBudget
+	readings      []*PowerReading
+	records       []*EnergyRecord
+	devices       map[string]*DevicePower
 	lastReadingID int64
 }
 

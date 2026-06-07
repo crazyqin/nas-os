@@ -640,13 +640,13 @@ func (m *Manager) GetProjectReport(projectID string) (*ProjectReport, error) {
 	}
 
 	report := &ProjectReport{
-		ProjectID:   projectID,
-		ProjectName: project.Name,
-		TotalTasks:  project.TasksTotal,
-		Progress:    project.Progress,
-		BudgetUsed:  project.Spent,
+		ProjectID:       projectID,
+		ProjectName:     project.Name,
+		TotalTasks:      project.TasksTotal,
+		Progress:        project.Progress,
+		BudgetUsed:      project.Spent,
 		BudgetRemaining: project.Budget - project.Spent,
-		GeneratedAt: time.Now(),
+		GeneratedAt:     time.Now(),
 	}
 
 	// Calculate task stats

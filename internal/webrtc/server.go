@@ -45,20 +45,20 @@ type SessionDescription struct {
 
 // PeerConnection 对等连接.
 type PeerConnection struct {
-	mu              sync.RWMutex
-	ID              string        `json:"id"`
-	State           SessionState  `json:"state"`
-	LocalSDP        *SessionDescription `json:"localSdp"`
-	RemoteSDP       *SessionDescription `json:"remoteSdp"`
-	ICECandidates   []*ICECandidate `json:"iceCandidates"`
-	MediaTracks     []*MediaTrack  `json:"mediaTracks"`
-	CreatedAt       time.Time      `json:"createdAt"`
-	ConnectedAt     time.Time      `json:"connectedAt"`
-	BytesSent       int64          `json:"bytesSent"`
-	BytesReceived   int64          `json:"bytesReceived"`
-	PacketsLost     int64          `json:"packetsLost"`
-	RTT             time.Duration  `json:"rtt"`
-	RemoteAddr      string         `json:"remoteAddr"`
+	mu            sync.RWMutex
+	ID            string              `json:"id"`
+	State         SessionState        `json:"state"`
+	LocalSDP      *SessionDescription `json:"localSdp"`
+	RemoteSDP     *SessionDescription `json:"remoteSdp"`
+	ICECandidates []*ICECandidate     `json:"iceCandidates"`
+	MediaTracks   []*MediaTrack       `json:"mediaTracks"`
+	CreatedAt     time.Time           `json:"createdAt"`
+	ConnectedAt   time.Time           `json:"connectedAt"`
+	BytesSent     int64               `json:"bytesSent"`
+	BytesReceived int64               `json:"bytesReceived"`
+	PacketsLost   int64               `json:"packetsLost"`
+	RTT           time.Duration       `json:"rtt"`
+	RemoteAddr    string              `json:"remoteAddr"`
 }
 
 // MediaTrack 媒体轨道.
@@ -78,25 +78,25 @@ type MediaTrack struct {
 // Stream 媒体流.
 type Stream struct {
 	mu      sync.RWMutex
-	ID      string         `json:"id"`
-	Name    string         `json:"name"`
-	Tracks  []*MediaTrack  `json:"tracks"`
-	Viewers int            `json:"viewers"`
-	Source  string         `json:"source"` // camera, screen, file
-	Active  bool           `json:"active"`
+	ID      string        `json:"id"`
+	Name    string        `json:"name"`
+	Tracks  []*MediaTrack `json:"tracks"`
+	Viewers int           `json:"viewers"`
+	Source  string        `json:"source"` // camera, screen, file
+	Active  bool          `json:"active"`
 }
 
 // Recording 录制任务.
 type Recording struct {
-	ID        string    `json:"id"`
-	StreamID  string    `json:"streamId"`
-	Format    string    `json:"format"` // webm, mp4
-	StartTime time.Time `json:"startTime"`
-	EndTime   time.Time `json:"endTime"`
+	ID        string        `json:"id"`
+	StreamID  string        `json:"streamId"`
+	Format    string        `json:"format"` // webm, mp4
+	StartTime time.Time     `json:"startTime"`
+	EndTime   time.Time     `json:"endTime"`
 	Duration  time.Duration `json:"duration"`
-	Size      int64     `json:"size"`
-	Path      string    `json:"path"`
-	Status    string    `json:"status"`
+	Size      int64         `json:"size"`
+	Path      string        `json:"path"`
+	Status    string        `json:"status"`
 }
 
 // SignalingMessage 信令消息.
@@ -108,36 +108,36 @@ type SignalingMessage struct {
 
 // WebRTCStats WebRTC统计.
 type WebRTCStats struct {
-	mu                sync.RWMutex
-	TotalSessions     int       `json:"totalSessions"`
-	ActiveSessions    int       `json:"activeSessions"`
-	TotalStreams      int       `json:"totalStreams"`
+	mu                 sync.RWMutex
+	TotalSessions      int       `json:"totalSessions"`
+	ActiveSessions     int       `json:"activeSessions"`
+	TotalStreams       int       `json:"totalStreams"`
 	ActiveStreams      int       `json:"activeStreams"`
-	TotalRecordings   int       `json:"totalRecordings"`
-	ActiveRecordings  int       `json:"activeRecordings"`
-	TotalBytesSent    int64     `json:"totalBytesSent"`
-	TotalBytesReceived int64   `json:"totalBytesReceived"`
-	StartedAt         time.Time `json:"startedAt"`
+	TotalRecordings    int       `json:"totalRecordings"`
+	ActiveRecordings   int       `json:"activeRecordings"`
+	TotalBytesSent     int64     `json:"totalBytesSent"`
+	TotalBytesReceived int64     `json:"totalBytesReceived"`
+	StartedAt          time.Time `json:"startedAt"`
 }
 
 // WebRTCServer WebRTC服务器.
 type WebRTCServer struct {
-	mu          sync.RWMutex
-	config      *WebRTCConfig
-	sessions    map[string]*PeerConnection
-	streams     map[string]*Stream
-	recordings  map[string]*Recording
-	stats       *WebRTCStats
+	mu         sync.RWMutex
+	config     *WebRTCConfig
+	sessions   map[string]*PeerConnection
+	streams    map[string]*Stream
+	recordings map[string]*Recording
+	stats      *WebRTCStats
 }
 
 // WebRTCConfig 服务器配置.
 type WebRTCConfig struct {
-	STUNServer    string `json:"stunServer"`
-	TURNServer    string `json:"turnServer"`
-	TURNUsername   string `json:"turnUsername"`
-	TURNCredential string `json:"turnCredential"`
-	MaxSessions   int    `json:"maxSessions"`
-	MaxBitrate    int    `json:"maxBitrate"` // bps
+	STUNServer         string `json:"stunServer"`
+	TURNServer         string `json:"turnServer"`
+	TURNUsername       string `json:"turnUsername"`
+	TURNCredential     string `json:"turnCredential"`
+	MaxSessions        int    `json:"maxSessions"`
+	MaxBitrate         int    `json:"maxBitrate"` // bps
 	ICETransportPolicy string `json:"iceTransportPolicy"`
 }
 
@@ -271,11 +271,11 @@ func (s *WebRTCServer) CreateStream(id, name, source string, tracks []*MediaTrac
 	defer s.mu.Unlock()
 
 	stream := &Stream{
-		ID:      id,
-		Name:    name,
-		Tracks:  tracks,
-		Source:  source,
-		Active:  true,
+		ID:     id,
+		Name:   name,
+		Tracks: tracks,
+		Source: source,
+		Active: true,
 	}
 	s.streams[id] = stream
 

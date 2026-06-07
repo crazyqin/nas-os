@@ -14,15 +14,15 @@ import (
 
 // Manager 通知路由管理器
 type Manager struct {
-	mu             sync.RWMutex
-	logger         *zap.Logger
-	rules          map[string]*NotifyRule
-	channels       map[Channel]*ChannelConfig
-	preferences    map[string]*UserPreference
-	deliveries     map[string]*[]*Delivery // notifyID -> deliveries
-	notifyIndex    map[string]*Notification
-	channelStats   map[Channel]*ChannelStats
-	throttleCount  map[string]*throttleCounter
+	mu            sync.RWMutex
+	logger        *zap.Logger
+	rules         map[string]*NotifyRule
+	channels      map[Channel]*ChannelConfig
+	preferences   map[string]*UserPreference
+	deliveries    map[string]*[]*Delivery // notifyID -> deliveries
+	notifyIndex   map[string]*Notification
+	channelStats  map[Channel]*ChannelStats
+	throttleCount map[string]*throttleCounter
 }
 
 // throttleCounter 限流计数器

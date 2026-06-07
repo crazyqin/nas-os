@@ -267,20 +267,20 @@ func (h *ComplianceDashboardHandlers) getAuditConfig(c *gin.Context) {
 
 // ComplianceDashboard 合规仪表盘数据.
 type ComplianceDashboard struct {
-	OverallScore         int                      `json:"overall_score"`
-	OverallStatus        string                   `json:"overall_status"`
-	ComplianceReports    int                      `json:"compliance_reports"`
-	BaselineScore        int                      `json:"baseline_score"`
-	BaselineStatus       string                   `json:"baseline_status"`
-	TotalViolations      int                      `json:"total_violations"`
-	CriticalViolations   int                      `json:"critical_violations"`
-	PendingRemediations  int                      `json:"pending_remediations"`
-	LastAuditTime        *time.Time               `json:"last_audit_time,omitempty"`
-	LastAuditScore       int                      `json:"last_audit_score"`
-	StandardsStatus      []StandardStatusItem     `json:"standards_status"`
-	BaselineStatusItems  []BaselineStatusItem     `json:"baseline_status_items"`
-	RecentAlerts         []AuditAlert             `json:"recent_alerts"`
-	ComplianceTrend      []TrendDataPoint         `json:"compliance_trend"`
+	OverallScore        int                  `json:"overall_score"`
+	OverallStatus       string               `json:"overall_status"`
+	ComplianceReports   int                  `json:"compliance_reports"`
+	BaselineScore       int                  `json:"baseline_score"`
+	BaselineStatus      string               `json:"baseline_status"`
+	TotalViolations     int                  `json:"total_violations"`
+	CriticalViolations  int                  `json:"critical_violations"`
+	PendingRemediations int                  `json:"pending_remediations"`
+	LastAuditTime       *time.Time           `json:"last_audit_time,omitempty"`
+	LastAuditScore      int                  `json:"last_audit_score"`
+	StandardsStatus     []StandardStatusItem `json:"standards_status"`
+	BaselineStatusItems []BaselineStatusItem `json:"baseline_status_items"`
+	RecentAlerts        []AuditAlert         `json:"recent_alerts"`
+	ComplianceTrend     []TrendDataPoint     `json:"compliance_trend"`
 }
 
 // StandardStatusItem 标准状态项.

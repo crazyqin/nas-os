@@ -21,31 +21,31 @@ type HLSSegment struct {
 
 // HLSPlaylist HLS 播放列表.
 type HLSPlaylist struct {
-	TrackID      string       `json:"track_id"`      // 曲目 ID
-	MasterURL    string       `json:"master_url"`    // Master playlist URL
-	MediaURL     string       `json:"media_url"`     // Media playlist URL
-	Segments     []*HLSSegment `json:"segments"`     // 切片列表
-	Duration     float64      `json:"duration"`      // 总时长（秒）
-	TargetDur    float64      `json:"target_dur"`    // 目标切片时长
-	CreatedAt    time.Time    `json:"created_at"`    // 创建时间
+	TrackID   string        `json:"track_id"`   // 曲目 ID
+	MasterURL string        `json:"master_url"` // Master playlist URL
+	MediaURL  string        `json:"media_url"`  // Media playlist URL
+	Segments  []*HLSSegment `json:"segments"`   // 切片列表
+	Duration  float64       `json:"duration"`   // 总时长（秒）
+	TargetDur float64       `json:"target_dur"` // 目标切片时长
+	CreatedAt time.Time     `json:"created_at"` // 创建时间
 }
 
 // HLSStreamSession HLS 流媒体会话.
 type HLSStreamSession struct {
-	ID           string        `json:"id"`            // 会话 ID
-	TrackID      string        `json:"track_id"`      // 曲目 ID
-	Playlist     *HLSPlaylist  `json:"playlist"`      // HLS 播放列表
-	CreatedAt    time.Time     `json:"created_at"`    // 创建时间
-	ExpiresAt    time.Time     `json:"expires_at"`    // 过期时间
+	ID        string       `json:"id"`         // 会话 ID
+	TrackID   string       `json:"track_id"`   // 曲目 ID
+	Playlist  *HLSPlaylist `json:"playlist"`   // HLS 播放列表
+	CreatedAt time.Time    `json:"created_at"` // 创建时间
+	ExpiresAt time.Time    `json:"expires_at"` // 过期时间
 }
 
 // HLSManager HLS 流媒体管理器.
 type HLSManager struct {
-	mu           sync.RWMutex
-	manager      *Manager
-	sessions     map[string]*HLSStreamSession // sessionID -> session
-	outputDir    string                       // HLS 输出目录
-	targetDur    float64                      // 目标切片时长（秒）
+	mu        sync.RWMutex
+	manager   *Manager
+	sessions  map[string]*HLSStreamSession // sessionID -> session
+	outputDir string                       // HLS 输出目录
+	targetDur float64                      // 目标切片时长（秒）
 }
 
 // NewHLSManager 创建 HLS 管理器.

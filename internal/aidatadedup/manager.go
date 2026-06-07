@@ -394,11 +394,11 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"scan_results":    len(m.scanResults),
-		"duplicate_groups": len(m.groups),
-		"reports":         len(m.reports),
+		"scan_results":      len(m.scanResults),
+		"duplicate_groups":  len(m.groups),
+		"reports":           len(m.reports),
 		"total_space_saved": totalSaved,
-		"running":         m.running,
+		"running":           m.running,
 	}
 }
 

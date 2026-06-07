@@ -33,31 +33,31 @@ type Extractor interface {
 
 // ExtractedContent 提取的文档内容
 type ExtractedContent struct {
-	Title    string        `json:"title,omitempty"`
-	Content  string        `json:"content"`
-	Metadata *DocMetadata  `json:"metadata,omitempty"`
-	Err      error         `json:"-"`
+	Title    string       `json:"title,omitempty"`
+	Content  string       `json:"content"`
+	Metadata *DocMetadata `json:"metadata,omitempty"`
+	Err      error        `json:"-"`
 }
 
 // DocMetadata 文档元数据
 type DocMetadata struct {
-	Author       string    `json:"author,omitempty"`
-	CreatedAt    time.Time `json:"createdAt,omitempty"`
-	ModifiedAt   time.Time `json:"modifiedAt,omitempty"`
-	PageCount    int       `json:"pageCount,omitempty"`
-	WordCount    int       `json:"wordCount,omitempty"`
-	Language     string    `json:"language,omitempty"`
-	Subject      string    `json:"subject,omitempty"`
-	Keywords     []string  `json:"keywords,omitempty"`
+	Author     string    `json:"author,omitempty"`
+	CreatedAt  time.Time `json:"createdAt,omitempty"`
+	ModifiedAt time.Time `json:"modifiedAt,omitempty"`
+	PageCount  int       `json:"pageCount,omitempty"`
+	WordCount  int       `json:"wordCount,omitempty"`
+	Language   string    `json:"language,omitempty"`
+	Subject    string    `json:"subject,omitempty"`
+	Keywords   []string  `json:"keywords,omitempty"`
 }
 
 // ContentStats 内容统计
 type ContentStats struct {
-	TotalChars    int `json:"totalChars"`
-	TotalWords    int `json:"totalWords"`
-	TotalLines    int `json:"totalLines"`
-	ChineseChars  int `json:"chineseChars"`
-	EnglishWords  int `json:"englishWords"`
+	TotalChars   int `json:"totalChars"`
+	TotalWords   int `json:"totalWords"`
+	TotalLines   int `json:"totalLines"`
+	ChineseChars int `json:"chineseChars"`
+	EnglishWords int `json:"englishWords"`
 }
 
 // CalcStats 计算内容统计信息
@@ -185,62 +185,62 @@ func (e *PlainTextExtractor) Name() string {
 // Supports 是否支持该扩展名
 func (e *PlainTextExtractor) Supports(ext string) bool {
 	supported := map[string]bool{
-		".txt":  true,
-		".log":  true,
-		".csv":  true,
-		".tsv":  true,
-		".conf": true,
-		".cfg":  true,
-		".ini":  true,
-		".env":  true,
-		".sh":   true,
-		".bash": true,
-		".zsh":  true,
-		".fish": true,
-		".bat":  true,
-		".cmd":  true,
-		".ps1":  true,
-		".py":   true,
-		".rb":   true,
-		".pl":   true,
-		".r":    true,
-		".go":   true,
-		".rs":   true,
-		".java": true,
-		".kt":   true,
-		".scala": true,
-		".c":    true,
-		".cpp":  true,
-		".h":    true,
-		".hpp":  true,
-		".cs":   true,
-		".swift": true,
-		".js":   true,
-		".ts":   true,
-		".jsx":  true,
-		".tsx":  true,
-		".vue":  true,
-		".svelte": true,
-		".css":  true,
-		".scss": true,
-		".less": true,
-		".html": true,
-		".htm":  true,
-		".xml":  true,
-		".json": true,
-		".yaml": true,
-		".yml":  true,
-		".toml": true,
-		".sql":  true,
-		".graphql": true,
-		".proto": true,
-		".mdx":  true,
-		".rst":  true,
-		".tex":  true,
-		".bib":  true,
-		".diff": true,
-		".patch": true,
-		".makefile": true,
+		".txt":        true,
+		".log":        true,
+		".csv":        true,
+		".tsv":        true,
+		".conf":       true,
+		".cfg":        true,
+		".ini":        true,
+		".env":        true,
+		".sh":         true,
+		".bash":       true,
+		".zsh":        true,
+		".fish":       true,
+		".bat":        true,
+		".cmd":        true,
+		".ps1":        true,
+		".py":         true,
+		".rb":         true,
+		".pl":         true,
+		".r":          true,
+		".go":         true,
+		".rs":         true,
+		".java":       true,
+		".kt":         true,
+		".scala":      true,
+		".c":          true,
+		".cpp":        true,
+		".h":          true,
+		".hpp":        true,
+		".cs":         true,
+		".swift":      true,
+		".js":         true,
+		".ts":         true,
+		".jsx":        true,
+		".tsx":        true,
+		".vue":        true,
+		".svelte":     true,
+		".css":        true,
+		".scss":       true,
+		".less":       true,
+		".html":       true,
+		".htm":        true,
+		".xml":        true,
+		".json":       true,
+		".yaml":       true,
+		".yml":        true,
+		".toml":       true,
+		".sql":        true,
+		".graphql":    true,
+		".proto":      true,
+		".mdx":        true,
+		".rst":        true,
+		".tex":        true,
+		".bib":        true,
+		".diff":       true,
+		".patch":      true,
+		".makefile":   true,
 		".dockerfile": true,
 	}
 	return supported[ext]

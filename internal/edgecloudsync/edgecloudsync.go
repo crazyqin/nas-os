@@ -30,30 +30,30 @@ const (
 
 // EdgeNode 边缘节点
 type EdgeNode struct {
-	ID            string            `json:"id"`
-	Name          string            `json:"name"`
-	Address       string            `json:"address"`
-	Status        string            `json:"status"`
-	LastSync      time.Time         `json:"last_sync"`
-	PendingItems  int               `json:"pending_items"`
-	SyncMode      SyncMode          `json:"sync_mode"`
-	Metadata      map[string]string `json:"metadata,omitempty"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	Address      string            `json:"address"`
+	Status       string            `json:"status"`
+	LastSync     time.Time         `json:"last_sync"`
+	PendingItems int               `json:"pending_items"`
+	SyncMode     SyncMode          `json:"sync_mode"`
+	Metadata     map[string]string `json:"metadata,omitempty"`
 }
 
 // SyncTask 同步任务
 type SyncTask struct {
-	ID            string           `json:"id"`
-	SourceNode    string           `json:"source_node"`
-	TargetNode    string           `json:"target_node"`
-	Mode          SyncMode         `json:"mode"`
-	ConflictRes   ConflictResolution `json:"conflict_resolution"`
-	Status        string           `json:"status"`
-	TotalItems    int              `json:"total_items"`
-	SyncedItems   int              `json:"synced_items"`
-	FailedItems   int              `json:"failed_items"`
-	StartedAt     time.Time        `json:"started_at"`
-	CompletedAt   *time.Time       `json:"completed_at,omitempty"`
-	LastError     string           `json:"last_error,omitempty"`
+	ID          string             `json:"id"`
+	SourceNode  string             `json:"source_node"`
+	TargetNode  string             `json:"target_node"`
+	Mode        SyncMode           `json:"mode"`
+	ConflictRes ConflictResolution `json:"conflict_resolution"`
+	Status      string             `json:"status"`
+	TotalItems  int                `json:"total_items"`
+	SyncedItems int                `json:"synced_items"`
+	FailedItems int                `json:"failed_items"`
+	StartedAt   time.Time          `json:"started_at"`
+	CompletedAt *time.Time         `json:"completed_at,omitempty"`
+	LastError   string             `json:"last_error,omitempty"`
 }
 
 // SyncItem 同步项
@@ -69,19 +69,19 @@ type SyncItem struct {
 
 // EdgeCloudSync 边缘云同步器
 type EdgeCloudSync struct {
-	mu          sync.RWMutex
-	nodes       map[string]*EdgeNode
-	tasks       map[string]*SyncTask
-	items       map[string]*SyncItem
-	conflictRes ConflictResolution
+	mu           sync.RWMutex
+	nodes        map[string]*EdgeNode
+	tasks        map[string]*SyncTask
+	items        map[string]*SyncItem
+	conflictRes  ConflictResolution
 	offlineQueue []*SyncItem
 	maxQueueSize int
 }
 
 // Config 配置
 type Config struct {
-	ConflictRes   ConflictResolution `json:"conflict_resolution"`
-	MaxQueueSize  int                `json:"max_queue_size"`
+	ConflictRes  ConflictResolution `json:"conflict_resolution"`
+	MaxQueueSize int                `json:"max_queue_size"`
 }
 
 // New 创建同步器

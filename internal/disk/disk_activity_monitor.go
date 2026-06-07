@@ -9,16 +9,16 @@ import (
 // ActivityEvent represents disk activity event.
 type ActivityEvent struct {
 	DiskID    string    `json:"disk_id"`
-	Type      string    `json:"type"`      // read, write, seek
+	Type      string    `json:"type"` // read, write, seek
 	Timestamp time.Time `json:"timestamp"`
-	Size      int64     `json:"size"`      // bytes transferred
+	Size      int64     `json:"size"` // bytes transferred
 }
 
 // ActivityMonitor monitors disk I/O activity.
 type ActivityMonitor struct {
 	mu      sync.RWMutex
 	events  map[string][]ActivityEvent // diskID -> recent events
-	maxSize int                         // max events per disk
+	maxSize int                        // max events per disk
 }
 
 // NewActivityMonitor creates a new activity monitor.
@@ -76,11 +76,11 @@ func (am *ActivityMonitor) GetActivityStats(diskID string, since time.Time) *Act
 
 	events := am.events[diskID]
 	stats := &ActivityStats{
-		DiskID:      diskID,
-		ReadCount:   0,
-		WriteCount:  0,
-		ReadBytes:   0,
-		WriteBytes:  0,
+		DiskID:       diskID,
+		ReadCount:    0,
+		WriteCount:   0,
+		ReadBytes:    0,
+		WriteBytes:   0,
 		LastActivity: time.Time{},
 	}
 

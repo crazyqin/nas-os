@@ -15,37 +15,37 @@ import (
 
 // DirectIOConfig represents Direct I/O configuration.
 type DirectIOConfig struct {
-	Enabled        bool     `json:"enabled"`           // Global enable/disable
-	PoolWhiteList  []string `json:"pool_whitelist"`    // Pools using Direct I/O
-	PoolBlackList  []string `json:"pool_blacklist"`    // Pools bypassing Direct I/O
-	MinFileSizeMB  int      `json:"min_file_size_mb"`  // Minimum file size for Direct I/O
-	MaxFileSizeMB  int      `json:"max_file_size_mb"`  // Maximum file size (fallback to cached)
-	BypassRead     bool     `json:"bypass_read"`       // Bypass ARC for reads
-	BypassWrite    bool     `json:"bypass_write"`      // Bypass ZIL for writes
-	SyncWrite      bool     `json:"sync_write"`        // Force synchronous writes
+	Enabled       bool     `json:"enabled"`          // Global enable/disable
+	PoolWhiteList []string `json:"pool_whitelist"`   // Pools using Direct I/O
+	PoolBlackList []string `json:"pool_blacklist"`   // Pools bypassing Direct I/O
+	MinFileSizeMB int      `json:"min_file_size_mb"` // Minimum file size for Direct I/O
+	MaxFileSizeMB int      `json:"max_file_size_mb"` // Maximum file size (fallback to cached)
+	BypassRead    bool     `json:"bypass_read"`      // Bypass ARC for reads
+	BypassWrite   bool     `json:"bypass_write"`     // Bypass ZIL for writes
+	SyncWrite     bool     `json:"sync_write"`       // Force synchronous writes
 }
 
 // DirectIOMetrics represents Direct I/O performance metrics.
 type DirectIOMetrics struct {
 	PoolName          string    `json:"pool_name"`
-	ReadOpsDirect     int64     `json:"read_ops_direct"`    // Direct read operations
-	ReadOpsCached     int64     `json:"read_ops_cached"`    // Cached read operations
-	WriteOpsDirect    int64     `json:"write_ops_direct"`   // Direct write operations
-	WriteOpsCached    int64     `json:"write_ops_cached"`   // Cached write operations
-	AvgReadLatencyMs  float64   `json:"avg_read_latency_ms"` // Average read latency
+	ReadOpsDirect     int64     `json:"read_ops_direct"`      // Direct read operations
+	ReadOpsCached     int64     `json:"read_ops_cached"`      // Cached read operations
+	WriteOpsDirect    int64     `json:"write_ops_direct"`     // Direct write operations
+	WriteOpsCached    int64     `json:"write_ops_cached"`     // Cached write operations
+	AvgReadLatencyMs  float64   `json:"avg_read_latency_ms"`  // Average read latency
 	AvgWriteLatencyMs float64   `json:"avg_write_latency_ms"` // Average write latency
 	BytesRead         int64     `json:"bytes_read"`
 	BytesWritten      int64     `json:"bytes_written"`
-	CacheHitRate      float64   `json:"cache_hit_rate"`    // Cache hit rate (for cached ops)
+	CacheHitRate      float64   `json:"cache_hit_rate"` // Cache hit rate (for cached ops)
 	LastUpdated       time.Time `json:"last_updated"`
 }
 
 // DirectIOManager manages Direct I/O configuration and metrics.
 type DirectIOManager struct {
-	mu      sync.RWMutex
-	config  *DirectIOConfig
-	metrics map[string]*DirectIOMetrics // Per-pool metrics
-	logger  *zap.Logger
+	mu         sync.RWMutex
+	config     *DirectIOConfig
+	metrics    map[string]*DirectIOMetrics // Per-pool metrics
+	logger     *zap.Logger
 	configPath string
 }
 
@@ -56,14 +56,14 @@ func NewDirectIOManager(configPath string, logger *zap.Logger) (*DirectIOManager
 	}
 
 	config := &DirectIOConfig{
-		Enabled:        false,    // Disabled by default
-		PoolWhiteList:  []string{},
-		PoolBlackList:  []string{},
-		MinFileSizeMB:  1,        // Minimum 1MB for Direct I/O
-		MaxFileSizeMB:  0,        // No upper limit
-		BypassRead:     true,
-		BypassWrite:    true,
-		SyncWrite:      false,
+		Enabled:       false, // Disabled by default
+		PoolWhiteList: []string{},
+		PoolBlackList: []string{},
+		MinFileSizeMB: 1, // Minimum 1MB for Direct I/O
+		MaxFileSizeMB: 0, // No upper limit
+		BypassRead:    true,
+		BypassWrite:   true,
+		SyncWrite:     false,
 	}
 
 	m := &DirectIOManager{
@@ -286,10 +286,10 @@ func (m *DirectIOManager) GetPerformanceReport(ctx context.Context) map[string]i
 	defer m.mu.RUnlock()
 
 	report := map[string]interface{}{
-		"enabled":          m.config.Enabled,
+		"enabled":              m.config.Enabled,
 		"pools_with_direct_io": m.config.PoolWhiteList,
-		"pools_excluded":   m.config.PoolBlackList,
-		"pool_metrics":     []map[string]interface{}{},
+		"pools_excluded":       m.config.PoolBlackList,
+		"pool_metrics":         []map[string]interface{}{},
 	}
 
 	// Calculate overall performance impact
@@ -305,14 +305,14 @@ func (m *DirectIOManager) GetPerformanceReport(ctx context.Context) map[string]i
 
 	for pool, metrics := range m.metrics {
 		poolData := map[string]interface{}{
-			"pool":             pool,
-			"read_ops_direct":  metrics.ReadOpsDirect,
-			"read_ops_cached":  metrics.ReadOpsCached,
-			"write_ops_direct": metrics.WriteOpsDirect,
-			"write_ops_cached": metrics.WriteOpsCached,
-			"avg_read_latency": metrics.AvgReadLatencyMs,
+			"pool":              pool,
+			"read_ops_direct":   metrics.ReadOpsDirect,
+			"read_ops_cached":   metrics.ReadOpsCached,
+			"write_ops_direct":  metrics.WriteOpsDirect,
+			"write_ops_cached":  metrics.WriteOpsCached,
+			"avg_read_latency":  metrics.AvgReadLatencyMs,
 			"avg_write_latency": metrics.AvgWriteLatencyMs,
-			"cache_hit_rate":   metrics.CacheHitRate,
+			"cache_hit_rate":    metrics.CacheHitRate,
 		}
 		report["pool_metrics"] = append(report["pool_metrics"].([]map[string]interface{}), poolData)
 
@@ -340,10 +340,10 @@ func (m *DirectIOManager) GetPerformanceReport(ctx context.Context) map[string]i
 	}
 
 	report["summary"] = map[string]interface{}{
-		"total_direct_ops":  totalDirectReads + totalDirectWrites,
-		"total_cached_ops":  totalCachedReads + totalCachedWrites,
-		"avg_direct_latency": avgDirectReadLatency,
-		"avg_cached_latency": avgCachedReadLatency,
+		"total_direct_ops":    totalDirectReads + totalDirectWrites,
+		"total_cached_ops":    totalCachedReads + totalCachedWrites,
+		"avg_direct_latency":  avgDirectReadLatency,
+		"avg_cached_latency":  avgCachedReadLatency,
 		"latency_improvement": avgCachedReadLatency - avgDirectReadLatency, // Positive = Direct I/O faster
 	}
 
@@ -358,7 +358,7 @@ func (m *DirectIOManager) loadConfig() error {
 	}
 
 	var cfg struct {
-		Config  *DirectIOConfig           `json:"config"`
+		Config  *DirectIOConfig             `json:"config"`
 		Metrics map[string]*DirectIOMetrics `json:"metrics"`
 	}
 
@@ -377,7 +377,7 @@ func (m *DirectIOManager) loadConfig() error {
 // saveConfig saves Direct I/O configuration.
 func (m *DirectIOManager) saveConfig() error {
 	cfg := struct {
-		Config  *DirectIOConfig           `json:"config"`
+		Config  *DirectIOConfig             `json:"config"`
 		Metrics map[string]*DirectIOMetrics `json:"metrics"`
 	}{
 		Config:  m.config,

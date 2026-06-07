@@ -29,65 +29,65 @@ const (
 
 // SecurityReport represents a complete security posture report.
 type SecurityReport struct {
-	ID          string           `json:"id"`
-	Type        ReportType       `json:"type"`
-	GeneratedAt time.Time        `json:"generatedAt"`
-	PeriodStart time.Time        `json:"periodStart"`
-	PeriodEnd   time.Time        `json:"periodEnd"`
-	Summary     ReportSummary     `json:"summary"`
-	VulnSection VulnSection       `json:"vulnerability"`
-	ConfigSection ConfigSection    `json:"configAudit"`
-	AccessSection AccessSection    `json:"accessAnomaly"`
-	Trends      TrendSection     `json:"trends"`
-	Recommendations []string     `json:"recommendations"`
+	ID              string        `json:"id"`
+	Type            ReportType    `json:"type"`
+	GeneratedAt     time.Time     `json:"generatedAt"`
+	PeriodStart     time.Time     `json:"periodStart"`
+	PeriodEnd       time.Time     `json:"periodEnd"`
+	Summary         ReportSummary `json:"summary"`
+	VulnSection     VulnSection   `json:"vulnerability"`
+	ConfigSection   ConfigSection `json:"configAudit"`
+	AccessSection   AccessSection `json:"accessAnomaly"`
+	Trends          TrendSection  `json:"trends"`
+	Recommendations []string      `json:"recommendations"`
 }
 
 // ReportSummary provides high-level security posture overview.
 type ReportSummary struct {
-	OverallScore      int    `json:"overallScore"`      // 0-100
-	ScoreDelta        int    `json:"scoreDelta"`        // Change from last report
-	TotalEvents       int    `json:"totalEvents"`       // Events in period
-	CriticalIssues    int    `json:"criticalIssues"`
-	HighIssues        int    `json:"highIssues"`
-	MediumIssues      int    `json:"mediumIssues"`
-	LowIssues         int    `json:"lowIssues"`
-	ResolvedIssues    int    `json:"resolvedIssues"`
-	NewIssues         int    `json:"newIssues"`
-	Status            string `json:"status"`            // healthy, warning, critical
+	OverallScore   int    `json:"overallScore"` // 0-100
+	ScoreDelta     int    `json:"scoreDelta"`   // Change from last report
+	TotalEvents    int    `json:"totalEvents"`  // Events in period
+	CriticalIssues int    `json:"criticalIssues"`
+	HighIssues     int    `json:"highIssues"`
+	MediumIssues   int    `json:"mediumIssues"`
+	LowIssues      int    `json:"lowIssues"`
+	ResolvedIssues int    `json:"resolvedIssues"`
+	NewIssues      int    `json:"newIssues"`
+	Status         string `json:"status"` // healthy, warning, critical
 }
 
 // VulnSection contains vulnerability scan results.
 type VulnSection struct {
-	TotalScanned   int                  `json:"totalScanned"`
-	VulnFound      int                  `json:"vulnerabilitiesFound"`
-	Critical       int                  `json:"critical"`
-	High           int                  `json:"high"`
-	Medium         int                  `json:"medium"`
-	Low            int                  `json:"low"`
-	Items          []VulnItem           `json:"items"`
-	LastScanTime   time.Time            `json:"lastScanTime"`
+	TotalScanned int        `json:"totalScanned"`
+	VulnFound    int        `json:"vulnerabilitiesFound"`
+	Critical     int        `json:"critical"`
+	High         int        `json:"high"`
+	Medium       int        `json:"medium"`
+	Low          int        `json:"low"`
+	Items        []VulnItem `json:"items"`
+	LastScanTime time.Time  `json:"lastScanTime"`
 }
 
 // VulnItem represents a single vulnerability finding.
 type VulnItem struct {
-	ID          string `json:"id"`
-	Severity    string `json:"severity"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	CVE         string `json:"cve,omitempty"`
+	ID          string  `json:"id"`
+	Severity    string  `json:"severity"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	CVE         string  `json:"cve,omitempty"`
 	CVSS        float64 `json:"cvss,omitempty"`
-	Affected    string `json:"affected"`
-	Remediation string `json:"remediation"`
-	Status      string `json:"status"` // open, patched, mitigated
+	Affected    string  `json:"affected"`
+	Remediation string  `json:"remediation"`
+	Status      string  `json:"status"` // open, patched, mitigated
 }
 
 // ConfigSection contains configuration compliance audit results.
 type ConfigSection struct {
-	TotalChecks   int              `json:"totalChecks"`
-	Passed        int              `json:"passed"`
-	Failed        int              `json:"failed"`
-	Warning       int              `json:"warning"`
-	CompliancePct float64          `json:"compliancePercentage"`
+	TotalChecks   int               `json:"totalChecks"`
+	Passed        int               `json:"passed"`
+	Failed        int               `json:"failed"`
+	Warning       int               `json:"warning"`
+	CompliancePct float64           `json:"compliancePercentage"`
 	Items         []ConfigCheckItem `json:"items"`
 }
 
@@ -103,15 +103,15 @@ type ConfigCheckItem struct {
 
 // AccessSection contains access anomaly statistics.
 type AccessSection struct {
-	TotalLogins      int               `json:"totalLogins"`
-	SuccessfulLogins int               `json:"successfulLogins"`
-	FailedLogins     int               `json:"failedLogins"`
-	UniqueIPs        int               `json:"uniqueIPs"`
-	Anomalies        []AccessAnomaly   `json:"anomalies"`
-	TopIPs           []IPStat          `json:"topIPs"`
-	TopUsers         []UserStat        `json:"topUsers"`
-	OffHourAccess    int               `json:"offHourAccess"`
-	GeoAnomalies     int               `json:"geoAnomalies"`
+	TotalLogins      int             `json:"totalLogins"`
+	SuccessfulLogins int             `json:"successfulLogins"`
+	FailedLogins     int             `json:"failedLogins"`
+	UniqueIPs        int             `json:"uniqueIPs"`
+	Anomalies        []AccessAnomaly `json:"anomalies"`
+	TopIPs           []IPStat        `json:"topIPs"`
+	TopUsers         []UserStat      `json:"topUsers"`
+	OffHourAccess    int             `json:"offHourAccess"`
+	GeoAnomalies     int             `json:"geoAnomalies"`
 }
 
 // AccessAnomaly represents a detected access anomaly.
@@ -127,9 +127,9 @@ type AccessAnomaly struct {
 
 // IPStat represents IP address statistics.
 type IPStat struct {
-	IP       string `json:"ip"`
-	Count    int    `json:"count"`
-	Country  string `json:"country,omitempty"`
+	IP      string `json:"ip"`
+	Count   int    `json:"count"`
+	Country string `json:"country,omitempty"`
 }
 
 // UserStat represents user activity statistics.
@@ -142,9 +142,9 @@ type UserStat struct {
 
 // TrendSection contains trend data for comparison.
 type TrendSection struct {
-	ScoreHistory       []TrendPoint `json:"scoreHistory"`
-	VulnHistory        []TrendPoint `json:"vulnHistory"`
-	LoginFailureTrend  []TrendPoint `json:"loginFailureTrend"`
+	ScoreHistory      []TrendPoint `json:"scoreHistory"`
+	VulnHistory       []TrendPoint `json:"vulnHistory"`
+	LoginFailureTrend []TrendPoint `json:"loginFailureTrend"`
 }
 
 // TrendPoint is a single data point in a trend line.
@@ -203,40 +203,40 @@ type AuditEvent struct {
 
 // ReportGenerator generates automated security reports.
 type ReportGenerator struct {
-	mu             sync.RWMutex
-	vulnScanner    VulnScanner
-	configAuditor  ConfigAuditor
-	loginSource    LoginDataSource
-	auditSource    AuditLogDataSource
-	reports        []*SecurityReport
-	maxReports     int
-	config         ReportGeneratorConfig
+	mu              sync.RWMutex
+	vulnScanner     VulnScanner
+	configAuditor   ConfigAuditor
+	loginSource     LoginDataSource
+	auditSource     AuditLogDataSource
+	reports         []*SecurityReport
+	maxReports      int
+	config          ReportGeneratorConfig
 	scoreCalculator ScoreCalculator
 }
 
 // ReportGeneratorConfig configuration for report generation.
 type ReportGeneratorConfig struct {
-	Enabled         bool     `json:"enabled"`
-	WeeklyEnabled   bool     `json:"weeklyEnabled"`
-	MonthlyEnabled  bool     `json:"monthlyEnabled"`
-	ReportDay       string   `json:"reportDay"`       // Day of week for weekly (monday, tuesday, etc.)
-	ReportHour      int      `json:"reportHour"`      // Hour to generate (0-23)
-	AnomalyThreshold int     `json:"anomalyThreshold"` // Failed logins to trigger anomaly
-	OffHourStart    int      `json:"offHourStart"`    // Off-hours start (22 = 10 PM)
-	OffHourEnd      int      `json:"offHourEnd"`      // Off-hours end (6 = 6 AM)
+	Enabled          bool   `json:"enabled"`
+	WeeklyEnabled    bool   `json:"weeklyEnabled"`
+	MonthlyEnabled   bool   `json:"monthlyEnabled"`
+	ReportDay        string `json:"reportDay"`        // Day of week for weekly (monday, tuesday, etc.)
+	ReportHour       int    `json:"reportHour"`       // Hour to generate (0-23)
+	AnomalyThreshold int    `json:"anomalyThreshold"` // Failed logins to trigger anomaly
+	OffHourStart     int    `json:"offHourStart"`     // Off-hours start (22 = 10 PM)
+	OffHourEnd       int    `json:"offHourEnd"`       // Off-hours end (6 = 6 AM)
 }
 
 // DefaultReportGeneratorConfig returns production defaults.
 func DefaultReportGeneratorConfig() ReportGeneratorConfig {
 	return ReportGeneratorConfig{
-		Enabled:         true,
-		WeeklyEnabled:   true,
-		MonthlyEnabled:  true,
-		ReportDay:       "monday",
-		ReportHour:      8,
+		Enabled:          true,
+		WeeklyEnabled:    true,
+		MonthlyEnabled:   true,
+		ReportDay:        "monday",
+		ReportHour:       8,
 		AnomalyThreshold: 5,
-		OffHourStart:    22,
-		OffHourEnd:      6,
+		OffHourStart:     22,
+		OffHourEnd:       6,
 	}
 }
 
@@ -700,8 +700,8 @@ func (rg *ReportGenerator) detectAnomalies(events []LoginEvent) []AccessAnomaly 
 
 	// Group failures by IP in a 5-minute window
 	type failWindow struct {
-		count   int
-		users   map[string]bool
+		count    int
+		users    map[string]bool
 		lastTime time.Time
 	}
 	ipWindows := make(map[string]*failWindow)
@@ -712,8 +712,8 @@ func (rg *ReportGenerator) detectAnomalies(events []LoginEvent) []AccessAnomaly 
 			if !ok || e.Timestamp.Sub(w.lastTime) > 5*time.Minute {
 				// New window
 				w = &failWindow{
-					users:   map[string]bool{e.Username: true},
-					count:   1,
+					users:    map[string]bool{e.Username: true},
+					count:    1,
 					lastTime: e.Timestamp,
 				}
 				ipWindows[e.IP] = w
@@ -907,12 +907,12 @@ func (rg *ReportGenerator) Stats() map[string]interface{} {
 	rg.mu.RLock()
 	defer rg.mu.RUnlock()
 	return map[string]interface{}{
-		"totalReports": len(rg.reports),
-		"enabled":      rg.config.Enabled,
-		"weeklyEnabled": rg.config.WeeklyEnabled,
+		"totalReports":   len(rg.reports),
+		"enabled":        rg.config.Enabled,
+		"weeklyEnabled":  rg.config.WeeklyEnabled,
 		"monthlyEnabled": rg.config.MonthlyEnabled,
-		"reportDay":    rg.config.ReportDay,
-		"reportHour":   rg.config.ReportHour,
+		"reportDay":      rg.config.ReportDay,
+		"reportHour":     rg.config.ReportHour,
 	}
 }
 

@@ -22,20 +22,20 @@ type Wiki struct {
 
 // Page 页面
 type Page struct {
-	ID          string      `json:"id"`
-	WikiID      string      `json:"wiki_id"`
-	Title       string      `json:"title"`
-	Content     string      `json:"content"`
-	ParentID    string      `json:"parent_id"`
-	Path        string      `json:"path"`
-	Tags        []string    `json:"tags"`
-	AuthorID    string      `json:"author_id"`
-	Status      string      `json:"status"`
-	Version     int         `json:"version"`
-	Children    []*Page     `json:"children"`
-	Revisions   []*Revision `json:"revisions"`
-	CreatedAt   time.Time   `json:"created_at"`
-	UpdatedAt   time.Time   `json:"updated_at"`
+	ID        string      `json:"id"`
+	WikiID    string      `json:"wiki_id"`
+	Title     string      `json:"title"`
+	Content   string      `json:"content"`
+	ParentID  string      `json:"parent_id"`
+	Path      string      `json:"path"`
+	Tags      []string    `json:"tags"`
+	AuthorID  string      `json:"author_id"`
+	Status    string      `json:"status"`
+	Version   int         `json:"version"`
+	Children  []*Page     `json:"children"`
+	Revisions []*Revision `json:"revisions"`
+	CreatedAt time.Time   `json:"created_at"`
+	UpdatedAt time.Time   `json:"updated_at"`
 }
 
 // Revision 版本历史
@@ -103,9 +103,9 @@ type UpdatePageRequest struct {
 
 // SearchRequest 搜索请求
 type SearchRequest struct {
-	Query   string `json:"query" binding:"required"`
-	WikiID  string `json:"wiki_id"`
-	Limit   int    `json:"limit"`
+	Query  string `json:"query" binding:"required"`
+	WikiID string `json:"wiki_id"`
+	Limit  int    `json:"limit"`
 }
 
 // SetPermissionRequest 设置权限请求

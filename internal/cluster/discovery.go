@@ -38,15 +38,15 @@ const (
 
 // Node 集群节点
 type Node struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Address   string    `json:"address"`
-	Port      int       `json:"port"`
-	State     NodeState `json:"state"`
-	Role      NodeRole  `json:"role"`
-	Priority  int       `json:"priority"`
-	LastSeen  time.Time `json:"last_seen"`
-	JoinTime  time.Time `json:"join_time"`
+	ID       string    `json:"id"`
+	Name     string    `json:"name"`
+	Address  string    `json:"address"`
+	Port     int       `json:"port"`
+	State    NodeState `json:"state"`
+	Role     NodeRole  `json:"role"`
+	Priority int       `json:"priority"`
+	LastSeen time.Time `json:"last_seen"`
+	JoinTime time.Time `json:"join_time"`
 }
 
 // DiscoveryConfig 节点发现配置
@@ -79,7 +79,7 @@ type DiscoveryConfig struct {
 	NodeTimeout time.Duration `json:"node_timeout"`
 
 	// TLS 配置
-	EnableTLS bool `json:"enable_tls"`
+	EnableTLS bool   `json:"enable_tls"`
 	CertFile  string `json:"cert_file,omitempty"`
 	KeyFile   string `json:"key_file,omitempty"`
 
@@ -99,16 +99,16 @@ type NodeEndpoint struct {
 // NodeInfo 注册节点信息
 type NodeInfo struct {
 	// 基本信息
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Address   string    `json:"address"`
-	Port      int       `json:"port"`
-	Version   string    `json:"version"` // nas-os 版本
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Address string `json:"address"`
+	Port    int    `json:"port"`
+	Version string `json:"version"` // nas-os 版本
 
 	// 状态信息
-	Status      NodeState `json:"status"`
-	Role        string    `json:"role"` // master, worker
-	LastSeen    time.Time `json:"last_seen"`
+	Status       NodeState `json:"status"`
+	Role         string    `json:"role"` // master, worker
+	LastSeen     time.Time `json:"last_seen"`
 	RegisterTime time.Time `json:"register_time"`
 
 	// 系统信息
@@ -210,11 +210,11 @@ func NewDiscoveryService(config DiscoveryConfig, logger *zap.Logger) (*Discovery
 	ctx, cancel := context.WithCancel(context.Background())
 
 	ds := &DiscoveryService{
-		config:    config,
-		nodes:     make(map[string]*NodeInfo),
-		ctx:       ctx,
-		cancel:    cancel,
-		logger:    logger,
+		config: config,
+		nodes:  make(map[string]*NodeInfo),
+		ctx:    ctx,
+		cancel: cancel,
+		logger: logger,
 	}
 
 	// 创建 HTTP 客户端
@@ -421,14 +421,14 @@ func (ds *DiscoveryService) registerNode(endpoint NodeEndpoint) {
 	url := fmt.Sprintf("http://%s:%d/cluster/register", endpoint.Address, endpoint.Port)
 
 	payload := map[string]interface{}{
-		"id":        ds.localNode.ID,
-		"name":      ds.localNode.Name,
-		"address":   ds.localNode.Address,
-		"port":      ds.localNode.Port,
-		"version":   ds.localNode.Version,
-		"token":     endpoint.Token,
+		"id":           ds.localNode.ID,
+		"name":         ds.localNode.Name,
+		"address":      ds.localNode.Address,
+		"port":         ds.localNode.Port,
+		"version":      ds.localNode.Version,
+		"token":        endpoint.Token,
 		"capabilities": ds.localNode.Capabilities,
-		"labels":    ds.localNode.Labels,
+		"labels":       ds.localNode.Labels,
 	}
 
 	body, _ := json.Marshal(payload)
@@ -504,12 +504,12 @@ func (ds *DiscoveryService) sendHeartbeat(node *NodeInfo) {
 
 	// 构造心跳数据
 	payload := map[string]interface{}{
-		"id":          ds.localNode.ID,
-		"status":      ds.localNode.Status,
-		"cpu_usage":   ds.localNode.CPUUsage,
+		"id":           ds.localNode.ID,
+		"status":       ds.localNode.Status,
+		"cpu_usage":    ds.localNode.CPUUsage,
 		"memory_usage": ds.localNode.MemoryUsage,
-		"disk_usage":  ds.localNode.DiskUsage,
-		"timestamp":   time.Now().Unix(),
+		"disk_usage":   ds.localNode.DiskUsage,
+		"timestamp":    time.Now().Unix(),
 	}
 
 	body, _ := json.Marshal(payload)

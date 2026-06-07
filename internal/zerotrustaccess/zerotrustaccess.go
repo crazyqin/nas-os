@@ -52,11 +52,11 @@ func (t TrustLevel) String() string {
 type DeviceStatus string
 
 const (
-	DeviceStatusUnknown    DeviceStatus = "unknown"
-	DeviceStatusCompliant  DeviceStatus = "compliant"
+	DeviceStatusUnknown      DeviceStatus = "unknown"
+	DeviceStatusCompliant    DeviceStatus = "compliant"
 	DeviceStatusNonCompliant DeviceStatus = "non_compliant"
-	DeviceStatusCompromised DeviceStatus = "compromised"
-	DeviceStatusBlocked    DeviceStatus = "blocked"
+	DeviceStatusCompromised  DeviceStatus = "compromised"
+	DeviceStatusBlocked      DeviceStatus = "blocked"
 )
 
 // ========== 访问策略 ==========
@@ -65,51 +65,51 @@ const (
 type AccessAction string
 
 const (
-	ActionAllow  AccessAction = "allow"
-	ActionDeny   AccessAction = "deny"
-	ActionMFA    AccessAction = "mfa"
-	ActionLimit  AccessAction = "limit"
-	ActionAudit  AccessAction = "audit"
+	ActionAllow AccessAction = "allow"
+	ActionDeny  AccessAction = "deny"
+	ActionMFA   AccessAction = "mfa"
+	ActionLimit AccessAction = "limit"
+	ActionAudit AccessAction = "audit"
 )
 
 // ========== 数据结构 ==========
 
 // Identity 身份信息
 type Identity struct {
-	ID           string            `json:"id"`
-	Username     string            `json:"username"`
-	Email        string            `json:"email"`
-	Groups       []string          `json:"groups"`
-	Department   string            `json:"department"`
-	TrustLevel   TrustLevel        `json:"trust_level"`
-	LastLogin    time.Time         `json:"last_login"`
-	LoginCount   int               `json:"login_count"`
-	MFAEnabled   bool              `json:"mfa_enabled"`
-	MFAMethod    string            `json:"mfa_method"`
-	Attributes   map[string]string `json:"attributes"`
-	RiskScore    float64           `json:"risk_score"` // 0-100
-	Active       bool              `json:"active"`
-	CreatedAt    time.Time         `json:"created_at"`
-	UpdatedAt    time.Time         `json:"updated_at"`
+	ID         string            `json:"id"`
+	Username   string            `json:"username"`
+	Email      string            `json:"email"`
+	Groups     []string          `json:"groups"`
+	Department string            `json:"department"`
+	TrustLevel TrustLevel        `json:"trust_level"`
+	LastLogin  time.Time         `json:"last_login"`
+	LoginCount int               `json:"login_count"`
+	MFAEnabled bool              `json:"mfa_enabled"`
+	MFAMethod  string            `json:"mfa_method"`
+	Attributes map[string]string `json:"attributes"`
+	RiskScore  float64           `json:"risk_score"` // 0-100
+	Active     bool              `json:"active"`
+	CreatedAt  time.Time         `json:"created_at"`
+	UpdatedAt  time.Time         `json:"updated_at"`
 }
 
 // Device 设备信息
 type Device struct {
-	ID            string       `json:"id"`
-	Name          string       `json:"name"`
-	Type          string       `json:"type"` // "desktop", "laptop", "mobile", "server", "iot"
-	OS            string       `json:"os"`
-	OSVersion     string       `json:"os_version"`
-	IPAddress     string       `json:"ip_address"`
-	MACAddress    string       `json:"mac_address"`
-	UserID        string       `json:"user_id"`
-	Status        DeviceStatus `json:"status"`
-	TrustLevel    TrustLevel   `json:"trust_level"`
-	Compliance    float64      `json:"compliance"` // 0-100
-	LastSeen      time.Time    `json:"last_seen"`
-	RegisteredAt  time.Time    `json:"registered_at"`
-	Attributes    map[string]string `json:"attributes"`
-	HealthChecks  []HealthCheck `json:"health_checks"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	Type         string            `json:"type"` // "desktop", "laptop", "mobile", "server", "iot"
+	OS           string            `json:"os"`
+	OSVersion    string            `json:"os_version"`
+	IPAddress    string            `json:"ip_address"`
+	MACAddress   string            `json:"mac_address"`
+	UserID       string            `json:"user_id"`
+	Status       DeviceStatus      `json:"status"`
+	TrustLevel   TrustLevel        `json:"trust_level"`
+	Compliance   float64           `json:"compliance"` // 0-100
+	LastSeen     time.Time         `json:"last_seen"`
+	RegisteredAt time.Time         `json:"registered_at"`
+	Attributes   map[string]string `json:"attributes"`
+	HealthChecks []HealthCheck     `json:"health_checks"`
 }
 
 // HealthCheck 健康检查
@@ -122,35 +122,35 @@ type HealthCheck struct {
 
 // AccessPolicy 访问策略
 type AccessPolicy struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Description string       `json:"description"`
-	Priority    int          `json:"priority"`
-	Enabled     bool         `json:"enabled"`
-	Subject     PolicySubject `json:"subject"`
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Priority    int            `json:"priority"`
+	Enabled     bool           `json:"enabled"`
+	Subject     PolicySubject  `json:"subject"`
 	Resource    PolicyResource `json:"resource"`
-	Action      AccessAction `json:"action"`
-	Conditions  []Condition  `json:"conditions"`
-	Constraints []Constraint `json:"constraints"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	Action      AccessAction   `json:"action"`
+	Conditions  []Condition    `json:"conditions"`
+	Constraints []Constraint   `json:"constraints"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
 }
 
 // PolicySubject 策略主体
 type PolicySubject struct {
-	Type     string   `json:"type"` // "user", "group", "device", "service"
-	Values   []string `json:"values"`
+	Type   string   `json:"type"` // "user", "group", "device", "service"
+	Values []string `json:"values"`
 }
 
 // PolicyResource 策略资源
 type PolicyResource struct {
-	Type     string   `json:"type"` // "application", "data", "network", "api"
-	Values   []string `json:"values"`
+	Type   string   `json:"type"` // "application", "data", "network", "api"
+	Values []string `json:"values"`
 }
 
 // Condition 策略条件
 type Condition struct {
-	Type     string `json:"type"` // "time", "location", "trust_level", "device_status", "risk_score"
+	Type     string `json:"type"`     // "time", "location", "trust_level", "device_status", "risk_score"
 	Operator string `json:"operator"` // "eq", "neq", "gt", "lt", "gte", "lte", "in", "not_in"
 	Value    string `json:"value"`
 }
@@ -163,15 +163,15 @@ type Constraint struct {
 
 // AccessRequest 访问请求
 type AccessRequest struct {
-	ID          string    `json:"id"`
-	UserID      string    `json:"user_id"`
-	DeviceID    string    `json:"device_id"`
-	Resource    string    `json:"resource"`
-	Action      string    `json:"action"`
-	IPAddress   string    `json:"ip_address"`
-	UserAgent   string    `json:"user_agent"`
-	Timestamp   time.Time `json:"timestamp"`
-	Context     map[string]string `json:"context"`
+	ID        string            `json:"id"`
+	UserID    string            `json:"user_id"`
+	DeviceID  string            `json:"device_id"`
+	Resource  string            `json:"resource"`
+	Action    string            `json:"action"`
+	IPAddress string            `json:"ip_address"`
+	UserAgent string            `json:"user_agent"`
+	Timestamp time.Time         `json:"timestamp"`
+	Context   map[string]string `json:"context"`
 }
 
 // AccessDecision 访问决策
@@ -190,41 +190,41 @@ type AccessDecision struct {
 
 // Session 会话信息
 type Session struct {
-	ID          string    `json:"id"`
-	UserID      string    `json:"user_id"`
-	DeviceID    string    `json:"device_id"`
-	TrustLevel  TrustLevel `json:"trust_level"`
-	StartedAt   time.Time `json:"started_at"`
-	ExpiresAt   time.Time `json:"expires_at"`
-	LastActive  time.Time `json:"last_active"`
-	IPAddress   string    `json:"ip_address"`
-	Resources   []string  `json:"resources"`
-	Active      bool      `json:"active"`
+	ID         string     `json:"id"`
+	UserID     string     `json:"user_id"`
+	DeviceID   string     `json:"device_id"`
+	TrustLevel TrustLevel `json:"trust_level"`
+	StartedAt  time.Time  `json:"started_at"`
+	ExpiresAt  time.Time  `json:"expires_at"`
+	LastActive time.Time  `json:"last_active"`
+	IPAddress  string     `json:"ip_address"`
+	Resources  []string   `json:"resources"`
+	Active     bool       `json:"active"`
 }
 
 // MicroSegment 微分段
 type MicroSegment struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Resources   []string `json:"resources"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Resources   []string   `json:"resources"`
 	TrustLevel  TrustLevel `json:"trust_level"`
-	Isolation   string   `json:"isolation"` // "strict", "moderate", "permissive"
-	AllowedIn   []string `json:"allowed_in"`
-	AllowedOut  []string `json:"allowed_out"`
-	Policies    []string `json:"policies"`
+	Isolation   string     `json:"isolation"` // "strict", "moderate", "permissive"
+	AllowedIn   []string   `json:"allowed_in"`
+	AllowedOut  []string   `json:"allowed_out"`
+	Policies    []string   `json:"policies"`
 }
 
 // RiskAssessment 风险评估
 type RiskAssessment struct {
-	ID          string    `json:"id"`
-	UserID      string    `json:"user_id"`
-	DeviceID    string    `json:"device_id"`
-	Score       float64   `json:"score"` // 0-100
-	Factors     []RiskFactor `json:"factors"`
-	Level       string    `json:"level"` // "low", "medium", "high", "critical"
-	Timestamp   time.Time `json:"timestamp"`
-	ValidUntil  time.Time `json:"valid_until"`
+	ID         string       `json:"id"`
+	UserID     string       `json:"user_id"`
+	DeviceID   string       `json:"device_id"`
+	Score      float64      `json:"score"` // 0-100
+	Factors    []RiskFactor `json:"factors"`
+	Level      string       `json:"level"` // "low", "medium", "high", "critical"
+	Timestamp  time.Time    `json:"timestamp"`
+	ValidUntil time.Time    `json:"valid_until"`
 }
 
 // RiskFactor 风险因素
@@ -254,14 +254,14 @@ type AuditLog struct {
 
 // ZeroTrustManager 零信任管理器
 type ZeroTrustManager struct {
-	mu         sync.RWMutex
-	identities map[string]*Identity
-	devices    map[string]*Device
-	policies   map[string]*AccessPolicy
-	sessions   map[string]*Session
-	segments   map[string]*MicroSegment
+	mu          sync.RWMutex
+	identities  map[string]*Identity
+	devices     map[string]*Device
+	policies    map[string]*AccessPolicy
+	sessions    map[string]*Session
+	segments    map[string]*MicroSegment
 	assessments map[string]*RiskAssessment
-	auditLogs  []*AuditLog
+	auditLogs   []*AuditLog
 }
 
 // NewZeroTrustManager 创建零信任管理器

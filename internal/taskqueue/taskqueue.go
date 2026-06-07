@@ -244,27 +244,27 @@ func (m *Manager) handleRetry(task *Task, execErr error) {
 
 // Manager 任务队列管理器.
 type Manager struct {
-	mu       sync.RWMutex
-	config   *Config
-	started  bool
-	stopped  bool
+	mu      sync.RWMutex
+	config  *Config
+	started bool
+	stopped bool
 
 	// 优先级队列
-	queue    priorityQueue
-	nextSeq  int
+	queue   priorityQueue
+	nextSeq int
 
 	// 运行中的任务
-	running  map[string]*Task
+	running map[string]*Task
 
 	// 所有任务索引
-	tasks    map[string]*Task
+	tasks map[string]*Task
 
 	// 死信队列
 	deadLetter []*Task
 
 	// Worker池
-	workers  []*worker
-	workCh   chan *priorityItem
+	workers []*worker
+	workCh  chan *priorityItem
 
 	// 调度通知
 	notifyCh chan struct{}

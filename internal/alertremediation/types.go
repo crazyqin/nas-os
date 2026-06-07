@@ -87,33 +87,33 @@ const (
 
 // Alert 告警信息.
 type Alert struct {
-	ID          string            `json:"id"`
-	RuleID      string            `json:"rule_id,omitempty"` // 匹配的规则ID
-	Title       string            `json:"title"`
-	Message     string            `json:"message"`
-	Severity    AlertSeverity     `json:"severity"`
-	Category    AlertCategory     `json:"category"`
-	Source      string            `json:"source"`           // 告警来源（模块名）
-	Labels      map[string]string `json:"labels,omitempty"` // 附加标签
-	Timestamp   time.Time         `json:"timestamp"`
-	Acknowledged bool             `json:"acknowledged"`
-	Resolved    bool              `json:"resolved"`
+	ID           string            `json:"id"`
+	RuleID       string            `json:"rule_id,omitempty"` // 匹配的规则ID
+	Title        string            `json:"title"`
+	Message      string            `json:"message"`
+	Severity     AlertSeverity     `json:"severity"`
+	Category     AlertCategory     `json:"category"`
+	Source       string            `json:"source"`           // 告警来源（模块名）
+	Labels       map[string]string `json:"labels,omitempty"` // 附加标签
+	Timestamp    time.Time         `json:"timestamp"`
+	Acknowledged bool              `json:"acknowledged"`
+	Resolved     bool              `json:"resolved"`
 }
 
 // RemediationRule 告警修复规则.
 // 定义告警匹配条件和修复方案模板.
 type RemediationRule struct {
-	ID           string         `json:"id"`
-	Name         string         `json:"name"`
-	Description  string         `json:"description"`
-	Category     AlertCategory  `json:"category"`
-	Severity     AlertSeverity  `json:"severity"`
-	MatchFunc    MatchFunction  `json:"-"`          // 告警匹配函数
-	RootCause    string         `json:"root_cause"` // 根因描述
-	Steps        []StepTemplate `json:"steps"`      // 排查步骤模板
-	Actions      []ActionTemplate `json:"actions"`  // 修复动作模板
-	Enabled      bool           `json:"enabled"`
-	Priority     int            `json:"priority"` // 规则优先级（越小越优先）
+	ID          string           `json:"id"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	Category    AlertCategory    `json:"category"`
+	Severity    AlertSeverity    `json:"severity"`
+	MatchFunc   MatchFunction    `json:"-"`          // 告警匹配函数
+	RootCause   string           `json:"root_cause"` // 根因描述
+	Steps       []StepTemplate   `json:"steps"`      // 排查步骤模板
+	Actions     []ActionTemplate `json:"actions"`    // 修复动作模板
+	Enabled     bool             `json:"enabled"`
+	Priority    int              `json:"priority"` // 规则优先级（越小越优先）
 }
 
 // MatchFunction 告警匹配函数签名.
@@ -130,39 +130,39 @@ type StepTemplate struct {
 
 // ActionTemplate 修复动作模板.
 type ActionTemplate struct {
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	Type        ActionType `json:"type"`
-	Command     string     `json:"command,omitempty"`  // 执行的命令
-	Parameters  map[string]string `json:"parameters,omitempty"` // 动态参数
-	Destructive bool       `json:"destructive"`        // 是否为破坏性操作
-	RequiresConfirm bool   `json:"requires_confirm"`   // 是否需要确认
+	ID              string            `json:"id"`
+	Name            string            `json:"name"`
+	Description     string            `json:"description"`
+	Type            ActionType        `json:"type"`
+	Command         string            `json:"command,omitempty"`    // 执行的命令
+	Parameters      map[string]string `json:"parameters,omitempty"` // 动态参数
+	Destructive     bool              `json:"destructive"`          // 是否为破坏性操作
+	RequiresConfirm bool              `json:"requires_confirm"`     // 是否需要确认
 }
 
 // RemediationPlan 修复方案.
 // 由 RemediationEngine.Analyze 生成，包含完整的修复引导信息.
 type RemediationPlan struct {
-	ID          string           `json:"id"`
-	AlertID     string           `json:"alert_id"`
-	RuleID      string           `json:"rule_id"`
-	Alert       *Alert           `json:"alert"`
-	RootCause   RootCauseAnalysis `json:"root_cause"`
-	Steps       []RemediationStep  `json:"steps"`
+	ID          string              `json:"id"`
+	AlertID     string              `json:"alert_id"`
+	RuleID      string              `json:"rule_id"`
+	Alert       *Alert              `json:"alert"`
+	RootCause   RootCauseAnalysis   `json:"root_cause"`
+	Steps       []RemediationStep   `json:"steps"`
 	Actions     []RemediationAction `json:"actions"`
-	Status      RemediationStatus  `json:"status"`
-	CreatedAt   time.Time          `json:"created_at"`
-	UpdatedAt   time.Time          `json:"updated_at"`
-	CompletedAt *time.Time         `json:"completed_at,omitempty"`
+	Status      RemediationStatus   `json:"status"`
+	CreatedAt   time.Time           `json:"created_at"`
+	UpdatedAt   time.Time           `json:"updated_at"`
+	CompletedAt *time.Time          `json:"completed_at,omitempty"`
 }
 
 // RootCauseAnalysis 根因分析结果.
 type RootCauseAnalysis struct {
-	Summary     string   `json:"summary"`               // 根因概述
-	Description string   `json:"description"`           // 详细描述
-	PossibleCauses []string `json:"possible_causes"`     // 可能的原因列表
-	Impact      string   `json:"impact"`                 // 影响范围
-	References  []string `json:"references,omitempty"`   // 参考文档链接
+	Summary        string   `json:"summary"`              // 根因概述
+	Description    string   `json:"description"`          // 详细描述
+	PossibleCauses []string `json:"possible_causes"`      // 可能的原因列表
+	Impact         string   `json:"impact"`               // 影响范围
+	References     []string `json:"references,omitempty"` // 参考文档链接
 }
 
 // RemediationStep 排查步骤.
@@ -176,28 +176,28 @@ type RemediationStep struct {
 
 // RemediationAction 修复动作.
 type RemediationAction struct {
-	ID              string     `json:"id"`
-	Name            string     `json:"name"`
-	Description     string     `json:"description"`
-	Type            ActionType `json:"type"`
-	Command         string     `json:"command,omitempty"`
+	ID              string            `json:"id"`
+	Name            string            `json:"name"`
+	Description     string            `json:"description"`
+	Type            ActionType        `json:"type"`
+	Command         string            `json:"command,omitempty"`
 	Parameters      map[string]string `json:"parameters,omitempty"`
-	Destructive     bool       `json:"destructive"`
-	RequiresConfirm bool       `json:"requires_confirm"`
+	Destructive     bool              `json:"destructive"`
+	RequiresConfirm bool              `json:"requires_confirm"`
 	Status          RemediationStatus `json:"status"`
-	Result          string     `json:"result,omitempty"`   // 执行结果描述
-	ExecutedAt      *time.Time `json:"executed_at,omitempty"`
+	Result          string            `json:"result,omitempty"` // 执行结果描述
+	ExecutedAt      *time.Time        `json:"executed_at,omitempty"`
 }
 
 // ActionResult 动作执行结果.
 type ActionResult struct {
-	ActionID  string           `json:"action_id"`
-	Success   bool             `json:"success"`
-	Message   string           `json:"message"`
-	Output    string           `json:"output,omitempty"`  // 命令输出
-	Error     string           `json:"error,omitempty"`   // 错误信息
-	Duration  time.Duration    `json:"duration"`
-	Timestamp time.Time        `json:"timestamp"`
+	ActionID  string        `json:"action_id"`
+	Success   bool          `json:"success"`
+	Message   string        `json:"message"`
+	Output    string        `json:"output,omitempty"` // 命令输出
+	Error     string        `json:"error,omitempty"`  // 错误信息
+	Duration  time.Duration `json:"duration"`
+	Timestamp time.Time     `json:"timestamp"`
 }
 
 // AnalyzeRequest 手动分析请求.

@@ -69,14 +69,14 @@ func ParsePriority(s string) TaskPriority {
 // ========== 错误定义 ==========
 
 var (
-	ErrTaskNotFound      = errors.New("任务不存在")
+	ErrTaskNotFound       = errors.New("任务不存在")
 	ErrTaskNotCancellable = errors.New("任务不可取消")
-	ErrTaskNotRunnable   = errors.New("任务不可运行")
-	ErrCycleDetected     = errors.New("依赖关系存在循环")
-	ErrDuplicateDep      = errors.New("重复依赖")
-	ErrSelfDependency    = errors.New("不能依赖自身")
-	ErrQueueFull         = errors.New("队列已满")
-	ErrQueueStopped      = errors.New("队列已停止")
+	ErrTaskNotRunnable    = errors.New("任务不可运行")
+	ErrCycleDetected      = errors.New("依赖关系存在循环")
+	ErrDuplicateDep       = errors.New("重复依赖")
+	ErrSelfDependency     = errors.New("不能依赖自身")
+	ErrQueueFull          = errors.New("队列已满")
+	ErrQueueStopped       = errors.New("队列已停止")
 )
 
 // ========== 任务定义 ==========
@@ -129,7 +129,7 @@ type CompletionCallback func(taskID string, status TaskStatus, err error)
 
 // Task 任务定义.
 type Task struct {
-	mu          sync.RWMutex `json:"-"`
+	mu          sync.RWMutex           `json:"-"`
 	ID          string                 `json:"id"`
 	Name        string                 `json:"name"`
 	Description string                 `json:"description,omitempty"`
@@ -155,16 +155,16 @@ type Task struct {
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
 
 	// 执行信息
-	Progress    float64 `json:"progress"` // 0.0 - 1.0
-	Error       string  `json:"error,omitempty"`
-	Result      interface{} `json:"result,omitempty"`
+	Progress float64     `json:"progress"` // 0.0 - 1.0
+	Error    string      `json:"error,omitempty"`
+	Result   interface{} `json:"result,omitempty"`
 
 	// 内部字段
-	handler   TaskHandler          `json:"-"`
-	onProgress ProgressCallback    `json:"-"`
-	onComplete CompletionCallback  `json:"-"`
-	cancel     chan struct{}        `json:"-"`
-	cancelOnce sync.Once           `json:"-"`
+	handler    TaskHandler        `json:"-"`
+	onProgress ProgressCallback   `json:"-"`
+	onComplete CompletionCallback `json:"-"`
+	cancel     chan struct{}      `json:"-"`
+	cancelOnce sync.Once          `json:"-"`
 }
 
 // ========== 队列统计 ==========
@@ -187,13 +187,13 @@ type QueueStats struct {
 // Config 队列配置.
 type Config struct {
 	Enabled         bool          `json:"enabled"`
-	MaxWorkers      int           `json:"max_workers"`       // 最大并发Worker数
-	MaxQueueSize    int           `json:"max_queue_size"`    // 最大队列长度 (0=无限制)
-	DefaultRetry    int           `json:"default_retry"`     // 默认重试次数
-	DefaultTimeout  time.Duration `json:"default_timeout"`   // 默认超时
+	MaxWorkers      int           `json:"max_workers"`         // 最大并发Worker数
+	MaxQueueSize    int           `json:"max_queue_size"`      // 最大队列长度 (0=无限制)
+	DefaultRetry    int           `json:"default_retry"`       // 默认重试次数
+	DefaultTimeout  time.Duration `json:"default_timeout"`     // 默认超时
 	DefaultDelay    time.Duration `json:"default_retry_delay"` // 默认重试延迟
-	DeadLetterLimit int           `json:"dead_letter_limit"` // 死信队列上限
-	PollInterval    time.Duration `json:"poll_interval"`     // 调度轮询间隔
+	DeadLetterLimit int           `json:"dead_letter_limit"`   // 死信队列上限
+	PollInterval    time.Duration `json:"poll_interval"`       // 调度轮询间隔
 }
 
 // DefaultConfig 默认配置.

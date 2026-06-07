@@ -65,9 +65,9 @@ func (h *Handler) updateConfig(c *gin.Context) {
 	h.logger.Info("配置已更新", zap.Int("windows", len(cfg.AvoidanceWindows)))
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":  "配置已更新",
-		"config":   cfg,
-		"status":   h.scheduler.GetStatus(),
+		"message": "配置已更新",
+		"config":  cfg,
+		"status":  h.scheduler.GetStatus(),
 	})
 }
 

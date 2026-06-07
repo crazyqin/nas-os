@@ -16,7 +16,7 @@ type Manager struct {
 	mu            sync.RWMutex
 	logger        *zap.Logger
 	members       map[string]*FamilyMember
-	screenTimes   map[string][]*ScreenTime   // userID -> screen times
+	screenTimes   map[string][]*ScreenTime // userID -> screen times
 	focusSessions map[string]*FocusSession
 	schedules     map[string]*DowntimeSchedule
 	limits        map[string]*AppLimit
@@ -357,7 +357,7 @@ func (m *Manager) GetReport(userID, period, startDate, endDate string) (*Wellbei
 			AveragePickups:   avgPickups,
 			ComparedToLast:   -5.2,
 		},
-		DailyData:   filtered,
+		DailyData: filtered,
 		TopApps: []AppUsage{
 			{AppName: "微信", Category: "social", Minutes: 60},
 			{AppName: "抖音", Category: "entertainment", Minutes: 45},

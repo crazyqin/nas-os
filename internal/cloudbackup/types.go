@@ -27,14 +27,14 @@ const (
 type ServiceType string
 
 const (
-	ServiceOneDrive   ServiceType = "onedrive"
-	ServiceSharePoint ServiceType = "sharepoint"
-	ServiceExchange   ServiceType = "exchange"
-	ServiceTeams      ServiceType = "teams"
+	ServiceOneDrive    ServiceType = "onedrive"
+	ServiceSharePoint  ServiceType = "sharepoint"
+	ServiceExchange    ServiceType = "exchange"
+	ServiceTeams       ServiceType = "teams"
 	ServiceGoogleDrive ServiceType = "google_drive"
-	ServiceGmail      ServiceType = "gmail"
-	ServiceCalendar   ServiceType = "calendar"
-	ServiceContacts   ServiceType = "contacts"
+	ServiceGmail       ServiceType = "gmail"
+	ServiceCalendar    ServiceType = "calendar"
+	ServiceContacts    ServiceType = "contacts"
 )
 
 // BackupJobStatus 备份任务状态.
@@ -50,15 +50,15 @@ const (
 
 // CloudAccount 云账号配置.
 type CloudAccount struct {
-	ID           string        `json:"id"`
-	Name         string        `json:"name"`
-	Provider     CloudProvider `json:"provider"`
-	TenantID     string        `json:"tenant_id"`
-	ClientID     string        `json:"client_id"`
-	Domain       string        `json:"domain"`
-	Status       string        `json:"status"` // active, expired, error
-	LastSync     time.Time     `json:"last_sync"`
-	CreatedAt    time.Time     `json:"created_at"`
+	ID              string        `json:"id"`
+	Name            string        `json:"name"`
+	Provider        CloudProvider `json:"provider"`
+	TenantID        string        `json:"tenant_id"`
+	ClientID        string        `json:"client_id"`
+	Domain          string        `json:"domain"`
+	Status          string        `json:"status"` // active, expired, error
+	LastSync        time.Time     `json:"last_sync"`
+	CreatedAt       time.Time     `json:"created_at"`
 	EnabledServices []ServiceType `json:"enabled_services"`
 }
 
@@ -119,11 +119,11 @@ type BackupStats struct {
 
 // BackupConfig 备份配置.
 type BackupConfig struct {
-	StoragePath    string        `json:"storage_path"`
-	MaxConcurrent  int           `json:"max_concurrent"`
-	ChunkSize      int64         `json:"chunk_size"`
-	EnableEncrypt  bool          `json:"enable_encrypt"`
-	EncryptKey     string        `json:"encrypt_key"`
-	RetryCount     int           `json:"retry_count"`
-	RetryDelay     time.Duration `json:"retry_delay"`
+	StoragePath   string        `json:"storage_path"`
+	MaxConcurrent int           `json:"max_concurrent"`
+	ChunkSize     int64         `json:"chunk_size"`
+	EnableEncrypt bool          `json:"enable_encrypt"`
+	EncryptKey    string        `json:"encrypt_key"`
+	RetryCount    int           `json:"retry_count"`
+	RetryDelay    time.Duration `json:"retry_delay"`
 }

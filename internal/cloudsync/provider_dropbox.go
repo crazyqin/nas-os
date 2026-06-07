@@ -454,12 +454,12 @@ func (p *DropboxProvider) listFilesRecursive(ctx context.Context, dropboxPath, p
 	apiURL := p.apiURL + "/files/list_folder"
 
 	data := map[string]interface{}{
-		"path":                    dropboxPath,
-		"recursive":               recursive,
-		"include_deleted":         false,
+		"path":                                dropboxPath,
+		"recursive":                           recursive,
+		"include_deleted":                     false,
 		"include_has_explicit_shared_members": false,
-		"include_mounted_folders": true,
-		"limit":                   2000,
+		"include_mounted_folders":             true,
+		"limit":                               2000,
 	}
 
 	body, _ := json.Marshal(data)
@@ -488,13 +488,13 @@ func (p *DropboxProvider) listFilesRecursive(ctx context.Context, dropboxPath, p
 
 	var result struct {
 		Entries []struct {
-			Tag         string `json:".tag"`
-			Name        string `json:"name"`
-			PathLower   string `json:"path_lower"`
-			Size        int64  `json:"size"`
+			Tag            string `json:".tag"`
+			Name           string `json:"name"`
+			PathLower      string `json:"path_lower"`
+			Size           int64  `json:"size"`
 			ClientModified string `json:"client_modified"`
 			ServerModified string `json:"server_modified"`
-			ContentHash string `json:"content_hash,omitempty"`
+			ContentHash    string `json:"content_hash,omitempty"`
 		} `json:"entries"`
 		HasMore bool   `json:"has_more"`
 		Cursor  string `json:"cursor"`
@@ -562,12 +562,12 @@ func (p *DropboxProvider) listFolderContinue(ctx context.Context, cursor, prefix
 
 	var result struct {
 		Entries []struct {
-			Tag         string `json:".tag"`
-			Name        string `json:"name"`
-			PathLower   string `json:"path_lower"`
-			Size        int64  `json:"size"`
+			Tag            string `json:".tag"`
+			Name           string `json:"name"`
+			PathLower      string `json:"path_lower"`
+			Size           int64  `json:"size"`
 			ServerModified string `json:"server_modified"`
-			ContentHash string `json:"content_hash,omitempty"`
+			ContentHash    string `json:"content_hash,omitempty"`
 		} `json:"entries"`
 		HasMore bool   `json:"has_more"`
 		Cursor  string `json:"cursor"`
@@ -612,7 +612,7 @@ func (p *DropboxProvider) Stat(ctx context.Context, remotePath string) (*FileInf
 	dropboxPath := "/" + strings.TrimPrefix(remotePath, "/")
 
 	data := map[string]interface{}{
-		"path": dropboxPath,
+		"path":            dropboxPath,
 		"include_deleted": false,
 	}
 
@@ -641,11 +641,11 @@ func (p *DropboxProvider) Stat(ctx context.Context, remotePath string) (*FileInf
 	}
 
 	var result struct {
-		Tag         string `json:".tag"`
-		Name        string `json:"name"`
-		Size        int64  `json:"size"`
+		Tag            string `json:".tag"`
+		Name           string `json:"name"`
+		Size           int64  `json:"size"`
 		ServerModified string `json:"server_modified"`
-		ContentHash string `json:"content_hash,omitempty"`
+		ContentHash    string `json:"content_hash,omitempty"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
@@ -674,7 +674,7 @@ func (p *DropboxProvider) CreateDir(ctx context.Context, remotePath string) erro
 	dropboxPath := "/" + strings.TrimPrefix(remotePath, "/")
 
 	data := map[string]interface{}{
-		"path": dropboxPath,
+		"path":       dropboxPath,
 		"autorename": false,
 	}
 

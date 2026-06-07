@@ -12,12 +12,12 @@ import (
 
 // PreviewCache 预览缓存管理器.
 type PreviewCache struct {
-	config   CacheConfig
-	entries  map[string]*CacheEntry
-	mu       sync.RWMutex
-	stopCh   chan struct{}
-	stats    CacheStats
-	statsMu  sync.Mutex
+	config  CacheConfig
+	entries map[string]*CacheEntry
+	mu      sync.RWMutex
+	stopCh  chan struct{}
+	stats   CacheStats
+	statsMu sync.Mutex
 }
 
 // NewPreviewCache 创建预览缓存管理器.

@@ -145,10 +145,10 @@ func (m *QoSManager) GetStatsSummary() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_rules":      len(m.rules),
-		"enabled_rules":    len(m.GetEnabledRules()),
-		"total_in_mbps":    totalIn,
-		"total_out_mbps":   totalOut,
-		"interfaces":       len(m.ifaces),
+		"total_rules":    len(m.rules),
+		"enabled_rules":  len(m.GetEnabledRules()),
+		"total_in_mbps":  totalIn,
+		"total_out_mbps": totalOut,
+		"interfaces":     len(m.ifaces),
 	}
 }

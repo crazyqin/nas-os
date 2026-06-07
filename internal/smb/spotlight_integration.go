@@ -23,62 +23,62 @@ import (
 // SpotlightIntegration SMB Spotlight集成服务
 // 提供macOS Spotlight搜索兼容性
 type SpotlightIntegration struct {
-	config      SpotlightConfig
-	logger      *zap.Logger
-	indexer     *Indexer
-	mdquery     *MDQueryHandler
-	running     bool
-	mu          sync.RWMutex
-	ctx         context.Context
-	cancel      context.CancelFunc
+	config  SpotlightConfig
+	logger  *zap.Logger
+	indexer *Indexer
+	mdquery *MDQueryHandler
+	running bool
+	mu      sync.RWMutex
+	ctx     context.Context
+	cancel  context.CancelFunc
 }
 
 // SpotlightConfig Spotlight配置
 type SpotlightConfig struct {
-	Enabled          bool     `json:"enabled"`           // 启用Spotlight
-	SharePaths       []string `json:"sharePaths"`        // SMB共享路径
-	ExcludedPaths    []string `json:"excludedPaths"`     // 排除路径
-	MaxIndexSize     int64    `json:"maxIndexSize"`      // 最大索引大小(MB)
-	UpdateInterval   int      `json:"updateInterval"`    // 更新间隔(秒)
-	EnableContentIdx bool     `json:"enableContentIdx"`  // 内容索引
-	EnableChineseSeg bool     `json:"enableChineseSeg"`  // 中文分词
-	IndexerWorkers   int      `json:"indexerWorkers"`    // 索引工作线程数
-	CacheSize        int      `json:"cacheSize"`         // 搜索缓存大小
+	Enabled          bool     `json:"enabled"`          // 启用Spotlight
+	SharePaths       []string `json:"sharePaths"`       // SMB共享路径
+	ExcludedPaths    []string `json:"excludedPaths"`    // 排除路径
+	MaxIndexSize     int64    `json:"maxIndexSize"`     // 最大索引大小(MB)
+	UpdateInterval   int      `json:"updateInterval"`   // 更新间隔(秒)
+	EnableContentIdx bool     `json:"enableContentIdx"` // 内容索引
+	EnableChineseSeg bool     `json:"enableChineseSeg"` // 中文分词
+	IndexerWorkers   int      `json:"indexerWorkers"`   // 索引工作线程数
+	CacheSize        int      `json:"cacheSize"`        // 搜索缓存大小
 
 	// v2.424.0 性能优化配置
-	CacheTTLSeconds     int  `json:"cacheTTLSeconds"`     // 缓存过期时间(秒)，默认300
-	MaxConcurrentSearch int  `json:"maxConcurrentSearch"` // 最大并行搜索数，默认8
-	IndexBatchSize      int  `json:"indexBatchSize"`      // 索引批处理大小，默认1000
-	EnableResultCache   bool `json:"enableResultCache"`   // 启用结果缓存，默认true
-	EnableParallelIndex bool `json:"enableParallelIndex"` // 启用并行索引，默认true
-	FuzzyThreshold      float64 `json:"fuzzyThreshold"`   // 模糊匹配阈值，默认0.7
+	CacheTTLSeconds     int     `json:"cacheTTLSeconds"`     // 缓存过期时间(秒)，默认300
+	MaxConcurrentSearch int     `json:"maxConcurrentSearch"` // 最大并行搜索数，默认8
+	IndexBatchSize      int     `json:"indexBatchSize"`      // 索引批处理大小，默认1000
+	EnableResultCache   bool    `json:"enableResultCache"`   // 启用结果缓存，默认true
+	EnableParallelIndex bool    `json:"enableParallelIndex"` // 启用并行索引，默认true
+	FuzzyThreshold      float64 `json:"fuzzyThreshold"`      // 模糊匹配阈值，默认0.7
 }
 
 // Indexer Spotlight索引器
 type Indexer struct {
-	config    SpotlightConfig
-	logger    *zap.Logger
-	fileIndex map[string]*FileInfo
+	config     SpotlightConfig
+	logger     *zap.Logger
+	fileIndex  map[string]*FileInfo
 	contentIdx map[string]*ContentInfo
-	wordIndex map[string][]string // word -> paths
-	mu        sync.RWMutex
-	running   bool
-	stats     IndexStats
+	wordIndex  map[string][]string // word -> paths
+	mu         sync.RWMutex
+	running    bool
+	stats      IndexStats
 
 	// v2.424.0 性能优化增强
-	searchCache     *SearchCache      // 搜索结果缓存
-	batchQueue      chan *FileInfo    // 批量索引队列
-	searchSemaphore chan struct{}     // 搜索并发控制
-	indexWorkers    sync.WaitGroup    // 索引工作者组
+	searchCache     *SearchCache   // 搜索结果缓存
+	batchQueue      chan *FileInfo // 批量索引队列
+	searchSemaphore chan struct{}  // 搜索并发控制
+	indexWorkers    sync.WaitGroup // 索引工作者组
 }
 
 // SearchCache 搜索结果缓存 (LRU)
 type SearchCache struct {
-	items    map[string]*CacheEntry
-	maxSize  int
-	ttl      time.Duration
-	mu       sync.RWMutex
-	order    []string // LRU顺序
+	items   map[string]*CacheEntry
+	maxSize int
+	ttl     time.Duration
+	mu      sync.RWMutex
+	order   []string // LRU顺序
 }
 
 // CacheEntry 缓存条目
@@ -92,17 +92,17 @@ type CacheEntry struct {
 
 // FileInfo 文件信息索引
 type FileInfo struct {
-	Path         string            `json:"path"`
-	Name         string            `json:"name"`
-	Size         int64             `json:"size"`
-	ModTime      time.Time         `json:"modTime"`
-	Type         string            `json:"type"`         // kMDItemContentType
-	Kind         string            `json:"kind"`         // kMDItemKind
-	Extension    string            `json:"extension"`
-	IsDirectory  bool              `json:"isDirectory"`
-	Attributes   map[string]string `json:"attributes"`   // Spotlight属性
-	IndexedAt    time.Time         `json:"indexedAt"`
-	Score        float64           `json:"score"`        // 搜索相关性评分
+	Path        string            `json:"path"`
+	Name        string            `json:"name"`
+	Size        int64             `json:"size"`
+	ModTime     time.Time         `json:"modTime"`
+	Type        string            `json:"type"` // kMDItemContentType
+	Kind        string            `json:"kind"` // kMDItemKind
+	Extension   string            `json:"extension"`
+	IsDirectory bool              `json:"isDirectory"`
+	Attributes  map[string]string `json:"attributes"` // Spotlight属性
+	IndexedAt   time.Time         `json:"indexedAt"`
+	Score       float64           `json:"score"` // 搜索相关性评分
 }
 
 // ContentInfo 内容索引
@@ -117,12 +117,12 @@ type ContentInfo struct {
 
 // IndexStats 索引统计
 type IndexStats struct {
-	TotalFiles    int64     `json:"totalFiles"`
-	IndexedFiles  int64     `json:"indexedFiles"`
-	IndexedSize   int64     `json:"indexedSize"`
-	LastUpdate    time.Time `json:"lastUpdate"`
-	Status        string    `json:"status"`
-	Progress      float64   `json:"progress"`
+	TotalFiles   int64     `json:"totalFiles"`
+	IndexedFiles int64     `json:"indexedFiles"`
+	IndexedSize  int64     `json:"indexedSize"`
+	LastUpdate   time.Time `json:"lastUpdate"`
+	Status       string    `json:"status"`
+	Progress     float64   `json:"progress"`
 }
 
 // MDQueryHandler macOS mdquery兼容处理器
@@ -132,16 +132,16 @@ type MDQueryHandler struct {
 
 // SpotlightQuery Spotlight查询请求
 type SpotlightQuery struct {
-	Query       string            `json:"query"`       // Spotlight查询语法
-	Attributes  []string          `json:"attributes"`  // 请求的属性
-	Scope       []string          `json:"scope"`       // 搜索范围路径
-	Limit       int               `json:"limit"`       // 结果限制
-	SortBy      string            `json:"sortBy"`      // 排序字段
-	SortDesc    bool              `json:"sortDesc"`    // 降序排序
-	OnlyFiles   bool              `json:"onlyFiles"`   // 仅返回文件
-	OnlyDirs    bool              `json:"onlyDirs"`    // 仅返回目录
-	FuzzyMatch  bool              `json:"fuzzyMatch"`  // 模糊匹配
-	ContentSearch bool            `json:"contentSearch"` // 内容搜索
+	Query         string   `json:"query"`         // Spotlight查询语法
+	Attributes    []string `json:"attributes"`    // 请求的属性
+	Scope         []string `json:"scope"`         // 搜索范围路径
+	Limit         int      `json:"limit"`         // 结果限制
+	SortBy        string   `json:"sortBy"`        // 排序字段
+	SortDesc      bool     `json:"sortDesc"`      // 降序排序
+	OnlyFiles     bool     `json:"onlyFiles"`     // 仅返回文件
+	OnlyDirs      bool     `json:"onlyDirs"`      // 仅返回目录
+	FuzzyMatch    bool     `json:"fuzzyMatch"`    // 模糊匹配
+	ContentSearch bool     `json:"contentSearch"` // 内容搜索
 }
 
 // SpotlightResult Spotlight搜索结果
@@ -154,7 +154,7 @@ type SpotlightResult struct {
 	Kind       string            `json:"kind"`
 	Attributes map[string]string `json:"attributes"` // kMDItem*属性
 	Score      float64           `json:"score"`
-	Snippet    string            `json:"snippet"`    // 内容摘要
+	Snippet    string            `json:"snippet"` // 内容摘要
 }
 
 // SpotlightResponse Spotlight搜索响应
@@ -162,7 +162,7 @@ type SpotlightResponse struct {
 	Query      string            `json:"query"`
 	Results    []SpotlightResult `json:"results"`
 	Total      int               `json:"total"`
-	Took       int64             `json:"took"`       // 查询耗时(ms)
+	Took       int64             `json:"took"` // 查询耗时(ms)
 	Scope      []string          `json:"scope"`
 	Attributes []string          `json:"attributes"`
 	Error      string            `json:"error,omitempty"`
@@ -756,20 +756,20 @@ func (mq *MDQueryHandler) ParseQuery(query string) map[string]interface{} {
 // mapSpotlightAttr 映射Spotlight属性到内部字段
 func (mq *MDQueryHandler) mapSpotlightAttr(attr string) string {
 	attrMap := map[string]string{
-		"kMDItemDisplayName":          "name",
-		"kMDItemFSName":               "name",
-		"kMDItemPath":                 "path",
-		"kMDItemFSSize":               "size",
-		"kMDItemFSCreationDate":       "created",
-		"kMDItemFSContentChangeDate":  "modified",
-		"kMDItemContentType":          "type",
-		"kMDItemKind":                 "kind",
-		"kMDItemKeywords":             "keywords",
-		"kMDItemTitle":                "title",
-		"kMDItemAuthors":              "author",
-		"kMDItemPixelWidth":           "width",
-		"kMDItemPixelHeight":          "height",
-		"kMDItemDurationSeconds":      "duration",
+		"kMDItemDisplayName":         "name",
+		"kMDItemFSName":              "name",
+		"kMDItemPath":                "path",
+		"kMDItemFSSize":              "size",
+		"kMDItemFSCreationDate":      "created",
+		"kMDItemFSContentChangeDate": "modified",
+		"kMDItemContentType":         "type",
+		"kMDItemKind":                "kind",
+		"kMDItemKeywords":            "keywords",
+		"kMDItemTitle":               "title",
+		"kMDItemAuthors":             "author",
+		"kMDItemPixelWidth":          "width",
+		"kMDItemPixelHeight":         "height",
+		"kMDItemDurationSeconds":     "duration",
 	}
 
 	if mapped, ok := attrMap[attr]; ok {

@@ -226,13 +226,13 @@ func TestCreateTask(t *testing.T) {
 	})
 
 	req := CreateTaskRequest{
-		Name:         "daily-backup",
-		Description:  "每日全量备份",
-		AgentID:      agent.ID,
-		BackupType:   BackupTypeFull,
-		ScheduleType: ScheduleTypeScheduled,
-		Schedule:     "0 2 * * *",
-		Enabled:      true,
+		Name:          "daily-backup",
+		Description:   "每日全量备份",
+		AgentID:       agent.ID,
+		BackupType:    BackupTypeFull,
+		ScheduleType:  ScheduleTypeScheduled,
+		Schedule:      "0 2 * * *",
+		Enabled:       true,
 		RetentionDays: 30,
 	}
 
@@ -911,15 +911,15 @@ func TestFullBackupFlow(t *testing.T) {
 
 	// 2. 创建备份任务
 	task, err := mgr.CreateTask(CreateTaskRequest{
-		Name:         "full-backup",
-		Description:  "每日全量备份",
-		AgentID:      agent.ID,
-		BackupType:   BackupTypeFull,
-		ScheduleType: ScheduleTypeScheduled,
-		Schedule:     "0 2 * * *",
-		Enabled:      true,
+		Name:          "full-backup",
+		Description:   "每日全量备份",
+		AgentID:       agent.ID,
+		BackupType:    BackupTypeFull,
+		ScheduleType:  ScheduleTypeScheduled,
+		Schedule:      "0 2 * * *",
+		Enabled:       true,
 		RetentionDays: 30,
-		MaxVersions: 10,
+		MaxVersions:   10,
 	})
 	if err != nil {
 		t.Fatalf("step 2 - CreateTask: %v", err)

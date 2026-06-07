@@ -351,22 +351,22 @@ func (m *IntegrityCheckManager) StartCheck(req IntegrityCheckRequest) (*Integrit
 
 	// 创建校验任务
 	job := &IntegrityCheckJob{
-		ID:            uuid.New().String(),
-		BackupTaskID:  req.BackupTaskID,
-		Status:        CheckStatusPending,
-		CheckType:     req.CheckType,
-		Progress:      0,
-		StartTime:     nil,
-		TotalFiles:    0,
-		CheckedFiles:  0,
-		TotalBytes:    0,
-		CheckedBytes:  0,
-		CorruptedFiles: 0,
+		ID:              uuid.New().String(),
+		BackupTaskID:    req.BackupTaskID,
+		Status:          CheckStatusPending,
+		CheckType:       req.CheckType,
+		Progress:        0,
+		StartTime:       nil,
+		TotalFiles:      0,
+		CheckedFiles:    0,
+		TotalBytes:      0,
+		CheckedBytes:    0,
+		CorruptedFiles:  0,
 		CorruptedBlocks: 0,
-		MissingFiles:  0,
-		ExtraFiles:    0,
-		CorruptedRate: 0,
-		Speed:         0,
+		MissingFiles:    0,
+		ExtraFiles:      0,
+		CorruptedRate:   0,
+		Speed:           0,
 	}
 
 	if job.CheckType == "" {
@@ -636,14 +636,14 @@ func (m *IntegrityCheckManager) verifyFile(filePath string, req IntegrityCheckRe
 		expectedChecksum, ok := m.checksumCache[filePath]
 		if ok && expectedChecksum != checksum {
 			return &CorruptedItem{
-				Path:            filePath,
-				CorruptionType:  CorruptionChecksum,
-				Severity:        SeverityCritical,
+				Path:             filePath,
+				CorruptionType:   CorruptionChecksum,
+				Severity:         SeverityCritical,
 				ExpectedChecksum: expectedChecksum,
-				ActualChecksum:  checksum,
-				Size:            info.Size(),
-				Description:     "校验和不匹配",
-				DetectedAt:      time.Now(),
+				ActualChecksum:   checksum,
+				Size:             info.Size(),
+				Description:      "校验和不匹配",
+				DetectedAt:       time.Now(),
 			}, nil
 		}
 	}
@@ -730,14 +730,14 @@ func (m *IntegrityCheckManager) scanDataBlocks(filePath, expectedChecksum string
 			if entropy > 7.5 {
 				// 高熵块可能表示损坏
 				return &CorruptedItem{
-					Path:          filePath,
+					Path:           filePath,
 					CorruptionType: CorruptionBlock,
-					Severity:      SeverityMedium,
-					Size:          info.Size(),
-					BlockOffset:   offset,
-					BlockSize:     int64(n),
-					Description:   fmt.Sprintf("检测到高熵数据块（熵值: %.2f）", entropy),
-					DetectedAt:    time.Now(),
+					Severity:       SeverityMedium,
+					Size:           info.Size(),
+					BlockOffset:    offset,
+					BlockSize:      int64(n),
+					Description:    fmt.Sprintf("检测到高熵数据块（熵值: %.2f）", entropy),
+					DetectedAt:     time.Now(),
 				}, nil
 			}
 		}
@@ -874,13 +874,13 @@ func (m *IntegrityCheckManager) markJobFailed(job *IntegrityCheckJob, errMsg str
 // generateReport 生成校验报告.
 func (m *IntegrityCheckManager) generateReport(job *IntegrityCheckJob, corruptedItems []CorruptedItem, duration time.Duration) *IntegrityCheckReport {
 	report := &IntegrityCheckReport{
-		ID:            uuid.New().String(),
-		JobID:         job.ID,
-		BackupTaskID:  job.BackupTaskID,
-		GeneratedAt:   time.Now(),
-		CheckDuration: duration,
+		ID:             uuid.New().String(),
+		JobID:          job.ID,
+		BackupTaskID:   job.BackupTaskID,
+		GeneratedAt:    time.Now(),
+		CheckDuration:  duration,
 		CorruptedItems: corruptedItems,
-		Healthy:       len(corruptedItems) == 0,
+		Healthy:        len(corruptedItems) == 0,
 	}
 
 	// 计算摘要
@@ -922,10 +922,10 @@ func (m *IntegrityCheckManager) generateRecommendations(report *IntegrityCheckRe
 
 	if len(report.CorruptedItems) == 0 {
 		recommendations = append(recommendations, Recommendation{
-			Type:        IntegrityRecommendationIgnore,
-			Priority:    0,
-			Action:      "无操作",
-			Description: "备份数据完整，无需修复操作",
+			Type:          IntegrityRecommendationIgnore,
+			Priority:      0,
+			Action:        "无操作",
+			Description:   "备份数据完整，无需修复操作",
 			AffectedItems: 0,
 		})
 		return recommendations

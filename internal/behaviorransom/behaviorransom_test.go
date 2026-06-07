@@ -668,12 +668,12 @@ func TestSetAlertHandler(t *testing.T) {
 // TestQuarantineRecord 测试隔离记录
 func TestQuarantineRecord(t *testing.T) {
 	record := QuarantineRecord{
-		ID:            "test-1",
-		OriginalPath:  "/data/file.txt",
+		ID:             "test-1",
+		OriginalPath:   "/data/file.txt",
 		QuarantinePath: "/var/quarantine/file.txt",
-		Reason:        "测试隔离",
-		Timestamp:     time.Now(),
-		FileSize:      1024,
+		Reason:         "测试隔离",
+		Timestamp:      time.Now(),
+		FileSize:       1024,
 	}
 
 	if record.Restored {

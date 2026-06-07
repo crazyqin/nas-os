@@ -10,22 +10,22 @@ import (
 type PoolStatus string
 
 const (
-	PoolStatusOnline  PoolStatus = "online"
+	PoolStatusOnline   PoolStatus = "online"
 	PoolStatusDegraded PoolStatus = "degraded"
-	PoolStatusFaulted PoolStatus = "faulted"
-	PoolStatusOffline PoolStatus = "offline"
+	PoolStatusFaulted  PoolStatus = "faulted"
+	PoolStatusOffline  PoolStatus = "offline"
 )
 
 // RaidType RAID类型
 type RaidType string
 
 const (
-	RaidTypeStripe  RaidType = "stripe"
-	RaidTypeMirror  RaidType = "mirror"
-	RaidTypeRaidz1  RaidType = "raidz1"
-	RaidTypeRaidz2  RaidType = "raidz2"
-	RaidTypeRaidz3  RaidType = "raidz3"
-	RaidTypeDraid   RaidType = "draid"
+	RaidTypeStripe RaidType = "stripe"
+	RaidTypeMirror RaidType = "mirror"
+	RaidTypeRaidz1 RaidType = "raidz1"
+	RaidTypeRaidz2 RaidType = "raidz2"
+	RaidTypeRaidz3 RaidType = "raidz3"
+	RaidTypeDraid  RaidType = "draid"
 )
 
 // Pool ZFS存储池
@@ -45,14 +45,14 @@ type Pool struct {
 
 // Dataset ZFS数据集
 type Dataset struct {
-	Name         string `json:"name"`
-	Pool         string `json:"pool"`
-	UsedBytes    uint64 `json:"usedBytes"`
-	QuotaBytes   uint64 `json:"quotaBytes"`
-	Compression  string `json:"compression"`
-	Dedup        bool   `json:"dedup"`
-	Encrypted    bool   `json:"encrypted"`
-	MountPoint   string `json:"mountPoint"`
+	Name        string `json:"name"`
+	Pool        string `json:"pool"`
+	UsedBytes   uint64 `json:"usedBytes"`
+	QuotaBytes  uint64 `json:"quotaBytes"`
+	Compression string `json:"compression"`
+	Dedup       bool   `json:"dedup"`
+	Encrypted   bool   `json:"encrypted"`
+	MountPoint  string `json:"mountPoint"`
 }
 
 // Snapshot ZFS快照
@@ -66,22 +66,22 @@ type Snapshot struct {
 
 // Disk 磁盘信息
 type Disk struct {
-	Device     string `json:"device"`
-	Serial     string `json:"serial"`
-	Model      string `json:"model"`
-	SizeBytes  uint64 `json:"sizeBytes"`
-	TempCelsius int   `json:"tempCelsius"`
-	Health     string `json:"health"`
-	SmartOK    bool   `json:"smartOk"`
-	Pool       string `json:"pool"`
-	Role       string `json:"role"`
+	Device      string `json:"device"`
+	Serial      string `json:"serial"`
+	Model       string `json:"model"`
+	SizeBytes   uint64 `json:"sizeBytes"`
+	TempCelsius int    `json:"tempCelsius"`
+	Health      string `json:"health"`
+	SmartOK     bool   `json:"smartOk"`
+	Pool        string `json:"pool"`
+	Role        string `json:"role"`
 }
 
 // Manager ZFS池管理器
 type Manager struct {
-	mu     sync.RWMutex
-	pools  map[string]*Pool
-	disks  map[string]*Disk
+	mu    sync.RWMutex
+	pools map[string]*Pool
+	disks map[string]*Disk
 }
 
 // NewManager 创建管理器

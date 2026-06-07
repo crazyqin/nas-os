@@ -62,11 +62,11 @@ type Size struct {
 
 // ThresholdAlert 阈值告警配置
 type ThresholdAlert struct {
-	Enabled  bool               `json:"enabled"`
-	Metric   string             `json:"metric"`
-	Operator ThresholdOperator  `json:"operator"`
-	Value    float64            `json:"value"`
-	Message  string             `json:"message"`
+	Enabled  bool              `json:"enabled"`
+	Metric   string            `json:"metric"`
+	Operator ThresholdOperator `json:"operator"`
+	Value    float64           `json:"value"`
+	Message  string            `json:"message"`
 }
 
 // DataSource 数据源抽象
@@ -79,15 +79,15 @@ type DataSource struct {
 
 // Widget 仪表盘Widget配置
 type Widget struct {
-	ID              string          `json:"id"`
-	DashboardID     string          `json:"dashboardId"`
-	Type            WidgetType      `json:"type"`
-	Title           string          `json:"title"`
-	Position        Position        `json:"position"`
-	Size            Size            `json:"size"`
-	RefreshInterval time.Duration   `json:"refreshInterval"`
-	DataSource      DataSource      `json:"dataSource"`
-	Threshold       ThresholdAlert  `json:"threshold"`
+	ID              string         `json:"id"`
+	DashboardID     string         `json:"dashboardId"`
+	Type            WidgetType     `json:"type"`
+	Title           string         `json:"title"`
+	Position        Position       `json:"position"`
+	Size            Size           `json:"size"`
+	RefreshInterval time.Duration  `json:"refreshInterval"`
+	DataSource      DataSource     `json:"dataSource"`
+	Threshold       ThresholdAlert `json:"threshold"`
 }
 
 // Dashboard 仪表盘
@@ -109,9 +109,9 @@ type WidgetData struct {
 
 // DataSample 数据采样点
 type DataSample struct {
-	Timestamp time.Time         `json:"timestamp"`
-	Value     float64           `json:"value"`
-	Label     string            `json:"label,omitempty"`
+	Timestamp time.Time          `json:"timestamp"`
+	Value     float64            `json:"value"`
+	Label     string             `json:"label,omitempty"`
 	Extra     map[string]float64 `json:"extra,omitempty"`
 }
 
@@ -212,8 +212,8 @@ func (p *PrometheusProvider) Fetch(w *Widget) (*DataSample, error) {
 // DashboardManager 仪表盘管理器
 type DashboardManager struct {
 	dashboards map[string]*Dashboard
-	widgets    map[string]*Widget      // widgetID -> Widget
-	widgetData map[string]*WidgetData  // widgetID -> historical data
+	widgets    map[string]*Widget     // widgetID -> Widget
+	widgetData map[string]*WidgetData // widgetID -> historical data
 	providers  map[DataSourceType]DataProvider
 	mu         sync.RWMutex
 	ctx        interface{ Done() <-chan struct{} }

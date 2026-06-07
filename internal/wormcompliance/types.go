@@ -20,9 +20,9 @@ const (
 type RetentionUnit string
 
 const (
-	RetentionDays   RetentionUnit = "days"
-	RetentionMonths RetentionUnit = "months"
-	RetentionYears  RetentionUnit = "years"
+	RetentionDays    RetentionUnit = "days"
+	RetentionMonths  RetentionUnit = "months"
+	RetentionYears   RetentionUnit = "years"
 	RetentionForever RetentionUnit = "forever"
 )
 
@@ -30,28 +30,28 @@ const (
 type RegulationType string
 
 const (
-	RegulationGDPR RegulationType = "GDPR"
-	RegulationSOX  RegulationType = "SOX"
+	RegulationGDPR  RegulationType = "GDPR"
+	RegulationSOX   RegulationType = "SOX"
 	RegulationHIPAA RegulationType = "HIPAA"
 )
 
 // Policy WORM 合规策略
 type Policy struct {
-	ID              string         `json:"id"`
-	Name            string         `json:"name"`
-	Description     string         `json:"description"`
-	Mode            ComplianceMode `json:"mode"`
-	RetentionPeriod RetentionPeriod `json:"retention_period"`
-	Enabled         bool           `json:"enabled"`
-	ApplyToPaths    []string       `json:"apply_to_paths"`
+	ID              string           `json:"id"`
+	Name            string           `json:"name"`
+	Description     string           `json:"description"`
+	Mode            ComplianceMode   `json:"mode"`
+	RetentionPeriod RetentionPeriod  `json:"retention_period"`
+	Enabled         bool             `json:"enabled"`
+	ApplyToPaths    []string         `json:"apply_to_paths"`
 	Regulations     []RegulationType `json:"regulations,omitempty"`
-	CreatedAt       time.Time      `json:"created_at"`
-	UpdatedAt       time.Time      `json:"updated_at"`
+	CreatedAt       time.Time        `json:"created_at"`
+	UpdatedAt       time.Time        `json:"updated_at"`
 }
 
 // RetentionPeriod 数据保留期
 type RetentionPeriod struct {
-	Value int64        `json:"value"`
+	Value int64         `json:"value"`
 	Unit  RetentionUnit `json:"unit"`
 }
 
@@ -78,17 +78,17 @@ func (rp RetentionPeriod) IsForever() bool {
 
 // ProtectedObject 受保护对象
 type ProtectedObject struct {
-	ID            string         `json:"id"`
-	Path          string         `json:"path"`
-	Hash          string         `json:"hash"` // SHA-256
-	HashChainPrev string         `json:"hash_chain_prev,omitempty"`
-	Size          int64          `json:"size"`
-	PolicyID      string         `json:"policy_id"`
-	Locked        bool           `json:"locked"`
-	LockedAt      *time.Time     `json:"locked_at,omitempty"`
-	ExpiresAt     *time.Time     `json:"expires_at,omitempty"`
-	CreatedAt     time.Time      `json:"created_at"`
-	CreatedBy     string         `json:"created_by"`
+	ID            string            `json:"id"`
+	Path          string            `json:"path"`
+	Hash          string            `json:"hash"` // SHA-256
+	HashChainPrev string            `json:"hash_chain_prev,omitempty"`
+	Size          int64             `json:"size"`
+	PolicyID      string            `json:"policy_id"`
+	Locked        bool              `json:"locked"`
+	LockedAt      *time.Time        `json:"locked_at,omitempty"`
+	ExpiresAt     *time.Time        `json:"expires_at,omitempty"`
+	CreatedAt     time.Time         `json:"created_at"`
+	CreatedBy     string            `json:"created_by"`
 	Metadata      map[string]string `json:"metadata,omitempty"`
 }
 
@@ -117,13 +117,13 @@ type AuditEntry struct {
 
 // ComplianceReport 合规报告
 type ComplianceReport struct {
-	ID             string                `json:"id"`
-	GeneratedAt    time.Time             `json:"generated_at"`
-	RegulationType RegulationType        `json:"regulation_type"`
-	Status         ComplianceStatus      `json:"status"`
-	Summary        ReportSummary         `json:"summary"`
-	Violations     []ComplianceViolation `json:"violations,omitempty"`
-	Recommendations []string            `json:"recommendations,omitempty"`
+	ID              string                `json:"id"`
+	GeneratedAt     time.Time             `json:"generated_at"`
+	RegulationType  RegulationType        `json:"regulation_type"`
+	Status          ComplianceStatus      `json:"status"`
+	Summary         ReportSummary         `json:"summary"`
+	Violations      []ComplianceViolation `json:"violations,omitempty"`
+	Recommendations []string              `json:"recommendations,omitempty"`
 }
 
 // ComplianceStatus 合规状态
@@ -148,12 +148,12 @@ type ReportSummary struct {
 
 // ComplianceViolation 合规违规
 type ComplianceViolation struct {
-	ObjectID    string         `json:"object_id"`
-	Path        string         `json:"path"`
-	ViolationType string       `json:"violation_type"`
-	Severity    string         `json:"severity"`
-	Description string         `json:"description"`
-	DetectedAt  time.Time      `json:"detected_at"`
+	ObjectID      string    `json:"object_id"`
+	Path          string    `json:"path"`
+	ViolationType string    `json:"violation_type"`
+	Severity      string    `json:"severity"`
+	Description   string    `json:"description"`
+	DetectedAt    time.Time `json:"detected_at"`
 }
 
 // WORMConfig WORM 配置

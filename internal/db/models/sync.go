@@ -88,27 +88,27 @@ const (
 
 // SyncTask 同步任务模型（对应 sync_tasks 表）.
 type SyncTask struct {
-	ID          string         `json:"id" db:"id"`
-	Name        string         `json:"name" db:"name"`
-	UserID      string         `json:"userId" db:"user_id"`
-	ProviderID  string         `json:"providerId" db:"provider_id"`
-	ProviderType string        `json:"providerType" db:"provider_type"`
-	Status      SyncTaskStatus `json:"status" db:"status"`
+	ID           string         `json:"id" db:"id"`
+	Name         string         `json:"name" db:"name"`
+	UserID       string         `json:"userId" db:"user_id"`
+	ProviderID   string         `json:"providerId" db:"provider_id"`
+	ProviderType string         `json:"providerType" db:"provider_type"`
+	Status       SyncTaskStatus `json:"status" db:"status"`
 
 	// 同步路径
 	LocalPath  string `json:"localPath" db:"local_path"`
 	RemotePath string `json:"remotePath" db:"remote_path"`
 
 	// 同步配置
-	Direction       SyncDirection   `json:"direction" db:"direction"`
+	Direction        SyncDirection    `json:"direction" db:"direction"`
 	ConflictStrategy ConflictStrategy `json:"conflictStrategy" db:"conflict_strategy"`
-	ScheduleType    SyncScheduleType `json:"scheduleType" db:"schedule_type"`
-	ScheduleExpr    string          `json:"scheduleExpr,omitempty" db:"schedule_expr"`
+	ScheduleType     SyncScheduleType `json:"scheduleType" db:"schedule_type"`
+	ScheduleExpr     string           `json:"scheduleExpr,omitempty" db:"schedule_expr"`
 
 	// 过滤规则
 	IncludePatterns string `json:"includePatterns,omitempty" db:"include_patterns"` // JSON 数组
 	ExcludePatterns string `json:"excludePatterns,omitempty" db:"exclude_patterns"` // JSON 数组
-	MaxFileSize     int64  `json:"maxFileSize,omitempty" db:"max_file_size"`         // 字节，0=不限
+	MaxFileSize     int64  `json:"maxFileSize,omitempty" db:"max_file_size"`        // 字节，0=不限
 
 	// 高级选项
 	DeleteRemote    bool `json:"deleteRemote" db:"delete_remote"`
@@ -140,15 +140,15 @@ type SyncHistory struct {
 	Duration   int64      `json:"duration,omitempty" db:"duration"` // 毫秒
 
 	// 统计
-	TotalFiles     int64 `json:"totalFiles" db:"total_files"`
-	UploadedFiles  int64 `json:"uploadedFiles" db:"uploaded_files"`
+	TotalFiles      int64 `json:"totalFiles" db:"total_files"`
+	UploadedFiles   int64 `json:"uploadedFiles" db:"uploaded_files"`
 	DownloadedFiles int64 `json:"downloadedFiles" db:"downloaded_files"`
-	SkippedFiles   int64 `json:"skippedFiles" db:"skipped_files"`
-	FailedFiles    int64 `json:"failedFiles" db:"failed_files"`
-	DeletedFiles   int64 `json:"deletedFiles" db:"deleted_files"`
+	SkippedFiles    int64 `json:"skippedFiles" db:"skipped_files"`
+	FailedFiles     int64 `json:"failedFiles" db:"failed_files"`
+	DeletedFiles    int64 `json:"deletedFiles" db:"deleted_files"`
 
 	// 传输量
-	TotalBytes     int64 `json:"totalBytes" db:"total_bytes"`
+	TotalBytes       int64 `json:"totalBytes" db:"total_bytes"`
 	TransferredBytes int64 `json:"transferredBytes" db:"transferred_bytes"`
 
 	// 冲突与错误
@@ -159,8 +159,8 @@ type SyncHistory struct {
 
 // SyncFileVersion 文件版本模型（对应 sync_file_versions 表）.
 type SyncFileVersion struct {
-	ID      string `json:"id" db:"id"`
-	TaskID  string `json:"taskId" db:"task_id"`
+	ID        string `json:"id" db:"id"`
+	TaskID    string `json:"taskId" db:"task_id"`
 	HistoryID string `json:"historyId,omitempty" db:"history_id"`
 
 	// 文件路径
@@ -168,12 +168,12 @@ type SyncFileVersion struct {
 	RemotePath string `json:"remotePath" db:"remote_path"`
 
 	// 文件属性
-	FileSize   int64     `json:"fileSize" db:"file_size"`
-	ModTime    time.Time `json:"modTime" db:"mod_time"`
-	Hash       string    `json:"hash,omitempty" db:"hash"`             // 内容哈希
-	HashAlgo   string    `json:"hashAlgo,omitempty" db:"hash_algo"`    // md5 / sha256
-	Version    int       `json:"version" db:"version"`
-	Operation  string    `json:"operation" db:"operation"` // upload / download / delete / rename
+	FileSize  int64     `json:"fileSize" db:"file_size"`
+	ModTime   time.Time `json:"modTime" db:"mod_time"`
+	Hash      string    `json:"hash,omitempty" db:"hash"`          // 内容哈希
+	HashAlgo  string    `json:"hashAlgo,omitempty" db:"hash_algo"` // md5 / sha256
+	Version   int       `json:"version" db:"version"`
+	Operation string    `json:"operation" db:"operation"` // upload / download / delete / rename
 
 	// 时间戳
 	CreatedAt time.Time `json:"createdAt" db:"created_at"`
@@ -183,45 +183,45 @@ type SyncFileVersion struct {
 
 // CreateSyncTaskRequest 创建同步任务请求.
 type CreateSyncTaskRequest struct {
-	Name             string          `json:"name" binding:"required"`
-	ProviderID       string          `json:"providerId" binding:"required"`
-	ProviderType     string          `json:"providerType" binding:"required"`
-	LocalPath        string          `json:"localPath" binding:"required"`
-	RemotePath       string          `json:"remotePath" binding:"required"`
-	Direction        SyncDirection   `json:"direction" binding:"required,oneof=upload download bidirect"`
+	Name             string           `json:"name" binding:"required"`
+	ProviderID       string           `json:"providerId" binding:"required"`
+	ProviderType     string           `json:"providerType" binding:"required"`
+	LocalPath        string           `json:"localPath" binding:"required"`
+	RemotePath       string           `json:"remotePath" binding:"required"`
+	Direction        SyncDirection    `json:"direction" binding:"required,oneof=upload download bidirect"`
 	ConflictStrategy ConflictStrategy `json:"conflictStrategy" binding:"required,oneof=skip local remote newer rename"`
 	ScheduleType     SyncScheduleType `json:"scheduleType" binding:"required,oneof=manual interval cron realtime"`
-	ScheduleExpr     string          `json:"scheduleExpr"`
-	IncludePatterns  []string        `json:"includePatterns"`
-	ExcludePatterns  []string        `json:"excludePatterns"`
-	MaxFileSize      int64           `json:"maxFileSize"`
-	DeleteRemote     bool            `json:"deleteRemote"`
-	PreserveModTime  bool            `json:"preserveModTime"`
-	ChecksumVerify   bool            `json:"checksumVerify"`
-	EncryptEnabled   bool            `json:"encryptEnabled"`
-	BandwidthLimit   int64           `json:"bandwidthLimit"`
-	MaxVersions      int             `json:"maxVersions"`
+	ScheduleExpr     string           `json:"scheduleExpr"`
+	IncludePatterns  []string         `json:"includePatterns"`
+	ExcludePatterns  []string         `json:"excludePatterns"`
+	MaxFileSize      int64            `json:"maxFileSize"`
+	DeleteRemote     bool             `json:"deleteRemote"`
+	PreserveModTime  bool             `json:"preserveModTime"`
+	ChecksumVerify   bool             `json:"checksumVerify"`
+	EncryptEnabled   bool             `json:"encryptEnabled"`
+	BandwidthLimit   int64            `json:"bandwidthLimit"`
+	MaxVersions      int              `json:"maxVersions"`
 }
 
 // UpdateSyncTaskRequest 更新同步任务请求.
 type UpdateSyncTaskRequest struct {
-	Name             *string          `json:"name"`
-	Status           *SyncTaskStatus  `json:"status"`
-	LocalPath        *string          `json:"localPath"`
-	RemotePath       *string          `json:"remotePath"`
-	Direction        *SyncDirection   `json:"direction"`
+	Name             *string           `json:"name"`
+	Status           *SyncTaskStatus   `json:"status"`
+	LocalPath        *string           `json:"localPath"`
+	RemotePath       *string           `json:"remotePath"`
+	Direction        *SyncDirection    `json:"direction"`
 	ConflictStrategy *ConflictStrategy `json:"conflictStrategy"`
 	ScheduleType     *SyncScheduleType `json:"scheduleType"`
-	ScheduleExpr     *string          `json:"scheduleExpr"`
-	IncludePatterns  []string         `json:"includePatterns"`
-	ExcludePatterns  []string         `json:"excludePatterns"`
-	MaxFileSize      *int64           `json:"maxFileSize"`
-	DeleteRemote     *bool            `json:"deleteRemote"`
-	PreserveModTime  *bool            `json:"preserveModTime"`
-	ChecksumVerify   *bool            `json:"checksumVerify"`
-	EncryptEnabled   *bool            `json:"encryptEnabled"`
-	BandwidthLimit   *int64           `json:"bandwidthLimit"`
-	MaxVersions      *int             `json:"maxVersions"`
+	ScheduleExpr     *string           `json:"scheduleExpr"`
+	IncludePatterns  []string          `json:"includePatterns"`
+	ExcludePatterns  []string          `json:"excludePatterns"`
+	MaxFileSize      *int64            `json:"maxFileSize"`
+	DeleteRemote     *bool             `json:"deleteRemote"`
+	PreserveModTime  *bool             `json:"preserveModTime"`
+	ChecksumVerify   *bool             `json:"checksumVerify"`
+	EncryptEnabled   *bool             `json:"encryptEnabled"`
+	BandwidthLimit   *int64            `json:"bandwidthLimit"`
+	MaxVersions      *int              `json:"maxVersions"`
 }
 
 // ListSyncTasksQuery 列出同步任务查询参数.

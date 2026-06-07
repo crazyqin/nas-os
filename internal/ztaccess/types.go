@@ -39,37 +39,37 @@ type DeviceInfo struct {
 
 // UserIdentity represents a user identity
 type UserIdentity struct {
-	UserID       string      `json:"user_id"`
-	Username     string      `json:"username"`
-	Email        string      `json:"email"`
-	AccessLevel  AccessLevel `json:"access_level"`
-	Groups       []string    `json:"groups"`
-	Permissions  []string    `json:"permissions"`
-	MFAEnabled   bool        `json:"mfa_enabled"`
-	LastLogin    time.Time   `json:"last_login"`
-	LoginCount   int         `json:"login_count"`
+	UserID      string      `json:"user_id"`
+	Username    string      `json:"username"`
+	Email       string      `json:"email"`
+	AccessLevel AccessLevel `json:"access_level"`
+	Groups      []string    `json:"groups"`
+	Permissions []string    `json:"permissions"`
+	MFAEnabled  bool        `json:"mfa_enabled"`
+	LastLogin   time.Time   `json:"last_login"`
+	LoginCount  int         `json:"login_count"`
 }
 
 // Session represents an active session
 type Session struct {
-	SessionID    string     `json:"session_id"`
-	UserID       string     `json:"user_id"`
-	Device       DeviceInfo `json:"device"`
+	SessionID    string      `json:"session_id"`
+	UserID       string      `json:"user_id"`
+	Device       DeviceInfo  `json:"device"`
 	AccessLevel  AccessLevel `json:"access_level"`
-	CreatedAt    time.Time  `json:"created_at"`
-	ExpiresAt    time.Time  `json:"expires_at"`
-	LastActivity time.Time  `json:"last_activity"`
-	IsActive     bool       `json:"is_active"`
-	ActivityLog  []Activity `json:"activity_log"`
+	CreatedAt    time.Time   `json:"created_at"`
+	ExpiresAt    time.Time   `json:"expires_at"`
+	LastActivity time.Time   `json:"last_activity"`
+	IsActive     bool        `json:"is_active"`
+	ActivityLog  []Activity  `json:"activity_log"`
 }
 
 // Activity represents a session activity
 type Activity struct {
-	Timestamp   time.Time `json:"timestamp"`
-	Action      string    `json:"action"`
-	Resource    string    `json:"resource"`
-	Result      string    `json:"result"`
-	IPAddress   string    `json:"ip_address"`
+	Timestamp time.Time `json:"timestamp"`
+	Action    string    `json:"action"`
+	Resource  string    `json:"resource"`
+	Result    string    `json:"result"`
+	IPAddress string    `json:"ip_address"`
 }
 
 // AccessPolicy defines an access policy
@@ -86,46 +86,46 @@ type AccessPolicy struct {
 
 // Condition represents a policy condition
 type Condition struct {
-	Type     string      `json:"type"` // "time", "ip", "device", "location"
+	Type     string      `json:"type"`     // "time", "ip", "device", "location"
 	Operator string      `json:"operator"` // "in", "not_in", "equals", "contains"
 	Value    interface{} `json:"value"`
 }
 
 // AnomalyDetection represents an anomaly detection result
 type AnomalyDetection struct {
-	UserID      string    `json:"user_id"`
-	SessionID   string    `json:"session_id"`
-	AnomalyType string    `json:"anomaly_type"`
-	Severity    string    `json:"severity"` // "low", "medium", "high", "critical"
-	Description string    `json:"description"`
-	Timestamp   time.Time `json:"timestamp"`
+	UserID      string     `json:"user_id"`
+	SessionID   string     `json:"session_id"`
+	AnomalyType string     `json:"anomaly_type"`
+	Severity    string     `json:"severity"` // "low", "medium", "high", "critical"
+	Description string     `json:"description"`
+	Timestamp   time.Time  `json:"timestamp"`
 	DeviceInfo  DeviceInfo `json:"device_info"`
 }
 
 // AuditEntry represents an audit log entry
 type AuditEntry struct {
-	EntryID     string    `json:"entry_id"`
-	Timestamp   time.Time `json:"timestamp"`
-	UserID      string    `json:"user_id"`
-	Action      string    `json:"action"`
-	Resource    string    `json:"resource"`
-	Result      string    `json:"result"`
-	IPAddress   string    `json:"ip_address"`
-	UserAgent   string    `json:"user_agent"`
-	Details     string    `json:"details"`
+	EntryID   string    `json:"entry_id"`
+	Timestamp time.Time `json:"timestamp"`
+	UserID    string    `json:"user_id"`
+	Action    string    `json:"action"`
+	Resource  string    `json:"resource"`
+	Result    string    `json:"result"`
+	IPAddress string    `json:"ip_address"`
+	UserAgent string    `json:"user_agent"`
+	Details   string    `json:"details"`
 }
 
 // ZTAccess manages the zero-trust access system
 type ZTAccess struct {
-	mu            sync.RWMutex
-	users         map[string]*UserIdentity
-	sessions      map[string]*Session
-	policies      map[string]*AccessPolicy
-	anomalies     []AnomalyDetection
-	auditLog      []AuditEntry
-	jwtSecret     []byte
-	sessionTTL    time.Duration
-	maxSessions   int
+	mu          sync.RWMutex
+	users       map[string]*UserIdentity
+	sessions    map[string]*Session
+	policies    map[string]*AccessPolicy
+	anomalies   []AnomalyDetection
+	auditLog    []AuditEntry
+	jwtSecret   []byte
+	sessionTTL  time.Duration
+	maxSessions int
 }
 
 // NewZTAccess creates a new ZTAccess instance

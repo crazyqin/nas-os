@@ -93,19 +93,19 @@ type Cluster struct {
 
 // SyncTask 同步任务
 type SyncTask struct {
-	ID          string    `json:"id"`
-	SourceClusterID string `json:"sourceClusterId"`
-	TargetClusterID string `json:"targetClusterId"`
-	Mode        SyncMode  `json:"mode"`
-	Status      string    `json:"status"`
-	Progress    float64   `json:"progress"`
-	BytesTotal  int64     `json:"bytesTotal"`
-	BytesSynced int64     `json:"bytesSynced"`
-	FilesTotal  int       `json:"filesTotal"`
-	FilesSynced int       `json:"filesSynced"`
-	StartedAt   time.Time `json:"startedAt"`
-	CompletedAt *time.Time `json:"completedAt,omitempty"`
-	Error       string    `json:"error,omitempty"`
+	ID              string     `json:"id"`
+	SourceClusterID string     `json:"sourceClusterId"`
+	TargetClusterID string     `json:"targetClusterId"`
+	Mode            SyncMode   `json:"mode"`
+	Status          string     `json:"status"`
+	Progress        float64    `json:"progress"`
+	BytesTotal      int64      `json:"bytesTotal"`
+	BytesSynced     int64      `json:"bytesSynced"`
+	FilesTotal      int        `json:"filesTotal"`
+	FilesSynced     int        `json:"filesSynced"`
+	StartedAt       time.Time  `json:"startedAt"`
+	CompletedAt     *time.Time `json:"completedAt,omitempty"`
+	Error           string     `json:"error,omitempty"`
 }
 
 // SyncPolicy 同步策略
@@ -124,38 +124,38 @@ type SyncPolicy struct {
 
 // LoadBalancerConfig 负载均衡配置
 type LoadBalancerConfig struct {
-	Strategy        string  `json:"strategy"`
-	HealthCheckPath string  `json:"healthCheckPath"`
+	Strategy            string        `json:"strategy"`
+	HealthCheckPath     string        `json:"healthCheckPath"`
 	HealthCheckInterval time.Duration `json:"healthCheckInterval"`
-	MaxRetries      int     `json:"maxRetries"`
-	StickySession   bool    `json:"stickySession"`
-	Weighted        bool    `json:"weighted"`
+	MaxRetries          int           `json:"maxRetries"`
+	StickySession       bool          `json:"stickySession"`
+	Weighted            bool          `json:"weighted"`
 }
 
 // ClusterMetrics 集群指标
 type ClusterMetrics struct {
-	ClusterID       string    `json:"clusterId"`
-	CPUUsage        float64   `json:"cpuUsage"`
-	MemoryUsage     float64   `json:"memoryUsage"`
-	StorageUsage    float64   `json:"storageUsage"`
-	NetworkInMbps   float64   `json:"networkInMbps"`
-	NetworkOutMbps  float64   `json:"networkOutMbps"`
-	IOPS            int64     `json:"iops"`
-	ActiveTasks     int       `json:"activeTasks"`
-	HealthScore     float64   `json:"healthScore"`
-	CPUCores        int       `json:"cpuCores"`
-	MemoryGB        int       `json:"memoryGB"`
-	StorageTB       float64   `json:"storageTB"`
-	Timestamp       time.Time `json:"timestamp"`
+	ClusterID      string    `json:"clusterId"`
+	CPUUsage       float64   `json:"cpuUsage"`
+	MemoryUsage    float64   `json:"memoryUsage"`
+	StorageUsage   float64   `json:"storageUsage"`
+	NetworkInMbps  float64   `json:"networkInMbps"`
+	NetworkOutMbps float64   `json:"networkOutMbps"`
+	IOPS           int64     `json:"iops"`
+	ActiveTasks    int       `json:"activeTasks"`
+	HealthScore    float64   `json:"healthScore"`
+	CPUCores       int       `json:"cpuCores"`
+	MemoryGB       int       `json:"memoryGB"`
+	StorageTB      float64   `json:"storageTB"`
+	Timestamp      time.Time `json:"timestamp"`
 }
 
 // FederationEvent 联邦事件
 type FederationEvent struct {
-	ID        string    `json:"id"`
-	Type      string    `json:"type"`
-	ClusterID string    `json:"clusterId"`
-	Message   string    `json:"message"`
-	Severity  string    `json:"severity"`
-	Timestamp time.Time `json:"timestamp"`
+	ID        string            `json:"id"`
+	Type      string            `json:"type"`
+	ClusterID string            `json:"clusterId"`
+	Message   string            `json:"message"`
+	Severity  string            `json:"severity"`
+	Timestamp time.Time         `json:"timestamp"`
 	Metadata  map[string]string `json:"metadata,omitempty"`
 }

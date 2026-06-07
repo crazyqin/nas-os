@@ -52,26 +52,26 @@ type PeerConfig struct {
 
 // FailoverNode 故障转移节点
 type FailoverNode struct {
-	NodeID      string    `json:"node_id"`
-	Address     string    `json:"address"`
-	Port        int       `json:"port"`
-	Priority    int       `json:"priority"`
+	NodeID      string     `json:"node_id"`
+	Address     string     `json:"address"`
+	Port        int        `json:"port"`
+	Priority    int        `json:"priority"`
 	Status      NodeStatus `json:"status"`
 	Role        NodeRole   `json:"role"`
-	HealthScore int       `json:"health_score"`
-	LastHB      time.Time `json:"last_heartbeat"`
-	IsLocal     bool      `json:"is_local"`
+	HealthScore int        `json:"health_score"`
+	LastHB      time.Time  `json:"last_heartbeat"`
+	IsLocal     bool       `json:"is_local"`
 }
 
 // NodeStatus 节点状态
 type NodeStatus string
 
 const (
-	NodeStatusActive    NodeStatus = "active"
-	NodeStatusStandby   NodeStatus = "standby"
-	NodeStatusDegraded  NodeStatus = "degraded"
-	NodeStatusOffline   NodeStatus = "offline"
-	NodeStatusFailing   NodeStatus = "failing"
+	NodeStatusActive   NodeStatus = "active"
+	NodeStatusStandby  NodeStatus = "standby"
+	NodeStatusDegraded NodeStatus = "degraded"
+	NodeStatusOffline  NodeStatus = "offline"
+	NodeStatusFailing  NodeStatus = "failing"
 )
 
 // NodeRole 节点角色
@@ -85,12 +85,12 @@ const (
 
 // FailoverEvent 故障转移事件
 type FailoverEvent struct {
-	Type      EventType  `json:"type"`
-	Timestamp time.Time  `json:"timestamp"`
-	NodeID    string     `json:"node_id"`
-	ShareName string     `json:"share_name,omitempty"`
-	SessionID string     `json:"session_id,omitempty"`
-	Message   string     `json:"message"`
+	Type      EventType `json:"type"`
+	Timestamp time.Time `json:"timestamp"`
+	NodeID    string    `json:"node_id"`
+	ShareName string    `json:"share_name,omitempty"`
+	SessionID string    `json:"session_id,omitempty"`
+	Message   string    `json:"message"`
 }
 
 // EventType 事件类型
@@ -584,20 +584,20 @@ func (m *StatefulFailoverManager) GetStatus() *StatefulFailoverStatus {
 
 // StatefulFailoverStatus 状态查询结果
 type StatefulFailoverStatus struct {
-	ClusterName    string                  `json:"cluster_name"`
-	LocalNodeID    string                  `json:"local_node_id"`
-	LocalStatus    NodeStatus              `json:"local_status"`
-	LocalRole      NodeRole                `json:"local_role"`
-	PeerStatuses   map[string]NodeStatus   `json:"peer_statuses"`
-	ActiveSessions int                     `json:"active_sessions"`
-	VirtualIP      string                  `json:"virtual_ip"`
+	ClusterName    string                `json:"cluster_name"`
+	LocalNodeID    string                `json:"local_node_id"`
+	LocalStatus    NodeStatus            `json:"local_status"`
+	LocalRole      NodeRole              `json:"local_role"`
+	PeerStatuses   map[string]NodeStatus `json:"peer_statuses"`
+	ActiveSessions int                   `json:"active_sessions"`
+	VirtualIP      string                `json:"virtual_ip"`
 }
 
 // Snapshot 状态快照
 type Snapshot struct {
-	Timestamp time.Time        `json:"timestamp"`
-	NodeID    string           `json:"node_id"`
-	Sessions  []*SessionState  `json:"sessions"`
+	Timestamp time.Time       `json:"timestamp"`
+	NodeID    string          `json:"node_id"`
+	Sessions  []*SessionState `json:"sessions"`
 }
 
 // StateSyncMessage 状态同步消息

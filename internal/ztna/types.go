@@ -8,17 +8,17 @@ import "time"
 
 // Policy 零信任访问策略.
 type Policy struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Description string        `json:"description,omitempty"`
-	Enabled     bool          `json:"enabled"`
-	Priority    int           `json:"priority"`            // 优先级，数字越小优先级越高
-	Rules       []AccessRule  `json:"rules"`               // 访问规则列表
-	Conditions  []Condition   `json:"conditions,omitempty"` // 额外条件
-	MinTrust    int           `json:"min_trust"`           // 最低信任分（0-100）
-	Action      PolicyAction  `json:"action"`              // 策略动作
-	CreatedAt   time.Time     `json:"created_at"`
-	UpdatedAt   time.Time     `json:"updated_at"`
+	ID          string       `json:"id"`
+	Name        string       `json:"name"`
+	Description string       `json:"description,omitempty"`
+	Enabled     bool         `json:"enabled"`
+	Priority    int          `json:"priority"`             // 优先级，数字越小优先级越高
+	Rules       []AccessRule `json:"rules"`                // 访问规则列表
+	Conditions  []Condition  `json:"conditions,omitempty"` // 额外条件
+	MinTrust    int          `json:"min_trust"`            // 最低信任分（0-100）
+	Action      PolicyAction `json:"action"`               // 策略动作
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
 // AccessRule 访问规则，定义谁可以在什么条件下访问什么资源.
@@ -27,10 +27,10 @@ type AccessRule struct {
 	Name        string   `json:"name"`
 	Enabled     bool     `json:"enabled"`
 	Identity    string   `json:"identity"`               // 用户/组/角色标识
-	Resource    string   `json:"resource"`                // 资源标识（服务、端点等）
-	Actions     []string `json:"actions"`                 // 允许的操作（read, write, admin 等）
-	DeviceTypes []string `json:"device_types,omitempty"`  // 允许的设备类型
-	MinTrust    int      `json:"min_trust"`               // 最低设备信任分
+	Resource    string   `json:"resource"`               // 资源标识（服务、端点等）
+	Actions     []string `json:"actions"`                // 允许的操作（read, write, admin 等）
+	DeviceTypes []string `json:"device_types,omitempty"` // 允许的设备类型
+	MinTrust    int      `json:"min_trust"`              // 最低设备信任分
 }
 
 // PolicyAction 策略动作类型.
@@ -70,27 +70,27 @@ const (
 
 // DeviceTrust 设备信任信息.
 type DeviceTrust struct {
-	DeviceID      string          `json:"device_id"`
-	UserID        string          `json:"user_id"`
-	DeviceName    string          `json:"device_name"`
-	DeviceType    string          `json:"device_type"`       // desktop, mobile, tablet
-	OS            string          `json:"os"`                // 操作系统
-	OSVersion     string          `json:"os_version"`        // 操作系统版本
-	Compliant     bool            `json:"compliant"`         // 是否符合安全策略
-	ManagedDevice bool            `json:"managed_device"`    // 是否受管理设备
-	PatchLevel    string          `json:"patch_level"`       // 补丁级别
-	TrustScore    int             `json:"trust_score"`       // 信任分（0-100）
-	TrustFactors  []TrustFactor   `json:"trust_factors"`     // 信任因素明细
-	LastVerified  time.Time       `json:"last_verified"`     // 最后验证时间
-	Status        DeviceStatus    `json:"status"`            // 设备状态
+	DeviceID      string        `json:"device_id"`
+	UserID        string        `json:"user_id"`
+	DeviceName    string        `json:"device_name"`
+	DeviceType    string        `json:"device_type"`    // desktop, mobile, tablet
+	OS            string        `json:"os"`             // 操作系统
+	OSVersion     string        `json:"os_version"`     // 操作系统版本
+	Compliant     bool          `json:"compliant"`      // 是否符合安全策略
+	ManagedDevice bool          `json:"managed_device"` // 是否受管理设备
+	PatchLevel    string        `json:"patch_level"`    // 补丁级别
+	TrustScore    int           `json:"trust_score"`    // 信任分（0-100）
+	TrustFactors  []TrustFactor `json:"trust_factors"`  // 信任因素明细
+	LastVerified  time.Time     `json:"last_verified"`  // 最后验证时间
+	Status        DeviceStatus  `json:"status"`         // 设备状态
 }
 
 // TrustFactor 信任评分因素.
 type TrustFactor struct {
-	Name    string `json:"name"`    // 因素名称
-	Weight  int    `json:"weight"`  // 权重
-	Score   int    `json:"score"`   // 得分
-	Detail  string `json:"detail"`  // 详细说明
+	Name   string `json:"name"`   // 因素名称
+	Weight int    `json:"weight"` // 权重
+	Score  int    `json:"score"`  // 得分
+	Detail string `json:"detail"` // 详细说明
 }
 
 // DeviceStatus 设备状态.
@@ -111,18 +111,18 @@ const (
 
 // Session 零信任访问会话.
 type Session struct {
-	ID           string       `json:"id"`
-	UserID       string       `json:"user_id"`
-	DeviceID     string       `json:"device_id"`
-	Resource     string       `json:"resource"`
-	Actions      []string     `json:"actions"`
-	TrustScore   int          `json:"trust_score"`
-	PolicyID     string       `json:"policy_id"`
-	IPAddress    string       `json:"ip_address"`
-	UserAgent    string       `json:"user_agent"`
-	StartedAt    time.Time    `json:"started_at"`
-	ExpiresAt    time.Time    `json:"expires_at"`
-	LastActivity time.Time    `json:"last_activity"`
+	ID           string        `json:"id"`
+	UserID       string        `json:"user_id"`
+	DeviceID     string        `json:"device_id"`
+	Resource     string        `json:"resource"`
+	Actions      []string      `json:"actions"`
+	TrustScore   int           `json:"trust_score"`
+	PolicyID     string        `json:"policy_id"`
+	IPAddress    string        `json:"ip_address"`
+	UserAgent    string        `json:"user_agent"`
+	StartedAt    time.Time     `json:"started_at"`
+	ExpiresAt    time.Time     `json:"expires_at"`
+	LastActivity time.Time     `json:"last_activity"`
 	Status       SessionStatus `json:"status"`
 }
 
@@ -166,10 +166,10 @@ type VerifyRequest struct {
 
 // VerifyResponse 设备验证响应.
 type VerifyResponse struct {
-	DeviceID   string       `json:"device_id"`
-	TrustScore int          `json:"trust_score"`
-	Status     DeviceStatus `json:"status"`
-	Compliant  bool         `json:"compliant"`
+	DeviceID   string        `json:"device_id"`
+	TrustScore int           `json:"trust_score"`
+	Status     DeviceStatus  `json:"status"`
+	Compliant  bool          `json:"compliant"`
 	Factors    []TrustFactor `json:"factors"`
 }
 
@@ -183,17 +183,17 @@ type AccessCheckRequest struct {
 
 // AccessCheckResponse 访问检查响应.
 type AccessCheckResponse struct {
-	Allowed   bool        `json:"allowed"`
+	Allowed   bool         `json:"allowed"`
 	Action    PolicyAction `json:"action"`
-	SessionID string      `json:"session_id,omitempty"`
-	Reason    string      `json:"reason"`
+	SessionID string       `json:"session_id,omitempty"`
+	Reason    string       `json:"reason"`
 }
 
 // CreatePolicyRequest 创建策略请求.
 type CreatePolicyRequest struct {
-	Name        string      `json:"name" binding:"required"`
-	Description string      `json:"description"`
-	Priority    int         `json:"priority"`
+	Name        string       `json:"name" binding:"required"`
+	Description string       `json:"description"`
+	Priority    int          `json:"priority"`
 	Rules       []AccessRule `json:"rules"`
 	Conditions  []Condition  `json:"conditions"`
 	MinTrust    int          `json:"min_trust"`

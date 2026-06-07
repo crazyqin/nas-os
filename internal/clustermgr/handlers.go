@@ -384,7 +384,7 @@ func (h *Handlers) getServicesByName(c *gin.Context) {
 // selectNodeRequest 选择节点请求.
 type selectNodeRequest struct {
 	Strategy LoadBalanceStrategy `json:"strategy"` // 负载均衡策略
-	Key      string             `json:"key"`      // 会话保持键（可选）
+	Key      string              `json:"key"`      // 会话保持键（可选）
 }
 
 // selectNode 选择节点.
@@ -422,7 +422,7 @@ func (h *Handlers) getStrategy(c *gin.Context) {
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
-			"strategy":     config.LoadBalanceStrategy,
+			"strategy":      config.LoadBalanceStrategy,
 			"stickySession": config.StickySession,
 		},
 	})
@@ -430,8 +430,8 @@ func (h *Handlers) getStrategy(c *gin.Context) {
 
 // updateStrategyRequest 更新策略请求.
 type updateStrategyRequest struct {
-	Strategy     LoadBalanceStrategy `json:"strategy"`     // 负载均衡策略
-	StickySession *bool              `json:"stickySession"` // 会话保持
+	Strategy      LoadBalanceStrategy `json:"strategy"`      // 负载均衡策略
+	StickySession *bool               `json:"stickySession"` // 会话保持
 }
 
 // updateStrategy 更新负载均衡策略.
@@ -465,7 +465,7 @@ func (h *Handlers) updateStrategy(c *gin.Context) {
 		Code:    0,
 		Message: "策略更新成功",
 		Data: gin.H{
-			"strategy":     config.LoadBalanceStrategy,
+			"strategy":      config.LoadBalanceStrategy,
 			"stickySession": config.StickySession,
 		},
 	})

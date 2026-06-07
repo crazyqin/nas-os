@@ -85,16 +85,16 @@ type VulnSummary struct {
 
 // ScanResult represents the result of scanning an image
 type ScanResult struct {
-	Image        string          `json:"image"`
-	Registry     string          `json:"registry"`
-	Digest       string          `json:"digest"`
-	ScanTime     time.Time       `json:"scan_time"`
-	Duration     time.Duration   `json:"duration"`
-	Vulns        []Vulnerability `json:"vulnerabilities"`
-	Layers       []ImageLayer    `json:"layers"`
-	Summary      VulnSummary     `json:"summary"`
+	Image          string          `json:"image"`
+	Registry       string          `json:"registry"`
+	Digest         string          `json:"digest"`
+	ScanTime       time.Time       `json:"scan_time"`
+	Duration       time.Duration   `json:"duration"`
+	Vulns          []Vulnerability `json:"vulnerabilities"`
+	Layers         []ImageLayer    `json:"layers"`
+	Summary        VulnSummary     `json:"summary"`
 	FixSuggestions []FixSuggestion `json:"fix_suggestions,omitempty"`
-	Compliant    bool            `json:"compliant"`
+	Compliant      bool            `json:"compliant"`
 }
 
 // ScanRequest is the API request for scanning an image
@@ -106,9 +106,9 @@ type ScanRequest struct {
 
 // ScanResponse is the API response for a scan
 type ScanResponse struct {
-	ScanID string     `json:"scan_id"`
-	Image  string     `json:"image"`
-	Status ScanStatus `json:"status"`
+	ScanID string      `json:"scan_id"`
+	Image  string      `json:"image"`
+	Status ScanStatus  `json:"status"`
 	Result *ScanResult `json:"result,omitempty"`
 }
 
@@ -125,20 +125,20 @@ type ScanSchedule struct {
 
 // ImageListEntry represents an image in the whitelist/blacklist
 type ImageListEntry struct {
-	Image     string    `json:"image"`
-	Reason    string    `json:"reason"`
-	AddedAt   time.Time `json:"added_at"`
-	AddedBy   string    `json:"added_by"`
+	Image   string    `json:"image"`
+	Reason  string    `json:"reason"`
+	AddedAt time.Time `json:"added_at"`
+	AddedBy string    `json:"added_by"`
 }
 
 // ScanReport represents a generated scan report
 type ScanReport struct {
-	ID        string      `json:"id"`
-	Image     string      `json:"image"`
-	Format    ReportFormat `json:"format"`
-	Result    *ScanResult `json:"result"`
-	GeneratedAt time.Time `json:"generated_at"`
-	Content   []byte      `json:"content,omitempty"`
+	ID          string       `json:"id"`
+	Image       string       `json:"image"`
+	Format      ReportFormat `json:"format"`
+	Result      *ScanResult  `json:"result"`
+	GeneratedAt time.Time    `json:"generated_at"`
+	Content     []byte       `json:"content,omitempty"`
 }
 
 // ListType defines whitelist or blacklist

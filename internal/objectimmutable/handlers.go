@@ -66,9 +66,9 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 // createBucket 创建桶.
 func (h *Handlers) createBucket(c *gin.Context) {
 	var req struct {
-		Name             string                    `json:"name" binding:"required"`
-		DefaultImmutable bool                      `json:"default_immutable"`
-		ObjectLockConfig *ObjectLockConfiguration  `json:"object_lock_config,omitempty"`
+		Name             string                   `json:"name" binding:"required"`
+		DefaultImmutable bool                     `json:"default_immutable"`
+		ObjectLockConfig *ObjectLockConfiguration `json:"object_lock_config,omitempty"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {

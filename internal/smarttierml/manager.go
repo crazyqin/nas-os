@@ -22,115 +22,115 @@ const (
 
 // TierConfig 分层配置
 type TierConfig struct {
-	Enabled             bool              `json:"enabled"`
-	PredictionWindow    int               `json:"predictionWindow"`    // 预测窗口(小时)
-	MigrationThreshold  float64           `json:"migrationThreshold"`  // 迁移阈值
-	ReviewInterval      int               `json:"reviewInterval"`      // 审查间隔(分钟)
-	Tiers               []TierInfo        `json:"tiers"`
-	HotTierPercentile   float64           `json:"hotTierPercentile"`   // 热数据百分位
-	WarmTierPercentile  float64           `json:"warmTierPercentile"`
-	ColdTierPercentile  float64           `json:"coldTierPercentile"`
-	MLModelPath         string            `json:"mlModelPath"`
-	EnablePrediction    bool              `json:"enablePrediction"`
-	LearningRate        float64           `json:"learningRate"`
-	DecayFactor         float64           `json:"decayFactor"`
+	Enabled            bool       `json:"enabled"`
+	PredictionWindow   int        `json:"predictionWindow"`   // 预测窗口(小时)
+	MigrationThreshold float64    `json:"migrationThreshold"` // 迁移阈值
+	ReviewInterval     int        `json:"reviewInterval"`     // 审查间隔(分钟)
+	Tiers              []TierInfo `json:"tiers"`
+	HotTierPercentile  float64    `json:"hotTierPercentile"` // 热数据百分位
+	WarmTierPercentile float64    `json:"warmTierPercentile"`
+	ColdTierPercentile float64    `json:"coldTierPercentile"`
+	MLModelPath        string     `json:"mlModelPath"`
+	EnablePrediction   bool       `json:"enablePrediction"`
+	LearningRate       float64    `json:"learningRate"`
+	DecayFactor        float64    `json:"decayFactor"`
 }
 
 // TierInfo 层级信息
 type TierInfo struct {
-	Name        Tier   `json:"name"`
-	Type        string `json:"type"`        // nvme/sata_ssd/hdd/tape
-	MountPath   string `json:"mountPath"`
-	CapacityGB  int64  `json:"capacityGB"`
-	UsedGB      int64  `json:"usedGB"`
-	ReadSpeedMB int    `json:"readSpeedMB"`
-	WriteSpeedMB int   `json:"writeSpeedMB"`
-	IOPS        int    `json:"iops"`
-	CostPerGB   float64 `json:"costPerGB"`
+	Name         Tier    `json:"name"`
+	Type         string  `json:"type"` // nvme/sata_ssd/hdd/tape
+	MountPath    string  `json:"mountPath"`
+	CapacityGB   int64   `json:"capacityGB"`
+	UsedGB       int64   `json:"usedGB"`
+	ReadSpeedMB  int     `json:"readSpeedMB"`
+	WriteSpeedMB int     `json:"writeSpeedMB"`
+	IOPS         int     `json:"iops"`
+	CostPerGB    float64 `json:"costPerGB"`
 }
 
 // DataItem 数据项
 type DataItem struct {
-	ID            string    `json:"id"`
-	Path          string    `json:"path"`
-	Size          int64     `json:"size"`
-	CurrentTier   Tier      `json:"currentTier"`
-	AccessCount   int64     `json:"accessCount"`
-	LastAccess    time.Time `json:"lastAccess"`
+	ID            string        `json:"id"`
+	Path          string        `json:"path"`
+	Size          int64         `json:"size"`
+	CurrentTier   Tier          `json:"currentTier"`
+	AccessCount   int64         `json:"accessCount"`
+	LastAccess    time.Time     `json:"lastAccess"`
 	AccessPattern []AccessPoint `json:"accessPattern"`
-	HeatScore     float64   `json:"heatScore"`
-	PredictedHeat float64   `json:"predictedHeat"`
-	MigratedAt    *time.Time `json:"migratedAt,omitempty"`
-	CreatedAt     time.Time `json:"createdAt"`
-	FileType      string    `json:"fileType"`
+	HeatScore     float64       `json:"heatScore"`
+	PredictedHeat float64       `json:"predictedHeat"`
+	MigratedAt    *time.Time    `json:"migratedAt,omitempty"`
+	CreatedAt     time.Time     `json:"createdAt"`
+	FileType      string        `json:"fileType"`
 }
 
 // AccessPoint 访问点
 type AccessPoint struct {
-	Timestamp time.Time `json:"timestamp"`
-	ReadBytes int64     `json:"readBytes"`
-	WriteBytes int64    `json:"writeBytes"`
-	Operation string    `json:"operation"` // read/write/readwrite
+	Timestamp  time.Time `json:"timestamp"`
+	ReadBytes  int64     `json:"readBytes"`
+	WriteBytes int64     `json:"writeBytes"`
+	Operation  string    `json:"operation"` // read/write/readwrite
 }
 
 // MigrationTask 迁移任务
 type MigrationTask struct {
-	ID          string    `json:"id"`
-	ItemID      string    `json:"itemId"`
-	SourceTier  Tier      `json:"sourceTier"`
-	TargetTier  Tier      `json:"targetTier"`
-	Reason      string    `json:"reason"`
-	Status      string    `json:"status"` // pending/running/completed/failed/cancelled
-	Progress    float64   `json:"progress"`
-	StartedAt   time.Time `json:"startedAt"`
+	ID          string     `json:"id"`
+	ItemID      string     `json:"itemId"`
+	SourceTier  Tier       `json:"sourceTier"`
+	TargetTier  Tier       `json:"targetTier"`
+	Reason      string     `json:"reason"`
+	Status      string     `json:"status"` // pending/running/completed/failed/cancelled
+	Progress    float64    `json:"progress"`
+	StartedAt   time.Time  `json:"startedAt"`
 	CompletedAt *time.Time `json:"completedAt,omitempty"`
-	Error       string    `json:"error,omitempty"`
-	SizeBytes   int64     `json:"sizeBytes"`
+	Error       string     `json:"error,omitempty"`
+	SizeBytes   int64      `json:"sizeBytes"`
 }
 
 // TieringStats 分层统计
 type TieringStats struct {
-	TotalItems       int                `json:"totalItems"`
-	ItemsPerTier     map[Tier]int       `json:"itemsPerTier"`
-	SizePerTier      map[Tier]int64     `json:"sizePerTier"`
-	TotalMigrations  int64              `json:"totalMigrations"`
-	ActiveMigrations int                `json:"activeMigrations"`
-	ModelAccuracy    float64            `json:"modelAccuracy"`
-	LastPrediction   time.Time          `json:"lastPrediction"`
-	CostSavings      float64            `json:"costSavings"`
-	PerformanceGain  float64            `json:"performanceGain"`
-	HourlyMigrations []int64            `json:"hourlyMigrations"`
-	TierEfficiency   map[Tier]float64   `json:"tierEfficiency"`
+	TotalItems       int              `json:"totalItems"`
+	ItemsPerTier     map[Tier]int     `json:"itemsPerTier"`
+	SizePerTier      map[Tier]int64   `json:"sizePerTier"`
+	TotalMigrations  int64            `json:"totalMigrations"`
+	ActiveMigrations int              `json:"activeMigrations"`
+	ModelAccuracy    float64          `json:"modelAccuracy"`
+	LastPrediction   time.Time        `json:"lastPrediction"`
+	CostSavings      float64          `json:"costSavings"`
+	PerformanceGain  float64          `json:"performanceGain"`
+	HourlyMigrations []int64          `json:"hourlyMigrations"`
+	TierEfficiency   map[Tier]float64 `json:"tierEfficiency"`
 }
 
 // PredictionResult 预测结果
 type PredictionResult struct {
-	ItemID         string  `json:"itemId"`
-	CurrentTier    Tier    `json:"currentTier"`
-	RecommendedTier Tier  `json:"recommendedTier"`
-	Confidence     float64 `json:"confidence"`
-	PredictedHeat  float64 `json:"predictedHeat"`
-	Reason         string  `json:"reason"`
-	EstimatedGain  float64 `json:"estimatedGain"`
+	ItemID          string  `json:"itemId"`
+	CurrentTier     Tier    `json:"currentTier"`
+	RecommendedTier Tier    `json:"recommendedTier"`
+	Confidence      float64 `json:"confidence"`
+	PredictedHeat   float64 `json:"predictedHeat"`
+	Reason          string  `json:"reason"`
+	EstimatedGain   float64 `json:"estimatedGain"`
 }
 
 // Manager 分层管理器
 type Manager struct {
-	mu          sync.RWMutex
-	config      TierConfig
-	items       map[string]*DataItem
-	migrations  map[string]*MigrationTask
-	stats       TieringStats
-	running     bool
-	model       *SimpleModel
+	mu         sync.RWMutex
+	config     TierConfig
+	items      map[string]*DataItem
+	migrations map[string]*MigrationTask
+	stats      TieringStats
+	running    bool
+	model      *SimpleModel
 }
 
 // SimpleModel 简单热度预测模型
 type SimpleModel struct {
-	Weights    []float64
-	Bias       float64
-	Accuracy   float64
-	TrainedAt  time.Time
+	Weights     []float64
+	Bias        float64
+	Accuracy    float64
+	TrainedAt   time.Time
 	SampleCount int
 }
 
@@ -141,8 +141,8 @@ func NewManager(cfg TierConfig) *Manager {
 		items:      make(map[string]*DataItem),
 		migrations: make(map[string]*MigrationTask),
 		model: &SimpleModel{
-			Weights: []float64{0.4, 0.3, 0.2, 0.1},
-			Bias:    0.0,
+			Weights:  []float64{0.4, 0.3, 0.2, 0.1},
+			Bias:     0.0,
 			Accuracy: 0.85,
 		},
 	}

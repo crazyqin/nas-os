@@ -47,10 +47,10 @@ func TestClassifyLicense(t *testing.T) {
 
 func TestGetComplianceStatus(t *testing.T) {
 	policy := &Policy{
-		ID:        "test",
-		Whitelist: []string{"MIT", "Apache-2.0", "BSD-3-Clause"},
-		Blacklist: []string{"AGPL-3.0", "SSPL-1.0"},
-		Graylist:  []string{"GPL-3.0", "LGPL-2.1"},
+		ID:          "test",
+		Whitelist:   []string{"MIT", "Apache-2.0", "BSD-3-Clause"},
+		Blacklist:   []string{"AGPL-3.0", "SSPL-1.0"},
+		Graylist:    []string{"GPL-3.0", "LGPL-2.1"},
 		DefaultList: ListGraylist,
 	}
 

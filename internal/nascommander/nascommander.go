@@ -15,9 +15,9 @@ import (
 type NodeStatus string
 
 const (
-	NodeStatusOnline  NodeStatus = "online"  // 在线
-	NodeStatusOffline NodeStatus = "offline" // 离线
-	NodeStatusDegraded NodeStatus = "degraded" // 降级
+	NodeStatusOnline      NodeStatus = "online"      // 在线
+	NodeStatusOffline     NodeStatus = "offline"     // 离线
+	NodeStatusDegraded    NodeStatus = "degraded"    // 降级
 	NodeStatusMaintenance NodeStatus = "maintenance" // 维护中
 )
 
@@ -43,38 +43,38 @@ const (
 
 // NASNode NAS节点
 type NASNode struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	Hostname     string            `json:"hostname"`
-	IPAddress    string            `json:"ip_address"`
-	Port         int               `json:"port"`
-	Role         NodeRole          `json:"role"`
-	Status       NodeStatus        `json:"status"`
-	Version      string            `json:"version"`
-	Location     string            `json:"location,omitempty"`
-	Tags         []string          `json:"tags,omitempty"`
-	Metrics      *NodeMetrics      `json:"metrics,omitempty"`
-	Config       *NodeConfig       `json:"config,omitempty"`
-	LastSeen     time.Time         `json:"last_seen"`
-	RegisteredAt time.Time         `json:"registered_at"`
+	ID           string       `json:"id"`
+	Name         string       `json:"name"`
+	Hostname     string       `json:"hostname"`
+	IPAddress    string       `json:"ip_address"`
+	Port         int          `json:"port"`
+	Role         NodeRole     `json:"role"`
+	Status       NodeStatus   `json:"status"`
+	Version      string       `json:"version"`
+	Location     string       `json:"location,omitempty"`
+	Tags         []string     `json:"tags,omitempty"`
+	Metrics      *NodeMetrics `json:"metrics,omitempty"`
+	Config       *NodeConfig  `json:"config,omitempty"`
+	LastSeen     time.Time    `json:"last_seen"`
+	RegisteredAt time.Time    `json:"registered_at"`
 }
 
 // NodeMetrics 节点指标
 type NodeMetrics struct {
-	CPUUsage      float64 `json:"cpu_usage"`       // CPU使用率 0-100
-	MemoryUsage   float64 `json:"memory_usage"`    // 内存使用率 0-100
-	DiskUsage     float64 `json:"disk_usage"`      // 磁盘使用率 0-100
-	NetworkIn     int64   `json:"network_in"`      // 入站流量 bytes/s
-	NetworkOut    int64   `json:"network_out"`     // 出站流量 bytes/s
-	Temperature   float64 `json:"temperature"`     // 温度 °C
-	Uptime        int64   `json:"uptime"`          // 运行时间 seconds
-	LoadAvg1      float64 `json:"load_avg_1"`      // 1分钟负载
-	LoadAvg5      float64 `json:"load_avg_5"`      // 5分钟负载
-	LoadAvg15     float64 `json:"load_avg_15"`     // 15分钟负载
-	TotalDisk     int64   `json:"total_disk"`      // 总磁盘空间
-	UsedDisk      int64   `json:"used_disk"`       // 已用磁盘空间
-	TotalMemory   int64   `json:"total_memory"`    // 总内存
-	UsedMemory    int64   `json:"used_memory"`     // 已用内存
+	CPUUsage    float64 `json:"cpu_usage"`    // CPU使用率 0-100
+	MemoryUsage float64 `json:"memory_usage"` // 内存使用率 0-100
+	DiskUsage   float64 `json:"disk_usage"`   // 磁盘使用率 0-100
+	NetworkIn   int64   `json:"network_in"`   // 入站流量 bytes/s
+	NetworkOut  int64   `json:"network_out"`  // 出站流量 bytes/s
+	Temperature float64 `json:"temperature"`  // 温度 °C
+	Uptime      int64   `json:"uptime"`       // 运行时间 seconds
+	LoadAvg1    float64 `json:"load_avg_1"`   // 1分钟负载
+	LoadAvg5    float64 `json:"load_avg_5"`   // 5分钟负载
+	LoadAvg15   float64 `json:"load_avg_15"`  // 15分钟负载
+	TotalDisk   int64   `json:"total_disk"`   // 总磁盘空间
+	UsedDisk    int64   `json:"used_disk"`    // 已用磁盘空间
+	TotalMemory int64   `json:"total_memory"` // 总内存
+	UsedMemory  int64   `json:"used_memory"`  // 已用内存
 }
 
 // NodeConfig 节点配置
@@ -90,22 +90,22 @@ type NodeConfig struct {
 
 // Cluster 集群
 type Cluster struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Description string        `json:"description"`
-	Nodes       []*NASNode    `json:"nodes"`
-	Status      ClusterStatus `json:"status"`
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Nodes       []*NASNode     `json:"nodes"`
+	Status      ClusterStatus  `json:"status"`
 	Config      *ClusterConfig `json:"config"`
-	CreatedAt   time.Time     `json:"created_at"`
-	UpdatedAt   time.Time     `json:"updated_at"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
 }
 
 // ClusterConfig 集群配置
 type ClusterConfig struct {
-	LoadBalance    bool   `json:"load_balance"`     // 负载均衡
-	Failover       bool   `json:"failover"`         // 自动故障转移
-	SyncInterval   string `json:"sync_interval"`    // 同步间隔
-	HealthCheck    string `json:"health_check"`     // 健康检查间隔
+	LoadBalance    bool    `json:"load_balance"`    // 负载均衡
+	Failover       bool    `json:"failover"`        // 自动故障转移
+	SyncInterval   string  `json:"sync_interval"`   // 同步间隔
+	HealthCheck    string  `json:"health_check"`    // 健康检查间隔
 	AlertThreshold float64 `json:"alert_threshold"` // 告警阈值
 }
 
@@ -124,15 +124,15 @@ type SyncTask struct {
 
 // Alert 聚合告警
 type Alert struct {
-	ID        string    `json:"id"`
-	NodeID    string    `json:"node_id"`
-	Level     string    `json:"level"` // info, warning, critical
-	Category  string    `json:"category"`
-	Message   string    `json:"message"`
-	Details   string    `json:"details,omitempty"`
-	Acked     bool      `json:"acked"`
-	AckedBy   string    `json:"acked_by,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        string     `json:"id"`
+	NodeID    string     `json:"node_id"`
+	Level     string     `json:"level"` // info, warning, critical
+	Category  string     `json:"category"`
+	Message   string     `json:"message"`
+	Details   string     `json:"details,omitempty"`
+	Acked     bool       `json:"acked"`
+	AckedBy   string     `json:"acked_by,omitempty"`
+	CreatedAt time.Time  `json:"created_at"`
 	AckedAt   *time.Time `json:"acked_at,omitempty"`
 }
 

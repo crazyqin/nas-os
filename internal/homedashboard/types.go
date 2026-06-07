@@ -12,15 +12,15 @@ import (
 type WidgetType string
 
 const (
-	WidgetTypeNASStatus   WidgetType = "nas_status"
+	WidgetTypeNASStatus    WidgetType = "nas_status"
 	WidgetTypeDockerStatus WidgetType = "docker_status"
-	WidgetTypeWeather     WidgetType = "weather"
-	WidgetTypeCalendar    WidgetType = "calendar"
-	WidgetTypeTodoList    WidgetType = "todo_list"
+	WidgetTypeWeather      WidgetType = "weather"
+	WidgetTypeCalendar     WidgetType = "calendar"
+	WidgetTypeTodoList     WidgetType = "todo_list"
 	WidgetTypeQuickActions WidgetType = "quick_actions"
-	WidgetTypeRecentFiles WidgetType = "recent_files"
+	WidgetTypeRecentFiles  WidgetType = "recent_files"
 	WidgetTypeStorageTrend WidgetType = "storage_trend"
-	WidgetTypeCustom      WidgetType = "custom"
+	WidgetTypeCustom       WidgetType = "custom"
 )
 
 // WidgetSize Widget 尺寸.
@@ -50,36 +50,36 @@ type Widget struct {
 type Layout struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
-	Columns   int       `json:"columns"`   // 网格列数
-	Rows      int       `json:"rows"`      // 网格行数
+	Columns   int       `json:"columns"` // 网格列数
+	Rows      int       `json:"rows"`    // 网格行数
 	Widgets   []*Widget `json:"widgets"`
 	IsDefault bool      `json:"is_default"`
 }
 
 // Dashboard 用户仪表盘配置.
 type Dashboard struct {
-	ID          string    `json:"id"`
-	UserID      string    `json:"user_id"`
-	Name        string    `json:"name"`
-	Layouts     []*Layout `json:"layouts"`
-	ActiveLayout string   `json:"active_layout"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID           string    `json:"id"`
+	UserID       string    `json:"user_id"`
+	Name         string    `json:"name"`
+	Layouts      []*Layout `json:"layouts"`
+	ActiveLayout string    `json:"active_layout"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 // WidgetTemplate Widget 市场模板.
 type WidgetTemplate struct {
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	Type        WidgetType `json:"type"`
-	Author      string     `json:"author"`
-	Version     string     `json:"version"`
-	DefaultSize WidgetSize `json:"default_size"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Type        WidgetType    `json:"type"`
+	Author      string        `json:"author"`
+	Version     string        `json:"version"`
+	DefaultSize WidgetSize    `json:"default_size"`
 	Config      []ConfigField `json:"config,omitempty"`
-	Downloads   int        `json:"downloads"`
-	Rating      float64    `json:"rating"`
-	CreatedAt   time.Time  `json:"created_at"`
+	Downloads   int           `json:"downloads"`
+	Rating      float64       `json:"rating"`
+	CreatedAt   time.Time     `json:"created_at"`
 }
 
 // ConfigField Widget 配置字段定义.
@@ -125,40 +125,40 @@ type UpdateWidgetRequest struct {
 
 // NASStatusData NAS 状态数据.
 type NASStatusData struct {
-	CPU       CPUData    `json:"cpu"`
-	Memory    MemoryData `json:"memory"`
-	Disk      DiskData   `json:"disk"`
+	CPU       CPUData     `json:"cpu"`
+	Memory    MemoryData  `json:"memory"`
+	Disk      DiskData    `json:"disk"`
 	Network   NetworkData `json:"network"`
-	Uptime    int64      `json:"uptime"`
-	Hostname  string     `json:"hostname"`
-	Timestamp time.Time  `json:"timestamp"`
+	Uptime    int64       `json:"uptime"`
+	Hostname  string      `json:"hostname"`
+	Timestamp time.Time   `json:"timestamp"`
 }
 
 // CPUData CPU 数据.
 type CPUData struct {
-	UsagePercent float64   `json:"usage_percent"`
-	Cores        int       `json:"cores"`
-	Temperature  float64   `json:"temperature"`
+	UsagePercent float64    `json:"usage_percent"`
+	Cores        int        `json:"cores"`
+	Temperature  float64    `json:"temperature"`
 	LoadAvg      [3]float64 `json:"load_avg"`
 }
 
 // MemoryData 内存数据.
 type MemoryData struct {
-	TotalGB     float64 `json:"total_gb"`
-	UsedGB      float64 `json:"used_gb"`
-	AvailableGB float64 `json:"available_gb"`
+	TotalGB      float64 `json:"total_gb"`
+	UsedGB       float64 `json:"used_gb"`
+	AvailableGB  float64 `json:"available_gb"`
 	UsagePercent float64 `json:"usage_percent"`
-	SwapTotalGB float64 `json:"swap_total_gb"`
-	SwapUsedGB  float64 `json:"swap_used_gb"`
+	SwapTotalGB  float64 `json:"swap_total_gb"`
+	SwapUsedGB   float64 `json:"swap_used_gb"`
 }
 
 // DiskData 磁盘数据.
 type DiskData struct {
-	TotalGB      float64       `json:"total_gb"`
-	UsedGB       float64       `json:"used_gb"`
-	FreeGB       float64       `json:"free_gb"`
-	UsagePercent float64       `json:"usage_percent"`
-	Volumes      []VolumeData  `json:"volumes"`
+	TotalGB      float64      `json:"total_gb"`
+	UsedGB       float64      `json:"used_gb"`
+	FreeGB       float64      `json:"free_gb"`
+	UsagePercent float64      `json:"usage_percent"`
+	Volumes      []VolumeData `json:"volumes"`
 }
 
 // VolumeData 卷数据.
@@ -187,31 +187,31 @@ type InterfaceData struct {
 
 // DockerContainerData Docker 容器数据.
 type DockerContainerData struct {
-	ID      string `json:"id"`
-	Name    string `json:"name"`
-	Image   string `json:"image"`
-	Status  string `json:"status"`
-	State   string `json:"state"` // running, stopped, paused
-	Ports   string `json:"ports"`
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	Image  string `json:"image"`
+	Status string `json:"status"`
+	State  string `json:"state"` // running, stopped, paused
+	Ports  string `json:"ports"`
 }
 
 // WeatherData 天气数据.
 type WeatherData struct {
-	Location    string  `json:"location"`
-	Temperature float64 `json:"temperature"`
-	Humidity    int     `json:"humidity"`
-	Condition   string  `json:"condition"`
-	WindSpeed   float64 `json:"wind_speed"`
+	Location    string        `json:"location"`
+	Temperature float64       `json:"temperature"`
+	Humidity    int           `json:"humidity"`
+	Condition   string        `json:"condition"`
+	WindSpeed   float64       `json:"wind_speed"`
 	Forecast    []DayForecast `json:"forecast"`
-	Timestamp   time.Time `json:"timestamp"`
+	Timestamp   time.Time     `json:"timestamp"`
 }
 
 // DayForecast 每日天气预报.
 type DayForecast struct {
-	Date        string  `json:"date"`
-	HighTemp    float64 `json:"high_temp"`
-	LowTemp     float64 `json:"low_temp"`
-	Condition   string  `json:"condition"`
+	Date      string  `json:"date"`
+	HighTemp  float64 `json:"high_temp"`
+	LowTemp   float64 `json:"low_temp"`
+	Condition string  `json:"condition"`
 }
 
 // CalendarEvent 日历事件.
@@ -244,24 +244,24 @@ type QuickAction struct {
 
 // RecentFile 最近文件.
 type RecentFile struct {
-	Name      string    `json:"name"`
-	Path      string    `json:"path"`
-	Size      int64     `json:"size"`
-	IsDir     bool      `json:"is_dir"`
+	Name       string    `json:"name"`
+	Path       string    `json:"path"`
+	Size       int64     `json:"size"`
+	IsDir      bool      `json:"is_dir"`
 	ModifiedAt time.Time `json:"modified_at"`
 }
 
 // StorageTrend 存储使用趋势.
 type StorageTrend struct {
-	Date       time.Time `json:"date"`
-	TotalGB    float64   `json:"total_gb"`
-	UsedGB     float64   `json:"used_gb"`
-	FreeGB     float64   `json:"free_gb"`
+	Date    time.Time `json:"date"`
+	TotalGB float64   `json:"total_gb"`
+	UsedGB  float64   `json:"used_gb"`
+	FreeGB  float64   `json:"free_gb"`
 }
 
 // WSMessage WebSocket 消息.
 type WSMessage struct {
-	Type    string      `json:"type"`    // widget_update, config_change, layout_change
+	Type    string      `json:"type"` // widget_update, config_change, layout_change
 	Payload interface{} `json:"payload"`
 	Time    time.Time   `json:"time"`
 }

@@ -48,8 +48,8 @@ type GroupQuota struct {
 
 // QuotaRecommendation 配额推荐
 type QuotaRecommendation struct {
-	Target      string  `json:"target"`
-	TargetType  string  `json:"target_type"`
+	Target       string  `json:"target"`
+	TargetType   string  `json:"target_type"`
 	CurrentQuota int64   `json:"current_quota_bytes"`
 	Recommended  int64   `json:"recommended_quota_bytes"`
 	UsagePercent float64 `json:"usage_percent"`
@@ -60,18 +60,18 @@ type QuotaRecommendation struct {
 
 // QuotaAlert 配额告警
 type QuotaAlert struct {
-	ID          string    `json:"id"`
-	Target      string    `json:"target"`
-	TargetType  string    `json:"target_type"`
-	Dataset     string    `json:"dataset"`
-	Level       string    `json:"level"`
-	Message     string    `json:"message"`
-	UsedBytes   int64     `json:"used_bytes"`
-	QuotaBytes  int64     `json:"quota_bytes"`
-	UsagePercent float64  `json:"usage_percent"`
-	CreatedAt   time.Time `json:"created_at"`
-	Resolved    bool      `json:"resolved"`
-	ResolvedAt  *time.Time `json:"resolved_at,omitempty"`
+	ID           string     `json:"id"`
+	Target       string     `json:"target"`
+	TargetType   string     `json:"target_type"`
+	Dataset      string     `json:"dataset"`
+	Level        string     `json:"level"`
+	Message      string     `json:"message"`
+	UsedBytes    int64      `json:"used_bytes"`
+	QuotaBytes   int64      `json:"quota_bytes"`
+	UsagePercent float64    `json:"usage_percent"`
+	CreatedAt    time.Time  `json:"created_at"`
+	Resolved     bool       `json:"resolved"`
+	ResolvedAt   *time.Time `json:"resolved_at,omitempty"`
 }
 
 // QuotaConfig 配额配置
@@ -85,40 +85,40 @@ type QuotaConfig struct {
 
 // QuotaStats 配额统计
 type QuotaStats struct {
-	TotalDatasets  int     `json:"total_datasets"`
-	TotalUserQuotas int    `json:"total_user_quotas"`
-	TotalGroupQuotas int   `json:"total_group_quotas"`
-	TotalQuota     int64   `json:"total_quota_bytes"`
-	TotalUsed      int64   `json:"total_used_bytes"`
-	AvgUsage       float64 `json:"avg_usage_percent"`
-	OverQuota      int     `json:"over_quota_count"`
-	NearQuota      int     `json:"near_quota_count"`
-	ActiveAlerts   int     `json:"active_alerts"`
+	TotalDatasets    int     `json:"total_datasets"`
+	TotalUserQuotas  int     `json:"total_user_quotas"`
+	TotalGroupQuotas int     `json:"total_group_quotas"`
+	TotalQuota       int64   `json:"total_quota_bytes"`
+	TotalUsed        int64   `json:"total_used_bytes"`
+	AvgUsage         float64 `json:"avg_usage_percent"`
+	OverQuota        int     `json:"over_quota_count"`
+	NearQuota        int     `json:"near_quota_count"`
+	ActiveAlerts     int     `json:"active_alerts"`
 }
 
 // ZFSQuotaManager ZFS配额管理器
 type ZFSQuotaManager struct {
-	mu        sync.RWMutex
-	datasets  map[string]*Dataset
-	userQuotas map[string]*UserQuota
+	mu          sync.RWMutex
+	datasets    map[string]*Dataset
+	userQuotas  map[string]*UserQuota
 	groupQuotas map[string]*GroupQuota
-	alerts    []*QuotaAlert
-	config    *QuotaConfig
-	dataPath  string
+	alerts      []*QuotaAlert
+	config      *QuotaConfig
+	dataPath    string
 }
 
 // NewManager 创建配额管理器
 func NewManager(dataPath string) *ZFSQuotaManager {
 	m := &ZFSQuotaManager{
-		datasets:   make(map[string]*Dataset),
-		userQuotas: make(map[string]*UserQuota),
+		datasets:    make(map[string]*Dataset),
+		userQuotas:  make(map[string]*UserQuota),
 		groupQuotas: make(map[string]*GroupQuota),
-		alerts:     make([]*QuotaAlert, 0),
+		alerts:      make([]*QuotaAlert, 0),
 		config: &QuotaConfig{
 			WarningThreshold:  80.0,
 			CriticalThreshold: 95.0,
 			DefaultUserQuota:  100 * 1024 * 1024 * 1024,  // 100GB
-			DefaultGroupQuota: 1024 * 1024 * 1024 * 1024,  // 1TB
+			DefaultGroupQuota: 1024 * 1024 * 1024 * 1024, // 1TB
 			AlertEnabled:      true,
 		},
 		dataPath: dataPath,
@@ -303,14 +303,14 @@ func (m *ZFSQuotaManager) GenerateRecommendations() []*QuotaRecommendation {
 				recommended = int64(float64(ds.Quota) * 2.0)
 			}
 			recs = append(recs, &QuotaRecommendation{
-				Target:         ds.Name,
-				TargetType:     "dataset",
-				CurrentQuota:   ds.Quota,
-				Recommended:    recommended,
-				UsagePercent:   usagePercent,
-				GrowthRate:     0,
-				Reason:         fmt.Sprintf("使用率 %.1f%% 超过阈值 %.1f%%", usagePercent, m.config.WarningThreshold),
-				Priority:       priority,
+				Target:       ds.Name,
+				TargetType:   "dataset",
+				CurrentQuota: ds.Quota,
+				Recommended:  recommended,
+				UsagePercent: usagePercent,
+				GrowthRate:   0,
+				Reason:       fmt.Sprintf("使用率 %.1f%% 超过阈值 %.1f%%", usagePercent, m.config.WarningThreshold),
+				Priority:     priority,
 			})
 		}
 	}
@@ -323,8 +323,8 @@ func (m *ZFSQuotaManager) GetStats() *QuotaStats {
 	defer m.mu.RUnlock()
 
 	stats := &QuotaStats{
-		TotalDatasets:   len(m.datasets),
-		TotalUserQuotas: len(m.userQuotas),
+		TotalDatasets:    len(m.datasets),
+		TotalUserQuotas:  len(m.userQuotas),
 		TotalGroupQuotas: len(m.groupQuotas),
 	}
 

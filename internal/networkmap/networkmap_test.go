@@ -28,15 +28,15 @@ func TestAddDevice(t *testing.T) {
 	manager := NewManager(config)
 
 	device := &NetworkDevice{
-		ID:         "nas-1",
-		Name:       "NAS-Server",
-		Hostname:   "nas.local",
-		IPAddress:  "192.168.1.100",
-		MACAddress: "AA:BB:CC:DD:EE:FF",
-		Type:       DeviceNAS,
+		ID:           "nas-1",
+		Name:         "NAS-Server",
+		Hostname:     "nas.local",
+		IPAddress:    "192.168.1.100",
+		MACAddress:   "AA:BB:CC:DD:EE:FF",
+		Type:         DeviceNAS,
 		Manufacturer: "Synology",
-		Model:      "DS920+",
-		Connection: ConnEthernet,
+		Model:        "DS920+",
+		Connection:   ConnEthernet,
 	}
 
 	if err := manager.AddDevice(device); err != nil {

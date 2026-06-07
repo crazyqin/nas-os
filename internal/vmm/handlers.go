@@ -84,11 +84,11 @@ func (h *Handler) handleCreateVM(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		Name    string `json:"name"`
-		OSType  string `json:"os_type"`
-		CPU     int    `json:"cpu"`
-		Memory  int64  `json:"memory"`
-		Disk    int64  `json:"disk"`
+		Name   string `json:"name"`
+		OSType string `json:"os_type"`
+		CPU    int    `json:"cpu"`
+		Memory int64  `json:"memory"`
+		Disk   int64  `json:"disk"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -249,8 +249,8 @@ func (h *Handler) handleRemoveVM(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		ID           string `json:"id"`
-		DeleteDisks  bool   `json:"delete_disks"`
+		ID          string `json:"id"`
+		DeleteDisks bool   `json:"delete_disks"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

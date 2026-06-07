@@ -21,7 +21,7 @@ type Manager struct {
 	logger     *zap.Logger
 
 	// 任务管理
-	tasks    map[string]*SyncTask
+	tasks     map[string]*SyncTask
 	providers map[string]CloudProvider
 
 	// 调度器和带宽限制

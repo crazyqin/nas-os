@@ -29,11 +29,11 @@ const (
 type TunnelStatus string
 
 const (
-	StatusActive      TunnelStatus = "active"
-	StatusInactive    TunnelStatus = "inactive"
-	StatusConnecting  TunnelStatus = "connecting"
-	StatusError       TunnelStatus = "error"
-	StatusDisabled    TunnelStatus = "disabled"
+	StatusActive     TunnelStatus = "active"
+	StatusInactive   TunnelStatus = "inactive"
+	StatusConnecting TunnelStatus = "connecting"
+	StatusError      TunnelStatus = "error"
+	StatusDisabled   TunnelStatus = "disabled"
 )
 
 // LoadBalanceMode 负载均衡模式
@@ -47,27 +47,27 @@ const (
 
 // VPNTunnel VPN 隧道结构体
 type VPNTunnel struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Type        VPNType      `json:"type"`
-	Status      TunnelStatus `json:"status"`
-	Endpoint    string       `json:"endpoint"`
-	PublicKey   string       `json:"public_key,omitempty"`
-	PrivateKey  string       `json:"private_key,omitempty"`
-	AllowedIPs  []string     `json:"allowed_ips"`
-	DNS         []string     `json:"dns,omitempty"`
-	MTU         int          `json:"mtu"`
-	KeepAlive   int          `json:"keep_alive"` // 秒
-	Port        int          `json:"port,omitempty"`
-	Weight      int          `json:"weight"` // 负载均衡权重
-	AutoReconnect bool       `json:"auto_reconnect"`
-	Config      string       `json:"config,omitempty"`       // 原始配置文本
-	Description string       `json:"description,omitempty"`
-	ErrorMsg    string       `json:"error_msg,omitempty"`
-	TrafficStats *TrafficStats `json:"traffic_stats,omitempty"`
-	LastHandshake time.Time  `json:"last_handshake,omitempty"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	ID            string        `json:"id"`
+	Name          string        `json:"name"`
+	Type          VPNType       `json:"type"`
+	Status        TunnelStatus  `json:"status"`
+	Endpoint      string        `json:"endpoint"`
+	PublicKey     string        `json:"public_key,omitempty"`
+	PrivateKey    string        `json:"private_key,omitempty"`
+	AllowedIPs    []string      `json:"allowed_ips"`
+	DNS           []string      `json:"dns,omitempty"`
+	MTU           int           `json:"mtu"`
+	KeepAlive     int           `json:"keep_alive"` // 秒
+	Port          int           `json:"port,omitempty"`
+	Weight        int           `json:"weight"` // 负载均衡权重
+	AutoReconnect bool          `json:"auto_reconnect"`
+	Config        string        `json:"config,omitempty"` // 原始配置文本
+	Description   string        `json:"description,omitempty"`
+	ErrorMsg      string        `json:"error_msg,omitempty"`
+	TrafficStats  *TrafficStats `json:"traffic_stats,omitempty"`
+	LastHandshake time.Time     `json:"last_handshake,omitempty"`
+	CreatedAt     time.Time     `json:"created_at"`
+	UpdatedAt     time.Time     `json:"updated_at"`
 }
 
 // TrafficStats 流量统计
@@ -75,8 +75,8 @@ type TrafficStats struct {
 	UploadBytes   int64     `json:"upload_bytes"`
 	DownloadBytes int64     `json:"download_bytes"`
 	TotalBytes    int64     `json:"total_bytes"`
-	LatencyMs     float64   `json:"latency_ms"`      // 延迟（毫秒）
-	PacketLoss    float64   `json:"packet_loss"`      // 丢包率（百分比）
+	LatencyMs     float64   `json:"latency_ms"`  // 延迟（毫秒）
+	PacketLoss    float64   `json:"packet_loss"` // 丢包率（百分比）
 	LastUpdated   time.Time `json:"last_updated"`
 }
 
@@ -443,7 +443,7 @@ func (m *VPNManager) simulateTrafficStats(tunnelID string, stopChan chan struct{
 
 			// 模拟流量增长
 			if tunnel.TrafficStats != nil {
-				tunnel.TrafficStats.UploadBytes += 1024 * 100 // 100KB
+				tunnel.TrafficStats.UploadBytes += 1024 * 100   // 100KB
 				tunnel.TrafficStats.DownloadBytes += 1024 * 500 // 500KB
 				tunnel.TrafficStats.TotalBytes = tunnel.TrafficStats.UploadBytes + tunnel.TrafficStats.DownloadBytes
 				tunnel.TrafficStats.LatencyMs = 50.0 + float64(time.Now().UnixNano()%100)

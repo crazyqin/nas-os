@@ -70,10 +70,10 @@ func (h *Handlers) addProvider(c *gin.Context) {
 
 	// 校验 ProviderType
 	validTypes := map[CloudProviderType]bool{
-		ProviderAliyun:  true,
-		ProviderTencent: true,
-		ProviderAWS:     true,
-		ProviderGDrive:  true,
+		ProviderAliyun:   true,
+		ProviderTencent:  true,
+		ProviderAWS:      true,
+		ProviderGDrive:   true,
 		ProviderOneDrive: true,
 	}
 	if !validTypes[req.Type] {

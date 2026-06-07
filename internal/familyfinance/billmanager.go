@@ -132,11 +132,11 @@ func (bm *BillManager) PayBill(billID string, accountID string) error {
 
 	// 记录支出交易
 	tx := &Transaction{
-		AccountID:    accountID,
-		Type:         TransactionTypeExpense,
-		Amount:       bill.Amount,
-		CategoryID:   bill.CategoryID,
-		Description:  "账单支付: " + bill.Name,
+		AccountID:   accountID,
+		Type:        TransactionTypeExpense,
+		Amount:      bill.Amount,
+		CategoryID:  bill.CategoryID,
+		Description: "账单支付: " + bill.Name,
 	}
 
 	if err := bm.engine.AddTransaction(tx); err != nil {
@@ -262,11 +262,11 @@ func (bm *BillManager) GetBillSummary() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_bills":     len(bm.bills),
-		"total_monthly":   totalMonthly,
-		"total_yearly":    totalYearly,
-		"overdue_count":   overdueCount,
-		"auto_pay_count":  autoPayCount,
+		"total_bills":    len(bm.bills),
+		"total_monthly":  totalMonthly,
+		"total_yearly":   totalYearly,
+		"overdue_count":  overdueCount,
+		"auto_pay_count": autoPayCount,
 	}
 }
 

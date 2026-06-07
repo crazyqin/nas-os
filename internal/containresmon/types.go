@@ -14,38 +14,38 @@ import (
 type ContainerStatus string
 
 const (
-	ContainerRunning  ContainerStatus = "running"
-	ContainerStopped  ContainerStatus = "stopped"
-	ContainerPaused   ContainerStatus = "paused"
-	ContainerUnknown  ContainerStatus = "unknown"
+	ContainerRunning ContainerStatus = "running"
+	ContainerStopped ContainerStatus = "stopped"
+	ContainerPaused  ContainerStatus = "paused"
+	ContainerUnknown ContainerStatus = "unknown"
 )
 
 // AlertType represents resource alert type
 type AlertType string
 
 const (
-	AlertCPUHigh      AlertType = "cpu_high"
-	AlertMemHigh      AlertType = "memory_high"
-	AlertDiskHigh     AlertType = "disk_high"
-	AlertNetHigh      AlertType = "network_high"
-	AlertRestartLoop  AlertType = "restart_loop"
-	AlertHealthCheck  AlertType = "health_check_failed"
+	AlertCPUHigh     AlertType = "cpu_high"
+	AlertMemHigh     AlertType = "memory_high"
+	AlertDiskHigh    AlertType = "disk_high"
+	AlertNetHigh     AlertType = "network_high"
+	AlertRestartLoop AlertType = "restart_loop"
+	AlertHealthCheck AlertType = "health_check_failed"
 )
 
 // Container represents a monitored container
 type Container struct {
-	ID          string          `json:"id"`
-	Name        string          `json:"name"`
-	Image       string          `json:"image"`
-	Status      ContainerStatus `json:"status"`
-	Ports       []string        `json:"ports"`
-	Networks    []string        `json:"networks"`
-	CPULimit    float64         `json:"cpu_limit_percent"`
-	MemLimit    int64           `json:"memory_limit_bytes"`
-	DiskLimit   int64           `json:"disk_limit_bytes"`
-	CreatedAt   time.Time       `json:"created_at"`
-	StartedAt   time.Time       `json:"started_at"`
-	RestartCount int            `json:"restart_count"`
+	ID           string          `json:"id"`
+	Name         string          `json:"name"`
+	Image        string          `json:"image"`
+	Status       ContainerStatus `json:"status"`
+	Ports        []string        `json:"ports"`
+	Networks     []string        `json:"networks"`
+	CPULimit     float64         `json:"cpu_limit_percent"`
+	MemLimit     int64           `json:"memory_limit_bytes"`
+	DiskLimit    int64           `json:"disk_limit_bytes"`
+	CreatedAt    time.Time       `json:"created_at"`
+	StartedAt    time.Time       `json:"started_at"`
+	RestartCount int             `json:"restart_count"`
 }
 
 // ResourceUsage represents resource usage at a point in time
@@ -65,16 +65,16 @@ type ResourceUsage struct {
 
 // ResourceAlert represents a resource alert
 type ResourceAlert struct {
-	ID          string    `json:"id"`
-	ContainerID string    `json:"container_id"`
-	ContainerName string  `json:"container_name"`
-	Type        AlertType `json:"type"`
-	Message     string    `json:"message"`
-	Threshold   float64   `json:"threshold"`
-	CurrentValue float64  `json:"current_value"`
-	Resolved    bool      `json:"resolved"`
-	Timestamp   time.Time `json:"timestamp"`
-	ResolvedAt  time.Time `json:"resolved_at,omitempty"`
+	ID            string    `json:"id"`
+	ContainerID   string    `json:"container_id"`
+	ContainerName string    `json:"container_name"`
+	Type          AlertType `json:"type"`
+	Message       string    `json:"message"`
+	Threshold     float64   `json:"threshold"`
+	CurrentValue  float64   `json:"current_value"`
+	Resolved      bool      `json:"resolved"`
+	Timestamp     time.Time `json:"timestamp"`
+	ResolvedAt    time.Time `json:"resolved_at,omitempty"`
 }
 
 // ResourcePolicy represents resource policy for a container
@@ -106,19 +106,19 @@ type MonitorStats struct {
 
 // Config holds container resource monitor configuration
 type Config struct {
-	Enabled            bool  `json:"enabled"`
-	MonitorIntervalSec int   `json:"monitor_interval_seconds"`
-	HistoryRetentionH  int   `json:"history_retention_hours"`
+	Enabled            bool    `json:"enabled"`
+	MonitorIntervalSec int     `json:"monitor_interval_seconds"`
+	HistoryRetentionH  int     `json:"history_retention_hours"`
 	DefaultCPUWarning  float64 `json:"default_cpu_warning"`
 	DefaultCPUCritical float64 `json:"default_cpu_critical"`
 	DefaultMemWarning  float64 `json:"default_mem_warning"`
 	DefaultMemCritical float64 `json:"default_mem_critical"`
-	AlertCooldownMin   int   `json:"alert_cooldown_minutes"`
+	AlertCooldownMin   int     `json:"alert_cooldown_minutes"`
 }
 
 // Manager manages container resource monitoring
 type Manager struct {
-	config    *Config
+	config     *Config
 	containers map[string]*Container
 	usage      map[string][]*ResourceUsage
 	alerts     []*ResourceAlert

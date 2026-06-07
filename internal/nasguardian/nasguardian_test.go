@@ -19,13 +19,13 @@ func TestNew(t *testing.T) {
 
 func TestNewWithCustomConfig(t *testing.T) {
 	cfg := Config{
-		ScanInterval:    10 * time.Minute,
-		AlertThreshold:  50,
-		AutoRepair:      false,
-		MaxBlockedIPs:   500,
-		BlockDuration:   12 * time.Hour,
+		ScanInterval:     10 * time.Minute,
+		AlertThreshold:   50,
+		AutoRepair:       false,
+		MaxBlockedIPs:    500,
+		BlockDuration:    12 * time.Hour,
 		MaxThreatHistory: 5000,
-		VulnScanEnabled: true,
+		VulnScanEnabled:  true,
 	}
 	g := New(cfg)
 	c := g.GetConfig()
@@ -312,10 +312,10 @@ func TestApplyHardening(t *testing.T) {
 	defer g.Stop()
 
 	err := g.ApplyHardening(ctx, HardeningTask{
-		Name:          "启用防火墙",
-		Category:      HardeningNetwork,
-		Description:  "启用基础防火墙规则",
-		Rollback:     true,
+		Name:        "启用防火墙",
+		Category:    HardeningNetwork,
+		Description: "启用基础防火墙规则",
+		Rollback:    true,
 	})
 	if err != nil {
 		t.Fatalf("应用加固失败: %v", err)

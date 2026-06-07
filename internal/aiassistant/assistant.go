@@ -12,10 +12,10 @@ import (
 type AIProvider string
 
 const (
-	ProviderLocal   AIProvider = "LOCAL"
-	ProviderOpenAI  AIProvider = "OPENAI"
-	ProviderClaude  AIProvider = "CLAUDE"
-	ProviderCustom  AIProvider = "CUSTOM"
+	ProviderLocal  AIProvider = "LOCAL"
+	ProviderOpenAI AIProvider = "OPENAI"
+	ProviderClaude AIProvider = "CLAUDE"
+	ProviderCustom AIProvider = "CUSTOM"
 )
 
 // TaskType 任务类型
@@ -39,12 +39,12 @@ type AIMessage struct {
 
 // AIRequest AI请求
 type AIRequest struct {
-	Task     TaskType     `json:"task"`
-	Provider AIProvider   `json:"provider"`
-	Messages []AIMessage  `json:"messages"`
-	Context  string       `json:"context"`
-	Model    string       `json:"model,omitempty"`
-	MaxTokens int        `json:"max_tokens,omitempty"`
+	Task      TaskType    `json:"task"`
+	Provider  AIProvider  `json:"provider"`
+	Messages  []AIMessage `json:"messages"`
+	Context   string      `json:"context"`
+	Model     string      `json:"model,omitempty"`
+	MaxTokens int         `json:"max_tokens,omitempty"`
 }
 
 // AIResponse AI响应
@@ -59,22 +59,22 @@ type AIResponse struct {
 
 // Document 文档信息
 type Document struct {
-	ID       string    `json:"id"`
-	Name     string    `json:"name"`
-	Path     string    `json:"path"`
-	Size     int64     `json:"size"`
-	ModTime  time.Time `json:"mod_time"`
-	Summary  string    `json:"summary,omitempty"`
-	Tags     []string  `json:"tags,omitempty"`
+	ID      string    `json:"id"`
+	Name    string    `json:"name"`
+	Path    string    `json:"path"`
+	Size    int64     `json:"size"`
+	ModTime time.Time `json:"mod_time"`
+	Summary string    `json:"summary,omitempty"`
+	Tags    []string  `json:"tags,omitempty"`
 }
 
 // AIAssistant AI办公助手
 type AIAssistant struct {
-	providers  map[AIProvider]*ProviderConfig
-	documents  map[string]*Document
-	cache      map[string]*AIResponse
-	mu         sync.RWMutex
-	dataPath   string
+	providers map[AIProvider]*ProviderConfig
+	documents map[string]*Document
+	cache     map[string]*AIResponse
+	mu        sync.RWMutex
+	dataPath  string
 }
 
 // ProviderConfig 提供商配置
@@ -209,7 +209,7 @@ func (a *AIAssistant) GetDocuments() []*Document {
 func (a *AIAssistant) saveState() {
 	state := struct {
 		Providers map[AIProvider]*ProviderConfig `json:"providers"`
-		Documents map[string]*Document          `json:"documents"`
+		Documents map[string]*Document           `json:"documents"`
 	}{a.providers, a.documents}
 	data, _ := json.MarshalIndent(state, "", "  ")
 	os.WriteFile(a.dataPath+"/state.json", data, 0644)
@@ -222,7 +222,7 @@ func (a *AIAssistant) loadState() {
 	}
 	var state struct {
 		Providers map[AIProvider]*ProviderConfig `json:"providers"`
-		Documents map[string]*Document          `json:"documents"`
+		Documents map[string]*Document           `json:"documents"`
 	}
 	json.Unmarshal(data, &state)
 	if state.Providers != nil {

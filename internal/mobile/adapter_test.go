@@ -181,7 +181,7 @@ func TestSlimResponse(t *testing.T) {
 	}
 
 	result := SlimResponse(data)
- resultMap, ok := result.(map[string]any)
+	resultMap, ok := result.(map[string]any)
 	if !ok {
 		t.Fatal("结果应为 map")
 	}

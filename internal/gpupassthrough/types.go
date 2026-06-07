@@ -7,33 +7,33 @@ import (
 
 // GPUDevice GPU设备信息
 type GPUDevice struct {
-	PCIAddress      string          `json:"pciAddress"`      // PCI地址 (如 0000:01:00.0)
-	VendorID        string          `json:"vendorId"`        // 厂商ID
-	DeviceID        string          `json:"deviceId"`        // 设备ID
-	Model           string          `json:"model"`           // GPU型号 (如 NVIDIA GeForce RTX 3080)
-	Vendor          string          `json:"vendor"`          // 厂商名称 (nvidia, amd, intel)
-	Driver          string          `json:"driver"`          // 当前驱动 (nvidia, vfio-pci 等)
-	VRAM            uint64          `json:"vram"`            // 显存(MB)
-	VRAMUsed        uint64          `json:"vramUsed"`        // 已用显存(MB)
-	Temperature     int             `json:"temperature"`     // 温度(°C)
-	PowerUsage      uint64          `json:"powerUsage"`      // 当前功耗(W)
-	PowerLimit      uint64          `json:"powerLimit"`      // 功率限制(W)
-	BindState       BindState       `json:"bindState"`       // 绑定状态
-	IOMMUGroup      int             `json:"iommuGroup"`      // IOMMU组
-	NUMANode        int             `json:"numaNode"`        // NUMA节点
-	DevicePath      string          `json:"devicePath"`      // 设备路径 (如 /dev/vfio/0)
-	Status          DeviceStatus    `json:"status"`          // 设备状态
-	VMAssignments   []VMAssignment  `json:"vmAssignments"`   // VM分配列表
+	PCIAddress      string                `json:"pciAddress"`           // PCI地址 (如 0000:01:00.0)
+	VendorID        string                `json:"vendorId"`             // 厂商ID
+	DeviceID        string                `json:"deviceId"`             // 设备ID
+	Model           string                `json:"model"`                // GPU型号 (如 NVIDIA GeForce RTX 3080)
+	Vendor          string                `json:"vendor"`               // 厂商名称 (nvidia, amd, intel)
+	Driver          string                `json:"driver"`               // 当前驱动 (nvidia, vfio-pci 等)
+	VRAM            uint64                `json:"vram"`                 // 显存(MB)
+	VRAMUsed        uint64                `json:"vramUsed"`             // 已用显存(MB)
+	Temperature     int                   `json:"temperature"`          // 温度(°C)
+	PowerUsage      uint64                `json:"powerUsage"`           // 当前功耗(W)
+	PowerLimit      uint64                `json:"powerLimit"`           // 功率限制(W)
+	BindState       BindState             `json:"bindState"`            // 绑定状态
+	IOMMUGroup      int                   `json:"iommuGroup"`           // IOMMU组
+	NUMANode        int                   `json:"numaNode"`             // NUMA节点
+	DevicePath      string                `json:"devicePath"`           // 设备路径 (如 /dev/vfio/0)
+	Status          DeviceStatus          `json:"status"`               // 设备状态
+	VMAssignments   []VMAssignment        `json:"vmAssignments"`        // VM分配列表
 	ContainerAssign []ContainerAssignment `json:"containerAssignments"` // 容器分配列表
-	UpdatedAt       time.Time       `json:"updatedAt"`       // 更新时间
+	UpdatedAt       time.Time             `json:"updatedAt"`            // 更新时间
 }
 
 // VMAssignment VM分配信息
 type VMAssignment struct {
-	VMID       string    `json:"vmId"`       // 虚拟机ID
-	GPUPCIAddr string    `json:"gpuPciAddr"` // GPU PCI地址
-	Status     string    `json:"status"`     // 分配状态 (active, inactive, pending)
-	AssignedAt time.Time `json:"assignedAt"` // 分配时间
+	VMID       string     `json:"vmId"`                // 虚拟机ID
+	GPUPCIAddr string     `json:"gpuPciAddr"`          // GPU PCI地址
+	Status     string     `json:"status"`              // 分配状态 (active, inactive, pending)
+	AssignedAt time.Time  `json:"assignedAt"`          // 分配时间
 	ExpiresAt  *time.Time `json:"expiresAt,omitempty"` // 过期时间(可选)
 }
 
@@ -48,36 +48,36 @@ type ContainerAssignment struct {
 
 // GPUStats GPU实时统计
 type GPUStats struct {
-	PCIAddress   string    `json:"pciAddress"`   // PCI地址
-	GPUUsage     float64   `json:"gpuUsage"`     // GPU使用率(%)
-	MemoryUsage  float64   `json:"memoryUsage"`  // 显存使用率(%)
-	MemoryUsed   uint64    `json:"memoryUsed"`   // 已用显存(MB)
-	MemoryTotal  uint64    `json:"memoryTotal"`  // 总显存(MB)
-	Temperature  int       `json:"temperature"`  // 温度(°C)
-	PowerUsage   uint64    `json:"powerUsage"`   // 功耗(W)
-	FanSpeed     int       `json:"fanSpeed"`     // 风扇转速(%)
-	ClockSM      int       `json:"clockSm"`      // SM频率(MHz)
-	ClockMemory  int       `json:"clockMemory"`  // 显存频率(MHz)
-	UpdatedAt    time.Time `json:"updatedAt"`    // 更新时间
+	PCIAddress  string    `json:"pciAddress"`  // PCI地址
+	GPUUsage    float64   `json:"gpuUsage"`    // GPU使用率(%)
+	MemoryUsage float64   `json:"memoryUsage"` // 显存使用率(%)
+	MemoryUsed  uint64    `json:"memoryUsed"`  // 已用显存(MB)
+	MemoryTotal uint64    `json:"memoryTotal"` // 总显存(MB)
+	Temperature int       `json:"temperature"` // 温度(°C)
+	PowerUsage  uint64    `json:"powerUsage"`  // 功耗(W)
+	FanSpeed    int       `json:"fanSpeed"`    // 风扇转速(%)
+	ClockSM     int       `json:"clockSm"`     // SM频率(MHz)
+	ClockMemory int       `json:"clockMemory"` // 显存频率(MHz)
+	UpdatedAt   time.Time `json:"updatedAt"`   // 更新时间
 }
 
 // BindState 绑定状态
 type BindState string
 
 const (
-	BindStateNative BindState = "native"  // 使用原生驱动
-	BindStateVfio   BindState = "vfio"    // 绑定到vfio-pci
-	BindStateUnbind BindState = "unbind"  // 未绑定任何驱动
+	BindStateNative BindState = "native" // 使用原生驱动
+	BindStateVfio   BindState = "vfio"   // 绑定到vfio-pci
+	BindStateUnbind BindState = "unbind" // 未绑定任何驱动
 )
 
 // DeviceStatus 设备状态
 type DeviceStatus string
 
 const (
-	DeviceStatusAvailable DeviceStatus = "available"  // 可用
-	DeviceStatusAssigned  DeviceStatus = "assigned"   // 已分配
-	DeviceStatusError     DeviceStatus = "error"      // 错误
-	DeviceStatusOffline   DeviceStatus = "offline"    // 离线
+	DeviceStatusAvailable DeviceStatus = "available" // 可用
+	DeviceStatusAssigned  DeviceStatus = "assigned"  // 已分配
+	DeviceStatusError     DeviceStatus = "error"     // 错误
+	DeviceStatusOffline   DeviceStatus = "offline"   // 离线
 )
 
 // ShareMode GPU共享模式
@@ -100,10 +100,10 @@ const (
 
 // GPUAlert GPU告警
 type GPUAlert struct {
-	Level     AlertLevel `json:"level"`     // 告警级别
-	PCIAddress string   `json:"pciAddress"` // GPU PCI地址
-	Message   string    `json:"message"`    // 告警消息
-	Timestamp time.Time `json:"timestamp"`  // 告警时间
+	Level      AlertLevel `json:"level"`      // 告警级别
+	PCIAddress string     `json:"pciAddress"` // GPU PCI地址
+	Message    string     `json:"message"`    // 告警消息
+	Timestamp  time.Time  `json:"timestamp"`  // 告警时间
 }
 
 // AssignRequest 分配请求

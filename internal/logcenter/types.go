@@ -73,24 +73,24 @@ type LogQueryResult struct {
 
 // LogStats 日志统计
 type LogStats struct {
-	TotalCount    int            `json:"total_count"`
-	LevelCounts   map[string]int `json:"level_counts"`
-	SourceCounts  map[string]int `json:"source_counts"`
-	RecentErrors  []LogEntry     `json:"recent_errors"`
-	OldestLog     time.Time      `json:"oldest_log"`
-	NewestLog     time.Time      `json:"newest_log"`
-	TodayCount    int            `json:"today_count"`
-	ErrorRate24h  float64        `json:"error_rate_24h"`
+	TotalCount   int            `json:"total_count"`
+	LevelCounts  map[string]int `json:"level_counts"`
+	SourceCounts map[string]int `json:"source_counts"`
+	RecentErrors []LogEntry     `json:"recent_errors"`
+	OldestLog    time.Time      `json:"oldest_log"`
+	NewestLog    time.Time      `json:"newest_log"`
+	TodayCount   int            `json:"today_count"`
+	ErrorRate24h float64        `json:"error_rate_24h"`
 }
 
 // LogConfig 日志配置
 type LogConfig struct {
-	MaxEntries     int  `json:"max_entries"`      // 最大日志条数
-	RetentionDays  int  `json:"retention_days"`   // 保留天数
-	EnableSyslog   bool `json:"enable_syslog"`    // 收集 syslog
-	EnableAuth     bool `json:"enable_auth"`      // 收集认证日志
-	EnableDocker   bool `json:"enable_docker"`    // 收集 Docker 日志
-	StreamEnabled  bool `json:"stream_enabled"`   // 启用实时流
+	MaxEntries    int  `json:"max_entries"`    // 最大日志条数
+	RetentionDays int  `json:"retention_days"` // 保留天数
+	EnableSyslog  bool `json:"enable_syslog"`  // 收集 syslog
+	EnableAuth    bool `json:"enable_auth"`    // 收集认证日志
+	EnableDocker  bool `json:"enable_docker"`  // 收集 Docker 日志
+	StreamEnabled bool `json:"stream_enabled"` // 启用实时流
 }
 
 // DefaultConfig 默认配置

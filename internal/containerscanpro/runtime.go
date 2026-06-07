@@ -12,12 +12,12 @@ import (
 
 // RuntimeScanner 运行时监控器
 type RuntimeScanner struct {
-	mu           sync.RWMutex
-	config       *ScanConfig
-	anomalies    []RuntimeAnomaly
-	monitors     map[string]*ContainerMonitor
-	stopCh       chan struct{}
-	anomalyChan  chan RuntimeAnomaly
+	mu          sync.RWMutex
+	config      *ScanConfig
+	anomalies   []RuntimeAnomaly
+	monitors    map[string]*ContainerMonitor
+	stopCh      chan struct{}
+	anomalyChan chan RuntimeAnomaly
 }
 
 // ContainerMonitor 单容器监控器
@@ -195,8 +195,8 @@ func (rs *RuntimeScanner) checkSuspiciousProcesses(ctx context.Context, containe
 				Timestamp:   time.Now(),
 				Description: fmt.Sprintf("Suspicious process '%s' detected in container %s", suspicious, containerName),
 				Details: map[string]string{
-					"process":         suspicious,
-					"container_name":  containerName,
+					"process":        suspicious,
+					"container_name": containerName,
 				},
 				Severity: SeverityMedium,
 			}
@@ -233,8 +233,8 @@ func (rs *RuntimeScanner) checkFileModifications(ctx context.Context, containerI
 				Timestamp:   time.Now(),
 				Description: fmt.Sprintf("Critical file '%s' was modified in container %s", path, containerName),
 				Details: map[string]string{
-					"file_path":       path,
-					"container_name":  containerName,
+					"file_path":      path,
+					"container_name": containerName,
 				},
 				Severity: SeverityHigh,
 			}
@@ -267,8 +267,8 @@ func (rs *RuntimeScanner) checkNetworkConnections(ctx context.Context, container
 				Timestamp:   time.Now(),
 				Description: fmt.Sprintf("Suspicious port %s listening in container %s", port, containerName),
 				Details: map[string]string{
-					"port":            port,
-					"container_name":  containerName,
+					"port":           port,
+					"container_name": containerName,
 				},
 				Severity: SeverityHigh,
 			}
@@ -317,15 +317,15 @@ func (rs *RuntimeScanner) checkPrivilegeEscalation(ctx context.Context, containe
 
 	suidFiles := strings.Split(strings.TrimSpace(string(output)), "\n")
 	knownSUID := map[string]bool{
-		"/usr/bin/passwd":   true,
-		"/usr/bin/su":       true,
-		"/usr/bin/sudo":     true,
-		"/usr/bin/newgrp":   true,
-		"/usr/bin/chsh":     true,
-		"/usr/bin/chfn":     true,
-		"/usr/bin/gpasswd":  true,
-		"/usr/bin/mount":    true,
-		"/usr/bin/umount":   true,
+		"/usr/bin/passwd":  true,
+		"/usr/bin/su":      true,
+		"/usr/bin/sudo":    true,
+		"/usr/bin/newgrp":  true,
+		"/usr/bin/chsh":    true,
+		"/usr/bin/chfn":    true,
+		"/usr/bin/gpasswd": true,
+		"/usr/bin/mount":   true,
+		"/usr/bin/umount":  true,
 	}
 
 	for _, file := range suidFiles {
@@ -337,8 +337,8 @@ func (rs *RuntimeScanner) checkPrivilegeEscalation(ctx context.Context, containe
 				Timestamp:   time.Now(),
 				Description: fmt.Sprintf("Unknown SUID file '%s' found in container %s", file, containerName),
 				Details: map[string]string{
-					"suid_file":       file,
-					"container_name":  containerName,
+					"suid_file":      file,
+					"container_name": containerName,
 				},
 				Severity: SeverityCritical,
 			}
@@ -355,8 +355,8 @@ func (rs *RuntimeScanner) checkPrivilegeEscalation(ctx context.Context, containe
 			Timestamp:   time.Now(),
 			Description: fmt.Sprintf("Container %s is running in privileged mode", containerName),
 			Details: map[string]string{
-				"container_name":  containerName,
-				"privileged":      "true",
+				"container_name": containerName,
+				"privileged":     "true",
 			},
 			Severity: SeverityCritical,
 		}
@@ -388,8 +388,8 @@ func (rs *RuntimeScanner) checkResourceUsage(ctx context.Context, containerID, c
 				Timestamp:   time.Now(),
 				Description: fmt.Sprintf("High CPU usage (%.1f%%) in container %s", cpu, containerName),
 				Details: map[string]string{
-					"cpu_usage":       fmt.Sprintf("%.1f%%", cpu),
-					"container_name":  containerName,
+					"cpu_usage":      fmt.Sprintf("%.1f%%", cpu),
+					"container_name": containerName,
 				},
 				Severity: SeverityMedium,
 			}
@@ -407,8 +407,8 @@ func (rs *RuntimeScanner) checkResourceUsage(ctx context.Context, containerID, c
 				Timestamp:   time.Now(),
 				Description: fmt.Sprintf("High memory usage (%.1f%%) in container %s", mem, containerName),
 				Details: map[string]string{
-					"mem_usage":       fmt.Sprintf("%.1f%%", mem),
-					"container_name":  containerName,
+					"mem_usage":      fmt.Sprintf("%.1f%%", mem),
+					"container_name": containerName,
 				},
 				Severity: SeverityMedium,
 			}

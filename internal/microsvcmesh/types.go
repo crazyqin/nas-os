@@ -27,11 +27,11 @@ const (
 type RouteStrategy string
 
 const (
-	RouteRoundRobin  RouteStrategy = "round_robin"  // 轮询
-	RouteWeighted    RouteStrategy = "weighted"      // 权重
-	RouteRandom      RouteStrategy = "random"        // 随机
-	RouteLeastConn   RouteStrategy = "least_conn"    // 最少连接
-	RouteSticky      RouteStrategy = "sticky"        // 粘性会话
+	RouteRoundRobin RouteStrategy = "round_robin" // 轮询
+	RouteWeighted   RouteStrategy = "weighted"    // 权重
+	RouteRandom     RouteStrategy = "random"      // 随机
+	RouteLeastConn  RouteStrategy = "least_conn"  // 最少连接
+	RouteSticky     RouteStrategy = "sticky"      // 粘性会话
 )
 
 // Protocol 协议类型
@@ -46,16 +46,16 @@ const (
 
 // Config 微服务网格配置
 type Config struct {
-	Enabled            bool    `json:"enabled"`
-	ListenAddr         string  `json:"listen_addr"`          // 代理监听地址
-	HealthCheckInterval int    `json:"health_check_interval"` // 健康检查间隔（秒）
-	RequestTimeout     int     `json:"request_timeout"`       // 请求超时（秒）
-	MaxConnections     int     `json:"max_connections"`       // 最大连接数
-	RetryAttempts      int     `json:"retry_attempts"`        // 重试次数
-	RetryDelay         int     `json:"retry_delay"`           // 重试延迟（ms）
-	TracingEnabled     bool    `json:"tracing_enabled"`       // 是否启用分布式追踪
-	TracingSampleRate  float64 `json:"tracing_sample_rate"`   // 采样率
-	MetricsEnabled     bool    `json:"metrics_enabled"`       // 是否启用指标收集
+	Enabled             bool    `json:"enabled"`
+	ListenAddr          string  `json:"listen_addr"`           // 代理监听地址
+	HealthCheckInterval int     `json:"health_check_interval"` // 健康检查间隔（秒）
+	RequestTimeout      int     `json:"request_timeout"`       // 请求超时（秒）
+	MaxConnections      int     `json:"max_connections"`       // 最大连接数
+	RetryAttempts       int     `json:"retry_attempts"`        // 重试次数
+	RetryDelay          int     `json:"retry_delay"`           // 重试延迟（ms）
+	TracingEnabled      bool    `json:"tracing_enabled"`       // 是否启用分布式追踪
+	TracingSampleRate   float64 `json:"tracing_sample_rate"`   // 采样率
+	MetricsEnabled      bool    `json:"metrics_enabled"`       // 是否启用指标收集
 }
 
 // DefaultConfig 默认配置
@@ -90,44 +90,44 @@ type Service struct {
 
 // Endpoint 服务端点
 type Endpoint struct {
-	ID       string   `json:"id"`
-	Host     string   `json:"host"`
-	Port     int      `json:"port"`
-	Protocol Protocol `json:"protocol"`
-	Weight   int      `json:"weight"`   // 权重
-	Status   ServiceStatus `json:"status"`
+	ID       string            `json:"id"`
+	Host     string            `json:"host"`
+	Port     int               `json:"port"`
+	Protocol Protocol          `json:"protocol"`
+	Weight   int               `json:"weight"` // 权重
+	Status   ServiceStatus     `json:"status"`
 	Tags     map[string]string `json:"tags,omitempty"`
 }
 
 // Route 路由规则
 type Route struct {
-	ID       string        `json:"id"`
-	Name     string        `json:"name"`
-	Prefix   string        `json:"prefix"`           // 路径前缀
-	Methods  []string      `json:"methods,omitempty"` // HTTP 方法
-	Strategy RouteStrategy `json:"strategy"`
-	Target   string        `json:"target"`           // 目标服务名
-	Weight   int           `json:"weight"`           // 流量权重（用于金丝雀发布）
+	ID       string            `json:"id"`
+	Name     string            `json:"name"`
+	Prefix   string            `json:"prefix"`            // 路径前缀
+	Methods  []string          `json:"methods,omitempty"` // HTTP 方法
+	Strategy RouteStrategy     `json:"strategy"`
+	Target   string            `json:"target"`            // 目标服务名
+	Weight   int               `json:"weight"`            // 流量权重（用于金丝雀发布）
 	Headers  map[string]string `json:"headers,omitempty"` // 匹配头
-	Retry    *RetryPolicy  `json:"retry,omitempty"`
-	Timeout  int           `json:"timeout"`          // 超时（秒）
+	Retry    *RetryPolicy      `json:"retry,omitempty"`
+	Timeout  int               `json:"timeout"` // 超时（秒）
 }
 
 // RetryPolicy 重试策略
 type RetryPolicy struct {
 	MaxRetries int      `json:"max_retries"`
-	RetryOn    []string `json:"retry_on"`    // 重试条件：5xx, timeout, connection_error
-	Backoff    string   `json:"backoff"`     // 退避策略：linear, exponential
+	RetryOn    []string `json:"retry_on"` // 重试条件：5xx, timeout, connection_error
+	Backoff    string   `json:"backoff"`  // 退避策略：linear, exponential
 }
 
 // CircuitBreakerConfig 熔断器配置
 type CircuitBreakerConfig struct {
-	FailureThreshold    int     `json:"failure_threshold"`    // 失败阈值
-	SuccessThreshold    int     `json:"success_threshold"`    // 成功阈值（半开→关闭）
-	Timeout             int     `json:"timeout"`              // 熔断超时（秒）
-	FailureRate         float64 `json:"failure_rate"`         // 失败率阈值
-	MinRequests         int     `json:"min_requests"`         // 最小请求数（触发评估）
-	WindowSize          int     `json:"window_size"`          // 统计窗口大小（秒）
+	FailureThreshold int     `json:"failure_threshold"` // 失败阈值
+	SuccessThreshold int     `json:"success_threshold"` // 成功阈值（半开→关闭）
+	Timeout          int     `json:"timeout"`           // 熔断超时（秒）
+	FailureRate      float64 `json:"failure_rate"`      // 失败率阈值
+	MinRequests      int     `json:"min_requests"`      // 最小请求数（触发评估）
+	WindowSize       int     `json:"window_size"`       // 统计窗口大小（秒）
 }
 
 // DefaultCircuitBreakerConfig 默认熔断器配置
@@ -144,17 +144,17 @@ func DefaultCircuitBreakerConfig() *CircuitBreakerConfig {
 
 // TraceSpan 追踪跨度
 type TraceSpan struct {
-	TraceID    string            `json:"trace_id"`
-	SpanID     string            `json:"span_id"`
-	ParentID   string            `json:"parent_id,omitempty"`
-	Name       string            `json:"name"`
-	Service    string            `json:"service"`
-	StartTime  time.Time         `json:"start_time"`
-	EndTime    time.Time         `json:"end_time"`
-	Duration   time.Duration     `json:"duration"`
-	Status     string            `json:"status"`        // ok, error
-	Tags       map[string]string `json:"tags,omitempty"`
-	Events     []TraceEvent      `json:"events,omitempty"`
+	TraceID   string            `json:"trace_id"`
+	SpanID    string            `json:"span_id"`
+	ParentID  string            `json:"parent_id,omitempty"`
+	Name      string            `json:"name"`
+	Service   string            `json:"service"`
+	StartTime time.Time         `json:"start_time"`
+	EndTime   time.Time         `json:"end_time"`
+	Duration  time.Duration     `json:"duration"`
+	Status    string            `json:"status"` // ok, error
+	Tags      map[string]string `json:"tags,omitempty"`
+	Events    []TraceEvent      `json:"events,omitempty"`
 }
 
 // TraceEvent 追踪事件

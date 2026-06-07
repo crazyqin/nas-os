@@ -22,21 +22,21 @@ const (
 
 // Channel 通知渠道
 type Channel struct {
-	ID       string      `json:"id"`
-	Name     string      `json:"name"`
-	Type     ChannelType `json:"type"`
-	Target   string      `json:"target"`   // 邮件地址/webhook URL/chat ID等
-	Template string      `json:"template"` // 关联的模板ID
-	Enabled  bool        `json:"enabled"`
+	ID       string            `json:"id"`
+	Name     string            `json:"name"`
+	Type     ChannelType       `json:"type"`
+	Target   string            `json:"target"`   // 邮件地址/webhook URL/chat ID等
+	Template string            `json:"template"` // 关联的模板ID
+	Enabled  bool              `json:"enabled"`
 	Config   map[string]string `json:"config,omitempty"` // 额外配置
 }
 
 // RouteRule 路由规则
 type RouteRule struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	Priority     int               `json:"priority"`     // 优先级，数字越小优先级越高
-	Enabled      bool              `json:"enabled"`
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Priority int    `json:"priority"` // 优先级，数字越小优先级越高
+	Enabled  bool   `json:"enabled"`
 
 	// 匹配条件
 	Levels       []AlertLevel      `json:"levels"`       // 匹配的告警级别
@@ -45,8 +45,8 @@ type RouteRule struct {
 	NamePatterns []string          `json:"namePatterns"` // 告警名称匹配模式
 
 	// 通知目标
-	Channels     []string          `json:"channels"`     // 通知渠道ID列表
-	Template     string            `json:"template"`     // 使用的模板ID（覆盖渠道默认模板）
+	Channels []string `json:"channels"` // 通知渠道ID列表
+	Template string   `json:"template"` // 使用的模板ID（覆盖渠道默认模板）
 
 	// 抑制配置
 	SuppressionWindow time.Duration `json:"suppressionWindow"` // 抑制时间窗口

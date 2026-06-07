@@ -9,14 +9,14 @@ import (
 type FileType string
 
 const (
-	FileTypeAll       FileType = ""
-	FileTypeDocument  FileType = "document"
-	FileTypeImage     FileType = "image"
-	FileTypeVideo     FileType = "video"
-	FileTypeAudio     FileType = "audio"
-	FileTypeArchive   FileType = "archive"
-	FileTypeCode      FileType = "code"
-	FileTypeOther     FileType = "other"
+	FileTypeAll      FileType = ""
+	FileTypeDocument FileType = "document"
+	FileTypeImage    FileType = "image"
+	FileTypeVideo    FileType = "video"
+	FileTypeAudio    FileType = "audio"
+	FileTypeArchive  FileType = "archive"
+	FileTypeCode     FileType = "code"
+	FileTypeOther    FileType = "other"
 )
 
 // SortBy 排序方式.
@@ -47,36 +47,36 @@ type SearchResult struct {
 	FileType   FileType  `json:"file_type"`
 	ModTime    time.Time `json:"mod_time"`
 	IsDir      bool      `json:"is_dir"`
-	Score      float64   `json:"score"`      // 相关性分数
-	MatchCount int       `json:"match_count"` // 匹配次数
+	Score      float64   `json:"score"`               // 相关性分数
+	MatchCount int       `json:"match_count"`         // 匹配次数
 	Highlight  string    `json:"highlight,omitempty"` // 高亮片段
 	Tags       []string  `json:"tags,omitempty"`
 }
 
 // SearchRequest 搜索请求.
 type SearchRequest struct {
-	Query     string    `json:"query" binding:"required"`
-	Path      string    `json:"path"`       // 搜索路径
-	Type      FileType  `json:"type"`       // 文件类型过滤
-	MinSize   int64     `json:"min_size"`   // 最小大小
-	MaxSize   int64     `json:"max_size"`   // 最大大小
-	After     time.Time `json:"after"`      // 修改时间-开始
-	Before    time.Time `json:"before"`     // 修改时间-结束
-	Tags      []string  `json:"tags"`       // 标签过滤
-	Sort      SortBy    `json:"sort"`
-	Order     SortOrder `json:"order"`
-	Page      int       `json:"page"`
-	PageSize  int       `json:"page_size"`
+	Query    string    `json:"query" binding:"required"`
+	Path     string    `json:"path"`     // 搜索路径
+	Type     FileType  `json:"type"`     // 文件类型过滤
+	MinSize  int64     `json:"min_size"` // 最小大小
+	MaxSize  int64     `json:"max_size"` // 最大大小
+	After    time.Time `json:"after"`    // 修改时间-开始
+	Before   time.Time `json:"before"`   // 修改时间-结束
+	Tags     []string  `json:"tags"`     // 标签过滤
+	Sort     SortBy    `json:"sort"`
+	Order    SortOrder `json:"order"`
+	Page     int       `json:"page"`
+	PageSize int       `json:"page_size"`
 }
 
 // SearchResponse 搜索响应.
 type SearchResponse struct {
-	Items      []SearchResult `json:"items"`
-	Total      int            `json:"total"`
-	Page       int            `json:"page"`
-	PageSize   int            `json:"page_size"`
-	QueryTime  int64          `json:"query_time_ms"` // 查询耗时
-	Facets     *SearchFacets  `json:"facets,omitempty"`
+	Items     []SearchResult `json:"items"`
+	Total     int            `json:"total"`
+	Page      int            `json:"page"`
+	PageSize  int            `json:"page_size"`
+	QueryTime int64          `json:"query_time_ms"` // 查询耗时
+	Facets    *SearchFacets  `json:"facets,omitempty"`
 }
 
 // SearchFacets 搜索分面.

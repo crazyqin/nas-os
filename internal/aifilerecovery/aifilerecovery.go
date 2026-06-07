@@ -95,9 +95,9 @@ const (
 type ScanMode string
 
 const (
-	ScanModeQuick    ScanMode = "quick"    // 快速扫描：仅文件表
-	ScanModeDeep     ScanMode = "deep"     // 深度扫描：全盘扇区
-	ScanModeSmart    ScanMode = "smart"    // 智能扫描：AI模式识别
+	ScanModeQuick     ScanMode = "quick"     // 快速扫描：仅文件表
+	ScanModeDeep      ScanMode = "deep"      // 深度扫描：全盘扇区
+	ScanModeSmart     ScanMode = "smart"     // 智能扫描：AI模式识别
 	ScanModeSignature ScanMode = "signature" // 签名扫描：文件头匹配
 )
 
@@ -114,9 +114,9 @@ type RecoverableFile struct {
 	DeletedAt     time.Time      `json:"deleted_at"`
 	ScanMode      ScanMode       `json:"scan_mode"`
 	Status        RecoveryStatus `json:"status"`
-	Integrity     float64        `json:"integrity"`     // 0.0-1.0 完整性评分
-	Confidence    float64        `json:"confidence"`    // 0.0-1.0 AI置信度
-	Signature     string         `json:"signature"`     // 文件签名
+	Integrity     float64        `json:"integrity"`  // 0.0-1.0 完整性评分
+	Confidence    float64        `json:"confidence"` // 0.0-1.0 AI置信度
+	Signature     string         `json:"signature"`  // 文件签名
 	FragmentCount int            `json:"fragment_count"`
 	Fragments     []Fragment     `json:"fragments,omitempty"`
 	Preview       []byte         `json:"preview,omitempty"` // 预览数据
@@ -150,22 +150,22 @@ type FileMetadata struct {
 
 // ScanResult 扫描结果
 type ScanResult struct {
-	ID            string           `json:"id"`
-	ScanPath      string           `json:"scan_path"`
-	FileSystem    FileSystemType   `json:"file_system"`
-	ScanMode      ScanMode         `json:"scan_mode"`
-	StartedAt     time.Time        `json:"started_at"`
-	CompletedAt   *time.Time       `json:"completed_at,omitempty"`
-	Duration      time.Duration    `json:"duration"`
-	TotalFiles    int              `json:"total_files"`
-	FoundFiles    int              `json:"found_files"`
-	RecoveredFiles int             `json:"recovered_files"`
-	CorruptedFiles int             `json:"corrupted_files"`
-	TotalSize     int64            `json:"total_size"`
-	ScannedSize   int64            `json:"scanned_size"`
-	Status        RecoveryStatus   `json:"status"`
-	Files         []RecoverableFile `json:"files,omitempty"`
-	Error         string           `json:"error,omitempty"`
+	ID             string            `json:"id"`
+	ScanPath       string            `json:"scan_path"`
+	FileSystem     FileSystemType    `json:"file_system"`
+	ScanMode       ScanMode          `json:"scan_mode"`
+	StartedAt      time.Time         `json:"started_at"`
+	CompletedAt    *time.Time        `json:"completed_at,omitempty"`
+	Duration       time.Duration     `json:"duration"`
+	TotalFiles     int               `json:"total_files"`
+	FoundFiles     int               `json:"found_files"`
+	RecoveredFiles int               `json:"recovered_files"`
+	CorruptedFiles int               `json:"corrupted_files"`
+	TotalSize      int64             `json:"total_size"`
+	ScannedSize    int64             `json:"scanned_size"`
+	Status         RecoveryStatus    `json:"status"`
+	Files          []RecoverableFile `json:"files,omitempty"`
+	Error          string            `json:"error,omitempty"`
 }
 
 // RecoveryRequest 恢复请求
@@ -206,27 +206,27 @@ type ScanConfig struct {
 
 // AIAnalysis AI分析结果
 type AIAnalysis struct {
-	FileType     FileType `json:"file_type"`
-	Confidence   float64  `json:"confidence"`
-	Pattern      string   `json:"pattern"`
-	Encoding     string   `json:"encoding"`
-	Compression  string   `json:"compression"`
-	Encryption   bool     `json:"encryption"`
-	Corrupted    bool     `json:"corrupted"`
-	Recoverable  bool     `json:"recoverable"`
-	Suggestions  []string `json:"suggestions,omitempty"`
+	FileType    FileType `json:"file_type"`
+	Confidence  float64  `json:"confidence"`
+	Pattern     string   `json:"pattern"`
+	Encoding    string   `json:"encoding"`
+	Compression string   `json:"compression"`
+	Encryption  bool     `json:"encryption"`
+	Corrupted   bool     `json:"corrupted"`
+	Recoverable bool     `json:"recoverable"`
+	Suggestions []string `json:"suggestions,omitempty"`
 }
 
 // ========== 管理器 ==========
 
 // RecoveryManager 恢复管理器
 type RecoveryManager struct {
-	mu          sync.RWMutex
-	config      ScanConfig
-	results     map[string]*ScanResult
-	fileSigs    map[string]FileType // 文件签名映射
-	running     bool
-	cancelFunc  context.CancelFunc
+	mu         sync.RWMutex
+	config     ScanConfig
+	results    map[string]*ScanResult
+	fileSigs   map[string]FileType // 文件签名映射
+	running    bool
+	cancelFunc context.CancelFunc
 }
 
 // NewRecoveryManager 创建恢复管理器

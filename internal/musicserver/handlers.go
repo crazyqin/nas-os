@@ -243,7 +243,7 @@ func (h *Handlers) listArtists(c *gin.Context) {
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
-			"total":    len(artists),
+			"total":   len(artists),
 			"artists": artists,
 		},
 	})
@@ -269,7 +269,7 @@ func (h *Handlers) listPlaylists(c *gin.Context) {
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
-			"total":      len(playlists),
+			"total":     len(playlists),
 			"playlists": playlists,
 		},
 	})
@@ -507,8 +507,8 @@ func (h *Handlers) subsonicSearch(c *gin.Context) {
 	results := h.manager.Search(query, owner, "all")
 
 	resp := SubsonicResponse{
-		Status:  "ok",
-		Version: "1.16.1",
+		Status:       "ok",
+		Version:      "1.16.1",
 		SearchResult: &SubsonicSearchResult{},
 	}
 

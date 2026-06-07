@@ -17,11 +17,11 @@ import (
 
 // MultiLevelAlertSystem 多级告警系统
 type MultiLevelAlertSystem struct {
-	config     *MultiLevelAlertConfig
-	storage    AlertStorage
-	notifier   AlertNotifier
-	escalator  AlertEscalator
-	logger     interface{} // 使用interface避免依赖
+	config    *MultiLevelAlertConfig
+	storage   AlertStorage
+	notifier  AlertNotifier
+	escalator AlertEscalator
+	logger    interface{} // 使用interface避免依赖
 
 	alerts     map[string]*ActiveAlert // alertID -> alert
 	thresholds []*AlertThreshold
@@ -33,20 +33,20 @@ type MultiLevelAlertSystem struct {
 
 // MultiLevelAlertConfig 多级告警配置
 type MultiLevelAlertConfig struct {
-	Enabled           bool          `json:"enabled"`
-	CheckInterval     time.Duration `json:"check_interval"`     // 检查间隔
+	Enabled           bool              `json:"enabled"`
+	CheckInterval     time.Duration     `json:"check_interval"`     // 检查间隔
 	DefaultThresholds []*AlertThreshold `json:"default_thresholds"` // 默认阈值
 
 	// 告警级别配置
-	Levels           []MultiAlertLevelConfig `json:"levels"`            // 告警级别
-	SilenceDuration  time.Duration      `json:"silence_duration"`  // 静默时长
-	SilenceCooldown  time.Duration      `json:"silence_cooldown"`  // 静默冷却时间
+	Levels          []MultiAlertLevelConfig `json:"levels"`           // 告警级别
+	SilenceDuration time.Duration           `json:"silence_duration"` // 静默时长
+	SilenceCooldown time.Duration           `json:"silence_cooldown"` // 静默冷却时间
 
 	// 升级配置
-	EscalationEnabled       bool          `json:"escalation_enabled"`        // 启用告警升级
-	EscalationIntervals     []time.Duration `json:"escalation_intervals"`    // 各级别升级间隔
-	MaxEscalationLevel      int           `json:"max_escalation_level"`      // 最大升级级别
-	EscalationAutoResolve   bool          `json:"escalation_auto_resolve"`   // 自动解决后降级
+	EscalationEnabled     bool            `json:"escalation_enabled"`      // 启用告警升级
+	EscalationIntervals   []time.Duration `json:"escalation_intervals"`    // 各级别升级间隔
+	MaxEscalationLevel    int             `json:"max_escalation_level"`    // 最大升级级别
+	EscalationAutoResolve bool            `json:"escalation_auto_resolve"` // 自动解决后降级
 
 	// 通知配置
 	NotifyEmail       bool     `json:"notify_email"`        // 邮件通知
@@ -58,9 +58,9 @@ type MultiLevelAlertConfig struct {
 	ExcludeEmailLevel []string `json:"exclude_email_level"` // 不发邮件的级别
 
 	// 聚合配置
-	AggregationEnabled  bool          `json:"aggregation_enabled"`   // 启用告警聚合
-	AggregationWindow   time.Duration `json:"aggregation_window"`    // 聚合窗口
-	AggregationMaxAlerts int          `json:"aggregation_max_alerts"` // 单次最大聚合数
+	AggregationEnabled   bool          `json:"aggregation_enabled"`    // 启用告警聚合
+	AggregationWindow    time.Duration `json:"aggregation_window"`     // 聚合窗口
+	AggregationMaxAlerts int           `json:"aggregation_max_alerts"` // 单次最大聚合数
 
 	// 持久化配置
 	PersistEnabled  bool          `json:"persist_enabled"`  // 启用持久化
@@ -107,19 +107,19 @@ type ActiveAlert struct {
 	UsedBytes       uint64        `json:"used_bytes"`
 	LimitBytes      uint64        `json:"limit_bytes"`
 	Message         string        `json:"message"`
-	NotifyCount     int           `json:"notify_count"`     // 通知次数
+	NotifyCount     int           `json:"notify_count"` // 通知次数
 	LastNotifyAt    *time.Time    `json:"last_notify_at,omitempty"`
 	SilencedAt      *time.Time    `json:"silenced_at,omitempty"`
 	SilenceBy       string        `json:"silence_by,omitempty"`
 	ResolvedAt      *time.Time    `json:"resolved_at,omitempty"`
 	ResolveBy       string        `json:"resolve_by,omitempty"`
-	History         []AlertEvent  `json:"history"`          // 告警历史事件
+	History         []AlertEvent  `json:"history"` // 告警历史事件
 }
 
 // AlertEvent 告警事件
 type AlertEvent struct {
 	Timestamp time.Time     `json:"timestamp"`
-	Type      string        `json:"type"`      // triggered, escalated, notified, silenced, resolved
+	Type      string        `json:"type"` // triggered, escalated, notified, silenced, resolved
 	Level     AlertSeverity `json:"level,omitempty"`
 	Message   string        `json:"message,omitempty"`
 	By        string        `json:"by,omitempty"` // 操作人
@@ -174,32 +174,32 @@ type AlertEscalator interface {
 
 // AlertFilter 告警过滤条件
 type AlertFilter struct {
-	QuotaID    string        `json:"quota_id,omitempty"`
-	Level      AlertSeverity `json:"level,omitempty"`
-	Status     AlertStatus   `json:"status,omitempty"`
-	StartTime  *time.Time    `json:"start_time,omitempty"`
-	EndTime    *time.Time    `json:"end_time,omitempty"`
-	MinUsage   float64       `json:"min_usage,omitempty"`
-	MaxUsage   float64       `json:"max_usage,omitempty"`
+	QuotaID   string        `json:"quota_id,omitempty"`
+	Level     AlertSeverity `json:"level,omitempty"`
+	Status    AlertStatus   `json:"status,omitempty"`
+	StartTime *time.Time    `json:"start_time,omitempty"`
+	EndTime   *time.Time    `json:"end_time,omitempty"`
+	MinUsage  float64       `json:"min_usage,omitempty"`
+	MaxUsage  float64       `json:"max_usage,omitempty"`
 }
 
 // DefaultMultiLevelAlertConfig 默认配置
 func DefaultMultiLevelAlertConfig() *MultiLevelAlertConfig {
 	return &MultiLevelAlertConfig{
-		Enabled:           true,
-		CheckInterval:     5 * time.Minute,
-		SilenceDuration:   24 * time.Hour,
-		SilenceCooldown:   1 * time.Hour,
-		EscalationEnabled: true,
-		MaxEscalationLevel: 3,
+		Enabled:               true,
+		CheckInterval:         5 * time.Minute,
+		SilenceDuration:       24 * time.Hour,
+		SilenceCooldown:       1 * time.Hour,
+		EscalationEnabled:     true,
+		MaxEscalationLevel:    3,
 		EscalationAutoResolve: true,
-		NotifyEmail:       true,
-		NotifyWebhook:     true,
-		AggregationEnabled: true,
-		AggregationWindow:  10 * time.Minute,
-		AggregationMaxAlerts: 20,
-		PersistEnabled:    true,
-		PersistInterval:   30 * time.Minute,
+		NotifyEmail:           true,
+		NotifyWebhook:         true,
+		AggregationEnabled:    true,
+		AggregationWindow:     10 * time.Minute,
+		AggregationMaxAlerts:  20,
+		PersistEnabled:        true,
+		PersistInterval:       30 * time.Minute,
 		DefaultThresholds: []*AlertThreshold{
 			{Name: "info", Level: AlertSeverityInfo, Percentage: 60, Message: "存储使用已达到 %.1f%%"},
 			{Name: "warning", Level: AlertSeverityWarning, Percentage: 70, Message: "存储使用已达到 %.1f%%，请注意"},
@@ -213,9 +213,9 @@ func DefaultMultiLevelAlertConfig() *MultiLevelAlertConfig {
 			{Name: "emergency", Severity: AlertSeverityEmergency, Color: "#7C3AED", Icon: "🚨", Priority: 4, NotifyChannels: []string{"push", "email", "webhook", "sms"}, SilenceAble: true, AutoEscalate: false},
 		},
 		EscalationIntervals: []time.Duration{
-			30 * time.Minute,  // Level 1 -> 2
-			15 * time.Minute,  // Level 2 -> 3
-			5 * time.Minute,   // Level 3 -> 4
+			30 * time.Minute, // Level 1 -> 2
+			15 * time.Minute, // Level 2 -> 3
+			5 * time.Minute,  // Level 3 -> 4
 		},
 	}
 }
@@ -348,18 +348,18 @@ func (s *MultiLevelAlertSystem) createAlert(quotaID, quotaName string, usagePerc
 	message := fmt.Sprintf(threshold.Message, usagePercent)
 
 	alert := &ActiveAlert{
-		ID:            alertID,
-		QuotaID:       quotaID,
-		QuotaName:     quotaName,
-		CurrentLevel:  threshold.Level,
-		OriginalLevel: threshold.Level,
-		TriggeredAt:   time.Now(),
-		Status:        AlertStatusActive,
-		UsagePercent:  usagePercent,
-		Threshold:     threshold.Percentage,
-		UsedBytes:     usedBytes,
-		LimitBytes:    limitBytes,
-		Message:       message,
+		ID:              alertID,
+		QuotaID:         quotaID,
+		QuotaName:       quotaName,
+		CurrentLevel:    threshold.Level,
+		OriginalLevel:   threshold.Level,
+		TriggeredAt:     time.Now(),
+		Status:          AlertStatusActive,
+		UsagePercent:    usagePercent,
+		Threshold:       threshold.Percentage,
+		UsedBytes:       usedBytes,
+		LimitBytes:      limitBytes,
+		Message:         message,
 		EscalationLevel: 0,
 		History: []AlertEvent{
 			{Timestamp: time.Now(), Type: "triggered", Level: threshold.Level, Message: message},
@@ -698,10 +698,10 @@ func (s *MultiLevelAlertSystem) GetSummary() *MultiAlertSummary {
 	defer s.mu.RUnlock()
 
 	summary := &MultiAlertSummary{
-		TotalAlerts:  len(s.alerts),
-		ByLevel:      make(map[string]int),
-		ByQuota:      make(map[string]int),
-		TopAlerts:    make([]ActiveAlert, 0),
+		TotalAlerts: len(s.alerts),
+		ByLevel:     make(map[string]int),
+		ByQuota:     make(map[string]int),
+		TopAlerts:   make([]ActiveAlert, 0),
 	}
 
 	for _, alert := range s.alerts {

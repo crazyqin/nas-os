@@ -11,13 +11,13 @@ import (
 
 // RuleManager 规则管理器.
 type RuleManager struct {
-	mu          sync.RWMutex
-	rules       map[string]*ScanRule
-	rulesByStd  map[ComplianceStandard][]*ScanRule
-	rulesByCat  map[ScanCategory][]*ScanRule
-	logger      *zap.Logger
-	version     string
-	updatedAt   time.Time
+	mu         sync.RWMutex
+	rules      map[string]*ScanRule
+	rulesByStd map[ComplianceStandard][]*ScanRule
+	rulesByCat map[ScanCategory][]*ScanRule
+	logger     *zap.Logger
+	version    string
+	updatedAt  time.Time
 }
 
 // NewRuleManager 创建规则管理器.
@@ -623,19 +623,19 @@ func (rm *RuleManager) GetRuleStats() map[string]int {
 	defer rm.mu.RUnlock()
 
 	stats := map[string]int{
-		"total":          len(rm.rules),
-		"enabled":        0,
-		"disabled":       0,
-		"cis":            0,
-		"mlps2":          0,
-		"critical":       0,
-		"high":           0,
-		"medium":         0,
-		"low":            0,
-		"system_config":  0,
-		"file_permission": 0,
-		"network_security": 0,
-		"service_security": 0,
+		"total":             len(rm.rules),
+		"enabled":           0,
+		"disabled":          0,
+		"cis":               0,
+		"mlps2":             0,
+		"critical":          0,
+		"high":              0,
+		"medium":            0,
+		"low":               0,
+		"system_config":     0,
+		"file_permission":   0,
+		"network_security":  0,
+		"service_security":  0,
 		"crypto_compliance": 0,
 	}
 

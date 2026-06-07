@@ -70,32 +70,32 @@ var ResourceSensitivityWeight = map[ResourceSensitivity]float64{
 
 // RiskScoreRequest 风险评分请求.
 type RiskScoreRequest struct {
-	UserID     string `form:"user_id"`
-	Resource   string `form:"resource"`
-	Action     string `form:"action"`
-	StartTime  *time.Time `form:"start_time"`
-	EndTime    *time.Time `form:"end_time"`
+	UserID    string     `form:"user_id"`
+	Resource  string     `form:"resource"`
+	Action    string     `form:"action"`
+	StartTime *time.Time `form:"start_time"`
+	EndTime   *time.Time `form:"end_time"`
 }
 
 // RiskScoreResult 风险评分结果.
 type RiskScoreResult struct {
-	UserID           string      `json:"user_id"`
-	OverallScore     float64     `json:"overall_score"`
-	RiskLevel        RiskLevel   `json:"risk_level"`
-	Components       RiskComponents `json:"components"`
-	TopRisks         []RiskItem  `json:"top_risks"`
-	Recommendations  []string    `json:"recommendations"`
-	CalculatedAt     time.Time   `json:"calculated_at"`
+	UserID          string         `json:"user_id"`
+	OverallScore    float64        `json:"overall_score"`
+	RiskLevel       RiskLevel      `json:"risk_level"`
+	Components      RiskComponents `json:"components"`
+	TopRisks        []RiskItem     `json:"top_risks"`
+	Recommendations []string       `json:"recommendations"`
+	CalculatedAt    time.Time      `json:"calculated_at"`
 }
 
 // RiskComponents 风险评分组成.
 type RiskComponents struct {
-	OperationWeight    float64 `json:"operation_weight"`
-	FrequencyAnomaly   float64 `json:"frequency_anomaly"`
-	TimeAnomaly        float64 `json:"time_anomaly"`
+	OperationWeight     float64 `json:"operation_weight"`
+	FrequencyAnomaly    float64 `json:"frequency_anomaly"`
+	TimeAnomaly         float64 `json:"time_anomaly"`
 	ResourceSensitivity float64 `json:"resource_sensitivity"`
-	FailureRate        float64 `json:"failure_rate"`
-	PrivilegeScore     float64 `json:"privilege_score"`
+	FailureRate         float64 `json:"failure_rate"`
+	PrivilegeScore      float64 `json:"privilege_score"`
 }
 
 // RiskItem 风险项.

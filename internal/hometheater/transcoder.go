@@ -21,23 +21,23 @@ type Transcoder struct {
 
 // TranscodeProgress 转码进度.
 type TranscodeProgress struct {
-	JobID      string          `json:"job_id"`
-	Status     TranscodeStatus `json:"status"`
-	Progress   float64         `json:"progress"`
-	Speed      float64         `json:"speed"`
-	FPS        float64         `json:"fps"`
-	Bitrate    int             `json:"bitrate"`
-	ETA        time.Duration   `json:"eta"`
-	Error      string          `json:"error,omitempty"`
+	JobID    string          `json:"job_id"`
+	Status   TranscodeStatus `json:"status"`
+	Progress float64         `json:"progress"`
+	Speed    float64         `json:"speed"`
+	FPS      float64         `json:"fps"`
+	Bitrate  int             `json:"bitrate"`
+	ETA      time.Duration   `json:"eta"`
+	Error    string          `json:"error,omitempty"`
 }
 
 // TranscodeRequest 转码请求.
 type TranscodeRequest struct {
-	MediaID    string           `json:"media_id"`
-	ProfileID  string           `json:"profile_id"`
-	InputPath  string           `json:"input_path"`
-	OutputPath string           `json:"output_path"`
-	Priority   int              `json:"priority"`
+	MediaID    string            `json:"media_id"`
+	ProfileID  string            `json:"profile_id"`
+	InputPath  string            `json:"input_path"`
+	OutputPath string            `json:"output_path"`
+	Priority   int               `json:"priority"`
 	Options    *TranscodeOptions `json:"options,omitempty"`
 }
 
@@ -274,16 +274,16 @@ func (t *Transcoder) GetOptimalProfile(videoInfo *VideoInfo, maxWidth, maxHeight
 	}
 
 	return &TranscodeProfile{
-		ID:           "auto",
-		Name:         "自动",
-		VideoCodec:   videoCodec,
-		AudioCodec:   AudioCodecAAC,
-		Width:        targetWidth,
-		Height:       targetHeight,
-		VideoBitrate: calculateBitrate(targetWidth, targetHeight),
-		AudioBitrate: 128,
-		FrameRate:    videoInfo.FrameRate,
-		Preset:       "fast",
+		ID:            "auto",
+		Name:          "自动",
+		VideoCodec:    videoCodec,
+		AudioCodec:    AudioCodecAAC,
+		Width:         targetWidth,
+		Height:        targetHeight,
+		VideoBitrate:  calculateBitrate(targetWidth, targetHeight),
+		AudioBitrate:  128,
+		FrameRate:     videoInfo.FrameRate,
+		Preset:        "fast",
 		HardwareAccel: t.hwAccel,
 	}
 }

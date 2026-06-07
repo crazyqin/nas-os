@@ -140,10 +140,10 @@ func TestCreateArticle(t *testing.T) {
 
 	// 直接创建文章（模拟抓取结果）
 	article := &Article{
-		ID:    "test-article-1",
-		FeedID: feed.ID,
-		Title: "测试文章",
-		Link:  "https://example.com/article1",
+		ID:      "test-article-1",
+		FeedID:  feed.ID,
+		Title:   "测试文章",
+		Link:    "https://example.com/article1",
 		Content: "这是测试内容",
 	}
 
@@ -171,9 +171,9 @@ func TestUpdateArticle(t *testing.T) {
 	})
 
 	article := &Article{
-		ID:    "test-article-1",
+		ID:     "test-article-1",
 		FeedID: feed.ID,
-		Title: "test",
+		Title:  "test",
 		IsRead: false,
 	}
 	m.mu.Lock()
@@ -488,10 +488,10 @@ func TestListArticlesPagination(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		id := "article-" + string(rune('0'+i))
 		m.articles[id] = &Article{
-			ID:        id,
-			FeedID:    feed.ID,
-			Title:     "Article " + string(rune('0'+i)),
-			IsRead:    i%2 == 0,
+			ID:     id,
+			FeedID: feed.ID,
+			Title:  "Article " + string(rune('0'+i)),
+			IsRead: i%2 == 0,
 		}
 	}
 	feed.ArticleCount = 10

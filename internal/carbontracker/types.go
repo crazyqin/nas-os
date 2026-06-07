@@ -64,12 +64,12 @@ type EnergyConsumption struct {
 
 // CarbonRecord 碳排放记录
 type CarbonRecord struct {
-	ID           string      `json:"id"`
-	Timestamp    time.Time   `json:"timestamp"`
-	EnergyKWh    float64     `json:"energy_kwh"`
-	CarbonKg     float64     `json:"carbon_kg"`
-	Source       CarbonSource `json:"source"`
-	DataCenterID string      `json:"datacenter_id"`
+	ID           string             `json:"id"`
+	Timestamp    time.Time          `json:"timestamp"`
+	EnergyKWh    float64            `json:"energy_kwh"`
+	CarbonKg     float64            `json:"carbon_kg"`
+	Source       CarbonSource       `json:"source"`
+	DataCenterID string             `json:"datacenter_id"`
 	DeviceStats  []DeviceCarbonStat `json:"device_stats,omitempty"`
 }
 
@@ -98,7 +98,7 @@ type CarbonTarget struct {
 	ID              string    `json:"id"`
 	Name            string    `json:"name"`
 	TargetYear      int       `json:"target_year"`
-	ReductionPct    float64   `json:"reduction_pct"`    // 减排目标百分比
+	ReductionPct    float64   `json:"reduction_pct"` // 减排目标百分比
 	BaselineYear    int       `json:"baseline_year"`
 	BaselineCarbonT float64   `json:"baseline_carbon_t"` // 基准年碳排放吨数
 	CurrentCarbonT  float64   `json:"current_carbon_t"`  // 当前碳排放吨数
@@ -113,8 +113,8 @@ type GreenEnergySuggestion struct {
 	ID            string    `json:"id"`
 	Timestamp     time.Time `json:"timestamp"`
 	Suggestion    string    `json:"suggestion"`
-	Priority      string    `json:"priority"` // high, medium, low
-	Category      string    `json:"category"` // scheduling, hardware, behavior
+	Priority      string    `json:"priority"`          // high, medium, low
+	Category      string    `json:"category"`          // scheduling, hardware, behavior
 	EstimatedSave float64   `json:"estimated_save_kg"` // 预计减排 kg CO2
 	Detail        string    `json:"detail"`
 }
@@ -150,10 +150,10 @@ type ESGReport struct {
 
 // EmissionEntry 排放条目
 type EmissionEntry struct {
-	Source      CarbonSource `json:"source"`
-	EnergyKWh   float64      `json:"energy_kwh"`
-	CarbonKg    float64      `json:"carbon_kg"`
-	Percentage  float64      `json:"percentage"`
+	Source     CarbonSource `json:"source"`
+	EnergyKWh  float64      `json:"energy_kwh"`
+	CarbonKg   float64      `json:"carbon_kg"`
+	Percentage float64      `json:"percentage"`
 }
 
 // ReductionEntry 减排条目
@@ -165,23 +165,23 @@ type ReductionEntry struct {
 
 // ESGScore ESG 评分
 type ESGScore struct {
-	Overall    float64           `json:"overall"`     // 0-100
-	Environmental float64        `json:"environmental"`
-	Social     float64           `json:"social"`
-	Governance float64           `json:"governance"`
-	Breakdown  map[string]float64 `json:"breakdown"`
-	Rating     string            `json:"rating"` // A+, A, B, C, D, E
+	Overall       float64            `json:"overall"` // 0-100
+	Environmental float64            `json:"environmental"`
+	Social        float64            `json:"social"`
+	Governance    float64            `json:"governance"`
+	Breakdown     map[string]float64 `json:"breakdown"`
+	Rating        string             `json:"rating"` // A+, A, B, C, D, E
 }
 
 // DataCenterInfo 数据中心信息
 type DataCenterInfo struct {
-	ID           string  `json:"id"`
-	Name         string  `json:"name"`
-	Location     string  `json:"location"`
-	Region       string  `json:"region"`
+	ID              string  `json:"id"`
+	Name            string  `json:"name"`
+	Location        string  `json:"location"`
+	Region          string  `json:"region"`
 	CarbonIntensity float64 `json:"carbon_intensity"` // gCO2/kWh
 	GreenEnergyPct  float64 `json:"green_energy_pct"`
-	PUE          float64  `json:"pue"`
+	PUE             float64 `json:"pue"`
 }
 
 // DataCenterComparison 数据中心对比
@@ -194,46 +194,46 @@ type DataCenterComparison struct {
 
 // ComparisonMetric 对比指标
 type ComparisonMetric struct {
-	Metric     string             `json:"metric"`
-	Unit       string             `json:"unit"`
-	Values     map[string]float64 `json:"values"` // datacenter_id -> value
-	BestDC     string             `json:"best_dc"`
+	Metric string             `json:"metric"`
+	Unit   string             `json:"unit"`
+	Values map[string]float64 `json:"values"` // datacenter_id -> value
+	BestDC string             `json:"best_dc"`
 }
 
 // TrendPoint 趋势点
 type TrendPoint struct {
-	Timestamp  time.Time `json:"timestamp"`
-	EnergyKWh  float64   `json:"energy_kwh"`
-	CarbonKg   float64   `json:"carbon_kg"`
-	Intensity  float64   `json:"intensity"`
+	Timestamp time.Time `json:"timestamp"`
+	EnergyKWh float64   `json:"energy_kwh"`
+	CarbonKg  float64   `json:"carbon_kg"`
+	Intensity float64   `json:"intensity"`
 }
 
 // CarbonTrackerConfig 碳足迹追踪配置
 type CarbonTrackerConfig struct {
-	Enabled           bool              `json:"enabled"`
-	DefaultRegion     string            `json:"default_region"`
+	Enabled           bool               `json:"enabled"`
+	DefaultRegion     string             `json:"default_region"`
 	RegionIntensities map[string]float64 `json:"region_intensities"` // region -> gCO2/kWh
-	MonitorInterval   int               `json:"monitor_interval"`   // seconds
-	RetentionDays     int               `json:"retention_days"`
-	GreenThreshold    float64           `json:"green_threshold"`    // gCO2/kWh, below this is "green"
-	Targets           []CarbonTarget    `json:"targets"`
-	DataCenters       []DataCenterInfo  `json:"data_centers"`
+	MonitorInterval   int                `json:"monitor_interval"`   // seconds
+	RetentionDays     int                `json:"retention_days"`
+	GreenThreshold    float64            `json:"green_threshold"` // gCO2/kWh, below this is "green"
+	Targets           []CarbonTarget     `json:"targets"`
+	DataCenters       []DataCenterInfo   `json:"data_centers"`
 }
 
 // DashboardResponse 仪表盘响应
 type DashboardResponse struct {
-	CurrentEnergy     *EnergyConsumption     `json:"current_energy"`
-	TodayCarbonKg     float64                `json:"today_carbon_kg"`
-	MonthCarbonKg     float64                `json:"month_carbon_kg"`
-	YearCarbonT       float64                `json:"year_carbon_t"`
-	CarbonIntensity   *CarbonIntensity       `json:"carbon_intensity"`
-	Targets           []CarbonTarget         `json:"targets"`
-	Suggestions       []GreenEnergySuggestion `json:"suggestions"`
-	ReductionTips     []CarbonReductionTip   `json:"reduction_tips"`
-	Trend             []TrendPoint           `json:"trend"`
-	DeviceBreakdown   []DeviceCarbonStat     `json:"device_breakdown"`
-	GreenEnergyPct    float64                `json:"green_energy_pct"`
-	Timestamp         time.Time              `json:"timestamp"`
+	CurrentEnergy   *EnergyConsumption      `json:"current_energy"`
+	TodayCarbonKg   float64                 `json:"today_carbon_kg"`
+	MonthCarbonKg   float64                 `json:"month_carbon_kg"`
+	YearCarbonT     float64                 `json:"year_carbon_t"`
+	CarbonIntensity *CarbonIntensity        `json:"carbon_intensity"`
+	Targets         []CarbonTarget          `json:"targets"`
+	Suggestions     []GreenEnergySuggestion `json:"suggestions"`
+	ReductionTips   []CarbonReductionTip    `json:"reduction_tips"`
+	Trend           []TrendPoint            `json:"trend"`
+	DeviceBreakdown []DeviceCarbonStat      `json:"device_breakdown"`
+	GreenEnergyPct  float64                 `json:"green_energy_pct"`
+	Timestamp       time.Time               `json:"timestamp"`
 }
 
 // DefaultCarbonTrackerConfig 默认配置
@@ -245,12 +245,12 @@ func DefaultCarbonTrackerConfig() *CarbonTrackerConfig {
 		RetentionDays:   365,
 		GreenThreshold:  100.0,
 		RegionIntensities: map[string]float64{
-			"CN":  581.0,  // 中国平均
-			"US":  386.0,  // 美国平均
-			"EU":  276.0,  // 欧盟平均
-			"JP":  462.0,  // 日本平均
-			"IN":  708.0,  // 印度平均
-			"AU":  530.0,  // 澳大利亚平均
+			"CN": 581.0, // 中国平均
+			"US": 386.0, // 美国平均
+			"EU": 276.0, // 欧盟平均
+			"JP": 462.0, // 日本平均
+			"IN": 708.0, // 印度平均
+			"AU": 530.0, // 澳大利亚平均
 		},
 		Targets:     []CarbonTarget{},
 		DataCenters: []DataCenterInfo{},

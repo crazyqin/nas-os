@@ -29,45 +29,45 @@ const (
 type TargetType string
 
 const (
-	TargetTypeLocal    TargetType = "local"     // 本地存储
+	TargetTypeLocal     TargetType = "local"      // 本地存储
 	TargetTypeRemoteNAS TargetType = "remote_nas" // 远程NAS
-	TargetTypeS3       TargetType = "s3"        // S3云存储
+	TargetTypeS3        TargetType = "s3"         // S3云存储
 )
 
 // BackupTarget 备份目标
 type BackupTarget struct {
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-	Type        TargetType `json:"type"`
-	Endpoint    string     `json:"endpoint,omitempty"`    // S3 endpoint 或 NAS 地址
-	Bucket      string     `json:"bucket,omitempty"`      // S3 bucket 或 NAS 共享路径
-	AccessKey   string     `json:"access_key,omitempty"`  // S3 access key
-	SecretKey   string     `json:"secret_key,omitempty"`  // S3 secret key
-	LocalPath   string     `json:"local_path,omitempty"`  // 本地路径
-	Region      string     `json:"region,omitempty"`      // S3 region
-	Status      string     `json:"status"`
-	TotalSpace  int64      `json:"total_space"`  // 总空间(字节)
-	UsedSpace   int64      `json:"used_space"`   // 已用空间(字节)
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
+	ID         string     `json:"id"`
+	Name       string     `json:"name"`
+	Type       TargetType `json:"type"`
+	Endpoint   string     `json:"endpoint,omitempty"`   // S3 endpoint 或 NAS 地址
+	Bucket     string     `json:"bucket,omitempty"`     // S3 bucket 或 NAS 共享路径
+	AccessKey  string     `json:"access_key,omitempty"` // S3 access key
+	SecretKey  string     `json:"secret_key,omitempty"` // S3 secret key
+	LocalPath  string     `json:"local_path,omitempty"` // 本地路径
+	Region     string     `json:"region,omitempty"`     // S3 region
+	Status     string     `json:"status"`
+	TotalSpace int64      `json:"total_space"` // 总空间(字节)
+	UsedSpace  int64      `json:"used_space"`  // 已用空间(字节)
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
 // BackupPolicy 备份策略（3-2-1规则支持）
 type BackupPolicy struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Description string       `json:"description"`
-	SourcePaths []string     `json:"source_paths"`
-	TargetIDs   []string     `json:"target_ids"`
-	BackupType  BackupType   `json:"backup_type"`
-	Schedule    string       `json:"schedule"`
+	ID          string           `json:"id"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	SourcePaths []string         `json:"source_paths"`
+	TargetIDs   []string         `json:"target_ids"`
+	BackupType  BackupType       `json:"backup_type"`
+	Schedule    string           `json:"schedule"`
 	RPO         *RPORequirements `json:"rpo,omitempty"`
 	RTO         *RTORequirements `json:"rto,omitempty"`
 	Retention   *RetentionPolicy `json:"retention,omitempty"`
-	Status      BackupStatus `json:"status"`
-	HealthScore float64      `json:"health_score"` // 健康评分 0-100
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	Status      BackupStatus     `json:"status"`
+	HealthScore float64          `json:"health_score"` // 健康评分 0-100
+	CreatedAt   time.Time        `json:"created_at"`
+	UpdatedAt   time.Time        `json:"updated_at"`
 }
 
 // RetentionPolicy 保留策略
@@ -88,8 +88,8 @@ type BackupExecution struct {
 	StartTime   time.Time    `json:"start_time"`
 	EndTime     time.Time    `json:"end_time"`
 	SizeBytes   int64        `json:"size_bytes"`
-	ChainID     string       `json:"chain_id,omitempty"`     // 备份链路ID
-	ParentID    string       `json:"parent_id,omitempty"`    // 父备份ID（增量/差异）
+	ChainID     string       `json:"chain_id,omitempty"`  // 备份链路ID
+	ParentID    string       `json:"parent_id,omitempty"` // 父备份ID（增量/差异）
 	FilesTotal  int          `json:"files_total"`
 	FilesCopied int          `json:"files_copied"`
 	FilesFailed int          `json:"files_failed"`
@@ -98,28 +98,28 @@ type BackupExecution struct {
 
 // BackupChain 备份链路
 type BackupChain struct {
-	ID          string           `json:"id"`
-	PolicyID    string           `json:"policy_id"`
-	TargetID    string           `json:"target_id"`
-	FullBackup  *BackupExecution `json:"full_backup"`
+	ID          string             `json:"id"`
+	PolicyID    string             `json:"policy_id"`
+	TargetID    string             `json:"target_id"`
+	FullBackup  *BackupExecution   `json:"full_backup"`
 	Incremental []*BackupExecution `json:"incremental"`
-	TotalSize   int64            `json:"total_size"`
-	ChainLength int              `json:"chain_length"`
-	HealthScore float64          `json:"health_score"` // 链路健康评分
-	CreatedAt   time.Time        `json:"created_at"`
-	UpdatedAt   time.Time        `json:"updated_at"`
+	TotalSize   int64              `json:"total_size"`
+	ChainLength int                `json:"chain_length"`
+	HealthScore float64            `json:"health_score"` // 链路健康评分
+	CreatedAt   time.Time          `json:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
 // VerificationResult 验证结果
 type VerificationResult struct {
-	ID          string     `json:"id"`
-	ExecutionID string     `json:"execution_id"`
-	Status      string     `json:"status"` // passed, failed, partial
-	CheckedAt   time.Time  `json:"checked_at"`
-	FilesChecked int       `json:"files_checked"`
-	FilesPassed  int       `json:"files_passed"`
-	FilesFailed  int       `json:"files_failed"`
-	Errors       []string  `json:"errors,omitempty"`
+	ID           string              `json:"id"`
+	ExecutionID  string              `json:"execution_id"`
+	Status       string              `json:"status"` // passed, failed, partial
+	CheckedAt    time.Time           `json:"checked_at"`
+	FilesChecked int                 `json:"files_checked"`
+	FilesPassed  int                 `json:"files_passed"`
+	FilesFailed  int                 `json:"files_failed"`
+	Errors       []string            `json:"errors,omitempty"`
 	RecoveryTest *RecoveryTestResult `json:"recovery_test,omitempty"`
 }
 
@@ -144,10 +144,10 @@ type LoadMetrics struct {
 
 // ScheduleOptimization 调度优化建议
 type ScheduleOptimization struct {
-	RecommendedTime  time.Time `json:"recommended_time"`
-	LoadScore        float64   `json:"load_score"`   // 负载评分 0-100
-	Reason           string    `json:"reason"`
-	WaitMinutes      int       `json:"wait_minutes"` // 建议等待分钟数
+	RecommendedTime time.Time `json:"recommended_time"`
+	LoadScore       float64   `json:"load_score"` // 负载评分 0-100
+	Reason          string    `json:"reason"`
+	WaitMinutes     int       `json:"wait_minutes"` // 建议等待分钟数
 }
 
 // RPORequirements RPO 要求
@@ -178,35 +178,35 @@ type ChangeFrequency struct {
 
 // BackupStrategy 备份策略推荐
 type BackupStrategy struct {
-	RecommendedType BackupType `json:"recommended_type"`
-	Reason          string     `json:"reason"`
-	EstimatedSize   float64    `json:"estimated_size"`
-	EstimatedTime   float64    `json:"estimated_time"`
-	RPOFeasible     bool       `json:"rpo_feasible"`
-	RTOFeasible     bool       `json:"rto_feasible"`
+	RecommendedType BackupType             `json:"recommended_type"`
+	Reason          string                 `json:"reason"`
+	EstimatedSize   float64                `json:"estimated_size"`
+	EstimatedTime   float64                `json:"estimated_time"`
+	RPOFeasible     bool                   `json:"rpo_feasible"`
+	RTOFeasible     bool                   `json:"rto_feasible"`
 	ThreeTwoOne     *ThreeTwoOneCompliance `json:"three_two_one,omitempty"`
-	Recommendations []string   `json:"recommendations"`
-	Confidence      float64    `json:"confidence"`
+	Recommendations []string               `json:"recommendations"`
+	Confidence      float64                `json:"confidence"`
 }
 
 // ThreeTwoOneCompliance 3-2-1规则合规性
 type ThreeTwoOneCompliance struct {
-	TotalCopies   int  `json:"total_copies"`    // 总副本数（目标3）
-	MediaTypes    int  `json:"media_types"`     // 介质类型数（目标2）
-	OffsiteCopies int  `json:"offsite_copies"`  // 异地副本数（目标1）
-	Compliant     bool `json:"compliant"`       // 是否合规
+	TotalCopies   int  `json:"total_copies"`   // 总副本数（目标3）
+	MediaTypes    int  `json:"media_types"`    // 介质类型数（目标2）
+	OffsiteCopies int  `json:"offsite_copies"` // 异地副本数（目标1）
+	Compliant     bool `json:"compliant"`      // 是否合规
 }
 
 // BackupStats 备份统计
 type BackupStats struct {
-	TotalPolicies    int     `json:"total_policies"`
-	ActivePolicies   int     `json:"active_policies"`
-	TotalExecutions  int     `json:"total_executions"`
-	SuccessfulBackups int    `json:"successful_backups"`
-	FailedBackups    int     `json:"failed_backups"`
-	TotalSizeBytes   int64   `json:"total_size_bytes"`
-	AvgHealthScore   float64 `json:"avg_health_score"`
-	ComplianceRate   float64 `json:"compliance_rate"` // 3-2-1合规率
+	TotalPolicies     int     `json:"total_policies"`
+	ActivePolicies    int     `json:"active_policies"`
+	TotalExecutions   int     `json:"total_executions"`
+	SuccessfulBackups int     `json:"successful_backups"`
+	FailedBackups     int     `json:"failed_backups"`
+	TotalSizeBytes    int64   `json:"total_size_bytes"`
+	AvgHealthScore    float64 `json:"avg_health_score"`
+	ComplianceRate    float64 `json:"compliance_rate"` // 3-2-1合规率
 }
 
 // WindowOptimization 备份窗口优化

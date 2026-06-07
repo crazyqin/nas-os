@@ -17,14 +17,14 @@ func NewDedupAnalyzer(co *CostOptimizer) *DedupAnalyzer {
 
 // DedupResult 去重分析结果
 type DedupResult struct {
-	TotalDataBytes      int64              `json:"total_data_bytes"`
-	EstimatedDedupBytes int64              `json:"estimated_dedup_bytes"`
-	DedupRatio          float64            `json:"dedup_ratio"`           // 去重率 (0-1)
-	SavingsBytes        int64              `json:"savings_bytes"`         // 预计节省空间
-	SavingsCost         float64            `json:"savings_cost"`          // 预计节省成本（元/月）
-	ByDataType          []DedupByDataType  `json:"by_data_type"`
-	ByTier              []DedupByTier      `json:"by_tier"`
-	Recommendations     []DedupRecommend   `json:"recommendations"`
+	TotalDataBytes      int64             `json:"total_data_bytes"`
+	EstimatedDedupBytes int64             `json:"estimated_dedup_bytes"`
+	DedupRatio          float64           `json:"dedup_ratio"`   // 去重率 (0-1)
+	SavingsBytes        int64             `json:"savings_bytes"` // 预计节省空间
+	SavingsCost         float64           `json:"savings_cost"`  // 预计节省成本（元/月）
+	ByDataType          []DedupByDataType `json:"by_data_type"`
+	ByTier              []DedupByTier     `json:"by_tier"`
+	Recommendations     []DedupRecommend  `json:"recommendations"`
 }
 
 // DedupByDataType 按数据类型的去重分析

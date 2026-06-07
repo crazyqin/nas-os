@@ -287,12 +287,12 @@ func (m *MilestoneManager) GetMilestoneProgress(milestoneID string) (*MilestoneP
 	}
 
 	progress := &MilestoneProgress{
-		MilestoneID:    milestoneID,
-		Name:           ms.Name,
-		TotalTasks:     len(ms.TaskIDs),
-		Status:         ms.Status,
+		MilestoneID:     milestoneID,
+		Name:            ms.Name,
+		TotalTasks:      len(ms.TaskIDs),
+		Status:          ms.Status,
 		OverallProgress: ms.Progress,
-		TasksByStatus:  make(map[string]int),
+		TasksByStatus:   make(map[string]int),
 	}
 
 	if ms.DueDate != nil {
@@ -379,10 +379,10 @@ func (m *MilestoneManager) GetTimeline(projectID string) []*MilestoneTimelineIte
 
 // MilestoneTimelineItem 里程碑时间线项
 type MilestoneTimelineItem struct {
-	ID       string     `json:"id"`
-	Name     string     `json:"name"`
-	Status   string     `json:"status"`
-	Progress float64    `json:"progress"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Status    string     `json:"status"`
+	Progress  float64    `json:"progress"`
 	StartDate *time.Time `json:"start_date,omitempty"`
-	DueDate  *time.Time `json:"due_date,omitempty"`
+	DueDate   *time.Time `json:"due_date,omitempty"`
 }

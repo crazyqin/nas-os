@@ -78,10 +78,10 @@ func TestRecordFailAttempt_WindowExpiry(t *testing.T) {
 
 	// 设置很短的窗口用于测试
 	fb.UpdateConfig(Fail2BanConfig{
-		Enabled:               true,
-		MaxAttempts:           5,
-		WindowSeconds:         1, // 1秒窗口
-		BanDurationSeconds:    1800,
+		Enabled:                true,
+		MaxAttempts:            5,
+		WindowSeconds:          1, // 1秒窗口
+		BanDurationSeconds:     1800,
 		CleanupIntervalSeconds: 60,
 	})
 
@@ -165,10 +165,10 @@ func TestBanExpiry(t *testing.T) {
 
 	// 设置很短的封禁时间
 	fb.UpdateConfig(Fail2BanConfig{
-		Enabled:               true,
-		MaxAttempts:           3,
-		WindowSeconds:         300,
-		BanDurationSeconds:    1, // 1秒封禁
+		Enabled:                true,
+		MaxAttempts:            3,
+		WindowSeconds:          300,
+		BanDurationSeconds:     1, // 1秒封禁
 		CleanupIntervalSeconds: 1,
 	})
 
@@ -372,10 +372,10 @@ func TestUpdateConfig(t *testing.T) {
 	defer fb.Stop()
 
 	newCfg := Fail2BanConfig{
-		Enabled:               false,
-		MaxAttempts:           10,
-		WindowSeconds:         600,
-		BanDurationSeconds:    3600,
+		Enabled:                false,
+		MaxAttempts:            10,
+		WindowSeconds:          600,
+		BanDurationSeconds:     3600,
 		CleanupIntervalSeconds: 120,
 	}
 	fb.UpdateConfig(newCfg)
@@ -400,10 +400,10 @@ func TestDisabledConfig_NoBan(t *testing.T) {
 	defer fb.Stop()
 
 	fb.UpdateConfig(Fail2BanConfig{
-		Enabled:               false,
-		MaxAttempts:           3,
-		WindowSeconds:         300,
-		BanDurationSeconds:    1800,
+		Enabled:                false,
+		MaxAttempts:            3,
+		WindowSeconds:          300,
+		BanDurationSeconds:     1800,
 		CleanupIntervalSeconds: 60,
 	})
 
@@ -424,10 +424,10 @@ func TestBanCount_Increments(t *testing.T) {
 	defer fb.Stop()
 
 	fb.UpdateConfig(Fail2BanConfig{
-		Enabled:               true,
-		MaxAttempts:           3,
-		WindowSeconds:         300,
-		BanDurationSeconds:    1, // 1秒封禁
+		Enabled:                true,
+		MaxAttempts:            3,
+		WindowSeconds:          300,
+		BanDurationSeconds:     1, // 1秒封禁
 		CleanupIntervalSeconds: 1,
 	})
 

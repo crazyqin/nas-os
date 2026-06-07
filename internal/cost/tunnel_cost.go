@@ -260,10 +260,10 @@ type TunnelROIAnalysis struct {
 
 // TunnelCostAnalyzer 穿透成本分析器
 type TunnelCostAnalyzer struct {
-	mu      sync.RWMutex
-	models  map[TunnelProvider]*TunnelCostModel
-	usage   map[string]*TunnelUsageStats
-	config  *TunnelCostConfig
+	mu     sync.RWMutex
+	models map[TunnelProvider]*TunnelCostModel
+	usage  map[string]*TunnelUsageStats
+	config *TunnelCostConfig
 }
 
 // TunnelCostConfig 分析器配置
@@ -302,16 +302,16 @@ type TunnelCostConfig struct {
 // DefaultTunnelCostConfig 默认配置
 func DefaultTunnelCostConfig() *TunnelCostConfig {
 	return &TunnelCostConfig{
-		SelfHostServerCost:      200.0,   // 云服务器约200元/月
-		SelfHostBandwidthCost:   0.8,     // 带宽约0.8元/Mbps
-		FreeUserBandwidthMbps:   2.0,     // 免费用户平均2Mbps
-		PaidUserBandwidthMbps:   10.0,    // 付费用户平均10Mbps
-		P2PSuccessRateEstimate:  60.0,    // P2P成功率约60%
-		RelayServerCount:        3,       // 3台中继服务器
-		CostPerRelayServer:      200.0,   // 每台200元/月
-		MaintenanceCostPercent:  10.0,    // 维护成本10%
-		SSLCostPerYear:          100.0,   // SSL证书约100元/年
-		DomainCostPerYear:       50.0,    // 域名约50元/年
+		SelfHostServerCost:     200.0, // 云服务器约200元/月
+		SelfHostBandwidthCost:  0.8,   // 带宽约0.8元/Mbps
+		FreeUserBandwidthMbps:  2.0,   // 免费用户平均2Mbps
+		PaidUserBandwidthMbps:  10.0,  // 付费用户平均10Mbps
+		P2PSuccessRateEstimate: 60.0,  // P2P成功率约60%
+		RelayServerCount:       3,     // 3台中继服务器
+		CostPerRelayServer:     200.0, // 每台200元/月
+		MaintenanceCostPercent: 10.0,  // 维护成本10%
+		SSLCostPerYear:         100.0, // SSL证书约100元/年
+		DomainCostPerYear:      50.0,  // 域名约50元/年
 	}
 }
 
@@ -337,85 +337,85 @@ func NewTunnelCostAnalyzer(config *TunnelCostConfig) *TunnelCostAnalyzer {
 func (a *TunnelCostAnalyzer) initCompetitorModels() {
 	// 飞牛FN Connect - 免费
 	a.models[TunnelProviderFNConnect] = &TunnelCostModel{
-		Provider:               TunnelProviderFNConnect,
-		DisplayName:            "飞牛FN Connect",
-		IsFree:                 true,
-		BandwidthCostPerMbps:   0,
-		TrafficCostPerGB:       0,
-		FreeBandwidthLimit:     10,    // 约10Mbps免费
-		FreeTrafficLimitGB:     100,   // 100GB/月免费流量
-		FreeConnectionLimit:     5,    // 5个连接
-		TypicalLatencyMs:       50,
+		Provider:                 TunnelProviderFNConnect,
+		DisplayName:              "飞牛FN Connect",
+		IsFree:                   true,
+		BandwidthCostPerMbps:     0,
+		TrafficCostPerGB:         0,
+		FreeBandwidthLimit:       10,  // 约10Mbps免费
+		FreeTrafficLimitGB:       100, // 100GB/月免费流量
+		FreeConnectionLimit:      5,   // 5个连接
+		TypicalLatencyMs:         50,
 		MaxConcurrentConnections: 5,
-		SupportedProtocols:     []string{"http", "https", "tcp"},
-		LastUpdated:            time.Now(),
+		SupportedProtocols:       []string{"http", "https", "tcp"},
+		LastUpdated:              time.Now(),
 	}
 
 	// 群晖QuickConnect - 免费（有设备绑定限制）
 	a.models[TunnelProviderSynology] = &TunnelCostModel{
-		Provider:               TunnelProviderSynology,
-		DisplayName:            "群晖QuickConnect",
-		IsFree:                 true,
-		BandwidthCostPerMbps:   0,
-		TrafficCostPerGB:       0,
-		FreeBandwidthLimit:     5,     // 保守估计5Mbps
-		FreeTrafficLimitGB:     50,    // 约50GB/月
-		FreeConnectionLimit:     3,    // 3个连接
-		TypicalLatencyMs:       80,
+		Provider:                 TunnelProviderSynology,
+		DisplayName:              "群晖QuickConnect",
+		IsFree:                   true,
+		BandwidthCostPerMbps:     0,
+		TrafficCostPerGB:         0,
+		FreeBandwidthLimit:       5,  // 保守估计5Mbps
+		FreeTrafficLimitGB:       50, // 约50GB/月
+		FreeConnectionLimit:      3,  // 3个连接
+		TypicalLatencyMs:         80,
 		MaxConcurrentConnections: 3,
-		SupportedProtocols:     []string{"http", "https"},
-		LastUpdated:            time.Now(),
+		SupportedProtocols:       []string{"http", "https"},
+		LastUpdated:              time.Now(),
 	}
 
 	// Cloudflare Tunnel - 免费（有企业付费版）
 	a.models[TunnelProviderCloudflare] = &TunnelCostModel{
-		Provider:               TunnelProviderCloudflare,
-		DisplayName:            "Cloudflare Tunnel",
-		IsFree:                 true,
-		BandwidthCostPerMbps:   0,
-		TrafficCostPerGB:       0,
-		FreeBandwidthLimit:     0,     // 无明确限制
-		FreeTrafficLimitGB:     0,     // 无明确限制
-		FreeConnectionLimit:     100,  // 100个隧道
-		TypicalLatencyMs:       30,
+		Provider:                 TunnelProviderCloudflare,
+		DisplayName:              "Cloudflare Tunnel",
+		IsFree:                   true,
+		BandwidthCostPerMbps:     0,
+		TrafficCostPerGB:         0,
+		FreeBandwidthLimit:       0,   // 无明确限制
+		FreeTrafficLimitGB:       0,   // 无明确限制
+		FreeConnectionLimit:      100, // 100个隧道
+		TypicalLatencyMs:         30,
 		MaxConcurrentConnections: 100,
-		SupportedProtocols:     []string{"http", "https", "ssh", "tcp"},
-		LastUpdated:            time.Now(),
+		SupportedProtocols:       []string{"http", "https", "ssh", "tcp"},
+		LastUpdated:              time.Now(),
 	}
 
 	// Tailscale - 免费（个人版）
 	a.models[TunnelProviderTailscale] = &TunnelCostModel{
-		Provider:               TunnelProviderTailscale,
-		DisplayName:            "Tailscale",
-		IsFree:                 true,
-		BandwidthCostPerMbps:   0,
-		TrafficCostPerGB:       0,
-		FreeBandwidthLimit:     0,
-		FreeTrafficLimitGB:     0,
-		FreeConnectionLimit:     100,  // 100设备
-		TypicalLatencyMs:       20,
+		Provider:                 TunnelProviderTailscale,
+		DisplayName:              "Tailscale",
+		IsFree:                   true,
+		BandwidthCostPerMbps:     0,
+		TrafficCostPerGB:         0,
+		FreeBandwidthLimit:       0,
+		FreeTrafficLimitGB:       0,
+		FreeConnectionLimit:      100, // 100设备
+		TypicalLatencyMs:         20,
 		MaxConcurrentConnections: 100,
-		SupportedProtocols:     []string{"tcp", "udp"},
-		LastUpdated:            time.Now(),
+		SupportedProtocols:       []string{"tcp", "udp"},
+		LastUpdated:              time.Now(),
 	}
 
 	// 自建方案成本模型
 	a.models[TunnelProviderSelfHosted] = &TunnelCostModel{
-		Provider:               TunnelProviderSelfHosted,
-		DisplayName:            "自建穿透服务",
-		IsFree:                 false,
-		BandwidthCostPerMbps:   a.config.SelfHostBandwidthCost,
-		TrafficCostPerGB:       0.8,
-		RelayServerCost:        a.config.CostPerRelayServer * float64(a.config.RelayServerCount),
-		STUNServerCost:         0,     // 使用公共STUN服务器
-		TURNServerCost:         a.config.CostPerRelayServer,
-		SSLCostPerYear:         a.config.SSLCostPerYear,
-		DomainCostPerYear:      a.config.DomainCostPerYear,
-		MaintenanceCostPercent: a.config.MaintenanceCostPercent,
-		TypicalLatencyMs:       40,
+		Provider:                 TunnelProviderSelfHosted,
+		DisplayName:              "自建穿透服务",
+		IsFree:                   false,
+		BandwidthCostPerMbps:     a.config.SelfHostBandwidthCost,
+		TrafficCostPerGB:         0.8,
+		RelayServerCost:          a.config.CostPerRelayServer * float64(a.config.RelayServerCount),
+		STUNServerCost:           0, // 使用公共STUN服务器
+		TURNServerCost:           a.config.CostPerRelayServer,
+		SSLCostPerYear:           a.config.SSLCostPerYear,
+		DomainCostPerYear:        a.config.DomainCostPerYear,
+		MaintenanceCostPercent:   a.config.MaintenanceCostPercent,
+		TypicalLatencyMs:         40,
 		MaxConcurrentConnections: 1000,
-		SupportedProtocols:     []string{"http", "https", "tcp", "udp"},
-		LastUpdated:            time.Now(),
+		SupportedProtocols:       []string{"http", "https", "tcp", "udp"},
+		LastUpdated:              time.Now(),
 	}
 }
 
@@ -486,7 +486,7 @@ func (a *TunnelCostAnalyzer) calculateCostBreakdown(usage TunnelUsageStats) Tunn
 		breakdown.DomainCostMonthly + breakdown.MaintenanceCost
 
 	// 如果P2P成功率高，有效成本更低
-	p2pSavingsFactor := 1 - usage.P2PSuccessRate/100 * 0.5 // P2P节省50%中继成本
+	p2pSavingsFactor := 1 - usage.P2PSuccessRate/100*0.5 // P2P节省50%中继成本
 	breakdown.EffectiveCost = breakdown.TotalCost * p2pSavingsFactor
 
 	return breakdown
@@ -520,55 +520,55 @@ func (a *TunnelCostAnalyzer) compareWithCompetitors(usage TunnelUsageStats) []Tu
 
 	// 飞牛FN Connect
 	fnConnect := TunnelCompetitorCost{
-		ProviderName:       "飞牛FN Connect",
-		IsFree:             true,
-		MonthlyCost:        0,
-		Limitations:        "带宽限制约10Mbps，流量100GB/月，绑定飞牛NAS设备",
-		Difference:         "免费服务但有设备绑定限制，适合飞牛用户",
+		ProviderName:        "飞牛FN Connect",
+		IsFree:              true,
+		MonthlyCost:         0,
+		Limitations:         "带宽限制约10Mbps，流量100GB/月，绑定飞牛NAS设备",
+		Difference:          "免费服务但有设备绑定限制，适合飞牛用户",
 		RecommendationScore: 5,
 	}
 	comparisons = append(comparisons, fnConnect)
 
 	// 群晖QuickConnect
 	synology := TunnelCompetitorCost{
-		ProviderName:       "群晖QuickConnect",
-		IsFree:             true,
-		MonthlyCost:        0,
-		Limitations:        "带宽限制约5Mbps，绑定群晖设备，功能相对简单",
-		Difference:         "免费但绑定设备，适合群晖用户",
+		ProviderName:        "群晖QuickConnect",
+		IsFree:              true,
+		MonthlyCost:         0,
+		Limitations:         "带宽限制约5Mbps，绑定群晖设备，功能相对简单",
+		Difference:          "免费但绑定设备，适合群晖用户",
 		RecommendationScore: 4,
 	}
 	comparisons = append(comparisons, synology)
 
 	// Cloudflare Tunnel
 	cloudflare := TunnelCompetitorCost{
-		ProviderName:       "Cloudflare Tunnel",
-		IsFree:             true,
-		MonthlyCost:        0,
-		Limitations:        "需要域名托管到Cloudflare，有企业版付费选项",
-		Difference:         "免费且强大，但需要域名托管",
+		ProviderName:        "Cloudflare Tunnel",
+		IsFree:              true,
+		MonthlyCost:         0,
+		Limitations:         "需要域名托管到Cloudflare，有企业版付费选项",
+		Difference:          "免费且强大，但需要域名托管",
 		RecommendationScore: 5,
 	}
 	comparisons = append(comparisons, cloudflare)
 
 	// Tailscale
 	tailscale := TunnelCompetitorCost{
-		ProviderName:       "Tailscale",
-		IsFree:             true,
-		MonthlyCost:        0,
-		Limitations:        "个人版免费100设备，企业版需付费",
-		Difference:         "基于WireGuard，安全性高，适合个人用户",
+		ProviderName:        "Tailscale",
+		IsFree:              true,
+		MonthlyCost:         0,
+		Limitations:         "个人版免费100设备，企业版需付费",
+		Difference:          "基于WireGuard，安全性高，适合个人用户",
 		RecommendationScore: 5,
 	}
 	comparisons = append(comparisons, tailscale)
 
 	// 自建方案
 	selfHost := TunnelCompetitorCost{
-		ProviderName:       "自建穿透服务",
-		IsFree:             false,
-		MonthlyCost:        a.estimateMonthlyCost(usage),
-		Limitations:        "需要维护服务器，有带宽成本",
-		Difference:         "完全可控，无设备绑定，适合多用户场景",
+		ProviderName:        "自建穿透服务",
+		IsFree:              false,
+		MonthlyCost:         a.estimateMonthlyCost(usage),
+		Limitations:         "需要维护服务器，有带宽成本",
+		Difference:          "完全可控，无设备绑定，适合多用户场景",
 		RecommendationScore: 3,
 	}
 	comparisons = append(comparisons, selfHost)
@@ -633,8 +633,8 @@ func (a *TunnelCostAnalyzer) analyzeTunnelROI(usage TunnelUsageStats) TunnelROIA
 
 	// 自建方案5年成本
 	selfHostMonthly := a.config.SelfHostServerCost +
-		a.config.CostPerRelayServer * float64(a.config.RelayServerCount) +
-		usage.AvgBandwidthMbps * a.config.SelfHostBandwidthCost
+		a.config.CostPerRelayServer*float64(a.config.RelayServerCount) +
+		usage.AvgBandwidthMbps*a.config.SelfHostBandwidthCost
 
 	// 加入维护和SSL域名成本
 	selfHostMonthly += (a.config.SSLCostPerYear + a.config.DomainCostPerYear) / 12
@@ -644,7 +644,7 @@ func (a *TunnelCostAnalyzer) analyzeTunnelROI(usage TunnelUsageStats) TunnelROIA
 
 	// 第三方付费服务估算（假设使用商业穿透服务）
 	// 按带宽和流量估算
-	thirdPartyMonthly := usage.AvgBandwidthMbps * 2.0 + usage.TotalTrafficGB * 0.5
+	thirdPartyMonthly := usage.AvgBandwidthMbps*2.0 + usage.TotalTrafficGB*0.5
 	roi.ThirdPartyCost5Year = thirdPartyMonthly * 60
 
 	// 计算节省

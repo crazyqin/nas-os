@@ -11,25 +11,25 @@ import (
 
 // AISysAdmin AI系统管理员
 type AISysAdmin struct {
-	mu          sync.RWMutex
-	config      *Config
-	commands    []*Command
-	diagnoses   []*DiagnosisResult
-	opLogs      []*OperationLog
-	rules       []*AutomationRule
-	running     bool
-	ctx         context.Context
-	cancel      context.CancelFunc
+	mu        sync.RWMutex
+	config    *Config
+	commands  []*Command
+	diagnoses []*DiagnosisResult
+	opLogs    []*OperationLog
+	rules     []*AutomationRule
+	running   bool
+	ctx       context.Context
+	cancel    context.CancelFunc
 }
 
 // Config AI系统管理员配置
 type Config struct {
-	MaxHistory      int           `json:"max_history"`
-	AutoRepair      bool          `json:"auto_repair"`
-	DiagInterval    time.Duration `json:"diag_interval"`
-	CommandTimeout  time.Duration `json:"command_timeout"`
-	EnableRules     bool          `json:"enable_rules"`
-	LogRetention    int           `json:"log_retention_days"`
+	MaxHistory     int           `json:"max_history"`
+	AutoRepair     bool          `json:"auto_repair"`
+	DiagInterval   time.Duration `json:"diag_interval"`
+	CommandTimeout time.Duration `json:"command_timeout"`
+	EnableRules    bool          `json:"enable_rules"`
+	LogRetention   int           `json:"log_retention_days"`
 }
 
 // Command 命令结构
@@ -58,15 +58,15 @@ const (
 
 // DiagnosisResult 诊断结果
 type DiagnosisResult struct {
-	ID         string           `json:"id"`
-	Category   string           `json:"category"`
-	Component  string           `json:"component"`
-	Status     DiagnosisStatus  `json:"status"`
-	Message    string           `json:"message"`
-	Details    string           `json:"details,omitempty"`
-	Suggestion string           `json:"suggestion,omitempty"`
-	Severity   Severity         `json:"severity"`
-	Timestamp  time.Time        `json:"timestamp"`
+	ID         string          `json:"id"`
+	Category   string          `json:"category"`
+	Component  string          `json:"component"`
+	Status     DiagnosisStatus `json:"status"`
+	Message    string          `json:"message"`
+	Details    string          `json:"details,omitempty"`
+	Suggestion string          `json:"suggestion,omitempty"`
+	Severity   Severity        `json:"severity"`
+	Timestamp  time.Time       `json:"timestamp"`
 }
 
 // DiagnosisStatus 诊断状态
@@ -116,17 +116,17 @@ type AutomationRule struct {
 
 // SystemSummary 系统摘要
 type SystemSummary struct {
-	TotalCommands    int       `json:"total_commands"`
-	SuccessCommands  int       `json:"success_commands"`
-	FailedCommands   int       `json:"failed_commands"`
-	TotalDiagnoses   int       `json:"total_diagnoses"`
-	HealthyCount     int       `json:"healthy_count"`
-	WarningCount     int       `json:"warning_count"`
-	CriticalCount    int       `json:"critical_count"`
-	ActiveRules      int       `json:"active_rules"`
-	TotalOperations  int       `json:"total_operations"`
-	LastDiagTime     time.Time `json:"last_diag_time"`
-	Uptime           time.Duration `json:"uptime"`
+	TotalCommands   int           `json:"total_commands"`
+	SuccessCommands int           `json:"success_commands"`
+	FailedCommands  int           `json:"failed_commands"`
+	TotalDiagnoses  int           `json:"total_diagnoses"`
+	HealthyCount    int           `json:"healthy_count"`
+	WarningCount    int           `json:"warning_count"`
+	CriticalCount   int           `json:"critical_count"`
+	ActiveRules     int           `json:"active_rules"`
+	TotalOperations int           `json:"total_operations"`
+	LastDiagTime    time.Time     `json:"last_diag_time"`
+	Uptime          time.Duration `json:"uptime"`
 }
 
 // New 创建AI系统管理员

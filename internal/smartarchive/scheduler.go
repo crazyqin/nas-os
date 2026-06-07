@@ -35,13 +35,13 @@ type Scheduler struct {
 
 // ScheduledTask 调度任务.
 type ScheduledTask struct {
-	ID          string        `json:"id"`
-	PolicyID    string        `json:"policyId,omitempty"`
-	JobID       string        `json:"jobId,omitempty"`
-	Type        string        `json:"type"` // archive/retention/analysis/compression
-	Priority    int           `json:"priority"`
-	Status      JobStatus     `json:"status"`
-	Action      ArchiveAction `json:"action"`
+	ID       string        `json:"id"`
+	PolicyID string        `json:"policyId,omitempty"`
+	JobID    string        `json:"jobId,omitempty"`
+	Type     string        `json:"type"` // archive/retention/analysis/compression
+	Priority int           `json:"priority"`
+	Status   JobStatus     `json:"status"`
+	Action   ArchiveAction `json:"action"`
 
 	// 调度配置
 	ScheduledAt time.Time     `json:"scheduledAt"`
@@ -69,15 +69,15 @@ type ScheduledTask struct {
 
 // TaskResult 任务结果.
 type TaskResult struct {
-	Success       bool          `json:"success"`
-	FilesProcessed int64        `json:"filesProcessed"`
-	BytesProcessed int64        `json:"bytesProcessed"`
-	FilesArchived  int64        `json:"filesArchived"`
-	BytesArchived  int64        `json:"bytesArchived"`
-	SpaceSaved     int64        `json:"spaceSaved"`
+	Success        bool          `json:"success"`
+	FilesProcessed int64         `json:"filesProcessed"`
+	BytesProcessed int64         `json:"bytesProcessed"`
+	FilesArchived  int64         `json:"filesArchived"`
+	BytesArchived  int64         `json:"bytesArchived"`
+	SpaceSaved     int64         `json:"spaceSaved"`
 	Duration       time.Duration `json:"duration"`
-	Error          string       `json:"error,omitempty"`
-	Details        string       `json:"details,omitempty"`
+	Error          string        `json:"error,omitempty"`
+	Details        string        `json:"details,omitempty"`
 }
 
 // SchedulerStats 调度器统计.

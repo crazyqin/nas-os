@@ -11,9 +11,9 @@ import (
 
 // UISearchRequest UI搜索请求.
 type UISearchRequest struct {
-	Query string   `json:"query"`         // 搜索关键词
-	Scope []string `json:"scope"`         // 搜索范围: users, shares, apps, settings
-	Limit int      `json:"limit"`         // 每类结果数量限制
+	Query string   `json:"query"` // 搜索关键词
+	Scope []string `json:"scope"` // 搜索范围: users, shares, apps, settings
+	Limit int      `json:"limit"` // 每类结果数量限制
 }
 
 // UISearchResult UI搜索结果（按类别分组）.

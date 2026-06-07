@@ -70,10 +70,10 @@ func NewManager(logger *zap.Logger, opts ...ManagerOption) *Manager {
 	}
 
 	m := &Manager{
-		config:  DefaultSecureBootConfig(),
-		policy:  DefaultSecureBootPolicy(),
+		config:   DefaultSecureBootConfig(),
+		policy:   DefaultSecureBootPolicy(),
 		varStore: NewMemoryVariableStore(),
-		logger:  logger,
+		logger:   logger,
 	}
 
 	for _, opt := range opts {

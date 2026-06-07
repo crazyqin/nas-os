@@ -13,13 +13,13 @@ import (
 
 // Manager 备份保险库管理器
 type Manager struct {
-	mu      sync.RWMutex
-	logger  *zap.Logger
-	config  *BackupVaultConfig
-	vaults  map[string]*Vault
-	jobs    map[string]*BackupJob
-	stats   map[string]*DedupStats
-	tests   map[string]*RestoreTest
+	mu       sync.RWMutex
+	logger   *zap.Logger
+	config   *BackupVaultConfig
+	vaults   map[string]*Vault
+	jobs     map[string]*BackupJob
+	stats    map[string]*DedupStats
+	tests    map[string]*RestoreTest
 	policies map[string]*SLAPolicy
 }
 
@@ -82,7 +82,7 @@ func (m *Manager) initDefaultVaults() {
 			Location:      "异地数据中心",
 			RemoteURL:     "https://backup.example.com",
 			CapacityBytes: 5 * 1024 * 1024 * 1024 * 1024, // 5TB
-			UsedBytes:     500 * 1024 * 1024 * 1024,       // 500GB
+			UsedBytes:     500 * 1024 * 1024 * 1024,      // 500GB
 			Encryption:    EncryptionAES256,
 			RetentionDays: 90,
 			IsPrimary:     false,
@@ -97,7 +97,7 @@ func (m *Manager) initDefaultVaults() {
 			Location:      "云端",
 			RemoteURL:     "s3://backup-bucket",
 			CapacityBytes: 20 * 1024 * 1024 * 1024 * 1024, // 20TB
-			UsedBytes:     1 * 1024 * 1024 * 1024 * 1024,   // 1TB
+			UsedBytes:     1 * 1024 * 1024 * 1024 * 1024,  // 1TB
 			Encryption:    EncryptionAES256,
 			RetentionDays: 365,
 			IsPrimary:     false,
@@ -115,72 +115,72 @@ func (m *Manager) initDefaultVaults() {
 func (m *Manager) initDefaultPolicies() {
 	defaultPolicies := []*SLAPolicy{
 		{
-			ID:                "sla-bronze",
-			Name:              "铜级 SLA",
-			Description:       "基础备份保护",
-			Level:             SLALevelBronze,
-			RTOTarget:         480,  // 8 小时
-			RPOTarget:         1440, // 24 小时
-			BackupFrequency:   "daily",
-			RetentionDays:     7,
-			MinCopies:         1,
-			GeoRedundancy:     false,
+			ID:                 "sla-bronze",
+			Name:               "铜级 SLA",
+			Description:        "基础备份保护",
+			Level:              SLALevelBronze,
+			RTOTarget:          480,  // 8 小时
+			RPOTarget:          1440, // 24 小时
+			BackupFrequency:    "daily",
+			RetentionDays:      7,
+			MinCopies:          1,
+			GeoRedundancy:      false,
 			EncryptionRequired: false,
-			TestFrequency:     "yearly",
-			IsActive:          true,
-			CreatedAt:         time.Now(),
-			UpdatedAt:         time.Now(),
+			TestFrequency:      "yearly",
+			IsActive:           true,
+			CreatedAt:          time.Now(),
+			UpdatedAt:          time.Now(),
 		},
 		{
-			ID:                "sla-silver",
-			Name:              "银级 SLA",
-			Description:       "标准备份保护",
-			Level:             SLALevelSilver,
-			RTOTarget:         240,  // 4 小时
-			RPOTarget:         60,   // 1 小时
-			BackupFrequency:   "daily",
-			RetentionDays:     30,
-			MinCopies:         2,
-			GeoRedundancy:     false,
+			ID:                 "sla-silver",
+			Name:               "银级 SLA",
+			Description:        "标准备份保护",
+			Level:              SLALevelSilver,
+			RTOTarget:          240, // 4 小时
+			RPOTarget:          60,  // 1 小时
+			BackupFrequency:    "daily",
+			RetentionDays:      30,
+			MinCopies:          2,
+			GeoRedundancy:      false,
 			EncryptionRequired: true,
-			TestFrequency:     "quarterly",
-			IsActive:          true,
-			CreatedAt:         time.Now(),
-			UpdatedAt:         time.Now(),
+			TestFrequency:      "quarterly",
+			IsActive:           true,
+			CreatedAt:          time.Now(),
+			UpdatedAt:          time.Now(),
 		},
 		{
-			ID:                "sla-gold",
-			Name:              "金级 SLA",
-			Description:       "高级备份保护",
-			Level:             SLALevelGold,
-			RTOTarget:         60,   // 1 小时
-			RPOTarget:         15,   // 15 分钟
-			BackupFrequency:   "hourly",
-			RetentionDays:     90,
-			MinCopies:         3,
-			GeoRedundancy:     true,
+			ID:                 "sla-gold",
+			Name:               "金级 SLA",
+			Description:        "高级备份保护",
+			Level:              SLALevelGold,
+			RTOTarget:          60, // 1 小时
+			RPOTarget:          15, // 15 分钟
+			BackupFrequency:    "hourly",
+			RetentionDays:      90,
+			MinCopies:          3,
+			GeoRedundancy:      true,
 			EncryptionRequired: true,
-			TestFrequency:     "monthly",
-			IsActive:          true,
-			CreatedAt:         time.Now(),
-			UpdatedAt:         time.Now(),
+			TestFrequency:      "monthly",
+			IsActive:           true,
+			CreatedAt:          time.Now(),
+			UpdatedAt:          time.Now(),
 		},
 		{
-			ID:                "sla-platinum",
-			Name:              "铂级 SLA",
-			Description:       "顶级备份保护",
-			Level:             SLALevelPlatinum,
-			RTOTarget:         15,   // 15 分钟
-			RPOTarget:         5,    // 5 分钟
-			BackupFrequency:   "hourly",
-			RetentionDays:     365,
-			MinCopies:         4,
-			GeoRedundancy:     true,
+			ID:                 "sla-platinum",
+			Name:               "铂级 SLA",
+			Description:        "顶级备份保护",
+			Level:              SLALevelPlatinum,
+			RTOTarget:          15, // 15 分钟
+			RPOTarget:          5,  // 5 分钟
+			BackupFrequency:    "hourly",
+			RetentionDays:      365,
+			MinCopies:          4,
+			GeoRedundancy:      true,
 			EncryptionRequired: true,
-			TestFrequency:     "monthly",
-			IsActive:          true,
-			CreatedAt:         time.Now(),
-			UpdatedAt:         time.Now(),
+			TestFrequency:      "monthly",
+			IsActive:           true,
+			CreatedAt:          time.Now(),
+			UpdatedAt:          time.Now(),
 		},
 	}
 
@@ -381,7 +381,7 @@ func (m *Manager) generateDedupStats(vaultID string) *DedupStats {
 	totalChunks := int64(100000)
 	uniqueChunks := int64(75000)
 	duplicateChunks := totalChunks - uniqueChunks
-	totalBytes := int64(500 * 1024 * 1024 * 1024) // 500GB
+	totalBytes := int64(500 * 1024 * 1024 * 1024)        // 500GB
 	deduplicatedBytes := int64(375 * 1024 * 1024 * 1024) // 375GB
 	savedBytes := totalBytes - deduplicatedBytes
 
@@ -406,10 +406,10 @@ func (m *Manager) simulateRestoreTest(test *RestoreTest) *RestoreTest {
 	// 模拟恢复过程
 	test.TotalBytes = 100 * 1024 * 1024 * 1024 // 100GB
 	test.RestoredBytes = test.TotalBytes
-	test.RTOActual = 45  // 45 分钟
-	test.RTOTarget = 60  // 目标 60 分钟
-	test.RPOActual = 10  // 10 分钟
-	test.RPOTarget = 15  // 目标 15 分钟
+	test.RTOActual = 45 // 45 分钟
+	test.RTOTarget = 60 // 目标 60 分钟
+	test.RPOActual = 10 // 10 分钟
+	test.RPOTarget = 15 // 目标 15 分钟
 	test.IsSuccessful = true
 	test.VerifiedFiles = 5000
 	test.CorruptFiles = 0

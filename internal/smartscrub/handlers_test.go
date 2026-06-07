@@ -8,9 +8,9 @@ func TestManager_CreatePolicy(t *testing.T) {
 	m := NewManager()
 
 	req := CreatePolicyRequest{
-		Name:    "周擦洗",
-		Pools:   []string{"tank", "data"},
-		Trigger: TriggerSchedule,
+		Name:     "周擦洗",
+		Pools:    []string{"tank", "data"},
+		Trigger:  TriggerSchedule,
 		Schedule: "0 2 * * 0",
 	}
 

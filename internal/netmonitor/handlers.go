@@ -88,8 +88,8 @@ func (h *Handlers) getTraffic(c *gin.Context) {
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
-			"total":  len(stats),
-			"stats":  stats,
+			"total": len(stats),
+			"stats": stats,
 		},
 	})
 }

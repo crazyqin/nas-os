@@ -264,8 +264,8 @@ func (c *L2TPClient) ValidateConfig(config *L2TPConfig) error {
 
 	// Validate PPP auth type
 	validAuthTypes := map[string]bool{
-		"pap":      true,
-		"chap":     true,
+		"pap":       true,
+		"chap":      true,
 		"mschap-v2": true,
 	}
 	if !validAuthTypes[config.PPPAuthType] {

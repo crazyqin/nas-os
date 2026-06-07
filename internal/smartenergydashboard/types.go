@@ -40,27 +40,27 @@ type EnergyBudget struct {
 
 // DevicePower 设备功耗
 type DevicePower struct {
-	DeviceID   string  `json:"device_id"`
-	DeviceName string  `json:"device_name"`
-	DeviceType string  `json:"device_type"` // hdd/ssd/cpu/fan/psu/nic
+	DeviceID    string  `json:"device_id"`
+	DeviceName  string  `json:"device_name"`
+	DeviceType  string  `json:"device_type"` // hdd/ssd/cpu/fan/psu/nic
 	CurrentWatt float64 `json:"current_watt"`
-	DailyKWh   float64 `json:"daily_kwh"`
-	MonthlyKWh float64 `json:"monthly_kwh"`
-	Status     string  `json:"status"` // online/offline/standby
+	DailyKWh    float64 `json:"daily_kwh"`
+	MonthlyKWh  float64 `json:"monthly_kwh"`
+	Status      string  `json:"status"` // online/offline/standby
 }
 
 // EnergyReport 能源报告
 type EnergyReport struct {
-	ID          string         `json:"id"`
-	Period      string         `json:"period"` // daily/weekly/monthly
-	StartDate   time.Time      `json:"start_date"`
-	EndDate     time.Time      `json:"end_date"`
-	TotalKWh    float64        `json:"total_kwh"`
-	TotalCost   float64        `json:"total_cost"`
-	CarbonKg    float64        `json:"carbon_kg"`
-	TopDevices  []DevicePower  `json:"top_devices"`
-	Trend       string         `json:"trend"` // up/down/stable
-	SavingsTips []string       `json:"savings_tips"`
+	ID          string        `json:"id"`
+	Period      string        `json:"period"` // daily/weekly/monthly
+	StartDate   time.Time     `json:"start_date"`
+	EndDate     time.Time     `json:"end_date"`
+	TotalKWh    float64       `json:"total_kwh"`
+	TotalCost   float64       `json:"total_cost"`
+	CarbonKg    float64       `json:"carbon_kg"`
+	TopDevices  []DevicePower `json:"top_devices"`
+	Trend       string        `json:"trend"` // up/down/stable
+	SavingsTips []string      `json:"savings_tips"`
 }
 
 // CostForecast 成本预测
@@ -74,12 +74,12 @@ type CostForecast struct {
 
 // EnergySettings 能源设置
 type EnergySettings struct {
-	ElectricityRate  float64 `json:"electricity_rate"`  // 元/kWh
-	CarbonFactor     float64 `json:"carbon_factor"`     // kg CO2/kWh
-	Currency         string  `json:"currency"`          // 货币单位
-	MonitoringEnabled bool   `json:"monitoring_enabled"`
-	AlertEnabled     bool    `json:"alert_enabled"`
-	UpdatedAt        time.Time `json:"updated_at"`
+	ElectricityRate   float64   `json:"electricity_rate"` // 元/kWh
+	CarbonFactor      float64   `json:"carbon_factor"`    // kg CO2/kWh
+	Currency          string    `json:"currency"`         // 货币单位
+	MonitoringEnabled bool      `json:"monitoring_enabled"`
+	AlertEnabled      bool      `json:"alert_enabled"`
+	UpdatedAt         time.Time `json:"updated_at"`
 }
 
 // DefaultEnergySettings 默认能源设置

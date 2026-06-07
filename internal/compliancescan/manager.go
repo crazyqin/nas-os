@@ -25,13 +25,13 @@ type compiledRule struct {
 
 // Manager 合规扫描管理器.
 type Manager struct {
-	mu           sync.RWMutex
-	storagePath  string
-	rules        map[string]*ScanRule
-	tasks        map[string]*ScanTask
-	results      map[string]*ScanResult
-	violations   map[string]*Violation
-	schedules    map[string]*ScanSchedule
+	mu          sync.RWMutex
+	storagePath string
+	rules       map[string]*ScanRule
+	tasks       map[string]*ScanTask
+	results     map[string]*ScanResult
+	violations  map[string]*Violation
+	schedules   map[string]*ScanSchedule
 }
 
 // NewManager 创建合规扫描管理器.
@@ -298,17 +298,17 @@ func (m *Manager) scanFile(filePath string, compiledRules []compiledRule) []Viol
 
 				v := Violation{
 					ID:           uuid.New().String(),
-				RuleID:       cr.rule.ID,
-				RuleName:     cr.rule.Name,
-				FilePath:     filePath,
-				LineNumber:   lineNum,
-				MatchContent: masked,
-				Severity:     cr.rule.Severity,
-				Action:       cr.rule.Action,
-				Resolved:     false,
-				CreatedAt:    time.Now(),
-			}
-			violations = append(violations, v)
+					RuleID:       cr.rule.ID,
+					RuleName:     cr.rule.Name,
+					FilePath:     filePath,
+					LineNumber:   lineNum,
+					MatchContent: masked,
+					Severity:     cr.rule.Severity,
+					Action:       cr.rule.Action,
+					Resolved:     false,
+					CreatedAt:    time.Now(),
+				}
+				violations = append(violations, v)
 			}
 		}
 	}

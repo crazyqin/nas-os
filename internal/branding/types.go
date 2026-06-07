@@ -5,28 +5,28 @@ import "time"
 
 // BrandConfig 品牌配置.
 type BrandConfig struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Logo        Logo         `json:"logo"`
-	Theme       Theme        `json:"theme"`
-	LoginScreen LoginScreen  `json:"login_screen"`
-	CustomCSS   CustomCSS    `json:"custom_css"`
-	Fonts       Fonts        `json:"fonts"`
-	Favicon     string       `json:"favicon,omitempty"`
-	CompanyName string       `json:"company_name"`
-	Tagline     string       `json:"tagline,omitempty"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Logo        Logo        `json:"logo"`
+	Theme       Theme       `json:"theme"`
+	LoginScreen LoginScreen `json:"login_screen"`
+	CustomCSS   CustomCSS   `json:"custom_css"`
+	Fonts       Fonts       `json:"fonts"`
+	Favicon     string      `json:"favicon,omitempty"`
+	CompanyName string      `json:"company_name"`
+	Tagline     string      `json:"tagline,omitempty"`
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
 // Logo 品牌Logo配置.
 type Logo struct {
-	LightURL    string `json:"light_url,omitempty"`
-	DarkURL     string `json:"dark_url,omitempty"`
-	Width       int    `json:"width,omitempty"`
-	Height      int    `json:"height,omitempty"`
-	Alt         string `json:"alt,omitempty"`
-	FaviconURL  string `json:"favicon_url,omitempty"`
+	LightURL   string `json:"light_url,omitempty"`
+	DarkURL    string `json:"dark_url,omitempty"`
+	Width      int    `json:"width,omitempty"`
+	Height     int    `json:"height,omitempty"`
+	Alt        string `json:"alt,omitempty"`
+	FaviconURL string `json:"favicon_url,omitempty"`
 }
 
 // Theme 主题配置.

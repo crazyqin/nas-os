@@ -29,7 +29,7 @@ func NewSyncService(config *SyncConfig) *SyncService {
 
 	return &SyncService{
 		config: config,
-		stats: &SyncStats{},
+		stats:  &SyncStats{},
 		items:  make(map[string]*SyncItem),
 		ctx:    ctx,
 		cancel: cancel,

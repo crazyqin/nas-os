@@ -98,27 +98,27 @@ type ReportRequest struct {
 
 // Report 报告
 type Report struct {
-	Period     ReportPeriod  `json:"period"`
-	TotalEnergy float64      `json:"totalEnergy"`
-	TotalCost   int64        `json:"totalCost"`
+	Period      ReportPeriod  `json:"period"`
+	TotalEnergy float64       `json:"totalEnergy"`
+	TotalCost   int64         `json:"totalCost"`
 	TopDevices  []DevicePower `json:"topDevices"`
 }
 
 // Alert 告警
 type Alert struct {
-	ID     string    `json:"id"`
+	ID     string     `json:"id"`
 	Level  AlertLevel `json:"level"`
 	Type   AlertType  `json:"type"`
-	Active bool      `json:"active"`
+	Active bool       `json:"active"`
 }
 
 // DeviceProfile 设备画像
 type DeviceProfile struct {
-	DeviceID     string    `json:"deviceId"`
-	DeviceName   string    `json:"deviceName"`
-	RecordCount  int       `json:"recordCount"`
-	PeakPower    float64   `json:"peakPower"`
-	TotalEnergy  float64   `json:"totalEnergy"`
+	DeviceID      string    `json:"deviceId"`
+	DeviceName    string    `json:"deviceName"`
+	RecordCount   int       `json:"recordCount"`
+	PeakPower     float64   `json:"peakPower"`
+	TotalEnergy   float64   `json:"totalEnergy"`
 	HourlyProfile []float64 `json:"hourlyProfile"`
 }
 
@@ -137,11 +137,11 @@ type TrendPoint struct {
 
 // Prediction 预测
 type Prediction struct {
-	Method      string     `json:"method"`
-	DaysLeft    int        `json:"daysLeft"`
-	DailyAvg    float64    `json:"dailyAvg"`
-	PredictedKWh float64   `json:"predictedKwh"`
-	Confidence  *TrendPoint `json:"confidence"`
+	Method       string      `json:"method"`
+	DaysLeft     int         `json:"daysLeft"`
+	DailyAvg     float64     `json:"dailyAvg"`
+	PredictedKWh float64     `json:"predictedKwh"`
+	Confidence   *TrendPoint `json:"confidence"`
 }
 
 // ==================== 测试兼容常量 ====================
@@ -183,13 +183,13 @@ const (
 // ==================== 错误定义 ====================
 
 var (
-	ErrInvalidPowerWatts    = &PowerBudgetError{Code: "INVALID_POWER_WATTS", Message: "invalid power watts"}
-	ErrEngineNotRunning     = &PowerBudgetError{Code: "ENGINE_NOT_RUNNING", Message: "engine not running"}
-	ErrInvalidBudgetAmount  = &PowerBudgetError{Code: "INVALID_BUDGET_AMOUNT", Message: "invalid budget amount"}
+	ErrInvalidPowerWatts       = &PowerBudgetError{Code: "INVALID_POWER_WATTS", Message: "invalid power watts"}
+	ErrEngineNotRunning        = &PowerBudgetError{Code: "ENGINE_NOT_RUNNING", Message: "engine not running"}
+	ErrInvalidBudgetAmount     = &PowerBudgetError{Code: "INVALID_BUDGET_AMOUNT", Message: "invalid budget amount"}
 	ErrInvalidElectricityPrice = &PowerBudgetError{Code: "INVALID_ELECTRICITY_PRICE", Message: "invalid electricity price"}
-	ErrBudgetNotSet         = &PowerBudgetError{Code: "BUDGET_NOT_SET", Message: "budget not set"}
-	ErrRecordNotFound       = &PowerBudgetError{Code: "RECORD_NOT_FOUND", Message: "record not found"}
-	ErrDeviceNotFound       = &PowerBudgetError{Code: "DEVICE_NOT_FOUND", Message: "device not found"}
+	ErrBudgetNotSet            = &PowerBudgetError{Code: "BUDGET_NOT_SET", Message: "budget not set"}
+	ErrRecordNotFound          = &PowerBudgetError{Code: "RECORD_NOT_FOUND", Message: "record not found"}
+	ErrDeviceNotFound          = &PowerBudgetError{Code: "DEVICE_NOT_FOUND", Message: "device not found"}
 )
 
 // PowerBudgetError 功率预算错误
@@ -331,7 +331,7 @@ func (a *Analyzer) PredictDevicePredict(deviceID string, days int) float64 {
 
 // AlertManager 告警管理器
 type AlertManager struct {
-	engine         *Engine
+	engine          *Engine
 	cooldownMinutes int
 }
 

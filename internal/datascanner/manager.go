@@ -38,29 +38,29 @@ var defaultPatterns = []piiPattern{
 
 // 合规标准与 PII 类型的映射.
 var complianceMapping = map[PIIType][]ComplianceStandard{
-	PIIIDCard:      {CompliancePIPL, ComplianceCSL, ComplianceGDPR},
-	PIIPhone:       {CompliancePIPL, ComplianceCSL, ComplianceGDPR},
-	PIIBankCard:    {CompliancePIPL, ComplianceCSL, ComplianceGDPR},
-	PIIEmail:       {CompliancePIPL, ComplianceGDPR},
-	PIIAddress:     {CompliancePIPL, ComplianceGDPR},
-	PIIName:        {CompliancePIPL, ComplianceGDPR},
-	PIICreditCode:  {CompliancePIPL, ComplianceCSL},
-	PIIPassport:    {CompliancePIPL, ComplianceGDPR},
-	PIIMilitaryID:  {CompliancePIPL, ComplianceCSL},
+	PIIIDCard:       {CompliancePIPL, ComplianceCSL, ComplianceGDPR},
+	PIIPhone:        {CompliancePIPL, ComplianceCSL, ComplianceGDPR},
+	PIIBankCard:     {CompliancePIPL, ComplianceCSL, ComplianceGDPR},
+	PIIEmail:        {CompliancePIPL, ComplianceGDPR},
+	PIIAddress:      {CompliancePIPL, ComplianceGDPR},
+	PIIName:         {CompliancePIPL, ComplianceGDPR},
+	PIICreditCode:   {CompliancePIPL, ComplianceCSL},
+	PIIPassport:     {CompliancePIPL, ComplianceGDPR},
+	PIIMilitaryID:   {CompliancePIPL, ComplianceCSL},
 	PIILicensePlate: {CompliancePIPL},
 }
 
 // 脱敏策略映射.
 var desensitizeStrategies = map[PIIType]DesensitizeStrategy{
-	PIIIDCard:      {PIIIDCard, "掩码", "110101********1234", []ComplianceStandard{CompliancePIPL, ComplianceCSL}},
-	PIIPhone:       {PIIPhone, "掩码", "138****5678", []ComplianceStandard{CompliancePIPL, ComplianceCSL}},
-	PIIBankCard:    {PIIBankCard, "掩码", "6222 **** **** 1234", []ComplianceStandard{CompliancePIPL, ComplianceCSL}},
-	PIIEmail:       {PIIEmail, "掩码", "t***@example.com", []ComplianceStandard{CompliancePIPL}},
-	PIIAddress:     {PIIAddress, "截断", "北京市**区", []ComplianceStandard{CompliancePIPL}},
-	PIIName:        {PIIName, "掩码", "张*明", []ComplianceStandard{CompliancePIPL}},
-	PIICreditCode:  {PIICreditCode, "掩码", "91110000****1234", []ComplianceStandard{CompliancePIPL, ComplianceCSL}},
-	PIIPassport:    {PIIPassport, "掩码", "E********", []ComplianceStandard{CompliancePIPL}},
-	PIIMilitaryID:  {PIIMilitaryID, "掩码", "文字第********号", []ComplianceStandard{CompliancePIPL, ComplianceCSL}},
+	PIIIDCard:       {PIIIDCard, "掩码", "110101********1234", []ComplianceStandard{CompliancePIPL, ComplianceCSL}},
+	PIIPhone:        {PIIPhone, "掩码", "138****5678", []ComplianceStandard{CompliancePIPL, ComplianceCSL}},
+	PIIBankCard:     {PIIBankCard, "掩码", "6222 **** **** 1234", []ComplianceStandard{CompliancePIPL, ComplianceCSL}},
+	PIIEmail:        {PIIEmail, "掩码", "t***@example.com", []ComplianceStandard{CompliancePIPL}},
+	PIIAddress:      {PIIAddress, "截断", "北京市**区", []ComplianceStandard{CompliancePIPL}},
+	PIIName:         {PIIName, "掩码", "张*明", []ComplianceStandard{CompliancePIPL}},
+	PIICreditCode:   {PIICreditCode, "掩码", "91110000****1234", []ComplianceStandard{CompliancePIPL, ComplianceCSL}},
+	PIIPassport:     {PIIPassport, "掩码", "E********", []ComplianceStandard{CompliancePIPL}},
+	PIIMilitaryID:   {PIIMilitaryID, "掩码", "文字第********号", []ComplianceStandard{CompliancePIPL, ComplianceCSL}},
 	PIILicensePlate: {PIILicensePlate, "掩码", "京A***89", []ComplianceStandard{CompliancePIPL}},
 }
 
@@ -94,16 +94,16 @@ func (m *Manager) CreateTask(req CreateTaskRequest) *ScanTask {
 
 	now := time.Now()
 	task := &ScanTask{
-		ID:        uuid.New().String(),
-		Name:      req.Name,
-		Path:      req.Path,
-		Recursive: req.Recursive,
-		FileTypes: req.FileTypes,
-		PIITypes:  req.PIITypes,
-		Status:    TaskStatusPending,
-		Progress:  0,
+		ID:          uuid.New().String(),
+		Name:        req.Name,
+		Path:        req.Path,
+		Recursive:   req.Recursive,
+		FileTypes:   req.FileTypes,
+		PIITypes:    req.PIITypes,
+		Status:      TaskStatusPending,
+		Progress:    0,
 		WhitelistID: req.WhitelistID,
-		CreatedAt: now,
+		CreatedAt:   now,
 	}
 
 	// 默认扫描所有文件类型

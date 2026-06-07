@@ -400,18 +400,18 @@ func (api *API) GetOverview(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"cluster": gin.H{
-			"name":          api.manager.config.Name,
-			"leader_id":     topology.LeaderID,
-			"total_nodes":   len(nodes),
-			"online_nodes":  onlineNodes,
-			"offline_nodes": offlineNodes,
+			"name":           api.manager.config.Name,
+			"leader_id":      topology.LeaderID,
+			"total_nodes":    len(nodes),
+			"online_nodes":   onlineNodes,
+			"offline_nodes":  offlineNodes,
 			"degraded_nodes": degradedNodes,
 		},
 		"storage": gin.H{
-			"total_pools":  len(pools),
-			"total_size":   totalStorage,
-			"used_size":    usedStorage,
-			"free_size":    freeStorage,
+			"total_pools": len(pools),
+			"total_size":  totalStorage,
+			"used_size":   usedStorage,
+			"free_size":   freeStorage,
 		},
 	})
 }

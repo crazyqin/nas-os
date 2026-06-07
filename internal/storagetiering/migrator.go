@@ -25,23 +25,23 @@ type StorageBackend interface {
 // Migrator 数据迁移执行器
 // 支持暂停/恢复/取消，迁移前后数据校验
 type Migrator struct {
-	mu       sync.RWMutex
-	config   MigratorConfig
-	logger   *zap.Logger
-	backend  StorageBackend
+	mu      sync.RWMutex
+	config  MigratorConfig
+	logger  *zap.Logger
+	backend StorageBackend
 
 	// 任务管理
-	tasks    map[string]*MigrationTask // id -> task
-	history  []MigrationHistoryItem
-	eventCh  chan *MigrationTask
+	tasks   map[string]*MigrationTask // id -> task
+	history []MigrationHistoryItem
+	eventCh chan *MigrationTask
 
 	// 控制
-	running   bool
-	stopCh    chan struct{}
-	pauseCh   chan struct{}
-	resumeCh  chan struct{}
-	paused    bool
-	wg        sync.WaitGroup
+	running  bool
+	stopCh   chan struct{}
+	pauseCh  chan struct{}
+	resumeCh chan struct{}
+	paused   bool
+	wg       sync.WaitGroup
 
 	// 统计
 	totalMigrations int64

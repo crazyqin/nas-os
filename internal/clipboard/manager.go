@@ -16,10 +16,10 @@ import (
 
 // Manager 剪贴板管理器.
 type Manager struct {
-	mu      sync.RWMutex
-	items   map[string]*ClipItem
-	users   map[string]map[string]*ClipItem // userID -> deviceID -> last clip
-	key     []byte
+	mu       sync.RWMutex
+	items    map[string]*ClipItem
+	users    map[string]map[string]*ClipItem // userID -> deviceID -> last clip
+	key      []byte
 	maxItems int
 }
 

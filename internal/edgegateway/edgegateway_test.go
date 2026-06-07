@@ -121,15 +121,15 @@ func TestEdgeGateway_Stats(t *testing.T) {
 
 	// 注册节点
 	eg.RegisterNode(&EdgeNode{
-		ID:     "node-1",
-		Name:   "节点1",
-		Type:   NodeTypeGateway,
+		ID:      "node-1",
+		Name:    "节点1",
+		Type:    NodeTypeGateway,
 		Latency: 10,
 	})
 	eg.RegisterNode(&EdgeNode{
-		ID:     "node-2",
-		Name:   "节点2",
-		Type:   NodeTypeCompute,
+		ID:      "node-2",
+		Name:    "节点2",
+		Type:    NodeTypeCompute,
 		Latency: 20,
 	})
 

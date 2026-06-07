@@ -31,11 +31,11 @@ func (dc *DefaultCollectors) RegisterDefaultCollectors() {
 func (dc *DefaultCollectors) collectCPU() (*ComponentScore, error) {
 	// Get CPU info
 	numCPU := runtime.NumCPU()
-	
+
 	// Simulate CPU usage (in production, use system APIs)
 	// For now, return a reasonable score
 	cpuUsage := 30.0 // Placeholder
-	
+
 	score := 100.0 - cpuUsage
 	if score < 0 {
 		score = 0
@@ -50,14 +50,14 @@ func (dc *DefaultCollectors) collectCPU() (*ComponentScore, error) {
 	}
 
 	return &ComponentScore{
-		Type:        ComponentCPU,
-		Score:       score,
-		Weight:      DefaultWeights[ComponentCPU],
-		Status:      status,
-		Message:     message,
+		Type:    ComponentCPU,
+		Score:   score,
+		Weight:  DefaultWeights[ComponentCPU],
+		Status:  status,
+		Message: message,
 		Details: map[string]interface{}{
-			"num_cpu":    numCPU,
-			"usage_pct":  cpuUsage,
+			"num_cpu":   numCPU,
+			"usage_pct": cpuUsage,
 		},
 		CollectedAt: time.Now(),
 	}, nil
@@ -70,7 +70,7 @@ func (dc *DefaultCollectors) collectMemory() (*ComponentScore, error) {
 
 	totalMem := float64(m.Sys)
 	usedMem := float64(m.Alloc)
-	
+
 	usagePct := (usedMem / totalMem) * 100
 	score := 100.0 - usagePct
 	if score < 0 {
@@ -86,11 +86,11 @@ func (dc *DefaultCollectors) collectMemory() (*ComponentScore, error) {
 	}
 
 	return &ComponentScore{
-		Type:        ComponentMemory,
-		Score:       score,
-		Weight:      DefaultWeights[ComponentMemory],
-		Status:      status,
-		Message:     message,
+		Type:    ComponentMemory,
+		Score:   score,
+		Weight:  DefaultWeights[ComponentMemory],
+		Status:  status,
+		Message: message,
 		Details: map[string]interface{}{
 			"total_bytes": totalMem,
 			"used_bytes":  usedMem,
@@ -104,7 +104,7 @@ func (dc *DefaultCollectors) collectMemory() (*ComponentScore, error) {
 func (dc *DefaultCollectors) collectDisk() (*ComponentScore, error) {
 	// Simulate disk metrics (in production, use disk APIs)
 	diskUsagePct := 65.0 // Placeholder
-	
+
 	score := 100.0 - diskUsagePct
 	if score < 0 {
 		score = 0
@@ -123,11 +123,11 @@ func (dc *DefaultCollectors) collectDisk() (*ComponentScore, error) {
 	}
 
 	return &ComponentScore{
-		Type:        ComponentDisk,
-		Score:       score,
-		Weight:      DefaultWeights[ComponentDisk],
-		Status:      status,
-		Message:     message,
+		Type:    ComponentDisk,
+		Score:   score,
+		Weight:  DefaultWeights[ComponentDisk],
+		Status:  status,
+		Message: message,
 		Details: map[string]interface{}{
 			"usage_pct":   diskUsagePct,
 			"smart_score": smartScore,
@@ -139,9 +139,9 @@ func (dc *DefaultCollectors) collectDisk() (*ComponentScore, error) {
 // collectNetwork collects network health data
 func (dc *DefaultCollectors) collectNetwork() (*ComponentScore, error) {
 	// Simulate network metrics
-	latencyMs := 5.0    // Placeholder
-	packetLoss := 0.1   // Placeholder
-	
+	latencyMs := 5.0  // Placeholder
+	packetLoss := 0.1 // Placeholder
+
 	// Score based on latency and packet loss
 	latencyScore := math.Max(0, 100-latencyMs*2)
 	lossScore := math.Max(0, 100-packetLoss*20)
@@ -156,11 +156,11 @@ func (dc *DefaultCollectors) collectNetwork() (*ComponentScore, error) {
 	}
 
 	return &ComponentScore{
-		Type:        ComponentNetwork,
-		Score:       score,
-		Weight:      DefaultWeights[ComponentNetwork],
-		Status:      status,
-		Message:     message,
+		Type:    ComponentNetwork,
+		Score:   score,
+		Weight:  DefaultWeights[ComponentNetwork],
+		Status:  status,
+		Message: message,
 		Details: map[string]interface{}{
 			"latency_ms":  latencyMs,
 			"packet_loss": packetLoss,
@@ -172,13 +172,13 @@ func (dc *DefaultCollectors) collectNetwork() (*ComponentScore, error) {
 // collectTemperature collects temperature health data
 func (dc *DefaultCollectors) collectTemperature() (*ComponentScore, error) {
 	// Simulate temperature
-	cpuTemp := 45.0    // Placeholder
-	diskTemp := 38.0   // Placeholder
-	
+	cpuTemp := 45.0  // Placeholder
+	diskTemp := 38.0 // Placeholder
+
 	// Score based on temperature (ideal: 30-60°C)
 	maxTemp := math.Max(cpuTemp, diskTemp)
 	score := 100.0
-	
+
 	if maxTemp > 80 {
 		score = 20
 	} else if maxTemp > 70 {
@@ -198,11 +198,11 @@ func (dc *DefaultCollectors) collectTemperature() (*ComponentScore, error) {
 	}
 
 	return &ComponentScore{
-		Type:        ComponentTemperature,
-		Score:       score,
-		Weight:      DefaultWeights[ComponentTemperature],
-		Status:      status,
-		Message:     message,
+		Type:    ComponentTemperature,
+		Score:   score,
+		Weight:  DefaultWeights[ComponentTemperature],
+		Status:  status,
+		Message: message,
 		Details: map[string]interface{}{
 			"cpu_temp":  cpuTemp,
 			"disk_temp": diskTemp,
@@ -216,7 +216,7 @@ func (dc *DefaultCollectors) collectServices() (*ComponentScore, error) {
 	// Simulate service status
 	totalServices := 10
 	runningServices := 9
-	
+
 	score := float64(runningServices) / float64(totalServices) * 100
 
 	status := dc.hs.GetCalculator().DetermineStatus(score)
@@ -226,11 +226,11 @@ func (dc *DefaultCollectors) collectServices() (*ComponentScore, error) {
 	}
 
 	return &ComponentScore{
-		Type:        ComponentService,
-		Score:       score,
-		Weight:      DefaultWeights[ComponentService],
-		Status:      status,
-		Message:     message,
+		Type:    ComponentService,
+		Score:   score,
+		Weight:  DefaultWeights[ComponentService],
+		Status:  status,
+		Message: message,
 		Details: map[string]interface{}{
 			"total":   totalServices,
 			"running": runningServices,
@@ -244,7 +244,7 @@ func (dc *DefaultCollectors) collectRAID() (*ComponentScore, error) {
 	// Simulate RAID status
 	raidStatus := "healthy" // Placeholder
 	degradedDisks := 0
-	
+
 	score := 100.0
 	if degradedDisks > 0 {
 		score -= float64(degradedDisks) * 30
@@ -262,11 +262,11 @@ func (dc *DefaultCollectors) collectRAID() (*ComponentScore, error) {
 	}
 
 	return &ComponentScore{
-		Type:        ComponentRAID,
-		Score:       score,
-		Weight:      DefaultWeights[ComponentRAID],
-		Status:      status,
-		Message:     message,
+		Type:    ComponentRAID,
+		Score:   score,
+		Weight:  DefaultWeights[ComponentRAID],
+		Status:  status,
+		Message: message,
 		Details: map[string]interface{}{
 			"status":         raidStatus,
 			"degraded_disks": degradedDisks,

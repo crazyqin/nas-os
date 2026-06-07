@@ -58,41 +58,41 @@ const (
 type IncidentStatus string
 
 const (
-	IncidentOpen       IncidentStatus = "open"
+	IncidentOpen          IncidentStatus = "open"
 	IncidentInvestigating IncidentStatus = "investigating"
-	IncidentResolved   IncidentStatus = "resolved"
-	IncidentClosed     IncidentStatus = "closed"
+	IncidentResolved      IncidentStatus = "resolved"
+	IncidentClosed        IncidentStatus = "closed"
 )
 
 // OpsEvent 运维事件
 type OpsEvent struct {
-	ID          string       `json:"id"`
-	Source      EventSource  `json:"source"`
-	Severity    Severity     `json:"severity"`
-	Title       string       `json:"title"`
-	Description string       `json:"description"`
+	ID          string                 `json:"id"`
+	Source      EventSource            `json:"source"`
+	Severity    Severity               `json:"severity"`
+	Title       string                 `json:"title"`
+	Description string                 `json:"description"`
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
-	Timestamp   time.Time    `json:"timestamp"`
-	Host        string       `json:"host,omitempty"`
-	Service     string       `json:"service,omitempty"`
+	Timestamp   time.Time              `json:"timestamp"`
+	Host        string                 `json:"host,omitempty"`
+	Service     string                 `json:"service,omitempty"`
 }
 
 // Incident 运维事件（聚合后）
 type Incident struct {
-	ID          string           `json:"id"`
-	Title       string           `json:"title"`
-	Description string           `json:"description"`
-	Severity    Severity         `json:"severity"`
-	Status      IncidentStatus   `json:"status"`
-	Events      []OpsEvent       `json:"events"`
-	RootCause   string           `json:"root_cause,omitempty"`
-	Remediation string           `json:"remediation,omitempty"`
-	AffectedServices []string    `json:"affected_services"`
-	FirstSeen   time.Time        `json:"first_seen"`
-	LastSeen    time.Time        `json:"last_seen"`
-	ResolvedAt  *time.Time       `json:"resolved_at,omitempty"`
-	Assignee    string           `json:"assignee,omitempty"`
-	Tags        []string         `json:"tags,omitempty"`
+	ID               string         `json:"id"`
+	Title            string         `json:"title"`
+	Description      string         `json:"description"`
+	Severity         Severity       `json:"severity"`
+	Status           IncidentStatus `json:"status"`
+	Events           []OpsEvent     `json:"events"`
+	RootCause        string         `json:"root_cause,omitempty"`
+	Remediation      string         `json:"remediation,omitempty"`
+	AffectedServices []string       `json:"affected_services"`
+	FirstSeen        time.Time      `json:"first_seen"`
+	LastSeen         time.Time      `json:"last_seen"`
+	ResolvedAt       *time.Time     `json:"resolved_at,omitempty"`
+	Assignee         string         `json:"assignee,omitempty"`
+	Tags             []string       `json:"tags,omitempty"`
 }
 
 // Anomaly 异常检测结果
@@ -111,13 +111,13 @@ type Anomaly struct {
 
 // HealthScore 健康评分
 type HealthScore struct {
-	Overall     float64            `json:"overall"`      // 0-100
+	Overall     float64            `json:"overall"` // 0-100
 	Storage     float64            `json:"storage"`
 	Network     float64            `json:"network"`
 	Compute     float64            `json:"compute"`
 	Security    float64            `json:"security"`
 	Backup      float64            `json:"backup"`
-	Trend       string             `json:"trend"`        // improving, stable, degrading
+	Trend       string             `json:"trend"` // improving, stable, degrading
 	UpdatedAt   time.Time          `json:"updated_at"`
 	Suggestions []HealthSuggestion `json:"suggestions"`
 }
@@ -133,27 +133,27 @@ type HealthSuggestion struct {
 
 // OpsMetrics 运维指标
 type OpsMetrics struct {
-	TotalEvents      int64         `json:"total_events"`
-	OpenIncidents    int           `json:"open_incidents"`
-	ResolvedToday    int           `json:"resolved_today"`
-	AvgResolution    time.Duration `json:"avg_resolution"`
-	AnomaliesDetected int          `json:"anomalies_detected"`
-	HealthScore      float64       `json:"health_score"`
-	Uptime           time.Duration `json:"uptime"`
-	LastUpdated      time.Time     `json:"last_updated"`
+	TotalEvents       int64         `json:"total_events"`
+	OpenIncidents     int           `json:"open_incidents"`
+	ResolvedToday     int           `json:"resolved_today"`
+	AvgResolution     time.Duration `json:"avg_resolution"`
+	AnomaliesDetected int           `json:"anomalies_detected"`
+	HealthScore       float64       `json:"health_score"`
+	Uptime            time.Duration `json:"uptime"`
+	LastUpdated       time.Time     `json:"last_updated"`
 }
 
 // Rule 关联规则
 type Rule struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Description string       `json:"description"`
-	Source      EventSource  `json:"source"`
-	Condition   string       `json:"condition"` // 简单条件表达式
-	Severity    Severity     `json:"severity"`
-	Enabled     bool         `json:"enabled"`
-	Actions     []string     `json:"actions"`   // 触发的动作
-	CreatedAt   time.Time    `json:"created_at"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Source      EventSource `json:"source"`
+	Condition   string      `json:"condition"` // 简单条件表达式
+	Severity    Severity    `json:"severity"`
+	Enabled     bool        `json:"enabled"`
+	Actions     []string    `json:"actions"` // 触发的动作
+	CreatedAt   time.Time   `json:"created_at"`
 }
 
 // Manager 运维智能管理器
@@ -344,7 +344,7 @@ func (m *Manager) correlateEvent(event OpsEvent) {
 			continue
 		}
 		// 简单关联：同源、同服务
-		if inc.Events[0].Source == event.Source || 
+		if inc.Events[0].Source == event.Source ||
 			(event.Service != "" && containsStr(inc.AffectedServices, event.Service)) {
 			inc.Events = append(inc.Events, event)
 			inc.LastSeen = event.Timestamp

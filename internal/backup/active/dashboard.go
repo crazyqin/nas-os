@@ -34,29 +34,29 @@ type DashboardEvent struct {
 
 // BackupSummary 备份状态汇总
 type BackupSummary struct {
-	TotalJobs       int              `json:"total_jobs"`
-	RunningJobs     int              `json:"running_jobs"`
-	CompletedJobs   int              `json:"completed_jobs"`
-	FailedJobs      int              `json:"failed_jobs"`
-	TotalSnapshots  int              `json:"total_snapshots"`
-	TotalStorage    int64            `json:"total_storage"`     // 总存储使用（字节）
-	StorageSaved    int64            `json:"storage_saved"`     // 去重节省（字节）
-	DedupRatio      float64          `json:"dedup_ratio"`       // 去重率
-	OnlineAgents    int              `json:"online_agents"`
-	LastBackupTime  *time.Time       `json:"last_backup_time"`
-	NextBackupTime  *time.Time       `json:"next_backup_time"`
-	EngineState     string           `json:"engine_state"`
-	JobsByType      map[string]int   `json:"jobs_by_type"`     // 备份类型分布
-	StorageByJob    []JobStorageInfo `json:"storage_by_job"`   // 每个任务的存储使用
+	TotalJobs      int              `json:"total_jobs"`
+	RunningJobs    int              `json:"running_jobs"`
+	CompletedJobs  int              `json:"completed_jobs"`
+	FailedJobs     int              `json:"failed_jobs"`
+	TotalSnapshots int              `json:"total_snapshots"`
+	TotalStorage   int64            `json:"total_storage"` // 总存储使用（字节）
+	StorageSaved   int64            `json:"storage_saved"` // 去重节省（字节）
+	DedupRatio     float64          `json:"dedup_ratio"`   // 去重率
+	OnlineAgents   int              `json:"online_agents"`
+	LastBackupTime *time.Time       `json:"last_backup_time"`
+	NextBackupTime *time.Time       `json:"next_backup_time"`
+	EngineState    string           `json:"engine_state"`
+	JobsByType     map[string]int   `json:"jobs_by_type"`   // 备份类型分布
+	StorageByJob   []JobStorageInfo `json:"storage_by_job"` // 每个任务的存储使用
 }
 
 // JobStorageInfo 任务存储信息
 type JobStorageInfo struct {
-	JobID       string `json:"job_id"`
-	JobName     string `json:"job_name"`
-	SnapshotCount int  `json:"snapshot_count"`
-	TotalSize   int64  `json:"total_size"`
-	LastBackup  string `json:"last_backup"`
+	JobID         string `json:"job_id"`
+	JobName       string `json:"job_name"`
+	SnapshotCount int    `json:"snapshot_count"`
+	TotalSize     int64  `json:"total_size"`
+	LastBackup    string `json:"last_backup"`
 }
 
 // StorageTrend 存储使用趋势
@@ -66,27 +66,27 @@ type StorageTrend struct {
 
 // StorageTrendPoint 存储趋势数据点
 type StorageTrendPoint struct {
-	Timestamp    time.Time `json:"timestamp"`
-	TotalSize    int64     `json:"total_size"`
-	UniqueSize   int64     `json:"unique_size"`
-	SavedSize    int64     `json:"saved_size"`
-	SnapshotCount int      `json:"snapshot_count"`
+	Timestamp     time.Time `json:"timestamp"`
+	TotalSize     int64     `json:"total_size"`
+	UniqueSize    int64     `json:"unique_size"`
+	SavedSize     int64     `json:"saved_size"`
+	SnapshotCount int       `json:"snapshot_count"`
 }
 
 // BackupProgressEvent 备份进度事件（WebSocket 推送用）
 type BackupProgressEvent struct {
-	JobID       string  `json:"job_id"`
-	TaskRunID   string  `json:"task_run_id"`
-	BackupType  string  `json:"backup_type"`
-	Status      string  `json:"status"`
-	Progress    float64 `json:"progress"`
-	FilesDone   int     `json:"files_done"`
-	FilesTotal  int     `json:"files_total"`
-	BytesDone   int64   `json:"bytes_done"`
-	BytesTotal  int64   `json:"bytes_total"`
-	Speed       float64 `json:"speed"` // MB/s
-	ETA         int     `json:"eta"`   // 预计剩余秒数
-	Message     string  `json:"message"`
+	JobID      string  `json:"job_id"`
+	TaskRunID  string  `json:"task_run_id"`
+	BackupType string  `json:"backup_type"`
+	Status     string  `json:"status"`
+	Progress   float64 `json:"progress"`
+	FilesDone  int     `json:"files_done"`
+	FilesTotal int     `json:"files_total"`
+	BytesDone  int64   `json:"bytes_done"`
+	BytesTotal int64   `json:"bytes_total"`
+	Speed      float64 `json:"speed"` // MB/s
+	ETA        int     `json:"eta"`   // 预计剩余秒数
+	Message    string  `json:"message"`
 }
 
 // NewDashboardHandler 创建仪表板处理器

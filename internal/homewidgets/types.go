@@ -31,15 +31,15 @@ const (
 
 // Widget 组件实例
 type Widget struct {
-	ID          string            `json:"id"`
-	Type        WidgetType        `json:"type"`
-	Title       string            `json:"title"`
-	Position    Position          `json:"position"`
-	Size        WidgetSize        `json:"size"`
-	Config      map[string]string `json:"config,omitempty"` // 组件特定配置
-	Enabled     bool              `json:"enabled"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	ID        string            `json:"id"`
+	Type      WidgetType        `json:"type"`
+	Title     string            `json:"title"`
+	Position  Position          `json:"position"`
+	Size      WidgetSize        `json:"size"`
+	Config    map[string]string `json:"config,omitempty"` // 组件特定配置
+	Enabled   bool              `json:"enabled"`
+	CreatedAt time.Time         `json:"created_at"`
+	UpdatedAt time.Time         `json:"updated_at"`
 }
 
 // Position 组件位置
@@ -66,12 +66,12 @@ type Template struct {
 
 // StorageOverviewData 存储概览数据
 type StorageOverviewData struct {
-	TotalSpace  int64   `json:"total_space"`  // 总空间 (bytes)
-	UsedSpace   int64   `json:"used_space"`   // 已用空间
-	FreeSpace   int64   `json:"free_space"`   // 剩余空间
-	UsedPercent float64 `json:"used_percent"` // 使用率
-	TotalDisks  int     `json:"total_disks"`  // 磁盘数量
-	HealthyDisks int    `json:"healthy_disks"` // 健康磁盘数
+	TotalSpace   int64   `json:"total_space"`   // 总空间 (bytes)
+	UsedSpace    int64   `json:"used_space"`    // 已用空间
+	FreeSpace    int64   `json:"free_space"`    // 剩余空间
+	UsedPercent  float64 `json:"used_percent"`  // 使用率
+	TotalDisks   int     `json:"total_disks"`   // 磁盘数量
+	HealthyDisks int     `json:"healthy_disks"` // 健康磁盘数
 }
 
 // SystemStatusData 系统状态数据
@@ -165,20 +165,20 @@ func (m *Manager) initDefaultTemplates() {
 			Columns: 2,
 			Widgets: []Widget{
 				{
-					ID:    "tpl_storage",
-					Type:  WidgetStorageOverview,
-					Title: "存储概览",
+					ID:       "tpl_storage",
+					Type:     WidgetStorageOverview,
+					Title:    "存储概览",
 					Position: Position{Row: 0, Col: 0},
-					Size:  SizeMedium,
-					Enabled: true,
+					Size:     SizeMedium,
+					Enabled:  true,
 				},
 				{
-					ID:    "tpl_system",
-					Type:  WidgetSystemStatus,
-					Title: "系统状态",
+					ID:       "tpl_system",
+					Type:     WidgetSystemStatus,
+					Title:    "系统状态",
 					Position: Position{Row: 0, Col: 1},
-					Size:  SizeMedium,
-					Enabled: true,
+					Size:     SizeMedium,
+					Enabled:  true,
 				},
 			},
 		},
@@ -194,52 +194,52 @@ func (m *Manager) initDefaultTemplates() {
 			Columns: 2,
 			Widgets: []Widget{
 				{
-					ID:    "tpl_storage_full",
-					Type:  WidgetStorageOverview,
-					Title: "存储概览",
+					ID:       "tpl_storage_full",
+					Type:     WidgetStorageOverview,
+					Title:    "存储概览",
 					Position: Position{Row: 0, Col: 0},
-					Size:  SizeMedium,
-					Enabled: true,
+					Size:     SizeMedium,
+					Enabled:  true,
 				},
 				{
-					ID:    "tpl_system_full",
-					Type:  WidgetSystemStatus,
-					Title: "系统状态",
+					ID:       "tpl_system_full",
+					Type:     WidgetSystemStatus,
+					Title:    "系统状态",
 					Position: Position{Row: 0, Col: 1},
-					Size:  SizeMedium,
-					Enabled: true,
+					Size:     SizeMedium,
+					Enabled:  true,
 				},
 				{
-					ID:    "tpl_files_full",
-					Type:  WidgetRecentFiles,
-					Title: "最近文件",
+					ID:       "tpl_files_full",
+					Type:     WidgetRecentFiles,
+					Title:    "最近文件",
 					Position: Position{Row: 1, Col: 0},
-					Size:  SizeLarge,
-					Enabled: true,
+					Size:     SizeLarge,
+					Enabled:  true,
 				},
 				{
-					ID:    "tpl_weather_full",
-					Type:  WidgetWeather,
-					Title: "天气",
+					ID:       "tpl_weather_full",
+					Type:     WidgetWeather,
+					Title:    "天气",
 					Position: Position{Row: 2, Col: 0},
-					Size:  SizeSmall,
-					Enabled: true,
+					Size:     SizeSmall,
+					Enabled:  true,
 				},
 				{
-					ID:    "tpl_todo_full",
-					Type:  WidgetTodoList,
-					Title: "待办事项",
+					ID:       "tpl_todo_full",
+					Type:     WidgetTodoList,
+					Title:    "待办事项",
 					Position: Position{Row: 2, Col: 1},
-					Size:  SizeSmall,
-					Enabled: true,
+					Size:     SizeSmall,
+					Enabled:  true,
 				},
 				{
-					ID:    "tpl_actions_full",
-					Type:  WidgetQuickActions,
-					Title: "快捷操作",
+					ID:       "tpl_actions_full",
+					Type:     WidgetQuickActions,
+					Title:    "快捷操作",
 					Position: Position{Row: 3, Col: 0},
-					Size:  SizeLarge,
-					Enabled: true,
+					Size:     SizeLarge,
+					Enabled:  true,
 				},
 			},
 		},
@@ -430,8 +430,8 @@ func (m *Manager) getSystemStatusData() *SystemStatusData {
 		MemoryUsage: 45.2,
 		Uptime:      86400 * 7, // 7天
 		Temperature: 42.0,
-		NetworkIn:   1024 * 100,  // 100KB/s
-		NetworkOut:  1024 * 50,   // 50KB/s
+		NetworkIn:   1024 * 100, // 100KB/s
+		NetworkOut:  1024 * 50,  // 50KB/s
 	}
 }
 

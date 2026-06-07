@@ -6,26 +6,26 @@ import (
 
 // DiskUsage represents disk space usage statistics
 type DiskUsage struct {
-	Total         int64   `json:"total"`
-	Used          int64   `json:"used"`
-	Free          int64   `json:"free"`
-	UsagePercent  float64 `json:"usage_percent"`
-	InodeTotal    int64   `json:"inode_total"`
-	InodeUsed     int64   `json:"inode_used"`
-	InodeFree     int64   `json:"inode_free"`
-	InodePercent  float64 `json:"inode_percent"`
+	Total        int64   `json:"total"`
+	Used         int64   `json:"used"`
+	Free         int64   `json:"free"`
+	UsagePercent float64 `json:"usage_percent"`
+	InodeTotal   int64   `json:"inode_total"`
+	InodeUsed    int64   `json:"inode_used"`
+	InodeFree    int64   `json:"inode_free"`
+	InodePercent float64 `json:"inode_percent"`
 }
 
 // DirectoryNode represents a directory in the file tree
 type DirectoryNode struct {
-	Path       string           `json:"path"`
-	Name       string           `json:"name"`
-	Size       int64            `json:"size"`
-	FileCount  int              `json:"file_count"`
-	DirCount   int              `json:"dir_count"`
-	Children   []DirectoryNode  `json:"children,omitempty"`
-	Depth      int              `json:"depth"`
-	ParentPath string           `json:"parent_path,omitempty"`
+	Path       string          `json:"path"`
+	Name       string          `json:"name"`
+	Size       int64           `json:"size"`
+	FileCount  int             `json:"file_count"`
+	DirCount   int             `json:"dir_count"`
+	Children   []DirectoryNode `json:"children,omitempty"`
+	Depth      int             `json:"depth"`
+	ParentPath string          `json:"parent_path,omitempty"`
 }
 
 // FileTypeStats represents statistics for a file type
@@ -87,19 +87,19 @@ type ScanConfig struct {
 
 // GrowthTrend represents disk usage trend over time
 type GrowthTrend struct {
-	Date       time.Time `json:"date"`
-	UsedSpace  int64     `json:"used_space"`
-	FileCount  int       `json:"file_count"`
+	Date      time.Time `json:"date"`
+	UsedSpace int64     `json:"used_space"`
+	FileCount int       `json:"file_count"`
 }
 
 // DiskStats represents complete disk statistics
 type DiskStats struct {
-	DiskUsage            DiskUsage        `json:"disk_usage"`
-	TopDirectories       []DirectoryNode  `json:"top_directories"`
-	FileTypeDistribution []FileTypeStats  `json:"file_type_distribution"`
-	LargestFiles         []LargeFileInfo  `json:"largest_files"`
-	Duplicates           []DuplicateFile  `json:"duplicates,omitempty"`
-	GrowthTrend          []GrowthTrend    `json:"growth_trend"`
+	DiskUsage            DiskUsage       `json:"disk_usage"`
+	TopDirectories       []DirectoryNode `json:"top_directories"`
+	FileTypeDistribution []FileTypeStats `json:"file_type_distribution"`
+	LargestFiles         []LargeFileInfo `json:"largest_files"`
+	Duplicates           []DuplicateFile `json:"duplicates,omitempty"`
+	GrowthTrend          []GrowthTrend   `json:"growth_trend"`
 }
 
 // ScanRequest represents a request to start a scan

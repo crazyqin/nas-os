@@ -14,9 +14,9 @@ import (
 type TagType string
 
 const (
-	TagAuto    TagType = "auto"    // AI自动生成
-	TagManual  TagType = "manual"  // 手动添加
-	TagSystem  TagType = "system"  // 系统标签
+	TagAuto   TagType = "auto"   // AI自动生成
+	TagManual TagType = "manual" // 手动添加
+	TagSystem TagType = "system" // 系统标签
 )
 
 // Tag 标签
@@ -41,13 +41,13 @@ type FileTag struct {
 
 // ClassificationRule 分类规则
 type ClassificationRule struct {
-	ID        string   `json:"id"`
-	Name      string   `json:"name"`
-	Patterns  []string `json:"patterns"`  // 文件名/路径模式
+	ID         string   `json:"id"`
+	Name       string   `json:"name"`
+	Patterns   []string `json:"patterns"`   // 文件名/路径模式
 	Extensions []string `json:"extensions"` // 扩展名
-	TagIDs    []string `json:"tag_ids"`
-	Priority  int      `json:"priority"`
-	Enabled   bool     `json:"enabled"`
+	TagIDs     []string `json:"tag_ids"`
+	Priority   int      `json:"priority"`
+	Enabled    bool     `json:"enabled"`
 }
 
 // AISuggestion AI建议
@@ -60,11 +60,11 @@ type AISuggestion struct {
 
 // Config 配置
 type Config struct {
-	AutoTag      bool     `json:"auto_tag"`
-	AIEnabled    bool     `json:"ai_enabled"`
-	ScanInterval int      `json:"scan_interval_hours"`
+	AutoTag       bool    `json:"auto_tag"`
+	AIEnabled     bool    `json:"ai_enabled"`
+	ScanInterval  int     `json:"scan_interval_hours"`
 	MinConfidence float64 `json:"min_confidence"`
-	MaxTags      int      `json:"max_tags_per_file"`
+	MaxTags       int     `json:"max_tags_per_file"`
 }
 
 // Manager 管理器
@@ -78,9 +78,9 @@ type Manager struct {
 }
 
 var (
-	ErrTagNotFound     = errors.New("tag not found")
-	ErrFileNotTagged   = errors.New("file not tagged")
-	ErrDuplicateTag    = errors.New("tag already exists")
+	ErrTagNotFound   = errors.New("tag not found")
+	ErrFileNotTagged = errors.New("file not tagged")
+	ErrDuplicateTag  = errors.New("tag already exists")
 )
 
 // NewManager 创建管理器

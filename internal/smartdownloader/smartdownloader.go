@@ -113,10 +113,10 @@ type DownloadItem struct {
 	Status         DownloadStatus    `json:"status"`
 	Priority       DownloadPriority  `json:"priority"`
 	Progress       float64           `json:"progress"`
-	Speed          int64             `json:"speed"`          // bytes per second
-	ETA            time.Duration     `json:"eta"`            // estimated time remaining
-	Segments       int               `json:"segments"`       // 分段数
-	SegmentSize    int64             `json:"segment_size"`   // 分段大小
+	Speed          int64             `json:"speed"`        // bytes per second
+	ETA            time.Duration     `json:"eta"`          // estimated time remaining
+	Segments       int               `json:"segments"`     // 分段数
+	SegmentSize    int64             `json:"segment_size"` // 分段大小
 	Headers        map[string]string `json:"headers,omitempty"`
 	Cookies        map[string]string `json:"cookies,omitempty"`
 	CreatedAt      time.Time         `json:"created_at"`
@@ -125,8 +125,8 @@ type DownloadItem struct {
 	Error          string            `json:"error,omitempty"`
 	RetryCount     int               `json:"retry_count"`
 	Checksum       string            `json:"checksum,omitempty"`
-	SpeedLimit     int64             `json:"speed_limit"`                  // bytes per second, 0=unlimited
-	ScheduledAt    *time.Time        `json:"scheduled_at,omitempty"`       // 定时下载
+	SpeedLimit     int64             `json:"speed_limit"`            // bytes per second, 0=unlimited
+	ScheduledAt    *time.Time        `json:"scheduled_at,omitempty"` // 定时下载
 	Metadata       DownloadMetadata  `json:"metadata"`
 }
 
@@ -740,7 +740,7 @@ func (dm *DownloadManager) singleThreadDownload(ctx context.Context, item *Downl
 				if item.FileSize > 0 {
 					item.Progress = float64(item.DownloadedSize) / float64(item.FileSize) * 100
 					if item.Speed > 0 {
-						item.ETA = time.Duration((item.FileSize - item.DownloadedSize) / item.Speed) * time.Second
+						item.ETA = time.Duration((item.FileSize-item.DownloadedSize)/item.Speed) * time.Second
 					}
 				}
 				lastUpdate = now

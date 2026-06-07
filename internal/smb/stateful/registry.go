@@ -15,8 +15,8 @@ type SessionStateRegistry struct {
 
 // SessionState SMB会话状态（用于跨节点迁移）
 type SessionState struct {
-	SessionID     string            `json:"session_id"`
-	ClientIP      string            `json:"client_ip"`
+	SessionID    string            `json:"session_id"`
+	ClientIP     string            `json:"client_ip"`
 	ClientName   string            `json:"client_name"`
 	Username     string            `json:"username"`
 	ShareName    string            `json:"share_name"`
@@ -37,11 +37,11 @@ type SessionState struct {
 
 // FileLockState 文件锁状态
 type FileLockState struct {
-	FilePath   string `json:"file_path"`
-	LockType  string `json:"lock_type"` // "read" | "write" | "read-write"
-	PID        int    `json:"pid"`
-	Offset    int64  `json:"offset"`
-	Length    int64  `json:"length"`
+	FilePath   string    `json:"file_path"`
+	LockType   string    `json:"lock_type"` // "read" | "write" | "read-write"
+	PID        int       `json:"pid"`
+	Offset     int64     `json:"offset"`
+	Length     int64     `json:"length"`
 	AcquiredAt time.Time `json:"acquired_at"`
 }
 

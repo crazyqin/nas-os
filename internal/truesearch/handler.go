@@ -76,11 +76,11 @@ func (h *Handler) Suggest(c *gin.Context) {
 // IndexDocument 索引文档
 func (h *Handler) IndexDocument(c *gin.Context) {
 	var req struct {
-		ID        string            `json:"id" binding:"required"`
-		Path      string            `json:"path" binding:"required"`
-		Name      string            `json:"name" binding:"required"`
-		Content   string            `json:"content"`
-		Metadata  map[string]string `json:"metadata"`
+		ID       string            `json:"id" binding:"required"`
+		Path     string            `json:"path" binding:"required"`
+		Name     string            `json:"name" binding:"required"`
+		Content  string            `json:"content"`
+		Metadata map[string]string `json:"metadata"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {

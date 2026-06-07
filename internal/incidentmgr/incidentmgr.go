@@ -66,13 +66,13 @@ type TimelineEvent struct {
 
 // RCAReport 根因分析报告
 type RCAReport struct {
-	ID              string    `json:"id"`
-	IncidentID      string    `json:"incident_id"`
-	RootCause       string    `json:"root_cause"`
-	ImpactScope     string    `json:"impact_scope"`
-	FixActions      []string  `json:"fix_actions"`
-	PreventActions  []string  `json:"prevent_actions"`
-	CreatedAt       time.Time `json:"created_at"`
+	ID             string    `json:"id"`
+	IncidentID     string    `json:"incident_id"`
+	RootCause      string    `json:"root_cause"`
+	ImpactScope    string    `json:"impact_scope"`
+	FixActions     []string  `json:"fix_actions"`
+	PreventActions []string  `json:"prevent_actions"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 // Manager 事件管理器

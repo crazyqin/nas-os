@@ -559,8 +559,8 @@ func (h *Handler) GetMigrationTask(c *gin.Context) {
 
 // ForceMigrationRequest 强制迁移请求
 type ForceMigrationRequest struct {
-	ItemID      string          `json:"item_id" binding:"required"`
-	TargetStage LifecycleStage  `json:"target_stage" binding:"required"`
+	ItemID      string         `json:"item_id" binding:"required"`
+	TargetStage LifecycleStage `json:"target_stage" binding:"required"`
 }
 
 // ForceMigration 强制迁移

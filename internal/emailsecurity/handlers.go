@@ -225,8 +225,8 @@ func (h *Handler) ScanEmail(c *gin.Context) {
 				"code":    0,
 				"message": "扫描完成，但隔离失败",
 				"data": gin.H{
-					"scan_result":       result,
-					"quarantine_error":  err.Error(),
+					"scan_result":      result,
+					"quarantine_error": err.Error(),
 				},
 			})
 			return
@@ -236,8 +236,8 @@ func (h *Handler) ScanEmail(c *gin.Context) {
 			"code":    0,
 			"message": "扫描完成，邮件已隔离",
 			"data": gin.H{
-				"scan_result":      result,
-				"quarantine_item":  item,
+				"scan_result":     result,
+				"quarantine_item": item,
 			},
 		})
 		return
@@ -270,10 +270,10 @@ func (h *Handler) ListQuarantine(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"items":      items,
-			"total":      total,
-			"page":       page,
-			"page_size":  pageSize,
+			"items":     items,
+			"total":     total,
+			"page":      page,
+			"page_size": pageSize,
 		},
 	})
 }

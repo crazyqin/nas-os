@@ -152,17 +152,17 @@ func (r *Router) logAccess(req *http.Request, app *Application, statusCode int, 
 	}
 
 	r.manager.LogRequest(&AccessLog{
-		AppID:        app.ID,
-		AppName:      app.Name,
-		Method:       req.Method,
-		Path:         req.URL.Path,
-		StatusCode:   statusCode,
-		ClientIP:     clientIP,
-		UserAgent:    req.UserAgent(),
-		RequestSize:  req.ContentLength,
-		Duration:     time.Since(start),
-		IsWebSocket:  isWS,
-		Error:        errMsg,
+		AppID:       app.ID,
+		AppName:     app.Name,
+		Method:      req.Method,
+		Path:        req.URL.Path,
+		StatusCode:  statusCode,
+		ClientIP:    clientIP,
+		UserAgent:   req.UserAgent(),
+		RequestSize: req.ContentLength,
+		Duration:    time.Since(start),
+		IsWebSocket: isWS,
+		Error:       errMsg,
 	})
 }
 

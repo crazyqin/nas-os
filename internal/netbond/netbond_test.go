@@ -177,9 +177,9 @@ func TestVLANs(t *testing.T) {
 	m := NewManager()
 
 	config := VLANConfig{
-		ID:     100,
-		Parent: "bond0",
-		IP:     IPConfig{IPv4: "10.100.0.1", Netmask: "255.255.255.0"},
+		ID:      100,
+		Parent:  "bond0",
+		IP:      IPConfig{IPv4: "10.100.0.1", Netmask: "255.255.255.0"},
 		Enabled: true,
 	}
 

@@ -57,17 +57,17 @@ const (
 
 // Sprint Sprint 迭代
 type Sprint struct {
-	ID          string       `json:"id"`
-	BoardID     string       `json:"board_id"`
-	Name        string       `json:"name" binding:"required"`
-	Goal        string       `json:"goal,omitempty"`
-	Status      SprintStatus `json:"status"`
-	StartDate   time.Time    `json:"start_date"`
-	EndDate     time.Time    `json:"end_date"`
-	Capacity    int          `json:"capacity"` // 故事点容量
-	Tasks       []*Task      `json:"tasks,omitempty"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	ID        string       `json:"id"`
+	BoardID   string       `json:"board_id"`
+	Name      string       `json:"name" binding:"required"`
+	Goal      string       `json:"goal,omitempty"`
+	Status    SprintStatus `json:"status"`
+	StartDate time.Time    `json:"start_date"`
+	EndDate   time.Time    `json:"end_date"`
+	Capacity  int          `json:"capacity"` // 故事点容量
+	Tasks     []*Task      `json:"tasks,omitempty"`
+	CreatedAt time.Time    `json:"created_at"`
+	UpdatedAt time.Time    `json:"updated_at"`
 }
 
 // Task 任务卡片
@@ -109,12 +109,12 @@ type Board struct {
 
 // Column 看板列
 type Column struct {
-	ID         string     `json:"id"`
-	Name       string     `json:"name"`
-	Status     TaskStatus `json:"status"`
-	Position   int        `json:"position"`
-	WIPLimit   int        `json:"wip_limit"` // 0 表示无限制
-	TaskCount  int        `json:"task_count"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Status    TaskStatus `json:"status"`
+	Position  int        `json:"position"`
+	WIPLimit  int        `json:"wip_limit"` // 0 表示无限制
+	TaskCount int        `json:"task_count"`
 }
 
 // SwimLane 泳道
@@ -130,31 +130,31 @@ type SwimLane struct {
 
 // SprintMetrics Sprint 指标
 type SprintMetrics struct {
-	SprintID         string        `json:"sprint_id"`
-	SprintName       string        `json:"sprint_name"`
-	TotalTasks       int           `json:"total_tasks"`
-	CompletedTasks   int           `json:"completed_tasks"`
-	TotalPoints      int           `json:"total_points"`
-	CompletedPoints  int           `json:"completed_points"`
-	Velocity         float64       `json:"velocity"`          // 每天完成的故事点
-	Progress         float64       `json:"progress"`          // 完成百分比 0-100
-	DaysRemaining    int           `json:"days_remaining"`
-	DaysElapsed      int           `json:"days_elapsed"`
-	BurndownData     []BurndownDay `json:"burndown_data,omitempty"`
-	TasksByStatus    map[string]int `json:"tasks_by_status"`
-	TasksByPriority  map[string]int `json:"tasks_by_priority"`
-	TasksByAssignee  map[string]int `json:"tasks_by_assignee"`
-	OverdueTasks     int           `json:"overdue_tasks"`
-	BlockedTasks     int           `json:"blocked_tasks"`
+	SprintID        string         `json:"sprint_id"`
+	SprintName      string         `json:"sprint_name"`
+	TotalTasks      int            `json:"total_tasks"`
+	CompletedTasks  int            `json:"completed_tasks"`
+	TotalPoints     int            `json:"total_points"`
+	CompletedPoints int            `json:"completed_points"`
+	Velocity        float64        `json:"velocity"` // 每天完成的故事点
+	Progress        float64        `json:"progress"` // 完成百分比 0-100
+	DaysRemaining   int            `json:"days_remaining"`
+	DaysElapsed     int            `json:"days_elapsed"`
+	BurndownData    []BurndownDay  `json:"burndown_data,omitempty"`
+	TasksByStatus   map[string]int `json:"tasks_by_status"`
+	TasksByPriority map[string]int `json:"tasks_by_priority"`
+	TasksByAssignee map[string]int `json:"tasks_by_assignee"`
+	OverdueTasks    int            `json:"overdue_tasks"`
+	BlockedTasks    int            `json:"blocked_tasks"`
 }
 
 // BurndownDay 燃尽图每日数据点
 type BurndownDay struct {
-	Date             time.Time `json:"date"`
-	RemainingPoints  int       `json:"remaining_points"`
-	IdealPoints      int       `json:"ideal_points"`
-	TasksCompleted   int       `json:"tasks_completed"`
-	PointsCompleted  int       `json:"points_completed"`
+	Date            time.Time `json:"date"`
+	RemainingPoints int       `json:"remaining_points"`
+	IdealPoints     int       `json:"ideal_points"`
+	TasksCompleted  int       `json:"tasks_completed"`
+	PointsCompleted int       `json:"points_completed"`
 }
 
 // CreateSprintRequest 创建 Sprint 请求

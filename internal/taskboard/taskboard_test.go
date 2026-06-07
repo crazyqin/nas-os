@@ -104,10 +104,10 @@ func TestUpdateTask(t *testing.T) {
 	task, _ := m.CreateTask(board.ID, "任务1", "", "user1", PriorityLow)
 
 	updates := map[string]interface{}{
-		"title":        "新标题",
-		"description":  "新描述",
-		"priority":     PriorityHigh,
-		"assignee_id":  "user2",
+		"title":       "新标题",
+		"description": "新描述",
+		"priority":    PriorityHigh,
+		"assignee_id": "user2",
 	}
 
 	updated, err := m.UpdateTask(task.ID, updates)

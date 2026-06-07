@@ -225,11 +225,11 @@ func TestRenewLock(t *testing.T) {
 
 	// 获取锁
 	lock, err := m.AcquireLock(&AcquireRequest{
-		FilePath:  "/documents/test.txt",
-		UserID:    "user-001",
-		UserName:  "张三",
-		LockType:  LockTypeExclusive,
-		Duration:  30,
+		FilePath: "/documents/test.txt",
+		UserID:   "user-001",
+		UserName: "张三",
+		LockType: LockTypeExclusive,
+		Duration: 30,
 	})
 	if err != nil {
 		t.Fatalf("acquire failed: %v", err)

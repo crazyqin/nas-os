@@ -358,16 +358,16 @@ func (m *Manager) SetUsageLimit(userID string, req *CreateUsageLimitRequest) (*U
 	}
 
 	limit := &UsageLimit{
-		ID:            generateID(),
-		UserID:        userID,
-		AppName:       req.AppName,
-		DailyLimit:    req.DailyLimit,
-		Enabled:       true,
-		CurrentUsed:   0,
-		WarningAt:     warningAt,
-		BlockAtLimit:  req.BlockAtLimit,
-		CreatedAt:     time.Now(),
-		UpdatedAt:     time.Now(),
+		ID:           generateID(),
+		UserID:       userID,
+		AppName:      req.AppName,
+		DailyLimit:   req.DailyLimit,
+		Enabled:      true,
+		CurrentUsed:  0,
+		WarningAt:    warningAt,
+		BlockAtLimit: req.BlockAtLimit,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
 	}
 
 	m.limits[limit.ID] = limit

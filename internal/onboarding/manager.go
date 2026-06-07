@@ -11,11 +11,11 @@ import (
 
 // Manager 新手引导管理器
 type Manager struct {
-	mu             sync.RWMutex
-	wizards        map[string]*Wizard
-	guides         map[string]*Guide
-	bestPractices  map[string]*BestPractice
-	progress       map[string]*Progress // key: userID:wizardID
+	mu            sync.RWMutex
+	wizards       map[string]*Wizard
+	guides        map[string]*Guide
+	bestPractices map[string]*BestPractice
+	progress      map[string]*Progress // key: userID:wizardID
 }
 
 // NewManager 创建新手引导管理器

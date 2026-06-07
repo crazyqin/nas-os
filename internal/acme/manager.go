@@ -35,11 +35,11 @@ func NewManager() *Manager {
 
 func (m *Manager) addMockCerts() {
 	mockCerts := []struct {
-		domain    string
+		domain          string
 		daysUntilExpiry int
 	}{
 		{"app.example.com", 90},
-		{"api.example.com", 25},  // Expiring soon
+		{"api.example.com", 25}, // Expiring soon
 		{"admin.example.com", 180},
 	}
 

@@ -13,95 +13,95 @@ import (
 
 // DashboardMetrics 仪表盘指标.
 type DashboardMetrics struct {
-	OverallComplianceScore  int                      `json:"overall_compliance_score"`
-	OverallStatus           string                   `json:"overall_status"`
-	StandardsCompliance     []StandardCompliance     `json:"standards_compliance"`
-	GDPRMetrics             *GDPRDashboardMetrics    `json:"gdpr,omitempty"`
-	CCPAMetrics             *CCPADashboardMetrics    `json:"ccpa,omitempty"`
-	BreachMetrics           *BreachDashboardMetrics  `json:"breach,omitempty"`
-	RecentReports           []ReportSummary          `json:"recent_reports"`
-	PendingRemediations     int                      `json:"pending_remediations"`
-	ActiveBreachCount       int                      `json:"active_breach_count"`
-	OpenAccessRequests      int                      `json:"open_access_requests"`
-	ComplianceTrend         []TrendDataPoint         `json:"compliance_trend"`
-	LastUpdated             time.Time                `json:"last_updated"`
+	OverallComplianceScore int                     `json:"overall_compliance_score"`
+	OverallStatus          string                  `json:"overall_status"`
+	StandardsCompliance    []StandardCompliance    `json:"standards_compliance"`
+	GDPRMetrics            *GDPRDashboardMetrics   `json:"gdpr,omitempty"`
+	CCPAMetrics            *CCPADashboardMetrics   `json:"ccpa,omitempty"`
+	BreachMetrics          *BreachDashboardMetrics `json:"breach,omitempty"`
+	RecentReports          []ReportSummary         `json:"recent_reports"`
+	PendingRemediations    int                     `json:"pending_remediations"`
+	ActiveBreachCount      int                     `json:"active_breach_count"`
+	OpenAccessRequests     int                     `json:"open_access_requests"`
+	ComplianceTrend        []TrendDataPoint        `json:"compliance_trend"`
+	LastUpdated            time.Time               `json:"last_updated"`
 }
 
 // StandardCompliance 标准合规状态.
 type StandardCompliance struct {
-	Standard    string    `json:"standard"`
-	Name        string    `json:"name"`
-	Status      string    `json:"status"`
-	Score       int       `json:"score"`
+	Standard    string     `json:"standard"`
+	Name        string     `json:"name"`
+	Status      string     `json:"status"`
+	Score       int        `json:"score"`
 	LastScanAt  *time.Time `json:"last_scan_at,omitempty"`
-	CheckTotal  int       `json:"check_total"`
-	CheckPassed int       `json:"check_passed"`
-	CheckFailed int       `json:"check_failed"`
+	CheckTotal  int        `json:"check_total"`
+	CheckPassed int        `json:"check_passed"`
+	CheckFailed int        `json:"check_failed"`
 }
 
 // GDPRDashboardMetrics GDPR 仪表盘指标.
 type GDPRDashboardMetrics struct {
-	DataProcessingActivities int     `json:"data_processing_activities"`
-	ActiveActivities         int     `json:"active_activities"`
-	StorageLocations         int     `json:"storage_locations"`
-	EncryptedStoragePct      int     `json:"encrypted_storage_pct"`
-	EUStorageLocations       int     `json:"eu_storage_locations"`
-	DataSubjectRequests      int     `json:"data_subject_requests"`
-	AvgResponseDays          int     `json:"avg_response_days"`
-	ComplianceStatus         string  `json:"compliance_status"`
+	DataProcessingActivities int    `json:"data_processing_activities"`
+	ActiveActivities         int    `json:"active_activities"`
+	StorageLocations         int    `json:"storage_locations"`
+	EncryptedStoragePct      int    `json:"encrypted_storage_pct"`
+	EUStorageLocations       int    `json:"eu_storage_locations"`
+	DataSubjectRequests      int    `json:"data_subject_requests"`
+	AvgResponseDays          int    `json:"avg_response_days"`
+	ComplianceStatus         string `json:"compliance_status"`
 }
 
 // CCPADashboardMetrics CCPA 仪表盘指标.
 type CCPADashboardMetrics struct {
-	DataCategories       int    `json:"data_categories"`
-	ThirdPartyPartners   int    `json:"third_party_partners"`
-	SharedDataFields     int    `json:"shared_data_fields"`
-	SoldDataFields       int    `json:"sold_data_fields"`
-	AccessRequests       int    `json:"access_requests"`
-	CompletedRequests    int    `json:"completed_requests"`
-	PendingRequests      int    `json:"pending_requests"`
-	ComplianceStatus     string `json:"compliance_status"`
+	DataCategories     int    `json:"data_categories"`
+	ThirdPartyPartners int    `json:"third_party_partners"`
+	SharedDataFields   int    `json:"shared_data_fields"`
+	SoldDataFields     int    `json:"sold_data_fields"`
+	AccessRequests     int    `json:"access_requests"`
+	CompletedRequests  int    `json:"completed_requests"`
+	PendingRequests    int    `json:"pending_requests"`
+	ComplianceStatus   string `json:"compliance_status"`
 }
 
 // BreachDashboardMetrics 泄露仪表盘指标.
 type BreachDashboardMetrics struct {
-	TotalBreaches       int     `json:"total_breaches"`
-	ActiveBreaches      int     `json:"active_breaches"`
-	ClosedBreaches      int     `json:"closed_breaches"`
-	AvgResponseHours    float64 `json:"avg_response_hours"`
-	AvgNotificationHours float64 `json:"avg_notification_hours"`
-	TotalRecordsAffected int    `json:"total_records_affected"`
-	NotificationCompliant int   `json:"notification_compliant"`
+	TotalBreaches         int     `json:"total_breaches"`
+	ActiveBreaches        int     `json:"active_breaches"`
+	ClosedBreaches        int     `json:"closed_breaches"`
+	AvgResponseHours      float64 `json:"avg_response_hours"`
+	AvgNotificationHours  float64 `json:"avg_notification_hours"`
+	TotalRecordsAffected  int     `json:"total_records_affected"`
+	NotificationCompliant int     `json:"notification_compliant"`
 }
 
 // ReportSummary 报告摘要.
 type ReportSummary struct {
-	ReportID    string    `json:"report_id"`
-	Type        string    `json:"type"` // "compliance", "gdpr", "ccpa", "breach"
-	Standard    string    `json:"standard,omitempty"`
-	Status      string    `json:"status"`
-	Score       int       `json:"score,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
+	ReportID  string    `json:"report_id"`
+	Type      string    `json:"type"` // "compliance", "gdpr", "ccpa", "breach"
+	Standard  string    `json:"standard,omitempty"`
+	Status    string    `json:"status"`
+	Score     int       `json:"score,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // TrendDataPoint 趋势数据点.
 type TrendDataPoint struct {
-	Date   string `json:"date"`   // YYYY-MM-DD
+	Date   string `json:"date"` // YYYY-MM-DD
 	Score  int    `json:"score"`
 	Status string `json:"status"`
 }
 
 // DashboardService 仪表盘服务.
 type DashboardService struct {
-	reportGen    *ReportGenerator
-	gdprGen      *GDPRReportGenerator
-	ccpaGen      *CCPAReportGenerator
-	breachGen    *BreachReportGenerator
-	gdprReports  map[string]*GDPRReport
-	ccpaReports  map[string]*CCPAReport
+	reportGen     *ReportGenerator
+	gdprGen       *GDPRReportGenerator
+	ccpaGen       *CCPAReportGenerator
+	breachGen     *BreachReportGenerator
+	gdprReports   map[string]*GDPRReport
+	ccpaReports   map[string]*CCPAReport
 	breachReports map[string]*BreachNotificationReport
-	standards    *StandardsManager
-	mu           sync.RWMutex
+	standards     *StandardsManager
+	mu            sync.RWMutex
 }
 
 // NewDashboardService 创建仪表盘服务.
@@ -158,10 +158,10 @@ func (s *DashboardService) GetMetrics(ctx context.Context) *DashboardMetrics {
 	for _, std := range status.Standards {
 		stdInfo, _ := s.standards.GetStandard(std.Standard)
 		sc := StandardCompliance{
-			Standard: string(std.Standard),
-			Name:     stdInfo.Name,
-			Status:   string(std.Status),
-			Score:    std.Score,
+			Standard:   string(std.Standard),
+			Name:       stdInfo.Name,
+			Status:     string(std.Status),
+			Score:      std.Score,
 			LastScanAt: std.LastScan,
 		}
 		metrics.StandardsCompliance = append(metrics.StandardsCompliance, sc)
@@ -284,14 +284,14 @@ func (s *DashboardService) getCCPAMetrics() *CCPADashboardMetrics {
 	}
 
 	return &CCPADashboardMetrics{
-		DataCategories:    latest.Summary.TotalDataCategories,
+		DataCategories:     latest.Summary.TotalDataCategories,
 		ThirdPartyPartners: latest.Summary.ActiveThirdParties,
-		SharedDataFields:  latest.Summary.SharedDataFields,
-		SoldDataFields:    latest.Summary.SoldDataFields,
-		AccessRequests:    latest.Summary.TotalAccessRequests,
-		CompletedRequests: latest.Summary.CompletedRequests,
-		PendingRequests:   latest.Summary.PendingRequests,
-		ComplianceStatus:  latest.Summary.ComplianceStatus,
+		SharedDataFields:   latest.Summary.SharedDataFields,
+		SoldDataFields:     latest.Summary.SoldDataFields,
+		AccessRequests:     latest.Summary.TotalAccessRequests,
+		CompletedRequests:  latest.Summary.CompletedRequests,
+		PendingRequests:    latest.Summary.PendingRequests,
+		ComplianceStatus:   latest.Summary.ComplianceStatus,
 	}
 }
 

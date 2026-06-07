@@ -201,9 +201,9 @@ func (cb *CircuitBreaker) ForceClose() {
 
 // BackendCircuitBreakers 后端熔断器管理
 type BackendCircuitBreakers struct {
-	config    CircuitBreakerConfig
-	breakers  map[string]*CircuitBreaker
-	mu        sync.RWMutex
+	config   CircuitBreakerConfig
+	breakers map[string]*CircuitBreaker
+	mu       sync.RWMutex
 }
 
 // NewBackendCircuitBreakers 创建后端熔断器管理器

@@ -8,12 +8,12 @@ import (
 
 func TestCreateFolder(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:           true,
+		Enabled:              true,
 		DefaultRetentionDays: 30,
-		MaxRetentionDays:  365,
-		AllowForeverLock:  true,
-		ComplianceMode:    false,
-		AuditLogEnabled:   true,
+		MaxRetentionDays:     365,
+		AllowForeverLock:     true,
+		ComplianceMode:       false,
+		AuditLogEnabled:      true,
 	}
 
 	m := NewManager(config)
@@ -72,11 +72,11 @@ func TestCreateFolderDisabled(t *testing.T) {
 
 func TestCreateFolderValidation(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:           true,
+		Enabled:              true,
 		DefaultRetentionDays: 30,
-		MaxRetentionDays:  365,
-		AllowForeverLock:  true,
-		AuditLogEnabled:   true,
+		MaxRetentionDays:     365,
+		AllowForeverLock:     true,
+		AuditLogEnabled:      true,
 	}
 
 	m := NewManager(config)
@@ -251,8 +251,8 @@ func TestLockFolderAlreadyLocked(t *testing.T) {
 
 func TestLockFolderNotFound(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -265,8 +265,8 @@ func TestLockFolderNotFound(t *testing.T) {
 
 func TestAddFile(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -316,8 +316,8 @@ func TestAddFile(t *testing.T) {
 
 func TestAddFileToLockedFolder(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -350,8 +350,8 @@ func TestAddFileToLockedFolder(t *testing.T) {
 
 func TestAddDuplicateFile(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -385,8 +385,8 @@ func TestAddDuplicateFile(t *testing.T) {
 
 func TestPreventDelete(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -419,8 +419,8 @@ func TestPreventDelete(t *testing.T) {
 
 func TestPreventModify(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -453,8 +453,8 @@ func TestPreventModify(t *testing.T) {
 
 func TestExpiredFolderAllowsOperations(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -498,8 +498,8 @@ func TestExpiredFolderAllowsOperations(t *testing.T) {
 
 func TestGetFiles(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -539,8 +539,8 @@ func TestGetFiles(t *testing.T) {
 
 func TestGetFilesNotFound(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -553,8 +553,8 @@ func TestGetFilesNotFound(t *testing.T) {
 
 func TestListFolders(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -578,8 +578,8 @@ func TestListFolders(t *testing.T) {
 
 func TestAuditLog(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -623,8 +623,8 @@ func TestAuditLog(t *testing.T) {
 
 func TestGetAllAuditLog(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -648,8 +648,8 @@ func TestGetAllAuditLog(t *testing.T) {
 
 func TestAuditLogDisabled(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  false,
+		Enabled:         true,
+		AuditLogEnabled: false,
 	}
 
 	m := NewManager(config)
@@ -672,8 +672,8 @@ func TestAuditLogDisabled(t *testing.T) {
 
 func TestCheckExpiry(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -710,8 +710,8 @@ func TestCheckExpiry(t *testing.T) {
 
 func TestGetStats(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -783,12 +783,12 @@ func TestGetStats(t *testing.T) {
 
 func TestConfigOperations(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:           true,
+		Enabled:              true,
 		DefaultRetentionDays: 30,
-		MaxRetentionDays:  365,
-		AllowForeverLock:  true,
-		ComplianceMode:    false,
-		AuditLogEnabled:   true,
+		MaxRetentionDays:     365,
+		AllowForeverLock:     true,
+		ComplianceMode:       false,
+		AuditLogEnabled:      true,
 	}
 
 	m := NewManager(config)
@@ -799,12 +799,12 @@ func TestConfigOperations(t *testing.T) {
 	}
 
 	newConfig := WriteOnceConfig{
-		Enabled:           false,
+		Enabled:              false,
 		DefaultRetentionDays: 60,
-		MaxRetentionDays:  730,
-		AllowForeverLock:  false,
-		ComplianceMode:    true,
-		AuditLogEnabled:   false,
+		MaxRetentionDays:     730,
+		AllowForeverLock:     false,
+		ComplianceMode:       true,
+		AuditLogEnabled:      false,
 	}
 
 	m.UpdateConfig(newConfig)
@@ -853,8 +853,8 @@ func TestComplianceMode(t *testing.T) {
 
 func TestDuplicatePath(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -885,8 +885,8 @@ func TestDuplicatePath(t *testing.T) {
 
 func TestInvalidRetentionMode(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -906,8 +906,8 @@ func TestInvalidRetentionMode(t *testing.T) {
 
 func TestInvalidPolicyMode(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -929,8 +929,8 @@ func TestInvalidPolicyMode(t *testing.T) {
 
 func TestConcurrentOperations(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)
@@ -964,8 +964,8 @@ func TestConcurrentOperations(t *testing.T) {
 
 func TestMultipleFilesInFolder(t *testing.T) {
 	config := WriteOnceConfig{
-		Enabled:          true,
-		AuditLogEnabled:  true,
+		Enabled:         true,
+		AuditLogEnabled: true,
 	}
 
 	m := NewManager(config)

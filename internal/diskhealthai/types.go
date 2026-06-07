@@ -33,35 +33,35 @@ type DiskInfo struct {
 
 // SMARTAttribute SMART 属性
 type SMARTAttribute struct {
-	ID          int    `json:"id"`           // 属性 ID
-	Name        string `json:"name"`         // 属性名称
-	Value       int    `json:"value"`        // 当前值（0-253）
-	Worst       int    `json:"worst"`        // 历史最差值
-	Threshold   int    `json:"threshold"`    // 阈值
-	RawValue    uint64 `json:"raw_value"`    // 原始值
-	IsCritical  bool   `json:"is_critical"`  // 是否为关键指标
-	Failed      bool   `json:"failed"`       // 是否已失败
-	Description string `json:"description"`  // 属性说明
+	ID          int    `json:"id"`          // 属性 ID
+	Name        string `json:"name"`        // 属性名称
+	Value       int    `json:"value"`       // 当前值（0-253）
+	Worst       int    `json:"worst"`       // 历史最差值
+	Threshold   int    `json:"threshold"`   // 阈值
+	RawValue    uint64 `json:"raw_value"`   // 原始值
+	IsCritical  bool   `json:"is_critical"` // 是否为关键指标
+	Failed      bool   `json:"failed"`      // 是否已失败
+	Description string `json:"description"` // 属性说明
 }
 
 // SMARTSnapshot SMART 数据快照（单次采集）
 type SMARTSnapshot struct {
-	Device           string           `json:"device"`
-	Model            string           `json:"model"`
-	Serial           string           `json:"serial"`
-	Temperature      int              `json:"temperature"`       // 当前温度（℃）
-	MaxTemperature   int              `json:"max_temperature"`   // 历史最高温度
-	PowerOnHours     uint64           `json:"power_on_hours"`    // 通电时间（小时）
-	PowerCycleCount  uint64           `json:"power_cycle_count"` // 通电周期数
-	ReallocatedSects uint64           `json:"reallocated_sectors"` // 重映射扇区数
-	PendingSects     uint64           `json:"pending_sectors"`   // 待映射扇区数
-	UncorrectableSects uint64         `json:"uncorrectable_sectors"` // 不可修复扇区数
-	TotalLBAsRead    uint64           `json:"total_lbas_read"`   // 总读取 LBAs
-	TotalLBAsWritten uint64           `json:"total_lbas_written"` // 总写入 LBAs
-	SeekErrorRate    uint64           `json:"seek_error_rate"`   // 寻道错误率
-	SpinRetryCount   uint64           `json:"spin_retry_count"`  // 主轴重试次数
-	Attributes       []SMARTAttribute `json:"attributes"`        // SMART 属性列表
-	CollectedAt      time.Time        `json:"collected_at"`      // 采集时间
+	Device             string           `json:"device"`
+	Model              string           `json:"model"`
+	Serial             string           `json:"serial"`
+	Temperature        int              `json:"temperature"`           // 当前温度（℃）
+	MaxTemperature     int              `json:"max_temperature"`       // 历史最高温度
+	PowerOnHours       uint64           `json:"power_on_hours"`        // 通电时间（小时）
+	PowerCycleCount    uint64           `json:"power_cycle_count"`     // 通电周期数
+	ReallocatedSects   uint64           `json:"reallocated_sectors"`   // 重映射扇区数
+	PendingSects       uint64           `json:"pending_sectors"`       // 待映射扇区数
+	UncorrectableSects uint64           `json:"uncorrectable_sectors"` // 不可修复扇区数
+	TotalLBAsRead      uint64           `json:"total_lbas_read"`       // 总读取 LBAs
+	TotalLBAsWritten   uint64           `json:"total_lbas_written"`    // 总写入 LBAs
+	SeekErrorRate      uint64           `json:"seek_error_rate"`       // 寻道错误率
+	SpinRetryCount     uint64           `json:"spin_retry_count"`      // 主轴重试次数
+	Attributes         []SMARTAttribute `json:"attributes"`            // SMART 属性列表
+	CollectedAt        time.Time        `json:"collected_at"`          // 采集时间
 }
 
 // HealthReport 健康诊断报告
@@ -74,31 +74,31 @@ type HealthReport struct {
 	Grade             string              `json:"grade"`               // 评级（A-F）
 	EstimatedLifeDays int                 `json:"estimated_life_days"` // 预估剩余寿命（天）
 	EstimatedFailDate *time.Time          `json:"estimated_fail_date,omitempty"`
-	RiskLevel         string              `json:"risk_level"`          // 风险等级
-	RiskFactors       []RiskFactor        `json:"risk_factors"`        // 风险因素列表
-	DimensionScores   DimensionScores     `json:"dimension_scores"`    // 各维度评分
-	AttributeAnalysis []AttributeAnalysis `json:"attribute_analysis"`  // 属性分析
+	RiskLevel         string              `json:"risk_level"`         // 风险等级
+	RiskFactors       []RiskFactor        `json:"risk_factors"`       // 风险因素列表
+	DimensionScores   DimensionScores     `json:"dimension_scores"`   // 各维度评分
+	AttributeAnalysis []AttributeAnalysis `json:"attribute_analysis"` // 属性分析
 	TrendAnalysis     *TrendAnalysis      `json:"trend_analysis,omitempty"`
-	Recommendations   []string            `json:"recommendations"`     // 维护建议
-	AnalyzedAt        time.Time           `json:"analyzed_at"`         // 分析时间
+	Recommendations   []string            `json:"recommendations"` // 维护建议
+	AnalyzedAt        time.Time           `json:"analyzed_at"`     // 分析时间
 }
 
 // RiskFactor 风险因素
 type RiskFactor struct {
-	ID       string  `json:"id"`       // 风险因素 ID
-	Name     string  `json:"name"`     // 风险因素名称
-	Level    string  `json:"level"`    // 级别（low/medium/high/critical）
-	Weight   float64 `json:"weight"`   // 权重
-	Detail   string  `json:"detail"`   // 详细说明
+	ID     string  `json:"id"`     // 风险因素 ID
+	Name   string  `json:"name"`   // 风险因素名称
+	Level  string  `json:"level"`  // 级别（low/medium/high/critical）
+	Weight float64 `json:"weight"` // 权重
+	Detail string  `json:"detail"` // 详细说明
 }
 
 // DimensionScores 各维度评分
 type DimensionScores struct {
-	SMARTScore     float64 `json:"smart_score"`      // SMART 属性评分
+	SMARTScore       float64 `json:"smart_score"`       // SMART 属性评分
 	TemperatureScore float64 `json:"temperature_score"` // 温度评分
-	PowerOnScore   float64 `json:"power_on_score"`   // 通电时间评分
-	WorkloadScore  float64 `json:"workload_score"`   // 工作负载评分
-	AgeScore       float64 `json:"age_score"`        // 年龄评分
+	PowerOnScore     float64 `json:"power_on_score"`    // 通电时间评分
+	WorkloadScore    float64 `json:"workload_score"`    // 工作负载评分
+	AgeScore         float64 `json:"age_score"`         // 年龄评分
 }
 
 // AttributeAnalysis 单个 SMART 属性分析结果
@@ -112,15 +112,15 @@ type AttributeAnalysis struct {
 	WeightedScore float64 `json:"weighted_score"` // 加权得分
 	Status        string  `json:"status"`         // normal/warning/critical
 	Message       string  `json:"message"`
-	Trend         string  `json:"trend"`          // improving/stable/declining
+	Trend         string  `json:"trend"` // improving/stable/declining
 }
 
 // TrendAnalysis 趋势分析
 type TrendAnalysis struct {
-	HealthTrend       string  `json:"health_trend"`       // 健康趋势（improving/stable/declining）
-	TemperatureTrend  string  `json:"temperature_trend"`  // 温度趋势
-	WorkloadTrend     string  `json:"workload_trend"`     // 工作负载趋势
-	ProjectedScore90D float64 `json:"projected_score_90d"` // 90天后预估评分
+	HealthTrend          string  `json:"health_trend"`          // 健康趋势（improving/stable/declining）
+	TemperatureTrend     string  `json:"temperature_trend"`     // 温度趋势
+	WorkloadTrend        string  `json:"workload_trend"`        // 工作负载趋势
+	ProjectedScore90D    float64 `json:"projected_score_90d"`   // 90天后预估评分
 	ProjectionConfidence float64 `json:"projection_confidence"` // 预测置信度
 }
 
@@ -139,12 +139,12 @@ type PerformanceMetrics struct {
 type LifecycleStage string
 
 const (
-	LifecycleNew        LifecycleStage = "new"        // 新盘
-	LifecycleEarly      LifecycleStage = "early"      // 早期
-	LifecycleMidLife    LifecycleStage = "mid_life"   // 中期
-	LifecycleMature     LifecycleStage = "mature"     // 成熟期
-	LifecycleWearOut    LifecycleStage = "wear_out"   // 磨损期
-	LifecycleEndOfLife  LifecycleStage = "end_of_life" // 末期
+	LifecycleNew       LifecycleStage = "new"         // 新盘
+	LifecycleEarly     LifecycleStage = "early"       // 早期
+	LifecycleMidLife   LifecycleStage = "mid_life"    // 中期
+	LifecycleMature    LifecycleStage = "mature"      // 成熟期
+	LifecycleWearOut   LifecycleStage = "wear_out"    // 磨损期
+	LifecycleEndOfLife LifecycleStage = "end_of_life" // 末期
 )
 
 // Lifecycle 生命周期评估
@@ -159,15 +159,15 @@ type Lifecycle struct {
 
 // Alert 告警信息
 type Alert struct {
-	ID        string       `json:"id"`
-	Device    string       `json:"device"`
-	Level     string       `json:"level"`     // info/warning/critical
-	Type      string       `json:"type"`      // 告警类型
-	Message   string       `json:"message"`
-	Value     interface{}  `json:"value,omitempty"`
-	Threshold interface{}  `json:"threshold,omitempty"`
-	CreatedAt time.Time    `json:"created_at"`
-	Resolved  bool         `json:"resolved"`
+	ID        string      `json:"id"`
+	Device    string      `json:"device"`
+	Level     string      `json:"level"` // info/warning/critical
+	Type      string      `json:"type"`  // 告警类型
+	Message   string      `json:"message"`
+	Value     interface{} `json:"value,omitempty"`
+	Threshold interface{} `json:"threshold,omitempty"`
+	CreatedAt time.Time   `json:"created_at"`
+	Resolved  bool        `json:"resolved"`
 }
 
 // ========== API 请求/响应类型 ==========
@@ -179,8 +179,8 @@ type DiagnoseRequest struct {
 
 // DiagnoseResponse 诊断响应
 type DiagnoseResponse struct {
-	Code    int           `json:"code"`
-	Message string        `json:"message"`
+	Code    int            `json:"code"`
+	Message string         `json:"message"`
 	Data    []HealthReport `json:"data,omitempty"`
 }
 
@@ -206,14 +206,14 @@ type AlertListResponse struct {
 
 // LifecycleResponse 生命周期响应
 type LifecycleResponse struct {
-	Code    int       `json:"code"`
-	Message string    `json:"message"`
+	Code    int        `json:"code"`
+	Message string     `json:"message"`
 	Data    *Lifecycle `json:"data,omitempty"`
 }
 
 // PerformanceResponse 性能指标响应
 type PerformanceResponse struct {
-	Code    int                `json:"code"`
-	Message string             `json:"message"`
+	Code    int                 `json:"code"`
+	Message string              `json:"message"`
 	Data    *PerformanceMetrics `json:"data,omitempty"`
 }

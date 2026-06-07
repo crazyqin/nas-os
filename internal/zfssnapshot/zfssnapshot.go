@@ -9,61 +9,61 @@ import (
 
 // SnapshotPolicy 快照策略
 type SnapshotPolicy struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Dataset     string        `json:"dataset"`
-	Schedule    string        `json:"schedule"`     // Cron 表达式
-	Recursive   bool          `json:"recursive"`    // 是否递归子数据集
-	MaxCount    int           `json:"max_count"`    // 最大快照数量
-	MaxAge      time.Duration `json:"max_age"`      // 最大保留时间
-	MaxSize     int64         `json:"max_size"`     // 最大空间占用 (bytes)
-	Enabled     bool          `json:"enabled"`
-	CreatedAt   time.Time     `json:"created_at"`
-	LastRun     time.Time     `json:"last_run"`
-	NextRun     time.Time     `json:"next_run"`
+	ID        string        `json:"id"`
+	Name      string        `json:"name"`
+	Dataset   string        `json:"dataset"`
+	Schedule  string        `json:"schedule"`  // Cron 表达式
+	Recursive bool          `json:"recursive"` // 是否递归子数据集
+	MaxCount  int           `json:"max_count"` // 最大快照数量
+	MaxAge    time.Duration `json:"max_age"`   // 最大保留时间
+	MaxSize   int64         `json:"max_size"`  // 最大空间占用 (bytes)
+	Enabled   bool          `json:"enabled"`
+	CreatedAt time.Time     `json:"created_at"`
+	LastRun   time.Time     `json:"last_run"`
+	NextRun   time.Time     `json:"next_run"`
 }
 
 // Snapshot ZFS 快照
 type Snapshot struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Dataset     string    `json:"dataset"`
-	FullName    string    `json:"full_name"`    // dataset@snapshot
-	Size        int64     `json:"size"`         // 快照占用空间
-	Referenced  int64     `json:"referenced"`   // 引用空间
-	Created     time.Time `json:"created"`
-	Origin      string    `json:"origin,omitempty"` // 克隆来源
-	IsClone     bool      `json:"is_clone"`
-	Clones      []string  `json:"clones,omitempty"` // 克隆列表
-	Tags        []string  `json:"tags,omitempty"`
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	Dataset    string    `json:"dataset"`
+	FullName   string    `json:"full_name"`  // dataset@snapshot
+	Size       int64     `json:"size"`       // 快照占用空间
+	Referenced int64     `json:"referenced"` // 引用空间
+	Created    time.Time `json:"created"`
+	Origin     string    `json:"origin,omitempty"` // 克隆来源
+	IsClone    bool      `json:"is_clone"`
+	Clones     []string  `json:"clones,omitempty"` // 克隆列表
+	Tags       []string  `json:"tags,omitempty"`
 }
 
 // SnapshotReplication 快照复制任务
 type SnapshotReplication struct {
-	ID          string    `json:"id"`
-	SourcePool   string    `json:"source_pool"`
-	TargetPool   string    `json:"target_pool"`
-	SourceDataset string  `json:"source_dataset"`
-	TargetDataset string  `json:"target_dataset"`
-	SnapshotName  string  `json:"snapshot_name"`
-	Status       string    `json:"status"` // pending, running, completed, failed
-	Progress     float64   `json:"progress"`
-	StartTime    time.Time `json:"start_time"`
-	EndTime      time.Time `json:"end_time"`
-	Error        string    `json:"error,omitempty"`
-	Encrypted    bool      `json:"encrypted"`
+	ID            string    `json:"id"`
+	SourcePool    string    `json:"source_pool"`
+	TargetPool    string    `json:"target_pool"`
+	SourceDataset string    `json:"source_dataset"`
+	TargetDataset string    `json:"target_dataset"`
+	SnapshotName  string    `json:"snapshot_name"`
+	Status        string    `json:"status"` // pending, running, completed, failed
+	Progress      float64   `json:"progress"`
+	StartTime     time.Time `json:"start_time"`
+	EndTime       time.Time `json:"end_time"`
+	Error         string    `json:"error,omitempty"`
+	Encrypted     bool      `json:"encrypted"`
 }
 
 // SpaceAnalysis 空间分析
 type SpaceAnalysis struct {
-	Dataset       string            `json:"dataset"`
-	TotalSize     int64             `json:"total_size"`
-	UsedSize      int64             `json:"used_size"`
-	AvailableSize int64             `json:"available_size"`
-	SnapshotCount int               `json:"snapshot_count"`
-	SnapshotSize  int64             `json:"snapshot_size"`
-	CloneCount    int               `json:"clone_count"`
-	CloneSize     int64             `json:"clone_size"`
+	Dataset       string              `json:"dataset"`
+	TotalSize     int64               `json:"total_size"`
+	UsedSize      int64               `json:"used_size"`
+	AvailableSize int64               `json:"available_size"`
+	SnapshotCount int                 `json:"snapshot_count"`
+	SnapshotSize  int64               `json:"snapshot_size"`
+	CloneCount    int                 `json:"clone_count"`
+	CloneSize     int64               `json:"clone_size"`
 	Dependencies  map[string][]string `json:"dependencies"` // clone 依赖图
 }
 

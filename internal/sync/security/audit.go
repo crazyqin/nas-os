@@ -13,17 +13,17 @@ import (
 type AuditAction string
 
 const (
-	ActionSyncStart   AuditAction = "sync_start"
-	ActionSyncComplete AuditAction = "sync_complete"
-	ActionSyncError   AuditAction = "sync_error"
-	ActionFileUpload  AuditAction = "file_upload"
-	ActionFileDownload AuditAction = "file_download"
-	ActionFileDelete  AuditAction = "file_delete"
-	ActionConflict    AuditAction = "conflict_resolved"
+	ActionSyncStart      AuditAction = "sync_start"
+	ActionSyncComplete   AuditAction = "sync_complete"
+	ActionSyncError      AuditAction = "sync_error"
+	ActionFileUpload     AuditAction = "file_upload"
+	ActionFileDownload   AuditAction = "file_download"
+	ActionFileDelete     AuditAction = "file_delete"
+	ActionConflict       AuditAction = "conflict_resolved"
 	ActionVersionRestore AuditAction = "version_restore"
-	ActionTaskCreate  AuditAction = "task_create"
-	ActionTaskDelete  AuditAction = "task_delete"
-	ActionAccessDenied AuditAction = "access_denied"
+	ActionTaskCreate     AuditAction = "task_create"
+	ActionTaskDelete     AuditAction = "task_delete"
+	ActionAccessDenied   AuditAction = "access_denied"
 )
 
 // AuditEntry represents a single audit log entry
@@ -42,11 +42,11 @@ type AuditEntry struct {
 
 // AuditLogger handles audit logging for sync operations
 type AuditLogger struct {
-	mu       sync.Mutex
-	logDir   string
-	maxAge   time.Duration
-	file     *os.File
-	encoder  *json.Encoder
+	mu      sync.Mutex
+	logDir  string
+	maxAge  time.Duration
+	file    *os.File
+	encoder *json.Encoder
 }
 
 // NewAuditLogger creates a new audit logger

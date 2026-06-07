@@ -18,79 +18,79 @@ const (
 
 // AccessPattern 访问模式.
 type AccessPattern struct {
-	UserID      string    `json:"user_id"`
-	FilePath    string    `json:"file_path"`
-	AccessType  string    `json:"access_type"`
-	LatencyMs   float64   `json:"latency_ms"`
-	Timestamp   time.Time `json:"timestamp"`
-	Success     bool      `json:"success"`
-	DeviceType  string    `json:"device_type"`
+	UserID     string    `json:"user_id"`
+	FilePath   string    `json:"file_path"`
+	AccessType string    `json:"access_type"`
+	LatencyMs  float64   `json:"latency_ms"`
+	Timestamp  time.Time `json:"timestamp"`
+	Success    bool      `json:"success"`
+	DeviceType string    `json:"device_type"`
 }
 
 // UserExperienceScore 用户体验评分.
 type UserExperienceScore struct {
-	UserID       string           `json:"user_id"`
-	OverallScore float64          `json:"overall_score"`
+	UserID         string                    `json:"user_id"`
+	OverallScore   float64                   `json:"overall_score"`
 	CategoryScores map[ScoreCategory]float64 `json:"category_scores"`
-	Trend        string           `json:"trend"`
-	Suggestions  []string         `json:"suggestions"`
-	UpdatedAt    time.Time        `json:"updated_at"`
+	Trend          string                    `json:"trend"`
+	Suggestions    []string                  `json:"suggestions"`
+	UpdatedAt      time.Time                 `json:"updated_at"`
 }
 
 // StorageQuality 存储质量指标.
 type StorageQuality struct {
-	DeviceID        string    `json:"device_id"`
-	DeviceName      string    `json:"device_name"`
-	IOPSScore       float64   `json:"iops_score"`
-	LatencyScore    float64   `json:"latency_score"`
-	ThroughputScore float64   `json:"throughput_score"`
-	ReliabilityScore float64  `json:"reliability_score"`
-	OverallScore    float64   `json:"overall_score"`
-	MeasuredAt      time.Time `json:"measured_at"`
+	DeviceID         string    `json:"device_id"`
+	DeviceName       string    `json:"device_name"`
+	IOPSScore        float64   `json:"iops_score"`
+	LatencyScore     float64   `json:"latency_score"`
+	ThroughputScore  float64   `json:"throughput_score"`
+	ReliabilityScore float64   `json:"reliability_score"`
+	OverallScore     float64   `json:"overall_score"`
+	MeasuredAt       time.Time `json:"measured_at"`
 }
 
 // SatisfactionSurvey 满意度调查.
 type SatisfactionSurvey struct {
-	ID          string    `json:"id"`
-	UserID      string    `json:"user_id"`
-	Score       int       `json:"score"` // 1-10
-	Category    ScoreCategory `json:"category"`
-	Feedback    string    `json:"feedback"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID        string        `json:"id"`
+	UserID    string        `json:"user_id"`
+	Score     int           `json:"score"` // 1-10
+	Category  ScoreCategory `json:"category"`
+	Feedback  string        `json:"feedback"`
+	CreatedAt time.Time     `json:"created_at"`
 }
 
 // Optimization建议.
 type OptimizationSuggestion struct {
-	ID          string    `json:"id"`
+	ID          string        `json:"id"`
 	Category    ScoreCategory `json:"category"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Impact      string    `json:"impact"`
-	Effort      string    `json:"effort"`
-	Priority    int       `json:"priority"`
-	CreatedAt   time.Time `json:"created_at"`
+	Title       string        `json:"title"`
+	Description string        `json:"description"`
+	Impact      string        `json:"impact"`
+	Effort      string        `json:"effort"`
+	Priority    int           `json:"priority"`
+	CreatedAt   time.Time     `json:"created_at"`
 }
 
 // BenchmarkResult 基准测试结果.
 type BenchmarkResult struct {
-	ID          string    `json:"id"`
-	TestType    string    `json:"test_type"`
-	Score       float64   `json:"score"`
-	Details     map[string]float64 `json:"details"`
-	ComparedTo  string    `json:"compared_to"`
-	Percentile  float64   `json:"percentile"`
-	TestedAt    time.Time `json:"tested_at"`
+	ID         string             `json:"id"`
+	TestType   string             `json:"test_type"`
+	Score      float64            `json:"score"`
+	Details    map[string]float64 `json:"details"`
+	ComparedTo string             `json:"compared_to"`
+	Percentile float64            `json:"percentile"`
+	TestedAt   time.Time          `json:"tested_at"`
 }
 
 // Manager 体验评分管理器.
 type Manager struct {
-	mu            sync.RWMutex
-	patterns      []*AccessPattern
-	scores        map[string]*UserExperienceScore
-	qualities     map[string]*StorageQuality
-	surveys       []*SatisfactionSurvey
-	suggestions   []*OptimizationSuggestion
-	benchmarks    []*BenchmarkResult
+	mu          sync.RWMutex
+	patterns    []*AccessPattern
+	scores      map[string]*UserExperienceScore
+	qualities   map[string]*StorageQuality
+	surveys     []*SatisfactionSurvey
+	suggestions []*OptimizationSuggestion
+	benchmarks  []*BenchmarkResult
 }
 
 // NewManager 创建管理器.
@@ -173,8 +173,8 @@ func (m *Manager) RunBenchmark(testType string) *BenchmarkResult {
 		TestType: testType,
 		Score:    85.0,
 		Details: map[string]float64{
-			"iops":      10000,
-			"latency":   0.5,
+			"iops":       10000,
+			"latency":    0.5,
 			"throughput": 500,
 		},
 		Percentile: 75.0,
@@ -207,11 +207,11 @@ func (m *Manager) GetStats() map[string]interface{} {
 		avgScore = totalScore / float64(count)
 	}
 	return map[string]interface{}{
-		"total_users":     len(m.scores),
-		"total_patterns":  len(m.patterns),
-		"total_surveys":   len(m.surveys),
+		"total_users":      len(m.scores),
+		"total_patterns":   len(m.patterns),
+		"total_surveys":    len(m.surveys),
 		"total_benchmarks": len(m.benchmarks),
-		"avg_score":       avgScore,
+		"avg_score":        avgScore,
 	}
 }
 

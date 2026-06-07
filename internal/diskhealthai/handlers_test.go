@@ -14,12 +14,12 @@ import (
 
 // mockService 实现 Service 接口用于测试
 type mockService struct {
-	disks    []DiskInfo
-	smart    *SMARTSnapshot
-	report   *HealthReport
-	alerts   []Alert
-	trend    *TrendAnalysis
-	scanErr  error
+	disks   []DiskInfo
+	smart   *SMARTSnapshot
+	report  *HealthReport
+	alerts  []Alert
+	trend   *TrendAnalysis
+	scanErr error
 }
 
 func (m *mockService) ListDisks() []DiskInfo {
@@ -326,7 +326,7 @@ func TestListAlerts_WithData(t *testing.T) {
 func TestGetHistory_Success(t *testing.T) {
 	svc := &mockService{
 		trend: &TrendAnalysis{
-			HealthTrend:    "stable",
+			HealthTrend:      "stable",
 			TemperatureTrend: "stable",
 		},
 	}

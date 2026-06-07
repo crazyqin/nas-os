@@ -70,14 +70,14 @@ const (
 
 // CheckItem 单项检查结果.
 type CheckItem struct {
-	Category    CheckCategory `json:"category"`     // 检查类别
-	Name        string        `json:"name"`         // 检查名称
-	Status      DiagStatus    `json:"status"`       // 检查状态
-	Severity    Severity      `json:"severity"`     // 严重级别
-	Message     string        `json:"message"`      // 检查结果消息
-	Value       interface{}   `json:"value"`        // 当前值
-	Threshold   interface{}   `json:"threshold"`    // 阈值
-	Remediation *Remediation  `json:"remediation"`  // 修复建议
+	Category    CheckCategory `json:"category"`    // 检查类别
+	Name        string        `json:"name"`        // 检查名称
+	Status      DiagStatus    `json:"status"`      // 检查状态
+	Severity    Severity      `json:"severity"`    // 严重级别
+	Message     string        `json:"message"`     // 检查结果消息
+	Value       interface{}   `json:"value"`       // 当前值
+	Threshold   interface{}   `json:"threshold"`   // 阈值
+	Remediation *Remediation  `json:"remediation"` // 修复建议
 }
 
 // ========== 修复建议 ==========
@@ -95,37 +95,37 @@ type Remediation struct {
 
 // DiagResult 诊断结果.
 type DiagResult struct {
-	ID        string        `json:"id"`         // 诊断 ID
-	Timestamp time.Time     `json:"timestamp"`  // 诊断时间
-	Status    DiagStatus    `json:"status"`     // 整体状态
-	Checks    []CheckItem   `json:"checks"`     // 检查项列表
-	Alerts    []Alert       `json:"alerts"`     // 告警列表
-	Summary   string        `json:"summary"`    // 诊断摘要
-	Duration  time.Duration `json:"duration"`   // 诊断耗时
+	ID        string        `json:"id"`        // 诊断 ID
+	Timestamp time.Time     `json:"timestamp"` // 诊断时间
+	Status    DiagStatus    `json:"status"`    // 整体状态
+	Checks    []CheckItem   `json:"checks"`    // 检查项列表
+	Alerts    []Alert       `json:"alerts"`    // 告警列表
+	Summary   string        `json:"summary"`   // 诊断摘要
+	Duration  time.Duration `json:"duration"`  // 诊断耗时
 }
 
 // ========== 告警 ==========
 
 // Alert 系统告警.
 type Alert struct {
-	ID          string      `json:"id"`           // 告警 ID
-	Category    string      `json:"category"`     // 所属类别
-	Severity    Severity    `json:"severity"`     // 严重级别
-	Title       string      `json:"title"`        // 告警标题
-	Description string      `json:"description"`  // 详细描述
-	Timestamp   time.Time   `json:"timestamp"`    // 告警时间
-	Remediation *Remediation `json:"remediation"` // 修复建议
-	Acknowledged bool       `json:"acknowledged"` // 是否已确认
+	ID           string       `json:"id"`           // 告警 ID
+	Category     string       `json:"category"`     // 所属类别
+	Severity     Severity     `json:"severity"`     // 严重级别
+	Title        string       `json:"title"`        // 告警标题
+	Description  string       `json:"description"`  // 详细描述
+	Timestamp    time.Time    `json:"timestamp"`    // 告警时间
+	Remediation  *Remediation `json:"remediation"`  // 修复建议
+	Acknowledged bool         `json:"acknowledged"` // 是否已确认
 }
 
 // ========== 根因分析 ==========
 
 // RootCause 根因分析.
 type RootCause struct {
-	Symptom     string   `json:"symptom"`     // 症状描述
-	PossibleCauses []string `json:"possible_causes"` // 可能原因
-	RecommendedAction string `json:"recommended_action"` // 推荐操作
-	Confidence  float64  `json:"confidence"`  // 置信度 0-1
+	Symptom           string   `json:"symptom"`            // 症状描述
+	PossibleCauses    []string `json:"possible_causes"`    // 可能原因
+	RecommendedAction string   `json:"recommended_action"` // 推荐操作
+	Confidence        float64  `json:"confidence"`         // 置信度 0-1
 }
 
 // ========== 诊断历史 ==========
@@ -147,9 +147,9 @@ type HistoryResponse struct {
 // Config 诊断中心配置.
 type Config struct {
 	// 磁盘检查
-	DiskWarnTempC   int `json:"disk_warn_temp_c"`   // 磁盘温度警告阈值，默认55
-	DiskCritTempC   int `json:"disk_crit_temp_c"`   // 磁盘温度严重阈值，默认65
-	DiskMaxRealloc  int `json:"disk_max_realloc"`   // 最大重分配扇区数，默认100
+	DiskWarnTempC  int `json:"disk_warn_temp_c"` // 磁盘温度警告阈值，默认55
+	DiskCritTempC  int `json:"disk_crit_temp_c"` // 磁盘温度严重阈值，默认65
+	DiskMaxRealloc int `json:"disk_max_realloc"` // 最大重分配扇区数，默认100
 
 	// 内存检查
 	MemWarnPercent float64 `json:"mem_warn_percent"` // 内存警告阈值，默认80
@@ -177,7 +177,7 @@ func DefaultConfig() *Config {
 		CPUWarnPercent: 80,
 		CPUCritPercent: 95,
 		NetworkTargets: []string{
-			"8.8.8.8",       // Google DNS
+			"8.8.8.8",         // Google DNS
 			"114.114.114.114", // 国内 DNS
 		},
 		RequiredServices: []string{

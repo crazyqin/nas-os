@@ -179,8 +179,8 @@ func TestUpdateRule(t *testing.T) {
 	})
 
 	updated, err := manager.UpdateRule(rule.ID, &TrafficRule{
-		Name:       "updated-rule",
-		Priority:   8,
+		Name:         "updated-rule",
+		Priority:     8,
 		MaxBandwidth: 2000000,
 	})
 	if err != nil {
@@ -609,11 +609,11 @@ func TestUpdateConfig(t *testing.T) {
 	manager := NewManager()
 
 	newConfig := &TrafficShaperConfig{
-		Enabled:         true,
-		TotalBandwidth:  2000000000,
-		DefaultMaxBps:   200000000,
-		StatsInterval:   30,
-		MaxEvents:       5000,
+		Enabled:        true,
+		TotalBandwidth: 2000000000,
+		DefaultMaxBps:  200000000,
+		StatsInterval:  30,
+		MaxEvents:      5000,
 	}
 
 	manager.UpdateConfig(newConfig)

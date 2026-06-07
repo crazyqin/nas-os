@@ -32,93 +32,93 @@ type AccessWindow struct {
 
 // FileIOMetadata 文件I/O元数据
 type FileIOMetadata struct {
-	FilePath       string          `json:"filePath"`
-	Pattern        IOPattern       `json:"pattern"`
-	AccessWindows  []AccessWindow  `json:"-"`           // 最近N个时间窗口的访问记录
-	WindowSize     time.Duration   `json:"windowSize"`  // 窗口大小
-	MaxWindows     int             `json:"maxWindows"`  // 最大窗口数
-	AvgInterval    time.Duration   `json:"avgInterval"` // 平均访问间隔
-	BurstDetected  bool            `json:"burstDetected"`
-	PredictedNext  time.Time       `json:"predictedNext"` // 预测下次访问时间
+	FilePath        string         `json:"filePath"`
+	Pattern         IOPattern      `json:"pattern"`
+	AccessWindows   []AccessWindow `json:"-"`           // 最近N个时间窗口的访问记录
+	WindowSize      time.Duration  `json:"windowSize"`  // 窗口大小
+	MaxWindows      int            `json:"maxWindows"`  // 最大窗口数
+	AvgInterval     time.Duration  `json:"avgInterval"` // 平均访问间隔
+	BurstDetected   bool           `json:"burstDetected"`
+	PredictedNext   time.Time      `json:"predictedNext"`   // 预测下次访问时间
 	ConfidenceScore float64        `json:"confidenceScore"` // 预测置信度 0-1
 }
 
 // SchedulerConfig 分层调度器配置
 type SchedulerConfig struct {
 	// 基础配置
-	SSDCapacityBytes     int64         `json:"ssdCapacityBytes"`
-	SSDUsageThreshold    float64       `json:"ssdUsageThreshold"`    // SSD使用率上限（如0.85=85%）
-	TieringInterval      time.Duration `json:"tieringInterval"`      // 分层扫描间隔
+	SSDCapacityBytes  int64         `json:"ssdCapacityBytes"`
+	SSDUsageThreshold float64       `json:"ssdUsageThreshold"` // SSD使用率上限（如0.85=85%）
+	TieringInterval   time.Duration `json:"tieringInterval"`   // 分层扫描间隔
 
 	// 自适应阈值
 	EnableAdaptiveThreshold bool    `json:"enableAdaptiveThreshold"`
-	BasePromoteThreshold    float64 `json:"basePromoteThreshold"`  // 基础提升阈值
-	BaseDemoteThreshold     float64 `json:"baseDemoteThreshold"`   // 基础降级阈值
-	AdaptiveSensitivity     float64 `json:"adaptiveSensitivity"`   // 自适应灵敏度
+	BasePromoteThreshold    float64 `json:"basePromoteThreshold"` // 基础提升阈值
+	BaseDemoteThreshold     float64 `json:"baseDemoteThreshold"`  // 基础降级阈值
+	AdaptiveSensitivity     float64 `json:"adaptiveSensitivity"`  // 自适应灵敏度
 
 	// 预取配置
-	EnablePrefetch      bool          `json:"enablePrefetch"`
-	PrefetchWindow      time.Duration `json:"prefetchWindow"`      // 预取时间窗口
-	MinConfidence       float64       `json:"minConfidence"`       // 最低预取置信度
+	EnablePrefetch bool          `json:"enablePrefetch"`
+	PrefetchWindow time.Duration `json:"prefetchWindow"` // 预取时间窗口
+	MinConfidence  float64       `json:"minConfidence"`  // 最低预取置信度
 
 	// 批量迁移
-	BatchSize           int           `json:"batchSize"`           // 单次批量迁移文件数
-	MigrationBandwidth  int64         `json:"migrationBandwidth"`  // 迁移带宽限制(bytes/s)
+	BatchSize          int   `json:"batchSize"`          // 单次批量迁移文件数
+	MigrationBandwidth int64 `json:"migrationBandwidth"` // 迁移带宽限制(bytes/s)
 
 	// I/O模式检测
-	WindowCount         int           `json:"windowCount"`         // 分析窗口数
-	WindowDuration      time.Duration `json:"windowDuration"`      // 每个窗口时长
-	BurstThreshold      float64       `json:"burstThreshold"`      // 突发检测阈值（倍数）
+	WindowCount    int           `json:"windowCount"`    // 分析窗口数
+	WindowDuration time.Duration `json:"windowDuration"` // 每个窗口时长
+	BurstThreshold float64       `json:"burstThreshold"` // 突发检测阈值（倍数）
 }
 
 // DefaultSchedulerConfig 返回默认配置
 func DefaultSchedulerConfig() SchedulerConfig {
 	return SchedulerConfig{
-		SSDCapacityBytes:     500 * 1024 * 1024 * 1024, // 500GB
-		SSDUsageThreshold:    0.85,
-		TieringInterval:      5 * time.Minute,
+		SSDCapacityBytes:        500 * 1024 * 1024 * 1024, // 500GB
+		SSDUsageThreshold:       0.85,
+		TieringInterval:         5 * time.Minute,
 		EnableAdaptiveThreshold: true,
-		BasePromoteThreshold: 70,
-		BaseDemoteThreshold:  30,
-		AdaptiveSensitivity:  0.5,
-		EnablePrefetch:       true,
-		PrefetchWindow:       10 * time.Minute,
-		MinConfidence:        0.6,
-		BatchSize:            50,
-		MigrationBandwidth:   100 * 1024 * 1024, // 100MB/s
-		WindowCount:          12,
-		WindowDuration:       5 * time.Minute,
-		BurstThreshold:       3.0,
+		BasePromoteThreshold:    70,
+		BaseDemoteThreshold:     30,
+		AdaptiveSensitivity:     0.5,
+		EnablePrefetch:          true,
+		PrefetchWindow:          10 * time.Minute,
+		MinConfidence:           0.6,
+		BatchSize:               50,
+		MigrationBandwidth:      100 * 1024 * 1024, // 100MB/s
+		WindowCount:             12,
+		WindowDuration:          5 * time.Minute,
+		BurstThreshold:          3.0,
 	}
 }
 
 // TierDecision 分层决策
 type TierDecision struct {
-	FilePath    string    `json:"filePath"`
-	Action      string    `json:"action"`      // promote/demote/prefetch/keep
-	FromTier    string    `json:"fromTier"`
-	ToTier      string    `json:"toTier"`
-	Reason      string    `json:"reason"`
-	Priority    int       `json:"priority"`    // 1-10, 10最高
-	HeatScore   float64   `json:"heatScore"`
-	Confidence  float64   `json:"confidence"`
+	FilePath   string  `json:"filePath"`
+	Action     string  `json:"action"` // promote/demote/prefetch/keep
+	FromTier   string  `json:"fromTier"`
+	ToTier     string  `json:"toTier"`
+	Reason     string  `json:"reason"`
+	Priority   int     `json:"priority"` // 1-10, 10最高
+	HeatScore  float64 `json:"heatScore"`
+	Confidence float64 `json:"confidence"`
 }
 
 // SchedulerStats 调度器统计
 type SchedulerStats struct {
-	TotalDecisions    int64   `json:"totalDecisions"`
-	PromoteCount      int64   `json:"promoteCount"`
-	DemoteCount       int64   `json:"demoteCount"`
-	PrefetchCount     int64   `json:"prefetchCount"`
-	PrefetchHits      int64   `json:"prefetchHits"`     // 预取命中次数
-	PrefetchMisses    int64   `json:"prefetchMisses"`   // 预取未命中次数
-	PrefetchHitRate   float64 `json:"prefetchHitRate"`
-	AdaptiveShifts    int64   `json:"adaptiveShifts"`   // 自适应阈值调整次数
-	SSDUsagePercent   float64 `json:"ssdUsagePercent"`
+	TotalDecisions          int64   `json:"totalDecisions"`
+	PromoteCount            int64   `json:"promoteCount"`
+	DemoteCount             int64   `json:"demoteCount"`
+	PrefetchCount           int64   `json:"prefetchCount"`
+	PrefetchHits            int64   `json:"prefetchHits"`   // 预取命中次数
+	PrefetchMisses          int64   `json:"prefetchMisses"` // 预取未命中次数
+	PrefetchHitRate         float64 `json:"prefetchHitRate"`
+	AdaptiveShifts          int64   `json:"adaptiveShifts"` // 自适应阈值调整次数
+	SSDUsagePercent         float64 `json:"ssdUsagePercent"`
 	CurrentPromoteThreshold float64 `json:"currentPromoteThreshold"`
 	CurrentDemoteThreshold  float64 `json:"currentDemoteThreshold"`
-	BatchesProcessed  int64   `json:"batchesProcessed"`
-	AvgBatchTimeMs    float64 `json:"avgBatchTimeMs"`
+	BatchesProcessed        int64   `json:"batchesProcessed"`
+	AvgBatchTimeMs          float64 `json:"avgBatchTimeMs"`
 }
 
 // SmartTierScheduler 智能分层调度器
@@ -136,17 +136,17 @@ type SmartTierScheduler struct {
 	currentDemoteThreshold  float64
 
 	// 外部接口
-	onDecide func(decision TierDecision) // 决策回调
+	onDecide  func(decision TierDecision)                   // 决策回调
 	onMigrate func(filePath, fromTier, toTier string) error // 迁移回调
 }
 
 // NewSmartTierScheduler 创建智能分层调度器
 func NewSmartTierScheduler(config SchedulerConfig) *SmartTierScheduler {
 	return &SmartTierScheduler{
-		config:    config,
-		ioMeta:    make(map[string]*FileIOMetadata),
-		decisions: make([]TierDecision, 0),
-		stopCh:    make(chan struct{}),
+		config:                  config,
+		ioMeta:                  make(map[string]*FileIOMetadata),
+		decisions:               make([]TierDecision, 0),
+		stopCh:                  make(chan struct{}),
 		currentPromoteThreshold: config.BasePromoteThreshold,
 		currentDemoteThreshold:  config.BaseDemoteThreshold,
 	}

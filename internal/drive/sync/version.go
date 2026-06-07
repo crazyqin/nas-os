@@ -21,14 +21,14 @@ type VersionManager struct {
 
 // FileVersion 单个文件版本.
 type FileVersion struct {
-	Version     int       `json:"version"`
-	Hash        string    `json:"hash"`
-	Size        int64     `json:"size"`
-	ModifiedAt  time.Time `json:"modified_at"`
-	ModifiedBy  string    `json:"modified_by"`
-	Label       string    `json:"label,omitempty"`
-	LocalPath   string    `json:"local_path,omitempty"`   // 本地路径（本地版本）
-	RemotePath  string    `json:"remote_path,omitempty"` // 远端路径（远端版本）
+	Version    int       `json:"version"`
+	Hash       string    `json:"hash"`
+	Size       int64     `json:"size"`
+	ModifiedAt time.Time `json:"modified_at"`
+	ModifiedBy string    `json:"modified_by"`
+	Label      string    `json:"label,omitempty"`
+	LocalPath  string    `json:"local_path,omitempty"`  // 本地路径（本地版本）
+	RemotePath string    `json:"remote_path,omitempty"` // 远端路径（远端版本）
 }
 
 // NewVersionManager 创建版本管理器.

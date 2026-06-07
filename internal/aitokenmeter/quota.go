@@ -7,9 +7,9 @@ import (
 
 // QuotaManager 配额管理器 (并发安全).
 type QuotaManager struct {
-	mu       sync.RWMutex
-	quotas   map[string]*UserQuota // key: userID
-	plans    map[string]*Plan      // key: planID
+	mu     sync.RWMutex
+	quotas map[string]*UserQuota // key: userID
+	plans  map[string]*Plan      // key: planID
 }
 
 // NewQuotaManager 创建配额管理器.

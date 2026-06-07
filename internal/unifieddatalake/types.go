@@ -43,19 +43,19 @@ type DataSource struct {
 
 // DataObject 数据对象（文件/目录）
 type DataObject struct {
-	ID           string            `json:"id"`
-	SourceID     string            `json:"source_id"`
-	Path         string            `json:"path"`
-	Name         string            `json:"name"`
-	IsDir        bool              `json:"is_dir"`
-	Size         int64             `json:"size"`
-	ContentType  string            `json:"content_type"`
-	Checksum     string            `json:"checksum,omitempty"`
-	Tags         map[string]string `json:"tags,omitempty"`
-	CustomMeta   map[string]string `json:"custom_meta,omitempty"`
-	CreatedAt    time.Time         `json:"created_at"`
-	ModifiedAt   time.Time         `json:"modified_at"`
-	AccessedAt   time.Time         `json:"accessed_at"`
+	ID          string            `json:"id"`
+	SourceID    string            `json:"source_id"`
+	Path        string            `json:"path"`
+	Name        string            `json:"name"`
+	IsDir       bool              `json:"is_dir"`
+	Size        int64             `json:"size"`
+	ContentType string            `json:"content_type"`
+	Checksum    string            `json:"checksum,omitempty"`
+	Tags        map[string]string `json:"tags,omitempty"`
+	CustomMeta  map[string]string `json:"custom_meta,omitempty"`
+	CreatedAt   time.Time         `json:"created_at"`
+	ModifiedAt  time.Time         `json:"modified_at"`
+	AccessedAt  time.Time         `json:"accessed_at"`
 }
 
 // CatalogEntry 数据目录条目
@@ -69,7 +69,7 @@ type CatalogEntry struct {
 	Tags         map[string]string `json:"tags,omitempty"`
 	Schema       *DataSchema       `json:"schema,omitempty"`
 	RowCount     int64             `json:"row_count,omitempty"`
-	ColCount     int              `json:"col_count,omitempty"`
+	ColCount     int               `json:"col_count,omitempty"`
 	Stats        *DatasetStats     `json:"stats,omitempty"`
 	QualityScore float64           `json:"quality_score"`
 	LineageID    string            `json:"lineage_id,omitempty"`
@@ -93,13 +93,13 @@ type SchemaField struct {
 
 // DatasetStats 数据集统计
 type DatasetStats struct {
-	TotalRows    int64             `json:"total_rows"`
-	TotalCols    int               `json:"total_cols"`
-	TotalSize    int64             `json:"total_size"`
-	NullCount    map[string]int64  `json:"null_count,omitempty"`
-	UniqueCount  map[string]int64  `json:"unique_count,omitempty"`
-	MinValues    map[string]string `json:"min_values,omitempty"`
-	MaxValues    map[string]string `json:"max_values,omitempty"`
+	TotalRows   int64             `json:"total_rows"`
+	TotalCols   int               `json:"total_cols"`
+	TotalSize   int64             `json:"total_size"`
+	NullCount   map[string]int64  `json:"null_count,omitempty"`
+	UniqueCount map[string]int64  `json:"unique_count,omitempty"`
+	MinValues   map[string]string `json:"min_values,omitempty"`
+	MaxValues   map[string]string `json:"max_values,omitempty"`
 }
 
 // LineageNode 血缘节点
@@ -113,11 +113,11 @@ type LineageNode struct {
 
 // LineageEdge 血缘边
 type LineageEdge struct {
-	ID          string    `json:"id"`
-	SourceNodeID string   `json:"source_node_id"`
-	TargetNodeID string   `json:"target_node_id"`
-	Transform   string    `json:"transform,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID           string    `json:"id"`
+	SourceNodeID string    `json:"source_node_id"`
+	TargetNodeID string    `json:"target_node_id"`
+	Transform    string    `json:"transform,omitempty"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 // LineageGraph 血缘图
@@ -146,11 +146,11 @@ type QualityRule struct {
 type QualityRuleType string
 
 const (
-	QualityNotNull    QualityRuleType = "not_null"
-	QualityUnique     QualityRuleType = "unique"
-	QualityRange      QualityRuleType = "range"
-	QualityRegex      QualityRuleType = "regex"
-	QualityCustom     QualityRuleType = "custom"
+	QualityNotNull     QualityRuleType = "not_null"
+	QualityUnique      QualityRuleType = "unique"
+	QualityRange       QualityRuleType = "range"
+	QualityRegex       QualityRuleType = "regex"
+	QualityCustom      QualityRuleType = "custom"
 	QualityReferential QualityRuleType = "referential"
 )
 
@@ -166,17 +166,17 @@ const (
 
 // QualityCheckResult 质量检查结果
 type QualityCheckResult struct {
-	ID          string          `json:"id"`
-	RuleID      string          `json:"rule_id"`
-	ObjectID    string          `json:"object_id"`
-	Status      QualityStatus   `json:"status"`
-	Passed      bool            `json:"passed"`
-	TotalRows   int64           `json:"total_rows"`
-	PassedRows  int64           `json:"passed_rows"`
-	FailedRows  int64           `json:"failed_rows"`
-	Score       float64         `json:"score"`
-	Details     string          `json:"details,omitempty"`
-	CheckedAt   time.Time       `json:"checked_at"`
+	ID         string        `json:"id"`
+	RuleID     string        `json:"rule_id"`
+	ObjectID   string        `json:"object_id"`
+	Status     QualityStatus `json:"status"`
+	Passed     bool          `json:"passed"`
+	TotalRows  int64         `json:"total_rows"`
+	PassedRows int64         `json:"passed_rows"`
+	FailedRows int64         `json:"failed_rows"`
+	Score      float64       `json:"score"`
+	Details    string        `json:"details,omitempty"`
+	CheckedAt  time.Time     `json:"checked_at"`
 }
 
 // QualityStatus 质量状态
@@ -191,34 +191,34 @@ const (
 
 // QualityReport 质量报告
 type QualityReport struct {
-	ObjectID     string               `json:"object_id"`
-	OverallScore float64              `json:"overall_score"`
+	ObjectID     string                `json:"object_id"`
+	OverallScore float64               `json:"overall_score"`
 	Results      []*QualityCheckResult `json:"results"`
-	GeneratedAt  time.Time            `json:"generated_at"`
+	GeneratedAt  time.Time             `json:"generated_at"`
 }
 
 // DataLakeStats 数据湖统计
 type DataLakeStats struct {
-	TotalSources    int   `json:"total_sources"`
-	OnlineSources   int   `json:"online_sources"`
-	TotalObjects    int   `json:"total_objects"`
-	TotalCatalogs   int   `json:"total_catalogs"`
-	TotalSize       int64 `json:"total_size"`
-	TotalLineages   int   `json:"total_lineages"`
-	TotalRules      int   `json:"total_rules"`
+	TotalSources    int     `json:"total_sources"`
+	OnlineSources   int     `json:"online_sources"`
+	TotalObjects    int     `json:"total_objects"`
+	TotalCatalogs   int     `json:"total_catalogs"`
+	TotalSize       int64   `json:"total_size"`
+	TotalLineages   int     `json:"total_lineages"`
+	TotalRules      int     `json:"total_rules"`
 	AvgQualityScore float64 `json:"avg_quality_score"`
 }
 
 // DataLake 统一数据湖
 type DataLake struct {
-	mu        sync.RWMutex
-	sources   map[string]*DataSource
-	objects   map[string]*DataObject
-	catalogs  map[string]*CatalogEntry
-	lineages  map[string]*LineageGraph
-	rules     map[string]*QualityRule
-	results   map[string][]*QualityCheckResult // key: objectID
-	stats     *DataLakeStats
+	mu       sync.RWMutex
+	sources  map[string]*DataSource
+	objects  map[string]*DataObject
+	catalogs map[string]*CatalogEntry
+	lineages map[string]*LineageGraph
+	rules    map[string]*QualityRule
+	results  map[string][]*QualityCheckResult // key: objectID
+	stats    *DataLakeStats
 }
 
 // NewDataLake 创建数据湖

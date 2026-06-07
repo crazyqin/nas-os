@@ -8,27 +8,27 @@ import "time"
 type SensitiveDataType string
 
 const (
-	DataTypeIDCard     SensitiveDataType = "id_card"      // 身份证号
-	DataTypePhone      SensitiveDataType = "phone"        // 手机号
-	DataTypeBankCard   SensitiveDataType = "bank_card"    // 银行卡号
-	DataTypeEmail      SensitiveDataType = "email"        // 邮箱
-	DataTypeIPAddress  SensitiveDataType = "ip_address"   // IP地址
-	DataTypeName       SensitiveDataType = "name"         // 姓名
-	DataTypeAddress    SensitiveDataType = "address"      // 地址
+	DataTypeIDCard       SensitiveDataType = "id_card"       // 身份证号
+	DataTypePhone        SensitiveDataType = "phone"         // 手机号
+	DataTypeBankCard     SensitiveDataType = "bank_card"     // 银行卡号
+	DataTypeEmail        SensitiveDataType = "email"         // 邮箱
+	DataTypeIPAddress    SensitiveDataType = "ip_address"    // IP地址
+	DataTypeName         SensitiveDataType = "name"          // 姓名
+	DataTypeAddress      SensitiveDataType = "address"       // 地址
 	DataTypeLicensePlate SensitiveDataType = "license_plate" // 车牌号
-	DataTypePassport   SensitiveDataType = "passport"     // 护照号
-	DataTypeSSN        SensitiveDataType = "ssn"          // 社会保障号
+	DataTypePassport     SensitiveDataType = "passport"      // 护照号
+	DataTypeSSN          SensitiveDataType = "ssn"           // 社会保障号
 )
 
 // MaskingStrategy 脱敏策略
 type MaskingStrategy string
 
 const (
-	StrategyMask    MaskingStrategy = "mask"    // 掩码：用*替换部分字符
-	StrategyReplace MaskingStrategy = "replace" // 替换：用固定文本替换
-	StrategyHash    MaskingStrategy = "hash"    // 哈希：用哈希值替换
+	StrategyMask     MaskingStrategy = "mask"     // 掩码：用*替换部分字符
+	StrategyReplace  MaskingStrategy = "replace"  // 替换：用固定文本替换
+	StrategyHash     MaskingStrategy = "hash"     // 哈希：用哈希值替换
 	StrategyTruncate MaskingStrategy = "truncate" // 截断：截取部分字符
-	StrategyRedact  MaskingStrategy = "redact"  // 删除：完全移除
+	StrategyRedact   MaskingStrategy = "redact"   // 删除：完全移除
 )
 
 // MaskingRule 脱敏规则
@@ -50,29 +50,29 @@ type MaskingRule struct {
 
 // MaskingResult 脱敏结果
 type MaskingResult struct {
-	Original  string            `json:"original"`
-	Masked    string            `json:"masked"`
-	DataType  SensitiveDataType `json:"data_type"`
-	Strategy  MaskingStrategy   `json:"strategy"`
-	StartPos  int               `json:"start_pos"`
-	EndPos    int               `json:"end_pos"`
-	RuleID    string            `json:"rule_id"`
+	Original string            `json:"original"`
+	Masked   string            `json:"masked"`
+	DataType SensitiveDataType `json:"data_type"`
+	Strategy MaskingStrategy   `json:"strategy"`
+	StartPos int               `json:"start_pos"`
+	EndPos   int               `json:"end_pos"`
+	RuleID   string            `json:"rule_id"`
 }
 
 // MaskingRequest 脱敏请求
 type MaskingRequest struct {
-	Text    string          `json:"text" binding:"required"`
-	Rules   []*MaskingRule  `json:"rules,omitempty"`    // 自定义规则，为空则使用默认规则
+	Text     string         `json:"text" binding:"required"`
+	Rules    []*MaskingRule `json:"rules,omitempty"`     // 自定义规则，为空则使用默认规则
 	TestMode bool           `json:"test_mode,omitempty"` // 测试模式，返回对比结果
 }
 
 // MaskingResponse 脱敏响应
 type MaskingResponse struct {
-	MaskedText string            `json:"masked_text"`
-	Results    []*MaskingResult  `json:"results,omitempty"`   // 测试模式下返回详细结果
-	Summary    *MaskingSummary   `json:"summary,omitempty"`   // 脱敏摘要
-	CreatedAt  time.Time         `json:"created_at"`
-	Duration   time.Duration     `json:"duration"`
+	MaskedText string           `json:"masked_text"`
+	Results    []*MaskingResult `json:"results,omitempty"` // 测试模式下返回详细结果
+	Summary    *MaskingSummary  `json:"summary,omitempty"` // 脱敏摘要
+	CreatedAt  time.Time        `json:"created_at"`
+	Duration   time.Duration    `json:"duration"`
 }
 
 // MaskingSummary 脱敏摘要
@@ -84,17 +84,17 @@ type MaskingSummary struct {
 
 // BatchMaskingRequest 批量脱敏请求
 type BatchMaskingRequest struct {
-	Texts    []string        `json:"texts" binding:"required,min=1"`
-	Rules    []*MaskingRule  `json:"rules,omitempty"`
-	TestMode bool            `json:"test_mode,omitempty"`
+	Texts    []string       `json:"texts" binding:"required,min=1"`
+	Rules    []*MaskingRule `json:"rules,omitempty"`
+	TestMode bool           `json:"test_mode,omitempty"`
 }
 
 // BatchMaskingResponse 批量脱敏响应
 type BatchMaskingResponse struct {
-	Results   []*MaskingResponse `json:"results"`
-	TotalTexts int               `json:"total_texts"`
-	TotalMasked int              `json:"total_masked"`
-	Duration   time.Duration      `json:"duration"`
+	Results     []*MaskingResponse `json:"results"`
+	TotalTexts  int                `json:"total_texts"`
+	TotalMasked int                `json:"total_masked"`
+	Duration    time.Duration      `json:"duration"`
 }
 
 // MaskingLog 脱敏日志
@@ -113,7 +113,7 @@ type MaskingLog struct {
 // AuditLog 审计日志
 type AuditLog struct {
 	ID        string    `json:"id"`
-	Action    string    `json:"action"`    // mask, unmask, rule_create, rule_update, rule_delete
+	Action    string    `json:"action"` // mask, unmask, rule_create, rule_update, rule_delete
 	UserID    string    `json:"user_id,omitempty"`
 	Details   string    `json:"details,omitempty"`
 	IPAddress string    `json:"ip_address,omitempty"`
@@ -122,37 +122,37 @@ type AuditLog struct {
 
 // AIIntegrationConfig AI集成配置
 type AIIntegrationConfig struct {
-	Enabled        bool   `json:"enabled"`
-	PreProcess     bool   `json:"pre_process"`     // 在发送给AI前脱敏
-	PostProcess    bool   `json:"post_process"`    // 在AI响应后脱敏
-	LogPrompts     bool   `json:"log_prompts"`     // 记录提示词
-	MaxPromptLength int   `json:"max_prompt_length"`
+	Enabled         bool `json:"enabled"`
+	PreProcess      bool `json:"pre_process"`  // 在发送给AI前脱敏
+	PostProcess     bool `json:"post_process"` // 在AI响应后脱敏
+	LogPrompts      bool `json:"log_prompts"`  // 记录提示词
+	MaxPromptLength int  `json:"max_prompt_length"`
 }
 
 // AIPromptRequest AI提示词请求
 type AIPromptRequest struct {
-	Prompt    string              `json:"prompt" binding:"required"`
+	Prompt    string               `json:"prompt" binding:"required"`
 	Config    *AIIntegrationConfig `json:"config,omitempty"`
-	SessionID string              `json:"session_id,omitempty"`
+	SessionID string               `json:"session_id,omitempty"`
 }
 
 // AIPromptResponse AI提示词响应
 type AIPromptResponse struct {
-	OriginalPrompt  string `json:"original_prompt"`
-	MaskedPrompt    string `json:"masked_prompt"`
-	HasSensitiveData bool  `json:"has_sensitive_data"`
-	MaskingApplied  bool   `json:"masking_applied"`
+	OriginalPrompt   string `json:"original_prompt"`
+	MaskedPrompt     string `json:"masked_prompt"`
+	HasSensitiveData bool   `json:"has_sensitive_data"`
+	MaskingApplied   bool   `json:"masking_applied"`
 }
 
 // MaskingEngineConfig 脱敏引擎配置
 type MaskingEngineConfig struct {
-	Enabled         bool              `json:"enabled"`
-	DefaultStrategy MaskingStrategy   `json:"default_strategy"`
-	MaxTextLength   int               `json:"max_text_length"`
-	CacheEnabled    bool              `json:"cache_enabled"`
-	CacheTTLMinutes int               `json:"cache_ttl_minutes"`
-	LogEnabled      bool              `json:"log_enabled"`
-	AuditEnabled    bool              `json:"audit_enabled"`
+	Enabled         bool                 `json:"enabled"`
+	DefaultStrategy MaskingStrategy      `json:"default_strategy"`
+	MaxTextLength   int                  `json:"max_text_length"`
+	CacheEnabled    bool                 `json:"cache_enabled"`
+	CacheTTLMinutes int                  `json:"cache_ttl_minutes"`
+	LogEnabled      bool                 `json:"log_enabled"`
+	AuditEnabled    bool                 `json:"audit_enabled"`
 	AIIntegration   *AIIntegrationConfig `json:"ai_integration,omitempty"`
 }
 

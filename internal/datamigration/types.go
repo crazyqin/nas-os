@@ -12,21 +12,21 @@ import (
 
 // Migration 迁移任务
 type Migration struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description,omitempty"`
-	Status      string            `json:"status"` // pending, running, paused, completed, failed, cancelled
-	SourceType  string            `json:"source_type"`
-	Source      Source            `json:"source"`
-	TargetType  string            `json:"target_type"`
-	Target      Target            `json:"target"`
-	Options     MigrationOptions  `json:"options"`
-	Progress    Progress          `json:"progress"`
-	StartedAt   *time.Time        `json:"started_at,omitempty"`
-	CompletedAt *time.Time        `json:"completed_at,omitempty"`
-	Error       string            `json:"error,omitempty"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	ID          string           `json:"id"`
+	Name        string           `json:"name"`
+	Description string           `json:"description,omitempty"`
+	Status      string           `json:"status"` // pending, running, paused, completed, failed, cancelled
+	SourceType  string           `json:"source_type"`
+	Source      Source           `json:"source"`
+	TargetType  string           `json:"target_type"`
+	Target      Target           `json:"target"`
+	Options     MigrationOptions `json:"options"`
+	Progress    Progress         `json:"progress"`
+	StartedAt   *time.Time       `json:"started_at,omitempty"`
+	CompletedAt *time.Time       `json:"completed_at,omitempty"`
+	Error       string           `json:"error,omitempty"`
+	CreatedAt   time.Time        `json:"created_at"`
+	UpdatedAt   time.Time        `json:"updated_at"`
 }
 
 // Source 迁移源
@@ -53,17 +53,17 @@ type Target struct {
 
 // MigrationOptions 迁移选项
 type MigrationOptions struct {
-	Bandwidth     int  `json:"bandwidth"` // MB/s, 0=无限制
-	Parallel      int  `json:"parallel"` // 并发数
-	Verify        bool `json:"verify"` // 校验
-	Sync          bool `json:"sync"` // 同步模式
-	DeleteOrphan  bool `json:"delete_orphan"` // 删除目标多余文件
-	Compress      bool `json:"compress"` // 压缩传输
-	Incremental   bool `json:"incremental"` // 增量迁移
-	Exclude       []string `json:"exclude,omitempty"` // 排除模式
-	Include       []string `json:"include,omitempty"` // 包含模式
-	RetryCount    int  `json:"retry_count"`
-	RetryDelay    int  `json:"retry_delay"` // 秒
+	Bandwidth    int      `json:"bandwidth"`         // MB/s, 0=无限制
+	Parallel     int      `json:"parallel"`          // 并发数
+	Verify       bool     `json:"verify"`            // 校验
+	Sync         bool     `json:"sync"`              // 同步模式
+	DeleteOrphan bool     `json:"delete_orphan"`     // 删除目标多余文件
+	Compress     bool     `json:"compress"`          // 压缩传输
+	Incremental  bool     `json:"incremental"`       // 增量迁移
+	Exclude      []string `json:"exclude,omitempty"` // 排除模式
+	Include      []string `json:"include,omitempty"` // 包含模式
+	RetryCount   int      `json:"retry_count"`
+	RetryDelay   int      `json:"retry_delay"` // 秒
 }
 
 // Progress 进度
@@ -75,21 +75,21 @@ type Progress struct {
 	TotalBytes     int64   `json:"total_bytes"`
 	CompletedBytes int64   `json:"completed_bytes"`
 	Speed          float64 `json:"speed"` // bytes/sec
-	ETA            int     `json:"eta"` // 秒
+	ETA            int     `json:"eta"`   // 秒
 	Percent        float64 `json:"percent"`
 	CurrentFile    string  `json:"current_file,omitempty"`
 }
 
 // Plan 迁移计划
 type Plan struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Description string        `json:"description,omitempty"`
-	SourceType  string        `json:"source_type"`
-	TargetType  string        `json:"target_type"`
-	Steps       []Step        `json:"steps"`
-	Estimate    Estimate      `json:"estimate"`
-	CreatedAt   time.Time     `json:"created_at"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description,omitempty"`
+	SourceType  string    `json:"source_type"`
+	TargetType  string    `json:"target_type"`
+	Steps       []Step    `json:"steps"`
+	Estimate    Estimate  `json:"estimate"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 // Step 迁移步骤
@@ -139,11 +139,11 @@ type Manager struct {
 
 // Config 配置
 type Config struct {
-	MaxMigrations   int    `json:"max_migrations"`
-	MaxBandwidth    int    `json:"max_bandwidth"` // MB/s
-	DefaultParallel int    `json:"default_parallel"`
-	RetentionDays   int    `json:"retention_days"`
-	AllowRemote     bool   `json:"allow_remote"`
+	MaxMigrations   int  `json:"max_migrations"`
+	MaxBandwidth    int  `json:"max_bandwidth"` // MB/s
+	DefaultParallel int  `json:"default_parallel"`
+	RetentionDays   int  `json:"retention_days"`
+	AllowRemote     bool `json:"allow_remote"`
 }
 
 // NewManager 创建管理器

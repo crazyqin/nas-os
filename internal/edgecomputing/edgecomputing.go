@@ -10,31 +10,31 @@ import (
 type ContainerState string
 
 const (
-	StatePending  ContainerState = "pending"
-	StateRunning  ContainerState = "running"
-	StateStopped  ContainerState = "stopped"
-	StateFailed   ContainerState = "failed"
-	StateScaling  ContainerState = "scaling"
+	StatePending ContainerState = "pending"
+	StateRunning ContainerState = "running"
+	StateStopped ContainerState = "stopped"
+	StateFailed  ContainerState = "failed"
+	StateScaling ContainerState = "scaling"
 )
 
 // RuntimeLanguage 函数运行时语言
 type RuntimeLanguage string
 
 const (
-	RuntimePython   RuntimeLanguage = "python"
-	RuntimeNodeJS   RuntimeLanguage = "nodejs"
-	RuntimeGo       RuntimeLanguage = "go"
-	RuntimeRust     RuntimeLanguage = "rust"
-	RuntimeWasm     RuntimeLanguage = "wasm"
+	RuntimePython RuntimeLanguage = "python"
+	RuntimeNodeJS RuntimeLanguage = "nodejs"
+	RuntimeGo     RuntimeLanguage = "go"
+	RuntimeRust   RuntimeLanguage = "rust"
+	RuntimeWasm   RuntimeLanguage = "wasm"
 )
 
 // InferenceBackend 推理后端
 type InferenceBackend string
 
 const (
-	BackendCPU    InferenceBackend = "cpu"
-	BackendCUDA   InferenceBackend = "cuda"
-	BackendNPU    InferenceBackend = "npu"
+	BackendCPU      InferenceBackend = "cpu"
+	BackendCUDA     InferenceBackend = "cuda"
+	BackendNPU      InferenceBackend = "npu"
 	BackendOpenVINO InferenceBackend = "openvino"
 	BackendTensorRT InferenceBackend = "tensorrt"
 )
@@ -43,7 +43,7 @@ const (
 type PipelineStage string
 
 const (
-	StageFilter   PipelineStage = "filter"
+	StageFilter    PipelineStage = "filter"
 	StageTransform PipelineStage = "transform"
 	StageAggregate PipelineStage = "aggregate"
 	StageEnrich    PipelineStage = "enrich"
@@ -62,20 +62,20 @@ const (
 
 // EdgeContainer 边缘容器
 type EdgeContainer struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	Image        string            `json:"image"`
-	State        ContainerState    `json:"state"`
-	Labels       map[string]string `json:"labels,omitempty"`
-	EnvVars      map[string]string `json:"env_vars,omitempty"`
-	ResourceLimits *ResourceLimit  `json:"resource_limits,omitempty"`
-	Ports        []PortBinding     `json:"ports,omitempty"`
-	Volumes      []string          `json:"volumes,omitempty"`
-	HealthCheck  *HealthCheck      `json:"health_check,omitempty"`
-	Replicas     int               `json:"replicas"`
-	CreatedAt    time.Time         `json:"created_at"`
-	StartedAt    *time.Time        `json:"started_at,omitempty"`
-	RestartCount int               `json:"restart_count"`
+	ID             string            `json:"id"`
+	Name           string            `json:"name"`
+	Image          string            `json:"image"`
+	State          ContainerState    `json:"state"`
+	Labels         map[string]string `json:"labels,omitempty"`
+	EnvVars        map[string]string `json:"env_vars,omitempty"`
+	ResourceLimits *ResourceLimit    `json:"resource_limits,omitempty"`
+	Ports          []PortBinding     `json:"ports,omitempty"`
+	Volumes        []string          `json:"volumes,omitempty"`
+	HealthCheck    *HealthCheck      `json:"health_check,omitempty"`
+	Replicas       int               `json:"replicas"`
+	CreatedAt      time.Time         `json:"created_at"`
+	StartedAt      *time.Time        `json:"started_at,omitempty"`
+	RestartCount   int               `json:"restart_count"`
 }
 
 // ResourceLimit 资源限制
@@ -106,49 +106,49 @@ type HealthCheck struct {
 
 // EdgeFunction 边缘函数
 type EdgeFunction struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	Description  string            `json:"description,omitempty"`
-	Runtime      RuntimeLanguage   `json:"runtime"`
-	Code         string            `json:"code"`
-	Handler      string            `json:"handler"`
-	Timeout      time.Duration     `json:"timeout"`
-	MemoryMB     int               `json:"memory_mb"`
-	EnvVars      map[string]string `json:"env_vars,omitempty"`
-	Triggers     []FunctionTrigger `json:"triggers,omitempty"`
-	Dependencies []string          `json:"dependencies,omitempty"`
-	MaxConcurrency int             `json:"max_concurrency"`
-	CreatedAt    time.Time         `json:"created_at"`
-	UpdatedAt    time.Time         `json:"updated_at"`
+	ID             string            `json:"id"`
+	Name           string            `json:"name"`
+	Description    string            `json:"description,omitempty"`
+	Runtime        RuntimeLanguage   `json:"runtime"`
+	Code           string            `json:"code"`
+	Handler        string            `json:"handler"`
+	Timeout        time.Duration     `json:"timeout"`
+	MemoryMB       int               `json:"memory_mb"`
+	EnvVars        map[string]string `json:"env_vars,omitempty"`
+	Triggers       []FunctionTrigger `json:"triggers,omitempty"`
+	Dependencies   []string          `json:"dependencies,omitempty"`
+	MaxConcurrency int               `json:"max_concurrency"`
+	CreatedAt      time.Time         `json:"created_at"`
+	UpdatedAt      time.Time         `json:"updated_at"`
 }
 
 // FunctionTrigger 函数触发器
 type FunctionTrigger struct {
-	Type    string `json:"type"` // http, mqtt, schedule, iot
-	Config  map[string]string `json:"config"`
+	Type   string            `json:"type"` // http, mqtt, schedule, iot
+	Config map[string]string `json:"config"`
 }
 
 // IoTDevice IoT设备
 type IoTDevice struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Type        string            `json:"type"` // sensor, actuator, gateway
-	Protocol    string            `json:"protocol"` // mqtt, coap, http, modbus
-	Address     string            `json:"address"`
-	Labels      map[string]string `json:"labels,omitempty"`
-	Metadata    map[string]string `json:"metadata,omitempty"`
-	LastSeen    time.Time         `json:"last_seen"`
-	Online      bool              `json:"online"`
+	ID       string            `json:"id"`
+	Name     string            `json:"name"`
+	Type     string            `json:"type"`     // sensor, actuator, gateway
+	Protocol string            `json:"protocol"` // mqtt, coap, http, modbus
+	Address  string            `json:"address"`
+	Labels   map[string]string `json:"labels,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty"`
+	LastSeen time.Time         `json:"last_seen"`
+	Online   bool              `json:"online"`
 }
 
 // IoTMessage IoT消息
 type IoTMessage struct {
-	DeviceID    string                 `json:"device_id"`
-	Topic       string                 `json:"topic"`
-	Payload     map[string]interface{} `json:"payload"`
-	QoS         int                    `json:"qos"`
-	Timestamp   time.Time              `json:"timestamp"`
-	Retained    bool                   `json:"retained"`
+	DeviceID  string                 `json:"device_id"`
+	Topic     string                 `json:"topic"`
+	Payload   map[string]interface{} `json:"payload"`
+	QoS       int                    `json:"qos"`
+	Timestamp time.Time              `json:"timestamp"`
+	Retained  bool                   `json:"retained"`
 }
 
 // AIModel AI模型
@@ -177,31 +177,31 @@ type InferenceRequest struct {
 
 // InferenceResult 推理结果
 type InferenceResult struct {
-	RequestID  string                 `json:"request_id"`
-	ModelID    string                 `json:"model_id"`
-	Predictions []Prediction          `json:"predictions"`
-	LatencyMs  float64                `json:"latency_ms"`
-	Backend    InferenceBackend       `json:"backend"`
-	Timestamp  time.Time              `json:"timestamp"`
+	RequestID   string           `json:"request_id"`
+	ModelID     string           `json:"model_id"`
+	Predictions []Prediction     `json:"predictions"`
+	LatencyMs   float64          `json:"latency_ms"`
+	Backend     InferenceBackend `json:"backend"`
+	Timestamp   time.Time        `json:"timestamp"`
 }
 
 // Prediction 预测结果
 type Prediction struct {
-	Label      string  `json:"label"`
-	Confidence float64 `json:"confidence"`
+	Label      string    `json:"label"`
+	Confidence float64   `json:"confidence"`
 	BBox       []float64 `json:"bbox,omitempty"` // [x1, y1, x2, y2]
 }
 
 // DataPipeline 数据处理管道
 type DataPipeline struct {
-	ID          string           `json:"id"`
-	Name        string           `json:"name"`
-	Description string           `json:"description,omitempty"`
-	Stages      []PipelineStage  `json:"stages"`
-	Source      DataSource       `json:"source"`
-	Sinks       []DataSink       `json:"sinks"`
-	Enabled     bool             `json:"enabled"`
-	CreatedAt   time.Time        `json:"created_at"`
+	ID          string          `json:"id"`
+	Name        string          `json:"name"`
+	Description string          `json:"description,omitempty"`
+	Stages      []PipelineStage `json:"stages"`
+	Source      DataSource      `json:"source"`
+	Sinks       []DataSink      `json:"sinks"`
+	Enabled     bool            `json:"enabled"`
+	CreatedAt   time.Time       `json:"created_at"`
 }
 
 // DataSource 数据源
@@ -229,7 +229,7 @@ type StageResult struct {
 type SchedulerTask struct {
 	ID         string        `json:"id"`
 	Name       string        `json:"name"`
-	TargetID   string        `json:"target_id"` // 容器或函数ID
+	TargetID   string        `json:"target_id"`   // 容器或函数ID
 	TargetType string        `json:"target_type"` // container, function
 	Priority   Priority      `json:"priority"`
 	Schedule   string        `json:"schedule"` // cron表达式
@@ -242,28 +242,28 @@ type SchedulerTask struct {
 
 // ResourceQuota 资源配额
 type ResourceQuota struct {
-	Name        string         `json:"name"`
-	MaxCPU      float64        `json:"max_cpu"`
-	MaxMemoryMB int            `json:"max_memory_mb"`
-	MaxDiskMB   int            `json:"max_disk_mb"`
-	MaxGPU      int            `json:"max_gpu"`
-	UsedCPU     float64        `json:"used_cpu"`
-	UsedMemoryMB int           `json:"used_memory_mb"`
-	UsedDiskMB  int            `json:"used_disk_mb"`
-	UsedGPU     int            `json:"used_gpu"`
+	Name         string  `json:"name"`
+	MaxCPU       float64 `json:"max_cpu"`
+	MaxMemoryMB  int     `json:"max_memory_mb"`
+	MaxDiskMB    int     `json:"max_disk_mb"`
+	MaxGPU       int     `json:"max_gpu"`
+	UsedCPU      float64 `json:"used_cpu"`
+	UsedMemoryMB int     `json:"used_memory_mb"`
+	UsedDiskMB   int     `json:"used_disk_mb"`
+	UsedGPU      int     `json:"used_gpu"`
 }
 
 // EdgePlatform 边缘计算平台
 type EdgePlatform struct {
-	mu           sync.RWMutex
-	containers   map[string]*EdgeContainer
-	functions    map[string]*EdgeFunction
-	devices      map[string]*IoTDevice
-	models       map[string]*AIModel
-	pipelines    map[string]*DataPipeline
-	tasks        map[string]*SchedulerTask
-	quotas       map[string]*ResourceQuota
-	invocations  map[string][]FunctionInvocation
+	mu                sync.RWMutex
+	containers        map[string]*EdgeContainer
+	functions         map[string]*EdgeFunction
+	devices           map[string]*IoTDevice
+	models            map[string]*AIModel
+	pipelines         map[string]*DataPipeline
+	tasks             map[string]*SchedulerTask
+	quotas            map[string]*ResourceQuota
+	invocations       map[string][]FunctionInvocation
 	invocationCounter int64
 }
 

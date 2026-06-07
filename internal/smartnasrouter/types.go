@@ -63,27 +63,27 @@ const (
 
 // Node NAS节点信息.
 type Node struct {
-	ID          string     `json:"id"`           // 节点唯一标识
-	Name        string     `json:"name"`         // 节点名称
-	Host        string     `json:"host"`         // 主机地址
-	Port        int        `json:"port"`         // 端口
-	Status      NodeStatus `json:"status"`       // 节点状态
-	Region      string     `json:"region"`       // 地域标识
-	Weight      int        `json:"weight"`       // 权重 (0-100)
-	MaxConns    int        `json:"maxConns"`     // 最大连接数
-	CurrConns   int        `json:"currConns"`    // 当前连接数
-	CPUUsage    float64    `json:"cpuUsage"`     // CPU使用率 (%)
-	MemoryUsage float64    `json:"memoryUsage"`  // 内存使用率 (%)
-	DiskUsage   float64    `json:"diskUsage"`    // 磁盘使用率 (%)
-	NetworkIn   int64      `json:"networkIn"`    // 入站带宽 (bytes/s)
-	NetworkOut  int64      `json:"networkOut"`   // 出站带宽 (bytes/s)
-	Latency     int64      `json:"latency"`      // 延迟 (ms)
-	LastProbe   time.Time  `json:"lastProbe"`    // 最后探测时间
-	LastSeen    time.Time  `json:"lastSeen"`     // 最后活跃时间
-	FailCount   int        `json:"failCount"`    // 连续失败次数
+	ID          string     `json:"id"`             // 节点唯一标识
+	Name        string     `json:"name"`           // 节点名称
+	Host        string     `json:"host"`           // 主机地址
+	Port        int        `json:"port"`           // 端口
+	Status      NodeStatus `json:"status"`         // 节点状态
+	Region      string     `json:"region"`         // 地域标识
+	Weight      int        `json:"weight"`         // 权重 (0-100)
+	MaxConns    int        `json:"maxConns"`       // 最大连接数
+	CurrConns   int        `json:"currConns"`      // 当前连接数
+	CPUUsage    float64    `json:"cpuUsage"`       // CPU使用率 (%)
+	MemoryUsage float64    `json:"memoryUsage"`    // 内存使用率 (%)
+	DiskUsage   float64    `json:"diskUsage"`      // 磁盘使用率 (%)
+	NetworkIn   int64      `json:"networkIn"`      // 入站带宽 (bytes/s)
+	NetworkOut  int64      `json:"networkOut"`     // 出站带宽 (bytes/s)
+	Latency     int64      `json:"latency"`        // 延迟 (ms)
+	LastProbe   time.Time  `json:"lastProbe"`      // 最后探测时间
+	LastSeen    time.Time  `json:"lastSeen"`       // 最后活跃时间
+	FailCount   int        `json:"failCount"`      // 连续失败次数
 	Tags        []string   `json:"tags,omitempty"` // 标签
-	CreatedAt   time.Time  `json:"createdAt"`    // 创建时间
-	UpdatedAt   time.Time  `json:"updatedAt"`    // 更新时间
+	CreatedAt   time.Time  `json:"createdAt"`      // 创建时间
+	UpdatedAt   time.Time  `json:"updatedAt"`      // 更新时间
 }
 
 // ========== 探测结果 ==========
@@ -101,29 +101,29 @@ type ProbeResult struct {
 
 // RouteDecision 路由决策结果.
 type RouteDecision struct {
-	NodeID      string          `json:"nodeId"`      // 选中节点ID
-	NodeName    string          `json:"nodeName"`    // 节点名称
-	Host        string          `json:"host"`        // 主机地址
-	Port        int             `json:"port"`        // 端口
-	Strategy    BalanceStrategy `json:"strategy"`    // 使用的策略
-	Score       float64         `json:"score"`       // 节点评分 (0-100)
-	Latency     int64           `json:"latency"`     // 预估延迟
-	Reason      string          `json:"reason"`      // 选择原因
-	DecidedAt   time.Time       `json:"decidedAt"`   // 决策时间
+	NodeID    string          `json:"nodeId"`    // 选中节点ID
+	NodeName  string          `json:"nodeName"`  // 节点名称
+	Host      string          `json:"host"`      // 主机地址
+	Port      int             `json:"port"`      // 端口
+	Strategy  BalanceStrategy `json:"strategy"`  // 使用的策略
+	Score     float64         `json:"score"`     // 节点评分 (0-100)
+	Latency   int64           `json:"latency"`   // 预估延迟
+	Reason    string          `json:"reason"`    // 选择原因
+	DecidedAt time.Time       `json:"decidedAt"` // 决策时间
 }
 
 // ========== 路由规则 ==========
 
 // RouteRule 路由规则.
 type RouteRule struct {
-	ID          string          `json:"id"`          // 规则ID
-	Name        string          `json:"name"`        // 规则名称
-	Priority    int             `json:"priority"`    // 优先级 (越小越优先)
-	SourceRegion string         `json:"sourceRegion"` // 来源地域
-	TargetNodes []string        `json:"targetNodes"` // 目标节点列表
-	Strategy    BalanceStrategy `json:"strategy"`    // 负载均衡策略
-	Enabled     bool            `json:"enabled"`     // 是否启用
-	CreatedAt   time.Time       `json:"createdAt"`   // 创建时间
+	ID           string          `json:"id"`           // 规则ID
+	Name         string          `json:"name"`         // 规则名称
+	Priority     int             `json:"priority"`     // 优先级 (越小越优先)
+	SourceRegion string          `json:"sourceRegion"` // 来源地域
+	TargetNodes  []string        `json:"targetNodes"`  // 目标节点列表
+	Strategy     BalanceStrategy `json:"strategy"`     // 负载均衡策略
+	Enabled      bool            `json:"enabled"`      // 是否启用
+	CreatedAt    time.Time       `json:"createdAt"`    // 创建时间
 }
 
 // ========== 健康检查配置 ==========
@@ -166,12 +166,12 @@ type RouterStats struct {
 
 // FailoverEvent 故障转移事件.
 type FailoverEvent struct {
-	ID          string    `json:"id"`          // 事件ID
-	FromNodeID  string    `json:"fromNodeId"`  // 源节点
-	ToNodeID    string    `json:"toNodeId"`    // 目标节点
-	Reason      string    `json:"reason"`      // 转移原因
-	Timestamp   time.Time `json:"timestamp"`   // 发生时间
-	RecoveryTime int64    `json:"recoveryTime"` // 恢复耗时(ms)
+	ID           string    `json:"id"`           // 事件ID
+	FromNodeID   string    `json:"fromNodeId"`   // 源节点
+	ToNodeID     string    `json:"toNodeId"`     // 目标节点
+	Reason       string    `json:"reason"`       // 转移原因
+	Timestamp    time.Time `json:"timestamp"`    // 发生时间
+	RecoveryTime int64     `json:"recoveryTime"` // 恢复耗时(ms)
 }
 
 // ========== 请求/响应结构 ==========
@@ -189,14 +189,14 @@ type AddNodeRequest struct {
 
 // UpdateNodeRequest 更新节点请求.
 type UpdateNodeRequest struct {
-	Name     string   `json:"name"`
-	Host     string   `json:"host"`
-	Port     int      `json:"port"`
-	Region   string   `json:"region"`
-	Weight   *int     `json:"weight"`
-	MaxConns *int     `json:"maxConns"`
+	Name     string     `json:"name"`
+	Host     string     `json:"host"`
+	Port     int        `json:"port"`
+	Region   string     `json:"region"`
+	Weight   *int       `json:"weight"`
+	MaxConns *int       `json:"maxConns"`
 	Status   NodeStatus `json:"status"`
-	Tags     []string `json:"tags,omitempty"`
+	Tags     []string   `json:"tags,omitempty"`
 }
 
 // RouteRequest 路由请求.

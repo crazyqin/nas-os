@@ -35,10 +35,10 @@ const (
 type LockState string
 
 const (
-	LockStateLocked    LockState = "locked"
-	LockStateExpired   LockState = "expired"
-	LockStateReleased  LockState = "released"
-	LockStateConflict  LockState = "conflict"
+	LockStateLocked   LockState = "locked"
+	LockStateExpired  LockState = "expired"
+	LockStateReleased LockState = "released"
+	LockStateConflict LockState = "conflict"
 )
 
 // LockType 锁类型
@@ -61,43 +61,43 @@ const (
 
 // FileLock 文件锁定义
 type FileLock struct {
-	ID          string             `json:"id"`
-	FilePath    string             `json:"file_path"`
-	NodeID      string             `json:"node_id"`
-	NodeName    string             `json:"node_name"`
-	LockType    LockType           `json:"lock_type"`
-	State       LockState          `json:"state"`
-	Token       string             `json:"token"`
-	TTL         time.Duration      `json:"ttl"`
-	CreatedAt   time.Time          `json:"created_at"`
-	ExpiresAt   time.Time          `json:"expires_at"`
-	LastRenewAt time.Time          `json:"last_renew_at"`
-	ReleasedAt  *time.Time         `json:"released_at,omitempty"`
-	Metadata    map[string]string  `json:"metadata,omitempty"`
+	ID          string            `json:"id"`
+	FilePath    string            `json:"file_path"`
+	NodeID      string            `json:"node_id"`
+	NodeName    string            `json:"node_name"`
+	LockType    LockType          `json:"lock_type"`
+	State       LockState         `json:"state"`
+	Token       string            `json:"token"`
+	TTL         time.Duration     `json:"ttl"`
+	CreatedAt   time.Time         `json:"created_at"`
+	ExpiresAt   time.Time         `json:"expires_at"`
+	LastRenewAt time.Time         `json:"last_renew_at"`
+	ReleasedAt  *time.Time        `json:"released_at,omitempty"`
+	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
 // ConflictRecord 冲突记录
 type ConflictRecord struct {
-	ID          string             `json:"id"`
-	FilePath    string             `json:"file_path"`
-	ConflictType string            `json:"conflict_type"` // "write_write", "write_read", "concurrent_edit"
-	LockA       string             `json:"lock_a"`        // 锁ID
-	LockB       string             `json:"lock_b"`        // 锁ID
-	Resolution  ConflictResolution `json:"resolution"`
-	ResolvedBy  string             `json:"resolved_by"`
-	ResolvedAt  *time.Time         `json:"resolved_at,omitempty"`
-	CreatedAt   time.Time          `json:"created_at"`
-	Description string             `json:"description"`
+	ID           string             `json:"id"`
+	FilePath     string             `json:"file_path"`
+	ConflictType string             `json:"conflict_type"` // "write_write", "write_read", "concurrent_edit"
+	LockA        string             `json:"lock_a"`        // 锁ID
+	LockB        string             `json:"lock_b"`        // 锁ID
+	Resolution   ConflictResolution `json:"resolution"`
+	ResolvedBy   string             `json:"resolved_by"`
+	ResolvedAt   *time.Time         `json:"resolved_at,omitempty"`
+	CreatedAt    time.Time          `json:"created_at"`
+	Description  string             `json:"description"`
 }
 
 // LockRequest 锁请求
 type LockRequest struct {
-	FilePath   string            `json:"file_path"`
-	NodeID     string            `json:"node_id"`
-	NodeName   string            `json:"node_name"`
-	LockType   LockType          `json:"lock_type"`
-	TTL        time.Duration     `json:"ttl"`
-	Metadata   map[string]string `json:"metadata,omitempty"`
+	FilePath string            `json:"file_path"`
+	NodeID   string            `json:"node_id"`
+	NodeName string            `json:"node_name"`
+	LockType LockType          `json:"lock_type"`
+	TTL      time.Duration     `json:"ttl"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
 // NodeInfo 节点信息
@@ -113,9 +113,9 @@ type NodeInfo struct {
 // GlobalFileLockManager 全局文件锁管理器
 type GlobalFileLockManager struct {
 	mu               sync.RWMutex
-	locks            map[string]*FileLock    // lockID -> FileLock
-	fileLocks        map[string][]string     // filePath -> []lockID
-	nodeLocks        map[string][]string     // nodeID -> []lockID
+	locks            map[string]*FileLock // lockID -> FileLock
+	fileLocks        map[string][]string  // filePath -> []lockID
+	nodeLocks        map[string][]string  // nodeID -> []lockID
 	conflicts        map[string]*ConflictRecord
 	conflictStrategy ConflictResolution
 	nodes            map[string]*NodeInfo

@@ -397,7 +397,7 @@ func (s *Shield) calculateScanRiskScore(scanResult *ScanResult) float64 {
 	encrypted := 0.5
 
 	score := density*0.4 + accessScope*0.3 + encrypted*0.3
-	_ = avgRisk // used for potential risk level calculation
+	_ = avgRisk                     // used for potential risk level calculation
 	return math.Min(score*100, 100) // 归一化到 0-100
 }
 

@@ -9,11 +9,11 @@ import (
 
 // Detector 入侵检测引擎.
 type Detector struct {
-	mu           sync.RWMutex
-	mgr          *Manager
-	running      bool
-	packetCount  int64
-	attackCount  int64
+	mu          sync.RWMutex
+	mgr         *Manager
+	running     bool
+	packetCount int64
+	attackCount int64
 	// thresholdTracker 阈值跟踪器: ruleID -> trackKey -> []time.Time
 	thresholdTracker map[string]map[string][]time.Time
 	// portScanTracker 端口扫描跟踪: srcIP -> map[dstPort]time.Time

@@ -47,18 +47,18 @@ func (m *BudgetManager) GenerateReport(request ReportRequest, generatedBy string
 	}
 
 	return &Report{
-		ID:              uuid.New().String(),
-		Name:            reportName,
-		Type:            request.Type,
-		GeneratedAt:     time.Now(),
-		PeriodStart:     startDate,
-		PeriodEnd:       endDate,
-		Summary:         summary,
-		BudgetDetails:   budgetDetails,
-		ExpenseSummary:  expenseSummary,
-		TrendData:       trendData,
-		TopExpenses:     topExpenses,
-		GeneratedBy:     generatedBy,
+		ID:             uuid.New().String(),
+		Name:           reportName,
+		Type:           request.Type,
+		GeneratedAt:    time.Now(),
+		PeriodStart:    startDate,
+		PeriodEnd:      endDate,
+		Summary:        summary,
+		BudgetDetails:  budgetDetails,
+		ExpenseSummary: expenseSummary,
+		TrendData:      trendData,
+		TopExpenses:    topExpenses,
+		GeneratedBy:    generatedBy,
 	}, nil
 }
 
@@ -335,10 +335,10 @@ func (m *BudgetManager) generateTrendData(budgets []*Budget, start, end time.Tim
 		}
 
 		trendData = append(trendData, TrendDataPoint{
-			Date:           current,
-			BudgetAmount:   roundTo2(budgetAmount),
-			ExpenseAmount:  roundTo2(expenseAmount),
-			Remaining:      roundTo2(budgetAmount - expenseAmount),
+			Date:          current,
+			BudgetAmount:  roundTo2(budgetAmount),
+			ExpenseAmount: roundTo2(expenseAmount),
+			Remaining:     roundTo2(budgetAmount - expenseAmount),
 		})
 
 		current = current.AddDate(0, 1, 0)

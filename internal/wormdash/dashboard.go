@@ -20,8 +20,8 @@ func (d *Dashboard) Overview() *Overview {
 	defer d.mu.RUnlock()
 
 	overview := &Overview{
-		TotalPolicies:  len(d.policies),
-		LastAuditAt:    d.lastAuditTime(),
+		TotalPolicies: len(d.policies),
+		LastAuditAt:   d.lastAuditTime(),
 	}
 
 	active := 0
@@ -423,5 +423,3 @@ func reportTypeLabel(reportType string, month, quarter int) string {
 		return reportType
 	}
 }
-
-

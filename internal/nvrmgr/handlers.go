@@ -475,10 +475,10 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	unreadAlerts, _ := h.manager.ListAlerts(true)
 
 	stats := map[string]interface{}{
-		"cameras":       cameraStatus,
-		"storage":       storageUsage,
-		"totalAlerts":   len(alerts),
-		"unreadAlerts":  len(unreadAlerts),
+		"cameras":         cameraStatus,
+		"storage":         storageUsage,
+		"totalAlerts":     len(alerts),
+		"unreadAlerts":    len(unreadAlerts),
 		"totalRecordings": len(h.manager.recordings),
 	}
 

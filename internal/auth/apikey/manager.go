@@ -2,11 +2,11 @@
 package apikey
 
 import (
-	"errors"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -20,9 +20,9 @@ import (
 // KeyManager API 密钥管理器
 type KeyManager struct {
 	mu          sync.RWMutex
-	keys        map[string]*APIKey          // keyID -> APIKey
-	userKeys    map[string][]string         // userID -> keyIDs
-	keyHashes   map[string]string           // keyHash -> keyID（用于快速验证）
+	keys        map[string]*APIKey  // keyID -> APIKey
+	userKeys    map[string][]string // userID -> keyIDs
+	keyHashes   map[string]string   // keyHash -> keyID（用于快速验证）
 	configPath  string
 	policy      APIKeyPolicy
 	usageLog    *UsageLogger
@@ -69,7 +69,7 @@ func (m *KeyManager) loadConfig() error {
 	}
 
 	var config struct {
-		Keys    map[string]*APIKey `json:"keys"`
+		Keys     map[string]*APIKey  `json:"keys"`
 		UserKeys map[string][]string `json:"user_keys"`
 	}
 
@@ -95,10 +95,10 @@ func (m *KeyManager) saveConfig() error {
 	}
 
 	config := struct {
-		Keys    map[string]*APIKey `json:"keys"`
+		Keys     map[string]*APIKey  `json:"keys"`
 		UserKeys map[string][]string `json:"user_keys"`
 	}{
-		Keys:    m.keys,
+		Keys:     m.keys,
 		UserKeys: m.userKeys,
 	}
 

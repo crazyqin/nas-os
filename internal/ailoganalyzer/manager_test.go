@@ -139,12 +139,12 @@ func TestCreatePattern(t *testing.T) {
 	m := NewManager()
 
 	pattern := m.CreatePattern(CreatePatternRequest{
-		Name:     "磁盘空间不足",
-		Regex:    `disk space low|no space left`,
-		Keywords: []string{"disk", "space", "full"},
-		Level:    LevelError,
+		Name:      "磁盘空间不足",
+		Regex:     `disk space low|no space left`,
+		Keywords:  []string{"disk", "space", "full"},
+		Level:     LevelError,
 		IsAnomaly: true,
-		Severity: AlertLevelHigh,
+		Severity:  AlertLevelHigh,
 	})
 
 	if pattern.ID == "" {
@@ -163,9 +163,9 @@ func TestPatternMatching(t *testing.T) {
 
 	// 创建模式
 	m.CreatePattern(CreatePatternRequest{
-		Name:   "磁盘错误",
-		Regex:  `disk.*error|disk.*fail`,
-		Level:  LevelError,
+		Name:  "磁盘错误",
+		Regex: `disk.*error|disk.*fail`,
+		Level: LevelError,
 	})
 
 	// 添加匹配的日志
@@ -351,14 +351,14 @@ func TestRootCauseAnalysis(t *testing.T) {
 
 	// 创建告警
 	alert := &Alert{
-		ID:       "test-alert-rca",
-		RuleID:   "rule-1",
-		RuleName: "测试规则",
-		Level:    AlertLevelHigh,
-		Status:   AlertStatusActive,
-		Message:  "测试告警",
-		LogIDs:   []string{},
-		Count:    3,
+		ID:        "test-alert-rca",
+		RuleID:    "rule-1",
+		RuleName:  "测试规则",
+		Level:     AlertLevelHigh,
+		Status:    AlertStatusActive,
+		Message:   "测试告警",
+		LogIDs:    []string{},
+		Count:     3,
 		FirstSeen: time.Now().Add(-10 * time.Minute),
 		LastSeen:  time.Now(),
 	}
@@ -497,8 +497,8 @@ func TestRunAnalysis(t *testing.T) {
 
 	// 添加异常日志
 	m.CreatePattern(CreatePatternRequest{
-		Name:     "异常模式",
-		Regex:    `anomaly|critical`,
+		Name:      "异常模式",
+		Regex:     `anomaly|critical`,
 		IsAnomaly: true,
 	})
 

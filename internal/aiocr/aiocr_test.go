@@ -80,9 +80,9 @@ func TestEngineRecognize(t *testing.T) {
 	defer engine.Close()
 
 	options := &OCROptions{
-		RemoveNoise:  true,
-		Deskew:       true,
-		Binarize:     true,
+		RemoveNoise:   true,
+		Deskew:        true,
+		Binarize:      true,
 		ExtractTables: true,
 		Desensitize:   true,
 	}
@@ -133,9 +133,9 @@ func TestPreprocessorProcess(t *testing.T) {
 	p := NewPreprocessor(cfg)
 
 	options := &OCROptions{
-		RemoveNoise: true,
-		Deskew:      true,
-		Binarize:    true,
+		RemoveNoise:  true,
+		Deskew:       true,
+		Binarize:     true,
 		EnhanceImage: true,
 	}
 
@@ -345,7 +345,7 @@ func TestValidatorLuhn(t *testing.T) {
 		isValid bool
 	}{
 		{"6222021234567890123", false},
-		{"4111111111111111", true},  // 测试卡号
+		{"4111111111111111", true}, // 测试卡号
 	}
 
 	for _, test := range tests {
@@ -362,14 +362,14 @@ func TestArchiverArchive(t *testing.T) {
 	a := NewArchiver(cfg)
 
 	result := &OCRResult{
-		ID:        "test_archive_1",
-		FileID:    "file_1",
-		FileName:  "test.pdf",
-		FullText:  "测试文档内容",
-		Template:  "invoice",
-		Language:  "chi_sim+eng",
+		ID:         "test_archive_1",
+		FileID:     "file_1",
+		FileName:   "test.pdf",
+		FullText:   "测试文档内容",
+		Template:   "invoice",
+		Language:   "chi_sim+eng",
 		Confidence: 0.95,
-		CreatedAt: time.Now(),
+		CreatedAt:  time.Now(),
 	}
 
 	err := a.Archive(result)
@@ -389,12 +389,12 @@ func TestArchiverSearch(t *testing.T) {
 
 	// 先归档一个文档
 	result := &OCRResult{
-		ID:       "test_search_1",
-		FileID:   "file_1",
-		FileName: "test.pdf",
-		FullText: "测试发票内容",
-		Template: "invoice",
-		Language: "chi_sim+eng",
+		ID:        "test_search_1",
+		FileID:    "file_1",
+		FileName:  "test.pdf",
+		FullText:  "测试发票内容",
+		Template:  "invoice",
+		Language:  "chi_sim+eng",
 		CreatedAt: time.Now(),
 	}
 

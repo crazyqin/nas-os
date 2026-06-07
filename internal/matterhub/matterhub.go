@@ -116,12 +116,12 @@ func (h *Hub) CommissionDevice(req CommissionRequest) (*CommissionResult, error)
 
 	// 自动创建设备记录
 	device := &MatterDevice{
-		ID:           deviceID,
-		Name:         fmt.Sprintf("Matter Device %d", nodeID),
-		Type:         DeviceTypeOther,
-		State:        DeviceStateOnline,
-		NodeID:       nodeID,
-		Attributes:   make(map[string]any),
+		ID:             deviceID,
+		Name:           fmt.Sprintf("Matter Device %d", nodeID),
+		Type:           DeviceTypeOther,
+		State:          DeviceStateOnline,
+		NodeID:         nodeID,
+		Attributes:     make(map[string]any),
 		CommissionedAt: &now,
 	}
 	h.mu.Lock()

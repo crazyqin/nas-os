@@ -22,7 +22,7 @@ const (
 	RestoreModeSingleFile RestoreMode = "single_file" // 单文件恢复
 	RestoreModeFullImage  RestoreMode = "full_image"  // 整机恢复
 	RestoreModeVolume     RestoreMode = "volume"      // 卷恢复
-	RestoreModeDirectory  RestoreMode = "directory"    // 目录恢复
+	RestoreModeDirectory  RestoreMode = "directory"   // 目录恢复
 )
 
 // RestoreStatus 恢复任务状态
@@ -38,39 +38,39 @@ const (
 
 // RestoreTask 恢复任务
 type RestoreTask struct {
-	ID            string        `json:"id"`
-	JobID         string        `json:"job_id"`         // 源备份任务 ID
-	SnapshotID    string        `json:"snapshot_id"`    // 恢复目标快照
-	Mode          RestoreMode   `json:"mode"`           // 恢复模式
-	TargetPath    string        `json:"target_path"`    // 恢复目标路径
-	Files         []string      `json:"files"`          // 单文件恢复时的文件列表
-	Status        RestoreStatus `json:"status"`
-	Progress      float64       `json:"progress"`       // 0.0 ~ 1.0
-	FilesRestored int           `json:"files_restored"`
-	TotalFiles    int           `json:"total_files"`
-	BytesRestored int64         `json:"bytes_restored"`
-	Error         string        `json:"error,omitempty"`
+	ID            string             `json:"id"`
+	JobID         string             `json:"job_id"`      // 源备份任务 ID
+	SnapshotID    string             `json:"snapshot_id"` // 恢复目标快照
+	Mode          RestoreMode        `json:"mode"`        // 恢复模式
+	TargetPath    string             `json:"target_path"` // 恢复目标路径
+	Files         []string           `json:"files"`       // 单文件恢复时的文件列表
+	Status        RestoreStatus      `json:"status"`
+	Progress      float64            `json:"progress"` // 0.0 ~ 1.0
+	FilesRestored int                `json:"files_restored"`
+	TotalFiles    int                `json:"total_files"`
+	BytesRestored int64              `json:"bytes_restored"`
+	Error         string             `json:"error,omitempty"`
 	Options       RestoreExecOptions `json:"options"`
-	CreatedAt     time.Time     `json:"created_at"`
-	StartedAt     *time.Time    `json:"started_at,omitempty"`
-	CompletedAt   *time.Time    `json:"completed_at,omitempty"`
+	CreatedAt     time.Time          `json:"created_at"`
+	StartedAt     *time.Time         `json:"started_at,omitempty"`
+	CompletedAt   *time.Time         `json:"completed_at,omitempty"`
 }
 
 // RestoreExecOptions 恢复执行选项
 type RestoreExecOptions struct {
-	OverwriteExisting bool `json:"overwrite_existing"` // 覆盖已存在的文件
-	RestoreACL        bool `json:"restore_acl"`        // 恢复 ACL 权限
-	RestoreTimestamps bool `json:"restore_timestamps"` // 恢复时间戳
+	OverwriteExisting  bool `json:"overwrite_existing"`   // 覆盖已存在的文件
+	RestoreACL         bool `json:"restore_acl"`          // 恢复 ACL 权限
+	RestoreTimestamps  bool `json:"restore_timestamps"`   // 恢复时间戳
 	VerifyAfterRestore bool `json:"verify_after_restore"` // 恢复后验证
-	DryRun            bool `json:"dry_run"`            // 试运行（不实际写入）
+	DryRun             bool `json:"dry_run"`              // 试运行（不实际写入）
 }
 
 // RestoreManager 恢复管理器
 type RestoreManager struct {
-	mu       sync.RWMutex
-	manager  *BackupManager
-	tasks    map[string]*RestoreTask
-	logger   *zap.Logger
+	mu      sync.RWMutex
+	manager *BackupManager
+	tasks   map[string]*RestoreTask
+	logger  *zap.Logger
 }
 
 // NewRestoreManager 创建恢复管理器
@@ -248,12 +248,12 @@ func (rm *RestoreManager) ListRestorePoints(jobID string) []RestorePoint {
 
 	for _, snap := range snapshots {
 		rp := RestorePoint{
-			SnapshotID:  snap.ID,
-			JobID:       snap.JobID,
-			BackupType:  snap.BackupType,
-			Size:        snap.Size,
-			FileCount:   snap.FileCount,
-			CreatedAt:   snap.CreatedAt,
+			SnapshotID: snap.ID,
+			JobID:      snap.JobID,
+			BackupType: snap.BackupType,
+			Size:       snap.Size,
+			FileCount:  snap.FileCount,
+			CreatedAt:  snap.CreatedAt,
 		}
 		points = append(points, rp)
 	}

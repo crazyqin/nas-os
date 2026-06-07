@@ -30,10 +30,10 @@ type TieringRule struct {
 	ID            string        `json:"id"`
 	RuleName      string        `json:"ruleName"`
 	TierType      TierType      `json:"tierType"`      // 目标存储层
-	ConditionType ConditionType `json:"conditionType"`  // 条件类型
-	Threshold     int64         `json:"threshold"`      // 阈值（天数/次数）
-	FilePattern   string        `json:"filePattern"`    // 文件扩展名模式（如 ".mp4,.mkv"）
-	Enabled       bool          `json:"enabled"`        // 是否启用
+	ConditionType ConditionType `json:"conditionType"` // 条件类型
+	Threshold     int64         `json:"threshold"`     // 阈值（天数/次数）
+	FilePattern   string        `json:"filePattern"`   // 文件扩展名模式（如 ".mp4,.mkv"）
+	Enabled       bool          `json:"enabled"`       // 是否启用
 	CreatedAt     time.Time     `json:"createdAt"`
 	UpdatedAt     time.Time     `json:"updatedAt"`
 }

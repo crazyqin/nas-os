@@ -33,10 +33,10 @@ type ImportConfig struct {
 
 // ImportResult defines VM import result
 type ImportResult struct {
-	Name      string
+	Name       string
 	TargetPath string
-	Size      uint64
-	Duration  float64
+	Size       uint64
+	Duration   float64
 }
 
 // ImportService manages VM import operations
@@ -85,7 +85,7 @@ func (s *ImportService) ImportVM(ctx context.Context, cfg *ImportConfig) (*Impor
 	}
 
 	result := &ImportResult{
-		Name:      cfg.Name,
+		Name:       cfg.Name,
 		TargetPath: targetPath,
 	}
 

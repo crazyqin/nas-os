@@ -69,7 +69,7 @@ func TestListDevicesFilter(t *testing.T) {
 	if len(all) != 3 {
 		t.Errorf("ListDevices() = %d, want 3", len(all))
 	}
-客厅Result := m.ListDevices("客厅", "")
+	客厅Result := m.ListDevices("客厅", "")
 	if len(客厅Result) != 2 {
 		t.Errorf("ListDevices(客厅) = %d, want 2", len(客厅Result))
 	}

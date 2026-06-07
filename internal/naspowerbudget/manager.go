@@ -10,77 +10,77 @@ import (
 )
 
 var (
-	ErrDeviceNotFound    = errors.New("device not found")
-	ErrBudgetExceeded    = errors.New("power budget exceeded")
-	ErrInvalidConfig     = errors.New("invalid configuration")
-	ErrInsufficientData  = errors.New("insufficient data")
+	ErrDeviceNotFound   = errors.New("device not found")
+	ErrBudgetExceeded   = errors.New("power budget exceeded")
+	ErrInvalidConfig    = errors.New("invalid configuration")
+	ErrInsufficientData = errors.New("insufficient data")
 )
 
 // DeviceType 设备类型
 type DeviceType string
 
 const (
-	DeviceCPU      DeviceType = "cpu"
-	DeviceGPU      DeviceType = "gpu"
-	DeviceDisk     DeviceType = "disk"
-	DeviceMemory   DeviceType = "memory"
-	DeviceNetwork  DeviceType = "network"
-	DeviceFan      DeviceType = "fan"
-	DevicePSU      DeviceType = "psu"
-	DeviceOther    DeviceType = "other"
+	DeviceCPU     DeviceType = "cpu"
+	DeviceGPU     DeviceType = "gpu"
+	DeviceDisk    DeviceType = "disk"
+	DeviceMemory  DeviceType = "memory"
+	DeviceNetwork DeviceType = "network"
+	DeviceFan     DeviceType = "fan"
+	DevicePSU     DeviceType = "psu"
+	DeviceOther   DeviceType = "other"
 )
 
 // PowerState 功率状态
 type PowerState string
 
 const (
-	PowerStateActive    PowerState = "active"
-	PowerStateIdle      PowerState = "idle"
-	PowerStateStandby   PowerState = "standby"
-	PowerStateSleep     PowerState = "sleep"
-	PowerStateOff       PowerState = "off"
+	PowerStateActive  PowerState = "active"
+	PowerStateIdle    PowerState = "idle"
+	PowerStateStandby PowerState = "standby"
+	PowerStateSleep   PowerState = "sleep"
+	PowerStateOff     PowerState = "off"
 )
 
 // PowerReading 功率读数
 type PowerReading struct {
-	Timestamp   time.Time   `json:"timestamp"`
-	DeviceID    string      `json:"deviceId"`
-	DeviceType  DeviceType  `json:"deviceType"`
-	Watts       float64     `json:"watts"`
-	Voltage     float64     `json:"voltage"`
-	Current     float64     `json:"current"`
-	Temperature float64     `json:"temperature"`
-	State       PowerState  `json:"state"`
+	Timestamp   time.Time  `json:"timestamp"`
+	DeviceID    string     `json:"deviceId"`
+	DeviceType  DeviceType `json:"deviceType"`
+	Watts       float64    `json:"watts"`
+	Voltage     float64    `json:"voltage"`
+	Current     float64    `json:"current"`
+	Temperature float64    `json:"temperature"`
+	State       PowerState `json:"state"`
 }
 
 // DeviceProfile 设备功率画像
 type DeviceProfile struct {
-	DeviceID       string        `json:"deviceId"`
-	DeviceName     string        `json:"deviceName"`
-	DeviceType     DeviceType    `json:"deviceType"`
-	MaxPowerWatts  float64       `json:"maxPowerWatts"`
-	TypicalWatts   float64       `json:"typicalWatts"`
-	IdleWatts      float64       `json:"idleWatts"`
-	StandbyWatts   float64       `json:"standbyWatts"`
-	CurrentWatts   float64       `json:"currentWatts"`
-	CurrentState   PowerState    `json:"currentState"`
-	Readings       []PowerReading `json:"-"`
-	LastUpdated    time.Time     `json:"lastUpdated"`
+	DeviceID      string         `json:"deviceId"`
+	DeviceName    string         `json:"deviceName"`
+	DeviceType    DeviceType     `json:"deviceType"`
+	MaxPowerWatts float64        `json:"maxPowerWatts"`
+	TypicalWatts  float64        `json:"typicalWatts"`
+	IdleWatts     float64        `json:"idleWatts"`
+	StandbyWatts  float64        `json:"standbyWatts"`
+	CurrentWatts  float64        `json:"currentWatts"`
+	CurrentState  PowerState     `json:"currentState"`
+	Readings      []PowerReading `json:"-"`
+	LastUpdated   time.Time      `json:"lastUpdated"`
 }
 
 // PowerBudget 功率预算
 type PowerBudget struct {
-	BudgetID       string        `json:"budgetId"`
-	Name           string        `json:"name"`
-	MaxWatts       float64       `json:"maxWatts"`
-	CurrentWatts   float64       `json:"currentWatts"`
-	Utilization    float64       `json:"utilization"`
-	WarningWatts   float64       `json:"warningWatts"`
-	CriticalWatts  float64       `json:"criticalWatts"`
-	DailyBudgetKWh float64       `json:"dailyBudgetKWh"`
-	DailyActualKWh float64       `json:"dailyActualKWh"`
-	MonthlyCostEst float64       `json:"monthlyCostEst"`
-	Devices        []string      `json:"devices"`
+	BudgetID       string   `json:"budgetId"`
+	Name           string   `json:"name"`
+	MaxWatts       float64  `json:"maxWatts"`
+	CurrentWatts   float64  `json:"currentWatts"`
+	Utilization    float64  `json:"utilization"`
+	WarningWatts   float64  `json:"warningWatts"`
+	CriticalWatts  float64  `json:"criticalWatts"`
+	DailyBudgetKWh float64  `json:"dailyBudgetKWh"`
+	DailyActualKWh float64  `json:"dailyActualKWh"`
+	MonthlyCostEst float64  `json:"monthlyCostEst"`
+	Devices        []string `json:"devices"`
 }
 
 // EnergyReport 能耗报告
@@ -136,13 +136,13 @@ type Manager struct {
 
 // Config 配置
 type Config struct {
-	Enabled           bool    `json:"enabled"`
-	ElectricityRate   float64 `json:"electricityRate"`   // 电价（元/kWh）
-	CarbonFactor      float64 `json:"carbonFactor"`      // 碳排放因子（kg CO2/kWh）
+	Enabled           bool          `json:"enabled"`
+	ElectricityRate   float64       `json:"electricityRate"` // 电价（元/kWh）
+	CarbonFactor      float64       `json:"carbonFactor"`    // 碳排放因子（kg CO2/kWh）
 	SamplingInterval  time.Duration `json:"samplingInterval"`
 	ReadingRetention  time.Duration `json:"readingRetention"`
-	WarningThreshold  float64 `json:"warningThreshold"`  // 预算使用百分比
-	CriticalThreshold float64 `json:"criticalThreshold"`
+	WarningThreshold  float64       `json:"warningThreshold"` // 预算使用百分比
+	CriticalThreshold float64       `json:"criticalThreshold"`
 }
 
 // NewManager 创建管理器
@@ -159,13 +159,13 @@ func NewManager(config *Config) *Manager {
 		}
 	}
 	return &Manager{
-		config:   config,
-		devices:  make(map[string]*DeviceProfile),
-		budgets:  make(map[string]*PowerBudget),
-		readings: make([]PowerReading, 0),
+		config:    config,
+		devices:   make(map[string]*DeviceProfile),
+		budgets:   make(map[string]*PowerBudget),
+		readings:  make([]PowerReading, 0),
 		schedules: make([]ScheduleRule, 0),
-		stopCh:   make(chan struct{}),
-		nowFunc:  time.Now,
+		stopCh:    make(chan struct{}),
+		nowFunc:   time.Now,
 	}
 }
 
@@ -239,13 +239,13 @@ func (m *Manager) CreateBudget(id, name string, maxWatts float64, deviceIDs []st
 	}
 
 	m.budgets[id] = &PowerBudget{
-		BudgetID:      id,
-		Name:          name,
-		MaxWatts:      maxWatts,
-		WarningWatts:  maxWatts * m.config.WarningThreshold / 100,
-		CriticalWatts: maxWatts * m.config.CriticalThreshold / 100,
+		BudgetID:       id,
+		Name:           name,
+		MaxWatts:       maxWatts,
+		WarningWatts:   maxWatts * m.config.WarningThreshold / 100,
+		CriticalWatts:  maxWatts * m.config.CriticalThreshold / 100,
 		DailyBudgetKWh: maxWatts * 24 / 1000,
-		Devices:       deviceIDs,
+		Devices:        deviceIDs,
 	}
 	return nil
 }

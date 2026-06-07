@@ -15,10 +15,10 @@ import (
 type Manager struct {
 	mu sync.RWMutex
 
-	config   SmartPricingConfig
-	plans    []StoragePlan
-	trends   []CostTrendPoint
-	alerts   []BudgetAlert
+	config SmartPricingConfig
+	plans  []StoragePlan
+	trends []CostTrendPoint
+	alerts []BudgetAlert
 
 	// 历史成本数据
 	costHistory map[string][]CostTrendPoint // provider -> history
@@ -190,7 +190,7 @@ func (m *Manager) initDefaultPlans() {
 			Provider:        ProviderMinIO,
 			Tier:            TierStandard,
 			Region:          "local",
-			StoragePriceGB:  0.05,  // 基于硬件成本估算
+			StoragePriceGB:  0.05, // 基于硬件成本估算
 			RequestPrice1K:  0.001,
 			TransferPriceGB: 0.01,
 			MinStorageGB:    0,
@@ -335,11 +335,11 @@ func (m *Manager) GetRecommendations(storageGB float64, currentProvider StorageP
 				savings := currentCost - newCost
 				if savings > 0 {
 					recommendations = append(recommendations, OptimizationRecommendation{
-						ID:          fmt.Sprintf("tier-migration-%s-%s", currentProvider, plan.ID),
-						Type:        OptTierMigration,
-						Title:       "迁移到低频访问存储",
-						Description: fmt.Sprintf("将数据从标准存储迁移到低频访问存储，预计每月节省 $%.2f", savings),
-						Priority:    PriorityMedium,
+						ID:                      fmt.Sprintf("tier-migration-%s-%s", currentProvider, plan.ID),
+						Type:                    OptTierMigration,
+						Title:                   "迁移到低频访问存储",
+						Description:             fmt.Sprintf("将数据从标准存储迁移到低频访问存储，预计每月节省 $%.2f", savings),
+						Priority:                PriorityMedium,
 						EstimatedSavingsMonthly: savings,
 						EstimatedSavingsYearly:  savings * 12,
 						SavingsPercent:          (savings / currentCost) * 100,
@@ -379,11 +379,11 @@ func (m *Manager) GetRecommendations(storageGB float64, currentProvider StorageP
 
 		if savings > 0 {
 			recommendations = append(recommendations, OptimizationRecommendation{
-				ID:          fmt.Sprintf("provider-switch-%s-%s", currentProvider, plan.Provider),
-				Type:        OptProviderSwitch,
-				Title:       fmt.Sprintf("切换到 %s", plan.Provider),
-				Description: fmt.Sprintf("切换到 %s %s 存储，预计每月节省 $%.2f", plan.Provider, plan.Tier, savings),
-				Priority:    PriorityHigh,
+				ID:                      fmt.Sprintf("provider-switch-%s-%s", currentProvider, plan.Provider),
+				Type:                    OptProviderSwitch,
+				Title:                   fmt.Sprintf("切换到 %s", plan.Provider),
+				Description:             fmt.Sprintf("切换到 %s %s 存储，预计每月节省 $%.2f", plan.Provider, plan.Tier, savings),
+				Priority:                PriorityHigh,
 				EstimatedSavingsMonthly: savings,
 				EstimatedSavingsYearly:  savings * 12,
 				SavingsPercent:          (savings / currentCost) * 100,
@@ -403,11 +403,11 @@ func (m *Manager) GetRecommendations(storageGB float64, currentProvider StorageP
 		savings := currentCost - archiveCost
 		if savings > 0 {
 			recommendations = append(recommendations, OptimizationRecommendation{
-				ID:          "lifecycle-archive",
-				Type:        OptLifecycle,
-				Title:       "实施生命周期策略",
-				Description: fmt.Sprintf("将超过90天未访问的数据自动迁移到归档存储，预计每月节省 $%.2f", savings*0.3),
-				Priority:    PriorityLow,
+				ID:                      "lifecycle-archive",
+				Type:                    OptLifecycle,
+				Title:                   "实施生命周期策略",
+				Description:             fmt.Sprintf("将超过90天未访问的数据自动迁移到归档存储，预计每月节省 $%.2f", savings*0.3),
+				Priority:                PriorityLow,
 				EstimatedSavingsMonthly: savings * 0.3,
 				EstimatedSavingsYearly:  savings * 0.3 * 12,
 				SavingsPercent:          (savings * 0.3 / currentCost) * 100,

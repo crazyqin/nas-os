@@ -8,9 +8,9 @@ import (
 
 // Handlers 许可证合规扫描 HTTP 处理器.
 type Handlers struct {
-	manager    *Manager
-	scheduler  *Scheduler
-	reportGen  *ReportGenerator
+	manager   *Manager
+	scheduler *Scheduler
+	reportGen *ReportGenerator
 }
 
 // NewHandlers 创建HTTP处理器.
@@ -242,9 +242,9 @@ func (h *Handlers) handleGenerateReport(w http.ResponseWriter, r *http.Request) 
 	}
 
 	var req struct {
-		Title    string   `json:"title"`
-		Format   string   `json:"format"`
-		ScanIDs  []string `json:"scan_ids"`
+		Title   string   `json:"title"`
+		Format  string   `json:"format"`
+		ScanIDs []string `json:"scan_ids"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, http.StatusBadRequest, "请求参数无效: "+err.Error())

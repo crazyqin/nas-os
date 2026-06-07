@@ -259,15 +259,15 @@ var (
 
 // CreateTaskRequest 创建备份任务请求.
 type CreateTaskRequest struct {
-	Name        string           `json:"name" binding:"required"`
-	Direction   BackupDirection  `json:"direction" binding:"required"`
-	Policy      BackupPolicy     `json:"policy" binding:"required"`
-	SourcePath  string           `json:"sourcePath" binding:"required"`
-	DestPath    string           `json:"destPath" binding:"required"`
-	DeviceID    string           `json:"deviceId,omitempty"`
-	CronExpr    string           `json:"cronExpr,omitempty"`
-	Filter      *FileFilter      `json:"filter,omitempty"`
-	Incremental bool             `json:"incremental"`
+	Name        string          `json:"name" binding:"required"`
+	Direction   BackupDirection `json:"direction" binding:"required"`
+	Policy      BackupPolicy    `json:"policy" binding:"required"`
+	SourcePath  string          `json:"sourcePath" binding:"required"`
+	DestPath    string          `json:"destPath" binding:"required"`
+	DeviceID    string          `json:"deviceId,omitempty"`
+	CronExpr    string          `json:"cronExpr,omitempty"`
+	Filter      *FileFilter     `json:"filter,omitempty"`
+	Incremental bool            `json:"incremental"`
 }
 
 // ========== 服务配置 ==========

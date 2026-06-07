@@ -69,16 +69,16 @@ func DefaultDeidentificationConfig() DeidentificationConfig {
 type PIIType string
 
 const (
-	PIITypeName        PIIType = "name"         // 姓名
-	PIITypePhone       PIIType = "phone"        // 手机号
-	PIITypeEmail       PIIType = "email"        // 邮箱
-	PIITypeIDCard      PIIType = "id_card"      // 身份证号
-	PIITypeBankCard    PIIType = "bank_card"    // 银行卡号
-	PIITypeAddress     PIIType = "address"      // 地址
-	PIITypeIP          PIIType = "ip"           // IP地址
+	PIITypeName         PIIType = "name"          // 姓名
+	PIITypePhone        PIIType = "phone"         // 手机号
+	PIITypeEmail        PIIType = "email"         // 邮箱
+	PIITypeIDCard       PIIType = "id_card"       // 身份证号
+	PIITypeBankCard     PIIType = "bank_card"     // 银行卡号
+	PIITypeAddress      PIIType = "address"       // 地址
+	PIITypeIP           PIIType = "ip"            // IP地址
 	PIITypeLicensePlate PIIType = "license_plate" // 车牌号
-	PIITypePassport    PIIType = "passport"     // 护照号
-	PIITypeCreditCard  PIIType = "credit_card"  // 信用卡号
+	PIITypePassport     PIIType = "passport"      // 护照号
+	PIITypeCreditCard   PIIType = "credit_card"   // 信用卡号
 )
 
 // ============================================================
@@ -102,24 +102,24 @@ const (
 
 // DeidentificationRule 脱敏规则
 type DeidentificationRule struct {
-	ID          string          `json:"id"`           // 规则ID
-	Name        string          `json:"name"`         // 规则名称
-	Description string          `json:"description"`  // 规则描述
-	Enabled     bool            `json:"enabled"`      // 是否启用
-	PIIType     PIIType         `json:"pii_type"`     // PII类型
-	Policy      RedactionPolicy `json:"policy"`       // 脱敏策略
-	Pattern     string          `json:"pattern"`      // 正则表达式模式
-	Placeholder string          `json:"placeholder"`  // 自定义占位符
-	Priority    int             `json:"priority"`     // 优先级（越大越优先）
-	CreatedAt   time.Time       `json:"created_at"`   // 创建时间
-	UpdatedAt   time.Time       `json:"updated_at"`   // 更新时间
+	ID          string          `json:"id"`          // 规则ID
+	Name        string          `json:"name"`        // 规则名称
+	Description string          `json:"description"` // 规则描述
+	Enabled     bool            `json:"enabled"`     // 是否启用
+	PIIType     PIIType         `json:"pii_type"`    // PII类型
+	Policy      RedactionPolicy `json:"policy"`      // 脱敏策略
+	Pattern     string          `json:"pattern"`     // 正则表达式模式
+	Placeholder string          `json:"placeholder"` // 自定义占位符
+	Priority    int             `json:"priority"`    // 优先级（越大越优先）
+	CreatedAt   time.Time       `json:"created_at"`  // 创建时间
+	UpdatedAt   time.Time       `json:"updated_at"`  // 更新时间
 }
 
 // PIIPattern PII 检测模式
 type PIIPattern struct {
-	Type        PIIType `json:"type"`        // PII类型
-	Pattern     string  `json:"pattern"`     // 正则表达式
-	Description string  `json:"description"` // 描述
+	Type        PIIType  `json:"type"`        // PII类型
+	Pattern     string   `json:"pattern"`     // 正则表达式
+	Description string   `json:"description"` // 描述
 	Examples    []string `json:"examples"`    // 示例（用于测试）
 }
 
@@ -140,11 +140,11 @@ type RedactionResult struct {
 
 // DeidentificationResult 整体脱敏结果
 type DeidentificationResult struct {
-	OriginalText  string             `json:"original_text"`  // 原始文本
-	RedactedText  string             `json:"redacted_text"`  // 脱敏后文本
-	Redactions    []RedactionResult  `json:"redactions"`     // 脱敏记录
-	ProcessedAt   time.Time          `json:"processed_at"`   // 处理时间
-	TotalRedacted int                `json:"total_redacted"` // 脱敏总数
+	OriginalText  string            `json:"original_text"`  // 原始文本
+	RedactedText  string            `json:"redacted_text"`  // 脱敏后文本
+	Redactions    []RedactionResult `json:"redactions"`     // 脱敏记录
+	ProcessedAt   time.Time         `json:"processed_at"`   // 处理时间
+	TotalRedacted int               `json:"total_redacted"` // 脱敏总数
 }
 
 // ============================================================
@@ -153,7 +153,7 @@ type DeidentificationResult struct {
 
 // BatchDeidentificationRequest 批量脱敏请求
 type BatchDeidentificationRequest struct {
-	Texts  []string `json:"texts"`  // 待脱敏文本列表
+	Texts  []string `json:"texts"`   // 待脱敏文本列表
 	RuleID string   `json:"rule_id"` // 指定规则ID（可选，为空则使用所有规则）
 }
 
@@ -165,9 +165,9 @@ type BatchDeidentificationResult struct {
 
 // BatchSummary 批量处理汇总
 type BatchSummary struct {
-	TotalTexts     int `json:"total_texts"`     // 总文本数
-	TotalRedacted  int `json:"total_redacted"`  // 总脱敏数
-	AvgRedactions  float64 `json:"avg_redactions"` // 平均每文本脱敏数
+	TotalTexts    int     `json:"total_texts"`    // 总文本数
+	TotalRedacted int     `json:"total_redacted"` // 总脱敏数
+	AvgRedactions float64 `json:"avg_redactions"` // 平均每文本脱敏数
 }
 
 // ============================================================
@@ -176,12 +176,12 @@ type BatchSummary struct {
 
 // DeidentificationStats 脱敏统计
 type DeidentificationStats struct {
-	TotalProcessed  int                `json:"total_processed"`  // 总处理次数
-	TotalRedacted   int                `json:"total_redacted"`   // 总脱敏次数
-	ByPIIType       map[PIIType]int    `json:"by_pii_type"`     // 按PII类型统计
-	ByPolicy        map[string]int     `json:"by_policy"`       // 按策略统计
-	TopRules        []RuleUsage        `json:"top_rules"`       // 热门规则
-	LastProcessedAt *time.Time         `json:"last_processed_at"` // 最后处理时间
+	TotalProcessed  int             `json:"total_processed"`   // 总处理次数
+	TotalRedacted   int             `json:"total_redacted"`    // 总脱敏次数
+	ByPIIType       map[PIIType]int `json:"by_pii_type"`       // 按PII类型统计
+	ByPolicy        map[string]int  `json:"by_policy"`         // 按策略统计
+	TopRules        []RuleUsage     `json:"top_rules"`         // 热门规则
+	LastProcessedAt *time.Time      `json:"last_processed_at"` // 最后处理时间
 }
 
 // RuleUsage 规则使用统计
@@ -248,15 +248,15 @@ type DeidentificationResponse struct {
 
 // RuleListResponse 规则列表响应
 type RuleListResponse struct {
-	Code    int                 `json:"code"`
-	Message string              `json:"message"`
+	Code    int                    `json:"code"`
+	Message string                 `json:"message"`
 	Data    []DeidentificationRule `json:"data,omitempty"`
 }
 
 // StatsResponse 统计响应
 type StatsResponse struct {
-	Code    int                  `json:"code"`
-	Message string               `json:"message"`
+	Code    int                    `json:"code"`
+	Message string                 `json:"message"`
 	Data    *DeidentificationStats `json:"data,omitempty"`
 }
 

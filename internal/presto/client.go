@@ -18,13 +18,13 @@ import (
 
 // Client Presto 客户端
 type Client struct {
-	config   *Config
-	logger   *zap.Logger
-	conn     *quic.Conn
-	stream   *quic.Stream
-	mu       sync.RWMutex
-	connected bool
-	clientID string
+	config     *Config
+	logger     *zap.Logger
+	conn       *quic.Conn
+	stream     *quic.Stream
+	mu         sync.RWMutex
+	connected  bool
+	clientID   string
 	serverAddr string
 }
 
@@ -60,7 +60,7 @@ func (c *Client) Connect(ctx context.Context, serverAddr string) error {
 
 	// 配置 QUIC
 	quicConfig := &quic.Config{
-		MaxIdleTimeout: 5 * time.Minute,
+		MaxIdleTimeout:  5 * time.Minute,
 		KeepAlivePeriod: 30 * time.Second,
 		EnableDatagrams: true,
 	}
@@ -154,10 +154,10 @@ func (c *Client) handshake() error {
 
 	// 发送握手
 	payload := HandshakePayload{
-		Version:   "1.0",
-		ClientID:  c.clientID,
-		Compress:  c.config.EnableCompression,
-		Encrypt:   c.config.EnableEncryption,
+		Version:    "1.0",
+		ClientID:   c.clientID,
+		Compress:   c.config.EnableCompression,
+		Encrypt:    c.config.EnableEncryption,
 		SpeedLimit: c.config.SpeedLimit,
 	}
 

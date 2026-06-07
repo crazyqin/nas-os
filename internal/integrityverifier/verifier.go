@@ -19,12 +19,12 @@ import (
 type VerificationStatus string
 
 const (
-	VerifyPending    VerificationStatus = "pending"
-	VerifyRunning    VerificationStatus = "running"
-	VerifyPassed     VerificationStatus = "passed"
-	VerifyFailed     VerificationStatus = "failed"
-	VerifyRepaired   VerificationStatus = "repaired"
-	VerifySkipped    VerificationStatus = "skipped"
+	VerifyPending  VerificationStatus = "pending"
+	VerifyRunning  VerificationStatus = "running"
+	VerifyPassed   VerificationStatus = "passed"
+	VerifyFailed   VerificationStatus = "failed"
+	VerifyRepaired VerificationStatus = "repaired"
+	VerifySkipped  VerificationStatus = "skipped"
 )
 
 // RepairMode 修复模式
@@ -48,74 +48,74 @@ const (
 
 // FileRecord 文件完整性记录
 type FileRecord struct {
-	ID           string         `json:"id"`
-	Path         string         `json:"path"`
-	Size         int64          `json:"size"`
-	Checksum     string         `json:"checksum"`
-	ChecksumType ChecksumType   `json:"checksumType"`
-	LastVerified time.Time      `json:"lastVerified"`
-	Verified     bool           `json:"verified"`
+	ID           string             `json:"id"`
+	Path         string             `json:"path"`
+	Size         int64              `json:"size"`
+	Checksum     string             `json:"checksum"`
+	ChecksumType ChecksumType       `json:"checksumType"`
+	LastVerified time.Time          `json:"lastVerified"`
+	Verified     bool               `json:"verified"`
 	Status       VerificationStatus `json:"status"`
-	RepairCount  int            `json:"repairCount"`
-	CreatedAt    time.Time      `json:"createdAt"`
-	UpdatedAt    time.Time      `json:"updatedAt"`
+	RepairCount  int                `json:"repairCount"`
+	CreatedAt    time.Time          `json:"createdAt"`
+	UpdatedAt    time.Time          `json:"updatedAt"`
 }
 
 // VerificationResult 校验结果
 type VerificationResult struct {
-	FilePath     string             `json:"filePath"`
-	Status       VerificationStatus `json:"status"`
-	Expected     string             `json:"expected"`
-	Actual       string             `json:"actual"`
-	Duration     time.Duration      `json:"duration"`
-	ErrorMsg     string             `json:"errorMsg,omitempty"`
-	Repaired     bool               `json:"repaired"`
-	CheckedAt    time.Time          `json:"checkedAt"`
+	FilePath  string             `json:"filePath"`
+	Status    VerificationStatus `json:"status"`
+	Expected  string             `json:"expected"`
+	Actual    string             `json:"actual"`
+	Duration  time.Duration      `json:"duration"`
+	ErrorMsg  string             `json:"errorMsg,omitempty"`
+	Repaired  bool               `json:"repaired"`
+	CheckedAt time.Time          `json:"checkedAt"`
 }
 
 // VerificationJob 校验任务
 type VerificationJob struct {
-	ID          string             `json:"id"`
-	Name        string             `json:"name"`
-	Paths       []string           `json:"paths"`
-	Recursive   bool               `json:"recursive"`
-	Status      VerificationStatus `json:"status"`
-	TotalFiles  int                `json:"totalFiles"`
-	CheckedFiles int               `json:"checkedFiles"`
-	FailedFiles int                `json:"failedFiles"`
-	RepairedFiles int              `json:"repairedFiles"`
-	StartedAt   *time.Time         `json:"startedAt,omitempty"`
-	CompletedAt *time.Time         `json:"completedAt,omitempty"`
-	Results     []*VerificationResult `json:"results,omitempty"`
-	ErrorMsg    string             `json:"errorMsg,omitempty"`
+	ID            string                `json:"id"`
+	Name          string                `json:"name"`
+	Paths         []string              `json:"paths"`
+	Recursive     bool                  `json:"recursive"`
+	Status        VerificationStatus    `json:"status"`
+	TotalFiles    int                   `json:"totalFiles"`
+	CheckedFiles  int                   `json:"checkedFiles"`
+	FailedFiles   int                   `json:"failedFiles"`
+	RepairedFiles int                   `json:"repairedFiles"`
+	StartedAt     *time.Time            `json:"startedAt,omitempty"`
+	CompletedAt   *time.Time            `json:"completedAt,omitempty"`
+	Results       []*VerificationResult `json:"results,omitempty"`
+	ErrorMsg      string                `json:"errorMsg,omitempty"`
 }
 
 // IntegrityReport 完整性报告
 type IntegrityReport struct {
-	GeneratedAt     time.Time          `json:"generatedAt"`
-	TotalFiles      int                `json:"totalFiles"`
-	VerifiedFiles   int                `json:"verifiedFiles"`
-	FailedFiles     int                `json:"failedFiles"`
-	RepairedFiles   int                `json:"repairedFiles"`
-	PendingFiles    int                `json:"pendingFiles"`
-	IntegrityScore  float64            `json:"integrityScore"` // 0-100
-	LastFullScan    *time.Time         `json:"lastFullScan,omitempty"`
-	RecentResults   []*VerificationResult `json:"recentResults,omitempty"`
-	TopFailedPaths  []string           `json:"topFailedPaths,omitempty"`
+	GeneratedAt    time.Time             `json:"generatedAt"`
+	TotalFiles     int                   `json:"totalFiles"`
+	VerifiedFiles  int                   `json:"verifiedFiles"`
+	FailedFiles    int                   `json:"failedFiles"`
+	RepairedFiles  int                   `json:"repairedFiles"`
+	PendingFiles   int                   `json:"pendingFiles"`
+	IntegrityScore float64               `json:"integrityScore"` // 0-100
+	LastFullScan   *time.Time            `json:"lastFullScan,omitempty"`
+	RecentResults  []*VerificationResult `json:"recentResults,omitempty"`
+	TopFailedPaths []string              `json:"topFailedPaths,omitempty"`
 }
 
 // ScrubSchedule 校验调度
 type ScrubSchedule struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Enabled     bool          `json:"enabled"`
-	Frequency   time.Duration `json:"frequency"`   // 校验频率
-	Paths       []string      `json:"paths"`
-	Recursive   bool          `json:"recursive"`
-	RepairMode  RepairMode    `json:"repairMode"`
-	LastRun     *time.Time    `json:"lastRun,omitempty"`
-	NextRun     *time.Time    `json:"nextRun,omitempty"`
-	CreatedAt   time.Time     `json:"createdAt"`
+	ID         string        `json:"id"`
+	Name       string        `json:"name"`
+	Enabled    bool          `json:"enabled"`
+	Frequency  time.Duration `json:"frequency"` // 校验频率
+	Paths      []string      `json:"paths"`
+	Recursive  bool          `json:"recursive"`
+	RepairMode RepairMode    `json:"repairMode"`
+	LastRun    *time.Time    `json:"lastRun,omitempty"`
+	NextRun    *time.Time    `json:"nextRun,omitempty"`
+	CreatedAt  time.Time     `json:"createdAt"`
 }
 
 // ==================== 校验器 ====================
@@ -137,8 +137,8 @@ type Verifier struct {
 	results []*VerificationResult
 
 	// 配置
-	checksumType ChecksumType
-	repairMode   RepairMode
+	checksumType  ChecksumType
+	repairMode    RepairMode
 	maxConcurrent int
 }
 
@@ -288,12 +288,12 @@ func (v *Verifier) VerifyAll() *VerificationJob {
 	v.mu.RUnlock()
 
 	job := &VerificationJob{
-		ID:        fmt.Sprintf("job-%d", time.Now().UnixNano()),
-		Name:      "全量校验",
-		Paths:     paths,
-		Status:    VerifyRunning,
+		ID:         fmt.Sprintf("job-%d", time.Now().UnixNano()),
+		Name:       "全量校验",
+		Paths:      paths,
+		Status:     VerifyRunning,
 		TotalFiles: len(paths),
-		StartedAt: timePtr(time.Now()),
+		StartedAt:  timePtr(time.Now()),
 	}
 
 	v.mu.Lock()

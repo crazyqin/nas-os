@@ -68,20 +68,20 @@ type VolumeMount struct {
 
 // ResourceQuota 资源配额
 type ResourceQuota struct {
-	MaxCPU       float64 `json:"max_cpu"`
-	MaxMemoryMB  int64   `json:"max_memory_mb"`
-	MaxDiskMB    int64   `json:"max_disk_mb"`
-	MaxContainers int    `json:"max_containers"`
+	MaxCPU        float64 `json:"max_cpu"`
+	MaxMemoryMB   int64   `json:"max_memory_mb"`
+	MaxDiskMB     int64   `json:"max_disk_mb"`
+	MaxContainers int     `json:"max_containers"`
 }
 
 // DashboardStats 仪表盘统计
 type DashboardStats struct {
-	TotalContainers  int     `json:"total_containers"`
-	RunningContainers int    `json:"running_containers"`
-	StoppedContainers int    `json:"stopped_containers"`
-	TotalCPUUsage    float64 `json:"total_cpu_usage"`
-	TotalMemoryMB    int64   `json:"total_memory_mb"`
-	TotalDiskMB      int64   `json:"total_disk_mb"`
+	TotalContainers   int     `json:"total_containers"`
+	RunningContainers int     `json:"running_containers"`
+	StoppedContainers int     `json:"stopped_containers"`
+	TotalCPUUsage     float64 `json:"total_cpu_usage"`
+	TotalMemoryMB     int64   `json:"total_memory_mb"`
+	TotalDiskMB       int64   `json:"total_disk_mb"`
 }
 
 // LXCDashboard LXC容器仪表盘

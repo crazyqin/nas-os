@@ -60,10 +60,10 @@ func (h *Handler) ExecuteOptimization(c *gin.Context) {
 	movedFiles := h.manager.EvaluateTierPolicies()
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":      "优化执行完成",
-		"type":         req.Type,
-		"files_moved":  len(movedFiles),
-		"moved_files":  movedFiles,
+		"message":     "优化执行完成",
+		"type":        req.Type,
+		"files_moved": len(movedFiles),
+		"moved_files": movedFiles,
 	})
 }
 
@@ -98,9 +98,9 @@ func (h *Handler) MigrateTier(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":      "数据迁移已启动",
-		"source_tier":  req.SourceTier,
-		"target_tier":  req.TargetTier,
+		"message":     "数据迁移已启动",
+		"source_tier": req.SourceTier,
+		"target_tier": req.TargetTier,
 	})
 }
 
@@ -115,9 +115,9 @@ func (h *Handler) GetStats(c *gin.Context) {
 	h.manager.mu.RUnlock()
 
 	c.JSON(http.StatusOK, gin.H{
-		"report":              report,
-		"access_patterns":     patternCount,
-		"dedup_entries":       dedupCount,
-		"metrics_count":       metricsCount,
+		"report":          report,
+		"access_patterns": patternCount,
+		"dedup_entries":   dedupCount,
+		"metrics_count":   metricsCount,
 	})
 }

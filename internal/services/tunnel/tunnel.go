@@ -12,10 +12,10 @@ import (
 type TunnelType string
 
 const (
-	TypeFRP      TunnelType = "frp"       // FRP穿透
+	TypeFRP        TunnelType = "frp"        // FRP穿透
 	TypeCloudflare TunnelType = "cloudflare" // Cloudflare Tunnel
-	TypeWireGuard TunnelType = "wireguard"  // WireGuard VPN
-	TypeCustom   TunnelType = "custom"    // 自建服务
+	TypeWireGuard  TunnelType = "wireguard"  // WireGuard VPN
+	TypeCustom     TunnelType = "custom"     // 自建服务
 )
 
 // TunnelStatus defines tunnel status
@@ -30,28 +30,28 @@ const (
 
 // TunnelConfig defines tunnel configuration
 type TunnelConfig struct {
-	ID           string      `json:"id"`
-	Type         TunnelType  `json:"type"`
-	Name         string      `json:"name"`
-	ServerAddr   string      `json:"server_addr"`   // 服务器地址
-	ServerPort   int         `json:"server_port"`   // 服务器端口
-	LocalPort    int         `json:"local_port"`    // 本地端口
-	Token        string      `json:"token"`         // 认证Token
-	Enabled      bool        `json:"enabled"`
-	AutoReconnect bool        `json:"auto_reconnect"` // 自动重连
-	Timeout      int         `json:"timeout"`       // 超时秒数
+	ID            string     `json:"id"`
+	Type          TunnelType `json:"type"`
+	Name          string     `json:"name"`
+	ServerAddr    string     `json:"server_addr"` // 服务器地址
+	ServerPort    int        `json:"server_port"` // 服务器端口
+	LocalPort     int        `json:"local_port"`  // 本地端口
+	Token         string     `json:"token"`       // 认证Token
+	Enabled       bool       `json:"enabled"`
+	AutoReconnect bool       `json:"auto_reconnect"` // 自动重连
+	Timeout       int        `json:"timeout"`        // 超时秒数
 }
 
 // TunnelConnection represents an active tunnel
 type TunnelConnection struct {
 	Config      *TunnelConfig
 	Status      TunnelStatus
-	PublicURL   string    `json:"public_url"`   // 公网访问地址
-	Uptime      time.Duration `json:"uptime"`   // 连接时长
-	BytesIn     int64     `json:"bytes_in"`     // 入流量
-	BytesOut    int64     `json:"bytes_out"`    // 出流量
-	LastError   string    `json:"last_error"`
-	ConnectedAt time.Time `json:"connected_at"`
+	PublicURL   string        `json:"public_url"` // 公网访问地址
+	Uptime      time.Duration `json:"uptime"`     // 连接时长
+	BytesIn     int64         `json:"bytes_in"`   // 入流量
+	BytesOut    int64         `json:"bytes_out"`  // 出流量
+	LastError   string        `json:"last_error"`
+	ConnectedAt time.Time     `json:"connected_at"`
 }
 
 // Service manages tunnel connections

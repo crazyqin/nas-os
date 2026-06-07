@@ -14,35 +14,35 @@ import (
 type CommandType string
 
 const (
-	CmdStorageQuery  CommandType = "storage_query"
-	CmdBackupStatus  CommandType = "backup_status"
-	CmdServiceCtrl   CommandType = "service_control"
-	CmdSystemInfo    CommandType = "system_info"
-	CmdAlertQuery    CommandType = "alert_query"
-	CmdMediaPlay     CommandType = "media_play"
-	CmdPermission    CommandType = "permission"
-	CmdUnknown       CommandType = "unknown"
+	CmdStorageQuery CommandType = "storage_query"
+	CmdBackupStatus CommandType = "backup_status"
+	CmdServiceCtrl  CommandType = "service_control"
+	CmdSystemInfo   CommandType = "system_info"
+	CmdAlertQuery   CommandType = "alert_query"
+	CmdMediaPlay    CommandType = "media_play"
+	CmdPermission   CommandType = "permission"
+	CmdUnknown      CommandType = "unknown"
 )
 
 // VoiceCommand 语音命令
 type VoiceCommand struct {
-	ID        string      `json:"id"`
-	Timestamp time.Time   `json:"timestamp"`
-	RawText   string      `json:"raw_text"`
-	Type      CommandType `json:"type"`
+	ID        string            `json:"id"`
+	Timestamp time.Time         `json:"timestamp"`
+	RawText   string            `json:"raw_text"`
+	Type      CommandType       `json:"type"`
 	Params    map[string]string `json:"params"`
-	UserID    string      `json:"user_id"`
-	Status    string      `json:"status"` // pending/executing/done/failed
-	Response  string      `json:"response,omitempty"`
-	Error     string      `json:"error,omitempty"`
+	UserID    string            `json:"user_id"`
+	Status    string            `json:"status"` // pending/executing/done/failed
+	Response  string            `json:"response,omitempty"`
+	Error     string            `json:"error,omitempty"`
 }
 
 // VoiceResponse 语音响应
 type VoiceResponse struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
+	Success bool        `json:"success"`
+	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
-	Speak   string `json:"speak"` // TTS 文本
+	Speak   string      `json:"speak"` // TTS 文本
 }
 
 // CommandHandler 命令处理函数
@@ -107,7 +107,7 @@ func (s *Scheduler) ProcessCommand(rawText string, userID string) *VoiceResponse
 			Speak:   "抱歉，语音控制功能当前已禁用",
 		}
 	}
-	
+
 	cmdType, params := s.parseCommand(rawText)
 	cmd := &VoiceCommand{
 		ID:        fmt.Sprintf("vc_%d", time.Now().UnixNano()),
@@ -118,19 +118,19 @@ func (s *Scheduler) ProcessCommand(rawText string, userID string) *VoiceResponse
 		UserID:    userID,
 		Status:    "pending",
 	}
-	
+
 	s.mu.Lock()
 	if len(s.history) >= s.config.MaxHistory {
 		s.history = s.history[1:]
 	}
 	s.history = append(s.history, cmd)
 	s.mu.Unlock()
-	
+
 	// 查找处理器
 	s.mu.RLock()
 	handler, ok := s.handlers[cmdType]
 	s.mu.RUnlock()
-	
+
 	if !ok {
 		cmd.Status = "failed"
 		cmd.Error = "不支持的命令类型"
@@ -140,12 +140,12 @@ func (s *Scheduler) ProcessCommand(rawText string, userID string) *VoiceResponse
 			Speak:   "抱歉，我还不会处理这个命令",
 		}
 	}
-	
+
 	// 执行命令
 	cmd.Status = "executing"
 	ctx, cancel := context.WithTimeout(s.ctx, s.config.CommandTimeout)
 	defer cancel()
-	
+
 	resp := handler(ctx, cmd)
 	if resp.Success {
 		cmd.Status = "done"
@@ -154,7 +154,7 @@ func (s *Scheduler) ProcessCommand(rawText string, userID string) *VoiceResponse
 		cmd.Status = "failed"
 		cmd.Error = resp.Message
 	}
-	
+
 	return resp
 }
 
@@ -162,11 +162,11 @@ func (s *Scheduler) ProcessCommand(rawText string, userID string) *VoiceResponse
 func (s *Scheduler) GetHistory(limit int) []*VoiceCommand {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	if limit <= 0 || limit > len(s.history) {
 		limit = len(s.history)
 	}
-	
+
 	start := len(s.history) - limit
 	result := make([]*VoiceCommand, limit)
 	copy(result, s.history[start:])
@@ -177,7 +177,7 @@ func (s *Scheduler) GetHistory(limit int) []*VoiceCommand {
 func (s *Scheduler) GetCommandTypeStats() map[CommandType]int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	stats := make(map[CommandType]int)
 	for _, cmd := range s.history {
 		stats[cmd.Type]++
@@ -189,17 +189,17 @@ func (s *Scheduler) GetCommandTypeStats() map[CommandType]int {
 func (s *Scheduler) parseCommand(text string) (CommandType, map[string]string) {
 	lower := strings.ToLower(text)
 	params := make(map[string]string)
-	
+
 	// 存储查询
 	if containsAny(lower, "存储", "空间", "容量", "硬盘", "storage", "space", "disk") {
 		return CmdStorageQuery, params
 	}
-	
+
 	// 备份状态
 	if containsAny(lower, "备份", "backup", "恢复") {
 		return CmdBackupStatus, params
 	}
-	
+
 	// 服务控制
 	if containsAny(lower, "启动", "停止", "重启", "服务", "start", "stop", "restart", "service") {
 		if strings.Contains(lower, "启动") || strings.Contains(lower, "start") {
@@ -211,22 +211,22 @@ func (s *Scheduler) parseCommand(text string) (CommandType, map[string]string) {
 		}
 		return CmdServiceCtrl, params
 	}
-	
+
 	// 系统信息
 	if containsAny(lower, "系统", "状态", "运行", "system", "status", "uptime") {
 		return CmdSystemInfo, params
 	}
-	
+
 	// 告警查询
 	if containsAny(lower, "告警", "报警", "错误", "alert", "error", "warning") {
 		return CmdAlertQuery, params
 	}
-	
+
 	// 媒体播放
 	if containsAny(lower, "播放", "音乐", "视频", "play", "music", "video") {
 		return CmdMediaPlay, params
 	}
-	
+
 	return CmdUnknown, params
 }
 
@@ -239,7 +239,7 @@ func (s *Scheduler) registerDefaults() {
 			Speak:   "存储空间充足，当前使用率 45%",
 		}
 	}
-	
+
 	s.handlers[CmdSystemInfo] = func(ctx context.Context, cmd *VoiceCommand) *VoiceResponse {
 		return &VoiceResponse{
 			Success: true,
@@ -247,7 +247,7 @@ func (s *Scheduler) registerDefaults() {
 			Speak:   "系统运行正常，已运行 30 天，CPU 使用率 15%，内存使用率 40%",
 		}
 	}
-	
+
 	s.handlers[CmdAlertQuery] = func(ctx context.Context, cmd *VoiceCommand) *VoiceResponse {
 		return &VoiceResponse{
 			Success: true,

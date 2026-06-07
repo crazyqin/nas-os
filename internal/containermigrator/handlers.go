@@ -262,10 +262,10 @@ func (h *Handler) handleUpdateMigration(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	var req struct {
-		ID         string  `json:"id"`
-		Progress   float64 `json:"progress"`
-		Phase      string  `json:"phase"`
-		BytesSynced int64  `json:"bytes_synced"`
+		ID          string  `json:"id"`
+		Progress    float64 `json:"progress"`
+		Phase       string  `json:"phase"`
+		BytesSynced int64   `json:"bytes_synced"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeJSON(w, map[string]interface{}{"code": 400, "message": "无效的请求体"})

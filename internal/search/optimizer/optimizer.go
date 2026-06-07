@@ -30,7 +30,7 @@ type BatchOptimizer struct {
 
 // BatchOptimizerConfig 批量优化器配置
 type BatchOptimizerConfig struct {
-	BatchSize int           `json:"batchSize"` // 批量大小
+	BatchSize     int           `json:"batchSize"`     // 批量大小
 	FlushInterval time.Duration `json:"flushInterval"` // 定时刷新间隔
 }
 
@@ -163,19 +163,19 @@ type IndexState struct {
 
 // FileMeta 文件元信息
 type FileMeta struct {
-	Path      string    `json:"path"`
-	ModTime   time.Time `json:"modTime"`
-	Size      int64     `json:"size"`
-	ContentHash string  `json:"contentHash,omitempty"` // 可选的内容哈希
-	IndexedAt time.Time `json:"indexedAt"`
+	Path        string    `json:"path"`
+	ModTime     time.Time `json:"modTime"`
+	Size        int64     `json:"size"`
+	ContentHash string    `json:"contentHash,omitempty"` // 可选的内容哈希
+	IndexedAt   time.Time `json:"indexedAt"`
 }
 
 // IncrementalIndexerConfig 增量索引器配置
 type IncrementalIndexerConfig struct {
 	StatePath      string `json:"statePath"`      // 状态文件路径
-	BatchSize      int    `json:"batchSize"`       // 批量大小
-	MaxFileSize    int64  `json:"maxFileSize"`     // 最大文件大小
-	UseContentHash bool   `json:"useContentHash"`  // 是否使用内容哈希比较
+	BatchSize      int    `json:"batchSize"`      // 批量大小
+	MaxFileSize    int64  `json:"maxFileSize"`    // 最大文件大小
+	UseContentHash bool   `json:"useContentHash"` // 是否使用内容哈希比较
 }
 
 // DefaultIncrementalIndexerConfig 默认配置
@@ -463,40 +463,40 @@ func (ic *IndexCompactor) Compact(indexPath string) (*CompactResult, error) {
 // IndexStats 索引统计信息
 type IndexStats struct {
 	// 基本统计
-	TotalDocuments  int64  `json:"totalDocuments"`  // 总文档数
-	IndexSize       int64  `json:"indexSize"`        // 索引大小（字节）
-	IndexSizeHuman  string `json:"indexSizeHuman"`   // 人类可读的索引大小
+	TotalDocuments int64  `json:"totalDocuments"` // 总文档数
+	IndexSize      int64  `json:"indexSize"`      // 索引大小（字节）
+	IndexSizeHuman string `json:"indexSizeHuman"` // 人类可读的索引大小
 
 	// 时间统计
-	CreatedAt       time.Time     `json:"createdAt"`       // 索引创建时间
-	LastModified    time.Time     `json:"lastModified"`    // 最后修改时间
-	LastOptimized   time.Time     `json:"lastOptimized"`   // 最后优化时间
-	Uptime          time.Duration `json:"uptime"`          // 运行时间
+	CreatedAt     time.Time     `json:"createdAt"`     // 索引创建时间
+	LastModified  time.Time     `json:"lastModified"`  // 最后修改时间
+	LastOptimized time.Time     `json:"lastOptimized"` // 最后优化时间
+	Uptime        time.Duration `json:"uptime"`        // 运行时间
 
 	// 性能统计
-	AvgIndexSpeed   float64 `json:"avgIndexSpeed"`   // 平均索引速度（文档/秒）
+	AvgIndexSpeed    float64 `json:"avgIndexSpeed"`    // 平均索引速度（文档/秒）
 	AvgSearchLatency float64 `json:"avgSearchLatency"` // 平均搜索延迟（毫秒）
-	TotalSearches   int64   `json:"totalSearches"`   // 总搜索次数
-	TotalIndexed    int64   `json:"totalIndexed"`    // 总索引文档数
+	TotalSearches    int64   `json:"totalSearches"`    // 总搜索次数
+	TotalIndexed     int64   `json:"totalIndexed"`     // 总索引文档数
 
 	// 分片统计
-	NumShards       int   `json:"numShards"`       // 分片数
-	NumSegments     int   `json:"numSegments"`     // 段数
-	DeletedDocs     int64 `json:"deletedDocs"`     // 已删除文档数
+	NumShards   int   `json:"numShards"`   // 分片数
+	NumSegments int   `json:"numSegments"` // 段数
+	DeletedDocs int64 `json:"deletedDocs"` // 已删除文档数
 }
 
 // StatsCollector 统计收集器
 // 收集和聚合索引性能指标
 type StatsCollector struct {
-	index          bleve.Index
-	logger         *zap.Logger
-	startTime      time.Time
-	totalSearches  int64
-	totalSearchMs  int64
-	totalIndexed   int64
-	totalIndexMs   int64
-	lastOptimized  time.Time
-	mu             sync.RWMutex
+	index         bleve.Index
+	logger        *zap.Logger
+	startTime     time.Time
+	totalSearches int64
+	totalSearchMs int64
+	totalIndexed  int64
+	totalIndexMs  int64
+	lastOptimized time.Time
+	mu            sync.RWMutex
 }
 
 // NewStatsCollector 创建统计收集器

@@ -233,9 +233,9 @@ func (b *RandomBalancer) GetStrategy() LoadBalanceStrategy {
 // CompositeBalancer 复合负载均衡器.
 // 支持多种策略组合，例如：先按可用区过滤，再按权重选择.
 type CompositeBalancer struct {
-	mu         sync.RWMutex
-	balancers  []LoadBalancer
-	nodes      []*Node
+	mu        sync.RWMutex
+	balancers []LoadBalancer
+	nodes     []*Node
 }
 
 // NewCompositeBalancer 创建复合负载均衡器.
@@ -296,10 +296,10 @@ func (b *CompositeBalancer) GetStrategy() LoadBalanceStrategy {
 
 // ZoneAwareBalancer 可用区感知负载均衡器.
 type ZoneAwareBalancer struct {
-	mu           sync.RWMutex
-	zoneBalancers map[string]LoadBalancer
+	mu              sync.RWMutex
+	zoneBalancers   map[string]LoadBalancer
 	defaultBalancer LoadBalancer
-	nodes        []*Node
+	nodes           []*Node
 }
 
 // NewZoneAwareBalancer 创建可用区感知负载均衡器.
@@ -409,8 +409,8 @@ func NewLoadBalancer(strategy LoadBalanceStrategy) LoadBalancer {
 
 // LoadBalancerFactory 负载均衡器工厂.
 type LoadBalancerFactory struct {
-	mu         sync.RWMutex
-	balancers  map[LoadBalanceStrategy]LoadBalancer
+	mu        sync.RWMutex
+	balancers map[LoadBalanceStrategy]LoadBalancer
 }
 
 // NewLoadBalancerFactory 创建负载均衡器工厂.
@@ -445,10 +445,10 @@ func (f *LoadBalancerFactory) GetOrCreate(strategy LoadBalanceStrategy) LoadBala
 
 // LoadBalancerWithFallback 带降级的负载均衡器.
 type LoadBalancerWithFallback struct {
-	mu        sync.RWMutex
-	primary   LoadBalancer
-	fallback  LoadBalancer
-	nodes     []*Node
+	mu       sync.RWMutex
+	primary  LoadBalancer
+	fallback LoadBalancer
+	nodes    []*Node
 }
 
 // NewLoadBalancerWithFallback 创建带降级的负载均衡器.
@@ -491,9 +491,9 @@ func (b *LoadBalancerWithFallback) GetStrategy() LoadBalanceStrategy {
 
 // LoadBalancerWithHealthCheck 带健康检查的负载均衡器.
 type LoadBalancerWithHealthCheck struct {
-	mu        sync.RWMutex
-	inner     LoadBalancer
-	nodes     []*Node
+	mu           sync.RWMutex
+	inner        LoadBalancer
+	nodes        []*Node
 	healthyNodes []*Node
 }
 

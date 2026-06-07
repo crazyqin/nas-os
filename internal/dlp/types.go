@@ -34,34 +34,34 @@ const (
 type FindingType string
 
 const (
-	FindingPII          FindingType = "pii"
-	FindingCredentials  FindingType = "credentials"
-	FindingFinancial    FindingType = "financial"
-	FindingHealthcare   FindingType = "healthcare"
-	FindingCustom       FindingType = "custom"
-	FindingMalware      FindingType = "malware_pattern"
+	FindingPII         FindingType = "pii"
+	FindingCredentials FindingType = "credentials"
+	FindingFinancial   FindingType = "financial"
+	FindingHealthcare  FindingType = "healthcare"
+	FindingCustom      FindingType = "custom"
+	FindingMalware     FindingType = "malware_pattern"
 )
 
 // PolicyAction represents the action to take on a finding
 type PolicyAction string
 
 const (
-	ActionAlert    PolicyAction = "alert"
+	ActionAlert      PolicyAction = "alert"
 	ActionQuarantine PolicyAction = "quarantine"
-	ActionBlock    PolicyAction = "block"
-	ActionEncrypt  PolicyAction = "encrypt"
-	ActionLog      PolicyAction = "log_only"
+	ActionBlock      PolicyAction = "block"
+	ActionEncrypt    PolicyAction = "encrypt"
+	ActionLog        PolicyAction = "log_only"
 )
 
 // ScanJob represents a DLP scan job
 type ScanJob struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	Path        string      `json:"path"`
-	Recursive   bool        `json:"recursive"`
-	Status      ScanStatus  `json:"status"`
-	StartedAt   time.Time   `json:"started_at"`
-	CompletedAt time.Time   `json:"completed_at"`
+	ID           string     `json:"id"`
+	Name         string     `json:"name"`
+	Path         string     `json:"path"`
+	Recursive    bool       `json:"recursive"`
+	Status       ScanStatus `json:"status"`
+	StartedAt    time.Time  `json:"started_at"`
+	CompletedAt  time.Time  `json:"completed_at"`
 	FilesScanned int        `json:"files_scanned"`
 	Findings     int        `json:"findings_count"`
 	Errors       []string   `json:"errors,omitempty"`
@@ -103,26 +103,26 @@ type DLPPolicy struct {
 
 // ScanStats represents DLP scan statistics
 type ScanStats struct {
-	TotalScans      int     `json:"total_scans"`
-	TotalFindings   int     `json:"total_findings"`
-	UnresolvedFindings int  `json:"unresolved_findings"`
-	FilesScanned    int     `json:"files_scanned"`
-	CriticalFindings int    `json:"critical_findings"`
-	HighFindings    int     `json:"high_findings"`
-	MediumFindings  int     `json:"medium_findings"`
-	LowFindings     int     `json:"low_findings"`
+	TotalScans         int `json:"total_scans"`
+	TotalFindings      int `json:"total_findings"`
+	UnresolvedFindings int `json:"unresolved_findings"`
+	FilesScanned       int `json:"files_scanned"`
+	CriticalFindings   int `json:"critical_findings"`
+	HighFindings       int `json:"high_findings"`
+	MediumFindings     int `json:"medium_findings"`
+	LowFindings        int `json:"low_findings"`
 }
 
 // Config holds DLP configuration
 type Config struct {
-	Enabled            bool    `json:"enabled"`
-	ScanIntervalHours  int     `json:"scan_interval_hours"`
-	MaxFileSizeMB      int     `json:"max_file_size_mb"`
-	DefaultMinSeverity string  `json:"default_min_severity"`
-	QuarantinePath     string  `json:"quarantine_path"`
-	EnableRealTime     bool    `json:"enable_real_time"`
+	Enabled             bool    `json:"enabled"`
+	ScanIntervalHours   int     `json:"scan_interval_hours"`
+	MaxFileSizeMB       int     `json:"max_file_size_mb"`
+	DefaultMinSeverity  string  `json:"default_min_severity"`
+	QuarantinePath      string  `json:"quarantine_path"`
+	EnableRealTime      bool    `json:"enable_real_time"`
 	ConfidenceThreshold float64 `json:"confidence_threshold"`
-	RetentionDays      int     `json:"retention_days"`
+	RetentionDays       int     `json:"retention_days"`
 }
 
 // Manager manages DLP scanning

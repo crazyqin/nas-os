@@ -18,72 +18,72 @@ import (
 
 // Fleet 多节点统一管理器
 type Fleet struct {
-	mu          sync.RWMutex
-	nodes       map[string]*FleetNode
-	nodeGroups  map[string]*NodeGroup
-	dataDir     string
-	ctx         context.Context
-	cancel      context.CancelFunc
-	config      *FleetConfig
-	taskQueue   *CrossNodeTaskQueue
-	healthAgg   *HealthAggregator
-	alertAgg    *AlertAggregator
+	mu         sync.RWMutex
+	nodes      map[string]*FleetNode
+	nodeGroups map[string]*NodeGroup
+	dataDir    string
+	ctx        context.Context
+	cancel     context.CancelFunc
+	config     *FleetConfig
+	taskQueue  *CrossNodeTaskQueue
+	healthAgg  *HealthAggregator
+	alertAgg   *AlertAggregator
 }
 
 // FleetConfig 舰队配置
 type FleetConfig struct {
-	NodeID            string        `json:"nodeId"`
-	NodeName          string        `json:"nodeName"`
-	Address           string        `json:"address"`
-	Port              int           `json:"port"`
-	DataDir           string        `json:"dataDir"`
-	HeartbeatInterval time.Duration `json:"heartbeatInterval"`
-	HeartbeatTimeout  time.Duration `json:"heartbeatTimeout"`
-	DiscoveryPort     int           `json:"discoveryPort"`
-	SyncInterval      time.Duration `json:"syncInterval"`
-	MaxNodes          int           `json:"maxNodes"`
-	EnableAutoDiscover bool         `json:"enableAutoDiscover"`
+	NodeID             string        `json:"nodeId"`
+	NodeName           string        `json:"nodeName"`
+	Address            string        `json:"address"`
+	Port               int           `json:"port"`
+	DataDir            string        `json:"dataDir"`
+	HeartbeatInterval  time.Duration `json:"heartbeatInterval"`
+	HeartbeatTimeout   time.Duration `json:"heartbeatTimeout"`
+	DiscoveryPort      int           `json:"discoveryPort"`
+	SyncInterval       time.Duration `json:"syncInterval"`
+	MaxNodes           int           `json:"maxNodes"`
+	EnableAutoDiscover bool          `json:"enableAutoDiscover"`
 }
 
 // DefaultFleetConfig 默认舰队配置
 func DefaultFleetConfig() *FleetConfig {
 	return &FleetConfig{
-		HeartbeatInterval: 10 * time.Second,
-		HeartbeatTimeout:  30 * time.Second,
-		DiscoveryPort:     7900,
-		SyncInterval:      5 * time.Minute,
-		MaxNodes:          64,
+		HeartbeatInterval:  10 * time.Second,
+		HeartbeatTimeout:   30 * time.Second,
+		DiscoveryPort:      7900,
+		SyncInterval:       5 * time.Minute,
+		MaxNodes:           64,
 		EnableAutoDiscover: true,
 	}
 }
 
 // FleetNode 舰队节点
 type FleetNode struct {
-	ID              string            `json:"id"`
-	Name            string            `json:"name"`
-	Address         string            `json:"address"`
-	Port            int               `json:"port"`
-	Role            FleetNodeRole     `json:"role"`
-	State           FleetNodeState    `json:"state"`
-	Capabilities    []string          `json:"capabilities"`
-	Metadata        map[string]string `json:"metadata"`
-	Metrics         *NodeMetrics      `json:"metrics,omitempty"`
-	LastHeartbeat   time.Time         `json:"lastHeartbeat"`
-	LastSync        time.Time         `json:"lastSync"`
-	RegisteredAt    time.Time         `json:"registeredAt"`
-	Tags            []string          `json:"tags"`
-	StoragePools    []StoragePoolInfo `json:"storagePools,omitempty"`
-	InstalledApps   []string          `json:"installedApps,omitempty"`
-	SystemVersion   string            `json:"systemVersion"`
-	Uptime          int64             `json:"uptime"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Address       string            `json:"address"`
+	Port          int               `json:"port"`
+	Role          FleetNodeRole     `json:"role"`
+	State         FleetNodeState    `json:"state"`
+	Capabilities  []string          `json:"capabilities"`
+	Metadata      map[string]string `json:"metadata"`
+	Metrics       *NodeMetrics      `json:"metrics,omitempty"`
+	LastHeartbeat time.Time         `json:"lastHeartbeat"`
+	LastSync      time.Time         `json:"lastSync"`
+	RegisteredAt  time.Time         `json:"registeredAt"`
+	Tags          []string          `json:"tags"`
+	StoragePools  []StoragePoolInfo `json:"storagePools,omitempty"`
+	InstalledApps []string          `json:"installedApps,omitempty"`
+	SystemVersion string            `json:"systemVersion"`
+	Uptime        int64             `json:"uptime"`
 }
 
 // FleetNodeRole 节点角色
 type FleetNodeRole string
 
 const (
-	FleetRoleMaster FleetNodeRole = "master"
-	FleetRoleWorker FleetNodeRole = "worker"
+	FleetRoleMaster  FleetNodeRole = "master"
+	FleetRoleWorker  FleetNodeRole = "worker"
 	FleetRoleStandby FleetNodeRole = "standby"
 )
 
@@ -91,32 +91,32 @@ const (
 type FleetNodeState string
 
 const (
-	FleetStateOnline     FleetNodeState = "online"
-	FleetStateOffline    FleetNodeState = "offline"
-	FleetStateDegraded   FleetNodeState = "degraded"
+	FleetStateOnline      FleetNodeState = "online"
+	FleetStateOffline     FleetNodeState = "offline"
+	FleetStateDegraded    FleetNodeState = "degraded"
 	FleetStateMaintaining FleetNodeState = "maintaining"
-	FleetStateJoining    FleetNodeState = "joining"
-	FleetStateLeaving    FleetNodeState = "leaving"
+	FleetStateJoining     FleetNodeState = "joining"
+	FleetStateLeaving     FleetNodeState = "leaving"
 )
 
 // StoragePoolInfo 存储池信息
 type StoragePoolInfo struct {
-	Name       string  `json:"name"`
-	Type       string  `json:"type"`
-	TotalGB    int64   `json:"totalGB"`
-	UsedGB     int64   `json:"usedGB"`
+	Name        string `json:"name"`
+	Type        string `json:"type"`
+	TotalGB     int64  `json:"totalGB"`
+	UsedGB      int64  `json:"usedGB"`
 	AvailableGB int64  `json:"availableGB"`
-	Health     string  `json:"health"`
-	RaidLevel  string  `json:"raidLevel"`
+	Health      string `json:"health"`
+	RaidLevel   string `json:"raidLevel"`
 }
 
 // NodeGroup 节点分组
 type NodeGroup struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	NodeIDs     []string `json:"nodeIds"`
-	Tags        []string `json:"tags"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	NodeIDs     []string  `json:"nodeIds"`
+	Tags        []string  `json:"tags"`
 	CreatedAt   time.Time `json:"createdAt"`
 }
 
@@ -142,15 +142,15 @@ func NewFleet(config *FleetConfig) *Fleet {
 
 	// 注册本节点
 	f.nodes[config.NodeID] = &FleetNode{
-		ID:           config.NodeID,
-		Name:         config.NodeName,
-		Address:      config.Address,
-		Port:         config.Port,
-		Role:         FleetRoleMaster,
-		State:        FleetStateOnline,
-		Capabilities: []string{"storage", "compute", "network"},
-		Metadata:     make(map[string]string),
-		Tags:         []string{},
+		ID:            config.NodeID,
+		Name:          config.NodeName,
+		Address:       config.Address,
+		Port:          config.Port,
+		Role:          FleetRoleMaster,
+		State:         FleetStateOnline,
+		Capabilities:  []string{"storage", "compute", "network"},
+		Metadata:      make(map[string]string),
+		Tags:          []string{},
 		LastHeartbeat: time.Now(),
 		RegisteredAt:  time.Now(),
 		SystemVersion: "1.0.0",
@@ -735,8 +735,8 @@ func (q *CrossNodeTaskQueue) Cancel(taskID string) error {
 
 // HealthAggregator 健康聚合器
 type HealthAggregator struct {
-	mu          sync.RWMutex
-	nodeHealths map[string]*NodeHealth
+	mu            sync.RWMutex
+	nodeHealths   map[string]*NodeHealth
 	clusterHealth *ClusterHealth
 }
 
@@ -755,14 +755,14 @@ type NodeHealth struct {
 
 // ClusterHealth 集群整体健康
 type ClusterHealth struct {
-	Status         string        `json:"status"` // "healthy", "degraded", "critical"
-	TotalNodes     int           `json:"totalNodes"`
-	OnlineNodes    int           `json:"onlineNodes"`
-	OfflineNodes   int           `json:"offlineNodes"`
-	DegradedNodes  int           `json:"degradedNodes"`
-	OverallScore   float64       `json:"overallScore"`
-	TopIssues      []string      `json:"topIssues,omitempty"`
-	LastUpdated    time.Time     `json:"lastUpdated"`
+	Status        string    `json:"status"` // "healthy", "degraded", "critical"
+	TotalNodes    int       `json:"totalNodes"`
+	OnlineNodes   int       `json:"onlineNodes"`
+	OfflineNodes  int       `json:"offlineNodes"`
+	DegradedNodes int       `json:"degradedNodes"`
+	OverallScore  float64   `json:"overallScore"`
+	TopIssues     []string  `json:"topIssues,omitempty"`
+	LastUpdated   time.Time `json:"lastUpdated"`
 }
 
 // NewHealthAggregator 创建健康聚合器
@@ -893,18 +893,18 @@ type AlertAggregator struct {
 
 // ClusterAlert 集群告警
 type ClusterAlert struct {
-	ID        string    `json:"id"`
-	NodeID    string    `json:"nodeId"`
-	NodeName  string    `json:"nodeName"`
-	Level     string    `json:"level"` // "info", "warning", "error", "critical"
-	Type      string    `json:"type"`  // "cpu", "memory", "disk", "network", "node_offline", "task_failed"
-	Message   string    `json:"message"`
-	Details   string    `json:"details,omitempty"`
-	Acked     bool      `json:"acked"`
-	AckedBy   string    `json:"ackedBy,omitempty"`
-	AckedAt   time.Time `json:"ackedAt,omitempty"`
-	CreatedAt time.Time `json:"createdAt"`
-	Resolved  bool      `json:"resolved"`
+	ID         string    `json:"id"`
+	NodeID     string    `json:"nodeId"`
+	NodeName   string    `json:"nodeName"`
+	Level      string    `json:"level"` // "info", "warning", "error", "critical"
+	Type       string    `json:"type"`  // "cpu", "memory", "disk", "network", "node_offline", "task_failed"
+	Message    string    `json:"message"`
+	Details    string    `json:"details,omitempty"`
+	Acked      bool      `json:"acked"`
+	AckedBy    string    `json:"ackedBy,omitempty"`
+	AckedAt    time.Time `json:"ackedAt,omitempty"`
+	CreatedAt  time.Time `json:"createdAt"`
+	Resolved   bool      `json:"resolved"`
 	ResolvedAt time.Time `json:"resolvedAt,omitempty"`
 }
 
@@ -960,10 +960,10 @@ func (aa *AlertAggregator) GetAlerts(filter *AlertFilter) []*ClusterAlert {
 
 // AlertFilter 告警过滤器
 type AlertFilter struct {
-	Level           string `json:"level"`
-	NodeID          string `json:"nodeId"`
-	UnackedOnly     bool   `json:"unackedOnly"`
-	UnresolvedOnly  bool   `json:"unresolvedOnly"`
+	Level          string `json:"level"`
+	NodeID         string `json:"nodeId"`
+	UnackedOnly    bool   `json:"unackedOnly"`
+	UnresolvedOnly bool   `json:"unresolvedOnly"`
 }
 
 // AckAlert 确认告警
@@ -1031,20 +1031,20 @@ func (f *Fleet) checkNodeTimeouts() {
 				if node.State == FleetStateOnline {
 					node.State = FleetStateDegraded
 					f.alertAgg.AddAlert(&ClusterAlert{
-						NodeID:  node.ID,
+						NodeID:   node.ID,
 						NodeName: node.Name,
-						Level:   "warning",
-						Type:    "node_offline",
-						Message: fmt.Sprintf("节点 %s 心跳超时，状态降级", node.Name),
+						Level:    "warning",
+						Type:     "node_offline",
+						Message:  fmt.Sprintf("节点 %s 心跳超时，状态降级", node.Name),
 					})
 				} else if time.Since(node.LastHeartbeat) > f.config.HeartbeatTimeout*3 {
 					node.State = FleetStateOffline
 					f.alertAgg.AddAlert(&ClusterAlert{
-						NodeID:  node.ID,
+						NodeID:   node.ID,
 						NodeName: node.Name,
-						Level:   "error",
-						Type:    "node_offline",
-						Message: fmt.Sprintf("节点 %s 离线", node.Name),
+						Level:    "error",
+						Type:     "node_offline",
+						Message:  fmt.Sprintf("节点 %s 离线", node.Name),
 					})
 				}
 			}
@@ -1104,8 +1104,8 @@ func (f *Fleet) loadData() {
 	}
 
 	var saved struct {
-		Nodes      map[string]*FleetNode `json:"nodes"`
-		Groups     map[string]*NodeGroup `json:"groups"`
+		Nodes  map[string]*FleetNode `json:"nodes"`
+		Groups map[string]*NodeGroup `json:"groups"`
 	}
 	if err := json.Unmarshal(data, &saved); err != nil {
 		return
@@ -1188,18 +1188,16 @@ func (f *Fleet) GetFleetSummary() *FleetSummary {
 
 // FleetSummary 舰队摘要
 type FleetSummary struct {
-	TotalNodes       int            `json:"totalNodes"`
-	OnlineNodes      int            `json:"onlineNodes"`
-	OfflineNodes     int            `json:"offlineNodes"`
-	DegradedNodes    int            `json:"degradedNodes"`
-	MaintenanceNodes int            `json:"maintenanceNodes"`
-	Masters          int            `json:"masters"`
-	Workers          int            `json:"workers"`
-	Standbys         int            `json:"standbys"`
-	Groups           int            `json:"groups"`
-	ClusterHealth    *ClusterHealth `json:"clusterHealth"`
-	Alerts           []*ClusterAlert `json:"alerts"`
+	TotalNodes       int              `json:"totalNodes"`
+	OnlineNodes      int              `json:"onlineNodes"`
+	OfflineNodes     int              `json:"offlineNodes"`
+	DegradedNodes    int              `json:"degradedNodes"`
+	MaintenanceNodes int              `json:"maintenanceNodes"`
+	Masters          int              `json:"masters"`
+	Workers          int              `json:"workers"`
+	Standbys         int              `json:"standbys"`
+	Groups           int              `json:"groups"`
+	ClusterHealth    *ClusterHealth   `json:"clusterHealth"`
+	Alerts           []*ClusterAlert  `json:"alerts"`
 	Tasks            []*CrossNodeTask `json:"tasks,omitempty"`
 }
-
-

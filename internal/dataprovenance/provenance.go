@@ -17,12 +17,12 @@ import (
 type Engine struct {
 	mu             sync.RWMutex
 	records        map[string]*ProvenanceRecord // id -> record
-	fileIndex      map[string][]string           // fileID -> record ids
-	userIndex      map[string][]string           // userID -> record ids
-	operationIndex map[OperationType][]string    // operation -> record ids
-	lineage        map[string]*FileLineage       // fileID -> lineage
-	chains         map[string]*AuditChain        // chainID -> chain
-	dataLineages   map[string]*DataLineage       // dataID -> lineage
+	fileIndex      map[string][]string          // fileID -> record ids
+	userIndex      map[string][]string          // userID -> record ids
+	operationIndex map[OperationType][]string   // operation -> record ids
+	lineage        map[string]*FileLineage      // fileID -> lineage
+	chains         map[string]*AuditChain       // chainID -> chain
+	dataLineages   map[string]*DataLineage      // dataID -> lineage
 	retention      *RetentionPolicy
 }
 
@@ -30,8 +30,8 @@ type Engine struct {
 func NewEngine(retention *RetentionPolicy) *Engine {
 	if retention == nil {
 		retention = &RetentionPolicy{
-			MaxAge:      365 * 24 * time.Hour, // 默认保留1年
-			MaxRecords:  1000000,               // 默认最多100万条
+			MaxAge:     365 * 24 * time.Hour, // 默认保留1年
+			MaxRecords: 1000000,              // 默认最多100万条
 		}
 	}
 	return &Engine{
@@ -376,13 +376,13 @@ func (e *Engine) RecordOrigin(dataID, dataType, location string, userID string, 
 	}
 
 	record := &ProvenanceRecord{
-		ID:       fmt.Sprintf("origin-%s-%d", dataID, time.Now().UnixNano()),
-		FileID:   dataID,
-		FilePath: location,
-		Operation: OpCreate,
-		UserID:   userID,
-		Source:   SourceGenerate,
-		Metadata: metadata,
+		ID:          fmt.Sprintf("origin-%s-%d", dataID, time.Now().UnixNano()),
+		FileID:      dataID,
+		FilePath:    location,
+		Operation:   OpCreate,
+		UserID:      userID,
+		Source:      SourceGenerate,
+		Metadata:    metadata,
 		Description: fmt.Sprintf("Data origin recorded: %s", dataType),
 	}
 
@@ -392,9 +392,9 @@ func (e *Engine) RecordOrigin(dataID, dataType, location string, userID string, 
 
 	// 创建数据血缘
 	dl := &DataLineage{
-		DataID:       dataID,
-		DataType:     dataType,
-		Origin:       record,
+		DataID:          dataID,
+		DataType:        dataType,
+		Origin:          record,
 		CurrentLocation: location,
 		Transformations: make([]Transformation, 0),
 	}
@@ -511,11 +511,11 @@ func (e *Engine) ExportAuditTrail(config *AuditTrailExport) (*AuditTrailResult, 
 	}
 
 	result := &AuditTrailResult{
-		ExportID:     fmt.Sprintf("export-%d", time.Now().UnixNano()),
-		Format:       config.Format,
-		GeneratedAt:  time.Now(),
-		TotalRecords: len(records),
-		Data:         data,
+		ExportID:      fmt.Sprintf("export-%d", time.Now().UnixNano()),
+		Format:        config.Format,
+		GeneratedAt:   time.Now(),
+		TotalRecords:  len(records),
+		Data:          data,
 		ChainVerified: true,
 	}
 
@@ -705,8 +705,8 @@ func (e *Engine) matchComplianceTag(record *ProvenanceRecord, tags []ComplianceT
 // exportJSON 导出为JSON格式.
 func (e *Engine) exportJSON(records []*ProvenanceRecord) ([]byte, error) {
 	type ExportData struct {
-		Records   []*ProvenanceRecord `json:"records"`
-		Total     int                  `json:"total"`
+		Records    []*ProvenanceRecord `json:"records"`
+		Total      int                 `json:"total"`
 		ExportedAt time.Time           `json:"exported_at"`
 	}
 
@@ -769,9 +769,9 @@ func (e *Engine) exportXML(records []*ProvenanceRecord) ([]byte, error) {
 	}
 
 	type XMLExport struct {
-		XMLName xml.Name     `xml:"AuditTrail"`
-		Records []XMLRecord  `xml:"Record"`
-		Total   int          `xml:"Total,attr"`
+		XMLName xml.Name    `xml:"AuditTrail"`
+		Records []XMLRecord `xml:"Record"`
+		Total   int         `xml:"Total,attr"`
 	}
 
 	data := XMLExport{

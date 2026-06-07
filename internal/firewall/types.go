@@ -62,57 +62,57 @@ const (
 
 // Zone 防火墙区域.
 type Zone struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description,omitempty"`
-	Interfaces  []string `json:"interfaces"`
+	Name          string     `json:"name"`
+	Description   string     `json:"description,omitempty"`
+	Interfaces    []string   `json:"interfaces"`
 	DefaultAction RuleAction `json:"default_action"`
-	Rules       []string `json:"rules"` // Rule IDs
+	Rules         []string   `json:"rules"` // Rule IDs
 }
 
 // FirewallConfig 防火墙全局配置.
 type FirewallConfig struct {
-	Enabled       bool   `json:"enabled"`
+	Enabled       bool       `json:"enabled"`
 	DefaultIn     RuleAction `json:"default_in"`
 	DefaultOut    RuleAction `json:"default_out"`
-	LogDropped    bool   `json:"log_dropped"`
-	MaxRules      int    `json:"max_rules"`
-	SyncIntervalS int    `json:"sync_interval_s"`
+	LogDropped    bool       `json:"log_dropped"`
+	MaxRules      int        `json:"max_rules"`
+	SyncIntervalS int        `json:"sync_interval_s"`
 }
 
 // TrafficLog 流量日志.
 type TrafficLog struct {
-	Timestamp time.Time `json:"timestamp"`
-	RuleID    string    `json:"rule_id"`
-	RuleName  string    `json:"rule_name"`
+	Timestamp time.Time  `json:"timestamp"`
+	RuleID    string     `json:"rule_id"`
+	RuleName  string     `json:"rule_name"`
 	Action    RuleAction `json:"action"`
-	Protocol  Protocol  `json:"protocol"`
-	SrcIP     net.IP    `json:"src_ip"`
-	DstIP     net.IP    `json:"dst_ip"`
-	SrcPort   int       `json:"src_port"`
-	DstPort   int       `json:"dst_port"`
-	Bytes     int64     `json:"bytes"`
+	Protocol  Protocol   `json:"protocol"`
+	SrcIP     net.IP     `json:"src_ip"`
+	DstIP     net.IP     `json:"dst_ip"`
+	SrcPort   int        `json:"src_port"`
+	DstPort   int        `json:"dst_port"`
+	Bytes     int64      `json:"bytes"`
 }
 
 // FirewallStats 防火墙统计.
 type FirewallStats struct {
-	TotalRules    int   `json:"total_rules"`
-	EnabledRules  int   `json:"enabled_rules"`
-	TotalHits     int64 `json:"total_hits"`
-	DroppedCount  int64 `json:"dropped_count"`
-	AllowedCount  int64 `json:"allowed_count"`
-	LogCount      int64 `json:"log_count"`
-	LastSyncAt    time.Time `json:"last_sync_at"`
+	TotalRules   int       `json:"total_rules"`
+	EnabledRules int       `json:"enabled_rules"`
+	TotalHits    int64     `json:"total_hits"`
+	DroppedCount int64     `json:"dropped_count"`
+	AllowedCount int64     `json:"allowed_count"`
+	LogCount     int64     `json:"log_count"`
+	LastSyncAt   time.Time `json:"last_sync_at"`
 }
 
 // Manager 防火墙管理器.
 type Manager struct {
-	mu          sync.RWMutex
-	config      *FirewallConfig
-	rules       map[string]*Rule
-	zones       map[string]*Zone
-	trafficLog  []TrafficLog
-	stats       FirewallStats
-	maxLogSize  int
+	mu         sync.RWMutex
+	config     *FirewallConfig
+	rules      map[string]*Rule
+	zones      map[string]*Zone
+	trafficLog []TrafficLog
+	stats      FirewallStats
+	maxLogSize int
 }
 
 // NewManager 创建防火墙管理器.

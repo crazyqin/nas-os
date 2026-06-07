@@ -17,32 +17,32 @@ import (
 
 // RDMAConnection RDMA 连接
 type RDMAConnection struct {
-	ID           string        `json:"id"`
-	LocalAddr    string        `json:"local_addr"`
-	RemoteAddr   string        `json:"remote_addr"`
-	State        ConnState     `json:"state"`
-	QPN          uint32        `json:"qpn"`           // Queue Pair Number
-	PSN          uint32        `json:"psn"`           // Packet Sequence Number
-	LID          uint16        `json:"lid"`           // Local ID (InfiniBand)
-	GID          string        `json:"gid"`           // Global ID (RoCE)
-	MTU          int           `json:"mtu"`           // 最大传输单元
-	MaxInlineData int          `json:"max_inline_data"` // 最大内联数据
-	Stats        ConnStats     `json:"stats"`
-	CreatedAt    time.Time     `json:"created_at"`
-	LastActive   time.Time     `json:"last_active"`
-	Transport    TransportType `json:"transport"`     // 传输类型
+	ID            string        `json:"id"`
+	LocalAddr     string        `json:"local_addr"`
+	RemoteAddr    string        `json:"remote_addr"`
+	State         ConnState     `json:"state"`
+	QPN           uint32        `json:"qpn"`             // Queue Pair Number
+	PSN           uint32        `json:"psn"`             // Packet Sequence Number
+	LID           uint16        `json:"lid"`             // Local ID (InfiniBand)
+	GID           string        `json:"gid"`             // Global ID (RoCE)
+	MTU           int           `json:"mtu"`             // 最大传输单元
+	MaxInlineData int           `json:"max_inline_data"` // 最大内联数据
+	Stats         ConnStats     `json:"stats"`
+	CreatedAt     time.Time     `json:"created_at"`
+	LastActive    time.Time     `json:"last_active"`
+	Transport     TransportType `json:"transport"` // 传输类型
 }
 
 // ConnState 连接状态
 type ConnState string
 
 const (
-	ConnStateInit      ConnState = "init"
-	ConnStateConnecting ConnState = "connecting"
-	ConnStateConnected  ConnState = "connected"
+	ConnStateInit        ConnState = "init"
+	ConnStateConnecting  ConnState = "connecting"
+	ConnStateConnected   ConnState = "connected"
 	ConnStateEstablished ConnState = "established"
-	ConnStateError      ConnState = "error"
-	ConnStateClosed     ConnState = "closed"
+	ConnStateError       ConnState = "error"
+	ConnStateClosed      ConnState = "closed"
 )
 
 // TransportType 传输类型
@@ -71,48 +71,48 @@ type ConnStats struct {
 
 // QueuePair 队列对 (RDMA 核心资源)
 type QueuePair struct {
-	ID            uint32        `json:"id"`
-	State         QPState       `json:"state"`
-	Type          QPType        `json:"type"`
-	SendQueueSize int           `json:"send_queue_size"`
-	RecvQueueSize int           `json:"recv_queue_size"`
-	MaxSendWR     int           `json:"max_send_wr"`    // 最大发送工作请求
-	MaxRecvWR     int           `json:"max_recv_wr"`    // 最大接收工作请求
-	MaxSendSGE    int           `json:"max_send_sge"`   // 最大发送分散聚集元素
-	MaxRecvSGE    int           `json:"max_recv_sge"`   // 最大接收分散聚集元素
-	Stats         QPStats       `json:"stats"`
-	CreatedAt     time.Time     `json:"created_at"`
+	ID            uint32    `json:"id"`
+	State         QPState   `json:"state"`
+	Type          QPType    `json:"type"`
+	SendQueueSize int       `json:"send_queue_size"`
+	RecvQueueSize int       `json:"recv_queue_size"`
+	MaxSendWR     int       `json:"max_send_wr"`  // 最大发送工作请求
+	MaxRecvWR     int       `json:"max_recv_wr"`  // 最大接收工作请求
+	MaxSendSGE    int       `json:"max_send_sge"` // 最大发送分散聚集元素
+	MaxRecvSGE    int       `json:"max_recv_sge"` // 最大接收分散聚集元素
+	Stats         QPStats   `json:"stats"`
+	CreatedAt     time.Time `json:"created_at"`
 }
 
 // QPState 队列对状态
 type QPState string
 
 const (
-	QPStateReset   QPState = "reset"
-	QPStateInit    QPState = "init"
-	QPStateReady   QPState = "ready"
-	QPStateSend    QPState = "send"
-	QPStateError   QPState = "error"
+	QPStateReset QPState = "reset"
+	QPStateInit  QPState = "init"
+	QPStateReady QPState = "ready"
+	QPStateSend  QPState = "send"
+	QPStateError QPState = "error"
 )
 
 // QPType 队列对类型
 type QPType string
 
 const (
-	QPTypeRC  QPType = "rc"  // Reliable Connection
-	QPTypeUC  QPType = "uc"  // Unreliable Connection
-	QPTypeUD  QPType = "ud"  // Unreliable Datagram
+	QPTypeRC QPType = "rc" // Reliable Connection
+	QPTypeUC QPType = "uc" // Unreliable Connection
+	QPTypeUD QPType = "ud" // Unreliable Datagram
 )
 
 // QPStats 队列对统计
 type QPStats struct {
-	SendWRCount   int64   `json:"send_wr_count"`
-	RecvWRCount   int64   `json:"recv_wr_count"`
-	SendBytes     int64   `json:"send_bytes"`
-	RecvBytes     int64   `json:"recv_bytes"`
-	Completions   int64   `json:"completions"`
-	Errors        int64   `json:"errors"`
-	AvgLatency    float64 `json:"avg_latency_us"` // 微秒
+	SendWRCount int64   `json:"send_wr_count"`
+	RecvWRCount int64   `json:"recv_wr_count"`
+	SendBytes   int64   `json:"send_bytes"`
+	RecvBytes   int64   `json:"recv_bytes"`
+	Completions int64   `json:"completions"`
+	Errors      int64   `json:"errors"`
+	AvgLatency  float64 `json:"avg_latency_us"` // 微秒
 }
 
 // ========== 内存注册管理 ==========
@@ -123,8 +123,8 @@ type MemoryRegion struct {
 	Addr      uintptr       `json:"addr"`
 	Length    int           `json:"length"`
 	Access    MRAccessFlags `json:"access"`
-	LKey      uint32        `json:"lkey"`  // Local Key
-	RKey      uint32        `json:"rkey"`  // Remote Key
+	LKey      uint32        `json:"lkey"` // Local Key
+	RKey      uint32        `json:"rkey"` // Remote Key
 	State     MRState       `json:"state"`
 	RefCount  int32         `json:"ref_count"`
 	CreatedAt time.Time     `json:"created_at"`
@@ -134,11 +134,11 @@ type MemoryRegion struct {
 type MRAccessFlags int
 
 const (
-	MRAccessLocalWrite  MRAccessFlags = 0x01
-	MRAccessRemoteWrite MRAccessFlags = 0x02
-	MRAccessRemoteRead  MRAccessFlags = 0x04
+	MRAccessLocalWrite   MRAccessFlags = 0x01
+	MRAccessRemoteWrite  MRAccessFlags = 0x02
+	MRAccessRemoteRead   MRAccessFlags = 0x04
 	MRAccessRemoteAtomic MRAccessFlags = 0x08
-	MRAccessBind        MRAccessFlags = 0x10
+	MRAccessBind         MRAccessFlags = 0x10
 )
 
 // MRState 内存区域状态
@@ -154,45 +154,45 @@ const (
 
 // SMBDirectManager SMB Direct 管理器 (主入口)
 type SMBDirectManager struct {
-	mu              sync.RWMutex
-	config          *Config
-	connections     map[string]*RDMAConnection
-	queuePairs      map[uint32]*QueuePair
-	memoryRegions   map[uint64]*MemoryRegion
-	ports           []*RDMAPort
-	stats           *ManagerStats
-	ctx             context.Context
-	cancel          context.CancelFunc
-	wg              sync.WaitGroup
-	running         bool
-	fallbackTCP     bool               // 是否降级到 TCP
-	eventChan       chan Event
-	statusCache     *StatusCache
-	nextConnID      uint64
-	nextQPID        uint32
-	nextMRID        uint64
+	mu            sync.RWMutex
+	config        *Config
+	connections   map[string]*RDMAConnection
+	queuePairs    map[uint32]*QueuePair
+	memoryRegions map[uint64]*MemoryRegion
+	ports         []*RDMAPort
+	stats         *ManagerStats
+	ctx           context.Context
+	cancel        context.CancelFunc
+	wg            sync.WaitGroup
+	running       bool
+	fallbackTCP   bool // 是否降级到 TCP
+	eventChan     chan Event
+	statusCache   *StatusCache
+	nextConnID    uint64
+	nextQPID      uint32
+	nextMRID      uint64
 }
 
 // Config SMB Direct 配置
 type Config struct {
-	Enabled              bool          `json:"enabled"`
-	ListenAddr           string        `json:"listen_addr"`
-	MaxConnections       int           `json:"max_connections"`
-	MaxQueuePairs        int           `json:"max_queue_pairs"`
-	QPType               QPType        `json:"qp_type"`
-	SendQueueSize        int           `json:"send_queue_size"`
-	RecvQueueSize        int           `json:"recv_queue_size"`
-	MaxMRSize            int64         `json:"max_mr_size"`           // 最大内存注册大小
-	MRPoolSize           int           `json:"mr_pool_size"`          // 内存区域池大小
-	Transport            TransportType `json:"transport"`             // 首选传输类型
-	FallbackToTCP        bool          `json:"fallback_to_tcp"`       // RDMA 不可用时降级到 TCP
-	HealthCheckInterval  int           `json:"health_check_interval"` // 秒
-	StatsInterval        int           `json:"stats_interval"`        // 秒
-	MTU                  int           `json:"mtu"`
-	Timeout              time.Duration `json:"timeout"`
-	CompressionEnabled   bool          `json:"compression_enabled"`
-	EncryptionEnabled    bool          `json:"encryption_enabled"`
-	MaxInlineData        int           `json:"max_inline_data"`
+	Enabled             bool          `json:"enabled"`
+	ListenAddr          string        `json:"listen_addr"`
+	MaxConnections      int           `json:"max_connections"`
+	MaxQueuePairs       int           `json:"max_queue_pairs"`
+	QPType              QPType        `json:"qp_type"`
+	SendQueueSize       int           `json:"send_queue_size"`
+	RecvQueueSize       int           `json:"recv_queue_size"`
+	MaxMRSize           int64         `json:"max_mr_size"`           // 最大内存注册大小
+	MRPoolSize          int           `json:"mr_pool_size"`          // 内存区域池大小
+	Transport           TransportType `json:"transport"`             // 首选传输类型
+	FallbackToTCP       bool          `json:"fallback_to_tcp"`       // RDMA 不可用时降级到 TCP
+	HealthCheckInterval int           `json:"health_check_interval"` // 秒
+	StatsInterval       int           `json:"stats_interval"`        // 秒
+	MTU                 int           `json:"mtu"`
+	Timeout             time.Duration `json:"timeout"`
+	CompressionEnabled  bool          `json:"compression_enabled"`
+	EncryptionEnabled   bool          `json:"encryption_enabled"`
+	MaxInlineData       int           `json:"max_inline_data"`
 }
 
 // DefaultConfig 返回默认配置
@@ -221,13 +221,13 @@ func DefaultConfig() *Config {
 
 // RDMAPort RDMA 端口
 type RDMAPort struct {
-	ID        uint8         `json:"id"`
-	State     string        `json:"state"`
-	LID       uint16        `json:"lid"`
-	GIDPrefix string        `json:"gid_prefix"`
-	MTU       int           `json:"mtu"`
-	Speed     int64         `json:"speed"` // Gbps
-	Stats     PortStats     `json:"stats"`
+	ID        uint8     `json:"id"`
+	State     string    `json:"state"`
+	LID       uint16    `json:"lid"`
+	GIDPrefix string    `json:"gid_prefix"`
+	MTU       int       `json:"mtu"`
+	Speed     int64     `json:"speed"` // Gbps
+	Stats     PortStats `json:"stats"`
 }
 
 // PortStats 端口统计
@@ -271,18 +271,18 @@ type StatusCache struct {
 
 // Status 状态信息
 type Status struct {
-	State           string        `json:"state"`
-	Transport       TransportType `json:"transport"`
-	ActiveConns     int           `json:"active_connections"`
-	ActiveQPs       int           `json:"active_queue_pairs"`
-	ActiveMRs       int           `json:"active_memory_regions"`
-	ThroughputMBps  float64       `json:"throughput_mbps"`
-	AvgLatencyUs    float64       `json:"avg_latency_us"`
-	CurrentIOPS     int64         `json:"current_iops"`
-	FallbackActive  bool          `json:"fallback_active"`
-	RDMACapable     bool          `json:"rdma_capable"`
-	HealthStatus    string        `json:"health_status"`
-	Uptime          time.Duration `json:"uptime"`
+	State          string        `json:"state"`
+	Transport      TransportType `json:"transport"`
+	ActiveConns    int           `json:"active_connections"`
+	ActiveQPs      int           `json:"active_queue_pairs"`
+	ActiveMRs      int           `json:"active_memory_regions"`
+	ThroughputMBps float64       `json:"throughput_mbps"`
+	AvgLatencyUs   float64       `json:"avg_latency_us"`
+	CurrentIOPS    int64         `json:"current_iops"`
+	FallbackActive bool          `json:"fallback_active"`
+	RDMACapable    bool          `json:"rdma_capable"`
+	HealthStatus   string        `json:"health_status"`
+	Uptime         time.Duration `json:"uptime"`
 }
 
 // Event 事件
@@ -535,14 +535,14 @@ func (m *SMBDirectManager) CreateConnection(localAddr, remoteAddr string) (*RDMA
 
 	connID := fmt.Sprintf("conn-%d", atomic.AddUint64(&m.nextConnID, 1))
 	conn := &RDMAConnection{
-		ID:           connID,
-		LocalAddr:    localAddr,
-		RemoteAddr:   remoteAddr,
-		State:        ConnStateInit,
-		Transport:    m.config.Transport,
+		ID:            connID,
+		LocalAddr:     localAddr,
+		RemoteAddr:    remoteAddr,
+		State:         ConnStateInit,
+		Transport:     m.config.Transport,
 		MaxInlineData: m.config.MaxInlineData,
-		CreatedAt:    time.Now(),
-		LastActive:   time.Now(),
+		CreatedAt:     time.Now(),
+		LastActive:    time.Now(),
 	}
 
 	// 如果是 TCP 降级模式

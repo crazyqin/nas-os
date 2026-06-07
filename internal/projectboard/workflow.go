@@ -190,7 +190,7 @@ func (w *WorkflowEngine) executeActions(actions []string, card *Card) {
 			card.Progress = 100
 		case "clear_assignee":
 			card.AssigneeID = ""
-		// 更多动作可以扩展
+			// 更多动作可以扩展
 		}
 	}
 }

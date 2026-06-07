@@ -12,13 +12,13 @@ import (
 
 // Manager 智能备份策略管理器
 type Manager struct {
-	logger     *zap.Logger
-	policies   map[string]*BackupPolicy
-	executions map[string]*BackupExecution
-	targets    map[string]*BackupTarget
-	chains     map[string]*BackupChain
+	logger        *zap.Logger
+	policies      map[string]*BackupPolicy
+	executions    map[string]*BackupExecution
+	targets       map[string]*BackupTarget
+	chains        map[string]*BackupChain
 	verifications map[string]*VerificationResult
-	mu         sync.RWMutex
+	mu            sync.RWMutex
 }
 
 // NewManager 创建新的管理器实例

@@ -74,10 +74,10 @@ type FileEvent struct {
 
 // WatcherStats 监控统计.
 type WatcherStats struct {
-	TotalWatchers int64 `json:"total_watchers"` // 总监控器数
+	TotalWatchers  int64 `json:"total_watchers"`  // 总监控器数
 	ActiveWatchers int64 `json:"active_watchers"` // 活跃监控器数
-	TotalEvents   int64 `json:"total_events"`   // 总事件数
-	EventsToday   int64 `json:"events_today"`   // 今日事件数
+	TotalEvents    int64 `json:"total_events"`    // 总事件数
+	EventsToday    int64 `json:"events_today"`    // 今日事件数
 }
 
 // CreateWatcherRequest 创建监控器请求.

@@ -48,10 +48,10 @@ func newMockChecker(name string, status Status) *mockChecker {
 	}
 }
 
-func (c *mockChecker) Name() string              { return c.name }
-func (c *mockChecker) Category() CheckCategory    { return c.category }
-func (c *mockChecker) Description() string        { return c.description }
-func (c *mockChecker) HealAction() HealAction     { return c.healAction }
+func (c *mockChecker) Name() string            { return c.name }
+func (c *mockChecker) Category() CheckCategory { return c.category }
+func (c *mockChecker) Description() string     { return c.description }
+func (c *mockChecker) HealAction() HealAction  { return c.healAction }
 
 func (c *mockChecker) Check(ctx *CheckContext) *CheckResult {
 	c.checkCalled = true

@@ -37,23 +37,23 @@ type Element struct {
 
 // Style 元素样式.
 type Style struct {
-	StrokeColor   string  `json:"stroke_color,omitempty"`
-	StrokeWidth   float64 `json:"stroke_width,omitempty"`
-	FillColor     string  `json:"fill_color,omitempty"`
-	Opacity       float64 `json:"opacity,omitempty"`
-	FontSize      int     `json:"font_size,omitempty"`
-	FontFamily    string  `json:"font_family,omitempty"`
-	FontBold      bool    `json:"font_bold,omitempty"`
-	FontItalic    bool    `json:"font_italic,omitempty"`
-	BorderRadius  float64 `json:"border_radius,omitempty"`
-	DashPattern   []int   `json:"dash_pattern,omitempty"`
+	StrokeColor  string  `json:"stroke_color,omitempty"`
+	StrokeWidth  float64 `json:"stroke_width,omitempty"`
+	FillColor    string  `json:"fill_color,omitempty"`
+	Opacity      float64 `json:"opacity,omitempty"`
+	FontSize     int     `json:"font_size,omitempty"`
+	FontFamily   string  `json:"font_family,omitempty"`
+	FontBold     bool    `json:"font_bold,omitempty"`
+	FontItalic   bool    `json:"font_italic,omitempty"`
+	BorderRadius float64 `json:"border_radius,omitempty"`
+	DashPattern  []int   `json:"dash_pattern,omitempty"`
 }
 
 // Stroke 笔画.
 type Stroke struct {
-	Points    []Point `json:"points"`
-	Tool      string  `json:"tool"` // pen, pencil, highlighter, eraser
-	Style     Style   `json:"style"`
+	Points []Point `json:"points"`
+	Tool   string  `json:"tool"` // pen, pencil, highlighter, eraser
+	Style  Style   `json:"style"`
 }
 
 // Point 坐标点.
@@ -75,31 +75,31 @@ type Shape struct {
 
 // TextElement 文本元素.
 type TextElement struct {
-	Text      string  `json:"text"`
-	X         float64 `json:"x"`
-	Y         float64 `json:"y"`
-	Width     float64 `json:"width"`
-	Height    float64 `json:"height"`
-	Style     Style   `json:"style"`
+	Text   string  `json:"text"`
+	X      float64 `json:"x"`
+	Y      float64 `json:"y"`
+	Width  float64 `json:"width"`
+	Height float64 `json:"height"`
+	Style  Style   `json:"style"`
 }
 
 // ImageElement 图片元素.
 type ImageElement struct {
-	URL       string  `json:"url"`
-	X         float64 `json:"x"`
-	Y         float64 `json:"y"`
-	Width     float64 `json:"width"`
-	Height    float64 `json:"height"`
-	Alt       string  `json:"alt,omitempty"`
+	URL    string  `json:"url"`
+	X      float64 `json:"x"`
+	Y      float64 `json:"y"`
+	Width  float64 `json:"width"`
+	Height float64 `json:"height"`
+	Alt    string  `json:"alt,omitempty"`
 }
 
 // Cursor 协作者光标.
 type Cursor struct {
-	UserID    string  `json:"user_id"`
-	Username  string  `json:"username"`
-	X         float64 `json:"x"`
-	Y         float64 `json:"y"`
-	Color     string  `json:"color"`
+	UserID    string    `json:"user_id"`
+	Username  string    `json:"username"`
+	X         float64   `json:"x"`
+	Y         float64   `json:"y"`
+	Color     string    `json:"color"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
@@ -151,26 +151,26 @@ type UpdateBoardRequest struct {
 
 // AddElementRequest 添加元素请求.
 type AddElementRequest struct {
-	Type   string `json:"type" binding:"required"`
+	Type   string  `json:"type" binding:"required"`
 	X      float64 `json:"x"`
 	Y      float64 `json:"y"`
 	Width  float64 `json:"width,omitempty"`
 	Height float64 `json:"height,omitempty"`
-	Layer  int    `json:"layer,omitempty"`
-	Style  Style  `json:"style"`
+	Layer  int     `json:"layer,omitempty"`
+	Style  Style   `json:"style"`
 }
 
 // UpdateElementRequest 更新元素请求.
 type UpdateElementRequest struct {
-	X       *float64 `json:"x,omitempty"`
-	Y       *float64 `json:"y,omitempty"`
-	Width   *float64 `json:"width,omitempty"`
-	Height  *float64 `json:"height,omitempty"`
+	X        *float64 `json:"x,omitempty"`
+	Y        *float64 `json:"y,omitempty"`
+	Width    *float64 `json:"width,omitempty"`
+	Height   *float64 `json:"height,omitempty"`
 	Rotation *float64 `json:"rotation,omitempty"`
-	Layer   *int     `json:"layer,omitempty"`
-	Visible *bool    `json:"visible,omitempty"`
-	Locked  *bool    `json:"locked,omitempty"`
-	Style   *Style   `json:"style,omitempty"`
+	Layer    *int     `json:"layer,omitempty"`
+	Visible  *bool    `json:"visible,omitempty"`
+	Locked   *bool    `json:"locked,omitempty"`
+	Style    *Style   `json:"style,omitempty"`
 }
 
 // MoveElementRequest 移动元素请求.
@@ -210,10 +210,10 @@ type ExportResult struct {
 
 // Collaborator 协作者.
 type Collaborator struct {
-	UserID   string `json:"user_id"`
-	Username string `json:"username"`
-	Role     string `json:"role"` // owner, editor, viewer
-	Color    string `json:"color"`
+	UserID   string    `json:"user_id"`
+	Username string    `json:"username"`
+	Role     string    `json:"role"` // owner, editor, viewer
+	Color    string    `json:"color"`
 	JoinedAt time.Time `json:"joined_at"`
 }
 

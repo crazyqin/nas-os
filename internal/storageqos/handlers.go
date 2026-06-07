@@ -11,11 +11,11 @@ import (
 // QoSHandler 存储QoS HTTP处理器
 // 提供完整的REST API用于管理QoS策略、监控指标、违规记录和IO限制
 type QoSHandler struct {
-	manager     *QoSManager
-	collector   *MetricsCollector
-	detector    *ViolationDetector
-	controller  *IOController
-	targetMgr   *TargetManager
+	manager    *QoSManager
+	collector  *MetricsCollector
+	detector   *ViolationDetector
+	controller *IOController
+	targetMgr  *TargetManager
 }
 
 // NewQoSHandler 创建处理器
@@ -504,13 +504,13 @@ func (h *QoSHandler) handleStats(w http.ResponseWriter, r *http.Request) {
 	limits := h.controller.ListIOLimits()
 
 	stats := map[string]interface{}{
-		"total_policies":       len(policies),
-		"enabled_policies":     len(enabledPolicies),
-		"total_violations":     len(violations),
+		"total_policies":        len(policies),
+		"enabled_policies":      len(enabledPolicies),
+		"total_violations":      len(violations),
 		"unresolved_violations": len(unresolvedViolations),
-		"monitored_targets":    len(allMetrics),
-		"active_limits":        len(limits),
-		"metrics":              allMetrics,
+		"monitored_targets":     len(allMetrics),
+		"active_limits":         len(limits),
+		"metrics":               allMetrics,
 	}
 
 	writeJSON(w, map[string]interface{}{
@@ -661,11 +661,11 @@ func (h *QoSHandler) handleHealth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	health := map[string]interface{}{
-		"status":              status,
-		"timestamp":            time.Now(),
-		"monitored_targets":    len(allMetrics),
+		"status":                status,
+		"timestamp":             time.Now(),
+		"monitored_targets":     len(allMetrics),
 		"unresolved_violations": len(unresolvedViolations),
-		"active_limits":        len(h.controller.ListIOLimits()),
+		"active_limits":         len(h.controller.ListIOLimits()),
 	}
 
 	writeJSON(w, map[string]interface{}{

@@ -9,11 +9,11 @@ import (
 
 // Manager RDMA 优化器管理器
 type Manager struct {
-	mu       sync.RWMutex
-	links    map[string]*RDMALink
-	paths    map[string]*RDMAPath
-	config   CongestionConfig
-	stats    OptimizerStats
+	mu     sync.RWMutex
+	links  map[string]*RDMALink
+	paths  map[string]*RDMAPath
+	config CongestionConfig
+	stats  OptimizerStats
 }
 
 // NewManager 创建 RDMA 优化器管理器

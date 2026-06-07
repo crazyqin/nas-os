@@ -41,12 +41,12 @@ type ActivityEvent struct {
 
 // WatchDir 监控目录
 type WatchDir struct {
-	ID         string    `json:"id"`
-	Path       string    `json:"path"`
-	Recursive  bool      `json:"recursive"`
-	FileTypes  []string  `json:"file_types,omitempty"` // 过滤的文件扩展名，如 [".txt", ".go"]
-	Enabled    bool      `json:"enabled"`
-	CreatedAt  time.Time `json:"created_at"`
+	ID        string    `json:"id"`
+	Path      string    `json:"path"`
+	Recursive bool      `json:"recursive"`
+	FileTypes []string  `json:"file_types,omitempty"` // 过滤的文件扩展名，如 [".txt", ".go"]
+	Enabled   bool      `json:"enabled"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // AlertRule 告警规则
@@ -54,10 +54,10 @@ type AlertRule struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
 	Enabled     bool          `json:"enabled"`
-	Threshold   int           `json:"threshold"`    // 阈值：触发告警的操作次数
-	WindowSec   int           `json:"window_sec"`   // 时间窗口（秒）
+	Threshold   int           `json:"threshold"`  // 阈值：触发告警的操作次数
+	WindowSec   int           `json:"window_sec"` // 时间窗口（秒）
 	Severity    AlertSeverity `json:"severity"`
-	EventTypes  []EventType   `json:"event_types"`  // 监控的事件类型
+	EventTypes  []EventType   `json:"event_types"`             // 监控的事件类型
 	WatchDirIDs []string      `json:"watch_dir_ids,omitempty"` // 关联的监控目录，空则全部
 	CreatedAt   time.Time     `json:"created_at"`
 	UpdatedAt   time.Time     `json:"updated_at"`

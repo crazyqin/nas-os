@@ -8,15 +8,15 @@ func TestDataSovereigntyManager_CreatePolicy(t *testing.T) {
 	dsm := NewDataSovereigntyManager(nil)
 
 	policy := &DataPolicy{
-		ID:          "policy-1",
-		Name:        "GDPR Compliance",
-		Description: "GDPR data protection policy",
-		AllowedRegions: []Region{RegionEU, RegionLocal},
-		BlockedRegions: []Region{RegionUS},
-		Frameworks:     []ComplianceFramework{FrameworkGDPR},
-		Classification: DataClassification("pii"),
+		ID:                 "policy-1",
+		Name:               "GDPR Compliance",
+		Description:        "GDPR data protection policy",
+		AllowedRegions:     []Region{RegionEU, RegionLocal},
+		BlockedRegions:     []Region{RegionUS},
+		Frameworks:         []ComplianceFramework{FrameworkGDPR},
+		Classification:     DataClassification("pii"),
 		EncryptionRequired: true,
-		Enabled:     true,
+		Enabled:            true,
 	}
 
 	err := dsm.CreatePolicy(policy)
@@ -36,9 +36,9 @@ func TestDataSovereigntyManager_RegisterAsset(t *testing.T) {
 
 	// 先创建策略
 	policy := &DataPolicy{
-		ID:          "policy-1",
-		Name:        "Test Policy",
-		Enabled:     true,
+		ID:                 "policy-1",
+		Name:               "Test Policy",
+		Enabled:            true,
 		EncryptionRequired: false,
 	}
 	dsm.CreatePolicy(policy)
@@ -79,11 +79,11 @@ func TestDataSovereigntyManager_TransferRequest(t *testing.T) {
 
 	// 创建策略和资产
 	policy := &DataPolicy{
-		ID:              "policy-1",
-		Name:            "EU Only",
-		AllowedRegions:  []Region{RegionEU, RegionLocal},
-		BlockedRegions:  []Region{RegionUS},
-		Enabled:         true,
+		ID:             "policy-1",
+		Name:           "EU Only",
+		AllowedRegions: []Region{RegionEU, RegionLocal},
+		BlockedRegions: []Region{RegionUS},
+		Enabled:        true,
 	}
 	dsm.CreatePolicy(policy)
 
@@ -133,12 +133,12 @@ func TestDataSovereigntyManager_ComplianceAudit(t *testing.T) {
 
 	// 注册合规资产
 	dsm.RegisterAsset(&DataAsset{
-		ID:             "asset-1",
-		Name:           "compliant-data",
-		CurrentRegion:  RegionEU,
-		PolicyID:       "policy-gdpr",
-		Encrypted:      true,
-		Compliant:      true,
+		ID:            "asset-1",
+		Name:          "compliant-data",
+		CurrentRegion: RegionEU,
+		PolicyID:      "policy-gdpr",
+		Encrypted:     true,
+		Compliant:     true,
 	})
 
 	// 运行审计

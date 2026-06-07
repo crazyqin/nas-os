@@ -8,24 +8,24 @@ import (
 
 // Scheduler 定期扫描调度器.
 type Scheduler struct {
-	mu       sync.Mutex
-	manager  *Manager
-	tasks    []ScheduledTask
-	stopCh   chan struct{}
-	running  bool
+	mu      sync.Mutex
+	manager *Manager
+	tasks   []ScheduledTask
+	stopCh  chan struct{}
+	running bool
 }
 
 // ScheduledTask 定期扫描任务.
 type ScheduledTask struct {
-	ID         string        `json:"id"`          // 任务ID
-	Name       string        `json:"name"`        // 任务名称
-	ScanType   ScanType      `json:"scan_type"`   // 扫描类型
-	Targets    []string      `json:"targets"`     // 扫描目标列表
-	PolicyID   string        `json:"policy_id"`   // 使用的策略ID
-	Interval   time.Duration `json:"interval"`    // 扫描间隔
-	Enabled    bool          `json:"enabled"`     // 是否启用
-	LastRun    time.Time     `json:"last_run"`    // 上次运行时间
-	NextRun    time.Time     `json:"next_run"`    // 下次运行时间
+	ID       string        `json:"id"`        // 任务ID
+	Name     string        `json:"name"`      // 任务名称
+	ScanType ScanType      `json:"scan_type"` // 扫描类型
+	Targets  []string      `json:"targets"`   // 扫描目标列表
+	PolicyID string        `json:"policy_id"` // 使用的策略ID
+	Interval time.Duration `json:"interval"`  // 扫描间隔
+	Enabled  bool          `json:"enabled"`   // 是否启用
+	LastRun  time.Time     `json:"last_run"`  // 上次运行时间
+	NextRun  time.Time     `json:"next_run"`  // 下次运行时间
 }
 
 // NewScheduler 创建定期扫描调度器.

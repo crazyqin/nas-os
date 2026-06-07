@@ -10,13 +10,13 @@ import (
 
 // TierCostConfig 存储层成本配置（每月每TB的价格）.
 type TierCostConfig struct {
-	TierType      TierType `json:"tierType"`
-	CostPerTBMonth float64 `json:"costPerTbMonth"` // 月费（美元/TB）
-	ReadIOPS      int      `json:"readIops"`       // 读IOPS
-	WriteIOPS     int      `json:"writeIops"`      // 写IOPS
-	ReadLatencyMs float64  `json:"readLatencyMs"`  // 读延迟(ms)
-	WriteLatencyMs float64 `json:"writeLatencyMs"` // 写延迟(ms)
-	BandwidthMBps  float64 `json:"bandwidthMbps"`  // 带宽(MB/s)
+	TierType       TierType `json:"tierType"`
+	CostPerTBMonth float64  `json:"costPerTbMonth"` // 月费（美元/TB）
+	ReadIOPS       int      `json:"readIops"`       // 读IOPS
+	WriteIOPS      int      `json:"writeIops"`      // 写IOPS
+	ReadLatencyMs  float64  `json:"readLatencyMs"`  // 读延迟(ms)
+	WriteLatencyMs float64  `json:"writeLatencyMs"` // 写延迟(ms)
+	BandwidthMBps  float64  `json:"bandwidthMbps"`  // 带宽(MB/s)
 }
 
 // DefaultTierCosts 默认存储层成本配置.
@@ -54,27 +54,27 @@ var DefaultTierCosts = map[TierType]*TierCostConfig{
 
 // TieringEffectReport 分层效果报告.
 type TieringEffectReport struct {
-	GeneratedAt   time.Time              `json:"generatedAt"`
-	Period        string                 `json:"period"` // daily/weekly/monthly
+	GeneratedAt time.Time `json:"generatedAt"`
+	Period      string    `json:"period"` // daily/weekly/monthly
 
 	// 当前状态
-	CurrentState  *TieringStateSnapshot  `json:"currentState"`
+	CurrentState *TieringStateSnapshot `json:"currentState"`
 
 	// 分层前（模拟）vs 分层后
-	BeforeTiering *PerformanceSnapshot   `json:"beforeTiering"`
-	AfterTiering  *PerformanceSnapshot   `json:"afterTiering"`
+	BeforeTiering *PerformanceSnapshot `json:"beforeTiering"`
+	AfterTiering  *PerformanceSnapshot `json:"afterTiering"`
 
 	// 改进指标
-	Improvements  *PerformanceImprovement `json:"improvements"`
+	Improvements *PerformanceImprovement `json:"improvements"`
 
 	// 成本对比
-	CostComparison *CostComparison        `json:"costComparison"`
+	CostComparison *CostComparison `json:"costComparison"`
 
 	// 迁移统计
-	MigrationStats *MigrationSummary     `json:"migrationStats"`
+	MigrationStats *MigrationSummary `json:"migrationStats"`
 
 	// 建议
-	Recommendations []string              `json:"recommendations"`
+	Recommendations []string `json:"recommendations"`
 }
 
 // TieringStateSnapshot 分层状态快照.
@@ -106,10 +106,10 @@ type PerformanceSnapshot struct {
 
 // PerformanceImprovement 性能改进指标.
 type PerformanceImprovement struct {
-	LatencyReduction   float64 `json:"latencyReduction"`   // 延迟降低百分比
-	IOPSImprovement    float64 `json:"iopsImprovement"`    // IOPS提升百分比
-	BandwidthChange    float64 `json:"bandwidthChange"`    // 带宽变化百分比
-	SSDHitRateChange   float64 `json:"ssdHitRateChange"`   // SSD命中率变化
+	LatencyReduction float64 `json:"latencyReduction"` // 延迟降低百分比
+	IOPSImprovement  float64 `json:"iopsImprovement"`  // IOPS提升百分比
+	BandwidthChange  float64 `json:"bandwidthChange"`  // 带宽变化百分比
+	SSDHitRateChange float64 `json:"ssdHitRateChange"` // SSD命中率变化
 }
 
 // CostComparison 成本对比.
@@ -123,11 +123,11 @@ type CostComparison struct {
 
 // MigrationSummary 迁移摘要.
 type MigrationSummary struct {
-	TotalMigrations int   `json:"totalMigrations"` // 总迁移次数
-	FilesMigrated   int   `json:"filesMigrated"`   // 已迁移文件数
-	BytesMigrated   int64 `json:"bytesMigrated"`   // 已迁移字节数
-	FailedMigrations int  `json:"failedMigrations"` // 失败迁移数
-	ActiveTasks     int   `json:"activeTasks"`      // 活跃任务数
+	TotalMigrations  int   `json:"totalMigrations"`  // 总迁移次数
+	FilesMigrated    int   `json:"filesMigrated"`    // 已迁移文件数
+	BytesMigrated    int64 `json:"bytesMigrated"`    // 已迁移字节数
+	FailedMigrations int   `json:"failedMigrations"` // 失败迁移数
+	ActiveTasks      int   `json:"activeTasks"`      // 活跃任务数
 }
 
 // ROIReport ROI（投资回报率）报告.
@@ -135,19 +135,19 @@ type ROIReport struct {
 	GeneratedAt time.Time `json:"generatedAt"`
 
 	// 投资成本（管理、监控、迁移开销）
-	ManagementCostMonth  float64 `json:"managementCostMonth"`  // 月管理成本
-	MigrationCostTotal   float64 `json:"migrationCostTotal"`   // 迁移总成本（一次性）
-	MonitoringCostMonth  float64 `json:"monitoringCostMonth"`  // 月监控成本
+	ManagementCostMonth float64 `json:"managementCostMonth"` // 月管理成本
+	MigrationCostTotal  float64 `json:"migrationCostTotal"`  // 迁移总成本（一次性）
+	MonitoringCostMonth float64 `json:"monitoringCostMonth"` // 月监控成本
 
 	// 收益
 	MonthlySavings       float64 `json:"monthlySavings"`       // 月节省
 	PerformanceGainValue float64 `json:"performanceGainValue"` // 性能提升价值估算
 
 	// ROI 指标
-	TotalInvestment      float64 `json:"totalInvestment"`      // 总投入（12个月）
-	TotalReturn          float64 `json:"totalReturn"`          // 总回报（12个月）
-	ROIPercent           float64 `json:"roiPercent"`           // ROI百分比
-	PaybackPeriodMonths  float64 `json:"paybackPeriodMonths"`  // 回本周期（月）
+	TotalInvestment     float64 `json:"totalInvestment"`     // 总投入（12个月）
+	TotalReturn         float64 `json:"totalReturn"`         // 总回报（12个月）
+	ROIPercent          float64 `json:"roiPercent"`          // ROI百分比
+	PaybackPeriodMonths float64 `json:"paybackPeriodMonths"` // 回本周期（月）
 }
 
 // ==================== CostAnalyzer ====================
@@ -221,8 +221,8 @@ func (a *CostAnalyzer) EstimateMigrationCost(totalBytes int64, estimatedTime tim
 	}
 
 	// 性能影响估算
-	cost.EstimatedIOPSChange = 15.0  // 分层后IOPS通常提升15%左右
-	cost.EstimatedLatencyMs = -2.5   // 延迟通常降低
+	cost.EstimatedIOPSChange = 15.0 // 分层后IOPS通常提升15%左右
+	cost.EstimatedLatencyMs = -2.5  // 延迟通常降低
 
 	return cost
 }
@@ -263,9 +263,9 @@ func (a *CostAnalyzer) GenerateROIReport() *ROIReport {
 	}
 
 	// 投资成本
-	report.ManagementCostMonth = 5.0   // 管理开销估计
-	report.MigrationCostTotal = 10.0   // 迁移一次性开销
-	report.MonitoringCostMonth = 2.0   // 监控开销
+	report.ManagementCostMonth = 5.0 // 管理开销估计
+	report.MigrationCostTotal = 10.0 // 迁移一次性开销
+	report.MonitoringCostMonth = 2.0 // 监控开销
 
 	// 收益
 	costComp := a.generateCostComparison()
@@ -273,7 +273,7 @@ func (a *CostAnalyzer) GenerateROIReport() *ROIReport {
 	report.PerformanceGainValue = 20.0 // 性能提升价值估算
 
 	// ROI 计算
-	totalInvestmentYear := (report.ManagementCostMonth + report.MonitoringCostMonth) * 12 + report.MigrationCostTotal
+	totalInvestmentYear := (report.ManagementCostMonth+report.MonitoringCostMonth)*12 + report.MigrationCostTotal
 	totalReturnYear := (report.MonthlySavings + report.PerformanceGainValue) * 12
 
 	report.TotalInvestment = totalInvestmentYear

@@ -43,27 +43,27 @@ func DefaultAnomalyThreshold() AnomalyThreshold {
 
 // Anomaly 异常行为.
 type Anomaly struct {
-	ID          string    `json:"id"`
-	Type        string    `json:"type"`
-	Severity    Severity  `json:"severity"`
-	UserID      string    `json:"user_id"`
-	Description string    `json:"description"`
+	ID          string        `json:"id"`
+	Type        string        `json:"type"`
+	Severity    Severity      `json:"severity"`
+	UserID      string        `json:"user_id"`
+	Description string        `json:"description"`
 	Events      []*AuditEvent `json:"events"`
-	DetectedAt  time.Time `json:"detected_at"`
-	RiskScore   float64   `json:"risk_score"`
+	DetectedAt  time.Time     `json:"detected_at"`
+	RiskScore   float64       `json:"risk_score"`
 }
 
 // AccessPattern 访问模式.
 type AccessPattern struct {
-	UserID        string            `json:"user_id"`
-	TotalEvents   int               `json:"total_events"`
-	ByAction      map[string]int    `json:"by_action"`
-	ByResource    map[string]int    `json:"by_resource"`
-	ByHour        map[int]int       `json:"by_hour"`
-	ByResult      map[string]int    `json:"by_result"`
-	FirstSeen     time.Time         `json:"first_seen"`
-	LastSeen      time.Time         `json:"last_seen"`
-	AvgEventsPerDay float64         `json:"avg_events_per_day"`
+	UserID          string         `json:"user_id"`
+	TotalEvents     int            `json:"total_events"`
+	ByAction        map[string]int `json:"by_action"`
+	ByResource      map[string]int `json:"by_resource"`
+	ByHour          map[int]int    `json:"by_hour"`
+	ByResult        map[string]int `json:"by_result"`
+	FirstSeen       time.Time      `json:"first_seen"`
+	LastSeen        time.Time      `json:"last_seen"`
+	AvgEventsPerDay float64        `json:"avg_events_per_day"`
 }
 
 // NewAnalyzer 创建分析器.

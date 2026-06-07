@@ -23,12 +23,12 @@ const (
 
 // QueueConfig 队列配置
 type QueueConfig struct {
-	MaxConcurrent   int           `json:"maxConcurrent"`   // 最大并发数，默认 2
-	MaxRetries      int           `json:"maxRetries"`      // 最大重试次数，默认 3
-	RetryDelay      time.Duration `json:"retryDelay"`      // 重试延迟
-	TaskTimeout     time.Duration `json:"taskTimeout"`     // 单任务超时
-	OutputDir       string        `json:"outputDir"`       // 输出目录
-	SaveProgress    bool          `json:"saveProgress"`    // 是否保存进度
+	MaxConcurrent int           `json:"maxConcurrent"` // 最大并发数，默认 2
+	MaxRetries    int           `json:"maxRetries"`    // 最大重试次数，默认 3
+	RetryDelay    time.Duration `json:"retryDelay"`    // 重试延迟
+	TaskTimeout   time.Duration `json:"taskTimeout"`   // 单任务超时
+	OutputDir     string        `json:"outputDir"`     // 输出目录
+	SaveProgress  bool          `json:"saveProgress"`  // 是否保存进度
 }
 
 // DefaultQueueConfig 默认队列配置
@@ -48,19 +48,19 @@ type TaskProcessor func(ctx context.Context, task *PhotoTask) (*ProcessResult, e
 
 // Queue 批量处理队列
 type Queue struct {
-	mu          sync.RWMutex
-	tasks       map[string]*PhotoTask
-	queue       []*PhotoTask // 等待队列（按优先级排序）
-	state       QueueState
-	config      *QueueConfig
-	processors  map[TaskType]TaskProcessor
-	dataDir     string
-	ctx         context.Context
-	cancel      context.CancelFunc
-	wg          sync.WaitGroup
-	notifyChan  chan *PhotoTask
-	onComplete  func(task *PhotoTask, result *ProcessResult)
-	onProgress  func(task *PhotoTask, progress float64)
+	mu         sync.RWMutex
+	tasks      map[string]*PhotoTask
+	queue      []*PhotoTask // 等待队列（按优先级排序）
+	state      QueueState
+	config     *QueueConfig
+	processors map[TaskType]TaskProcessor
+	dataDir    string
+	ctx        context.Context
+	cancel     context.CancelFunc
+	wg         sync.WaitGroup
+	notifyChan chan *PhotoTask
+	onComplete func(task *PhotoTask, result *ProcessResult)
+	onProgress func(task *PhotoTask, progress float64)
 }
 
 // NewQueue 创建批量处理队列

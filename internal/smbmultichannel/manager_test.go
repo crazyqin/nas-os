@@ -31,9 +31,9 @@ func TestUpdateConfig(t *testing.T) {
 	maxCh := 8
 	minSpd := 2500
 	cfg, err := m.UpdateConfig(UpdateConfigRequest{
-		Enabled:     &enabled,
-		MaxChannels: &maxCh,
-		MinSpeed:    &minSpd,
+		Enabled:        &enabled,
+		MaxChannels:    &maxCh,
+		MinSpeed:       &minSpd,
 		InterfaceNames: []string{"eth0", "eth1"},
 	})
 	if err != nil {

@@ -55,9 +55,9 @@ func TestAlerts(t *testing.T) {
 	widget := NewNetdataWidget(tmpDir, 100)
 
 	widget.AddWidget(&DashboardWidget{
-		ID:    "cpu-alert",
-		Title: "CPU Alert",
-		Type:  "gauge",
+		ID:      "cpu-alert",
+		Title:   "CPU Alert",
+		Type:    "gauge",
 		Metrics: []string{"system.cpu"},
 		Thresholds: []Threshold{
 			{Value: 90, Level: AlertCritical, Color: "#f44336"},

@@ -14,14 +14,14 @@ import (
 
 // VaultEntry represents a vault entry
 type VaultEntry struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Category    string    `json:"category"`
-	EncryptedData string  `json:"encrypted_data"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
-	Tags        []string  `json:"tags,omitempty"`
+	ID            string     `json:"id"`
+	Name          string     `json:"name"`
+	Category      string     `json:"category"`
+	EncryptedData string     `json:"encrypted_data"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
+	ExpiresAt     *time.Time `json:"expires_at,omitempty"`
+	Tags          []string   `json:"tags,omitempty"`
 }
 
 // VaultConfig defines vault configuration
@@ -35,12 +35,12 @@ type VaultConfig struct {
 // SecureVault provides encrypted storage for sensitive data
 // Inspired by Synology encrypted shared folders
 type SecureVault struct {
-	mu          sync.RWMutex
-	entries     map[string]*VaultEntry
-	config      VaultConfig
-	masterKey   []byte
-	locked      bool
-	lastAccess  time.Time
+	mu         sync.RWMutex
+	entries    map[string]*VaultEntry
+	config     VaultConfig
+	masterKey  []byte
+	locked     bool
+	lastAccess time.Time
 }
 
 // NewSecureVault creates a new SecureVault instance

@@ -14,47 +14,47 @@ import (
 
 // Manager 智能相册管理器
 type Manager struct {
-	mu       sync.RWMutex
-	photos   map[string]*Photo
-	albums   map[string]*PhotoGallery
-	persons  map[string]*Person
-	faces    map[string]*Face
-	scenes   map[string]*Scene
-	tags     map[string]*SmartTag
-	dupes    map[string]*DuplicateGroup
-	imports  map[string]*ImportJob
+	mu      sync.RWMutex
+	photos  map[string]*Photo
+	albums  map[string]*PhotoGallery
+	persons map[string]*Person
+	faces   map[string]*Face
+	scenes  map[string]*Scene
+	tags    map[string]*SmartTag
+	dupes   map[string]*DuplicateGroup
+	imports map[string]*ImportJob
 }
 
 // ImportJob 导入任务
 type ImportJob struct {
-	ID         string    `json:"id"`
-	Source     string    `json:"source"`     // local, url, upload
-	Path       string    `json:"path"`
-	Status     string    `json:"status"`     // pending, running, completed, failed
-	TotalFiles int       `json:"total_files"`
-	Imported   int       `json:"imported"`
-	Skipped    int       `json:"skipped"`
-	Failed     int       `json:"failed"`
-	Error      string    `json:"error,omitempty"`
-	StartedAt  time.Time `json:"started_at"`
+	ID         string     `json:"id"`
+	Source     string     `json:"source"` // local, url, upload
+	Path       string     `json:"path"`
+	Status     string     `json:"status"` // pending, running, completed, failed
+	TotalFiles int        `json:"total_files"`
+	Imported   int        `json:"imported"`
+	Skipped    int        `json:"skipped"`
+	Failed     int        `json:"failed"`
+	Error      string     `json:"error,omitempty"`
+	StartedAt  time.Time  `json:"started_at"`
 	FinishedAt *time.Time `json:"finished_at,omitempty"`
 }
 
 // GalleryStats 相册统计
 type GalleryStats struct {
-	TotalPhotos    int     `json:"total_photos"`
-	TotalAlbums    int     `json:"total_albums"`
-	TotalPersons   int     `json:"total_persons"`
-	TotalFaces     int     `json:"total_faces"`
-	TotalScenes    int     `json:"total_scenes"`
-	TotalTags      int     `json:"total_tags"`
-	TotalDuplicates int    `json:"total_duplicates"`
-	FavoriteCount  int     `json:"favorite_count"`
-	HiddenCount    int     `json:"hidden_count"`
-	TotalSize      int64   `json:"total_size"`
+	TotalPhotos     int            `json:"total_photos"`
+	TotalAlbums     int            `json:"total_albums"`
+	TotalPersons    int            `json:"total_persons"`
+	TotalFaces      int            `json:"total_faces"`
+	TotalScenes     int            `json:"total_scenes"`
+	TotalTags       int            `json:"total_tags"`
+	TotalDuplicates int            `json:"total_duplicates"`
+	FavoriteCount   int            `json:"favorite_count"`
+	HiddenCount     int            `json:"hidden_count"`
+	TotalSize       int64          `json:"total_size"`
 	ScenesBreakdown map[string]int `json:"scenes_breakdown"`
-	TopPersons     []PersonStat    `json:"top_persons"`
-	ImportJobs     int     `json:"import_jobs"`
+	TopPersons      []PersonStat   `json:"top_persons"`
+	ImportJobs      int            `json:"import_jobs"`
 }
 
 // PersonStat 人物统计
@@ -652,8 +652,8 @@ func (m *Manager) ClusterFaces() ([]Person, error) {
 		for j := 0; j < person.PhotoCount; j++ {
 			faceID := generateID()
 			face := &Face{
-				ID:       faceID,
-				PersonID: person.ID,
+				ID:         faceID,
+				PersonID:   person.ID,
 				PersonName: person.Name,
 				BoundingBox: BoundingBox{
 					X:      100 + j*50,

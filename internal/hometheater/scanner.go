@@ -37,41 +37,41 @@ type IMDBClient struct {
 
 // TMDBMovieResult TMDB电影搜索结果.
 type TMDBMovieResult struct {
-	ID            int     `json:"id"`
-	Title         string  `json:"title"`
-	OriginalTitle string  `json:"original_title"`
-	Year          int     `json:"year"`
-	Rating        float64 `json:"rating"`
-	VoteCount     int     `json:"vote_count"`
-	Overview      string  `json:"overview"`
+	ID            int      `json:"id"`
+	Title         string   `json:"title"`
+	OriginalTitle string   `json:"original_title"`
+	Year          int      `json:"year"`
+	Rating        float64  `json:"rating"`
+	VoteCount     int      `json:"vote_count"`
+	Overview      string   `json:"overview"`
 	Genres        []string `json:"genres"`
-	PosterPath    string  `json:"poster_path"`
-	BackdropPath  string  `json:"backdrop_path"`
-	ReleaseDate   string  `json:"release_date"`
-	Runtime       int     `json:"runtime"`
+	PosterPath    string   `json:"poster_path"`
+	BackdropPath  string   `json:"backdrop_path"`
+	ReleaseDate   string   `json:"release_date"`
+	Runtime       int      `json:"runtime"`
 	Directors     []string `json:"directors"`
 	Cast          []string `json:"cast"`
-	IMDBID        string  `json:"imdb_id"`
+	IMDBID        string   `json:"imdb_id"`
 }
 
 // TMDBTVShowResult TMDB剧集搜索结果.
 type TMDBTVShowResult struct {
-	ID            int     `json:"id"`
-	Name          string  `json:"name"`
-	OriginalName  string  `json:"original_name"`
-	Year          int     `json:"year"`
-	Rating        float64 `json:"rating"`
-	VoteCount     int     `json:"vote_count"`
-	Overview      string  `json:"overview"`
-	Genres        []string `json:"genres"`
-	PosterPath    string  `json:"poster_path"`
-	BackdropPath  string  `json:"backdrop_path"`
-	FirstAirDate  string  `json:"first_air_date"`
-	Network       string  `json:"network"`
-	Status        string  `json:"status"`
-	SeasonCount   int     `json:"season_count"`
-	EpisodeCount  int     `json:"episode_count"`
-	IMDBID        string  `json:"imdb_id"`
+	ID           int      `json:"id"`
+	Name         string   `json:"name"`
+	OriginalName string   `json:"original_name"`
+	Year         int      `json:"year"`
+	Rating       float64  `json:"rating"`
+	VoteCount    int      `json:"vote_count"`
+	Overview     string   `json:"overview"`
+	Genres       []string `json:"genres"`
+	PosterPath   string   `json:"poster_path"`
+	BackdropPath string   `json:"backdrop_path"`
+	FirstAirDate string   `json:"first_air_date"`
+	Network      string   `json:"network"`
+	Status       string   `json:"status"`
+	SeasonCount  int      `json:"season_count"`
+	EpisodeCount int      `json:"episode_count"`
+	IMDBID       string   `json:"imdb_id"`
 }
 
 // SubtitleInfo 字幕信息.
@@ -467,15 +467,15 @@ func extractLanguage(filePath, baseName string) string {
 
 	// 语言代码映射
 	langMap := map[string]string{
-		"zh":    "zh",
-		"chs":   "zh",
-		"cht":   "zh-TW",
-		"en":    "en",
-		"eng":   "en",
-		"ja":    "ja",
-		"jpn":   "ja",
-		"ko":    "ko",
-		"kor":   "ko",
+		"zh":  "zh",
+		"chs": "zh",
+		"cht": "zh-TW",
+		"en":  "en",
+		"eng": "en",
+		"ja":  "ja",
+		"jpn": "ja",
+		"ko":  "ko",
+		"kor": "ko",
 	}
 
 	if lang, ok := langMap[strings.ToLower(remaining)]; ok {

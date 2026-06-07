@@ -14,26 +14,26 @@ import (
 // TimeSlot 时间槽 - 用于描述周期性的时间窗口
 type TimeSlot struct {
 	DayOfWeek time.Weekday `json:"day_of_week"` // 星期几 (0=周日)
-	StartHour int         `json:"start_hour"`   // 开始小时 (0-23)
-	EndHour   int         `json:"end_hour"`     // 结束小时 (0-23)
-	Label     string      `json:"label"`        // 标签（如"工作日白天"）
+	StartHour int          `json:"start_hour"`  // 开始小时 (0-23)
+	EndHour   int          `json:"end_hour"`    // 结束小时 (0-23)
+	Label     string       `json:"label"`       // 标签（如"工作日白天"）
 }
 
 // SleepSchedule 休眠调度表 - 工作日/周末差异化策略
 type SleepSchedule struct {
-	WorkdayPolicyID  string `json:"workday_policy_id"`  // 工作日使用的策略ID
-	WeekendPolicyID  string `json:"weekend_policy_id"`  // 周末使用的策略ID
-	HolidayPolicyID  string `json:"holiday_policy_id"`  // 节假日使用的策略ID
-	Enabled          bool   `json:"enabled"`
+	WorkdayPolicyID string `json:"workday_policy_id"` // 工作日使用的策略ID
+	WeekendPolicyID string `json:"weekend_policy_id"` // 周末使用的策略ID
+	HolidayPolicyID string `json:"holiday_policy_id"` // 节假日使用的策略ID
+	Enabled         bool   `json:"enabled"`
 }
 
 // ==================== 访问模式学习 ====================
 
 // AccessRecord 单次访问记录
 type AccessRecord struct {
-	Timestamp time.Time `json:"timestamp"` // 访问时间
-	Duration  time.Duration `json:"duration"` // 访问持续时长
-	Type      AccessType    `json:"type"`     // 访问类型
+	Timestamp time.Time     `json:"timestamp"` // 访问时间
+	Duration  time.Duration `json:"duration"`  // 访问持续时长
+	Type      AccessType    `json:"type"`      // 访问类型
 }
 
 // AccessType 访问类型
@@ -47,24 +47,24 @@ const (
 
 // AccessPattern 访问模式 - 学习磁盘的使用规律
 type AccessPattern struct {
-	DiskID           string           `json:"disk_id"`
-	HourlyFrequency  [24]int          `json:"hourly_frequency"`  // 24小时访问频率分布
-	DailyFrequency   [7]int           `json:"daily_frequency"`   // 每周7天访问频率
-	AvgAccessInterval time.Duration   `json:"avg_access_interval"` // 平均访问间隔
-	LastAccess       time.Time        `json:"last_access"`       // 最近访问时间
-	TotalAccessCount int64            `json:"total_access_count"` // 总访问次数
-	PeakHours        []int            `json:"peak_hours"`        // 高峰时段
-	QuietHours       []int            `json:"quiet_hours"`       // 低谷时段
-	Records          []AccessRecord   `json:"records"`           // 近期访问记录
-	MaxRecords       int              `json:"max_records"`       // 最大记录数
+	DiskID            string         `json:"disk_id"`
+	HourlyFrequency   [24]int        `json:"hourly_frequency"`    // 24小时访问频率分布
+	DailyFrequency    [7]int         `json:"daily_frequency"`     // 每周7天访问频率
+	AvgAccessInterval time.Duration  `json:"avg_access_interval"` // 平均访问间隔
+	LastAccess        time.Time      `json:"last_access"`         // 最近访问时间
+	TotalAccessCount  int64          `json:"total_access_count"`  // 总访问次数
+	PeakHours         []int          `json:"peak_hours"`          // 高峰时段
+	QuietHours        []int          `json:"quiet_hours"`         // 低谷时段
+	Records           []AccessRecord `json:"records"`             // 近期访问记录
+	MaxRecords        int            `json:"max_records"`         // 最大记录数
 }
 
 // ServiceDependency 服务依赖
 type ServiceDependency struct {
-	Name         string    `json:"name"`          // 服务名（smb/nfs/ftp等）
-	Active       bool      `json:"active"`        // 是否活跃
-	LastCheck    time.Time `json:"last_check"`    // 最近检查时间
-	ActiveConns  int       `json:"active_conns"`  // 活跃连接数
+	Name        string    `json:"name"`         // 服务名（smb/nfs/ftp等）
+	Active      bool      `json:"active"`       // 是否活跃
+	LastCheck   time.Time `json:"last_check"`   // 最近检查时间
+	ActiveConns int       `json:"active_conns"` // 活跃连接数
 }
 
 // ==================== 温度监控 ====================
@@ -78,11 +78,11 @@ type TemperatureThreshold struct {
 
 // DiskTemperatureInfo 磁盘温度信息
 type DiskTemperatureInfo struct {
-	DiskID        string    `json:"disk_id"`
-	CurrentTemp   float64   `json:"current_temp"`   // 当前温度(℃)
-	AverageTemp   float64   `json:"average_temp"`   // 平均温度(℃)
-	MaxTemp       float64   `json:"max_temp"`       // 最高温度(℃)
-	LastUpdated   time.Time `json:"last_updated"`   // 最近更新时间
+	DiskID        string               `json:"disk_id"`
+	CurrentTemp   float64              `json:"current_temp"`   // 当前温度(℃)
+	AverageTemp   float64              `json:"average_temp"`   // 平均温度(℃)
+	MaxTemp       float64              `json:"max_temp"`       // 最高温度(℃)
+	LastUpdated   time.Time            `json:"last_updated"`   // 最近更新时间
 	TempThreshold TemperatureThreshold `json:"temp_threshold"` // 温度阈值
 }
 
@@ -90,29 +90,29 @@ type DiskTemperatureInfo struct {
 
 // SmartSleepPolicy 智能休眠策略（扩展自基础 SleepPolicy）
 type SmartSleepPolicy struct {
-	*SleepPolicy                          // 嵌入基础策略
-	TemperatureThreshold TemperatureThreshold `json:"temperature_threshold"` // 温度阈值
-	PredictiveWake       bool                `json:"predictive_wake"`       // 是否启用预测性唤醒
-	PredictiveWakeWindow time.Duration       `json:"predictive_wake_window"` // 预测唤醒提前量
-	ServiceCheckEnabled  bool                `json:"service_check_enabled"` // 是否检查服务依赖
-	MinIdleBeforeSleep   time.Duration       `json:"min_idle_before_sleep"` // 最小空闲时长才允许休眠
+	*SleepPolicy                              // 嵌入基础策略
+	TemperatureThreshold TemperatureThreshold `json:"temperature_threshold"`  // 温度阈值
+	PredictiveWake       bool                 `json:"predictive_wake"`        // 是否启用预测性唤醒
+	PredictiveWakeWindow time.Duration        `json:"predictive_wake_window"` // 预测唤醒提前量
+	ServiceCheckEnabled  bool                 `json:"service_check_enabled"`  // 是否检查服务依赖
+	MinIdleBeforeSleep   time.Duration        `json:"min_idle_before_sleep"`  // 最小空闲时长才允许休眠
 }
 
 // ==================== SmartSleepManager ====================
 
 // SmartSleepManager 智能休眠策略引擎
 type SmartSleepManager struct {
-	mu          sync.RWMutex
-	ctx         context.Context
-	cancel      context.CancelFunc
-	running     bool
+	mu      sync.RWMutex
+	ctx     context.Context
+	cancel  context.CancelFunc
+	running bool
 
 	// 访问模式
-	patterns    map[string]*AccessPattern   // diskID -> 访问模式
+	patterns map[string]*AccessPattern // diskID -> 访问模式
 
 	// 休眠策略与调度
-	policies    map[string]*SmartSleepPolicy // policyID -> 智能策略
-	schedules   map[string]*SleepSchedule    // diskID -> 调度表
+	policies      map[string]*SmartSleepPolicy // policyID -> 智能策略
+	schedules     map[string]*SleepSchedule    // diskID -> 调度表
 	defaultPolicy *SmartSleepPolicy
 
 	// 温度监控
@@ -125,19 +125,19 @@ type SmartSleepManager struct {
 	config SmartSleepConfig
 
 	// 学习控制
-	learnTicker  *time.Ticker
-	patternMu    sync.RWMutex
+	learnTicker *time.Ticker
+	patternMu   sync.RWMutex
 }
 
 // SmartSleepConfig 智能休眠配置
 type SmartSleepConfig struct {
 	// 访问模式学习
-	LearnInterval     time.Duration `json:"learn_interval"`      // 学习周期
-	PatternWindowSize int           `json:"pattern_window_size"` // 模式窗口大小（记录数）
-	QuietHourThreshold int          `json:"quiet_hour_threshold"` // 低谷判定阈值（每小时访问次数）
+	LearnInterval      time.Duration `json:"learn_interval"`       // 学习周期
+	PatternWindowSize  int           `json:"pattern_window_size"`  // 模式窗口大小（记录数）
+	QuietHourThreshold int           `json:"quiet_hour_threshold"` // 低谷判定阈值（每小时访问次数）
 
 	// 温度联动
-	TempCheckInterval time.Duration `json:"temp_check_interval"` // 温度检查间隔
+	TempCheckInterval    time.Duration        `json:"temp_check_interval"`    // 温度检查间隔
 	DefaultTempThreshold TemperatureThreshold `json:"default_temp_threshold"` // 默认温度阈值
 
 	// 预测唤醒

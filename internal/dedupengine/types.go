@@ -62,12 +62,12 @@ type ContentBlock struct {
 
 // DedupStats 去重统计信息.
 type DedupStats struct {
-	TotalBlocks    int   `json:"total_blocks"`    // 总块数（含重复引用）
-	UniqueBlocks   int   `json:"unique_blocks"`   // 唯一块数
-	DuplicateBlocks int  `json:"duplicate_blocks"` // 重复块数
-	TotalSize      int64 `json:"total_size"`      // 总数据大小（字节）
-	UniqueSize     int64 `json:"unique_size"`     // 去重后存储大小（字节）
-	SpaceSaved     int64 `json:"space_saved"`     // 节省空间（字节）
+	TotalBlocks     int   `json:"total_blocks"`     // 总块数（含重复引用）
+	UniqueBlocks    int   `json:"unique_blocks"`    // 唯一块数
+	DuplicateBlocks int   `json:"duplicate_blocks"` // 重复块数
+	TotalSize       int64 `json:"total_size"`       // 总数据大小（字节）
+	UniqueSize      int64 `json:"unique_size"`      // 去重后存储大小（字节）
+	SpaceSaved      int64 `json:"space_saved"`      // 节省空间（字节）
 }
 
 // DedupRatio 返回去重率（0-1 之间，越高表示去重效果越好）.
@@ -88,8 +88,8 @@ func (s DedupStats) SpaceSavingsPercent() float64 {
 
 // StoreResult 存储结果.
 type StoreResult struct {
-	Hash      string `json:"hash"`       // 内容哈希
-	IsNew     bool   `json:"is_new"`     // 是否为新块
-	RefCount  int    `json:"ref_count"`  // 当前引用计数
-	Size      int    `json:"size"`       // 数据大小
+	Hash     string `json:"hash"`      // 内容哈希
+	IsNew    bool   `json:"is_new"`    // 是否为新块
+	RefCount int    `json:"ref_count"` // 当前引用计数
+	Size     int    `json:"size"`      // 数据大小
 }

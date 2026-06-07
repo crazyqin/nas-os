@@ -33,11 +33,11 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 
 // LockRequest 锁定请求
 type LockRequest struct {
-	FilePath  string  `json:"filePath" binding:"required"`
-	FileSize  int64   `json:"fileSize"`
-	Retention string  `json:"retention" binding:"required"`
-	LockedBy  string  `json:"lockedBy"`
-	DurationDays *int `json:"durationDays,omitempty"`
+	FilePath     string `json:"filePath" binding:"required"`
+	FileSize     int64  `json:"fileSize"`
+	Retention    string `json:"retention" binding:"required"`
+	LockedBy     string `json:"lockedBy"`
+	DurationDays *int   `json:"durationDays,omitempty"`
 }
 
 // Lock 锁定文件

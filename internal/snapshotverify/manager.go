@@ -80,14 +80,14 @@ func (m *SnapshotVerifyManager) VerifyIntegrity(path string) (*IntegrityReport, 
 
 // IntegrityReport 完整性报告
 type IntegrityReport struct {
-	Path            string    `json:"path"`
-	Status          string    `json:"status"`
-	TotalFiles      int       `json:"total_files"`
-	VerifiedFiles   int       `json:"verified_files"`
-	CorruptedFiles  int       `json:"corrupted_files"`
-	MissingFiles    int       `json:"missing_files"`
-	CheckedAt       time.Time `json:"checked_at"`
-	Details         []string  `json:"details,omitempty"`
+	Path           string    `json:"path"`
+	Status         string    `json:"status"`
+	TotalFiles     int       `json:"total_files"`
+	VerifiedFiles  int       `json:"verified_files"`
+	CorruptedFiles int       `json:"corrupted_files"`
+	MissingFiles   int       `json:"missing_files"`
+	CheckedAt      time.Time `json:"checked_at"`
+	Details        []string  `json:"details,omitempty"`
 }
 
 // RepairSnapshot 修复快照

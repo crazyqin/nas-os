@@ -66,9 +66,9 @@ func (m *Manager) createWebSocketProxy(w http.ResponseWriter, req *http.Request,
 	}
 
 	targetURL := &url.URL{
-		Scheme: scheme,
-		Host:   fmt.Sprintf("%s:%d", instance.Host, instance.Port),
-		Path:   req.URL.Path,
+		Scheme:   scheme,
+		Host:     fmt.Sprintf("%s:%d", instance.Host, instance.Port),
+		Path:     req.URL.Path,
 		RawQuery: req.URL.RawQuery,
 	}
 

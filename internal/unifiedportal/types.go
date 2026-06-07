@@ -63,34 +63,34 @@ type DashboardWidget struct {
 
 // PortalDashboard 仪表盘
 type PortalDashboard struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name" binding:"required"`
-	Description string            `json:"description,omitempty"`
-	Layout      DashboardLayout   `json:"layout"`
+	ID          string             `json:"id"`
+	Name        string             `json:"name" binding:"required"`
+	Description string             `json:"description,omitempty"`
+	Layout      DashboardLayout    `json:"layout"`
 	Widgets     []*DashboardWidget `json:"widgets,omitempty"`
-	IsDefault   bool              `json:"is_default"`
-	IsTemplate  bool              `json:"is_template"`
-	TemplateID  string            `json:"template_id,omitempty"`
-	Tags        []string          `json:"tags,omitempty"`
-	Owner       string            `json:"owner,omitempty"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	IsDefault   bool               `json:"is_default"`
+	IsTemplate  bool               `json:"is_template"`
+	TemplateID  string             `json:"template_id,omitempty"`
+	Tags        []string           `json:"tags,omitempty"`
+	Owner       string             `json:"owner,omitempty"`
+	CreatedAt   time.Time          `json:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
 // PortalTheme 主题配置
 type PortalTheme struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name" binding:"required"`
-	Mode        ThemeMode `json:"mode"`
-	PrimaryColor string   `json:"primary_color,omitempty"`  // 主色调
-	AccentColor  string   `json:"accent_color,omitempty"`   // 强调色
-	BGColor      string   `json:"bg_color,omitempty"`       // 背景色
-	TextColor    string   `json:"text_color,omitempty"`     // 文字色
-	FontSize     string   `json:"font_size,omitempty"`      // 字体大小
-	FontFamily   string   `json:"font_family,omitempty"`    // 字体族
-	BorderRadius string   `json:"border_radius,omitempty"`  // 圆角
-	IsDark       bool     `json:"is_dark"`
-	IsDefault    bool     `json:"is_default"`
+	ID           string    `json:"id"`
+	Name         string    `json:"name" binding:"required"`
+	Mode         ThemeMode `json:"mode"`
+	PrimaryColor string    `json:"primary_color,omitempty"` // 主色调
+	AccentColor  string    `json:"accent_color,omitempty"`  // 强调色
+	BGColor      string    `json:"bg_color,omitempty"`      // 背景色
+	TextColor    string    `json:"text_color,omitempty"`    // 文字色
+	FontSize     string    `json:"font_size,omitempty"`     // 字体大小
+	FontFamily   string    `json:"font_family,omitempty"`   // 字体族
+	BorderRadius string    `json:"border_radius,omitempty"` // 圆角
+	IsDark       bool      `json:"is_dark"`
+	IsDefault    bool      `json:"is_default"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
@@ -127,17 +127,17 @@ type ThemeRequest struct {
 
 // DashboardExport 仪表盘导出格式
 type DashboardExport struct {
-	Dashboard *PortalDashboard  `json:"dashboard"`
-	Widgets   []*DashboardWidget `json:"widgets"`
-	Version   string            `json:"version"`
-	ExportedAt time.Time        `json:"exported_at"`
+	Dashboard  *PortalDashboard   `json:"dashboard"`
+	Widgets    []*DashboardWidget `json:"widgets"`
+	Version    string             `json:"version"`
+	ExportedAt time.Time          `json:"exported_at"`
 }
 
 // DataSource 数据源定义
 type DataSource struct {
 	ID       string                 `json:"id"`
 	Name     string                 `json:"name"`
-	Type     string                 `json:"type"`     // prometheus, influxdb, api, etc.
+	Type     string                 `json:"type"` // prometheus, influxdb, api, etc.
 	Endpoint string                 `json:"endpoint"`
 	Config   map[string]interface{} `json:"config,omitempty"`
 }
@@ -166,14 +166,14 @@ type SystemMetrics struct {
 
 // StorageMetrics 存储指标
 type StorageMetrics struct {
-	TotalBytes     int64   `json:"total_bytes"`
-	UsedBytes      int64   `json:"used_bytes"`
-	FreeBytes      int64   `json:"free_bytes"`
-	UsagePercent   float64 `json:"usage_percent"`
-	IOPSRead       int64   `json:"iops_read"`
-	IOPSWrite      int64   `json:"iops_write"`
-	ThroughputRead  int64  `json:"throughput_read"`
-	ThroughputWrite int64  `json:"throughput_write"`
+	TotalBytes      int64   `json:"total_bytes"`
+	UsedBytes       int64   `json:"used_bytes"`
+	FreeBytes       int64   `json:"free_bytes"`
+	UsagePercent    float64 `json:"usage_percent"`
+	IOPSRead        int64   `json:"iops_read"`
+	IOPSWrite       int64   `json:"iops_write"`
+	ThroughputRead  int64   `json:"throughput_read"`
+	ThroughputWrite int64   `json:"throughput_write"`
 }
 
 // NetworkMetrics 网络指标
@@ -198,11 +198,11 @@ type ContainerMetrics struct {
 
 // AlertMetrics 告警指标
 type AlertMetrics struct {
-	Critical int            `json:"critical"`
-	Warning  int            `json:"warning"`
-	Info     int            `json:"info"`
-	Total    int            `json:"total"`
-	Recent   []*AlertItem   `json:"recent,omitempty"`
+	Critical int          `json:"critical"`
+	Warning  int          `json:"warning"`
+	Info     int          `json:"info"`
+	Total    int          `json:"total"`
+	Recent   []*AlertItem `json:"recent,omitempty"`
 }
 
 // AlertItem 告警项

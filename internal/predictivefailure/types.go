@@ -254,14 +254,14 @@ type Config struct {
 // DefaultConfig 返回默认配置.
 func DefaultConfig() Config {
 	return Config{
-		Enabled:                     true,
-		ScanIntervalMinutes:         60,
-		AlertThreshold:              60,
-		TemperatureWarnThreshold:    50,
+		Enabled:                      true,
+		ScanIntervalMinutes:          60,
+		AlertThreshold:               60,
+		TemperatureWarnThreshold:     50,
 		TemperatureCriticalThreshold: 60,
-		CPUPercentWarnThreshold:     80,
-		MemoryPercentWarnThreshold:  85,
-		MaxHistoryDays:              90,
+		CPUPercentWarnThreshold:      80,
+		MemoryPercentWarnThreshold:   85,
+		MaxHistoryDays:               90,
 	}
 }
 

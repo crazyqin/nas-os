@@ -218,9 +218,9 @@ func (m *Manager) PullImage(image string, registryID string) error {
 	// 模拟拉取镜像
 	now := time.Now()
 	imageInfo := &ImageInfo{
-		ID:       fmt.Sprintf("image-%d", now.UnixNano()),
-		RepoTags: []string{image},
-		Size:     100 * 1024 * 1024, // 100MB
+		ID:        fmt.Sprintf("image-%d", now.UnixNano()),
+		RepoTags:  []string{image},
+		Size:      100 * 1024 * 1024, // 100MB
 		CreatedAt: now,
 	}
 

@@ -9,35 +9,35 @@ import (
 )
 
 var (
-	ErrPortNotFound      = errors.New("port not found")
-	ErrPortExists        = errors.New("port already exists")
-	ErrPortNotStarted    = errors.New("port not started")
+	ErrPortNotFound       = errors.New("port not found")
+	ErrPortExists         = errors.New("port already exists")
+	ErrPortNotStarted     = errors.New("port not started")
 	ErrPortAlreadyStarted = errors.New("port already started")
-	ErrQueueNotFound     = errors.New("queue not found")
-	ErrInvalidConfig     = errors.New("invalid configuration")
-	ErrManagerClosed     = errors.New("manager closed")
-	ErrRuleExists        = errors.New("rule already exists")
-	ErrRuleNotFound      = errors.New("rule not found")
+	ErrQueueNotFound      = errors.New("queue not found")
+	ErrInvalidConfig      = errors.New("invalid configuration")
+	ErrManagerClosed      = errors.New("manager closed")
+	ErrRuleExists         = errors.New("rule already exists")
+	ErrRuleNotFound       = errors.New("rule not found")
 )
 
 // PortState 端口状态
 type PortState string
 
 const (
-	PortStateDown      PortState = "down"
-	PortStateUp        PortState = "up"
+	PortStateDown        PortState = "down"
+	PortStateUp          PortState = "up"
 	PortStateConfiguring PortState = "configuring"
-	PortStateError     PortState = "error"
+	PortStateError       PortState = "error"
 )
 
 // RSSMode RSS (Receive Side Scaling) 模式
 type RSSMode string
 
 const (
-	RSSDisabled RSSMode = "disabled"
-	RSSDefault  RSSMode = "default"
+	RSSDisabled  RSSMode = "disabled"
+	RSSDefault   RSSMode = "default"
 	RSSSymmetric RSSMode = "symmetric"
-	RSSCustom   RSSMode = "custom"
+	RSSCustom    RSSMode = "custom"
 )
 
 // TrafficClass 流量分类
@@ -60,32 +60,32 @@ const (
 
 // Port 网络端口
 type Port struct {
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-	PCIeAddr    string     `json:"pcie_addr"`
-	State       PortState  `json:"state"`
-	Speed       uint64     `json:"speed"`       // Mbps
-	MTU         uint16     `json:"mtu"`
-	MACAddr     string     `json:"mac_addr"`
-	RXQueues    int        `json:"rx_queues"`
-	TXQueues    int        `json:"tx_queues"`
-	RSSMode     RSSMode    `json:"rss_mode"`
-	Promiscuous bool       `json:"promiscuous"`
-	Stats       PortStats  `json:"stats"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	PCIeAddr    string    `json:"pcie_addr"`
+	State       PortState `json:"state"`
+	Speed       uint64    `json:"speed"` // Mbps
+	MTU         uint16    `json:"mtu"`
+	MACAddr     string    `json:"mac_addr"`
+	RXQueues    int       `json:"rx_queues"`
+	TXQueues    int       `json:"tx_queues"`
+	RSSMode     RSSMode   `json:"rss_mode"`
+	Promiscuous bool      `json:"promiscuous"`
+	Stats       PortStats `json:"stats"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // PortStats 端口统计
 type PortStats struct {
-	RXPackets   uint64 `json:"rx_packets"`
-	TXPackets   uint64 `json:"tx_packets"`
-	RXBytes     uint64 `json:"rx_bytes"`
-	TXBytes     uint64 `json:"tx_bytes"`
-	RXErrors    uint64 `json:"rx_errors"`
-	TXErrors    uint64 `json:"tx_errors"`
-	RXDropped   uint64 `json:"rx_dropped"`
-	TXDropped   uint64 `json:"tx_dropped"`
+	RXPackets uint64 `json:"rx_packets"`
+	TXPackets uint64 `json:"tx_packets"`
+	RXBytes   uint64 `json:"rx_bytes"`
+	TXBytes   uint64 `json:"tx_bytes"`
+	RXErrors  uint64 `json:"rx_errors"`
+	TXErrors  uint64 `json:"tx_errors"`
+	RXDropped uint64 `json:"rx_dropped"`
+	TXDropped uint64 `json:"tx_dropped"`
 }
 
 // Queue 队列配置
@@ -93,26 +93,26 @@ type Queue struct {
 	ID        int       `json:"id"`
 	PortID    string    `json:"port_id"`
 	Type      QueueType `json:"type"`
-	Size      int       `json:"size"`      // 队列大小
+	Size      int       `json:"size"`       // 队列大小
 	BurstSize int       `json:"burst_size"` // burst 大小
 	Enabled   bool      `json:"enabled"`
 }
 
 // FlowRule 流表规则
 type FlowRule struct {
-	ID          string       `json:"id"`
-	PortID      string       `json:"port_id"`
-	Priority    int          `json:"priority"`
+	ID           string       `json:"id"`
+	PortID       string       `json:"port_id"`
+	Priority     int          `json:"priority"`
 	TrafficClass TrafficClass `json:"traffic_class"`
-	SrcIP       string       `json:"src_ip,omitempty"`
-	DstIP       string       `json:"dst_ip,omitempty"`
-	SrcPort     uint16       `json:"src_port,omitempty"`
-	DstPort     uint16       `json:"dst_port,omitempty"`
-	Protocol    string       `json:"protocol,omitempty"`
-	Action      string       `json:"action"` // allow, drop, redirect
-	QueueID     int          `json:"queue_id,omitempty"`
-	Stats       FlowStats    `json:"stats"`
-	CreatedAt   time.Time    `json:"created_at"`
+	SrcIP        string       `json:"src_ip,omitempty"`
+	DstIP        string       `json:"dst_ip,omitempty"`
+	SrcPort      uint16       `json:"src_port,omitempty"`
+	DstPort      uint16       `json:"dst_port,omitempty"`
+	Protocol     string       `json:"protocol,omitempty"`
+	Action       string       `json:"action"` // allow, drop, redirect
+	QueueID      int          `json:"queue_id,omitempty"`
+	Stats        FlowStats    `json:"stats"`
+	CreatedAt    time.Time    `json:"created_at"`
 }
 
 // FlowStats 流规则统计

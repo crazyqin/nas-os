@@ -584,5 +584,3 @@ func TestGenerateChecksum(t *testing.T) {
 		t.Errorf("expected 64 char hash, got %d", len(hash))
 	}
 }
-
-

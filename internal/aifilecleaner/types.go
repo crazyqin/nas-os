@@ -100,9 +100,9 @@ type FileInfo struct {
 
 // DuplicateGroup 重复文件组.
 type DuplicateGroup struct {
-	Hash  string     `json:"hash"`
-	Size  int64      `json:"size"` // 单文件大小
-	Count int        `json:"count"`
+	Hash  string      `json:"hash"`
+	Size  int64       `json:"size"` // 单文件大小
+	Count int         `json:"count"`
 	Files []*FileInfo `json:"files"`
 	// WastedBytes 浪费的空间（(count-1) * size）.
 	WastedBytes int64 `json:"wasted_bytes"`
@@ -114,13 +114,13 @@ type DuplicateGroup struct {
 
 // SpaceAnalysis 空间占用分析.
 type SpaceAnalysis struct {
-	TotalSize     int64            `json:"total_size"`
-	UsedSize      int64            `json:"used_size"`
-	FreeSize      int64            `json:"free_size"`
-	ByExtension   []ExtStat        `json:"by_extension"`
-	ByDirectory   []DirSizeStat    `json:"by_directory"`
-	ByAge         []AgeStat        `json:"by_age"`
-	ByCategory    []CategoryStat   `json:"by_category"`
+	TotalSize   int64          `json:"total_size"`
+	UsedSize    int64          `json:"used_size"`
+	FreeSize    int64          `json:"free_size"`
+	ByExtension []ExtStat      `json:"by_extension"`
+	ByDirectory []DirSizeStat  `json:"by_directory"`
+	ByAge       []AgeStat      `json:"by_age"`
+	ByCategory  []CategoryStat `json:"by_category"`
 }
 
 // ExtStat 文件扩展名统计.
@@ -157,17 +157,17 @@ type CategoryStat struct {
 
 // CleanupSuggestion 清理建议.
 type CleanupSuggestion struct {
-	ID               string           `json:"id"`
-	Type             SuggestionType   `json:"type"`
-	Title            string           `json:"title"`
-	Description      string           `json:"description"`
-	Priority         int              `json:"priority"` // 1=高 2=中 3=低
-	SafeScore        float64          `json:"safe_score"` // 0-100
-	EstimatedSaving  int64            `json:"estimated_saving_bytes"`
-	TargetFiles      []string         `json:"target_files,omitempty"`
-	TargetPath       string           `json:"target_path,omitempty"`
-	Applied          bool             `json:"applied"`
-	AppliedAt        *time.Time       `json:"applied_at,omitempty"`
+	ID              string         `json:"id"`
+	Type            SuggestionType `json:"type"`
+	Title           string         `json:"title"`
+	Description     string         `json:"description"`
+	Priority        int            `json:"priority"`   // 1=高 2=中 3=低
+	SafeScore       float64        `json:"safe_score"` // 0-100
+	EstimatedSaving int64          `json:"estimated_saving_bytes"`
+	TargetFiles     []string       `json:"target_files,omitempty"`
+	TargetPath      string         `json:"target_path,omitempty"`
+	Applied         bool           `json:"applied"`
+	AppliedAt       *time.Time     `json:"applied_at,omitempty"`
 }
 
 // SuggestionType 建议类型.
@@ -192,18 +192,18 @@ const (
 
 // CleanupTask 清理任务.
 type CleanupTask struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Status      TaskStatus   `json:"status"`
-	DeleteMode  DeleteMode   `json:"delete_mode"`
-	TargetFiles []string     `json:"target_files"`
-	TotalSize   int64        `json:"total_size"` // 预计清理大小
-	FreedSize   int64        `json:"freed_size"` // 实际释放大小
-	FileCount   int          `json:"file_count"`
-	CreatedAt   time.Time    `json:"created_at"`
-	StartedAt   *time.Time   `json:"started_at,omitempty"`
-	FinishedAt  *time.Time   `json:"finished_at,omitempty"`
-	Error       string       `json:"error,omitempty"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Status      TaskStatus `json:"status"`
+	DeleteMode  DeleteMode `json:"delete_mode"`
+	TargetFiles []string   `json:"target_files"`
+	TotalSize   int64      `json:"total_size"` // 预计清理大小
+	FreedSize   int64      `json:"freed_size"` // 实际释放大小
+	FileCount   int        `json:"file_count"`
+	CreatedAt   time.Time  `json:"created_at"`
+	StartedAt   *time.Time `json:"started_at,omitempty"`
+	FinishedAt  *time.Time `json:"finished_at,omitempty"`
+	Error       string     `json:"error,omitempty"`
 }
 
 // TaskStatus 任务状态.
@@ -226,15 +226,15 @@ const (
 
 // CleanupSchedule 清理计划.
 type CleanupSchedule struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	CronExpr    string       `json:"cron_expr"` // cron表达式
-	RootPath    string       `json:"root_path"`
-	DeleteMode  DeleteMode   `json:"delete_mode"`
-	Enabled     bool         `json:"enabled"`
-	LastRun     *time.Time   `json:"last_run,omitempty"`
-	NextRun     *time.Time   `json:"next_run,omitempty"`
-	CreatedAt   time.Time    `json:"created_at"`
+	ID         string     `json:"id"`
+	Name       string     `json:"name"`
+	CronExpr   string     `json:"cron_expr"` // cron表达式
+	RootPath   string     `json:"root_path"`
+	DeleteMode DeleteMode `json:"delete_mode"`
+	Enabled    bool       `json:"enabled"`
+	LastRun    *time.Time `json:"last_run,omitempty"`
+	NextRun    *time.Time `json:"next_run,omitempty"`
+	CreatedAt  time.Time  `json:"created_at"`
 }
 
 // ========== 空间对比 ==========
@@ -262,23 +262,23 @@ type SpaceSnapshot struct {
 
 // ScanResult 扫描结果.
 type ScanResult struct {
-	RootPath          string             `json:"root_path"`
-	ScanStartedAt     time.Time          `json:"scan_started_at"`
-	ScanFinishedAt    time.Time          `json:"scan_finished_at"`
-	DurationSeconds   float64            `json:"duration_seconds"`
-	TotalFiles        int                `json:"total_files"`
-	TotalDirs         int                `json:"total_dirs"`
-	TotalSizeBytes    int64              `json:"total_size_bytes"`
-	TempFiles         []FileInfo         `json:"temp_files"`
-	TempFilesSize     int64              `json:"temp_files_size"`
-	CacheFiles        []FileInfo         `json:"cache_files"`
-	CacheFilesSize    int64              `json:"cache_files_size"`
-	LargeFiles        []FileInfo         `json:"large_files"`
-	StaleFiles        []FileInfo         `json:"stale_files"`
-	DuplicateGroups   []DuplicateGroup   `json:"duplicate_groups"`
-	DuplicateWaste    int64              `json:"duplicate_waste"`
-	SpaceAnalysis     *SpaceAnalysis     `json:"space_analysis,omitempty"`
-	Suggestions       []CleanupSuggestion `json:"suggestions"`
+	RootPath        string              `json:"root_path"`
+	ScanStartedAt   time.Time           `json:"scan_started_at"`
+	ScanFinishedAt  time.Time           `json:"scan_finished_at"`
+	DurationSeconds float64             `json:"duration_seconds"`
+	TotalFiles      int                 `json:"total_files"`
+	TotalDirs       int                 `json:"total_dirs"`
+	TotalSizeBytes  int64               `json:"total_size_bytes"`
+	TempFiles       []FileInfo          `json:"temp_files"`
+	TempFilesSize   int64               `json:"temp_files_size"`
+	CacheFiles      []FileInfo          `json:"cache_files"`
+	CacheFilesSize  int64               `json:"cache_files_size"`
+	LargeFiles      []FileInfo          `json:"large_files"`
+	StaleFiles      []FileInfo          `json:"stale_files"`
+	DuplicateGroups []DuplicateGroup    `json:"duplicate_groups"`
+	DuplicateWaste  int64               `json:"duplicate_waste"`
+	SpaceAnalysis   *SpaceAnalysis      `json:"space_analysis,omitempty"`
+	Suggestions     []CleanupSuggestion `json:"suggestions"`
 }
 
 // ========== Mock数据类型 ==========

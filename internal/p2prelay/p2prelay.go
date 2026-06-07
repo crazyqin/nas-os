@@ -90,17 +90,17 @@ func DefaultNodeConfig() NodeConfig {
 
 // Peer represents a connected peer.
 type Peer struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Type        NodeType      `json:"type"`
-	Addr        string        `json:"addr"`
+	ID          string          `json:"id"`
+	Name        string          `json:"name"`
+	Type        NodeType        `json:"type"`
+	Addr        string          `json:"addr"`
 	State       ConnectionState `json:"state"`
-	Mode        RelayMode     `json:"mode"`
-	ConnectedAt time.Time     `json:"connectedAt"`
-	LastSeen    time.Time     `json:"lastSeen"`
-	RTT         time.Duration `json:"rtt"`
-	BytesSent   int64         `json:"bytesSent"`
-	BytesRecv   int64         `json:"bytesRecv"`
+	Mode        RelayMode       `json:"mode"`
+	ConnectedAt time.Time       `json:"connectedAt"`
+	LastSeen    time.Time       `json:"lastSeen"`
+	RTT         time.Duration   `json:"rtt"`
+	BytesSent   int64           `json:"bytesSent"`
+	BytesRecv   int64           `json:"bytesRecv"`
 }
 
 // TunnelStats holds tunnel statistics.
@@ -118,15 +118,15 @@ type TunnelStats struct {
 
 // RelayServer manages P2P connections and relay.
 type RelayServer struct {
-	config    NodeConfig
-	peers     map[string]*Peer
-	listener  *net.UDPConn
-	mu        sync.RWMutex
-	ctx       context.Context
-	cancel    context.CancelFunc
-	stats     TunnelStats
-	running   int32
-	onConnect func(peer *Peer)
+	config       NodeConfig
+	peers        map[string]*Peer
+	listener     *net.UDPConn
+	mu           sync.RWMutex
+	ctx          context.Context
+	cancel       context.CancelFunc
+	stats        TunnelStats
+	running      int32
+	onConnect    func(peer *Peer)
 	onDisconnect func(peer *Peer)
 }
 

@@ -12,8 +12,8 @@ import (
 
 // Preview 文件预览器
 type Preview struct {
-	config   ThumbnailConfig
-	logger   *zap.Logger
+	config ThumbnailConfig
+	logger *zap.Logger
 }
 
 // NewPreview 创建文件预览器
@@ -226,33 +226,33 @@ func (p *Preview) getTextInfo(path string, info *PreviewInfo) {
 	// 检测编程语言
 	ext := strings.ToLower(filepath.Ext(path))
 	languageMap := map[string]string{
-		".go":   "Go",
-		".py":   "Python",
-		".java": "Java",
-		".c":    "C",
-		".cpp":  "C++",
-		".h":    "C/C++ Header",
-		".rs":   "Rust",
-		".js":   "JavaScript",
-		".ts":   "TypeScript",
-		".jsx":  "React JSX",
-		".tsx":  "React TSX",
-		".vue":  "Vue",
-		".rb":   "Ruby",
-		".php":  "PHP",
-		".swift":"Swift",
-		".kt":   "Kotlin",
-		".sh":   "Shell",
-		".bash": "Bash",
-		".html": "HTML",
-		".css":  "CSS",
-		".scss": "SCSS",
-		".less": "LESS",
-		".sql":  "SQL",
-		".r":    "R",
-		".lua":  "Lua",
-		".perl": "Perl",
-		".pl":   "Perl",
+		".go":    "Go",
+		".py":    "Python",
+		".java":  "Java",
+		".c":     "C",
+		".cpp":   "C++",
+		".h":     "C/C++ Header",
+		".rs":    "Rust",
+		".js":    "JavaScript",
+		".ts":    "TypeScript",
+		".jsx":   "React JSX",
+		".tsx":   "React TSX",
+		".vue":   "Vue",
+		".rb":    "Ruby",
+		".php":   "PHP",
+		".swift": "Swift",
+		".kt":    "Kotlin",
+		".sh":    "Shell",
+		".bash":  "Bash",
+		".html":  "HTML",
+		".css":   "CSS",
+		".scss":  "SCSS",
+		".less":  "LESS",
+		".sql":   "SQL",
+		".r":     "R",
+		".lua":   "Lua",
+		".perl":  "Perl",
+		".pl":    "Perl",
 	}
 
 	if lang, ok := languageMap[ext]; ok {

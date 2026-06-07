@@ -211,7 +211,7 @@ func (h *Handlers) getScanResult(c *gin.Context) {
 // generateReport 生成报告
 func (h *Handlers) generateReport(c *gin.Context) {
 	var req struct {
-		Regulation string      `json:"regulation"`
+		Regulation string       `json:"regulation"`
 		Period     ReportPeriod `json:"period"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {

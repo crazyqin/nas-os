@@ -15,13 +15,13 @@ import (
 
 // Manager 看板管理器
 type Manager struct {
-	mu        sync.RWMutex
-	logger    *zap.Logger
-	boards    map[string]*Board
-	sprints   map[string]*Sprint
-	tasks     map[string]*Task
-	stopChan  chan struct{}
-	running   bool
+	mu       sync.RWMutex
+	logger   *zap.Logger
+	boards   map[string]*Board
+	sprints  map[string]*Sprint
+	tasks    map[string]*Task
+	stopChan chan struct{}
+	running  bool
 }
 
 // NewManager 创建看板管理器
@@ -625,11 +625,11 @@ func (m *Manager) GenerateBurndown(sprintID string) ([]BurndownDay, error) {
 		completion := completionByDay[dateKey]
 
 		burndown = append(burndown, BurndownDay{
-			Date:             date,
-			RemainingPoints:  remainingPoints,
-			IdealPoints:      ideal,
-			TasksCompleted:   completion.TasksCompleted,
-			PointsCompleted:  completion.PointsCompleted,
+			Date:            date,
+			RemainingPoints: remainingPoints,
+			IdealPoints:     ideal,
+			TasksCompleted:  completion.TasksCompleted,
+			PointsCompleted: completion.PointsCompleted,
 		})
 	}
 

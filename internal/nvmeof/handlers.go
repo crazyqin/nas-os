@@ -253,5 +253,3 @@ func (h *Handler) GetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, stats)
 }
-
-

@@ -677,4 +677,3 @@ func (w *Warehouse) Stats() map[string]interface{} {
 
 	return stats
 }
-

@@ -16,9 +16,9 @@ import (
 
 // PersistConfig 持久化配置.
 type PersistConfig struct {
-	DataDir       string        // 数据目录
-	AutoSave      bool          // 是否自动保存
-	SaveInterval  time.Duration // 自动保存间隔
+	DataDir      string        // 数据目录
+	AutoSave     bool          // 是否自动保存
+	SaveInterval time.Duration // 自动保存间隔
 }
 
 // DefaultPersistConfig 默认持久化配置.
@@ -34,21 +34,21 @@ func DefaultPersistConfig(dataDir string) PersistConfig {
 
 // PersistData 持久化数据快照.
 type PersistData struct {
-	Version   int                       `json:"version"`    // 数据版本
-	Policies  map[string]*Policy        `json:"policies"`   // 策略快照
-	History   []*ScrubRecord            `json:"history"`    // 执行历史
-	SavedAt   time.Time                 `json:"saved_at"`   // 保存时间
+	Version  int                `json:"version"`  // 数据版本
+	Policies map[string]*Policy `json:"policies"` // 策略快照
+	History  []*ScrubRecord     `json:"history"`  // 执行历史
+	SavedAt  time.Time          `json:"saved_at"` // 保存时间
 }
 
 // ========== 持久化管理器 ==========
 
 // Persister 持久化管理器.
 type Persister struct {
-	mu       sync.Mutex
-	config   PersistConfig
-	manager  *Manager
-	stopCh   chan struct{}
-	running  bool
+	mu      sync.Mutex
+	config  PersistConfig
+	manager *Manager
+	stopCh  chan struct{}
+	running bool
 }
 
 // NewPersister 创建持久化管理器.
@@ -106,7 +106,7 @@ func (p *Persister) Stop() {
 func (p *Persister) Save() error {
 	p.manager.mu.RLock()
 	data := PersistData{
-		Version: 1,
+		Version:  1,
 		Policies: make(map[string]*Policy, len(p.manager.policies)),
 		History:  make([]*ScrubRecord, len(p.manager.history)),
 		SavedAt:  time.Now(),

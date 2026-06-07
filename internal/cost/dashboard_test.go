@@ -15,8 +15,8 @@ func TestDashboardService_CalculateStorageCost(t *testing.T) {
 	service := NewDashboardService(config)
 
 	resource := ResourceInfo{
-		Name:              "pool-main",
-		Type:              "zfs-pool",
+		Name:               "pool-main",
+		Type:               "zfs-pool",
 		TotalCapacityBytes: 10 * 1024 * 1024 * 1024 * 1024, // 10TB
 		UsedCapacityBytes:  5 * 1024 * 1024 * 1024 * 1024,  // 5TB = 5120GB
 	}
@@ -35,15 +35,15 @@ func TestDashboardService_CalculateStorageCost(t *testing.T) {
 
 func TestDashboardService_CalculateElectricityCost(t *testing.T) {
 	config := DashboardConfig{
-		ElectricityCostPerKWh: 0.5,
+		ElectricityCostPerKWh:   0.5,
 		DefaultDevicePowerWatts: 100.0,
 	}
 
 	service := NewDashboardService(config)
 
 	resource := ResourceInfo{
-		Name:        "server-01",
-		PowerWatts:  200.0, // 200W
+		Name:       "server-01",
+		PowerWatts: 200.0, // 200W
 	}
 
 	cost := service.CalculateElectricityCost(resource)
@@ -58,31 +58,31 @@ func TestDashboardService_CalculateElectricityCost(t *testing.T) {
 
 func TestDashboardService_GenerateCostSummary(t *testing.T) {
 	config := DashboardConfig{
-		StorageCostPerGB:       0.69,
-		ElectricityCostPerKWh:  0.5,
+		StorageCostPerGB:        0.69,
+		ElectricityCostPerKWh:   0.5,
 		DefaultDevicePowerWatts: 100.0,
-		OpsCostMonthly:         200.0,
-		HardwareCost:           10000.0,
-		DepreciationYears:      5,
-		BudgetLimitMonthly:     5000.0,
-		LowUsageThreshold:      30.0,
-		HighUsageThreshold:     80.0,
+		OpsCostMonthly:          200.0,
+		HardwareCost:            10000.0,
+		DepreciationYears:       5,
+		BudgetLimitMonthly:      5000.0,
+		LowUsageThreshold:       30.0,
+		HighUsageThreshold:      80.0,
 	}
 
 	service := NewDashboardService(config)
 
 	resources := []ResourceInfo{
 		{
-			Name:              "pool-ssd",
+			Name:               "pool-ssd",
 			TotalCapacityBytes: 1 * 1024 * 1024 * 1024 * 1024, // 1TB
 			UsedCapacityBytes:  500 * 1024 * 1024 * 1024,      // 500GB
-			PowerWatts:        50.0,
+			PowerWatts:         50.0,
 		},
 		{
-			Name:              "pool-hdd",
+			Name:               "pool-hdd",
 			TotalCapacityBytes: 10 * 1024 * 1024 * 1024 * 1024, // 10TB
 			UsedCapacityBytes:  2 * 1024 * 1024 * 1024 * 1024,  // 2TB
-			PowerWatts:        150.0,
+			PowerWatts:         150.0,
 		},
 	}
 
@@ -114,7 +114,7 @@ func TestDashboardService_GenerateCostSummary(t *testing.T) {
 
 func TestDashboardService_TrendAnalysis(t *testing.T) {
 	config := DashboardConfig{
-		StorageCostPerGB: 0.69,
+		StorageCostPerGB:   0.69,
 		TrendRetentionDays: 30,
 	}
 
@@ -134,8 +134,8 @@ func TestDashboardService_TrendAnalysis(t *testing.T) {
 	}
 
 	timeRange := TimeRange{
-		StartTime: time.Now().Add(-1 * time.Hour),
-		EndTime:   time.Now(),
+		StartTime:   time.Now().Add(-1 * time.Hour),
+		EndTime:     time.Now(),
 		Granularity: "hour",
 	}
 
@@ -162,7 +162,7 @@ func TestDashboardService_TrendAnalysis(t *testing.T) {
 
 func TestDashboardService_RecordTrendPoint(t *testing.T) {
 	config := DashboardConfig{
-		StorageCostPerGB: 0.69,
+		StorageCostPerGB:   0.69,
 		TrendRetentionDays: 7,
 	}
 
@@ -247,7 +247,7 @@ func TestDashboardService_CalculateEfficiencyScore(t *testing.T) {
 
 func TestDashboardService_PotentialSavings(t *testing.T) {
 	config := DashboardConfig{
-		StorageCostPerGB: 0.69,
+		StorageCostPerGB:  0.69,
 		LowUsageThreshold: 30.0,
 	}
 
@@ -257,7 +257,7 @@ func TestDashboardService_PotentialSavings(t *testing.T) {
 	resources := []ResourceInfo{
 		{
 			TotalCapacityBytes: 10 * 1024 * 1024 * 1024 * 1024, // 10TB
-			UsedCapacityBytes:  500 * 1024 * 1024 * 1024,      // 500GB (5% 使用率)
+			UsedCapacityBytes:  500 * 1024 * 1024 * 1024,       // 500GB (5% 使用率)
 		},
 	}
 
@@ -270,7 +270,7 @@ func TestDashboardService_PotentialSavings(t *testing.T) {
 
 func TestDashboardService_CleanupOldData(t *testing.T) {
 	config := DashboardConfig{
-		StorageCostPerGB: 0.69,
+		StorageCostPerGB:   0.69,
 		TrendRetentionDays: 1, // 只保留1天
 	}
 
@@ -297,8 +297,8 @@ func TestDashboardService_CleanupOldData(t *testing.T) {
 
 func TestCostItem_PercentCalculation(t *testing.T) {
 	config := DashboardConfig{
-		StorageCostPerGB:      0.69,
-		ElectricityCostPerKWh: 0.5,
+		StorageCostPerGB:        0.69,
+		ElectricityCostPerKWh:   0.5,
 		DefaultDevicePowerWatts: 100.0,
 	}
 
@@ -306,16 +306,16 @@ func TestCostItem_PercentCalculation(t *testing.T) {
 
 	resources := []ResourceInfo{
 		{
-			Name:              "pool-1",
+			Name:               "pool-1",
 			TotalCapacityBytes: 1 * 1024 * 1024 * 1024 * 1024,
 			UsedCapacityBytes:  500 * 1024 * 1024 * 1024,
-			PowerWatts:        100.0,
+			PowerWatts:         100.0,
 		},
 		{
-			Name:              "pool-2",
+			Name:               "pool-2",
 			TotalCapacityBytes: 1 * 1024 * 1024 * 1024 * 1024,
 			UsedCapacityBytes:  500 * 1024 * 1024 * 1024,
-			PowerWatts:        100.0,
+			PowerWatts:         100.0,
 		},
 	}
 
@@ -335,7 +335,7 @@ func TestCostItem_PercentCalculation(t *testing.T) {
 
 func TestDashboardService_GetConfig(t *testing.T) {
 	config := DashboardConfig{
-		StorageCostPerGB: 1.0,
+		StorageCostPerGB:      1.0,
 		ElectricityCostPerKWh: 0.6,
 	}
 

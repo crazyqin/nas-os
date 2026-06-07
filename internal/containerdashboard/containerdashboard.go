@@ -10,13 +10,13 @@ import (
 type ContainerStatus string
 
 const (
-	StatusCreated  ContainerStatus = "created"
-	StatusRunning  ContainerStatus = "running"
-	StatusPaused   ContainerStatus = "paused"
+	StatusCreated    ContainerStatus = "created"
+	StatusRunning    ContainerStatus = "running"
+	StatusPaused     ContainerStatus = "paused"
 	StatusRestarting ContainerStatus = "restarting"
-	StatusRemoving ContainerStatus = "removing"
-	StatusExited   ContainerStatus = "exited"
-	StatusDead     ContainerStatus = "dead"
+	StatusRemoving   ContainerStatus = "removing"
+	StatusExited     ContainerStatus = "exited"
+	StatusDead       ContainerStatus = "dead"
 )
 
 // HealthStatus 健康状态
@@ -31,21 +31,21 @@ const (
 
 // Container 容器信息
 type Container struct {
-	ID          string          `json:"id"`
-	Name        string          `json:"name"`
-	Image       string          `json:"image"`
-	Status      ContainerStatus `json:"status"`
-	Health      HealthStatus    `json:"health"`
-	Ports       []PortMapping   `json:"ports,omitempty"`
-	Networks    []string        `json:"networks,omitempty"`
-	Volumes     []VolumeMount   `json:"volumes,omitempty"`
-	Env         []string        `json:"env,omitempty"`
-	Command     string          `json:"command,omitempty"`
-	CreatedAt   time.Time       `json:"created_at"`
-	StartedAt   *time.Time      `json:"started_at,omitempty"`
-	FinishedAt  *time.Time      `json:"finished_at,omitempty"`
-	RestartCount int            `json:"restart_count"`
-	Labels      map[string]string `json:"labels,omitempty"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	Image        string            `json:"image"`
+	Status       ContainerStatus   `json:"status"`
+	Health       HealthStatus      `json:"health"`
+	Ports        []PortMapping     `json:"ports,omitempty"`
+	Networks     []string          `json:"networks,omitempty"`
+	Volumes      []VolumeMount     `json:"volumes,omitempty"`
+	Env          []string          `json:"env,omitempty"`
+	Command      string            `json:"command,omitempty"`
+	CreatedAt    time.Time         `json:"created_at"`
+	StartedAt    *time.Time        `json:"started_at,omitempty"`
+	FinishedAt   *time.Time        `json:"finished_at,omitempty"`
+	RestartCount int               `json:"restart_count"`
+	Labels       map[string]string `json:"labels,omitempty"`
 }
 
 // PortMapping 端口映射
@@ -79,11 +79,11 @@ type ResourceUsage struct {
 
 // ResourceTimeSeries 资源时间序列
 type ResourceTimeSeries struct {
-	ContainerID string           `json:"container_id"`
-	Metrics     []ResourceUsage  `json:"metrics"`
-	StartTime   time.Time        `json:"start_time"`
-	EndTime     time.Time        `json:"end_time"`
-	Interval    time.Duration    `json:"interval"`
+	ContainerID string          `json:"container_id"`
+	Metrics     []ResourceUsage `json:"metrics"`
+	StartTime   time.Time       `json:"start_time"`
+	EndTime     time.Time       `json:"end_time"`
+	Interval    time.Duration   `json:"interval"`
 }
 
 // ContainerLog 容器日志
@@ -137,9 +137,9 @@ type HealthCheck struct {
 
 // NetworkTopology 网络拓扑
 type NetworkTopology struct {
-	Networks   []NetworkInfo    `json:"networks"`
-	Nodes      []TopologyNode   `json:"nodes"`
-	Edges      []TopologyEdge   `json:"edges"`
+	Networks []NetworkInfo  `json:"networks"`
+	Nodes    []TopologyNode `json:"nodes"`
+	Edges    []TopologyEdge `json:"edges"`
 }
 
 // NetworkInfo 网络信息
@@ -169,29 +169,29 @@ type TopologyEdge struct {
 
 // DashboardStats 仪表盘统计
 type DashboardStats struct {
-	TotalContainers    int            `json:"total_containers"`
-	RunningContainers  int            `json:"running_containers"`
-	StoppedContainers  int            `json:"stopped_containers"`
-	HealthyContainers  int            `json:"healthy_containers"`
-	UnhealthyContainers int           `json:"unhealthy_containers"`
-	TotalImages        int            `json:"total_images"`
-	TotalNetworks      int            `json:"total_networks"`
-	TotalVolumes       int            `json:"total_volumes"`
-	ResourcesByStatus  map[string]int `json:"resources_by_status"`
-	CPUUsageTotal      float64        `json:"cpu_usage_total"`
-	MemoryUsageTotal   int64          `json:"memory_usage_total"`
+	TotalContainers     int            `json:"total_containers"`
+	RunningContainers   int            `json:"running_containers"`
+	StoppedContainers   int            `json:"stopped_containers"`
+	HealthyContainers   int            `json:"healthy_containers"`
+	UnhealthyContainers int            `json:"unhealthy_containers"`
+	TotalImages         int            `json:"total_images"`
+	TotalNetworks       int            `json:"total_networks"`
+	TotalVolumes        int            `json:"total_volumes"`
+	ResourcesByStatus   map[string]int `json:"resources_by_status"`
+	CPUUsageTotal       float64        `json:"cpu_usage_total"`
+	MemoryUsageTotal    int64          `json:"memory_usage_total"`
 }
 
 // ContainerDashboard 容器仪表盘
 type ContainerDashboard struct {
-	mu          sync.RWMutex
-	containers  map[string]*Container
-	resources   map[string][]ResourceUsage
-	logs        map[string][]*ContainerLog
-	logStreams   map[string]*LogStream
-	templates   map[string]*DeployTemplate
-	networks    map[string]*NetworkInfo
-	volumes     map[string]string
+	mu         sync.RWMutex
+	containers map[string]*Container
+	resources  map[string][]ResourceUsage
+	logs       map[string][]*ContainerLog
+	logStreams map[string]*LogStream
+	templates  map[string]*DeployTemplate
+	networks   map[string]*NetworkInfo
+	volumes    map[string]string
 }
 
 // NewContainerDashboard 创建容器仪表盘
@@ -200,7 +200,7 @@ func NewContainerDashboard() *ContainerDashboard {
 		containers: make(map[string]*Container),
 		resources:  make(map[string][]ResourceUsage),
 		logs:       make(map[string][]*ContainerLog),
-		logStreams:  make(map[string]*LogStream),
+		logStreams: make(map[string]*LogStream),
 		templates:  make(map[string]*DeployTemplate),
 		networks:   make(map[string]*NetworkInfo),
 		volumes:    make(map[string]string),
@@ -317,7 +317,7 @@ func (cd *ContainerDashboard) RestartContainer(containerID string) error {
 
 	container.Status = StatusRestarting
 	container.RestartCount++
-	
+
 	// 模拟重启完成
 	now := time.Now()
 	container.Status = StatusRunning
@@ -549,7 +549,7 @@ func (cd *ContainerDashboard) DeployFromTemplate(templateID string, name string,
 	}
 
 	containerID := fmt.Sprintf("%s-%d", name, time.Now().UnixNano())
-	
+
 	env := make([]string, 0)
 	for k, v := range template.Env {
 		if override, ok := overrides[k]; ok {
@@ -599,7 +599,7 @@ func (cd *ContainerDashboard) CheckContainerHealth(containerID string) (*HealthS
 	}
 
 	latest := usages[len(usages)-1]
-	
+
 	// 简单健康检查：CPU或内存使用率过高
 	if latest.CPUPercent > 95 || latest.MemoryPercent > 95 {
 		health := HealthUnhealthy

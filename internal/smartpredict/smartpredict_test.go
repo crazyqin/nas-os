@@ -7,7 +7,7 @@ import (
 
 func TestHealthScoreCalculation(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	tests := []struct {
 		name     string
 		health   *DiskHealth
@@ -63,7 +63,7 @@ func TestHealthScoreCalculation(t *testing.T) {
 			maxScore: 30,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mgr.UpdateDisk(tt.health)
@@ -78,7 +78,7 @@ func TestHealthScoreCalculation(t *testing.T) {
 
 func TestFailProbCalculation(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	health := &DiskHealth{
 		Device:      "/dev/sda",
 		Temperature: 40,
@@ -88,7 +88,7 @@ func TestFailProbCalculation(t *testing.T) {
 	}
 	mgr.UpdateDisk(health)
 	disk, _ := mgr.GetDisk("/dev/sda")
-	
+
 	if disk.FailProb <= 0 {
 		t.Error("fail probability should be > 0 for disk with reallocated sectors")
 	}
@@ -99,11 +99,11 @@ func TestFailProbCalculation(t *testing.T) {
 
 func TestPredictionRiskLevels(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	tests := []struct {
-		name       string
-		health     *DiskHealth
-		wantLevel  string
+		name      string
+		health    *DiskHealth
+		wantLevel string
 	}{
 		{
 			name: "低风险",
@@ -130,7 +130,7 @@ func TestPredictionRiskLevels(t *testing.T) {
 			wantLevel: "critical",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mgr.UpdateDisk(tt.health)
@@ -147,7 +147,7 @@ func TestPredictionRiskLevels(t *testing.T) {
 
 func TestAlertCallback(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	alerted := false
 	mgr.SetAlertFunc(func(device string, pred *Prediction) {
 		alerted = true
@@ -155,7 +155,7 @@ func TestAlertCallback(t *testing.T) {
 			t.Errorf("expected critical alert, got %s", pred.RiskLevel)
 		}
 	})
-	
+
 	health := &DiskHealth{
 		Device:       "/dev/sda",
 		Temperature:  70,
@@ -167,7 +167,7 @@ func TestAlertCallback(t *testing.T) {
 		},
 	}
 	mgr.UpdateDisk(health)
-	
+
 	if !alerted {
 		t.Error("expected alert callback to be triggered")
 	}
@@ -175,14 +175,14 @@ func TestAlertCallback(t *testing.T) {
 
 func TestGetAllDisks(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	for i := 0; i < 3; i++ {
 		mgr.UpdateDisk(&DiskHealth{
 			Device:      "/dev/sd" + string(rune('a'+i)),
 			Temperature: 35,
 		})
 	}
-	
+
 	disks := mgr.GetAllDisks()
 	if len(disks) != 3 {
 		t.Errorf("expected 3 disks, got %d", len(disks))
@@ -191,14 +191,14 @@ func TestGetAllDisks(t *testing.T) {
 
 func TestRiskSummary(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	// 添加一个健康磁盘
 	mgr.UpdateDisk(&DiskHealth{
 		Device:       "/dev/sda",
 		Temperature:  35,
 		PowerOnHours: 1000,
 	})
-	
+
 	summary := mgr.GetRiskSummary()
 	if summary["low"] != 1 {
 		t.Errorf("expected 1 low risk disk, got %d", summary["low"])
@@ -207,7 +207,7 @@ func TestRiskSummary(t *testing.T) {
 
 func TestEstimateRemainingDays(t *testing.T) {
 	mgr := NewManager(nil)
-	
+
 	health := &DiskHealth{
 		Device:       "/dev/sda",
 		Temperature:  35,
@@ -215,7 +215,7 @@ func TestEstimateRemainingDays(t *testing.T) {
 	}
 	mgr.UpdateDisk(health)
 	disk, _ := mgr.GetDisk("/dev/sda")
-	
+
 	if disk.Prediction.RemainingLifeDays <= 0 {
 		t.Error("remaining life days should be positive")
 	}
@@ -225,7 +225,7 @@ func TestMonitorLifecycle(t *testing.T) {
 	mgr := NewManager(&PredictConfig{
 		CheckInterval: 100 * time.Millisecond,
 	})
-	
+
 	mgr.Start()
 	time.Sleep(50 * time.Millisecond)
 	mgr.Stop()

@@ -196,11 +196,11 @@ func (m *Manager) Search(query SearchQuery) (*SearchResult, error) {
 	duration := time.Since(startTime)
 
 	return &SearchResult{
-		Items:    results,
-		Total:    len(results),
+		Items:     results,
+		Total:     len(results),
 		Truncated: len(results) >= query.MaxResults,
-		Query:    query,
-		Duration: duration.Milliseconds(),
+		Query:     query,
+		Duration:  duration.Milliseconds(),
 	}, nil
 }
 

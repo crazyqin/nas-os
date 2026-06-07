@@ -208,9 +208,9 @@ require (
 
 	// 自定义策略，把某个模块标记为黑名单
 	p := &Policy{
-		ID:        "strict",
-		Name:      "严格策略",
-		Blacklist: []string{"unknown"},
+		ID:          "strict",
+		Name:        "严格策略",
+		Blacklist:   []string{"unknown"},
 		DefaultList: ListBlacklist,
 	}
 	m.CreatePolicy(p)
@@ -478,21 +478,21 @@ func TestGetPolicyOrDefault(t *testing.T) {
 func TestBuildReportSummary(t *testing.T) {
 	results := []ScanResult{
 		{
-			Status:    StatusComplete,
-			Licenses:  []License{{Name: "MIT", Compliance: ComplianceAllowed}},
-			Summary:   ScanSummary{TotalLicenses: 1},
+			Status:     StatusComplete,
+			Licenses:   []License{{Name: "MIT", Compliance: ComplianceAllowed}},
+			Summary:    ScanSummary{TotalLicenses: 1},
 			Violations: nil,
 		},
 		{
-			Status:    StatusComplete,
-			Licenses:  []License{{Name: "AGPL", Compliance: ComplianceDenied}},
-			Summary:   ScanSummary{TotalLicenses: 1},
+			Status:     StatusComplete,
+			Licenses:   []License{{Name: "AGPL", Compliance: ComplianceDenied}},
+			Summary:    ScanSummary{TotalLicenses: 1},
 			Violations: []Violation{{LicenseName: "AGPL", ListType: ListBlacklist, Severity: SeverityHigh}},
 		},
 		{
-			Status:    StatusComplete,
-			Licenses:  []License{{Name: "LGPL", Compliance: ComplianceReview}},
-			Summary:   ScanSummary{TotalLicenses: 1},
+			Status:     StatusComplete,
+			Licenses:   []License{{Name: "LGPL", Compliance: ComplianceReview}},
+			Summary:    ScanSummary{TotalLicenses: 1},
 			Violations: []Violation{{LicenseName: "LGPL", ListType: ListGraylist, Severity: SeverityMedium}},
 		},
 	}

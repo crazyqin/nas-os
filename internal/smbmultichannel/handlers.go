@@ -252,6 +252,6 @@ func (h *Handlers) SetLoadBalanceMode(c *gin.Context) {
 	c.JSON(http.StatusOK, response{
 		Code:    0,
 		Message: "load balance mode updated",
-		Data: gin.H{"mode": req.Mode},
+		Data:    gin.H{"mode": req.Mode},
 	})
 }

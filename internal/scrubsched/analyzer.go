@@ -11,19 +11,19 @@ import (
 
 // IOAnalyzer IO负载分析器，负责IO负载监控和高峰检测.
 type IOAnalyzer struct {
-	manager       *Manager
-	peakPatterns  map[string]*PeakPattern // poolID -> 高峰模式
-	mu            sync.RWMutex
+	manager      *Manager
+	peakPatterns map[string]*PeakPattern // poolID -> 高峰模式
+	mu           sync.RWMutex
 }
 
 // PeakPattern 高峰模式数据.
 type PeakPattern struct {
-	PoolID       string           `json:"pool_id"`       // 存储池ID
-	HourlyAvg    [24]float64      `json:"hourly_avg"`    // 每小时平均IOPS
-	DailyPattern [7][24]float64   `json:"daily_pattern"` // 按星期几的每小时模式
-	LastUpdated  time.Time        `json:"last_updated"`  // 最后更新时间
-	SampleCount  int              `json:"sample_count"`  // 样本数
-	IsLearned    bool             `json:"is_learned"`    // 是否已完成学习
+	PoolID       string         `json:"pool_id"`       // 存储池ID
+	HourlyAvg    [24]float64    `json:"hourly_avg"`    // 每小时平均IOPS
+	DailyPattern [7][24]float64 `json:"daily_pattern"` // 按星期几的每小时模式
+	LastUpdated  time.Time      `json:"last_updated"`  // 最后更新时间
+	SampleCount  int            `json:"sample_count"`  // 样本数
+	IsLearned    bool           `json:"is_learned"`    // 是否已完成学习
 }
 
 // NewIOAnalyzer 创建IO分析器.

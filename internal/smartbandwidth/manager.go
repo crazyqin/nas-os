@@ -84,13 +84,13 @@ func (m *Manager) GetBandwidthUsage() *BandwidthUsage {
 	defer m.mu.RUnlock()
 
 	usage := &BandwidthUsage{
-		TotalMbps:   float64(m.config.TotalBandwidthMbps),
-		UsedMbps:    0,
-		FreeMbps:    float64(m.config.TotalBandwidthMbps),
-		Utilization: 0,
-		RuleCount:   len(m.rules),
+		TotalMbps:    float64(m.config.TotalBandwidthMbps),
+		UsedMbps:     0,
+		FreeMbps:     float64(m.config.TotalBandwidthMbps),
+		Utilization:  0,
+		RuleCount:    len(m.rules),
 		EnabledRules: 0,
-		UpdatedAt:   time.Now(),
+		UpdatedAt:    time.Now(),
 	}
 
 	for _, rule := range m.rules {

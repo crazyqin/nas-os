@@ -39,8 +39,8 @@ const (
 type SleepPolicy string
 
 const (
-	SleepPolicyScheduled SleepPolicy = "scheduled"
-	SleepPolicyIdle      SleepPolicy = "idle"
+	SleepPolicyScheduled  SleepPolicy = "scheduled"
+	SleepPolicyIdle       SleepPolicy = "idle"
 	SleepPolicyPowerSaver SleepPolicy = "power_saver"
 )
 
@@ -57,24 +57,24 @@ type PowerReading struct {
 
 // SystemPowerSnapshot 系统功耗快照
 type SystemPowerSnapshot struct {
-	ID              string          `json:"id"`
-	CPUPower        float64         `json:"cpu_power"`
-	DiskPower       float64         `json:"disk_power"`
-	FanPower        float64         `json:"fan_power"`
-	TotalPower      float64         `json:"total_power"`
-	CPUTemperature  float64         `json:"cpu_temperature"`
-	Components      []PowerReading  `json:"components"`
-	Timestamp       time.Time       `json:"timestamp"`
+	ID             string         `json:"id"`
+	CPUPower       float64        `json:"cpu_power"`
+	DiskPower      float64        `json:"disk_power"`
+	FanPower       float64        `json:"fan_power"`
+	TotalPower     float64        `json:"total_power"`
+	CPUTemperature float64        `json:"cpu_temperature"`
+	Components     []PowerReading `json:"components"`
+	Timestamp      time.Time      `json:"timestamp"`
 }
 
 // ElectricityRate 电价配置
 type ElectricityRate struct {
-	ID           string    `json:"id"`
-	Region       string    `json:"region" binding:"required"`
-	Currency     string    `json:"currency"`
-	ProviderName string    `json:"provider_name,omitempty"`
+	ID           string     `json:"id"`
+	Region       string     `json:"region" binding:"required"`
+	Currency     string     `json:"currency"`
+	ProviderName string     `json:"provider_name,omitempty"`
 	Rates        []RateTier `json:"rates" binding:"required,min=1"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
 }
 
 // RateTier 分时电价阶梯
@@ -87,16 +87,16 @@ type RateTier struct {
 
 // EnergyCost 能耗费用
 type EnergyCost struct {
-	ID          string    `json:"id"`
-	Region      string    `json:"region"`
-	Period      EnergyReportPeriod `json:"period"`
-	StartDate   time.Time `json:"start_date"`
-	EndDate     time.Time `json:"end_date"`
-	KWh         float64   `json:"kwh"`
-	Cost        float64   `json:"cost"`
-	Currency    string    `json:"currency"`
-	Breakdown   []CostBreakdown `json:"breakdown,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID        string             `json:"id"`
+	Region    string             `json:"region"`
+	Period    EnergyReportPeriod `json:"period"`
+	StartDate time.Time          `json:"start_date"`
+	EndDate   time.Time          `json:"end_date"`
+	KWh       float64            `json:"kwh"`
+	Cost      float64            `json:"cost"`
+	Currency  string             `json:"currency"`
+	Breakdown []CostBreakdown    `json:"breakdown,omitempty"`
+	CreatedAt time.Time          `json:"created_at"`
 }
 
 // CostBreakdown 费用细分
@@ -109,14 +109,14 @@ type CostBreakdown struct {
 
 // EfficiencyScore 能效评分
 type EfficiencyScore struct {
-	ID               string    `json:"id"`
-	TotalStorageTB   float64   `json:"total_storage_tb"`
-	TotalPowerWatts  float64   `json:"total_power_watts"`
-	WattsPerTB       float64   `json:"watts_per_tb"`
-	Score            int       `json:"score"` // 0-100
-	Rating           string    `json:"rating"` // A+, A, B, C, D
-	Recommendations  []string  `json:"recommendations,omitempty"`
-	UpdatedAt        time.Time `json:"updated_at"`
+	ID              string    `json:"id"`
+	TotalStorageTB  float64   `json:"total_storage_tb"`
+	TotalPowerWatts float64   `json:"total_power_watts"`
+	WattsPerTB      float64   `json:"watts_per_tb"`
+	Score           int       `json:"score"`  // 0-100
+	Rating          string    `json:"rating"` // A+, A, B, C, D
+	Recommendations []string  `json:"recommendations,omitempty"`
+	UpdatedAt       time.Time `json:"updated_at"`
 }
 
 // SleepSchedule 休眠计划
@@ -135,20 +135,20 @@ type SleepSchedule struct {
 
 // EnergyReport 能耗报表
 type EnergyReport struct {
-	ID             string             `json:"id"`
-	Period         EnergyReportPeriod `json:"period"`
-	StartDate      time.Time          `json:"start_date"`
-	EndDate        time.Time          `json:"end_date"`
-	TotalKWh       float64            `json:"total_kwh"`
-	TotalCost      float64            `json:"total_cost"`
-	Currency       string             `json:"currency"`
-	CarbonKg       float64            `json:"carbon_kg"`
-	Components     []ComponentReport  `json:"components"`
-	DailyAverage   float64            `json:"daily_average"`
-	PeakPower      float64            `json:"peak_power"`
-	PeakTime       time.Time          `json:"peak_time"`
-	EfficiencyScore int               `json:"efficiency_score"`
-	CreatedAt      time.Time          `json:"created_at"`
+	ID              string             `json:"id"`
+	Period          EnergyReportPeriod `json:"period"`
+	StartDate       time.Time          `json:"start_date"`
+	EndDate         time.Time          `json:"end_date"`
+	TotalKWh        float64            `json:"total_kwh"`
+	TotalCost       float64            `json:"total_cost"`
+	Currency        string             `json:"currency"`
+	CarbonKg        float64            `json:"carbon_kg"`
+	Components      []ComponentReport  `json:"components"`
+	DailyAverage    float64            `json:"daily_average"`
+	PeakPower       float64            `json:"peak_power"`
+	PeakTime        time.Time          `json:"peak_time"`
+	EfficiencyScore int                `json:"efficiency_score"`
+	CreatedAt       time.Time          `json:"created_at"`
 }
 
 // ComponentReport 组件能耗报表
@@ -163,30 +163,30 @@ type ComponentReport struct {
 
 // CarbonEstimate 碳排放估算
 type CarbonEstimate struct {
-	ID             string    `json:"id"`
-	KWh            float64   `json:"kwh"`
-	CarbonKg       float64   `json:"carbon_kg"`
-	Factor         float64   `json:"factor"` // kg CO2 per kWh
-	Region         string    `json:"region"`
+	ID             string             `json:"id"`
+	KWh            float64            `json:"kwh"`
+	CarbonKg       float64            `json:"carbon_kg"`
+	Factor         float64            `json:"factor"` // kg CO2 per kWh
+	Region         string             `json:"region"`
 	Period         EnergyReportPeriod `json:"period"`
-	StartDate      time.Time `json:"start_date"`
-	EndDate        time.Time `json:"end_date"`
-	EquivalentTree float64   `json:"equivalent_tree"` // 等效种树量
-	CreatedAt      time.Time `json:"created_at"`
+	StartDate      time.Time          `json:"start_date"`
+	EndDate        time.Time          `json:"end_date"`
+	EquivalentTree float64            `json:"equivalent_tree"` // 等效种树量
+	CreatedAt      time.Time          `json:"created_at"`
 }
 
 // DashboardSummary 仪表盘总览
 type DashboardSummary struct {
-	CurrentPower     *SystemPowerSnapshot `json:"current_power"`
-	TodayKWh         float64              `json:"today_kwh"`
-	TodayCost        float64              `json:"today_cost"`
-	MonthKWh         float64              `json:"month_kwh"`
-	MonthCost        float64              `json:"month_cost"`
-	Currency         string               `json:"currency"`
-	EfficiencyScore  *EfficiencyScore     `json:"efficiency_score"`
-	CarbonToday      float64              `json:"carbon_today"`
-	ActiveSchedules  int                  `json:"active_schedules"`
-	LastUpdated      time.Time            `json:"last_updated"`
+	CurrentPower    *SystemPowerSnapshot `json:"current_power"`
+	TodayKWh        float64              `json:"today_kwh"`
+	TodayCost       float64              `json:"today_cost"`
+	MonthKWh        float64              `json:"month_kwh"`
+	MonthCost       float64              `json:"month_cost"`
+	Currency        string               `json:"currency"`
+	EfficiencyScore *EfficiencyScore     `json:"efficiency_score"`
+	CarbonToday     float64              `json:"carbon_today"`
+	ActiveSchedules int                  `json:"active_schedules"`
+	LastUpdated     time.Time            `json:"last_updated"`
 }
 
 // DashboardConfig 能耗仪表盘配置

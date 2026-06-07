@@ -29,7 +29,7 @@ func (a *Analyzer) AnalyzeTrend(duration time.Duration) *TrendAnalysis {
 
 	if len(recent) < 2 {
 		return &TrendAnalysis{
-			Direction: "stable",
+			Direction:  "stable",
 			DataPoints: len(recent),
 		}
 	}
@@ -50,13 +50,13 @@ func (a *Analyzer) AnalyzeTrend(duration time.Duration) *TrendAnalysis {
 	}
 
 	return &TrendAnalysis{
-		Direction:   direction,
-		ChangeRate:  changeRate,
-		FirstAvg:    firstAvg,
-		SecondAvg:   secondAvg,
-		DataPoints:  len(recent),
-		StartTime:   recent[0].Timestamp,
-		EndTime:     recent[len(recent)-1].Timestamp,
+		Direction:  direction,
+		ChangeRate: changeRate,
+		FirstAvg:   firstAvg,
+		SecondAvg:  secondAvg,
+		DataPoints: len(recent),
+		StartTime:  recent[0].Timestamp,
+		EndTime:    recent[len(recent)-1].Timestamp,
 	}
 }
 

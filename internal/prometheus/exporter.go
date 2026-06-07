@@ -331,16 +331,16 @@ type Exporter struct {
 	mu       sync.RWMutex
 
 	// 指标描述符
-	cpuUsage           *promclient.Desc
-	memoryUsage        *promclient.Desc
-	diskUsageBytes     *promclient.Desc
-	diskTotalBytes     *promclient.Desc
-	networkRXBytes     *promclient.Desc
-	networkTXBytes     *promclient.Desc
-	storagePoolStatus  *promclient.Desc
-	diskTemperature    *promclient.Desc
-	activeConnections  *promclient.Desc
-	smbSessions        *promclient.Desc
+	cpuUsage          *promclient.Desc
+	memoryUsage       *promclient.Desc
+	diskUsageBytes    *promclient.Desc
+	diskTotalBytes    *promclient.Desc
+	networkRXBytes    *promclient.Desc
+	networkTXBytes    *promclient.Desc
+	storagePoolStatus *promclient.Desc
+	diskTemperature   *promclient.Desc
+	activeConnections *promclient.Desc
+	smbSessions       *promclient.Desc
 }
 
 // NewExporter 创建指标导出器.

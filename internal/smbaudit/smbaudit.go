@@ -30,13 +30,13 @@ type AuditEntry struct {
 
 // AuditFilter 审计过滤条件
 type AuditFilter struct {
-	User      *string       `json:"user,omitempty"`
-	IP        *string       `json:"ip,omitempty"`
-	Share     *string       `json:"share,omitempty"`
-	Action    *string       `json:"action,omitempty"`
-	Result    *AuditResult  `json:"result,omitempty"`
-	StartTime *time.Time    `json:"start_time,omitempty"`
-	EndTime   *time.Time    `json:"end_time,omitempty"`
+	User      *string      `json:"user,omitempty"`
+	IP        *string      `json:"ip,omitempty"`
+	Share     *string      `json:"share,omitempty"`
+	Action    *string      `json:"action,omitempty"`
+	Result    *AuditResult `json:"result,omitempty"`
+	StartTime *time.Time   `json:"start_time,omitempty"`
+	EndTime   *time.Time   `json:"end_time,omitempty"`
 }
 
 // AuditConfig 审计配置

@@ -17,22 +17,22 @@ type IPMIConfig struct {
 
 // IPMIDevice IPMI 设备.
 type IPMIDevice struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Host        string            `json:"host"`
-	Port        int               `json:"port"`
-	Username    string            `json:"username"`
-	Password    string            `json:"-"` // 不序列化
-	Status      DeviceStatus      `json:"status"`
-	PowerState  PowerState        `json:"power_state"`
-	BMCVersion  string            `json:"bmc_version"`
-	SerialNo    string            `json:"serial_no"`
-	Model       string            `json:"model"`
-	Manufacturer string           `json:"manufacturer"`
-	FirmwareVer string            `json:"firmware_ver"`
-	Attributes  map[string]string `json:"attributes"`
-	LastSeen    time.Time         `json:"last_seen"`
-	CreatedAt   time.Time         `json:"created_at"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	Host         string            `json:"host"`
+	Port         int               `json:"port"`
+	Username     string            `json:"username"`
+	Password     string            `json:"-"` // 不序列化
+	Status       DeviceStatus      `json:"status"`
+	PowerState   PowerState        `json:"power_state"`
+	BMCVersion   string            `json:"bmc_version"`
+	SerialNo     string            `json:"serial_no"`
+	Model        string            `json:"model"`
+	Manufacturer string            `json:"manufacturer"`
+	FirmwareVer  string            `json:"firmware_ver"`
+	Attributes   map[string]string `json:"attributes"`
+	LastSeen     time.Time         `json:"last_seen"`
+	CreatedAt    time.Time         `json:"created_at"`
 }
 
 // DeviceStatus 设备状态.
@@ -55,18 +55,18 @@ const (
 
 // Sensor 传感器.
 type Sensor struct {
-	ID         string      `json:"id"`
-	DeviceID   string      `json:"device_id"`
-	Name       string      `json:"name"`
-	Type       SensorType  `json:"type"`
-	Value      float64     `json:"value"`
-	Unit       string      `json:"unit"`
-	Threshold  float64     `json:"threshold"`
-	Status     SensorStatus `json:"status"`
-	Reading    float64     `json:"reading"`
-	Min        float64     `json:"min"`
-	Max        float64     `json:"max"`
-	LastReading time.Time  `json:"last_reading"`
+	ID          string       `json:"id"`
+	DeviceID    string       `json:"device_id"`
+	Name        string       `json:"name"`
+	Type        SensorType   `json:"type"`
+	Value       float64      `json:"value"`
+	Unit        string       `json:"unit"`
+	Threshold   float64      `json:"threshold"`
+	Status      SensorStatus `json:"status"`
+	Reading     float64      `json:"reading"`
+	Min         float64      `json:"min"`
+	Max         float64      `json:"max"`
+	LastReading time.Time    `json:"last_reading"`
 }
 
 // SensorType 传感器类型.
@@ -106,12 +106,12 @@ type SystemEvent struct {
 type EventType string
 
 const (
-	EventTypePower     EventType = "power"
-	EventTypeSensor    EventType = "sensor"
-	EventTypeHardware  EventType = "hardware"
-	EventTypeSecurity  EventType = "security"
-	EventTypeNetwork   EventType = "network"
-	EventTypeSystem    EventType = "system"
+	EventTypePower    EventType = "power"
+	EventTypeSensor   EventType = "sensor"
+	EventTypeHardware EventType = "hardware"
+	EventTypeSecurity EventType = "security"
+	EventTypeNetwork  EventType = "network"
+	EventTypeSystem   EventType = "system"
 )
 
 // IPMIStats 统计信息.

@@ -9,17 +9,17 @@ import (
 
 // RAID 级别枚举
 const (
-	RAID0    = "RAID0"
-	RAID1    = "RAID1"
-	RAID5    = "RAID5"
-	RAID6    = "RAID6"
-	RAID10   = "RAID10"
-	RAIDZ1   = "RAIDZ1"
-	RAIDZ2   = "RAIDZ2"
-	RAIDZ3   = "RAIDZ3"
-	DRAID1   = "DRAID1"
-	DRAID2   = "DRAID2"
-	DRAID3   = "DRAID3"
+	RAID0  = "RAID0"
+	RAID1  = "RAID1"
+	RAID5  = "RAID5"
+	RAID6  = "RAID6"
+	RAID10 = "RAID10"
+	RAIDZ1 = "RAIDZ1"
+	RAIDZ2 = "RAIDZ2"
+	RAIDZ3 = "RAIDZ3"
+	DRAID1 = "DRAID1"
+	DRAID2 = "DRAID2"
+	DRAID3 = "DRAID3"
 )
 
 // validLevels 存储所有合法的 RAID 级别

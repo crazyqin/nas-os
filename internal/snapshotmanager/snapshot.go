@@ -72,8 +72,8 @@ type SnapshotSchedule struct {
 	ID        string        `json:"id"`
 	Frequency string        `json:"frequency"` // hourly, daily, weekly, monthly
 	Interval  int           `json:"interval"`
-	Time      string        `json:"time"`     // HH:MM format
-	Days      []string      `json:"days"`     // For weekly: mon, tue, etc.
+	Time      string        `json:"time"` // HH:MM format
+	Days      []string      `json:"days"` // For weekly: mon, tue, etc.
 	Enabled   bool          `json:"enabled"`
 	NextRun   time.Time     `json:"next_run"`
 	LastRun   *time.Time    `json:"last_run,omitempty"`
@@ -82,26 +82,26 @@ type SnapshotSchedule struct {
 
 // RetentionRule 保留规则
 type RetentionRule struct {
-	ID            string        `json:"id"`
-	Name          string        `json:"name"`
-	KeepLast      int           `json:"keep_last"`
-	KeepHourly    int           `json:"keep_hourly"`
-	KeepDaily     int           `json:"keep_daily"`
-	KeepWeekly    int           `json:"keep_weekly"`
-	KeepMonthly   int           `json:"keep_monthly"`
-	KeepYearly    int           `json:"keep_yearly"`
-	MaxAge        time.Duration `json:"max_age"`
-	MinFreeSpace  int64         `json:"min_free_space"`
-	Enabled       bool          `json:"enabled"`
+	ID           string        `json:"id"`
+	Name         string        `json:"name"`
+	KeepLast     int           `json:"keep_last"`
+	KeepHourly   int           `json:"keep_hourly"`
+	KeepDaily    int           `json:"keep_daily"`
+	KeepWeekly   int           `json:"keep_weekly"`
+	KeepMonthly  int           `json:"keep_monthly"`
+	KeepYearly   int           `json:"keep_yearly"`
+	MaxAge       time.Duration `json:"max_age"`
+	MinFreeSpace int64         `json:"min_free_space"`
+	Enabled      bool          `json:"enabled"`
 }
 
 // ManagerConfig 管理器配置
 type ManagerConfig struct {
-	MaxSnapshots     int           `json:"max_snapshots"`
+	MaxSnapshots     int            `json:"max_snapshots"`
 	DefaultRetention *RetentionRule `json:"default_retention"`
-	SnapshotDir      string        `json:"snapshot_dir"`
-	EnableAutoSnap   bool          `json:"enable_auto_snap"`
-	AlertThreshold   int           `json:"alert_threshold"`
+	SnapshotDir      string         `json:"snapshot_dir"`
+	EnableAutoSnap   bool           `json:"enable_auto_snap"`
+	AlertThreshold   int            `json:"alert_threshold"`
 }
 
 // NewSnapshotManager 创建快照管理器

@@ -19,10 +19,10 @@ import (
 type SandboxStorageBackend string
 
 const (
-	SandboxBackendZFS   SandboxStorageBackend = "zfs"    // ZFS 文件系统
-	SandboxBackendBtrfs SandboxStorageBackend = "btrfs"  // Btrfs 文件系统
-	SandboxBackendDir   SandboxStorageBackend = "dir"    // 普通目录
-	SandboxBackendLVM   SandboxStorageBackend = "lvm"    // LVM 逻辑卷
+	SandboxBackendZFS   SandboxStorageBackend = "zfs"   // ZFS 文件系统
+	SandboxBackendBtrfs SandboxStorageBackend = "btrfs" // Btrfs 文件系统
+	SandboxBackendDir   SandboxStorageBackend = "dir"   // 普通目录
+	SandboxBackendLVM   SandboxStorageBackend = "lvm"   // LVM 逻辑卷
 )
 
 // SandboxVolumeStatus 沙箱存储卷状态
@@ -67,11 +67,11 @@ type SandboxStorageVolume struct {
 // SandboxSnapshot 沙箱存储快照
 type SandboxSnapshot struct {
 	ID        string            `json:"id"`
-	VolumeID  string            `json:"volume_id"`   // 所属卷 ID
-	Name      string            `json:"name"`        // 快照名称
-	Size      int64             `json:"size"`        // 快照大小
-	Path      string            `json:"path"`        // 快照路径
-	ParentID  string            `json:"parent_id"`   // 父快照 ID（用于增量快照）
+	VolumeID  string            `json:"volume_id"` // 所属卷 ID
+	Name      string            `json:"name"`      // 快照名称
+	Size      int64             `json:"size"`      // 快照大小
+	Path      string            `json:"path"`      // 快照路径
+	ParentID  string            `json:"parent_id"` // 父快照 ID（用于增量快照）
 	Labels    map[string]string `json:"labels"`
 	CreatedAt time.Time         `json:"created_at"`
 }
@@ -439,9 +439,9 @@ func (sm *SandboxStorageManager) Close() error {
 
 	statePath := filepath.Join(sm.dataDir, "state.json")
 	data, err := json.MarshalIndent(struct {
-		Pools     map[string]*SandboxStoragePool     `json:"pools"`
-		Volumes   map[string]*SandboxStorageVolume   `json:"volumes"`
-		Snapshots map[string]*SandboxSnapshot        `json:"snapshots"`
+		Pools     map[string]*SandboxStoragePool   `json:"pools"`
+		Volumes   map[string]*SandboxStorageVolume `json:"volumes"`
+		Snapshots map[string]*SandboxSnapshot      `json:"snapshots"`
 	}{
 		Pools:     sm.pools,
 		Volumes:   sm.volumes,

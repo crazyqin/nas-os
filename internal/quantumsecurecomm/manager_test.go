@@ -23,11 +23,11 @@ func TestNewManager(t *testing.T) {
 
 func TestNewManager_WithConfig(t *testing.T) {
 	cfg := &ManagerConfig{
-		DefaultAlgorithm:  AlgorithmDilithium,
-		DefaultSecurity:   SecurityLevel3,
-		MaxChannels:       500,
-		MaxHandshakes:     50,
-		AuditLogSize:      5000,
+		DefaultAlgorithm: AlgorithmDilithium,
+		DefaultSecurity:  SecurityLevel3,
+		MaxChannels:      500,
+		MaxHandshakes:    50,
+		AuditLogSize:     5000,
 	}
 
 	mgr := NewManager(cfg)

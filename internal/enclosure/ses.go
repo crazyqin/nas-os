@@ -99,9 +99,9 @@ func (s *SESClient) parseStatusPage(enc *Enclosure) error {
 		line = strings.TrimSpace(line)
 		if strings.Contains(line, "Array Device Slot") || strings.Contains(line, "Device Slot") {
 			slot := &Slot{
-				ID:         slotID,
-				Status:     SlotActive,
-				LEDStates:  make(map[LEDType]LEDState),
+				ID:          slotID,
+				Status:      SlotActive,
+				LEDStates:   make(map[LEDType]LEDState),
 				DiskPresent: true,
 			}
 			enc.Slots = append(enc.Slots, slot)

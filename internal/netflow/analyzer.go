@@ -23,10 +23,10 @@ type Analyzer struct {
 	logger      *zap.Logger
 
 	// 异常检测配置
-	spikeThresholdMBPS   float64 // 流量突增阈值 (MB/s)
-	portScanThreshold    int     // 端口扫描检测：不同端口数阈值
-	dnsFloodThreshold    int     // DNS洪泛检测：每秒DNS请求阈值
-	highConnRateThreshold int    // 高连接速率阈值 (连接/秒)
+	spikeThresholdMBPS    float64 // 流量突增阈值 (MB/s)
+	portScanThreshold     int     // 端口扫描检测：不同端口数阈值
+	dnsFloodThreshold     int     // DNS洪泛检测：每秒DNS请求阈值
+	highConnRateThreshold int     // 高连接速率阈值 (连接/秒)
 
 	// 窗口数据
 	windowFlows   []FlowRecord

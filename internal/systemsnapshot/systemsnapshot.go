@@ -51,9 +51,9 @@ type SnapshotType string
 const (
 	SnapshotTypeManual    SnapshotType = "manual"     // 手动快照
 	SnapshotTypeAuto      SnapshotType = "auto"       // 自动快照
-	SnapshotTypePreUpdate SnapshotType = "pre_update"  // 更新前快照
-	SnapshotTypePreChange SnapshotType = "pre_change"  // 配置变更前快照
-	SnapshotTypeScheduled SnapshotType = "scheduled"   // 定时快照
+	SnapshotTypePreUpdate SnapshotType = "pre_update" // 更新前快照
+	SnapshotTypePreChange SnapshotType = "pre_change" // 配置变更前快照
+	SnapshotTypeScheduled SnapshotType = "scheduled"  // 定时快照
 )
 
 // ========== 快照状态 ==========

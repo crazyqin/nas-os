@@ -36,22 +36,22 @@ const (
 type WidgetType string
 
 const (
-	WidgetChart      WidgetType = "chart"
-	WidgetGauge      WidgetType = "gauge"
-	WidgetTable      WidgetType = "table"
-	WidgetStat       WidgetType = "stat"
-	WidgetList       WidgetType = "list"
-	WidgetMap        WidgetType = "map"
-	WidgetGraph      WidgetType = "graph"
-	WidgetAlert      WidgetType = "alert"
-	WidgetLog        WidgetType = "log"
-	WidgetCustom     WidgetType = "custom"
-	WidgetCPU        WidgetType = "cpu"
-	WidgetMemory     WidgetType = "memory"
-	WidgetDisk       WidgetType = "disk"
-	WidgetNetwork    WidgetType = "network"
-	WidgetService    WidgetType = "service"
-	WidgetContainer  WidgetType = "container"
+	WidgetChart       WidgetType = "chart"
+	WidgetGauge       WidgetType = "gauge"
+	WidgetTable       WidgetType = "table"
+	WidgetStat        WidgetType = "stat"
+	WidgetList        WidgetType = "list"
+	WidgetMap         WidgetType = "map"
+	WidgetGraph       WidgetType = "graph"
+	WidgetAlert       WidgetType = "alert"
+	WidgetLog         WidgetType = "log"
+	WidgetCustom      WidgetType = "custom"
+	WidgetCPU         WidgetType = "cpu"
+	WidgetMemory      WidgetType = "memory"
+	WidgetDisk        WidgetType = "disk"
+	WidgetNetwork     WidgetType = "network"
+	WidgetService     WidgetType = "service"
+	WidgetContainer   WidgetType = "container"
 	WidgetTemperature WidgetType = "temperature"
 )
 
@@ -59,13 +59,13 @@ const (
 type ChartType string
 
 const (
-	ChartLine   ChartType = "line"
-	ChartBar    ChartType = "bar"
-	ChartPie    ChartType = "pie"
-	ChartArea   ChartType = "area"
+	ChartLine    ChartType = "line"
+	ChartBar     ChartType = "bar"
+	ChartPie     ChartType = "pie"
+	ChartArea    ChartType = "area"
 	ChartScatter ChartType = "scatter"
-	ChartHeat   ChartType = "heatmap"
-	ChartRadar  ChartType = "radar"
+	ChartHeat    ChartType = "heatmap"
+	ChartRadar   ChartType = "radar"
 )
 
 // Theme 主题
@@ -88,53 +88,53 @@ type WidgetPosition struct {
 
 // WidgetConfig 组件配置
 type WidgetConfig struct {
-	ID          string         `json:"id"`
-	Type        WidgetType     `json:"type"`
-	Title       string         `json:"title"`
-	Position    WidgetPosition `json:"position"`
-	DataSource  string         `json:"data_source"`
-	ChartType   ChartType      `json:"chart_type,omitempty"`
-	RefreshRate time.Duration  `json:"refresh_rate"`
+	ID          string                 `json:"id"`
+	Type        WidgetType             `json:"type"`
+	Title       string                 `json:"title"`
+	Position    WidgetPosition         `json:"position"`
+	DataSource  string                 `json:"data_source"`
+	ChartType   ChartType              `json:"chart_type,omitempty"`
+	RefreshRate time.Duration          `json:"refresh_rate"`
 	Options     map[string]interface{} `json:"options,omitempty"`
-	Visible     bool           `json:"visible"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
+	Visible     bool                   `json:"visible"`
+	CreatedAt   time.Time              `json:"created_at"`
+	UpdatedAt   time.Time              `json:"updated_at"`
 }
 
 // DataSource 数据源
 type DataSource struct {
-	ID        string                 `json:"id"`
-	Name      string                 `json:"name"`
-	Type      string                 `json:"type"`
-	Endpoint  string                 `json:"endpoint"`
-	Interval  time.Duration          `json:"interval"`
-	Config    map[string]interface{} `json:"config,omitempty"`
-	LastSync  time.Time              `json:"last_sync"`
-	Enabled   bool                   `json:"enabled"`
+	ID       string                 `json:"id"`
+	Name     string                 `json:"name"`
+	Type     string                 `json:"type"`
+	Endpoint string                 `json:"endpoint"`
+	Interval time.Duration          `json:"interval"`
+	Config   map[string]interface{} `json:"config,omitempty"`
+	LastSync time.Time              `json:"last_sync"`
+	Enabled  bool                   `json:"enabled"`
 }
 
 // Dashboard 仪表盘
 type Dashboard struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Theme       Theme          `json:"theme"`
+	ID          string          `json:"id"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	Theme       Theme           `json:"theme"`
 	Widgets     []*WidgetConfig `json:"widgets"`
-	Layout      string         `json:"layout"`
-	IsDefault   bool           `json:"is_default"`
-	Owner       string         `json:"owner"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	RefreshRate time.Duration  `json:"refresh_rate"`
+	Layout      string          `json:"layout"`
+	IsDefault   bool            `json:"is_default"`
+	Owner       string          `json:"owner"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at"`
+	RefreshRate time.Duration   `json:"refresh_rate"`
 }
 
 // DashboardLayout 布局模板
 type DashboardLayout struct {
-	ID        string            `json:"id"`
-	Name      string            `json:"name"`
-	Columns   int               `json:"columns"`
-	Rows      int               `json:"rows"`
-	Positions []WidgetPosition  `json:"positions"`
+	ID        string           `json:"id"`
+	Name      string           `json:"name"`
+	Columns   int              `json:"columns"`
+	Rows      int              `json:"rows"`
+	Positions []WidgetPosition `json:"positions"`
 }
 
 // WidgetData 组件数据
@@ -261,10 +261,10 @@ func (e *Engine) createDefaultDashboard() {
 
 	// 添加默认组件
 	widgets := []struct {
-		wtype   WidgetType
-		title   string
-		ds      string
-		pos     WidgetPosition
+		wtype WidgetType
+		title string
+		ds    string
+		pos   WidgetPosition
 	}{
 		{WidgetCPU, "CPU使用率", "ds_1", WidgetPosition{0, 0, 6, 4}},
 		{WidgetMemory, "内存使用", "ds_2", WidgetPosition{6, 0, 6, 4}},

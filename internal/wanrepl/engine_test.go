@@ -217,7 +217,7 @@ func TestReportConflict(t *testing.T) {
 	e.CreateJob(job)
 
 	conflict := ConflictRecord{
-		Path:   "/data/doc.txt",
+		Path:       "/data/doc.txt",
 		LocalSize:  1024,
 		RemoteSize: 2048,
 	}

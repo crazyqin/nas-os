@@ -10,11 +10,11 @@ import (
 type DrillType string
 
 const (
-	DrillTypeDiskFault     DrillType = "disk_fault"      // 磁盘故障模拟
-	DrillTypeNetworkDown   DrillType = "network_down"    // 网络中断模拟
-	DrillTypePoolDegrade   DrillType = "pool_degrade"    // 存储池降级
-	DrillTypeServiceDown   DrillType = "service_down"    // 服务宕机恢复
-	DrillTypeDataRecovery  DrillType = "data_recovery"   // 数据恢复验证
+	DrillTypeDiskFault    DrillType = "disk_fault"    // 磁盘故障模拟
+	DrillTypeNetworkDown  DrillType = "network_down"  // 网络中断模拟
+	DrillTypePoolDegrade  DrillType = "pool_degrade"  // 存储池降级
+	DrillTypeServiceDown  DrillType = "service_down"  // 服务宕机恢复
+	DrillTypeDataRecovery DrillType = "data_recovery" // 数据恢复验证
 )
 
 // ─────────────────────── 演练范围 ───────────────────────
@@ -23,9 +23,9 @@ const (
 type DrillScope string
 
 const (
-	ScopeSystem    DrillScope = "system"    // 全系统
-	ScopePool      DrillScope = "pool"      // 指定存储池
-	ScopeService   DrillScope = "service"   // 指定服务
+	ScopeSystem  DrillScope = "system"  // 全系统
+	ScopePool    DrillScope = "pool"    // 指定存储池
+	ScopeService DrillScope = "service" // 指定服务
 )
 
 // ─────────────────────── 演练模式 ───────────────────────
@@ -44,7 +44,7 @@ const (
 type ScheduleFrequency string
 
 const (
-	FreqMonthly  ScheduleFrequency = "monthly"  // 月度
+	FreqMonthly   ScheduleFrequency = "monthly"   // 月度
 	FreqQuarterly ScheduleFrequency = "quarterly" // 季度
 )
 
@@ -68,11 +68,11 @@ const (
 type ExecutionStatus string
 
 const (
-	ExecPending  ExecutionStatus = "pending"
-	ExecRunning  ExecutionStatus = "running"
-	ExecSuccess  ExecutionStatus = "success"
-	ExecFailed   ExecutionStatus = "failed"
-	ExecAborted  ExecutionStatus = "aborted"
+	ExecPending ExecutionStatus = "pending"
+	ExecRunning ExecutionStatus = "running"
+	ExecSuccess ExecutionStatus = "success"
+	ExecFailed  ExecutionStatus = "failed"
+	ExecAborted ExecutionStatus = "aborted"
 )
 
 // ─────────────────────── 核心类型 ───────────────────────
@@ -88,41 +88,41 @@ type StepDef struct {
 
 // DrillPlan 容灾演练计划.
 type DrillPlan struct {
-	ID          string             `json:"id"`
-	Name        string             `json:"name"`
-	Description string             `json:"description,omitempty"`
-	Type        DrillType          `json:"type"`
-	Scope       DrillScope         `json:"scope"`
-	ScopeTarget string             `json:"scope_target,omitempty"` // 存储池名称或服务名称
-	Mode        DrillMode          `json:"mode"`
-	Steps       []StepDef          `json:"steps"`
-	Schedule    *ScheduleConfig    `json:"schedule,omitempty"`
-	Enabled     bool               `json:"enabled"`
-	CreatedAt   time.Time          `json:"created_at"`
-	UpdatedAt   time.Time          `json:"updated_at"`
+	ID          string          `json:"id"`
+	Name        string          `json:"name"`
+	Description string          `json:"description,omitempty"`
+	Type        DrillType       `json:"type"`
+	Scope       DrillScope      `json:"scope"`
+	ScopeTarget string          `json:"scope_target,omitempty"` // 存储池名称或服务名称
+	Mode        DrillMode       `json:"mode"`
+	Steps       []StepDef       `json:"steps"`
+	Schedule    *ScheduleConfig `json:"schedule,omitempty"`
+	Enabled     bool            `json:"enabled"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at"`
 }
 
 // ScheduleConfig 调度配置.
 type ScheduleConfig struct {
-	Frequency    ScheduleFrequency `json:"frequency"`
-	DayOfWeek    int               `json:"day_of_week,omitempty"`    // 0=Sunday
-	DayOfMonth   int               `json:"day_of_month,omitempty"`   // 1-31
-	MonthOfQuarter int             `json:"month_of_quarter,omitempty"` // 1-3
-	Hour         int               `json:"hour"`                     // 0-23
-	Minute       int               `json:"minute"`                   // 0-59
-	ReminderDays int               `json:"reminder_days,omitempty"`  // 提前几天提醒
+	Frequency      ScheduleFrequency `json:"frequency"`
+	DayOfWeek      int               `json:"day_of_week,omitempty"`      // 0=Sunday
+	DayOfMonth     int               `json:"day_of_month,omitempty"`     // 1-31
+	MonthOfQuarter int               `json:"month_of_quarter,omitempty"` // 1-3
+	Hour           int               `json:"hour"`                       // 0-23
+	Minute         int               `json:"minute"`                     // 0-59
+	ReminderDays   int               `json:"reminder_days,omitempty"`    // 提前几天提醒
 }
 
 // StepResult 单步执行结果.
 type StepResult struct {
-	Name        string        `json:"name"`
-	Status      StepStatus    `json:"status"`
-	StartTime   time.Time     `json:"start_time"`
-	EndTime     time.Time     `json:"end_time"`
-	Duration    time.Duration `json:"duration"`
-	Retried     int           `json:"retried"`
-	Error       string        `json:"error,omitempty"`
-	RolledBack  bool          `json:"rolled_back"`
+	Name       string        `json:"name"`
+	Status     StepStatus    `json:"status"`
+	StartTime  time.Time     `json:"start_time"`
+	EndTime    time.Time     `json:"end_time"`
+	Duration   time.Duration `json:"duration"`
+	Retried    int           `json:"retried"`
+	Error      string        `json:"error,omitempty"`
+	RolledBack bool          `json:"rolled_back"`
 }
 
 // DrillExecution 演练执行记录.
@@ -142,49 +142,49 @@ type DrillExecution struct {
 
 // DrillReport 演练报告.
 type DrillReport struct {
-	ExecutionID   string            `json:"execution_id"`
-	PlanID        string            `json:"plan_id"`
-	PlanName      string            `json:"plan_name"`
-	Mode          DrillMode         `json:"mode"`
-	Status        ExecutionStatus   `json:"status"`
-	StartTime     time.Time         `json:"start_time"`
-	EndTime       time.Time         `json:"end_time"`
-	TotalDuration time.Duration     `json:"total_duration"`
-	StepResults   []StepResult      `json:"step_results"`
-	RTOActual     time.Duration     `json:"rto_actual"`           // RTO 实测值
-	RPOActual     time.Duration     `json:"rpo_actual"`           // RPO 实测值
-	RTOTarget     time.Duration     `json:"rto_target,omitempty"` // RTO 目标值
-	RPOTarget     time.Duration     `json:"rpo_target,omitempty"` // RPO 目标值
-	Issues        []string          `json:"issues"`               // 发现的问题
-	Suggestions   []string          `json:"suggestions"`          // 改进建议
-	Trend         *TrendData        `json:"trend,omitempty"`      // 历史对比趋势
+	ExecutionID   string          `json:"execution_id"`
+	PlanID        string          `json:"plan_id"`
+	PlanName      string          `json:"plan_name"`
+	Mode          DrillMode       `json:"mode"`
+	Status        ExecutionStatus `json:"status"`
+	StartTime     time.Time       `json:"start_time"`
+	EndTime       time.Time       `json:"end_time"`
+	TotalDuration time.Duration   `json:"total_duration"`
+	StepResults   []StepResult    `json:"step_results"`
+	RTOActual     time.Duration   `json:"rto_actual"`           // RTO 实测值
+	RPOActual     time.Duration   `json:"rpo_actual"`           // RPO 实测值
+	RTOTarget     time.Duration   `json:"rto_target,omitempty"` // RTO 目标值
+	RPOTarget     time.Duration   `json:"rpo_target,omitempty"` // RPO 目标值
+	Issues        []string        `json:"issues"`               // 发现的问题
+	Suggestions   []string        `json:"suggestions"`          // 改进建议
+	Trend         *TrendData      `json:"trend,omitempty"`      // 历史对比趋势
 }
 
 // TrendData 历史趋势数据.
 type TrendData struct {
-	TotalDrills      int           `json:"total_drills"`
-	SuccessRate      float64       `json:"success_rate"`
-	AvgRTO           time.Duration `json:"avg_rto"`
-	AvgRPO           time.Duration `json:"avg_rpo"`
-	BestRTO          time.Duration `json:"best_rto"`
-	WorstRTO         time.Duration `json:"worst_rto"`
-	BestRPO          time.Duration `json:"best_rpo"`
-	WorstRPO         time.Duration `json:"worst_rpo"`
-	ImprovementRate  float64       `json:"improvement_rate"` // 相比上次改善百分比
+	TotalDrills     int           `json:"total_drills"`
+	SuccessRate     float64       `json:"success_rate"`
+	AvgRTO          time.Duration `json:"avg_rto"`
+	AvgRPO          time.Duration `json:"avg_rpo"`
+	BestRTO         time.Duration `json:"best_rto"`
+	WorstRTO        time.Duration `json:"worst_rto"`
+	BestRPO         time.Duration `json:"best_rpo"`
+	WorstRPO        time.Duration `json:"worst_rpo"`
+	ImprovementRate float64       `json:"improvement_rate"` // 相比上次改善百分比
 }
 
 // DRMetrics RTO/RPO 指标统计.
 type DRMetrics struct {
-	TotalPlans     int           `json:"total_plans"`
-	TotalExecs     int           `json:"total_execs"`
-	SuccessRate    float64       `json:"success_rate"`
-	AvgRTO         time.Duration `json:"avg_rto"`
-	AvgRPO         time.Duration `json:"avg_rpo"`
-	BestRTO        time.Duration `json:"best_rto"`
-	WorstRTO       time.Duration `json:"worst_rto"`
-	BestRPO        time.Duration `json:"best_rpo"`
-	WorstRPO       time.Duration `json:"worst_rpo"`
-	LastDrillTime  time.Time     `json:"last_drill_time,omitempty"`
+	TotalPlans    int           `json:"total_plans"`
+	TotalExecs    int           `json:"total_execs"`
+	SuccessRate   float64       `json:"success_rate"`
+	AvgRTO        time.Duration `json:"avg_rto"`
+	AvgRPO        time.Duration `json:"avg_rpo"`
+	BestRTO       time.Duration `json:"best_rto"`
+	WorstRTO      time.Duration `json:"worst_rto"`
+	BestRPO       time.Duration `json:"best_rpo"`
+	WorstRPO      time.Duration `json:"worst_rpo"`
+	LastDrillTime time.Time     `json:"last_drill_time,omitempty"`
 }
 
 // ─────────────────────── API 请求/响应 ───────────────────────

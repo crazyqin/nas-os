@@ -171,8 +171,8 @@ func TestForecastCapacity(t *testing.T) {
 
 	// 线性预测
 	result, err := m.ForecastCapacity(ForecastRequest{
-		ModelType: "linear",
-		DaysAhead: 30,
+		ModelType:  "linear",
+		DaysAhead:  30,
 		MountPoint: "/data",
 	})
 	if err != nil {
@@ -248,8 +248,8 @@ func TestForecastExponential(t *testing.T) {
 	}
 
 	result, err := m.ForecastCapacity(ForecastRequest{
-		ModelType: "exponential",
-		DaysAhead: 30,
+		ModelType:  "exponential",
+		DaysAhead:  30,
 		MountPoint: "/data",
 	})
 	if err != nil {
@@ -274,8 +274,8 @@ func TestForecastSeasonal(t *testing.T) {
 	}
 
 	result, err := m.ForecastCapacity(ForecastRequest{
-		ModelType: "seasonal",
-		DaysAhead: 30,
+		ModelType:  "seasonal",
+		DaysAhead:  30,
 		MountPoint: "/data",
 	})
 	if err != nil {
@@ -577,8 +577,8 @@ func TestGetForecasts(t *testing.T) {
 
 	// 进行预测
 	m.ForecastCapacity(ForecastRequest{
-		ModelType: "linear",
-		DaysAhead: 30,
+		ModelType:  "linear",
+		DaysAhead:  30,
 		MountPoint: "/data",
 	})
 
@@ -636,14 +636,14 @@ func TestAlertAutoGeneration(t *testing.T) {
 
 	// 测试不同使用率触发的告警级别
 	testCases := []struct {
-		usageRate    float64
-		expectAlert  bool
-		expectLevel  string
+		usageRate   float64
+		expectAlert bool
+		expectLevel string
 	}{
-		{0.50, false, ""},           // 50% - 无告警
-		{0.81, true, "warning"},     // 81% - 警告
-		{0.96, true, "critical"},    // 96% - 严重
-		{1.00, true, "critical"},    // 100% - 严重
+		{0.50, false, ""},        // 50% - 无告警
+		{0.81, true, "warning"},  // 81% - 警告
+		{0.96, true, "critical"}, // 96% - 严重
+		{1.00, true, "critical"}, // 100% - 严重
 	}
 
 	for _, tc := range testCases {

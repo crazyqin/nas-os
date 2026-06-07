@@ -10,13 +10,13 @@ import (
 
 // Conversation 对话会话
 type Conversation struct {
-	ID           string         `json:"id"`           // 唯一标识
-	UserID       string         `json:"userId"`       // 用户 ID
-	Title        string         `json:"title"`        // 对话标题
-	CreatedAt    time.Time      `json:"createdAt"`    // 创建时间
-	LastActive   time.Time      `json:"lastActive"`   // 最后活跃时间
-	MessageCount int            `json:"messageCount"` // 消息数
-	Status       ConverStatus   `json:"status"`       // 状态
+	ID           string       `json:"id"`           // 唯一标识
+	UserID       string       `json:"userId"`       // 用户 ID
+	Title        string       `json:"title"`        // 对话标题
+	CreatedAt    time.Time    `json:"createdAt"`    // 创建时间
+	LastActive   time.Time    `json:"lastActive"`   // 最后活跃时间
+	MessageCount int          `json:"messageCount"` // 消息数
+	Status       ConverStatus `json:"status"`       // 状态
 }
 
 // ConverStatus 对话状态
@@ -29,12 +29,12 @@ const (
 
 // Message 消息
 type Message struct {
-	ID             string          `json:"id"`             // 唯一标识
-	ConversationID string          `json:"conversationId"` // 对话 ID
-	Role           MessageRole     `json:"role"`           // 角色
-	Content        string          `json:"content"`        // 内容
-	Timestamp      time.Time       `json:"timestamp"`      // 时间戳
-	CommandResult  *ActionResult   `json:"commandResult"`  // 操作结果 (仅命令执行时)
+	ID             string        `json:"id"`             // 唯一标识
+	ConversationID string        `json:"conversationId"` // 对话 ID
+	Role           MessageRole   `json:"role"`           // 角色
+	Content        string        `json:"content"`        // 内容
+	Timestamp      time.Time     `json:"timestamp"`      // 时间戳
+	CommandResult  *ActionResult `json:"commandResult"`  // 操作结果 (仅命令执行时)
 }
 
 // MessageRole 消息角色
@@ -50,33 +50,33 @@ const (
 
 // Intent 识别出的用户意图
 type Intent struct {
-	Type       IntentType          `json:"type"`       // 意图类型
-	Confidence float64             `json:"confidence"` // 置信度 (0-1)
-	Parameters map[string]string   `json:"parameters"` // 提取的参数
+	Type       IntentType        `json:"type"`       // 意图类型
+	Confidence float64           `json:"confidence"` // 置信度 (0-1)
+	Parameters map[string]string `json:"parameters"` // 提取的参数
 }
 
 // IntentType 意图类型
 type IntentType string
 
 const (
-	IntentStorage  IntentType = "storage"  // 存储管理
-	IntentBackup   IntentType = "backup"   // 备份
-	IntentNetwork  IntentType = "network"  // 网络配置
-	IntentDocker   IntentType = "docker"   // Docker 管理
-	IntentUser     IntentType = "user"     // 用户管理
-	IntentSystem   IntentType = "system"   // 系统管理
-	IntentQuery    IntentType = "query"    // 查询/问答
-	IntentAction   IntentType = "action"   // 执行操作
+	IntentStorage IntentType = "storage" // 存储管理
+	IntentBackup  IntentType = "backup"  // 备份
+	IntentNetwork IntentType = "network" // 网络配置
+	IntentDocker  IntentType = "docker"  // Docker 管理
+	IntentUser    IntentType = "user"    // 用户管理
+	IntentSystem  IntentType = "system"  // 系统管理
+	IntentQuery   IntentType = "query"   // 查询/问答
+	IntentAction  IntentType = "action"  // 执行操作
 )
 
 // ========== 命令系统 ==========
 
 // Command 解析出的命令
 type Command struct {
-	Verb         CommandType        `json:"verb"`         // 动词
-	ResourceType string             `json:"resourceType"` // 资源类型
-	Parameters   map[string]string  `json:"parameters"`   // 参数
-	Status       CommandStatus      `json:"status"`       // 状态
+	Verb         CommandType       `json:"verb"`         // 动词
+	ResourceType string            `json:"resourceType"` // 资源类型
+	Parameters   map[string]string `json:"parameters"`   // 参数
+	Status       CommandStatus     `json:"status"`       // 状态
 }
 
 // CommandType 命令动词类型
@@ -107,10 +107,10 @@ const (
 
 // ActionResult 操作执行结果
 type ActionResult struct {
-	Success    bool     `json:"success"`    // 是否成功
-	Message    string   `json:"message"`    // 输出信息
-	Scope      string   `json:"scope"`      // 影响范围
-	Rollback   string   `json:"rollback"`   // 回滚信息
+	Success  bool   `json:"success"`  // 是否成功
+	Message  string `json:"message"`  // 输出信息
+	Scope    string `json:"scope"`    // 影响范围
+	Rollback string `json:"rollback"` // 回滚信息
 }
 
 // ========== 知识库 ==========
@@ -151,10 +151,10 @@ type ScheduledTask struct {
 
 // UserPreference 用户偏好设置
 type UserPreference struct {
-	UserID          string        `json:"userId"`          // 用户 ID
-	Language        string        `json:"language"`        // 语言
-	ConfirmLevel    ConfirmLevel  `json:"confirmLevel"`    // 确认级别
-	OutputFormat    string        `json:"outputFormat"`    // 输出格式
+	UserID       string       `json:"userId"`       // 用户 ID
+	Language     string       `json:"language"`     // 语言
+	ConfirmLevel ConfirmLevel `json:"confirmLevel"` // 确认级别
+	OutputFormat string       `json:"outputFormat"` // 输出格式
 }
 
 // ConfirmLevel 操作确认级别
@@ -194,16 +194,16 @@ type CopilotStats struct {
 
 // ChatRequest 聊天请求
 type ChatRequest struct {
-	ConversationID string `json:"conversationId"` // 对话 ID (为空则自动创建)
+	ConversationID string `json:"conversationId"`             // 对话 ID (为空则自动创建)
 	Message        string `json:"message" binding:"required"` // 消息内容
-	UserID         string `json:"userId"`         // 用户 ID
+	UserID         string `json:"userId"`                     // 用户 ID
 }
 
 // ChatResponse 聊天响应
 type ChatResponse struct {
-	ConversationID string    `json:"conversationId"` // 对话 ID
-	Message        Message   `json:"message"`        // 助手回复
-	Intent         *Intent   `json:"intent"`         // 识别的意图
+	ConversationID string  `json:"conversationId"` // 对话 ID
+	Message        Message `json:"message"`        // 助手回复
+	Intent         *Intent `json:"intent"`         // 识别的意图
 }
 
 // ParseRequest 解析请求

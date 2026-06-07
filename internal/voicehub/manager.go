@@ -349,14 +349,14 @@ func (m *Manager) parseIntent(query string, lang VoiceLanguage) *Intent {
 
 	// 设备控制匹配
 	deviceCommands := map[string]CommandType{
-		"开机":   CmdPowerOn, "打开":   CmdPowerOn, "开启": CmdPowerOn, "turn on":  CmdPowerOn, "power on": CmdPowerOn,
-		"关机":   CmdPowerOff, "关闭":  CmdPowerOff, "关掉": CmdPowerOff, "turn off": CmdPowerOff, "power off": CmdPowerOff,
-		"播放":   CmdPlay, "放":    CmdPlay, "play":  CmdPlay,
-		"暂停":   CmdPause, "停一下": CmdPause, "pause": CmdPause,
-		"停止":   CmdStop, "stop":  CmdStop,
-		"上一个":  CmdPrevious, "上一首": CmdPrevious, "previous": CmdPrevious,
-		"下一个":  CmdNext, "下一首": CmdNext, "next":    CmdNext,
-		"静音":   CmdMute, "mute":  CmdMute,
+		"开机": CmdPowerOn, "打开": CmdPowerOn, "开启": CmdPowerOn, "turn on": CmdPowerOn, "power on": CmdPowerOn,
+		"关机": CmdPowerOff, "关闭": CmdPowerOff, "关掉": CmdPowerOff, "turn off": CmdPowerOff, "power off": CmdPowerOff,
+		"播放": CmdPlay, "放": CmdPlay, "play": CmdPlay,
+		"暂停": CmdPause, "停一下": CmdPause, "pause": CmdPause,
+		"停止": CmdStop, "stop": CmdStop,
+		"上一个": CmdPrevious, "上一首": CmdPrevious, "previous": CmdPrevious,
+		"下一个": CmdNext, "下一首": CmdNext, "next": CmdNext,
+		"静音": CmdMute, "mute": CmdMute,
 		"取消静音": CmdUnmute, "unmute": CmdUnmute,
 	}
 
@@ -466,11 +466,11 @@ func (m *Manager) handleSceneCommand(ctx context.Context, intent *Intent, resp *
 // handleDeviceCommand 处理设备控制命令
 func (m *Manager) handleDeviceCommand(ctx context.Context, intent *Intent, resp *VoiceResponse) error {
 	action := DeviceAction{
-		DeviceID:   fmt.Sprintf("device-%s", intent.Target),
-		DeviceName: intent.Target,
+		DeviceID:    fmt.Sprintf("device-%s", intent.Target),
+		DeviceName:  intent.Target,
 		CommandType: CommandType(intent.Action),
-		Parameters: intent.Params,
-		Status:     CommandStatusSuccess,
+		Parameters:  intent.Params,
+		Status:      CommandStatusSuccess,
 	}
 
 	resp.Actions = []DeviceAction{action}

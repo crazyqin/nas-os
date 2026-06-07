@@ -10,13 +10,13 @@ import (
 
 // Manager AI Console 管理器.
 type Manager struct {
-	mu         sync.RWMutex
-	service    *Service
-	gateway    *Gateway
-	dashboard  *Dashboard
+	mu          sync.RWMutex
+	service     *Service
+	gateway     *Gateway
+	dashboard   *Dashboard
 	providerMgr *ProviderManager
-	ctx        context.Context
-	cancel     context.CancelFunc
+	ctx         context.Context
+	cancel      context.CancelFunc
 }
 
 // NewManager 创建管理器实例.
@@ -100,10 +100,10 @@ func DefaultFailoverConfig() *FailoverConfig {
 
 // FailoverManager 故障转移管理器.
 type FailoverManager struct {
-	mu       sync.RWMutex
-	service  *Service
-	config   *FailoverConfig
-	health   map[string]*ModelHealth
+	mu      sync.RWMutex
+	service *Service
+	config  *FailoverConfig
+	health  map[string]*ModelHealth
 }
 
 // ModelHealth 模型健康状态.
@@ -269,18 +269,18 @@ func (fm *FailoverManager) SelectBestModel(models []*AIModel) (*AIModel, error) 
 
 // AccessPolicy 访问策略.
 type AccessPolicy struct {
-	UserID       string   `json:"userId"`
-	GroupID      string   `json:"groupId,omitempty"`
-	AllowedModels []string `json:"allowedModels"`
-	DeniedModels  []string `json:"deniedModels"`
-	MaxTokensPerDay int   `json:"maxTokensPerDay"`
-	MaxRequestsPerDay int `json:"maxRequestsPerDay"`
+	UserID            string   `json:"userId"`
+	GroupID           string   `json:"groupId,omitempty"`
+	AllowedModels     []string `json:"allowedModels"`
+	DeniedModels      []string `json:"deniedModels"`
+	MaxTokensPerDay   int      `json:"maxTokensPerDay"`
+	MaxRequestsPerDay int      `json:"maxRequestsPerDay"`
 }
 
 // AccessControl 访问控制.
 type AccessControl struct {
-	mu       sync.RWMutex
-	policies map[string]*AccessPolicy // userID -> policy
+	mu            sync.RWMutex
+	policies      map[string]*AccessPolicy // userID -> policy
 	groupPolicies map[string]*AccessPolicy // groupID -> policy
 }
 

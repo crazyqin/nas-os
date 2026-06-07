@@ -710,10 +710,10 @@ func TestStatusMessage(t *testing.T) {
 // TestPingHost 测试网络连通性检测函数.
 func TestPingHost(t *testing.T) {
 	tests := []struct {
-		name      string
-		host      string
-		timeout   int
-		expectOk  bool
+		name     string
+		host     string
+		timeout  int
+		expectOk bool
 	}{
 		{"localhost", "127.0.0.1", 2, true},
 		{"dns_google", "8.8.8.8", 5, true},

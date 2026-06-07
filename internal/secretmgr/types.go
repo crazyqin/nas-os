@@ -55,20 +55,20 @@ const (
 
 // Secret 密钥.
 type Secret struct {
-	ID          string       `json:"id"`           // 密钥ID
-	Name        string       `json:"name"`         // 密钥名称
-	Type        SecretType   `json:"type"`         // 密钥类型
-	Description string       `json:"description"`  // 描述
-	Value       string       `json:"value"`        // 密钥值（加密存储）
-	Metadata    map[string]string `json:"metadata"` // 元数据
-	Tags        []string     `json:"tags"`         // 标签
-	Status      SecretStatus `json:"status"`       // 状态
-	ExpiresAt   *time.Time   `json:"expires_at"`   // 过期时间
-	LastUsed    *time.Time   `json:"last_used"`    // 最后使用
-	RotateDays  int          `json:"rotate_days"`  // 轮换天数
-	Version     int          `json:"version"`      // 版本号
-	CreatedAt   time.Time    `json:"created_at"`   // 创建时间
-	UpdatedAt   time.Time    `json:"updated_at"`   // 更新时间
+	ID          string            `json:"id"`          // 密钥ID
+	Name        string            `json:"name"`        // 密钥名称
+	Type        SecretType        `json:"type"`        // 密钥类型
+	Description string            `json:"description"` // 描述
+	Value       string            `json:"value"`       // 密钥值（加密存储）
+	Metadata    map[string]string `json:"metadata"`    // 元数据
+	Tags        []string          `json:"tags"`        // 标签
+	Status      SecretStatus      `json:"status"`      // 状态
+	ExpiresAt   *time.Time        `json:"expires_at"`  // 过期时间
+	LastUsed    *time.Time        `json:"last_used"`   // 最后使用
+	RotateDays  int               `json:"rotate_days"` // 轮换天数
+	Version     int               `json:"version"`     // 版本号
+	CreatedAt   time.Time         `json:"created_at"`  // 创建时间
+	UpdatedAt   time.Time         `json:"updated_at"`  // 更新时间
 }
 
 // SecretVersion 密钥版本.
@@ -80,11 +80,11 @@ type SecretVersion struct {
 
 // AccessLog 访问日志.
 type AccessLog struct {
-	SecretID  string    `json:"secret_id"`  // 密钥ID
-	Action    string    `json:"action"`     // 操作
-	User      string    `json:"user"`       // 用户
-	IP        string    `json:"ip"`         // IP地址
-	Timestamp time.Time `json:"timestamp"`  // 时间戳
+	SecretID  string    `json:"secret_id"` // 密钥ID
+	Action    string    `json:"action"`    // 操作
+	User      string    `json:"user"`      // 用户
+	IP        string    `json:"ip"`        // IP地址
+	Timestamp time.Time `json:"timestamp"` // 时间戳
 }
 
 // SecretStats 密钥统计.

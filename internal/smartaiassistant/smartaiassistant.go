@@ -13,12 +13,12 @@ import (
 type AIAction string
 
 const (
-	ActionQuery     AIAction = "query"     // 查询操作
-	ActionDiagnose  AIAction = "diagnose"  // 诊断操作
-	ActionSuggest   AIAction = "suggest"   // 建议操作
-	ActionExecute   AIAction = "execute"   // 执行操作
-	ActionStatus    AIAction = "status"    // 状态查询
-	ActionHelp      AIAction = "help"      // 帮助信息
+	ActionQuery    AIAction = "query"    // 查询操作
+	ActionDiagnose AIAction = "diagnose" // 诊断操作
+	ActionSuggest  AIAction = "suggest"  // 建议操作
+	ActionExecute  AIAction = "execute"  // 执行操作
+	ActionStatus   AIAction = "status"   // 状态查询
+	ActionHelp     AIAction = "help"     // 帮助信息
 )
 
 // Message 表示对话消息
@@ -52,12 +52,12 @@ type StorageStatus struct {
 
 // DiagnosisResult 诊断结果
 type DiagnosisResult struct {
-	IssueType    string   // 问题类型
-	Severity     string   // 严重程度：info/warning/error/critical
-	Description  string   // 问题描述
-	Suggestions  []string // 建议措施
-	RelatedLogs  []string // 相关日志
-	Timestamp    time.Time // 诊断时间
+	IssueType   string    // 问题类型
+	Severity    string    // 严重程度：info/warning/error/critical
+	Description string    // 问题描述
+	Suggestions []string  // 建议措施
+	RelatedLogs []string  // 相关日志
+	Timestamp   time.Time // 诊断时间
 }
 
 // Suggestion 操作建议
@@ -71,12 +71,12 @@ type Suggestion struct {
 
 // AIResult AI处理结果
 type AIResult struct {
-	Action    AIAction           // 操作类型
-	Response  string             // AI响应内容
-	Diagnosis *DiagnosisResult   // 诊断结果（如有）
-	Suggestions []*Suggestion    // 建议列表（如有）
-	Context   map[string]string  // 上下文信息
-	Timestamp time.Time          // 处理时间
+	Action      AIAction          // 操作类型
+	Response    string            // AI响应内容
+	Diagnosis   *DiagnosisResult  // 诊断结果（如有）
+	Suggestions []*Suggestion     // 建议列表（如有）
+	Context     map[string]string // 上下文信息
+	Timestamp   time.Time         // 处理时间
 }
 
 // AIProvider AI后端提供者接口
@@ -91,8 +91,8 @@ type AIProvider interface {
 
 // LocalProvider 本地LLM提供者
 type LocalProvider struct {
-	name    string
-	model   string
+	name      string
+	model     string
 	available bool
 }
 
@@ -171,12 +171,12 @@ func (rp *RemoteProvider) IsAvailable() bool {
 
 // UnifiedAIAssistant 统一AI助手
 type UnifiedAIAssistant struct {
-	mu             sync.RWMutex
-	providers      []AIProvider          // AI后端列表
-	conversations  map[string][]Message  // 对话历史（按会话ID）
-	systemStatus   *SystemStatus         // 系统状态
-	storageStatus  *StorageStatus        // 存储状态
-	maxHistory     int                   // 最大历史记录数
+	mu              sync.RWMutex
+	providers       []AIProvider         // AI后端列表
+	conversations   map[string][]Message // 对话历史（按会话ID）
+	systemStatus    *SystemStatus        // 系统状态
+	storageStatus   *StorageStatus       // 存储状态
+	maxHistory      int                  // 最大历史记录数
 	defaultProvider AIProvider           // 默认AI后端
 }
 
@@ -233,7 +233,7 @@ func (a *UnifiedAIAssistant) UpdateStorageStatus(status *StorageStatus) {
 func (a *UnifiedAIAssistant) getSystemContext() map[string]string {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
-	
+
 	context := make(map[string]string)
 	if a.systemStatus != nil {
 		context["system_status"] = fmt.Sprintf("CPU:%.1f%% 内存:%.1f%% 磁盘:%.1f%% 温度:%.1f°C",
@@ -257,7 +257,7 @@ func (a *UnifiedAIAssistant) getSystemContext() map[string]string {
 // classifyQuery 分类查询意图
 func (a *UnifiedAIAssistant) classifyQuery(query string) AIAction {
 	query = strings.ToLower(query)
-	
+
 	// 诊断关键词
 	diagnoseKeywords := []string{"故障", "问题", "错误", "异常", "报错", "失败", "无法", "不能", "坏了", "出问题"}
 	for _, kw := range diagnoseKeywords {
@@ -265,7 +265,7 @@ func (a *UnifiedAIAssistant) classifyQuery(query string) AIAction {
 			return ActionDiagnose
 		}
 	}
-	
+
 	// 建议关键词
 	suggestKeywords := []string{"建议", "推荐", "优化", "改进", "怎么做", "如何", "怎样"}
 	for _, kw := range suggestKeywords {
@@ -273,7 +273,7 @@ func (a *UnifiedAIAssistant) classifyQuery(query string) AIAction {
 			return ActionSuggest
 		}
 	}
-	
+
 	// 状态关键词
 	statusKeywords := []string{"状态", "运行", "监控", "查看", "检查"}
 	for _, kw := range statusKeywords {
@@ -281,7 +281,7 @@ func (a *UnifiedAIAssistant) classifyQuery(query string) AIAction {
 			return ActionStatus
 		}
 	}
-	
+
 	// 帮助关键词
 	helpKeywords := []string{"帮助", "怎么用", "使用方法", "功能", "能做什么"}
 	for _, kw := range helpKeywords {
@@ -289,7 +289,7 @@ func (a *UnifiedAIAssistant) classifyQuery(query string) AIAction {
 			return ActionHelp
 		}
 	}
-	
+
 	// 执行关键词
 	executeKeywords := []string{"执行", "运行", "启动", "停止", "重启", "关闭"}
 	for _, kw := range executeKeywords {
@@ -297,7 +297,7 @@ func (a *UnifiedAIAssistant) classifyQuery(query string) AIAction {
 			return ActionExecute
 		}
 	}
-	
+
 	// 默认为查询
 	return ActionQuery
 }
@@ -306,19 +306,19 @@ func (a *UnifiedAIAssistant) classifyQuery(query string) AIAction {
 func (a *UnifiedAIAssistant) addMessage(sessionID string, msg Message) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	
+
 	history, exists := a.conversations[sessionID]
 	if !exists {
 		history = make([]Message, 0)
 	}
-	
+
 	history = append(history, msg)
-	
+
 	// 限制历史记录数量
 	if len(history) > a.maxHistory {
 		history = history[len(history)-a.maxHistory:]
 	}
-	
+
 	a.conversations[sessionID] = history
 }
 
@@ -326,12 +326,12 @@ func (a *UnifiedAIAssistant) addMessage(sessionID string, msg Message) {
 func (a *UnifiedAIAssistant) GetConversationHistory(sessionID string) []Message {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
-	
+
 	history, exists := a.conversations[sessionID]
 	if !exists {
 		return []Message{}
 	}
-	
+
 	result := make([]Message, len(history))
 	copy(result, history)
 	return result
@@ -349,7 +349,7 @@ func (a *UnifiedAIAssistant) Query(sessionID, query string) (*AIResult, error) {
 	if query == "" {
 		return nil, fmt.Errorf("查询内容不能为空")
 	}
-	
+
 	// 记录用户消息
 	a.addMessage(sessionID, Message{
 		Role:      "user",
@@ -357,28 +357,28 @@ func (a *UnifiedAIAssistant) Query(sessionID, query string) (*AIResult, error) {
 		Timestamp: time.Now(),
 		Action:    ActionQuery,
 	})
-	
+
 	// 分类查询意图
 	action := a.classifyQuery(query)
-	
+
 	// 获取系统上下文
 	context := a.getSystemContext()
-	
+
 	// 选择AI后端
 	a.mu.RLock()
 	provider := a.defaultProvider
 	a.mu.RUnlock()
-	
+
 	if provider == nil {
 		return nil, fmt.Errorf("未配置AI后端")
 	}
-	
+
 	// 处理查询
 	response, err := provider.Process(query, context)
 	if err != nil {
 		return nil, fmt.Errorf("AI处理失败: %v", err)
 	}
-	
+
 	// 构建结果
 	result := &AIResult{
 		Action:    action,
@@ -386,7 +386,7 @@ func (a *UnifiedAIAssistant) Query(sessionID, query string) (*AIResult, error) {
 		Context:   context,
 		Timestamp: time.Now(),
 	}
-	
+
 	// 根据操作类型处理
 	switch action {
 	case ActionDiagnose:
@@ -402,7 +402,7 @@ func (a *UnifiedAIAssistant) Query(sessionID, query string) (*AIResult, error) {
 	case ActionHelp:
 		result.Response = a.formatHelpResponse()
 	}
-	
+
 	// 记录助手回复
 	a.addMessage(sessionID, Message{
 		Role:      "assistant",
@@ -410,7 +410,7 @@ func (a *UnifiedAIAssistant) Query(sessionID, query string) (*AIResult, error) {
 		Timestamp: time.Now(),
 		Action:    action,
 	})
-	
+
 	return result, nil
 }
 
@@ -419,7 +419,7 @@ func (a *UnifiedAIAssistant) Diagnose(sessionID, symptom string) (*DiagnosisResu
 	if symptom == "" {
 		return nil, fmt.Errorf("症状描述不能为空")
 	}
-	
+
 	// 记录用户消息
 	a.addMessage(sessionID, Message{
 		Role:      "user",
@@ -427,10 +427,10 @@ func (a *UnifiedAIAssistant) Diagnose(sessionID, symptom string) (*DiagnosisResu
 		Timestamp: time.Now(),
 		Action:    ActionDiagnose,
 	})
-	
+
 	// 执行诊断
 	diagnosis := a.performDiagnosis(symptom)
-	
+
 	// 记录诊断结果
 	a.addMessage(sessionID, Message{
 		Role:      "assistant",
@@ -438,7 +438,7 @@ func (a *UnifiedAIAssistant) Diagnose(sessionID, symptom string) (*DiagnosisResu
 		Timestamp: time.Now(),
 		Action:    ActionDiagnose,
 	})
-	
+
 	return diagnosis, nil
 }
 
@@ -446,13 +446,13 @@ func (a *UnifiedAIAssistant) Diagnose(sessionID, symptom string) (*DiagnosisResu
 func (a *UnifiedAIAssistant) performDiagnosis(symptom string) *DiagnosisResult {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
-	
+
 	diagnosis := &DiagnosisResult{
 		Timestamp: time.Now(),
 	}
-	
+
 	symptom = strings.ToLower(symptom)
-	
+
 	// 分析系统状态
 	if a.systemStatus != nil {
 		if a.systemStatus.CPUUsage > 90 {
@@ -467,7 +467,7 @@ func (a *UnifiedAIAssistant) performDiagnosis(symptom string) *DiagnosisResult {
 			diagnosis.RelatedLogs = []string{"top", "ps aux --sort=-%cpu"}
 			return diagnosis
 		}
-		
+
 		if a.systemStatus.MemoryUsage > 90 {
 			diagnosis.IssueType = "memory"
 			diagnosis.Severity = "warning"
@@ -480,7 +480,7 @@ func (a *UnifiedAIAssistant) performDiagnosis(symptom string) *DiagnosisResult {
 			diagnosis.RelatedLogs = []string{"free -h", "cat /proc/meminfo"}
 			return diagnosis
 		}
-		
+
 		if a.systemStatus.Temperature > 80 {
 			diagnosis.IssueType = "temperature"
 			diagnosis.Severity = "error"
@@ -494,7 +494,7 @@ func (a *UnifiedAIAssistant) performDiagnosis(symptom string) *DiagnosisResult {
 			diagnosis.RelatedLogs = []string{"sensors", "cat /sys/class/thermal/thermal_zone*/temp"}
 			return diagnosis
 		}
-		
+
 		if !a.systemStatus.NetworkUp {
 			diagnosis.IssueType = "network"
 			diagnosis.Severity = "error"
@@ -509,7 +509,7 @@ func (a *UnifiedAIAssistant) performDiagnosis(symptom string) *DiagnosisResult {
 			return diagnosis
 		}
 	}
-	
+
 	// 分析存储状态
 	if a.storageStatus != nil {
 		if a.storageStatus.HealthStatus != "healthy" {
@@ -524,7 +524,7 @@ func (a *UnifiedAIAssistant) performDiagnosis(symptom string) *DiagnosisResult {
 			diagnosis.RelatedLogs = []string{"smartctl -a /dev/sda", "mdadm --detail /dev/md0"}
 			return diagnosis
 		}
-		
+
 		usagePercent := float64(a.storageStatus.UsedSpace) / float64(a.storageStatus.TotalSpace) * 100
 		if usagePercent > 90 {
 			diagnosis.IssueType = "disk"
@@ -539,7 +539,7 @@ func (a *UnifiedAIAssistant) performDiagnosis(symptom string) *DiagnosisResult {
 			return diagnosis
 		}
 	}
-	
+
 	// 基于症状关键词的诊断
 	if strings.Contains(symptom, "慢") || strings.Contains(symptom, "卡") {
 		diagnosis.IssueType = "performance"
@@ -553,7 +553,7 @@ func (a *UnifiedAIAssistant) performDiagnosis(symptom string) *DiagnosisResult {
 		diagnosis.RelatedLogs = []string{"top", "iotop", "iftop"}
 		return diagnosis
 	}
-	
+
 	if strings.Contains(symptom, "噪音") || strings.Contains(symptom, "响") {
 		diagnosis.IssueType = "hardware"
 		diagnosis.Severity = "warning"
@@ -566,7 +566,7 @@ func (a *UnifiedAIAssistant) performDiagnosis(symptom string) *DiagnosisResult {
 		diagnosis.RelatedLogs = []string{"smartctl -a /dev/sda"}
 		return diagnosis
 	}
-	
+
 	// 默认诊断
 	diagnosis.IssueType = "unknown"
 	diagnosis.Severity = "info"
@@ -577,34 +577,34 @@ func (a *UnifiedAIAssistant) performDiagnosis(symptom string) *DiagnosisResult {
 		"运行系统自检",
 	}
 	diagnosis.RelatedLogs = []string{"journalctl -xe", "dmesg | tail -100"}
-	
+
 	return diagnosis
 }
 
 // formatDiagnosisResponse 格式化诊断响应
 func (a *UnifiedAIAssistant) formatDiagnosisResponse(diagnosis *DiagnosisResult) string {
 	var sb strings.Builder
-	
+
 	sb.WriteString(fmt.Sprintf("🔍 诊断结果\n"))
 	sb.WriteString(fmt.Sprintf("━━━━━━━━━━━━━━━━━━━━\n"))
 	sb.WriteString(fmt.Sprintf("问题类型: %s\n", diagnosis.IssueType))
 	sb.WriteString(fmt.Sprintf("严重程度: %s\n", diagnosis.Severity))
 	sb.WriteString(fmt.Sprintf("问题描述: %s\n", diagnosis.Description))
-	
+
 	if len(diagnosis.Suggestions) > 0 {
 		sb.WriteString("\n💡 建议措施:\n")
 		for i, s := range diagnosis.Suggestions {
 			sb.WriteString(fmt.Sprintf("  %d. %s\n", i+1, s))
 		}
 	}
-	
+
 	if len(diagnosis.RelatedLogs) > 0 {
 		sb.WriteString("\n📋 相关命令:\n")
 		for _, log := range diagnosis.RelatedLogs {
 			sb.WriteString(fmt.Sprintf("  - %s\n", log))
 		}
 	}
-	
+
 	return sb.String()
 }
 
@@ -613,7 +613,7 @@ func (a *UnifiedAIAssistant) Suggest(sessionID, scenario string) ([]*Suggestion,
 	if scenario == "" {
 		return nil, fmt.Errorf("场景描述不能为空")
 	}
-	
+
 	// 记录用户消息
 	a.addMessage(sessionID, Message{
 		Role:      "user",
@@ -621,10 +621,10 @@ func (a *UnifiedAIAssistant) Suggest(sessionID, scenario string) ([]*Suggestion,
 		Timestamp: time.Now(),
 		Action:    ActionSuggest,
 	})
-	
+
 	// 生成建议
 	suggestions := a.generateSuggestions(scenario)
-	
+
 	// 记录建议
 	a.addMessage(sessionID, Message{
 		Role:      "assistant",
@@ -632,7 +632,7 @@ func (a *UnifiedAIAssistant) Suggest(sessionID, scenario string) ([]*Suggestion,
 		Timestamp: time.Now(),
 		Action:    ActionSuggest,
 	})
-	
+
 	return suggestions, nil
 }
 
@@ -640,7 +640,7 @@ func (a *UnifiedAIAssistant) Suggest(sessionID, scenario string) ([]*Suggestion,
 func (a *UnifiedAIAssistant) generateSuggestions(scenario string) []*Suggestion {
 	scenario = strings.ToLower(scenario)
 	suggestions := make([]*Suggestion, 0)
-	
+
 	// 备份相关建议
 	if strings.Contains(scenario, "备份") || strings.Contains(scenario, "数据安全") {
 		suggestions = append(suggestions, &Suggestion{
@@ -657,7 +657,7 @@ func (a *UnifiedAIAssistant) generateSuggestions(scenario string) []*Suggestion 
 			},
 		})
 	}
-	
+
 	// 性能优化建议
 	if strings.Contains(scenario, "性能") || strings.Contains(scenario, "优化") || strings.Contains(scenario, "速度") {
 		suggestions = append(suggestions, &Suggestion{
@@ -674,7 +674,7 @@ func (a *UnifiedAIAssistant) generateSuggestions(scenario string) []*Suggestion 
 			},
 		})
 	}
-	
+
 	// 安全相关建议
 	if strings.Contains(scenario, "安全") || strings.Contains(scenario, "防护") {
 		suggestions = append(suggestions, &Suggestion{
@@ -691,7 +691,7 @@ func (a *UnifiedAIAssistant) generateSuggestions(scenario string) []*Suggestion 
 			},
 		})
 	}
-	
+
 	// 存储管理建议
 	if strings.Contains(scenario, "存储") || strings.Contains(scenario, "空间") || strings.Contains(scenario, "容量") {
 		suggestions = append(suggestions, &Suggestion{
@@ -708,7 +708,7 @@ func (a *UnifiedAIAssistant) generateSuggestions(scenario string) []*Suggestion 
 			},
 		})
 	}
-	
+
 	// 默认建议
 	if len(suggestions) == 0 {
 		suggestions = append(suggestions, &Suggestion{
@@ -725,22 +725,22 @@ func (a *UnifiedAIAssistant) generateSuggestions(scenario string) []*Suggestion 
 			},
 		})
 	}
-	
+
 	return suggestions
 }
 
 // formatSuggestionsResponse 格式化建议响应
 func (a *UnifiedAIAssistant) formatSuggestionsResponse(suggestions []*Suggestion) string {
 	var sb strings.Builder
-	
+
 	sb.WriteString("💡 操作建议\n")
 	sb.WriteString("━━━━━━━━━━━━━━━━━━━━\n")
-	
+
 	for i, s := range suggestions {
 		sb.WriteString(fmt.Sprintf("\n%d. %s (优先级: %d/5)\n", i+1, s.Title, s.Priority))
 		sb.WriteString(fmt.Sprintf("   分类: %s\n", s.Category))
 		sb.WriteString(fmt.Sprintf("   说明: %s\n", s.Description))
-		
+
 		if len(s.Steps) > 0 {
 			sb.WriteString("   步骤:\n")
 			for j, step := range s.Steps {
@@ -748,7 +748,7 @@ func (a *UnifiedAIAssistant) formatSuggestionsResponse(suggestions []*Suggestion
 			}
 		}
 	}
-	
+
 	return sb.String()
 }
 
@@ -756,21 +756,21 @@ func (a *UnifiedAIAssistant) formatSuggestionsResponse(suggestions []*Suggestion
 func (a *UnifiedAIAssistant) GetStatus() map[string]interface{} {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
-	
+
 	status := make(map[string]interface{})
-	
+
 	if a.systemStatus != nil {
 		status["system"] = map[string]interface{}{
-			"cpu":        a.systemStatus.CPUUsage,
-			"memory":     a.systemStatus.MemoryUsage,
-			"disk":       a.systemStatus.DiskUsage,
+			"cpu":         a.systemStatus.CPUUsage,
+			"memory":      a.systemStatus.MemoryUsage,
+			"disk":        a.systemStatus.DiskUsage,
 			"temperature": a.systemStatus.Temperature,
-			"uptime":     a.systemStatus.Uptime,
-			"network":    a.systemStatus.NetworkUp,
-			"services":   a.systemStatus.ServicesOK,
+			"uptime":      a.systemStatus.Uptime,
+			"network":     a.systemStatus.NetworkUp,
+			"services":    a.systemStatus.ServicesOK,
 		}
 	}
-	
+
 	if a.storageStatus != nil {
 		status["storage"] = map[string]interface{}{
 			"total":      a.storageStatus.TotalSpace,
@@ -781,10 +781,10 @@ func (a *UnifiedAIAssistant) GetStatus() map[string]interface{} {
 			"health":     a.storageStatus.HealthStatus,
 		}
 	}
-	
+
 	status["providers"] = len(a.providers)
 	status["conversations"] = len(a.conversations)
-	
+
 	return status
 }
 
@@ -792,12 +792,12 @@ func (a *UnifiedAIAssistant) GetStatus() map[string]interface{} {
 func (a *UnifiedAIAssistant) formatStatusResponse() string {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
-	
+
 	var sb strings.Builder
-	
+
 	sb.WriteString("📊 系统状态\n")
 	sb.WriteString("━━━━━━━━━━━━━━━━━━━━\n")
-	
+
 	if a.systemStatus != nil {
 		sb.WriteString("\n🖥️ 系统信息:\n")
 		sb.WriteString(fmt.Sprintf("  CPU使用率: %.1f%%\n", a.systemStatus.CPUUsage))
@@ -808,7 +808,7 @@ func (a *UnifiedAIAssistant) formatStatusResponse() string {
 		sb.WriteString(fmt.Sprintf("  网络状态: %v\n", a.systemStatus.NetworkUp))
 		sb.WriteString(fmt.Sprintf("  服务状态: %v\n", a.systemStatus.ServicesOK))
 	}
-	
+
 	if a.storageStatus != nil {
 		sb.WriteString("\n💾 存储信息:\n")
 		sb.WriteString(fmt.Sprintf("  总空间: %dGB\n", a.storageStatus.TotalSpace/1073741824))
@@ -818,11 +818,11 @@ func (a *UnifiedAIAssistant) formatStatusResponse() string {
 		sb.WriteString(fmt.Sprintf("  磁盘数量: %d\n", a.storageStatus.DiskCount))
 		sb.WriteString(fmt.Sprintf("  健康状态: %s\n", a.storageStatus.HealthStatus))
 	}
-	
+
 	sb.WriteString("\n🤖 AI后端:\n")
 	sb.WriteString(fmt.Sprintf("  已注册: %d个\n", len(a.providers)))
 	sb.WriteString(fmt.Sprintf("  活跃对话: %d个\n", len(a.conversations)))
-	
+
 	return sb.String()
 }
 
@@ -873,7 +873,7 @@ func (a *UnifiedAIAssistant) formatHelpResponse() string {
 // parseCommand 解析命令
 func (a *UnifiedAIAssistant) parseCommand(input string) (AIAction, string) {
 	input = strings.TrimSpace(input)
-	
+
 	// 命令前缀匹配
 	commands := map[string]AIAction{
 		"/query":    ActionQuery,
@@ -883,14 +883,14 @@ func (a *UnifiedAIAssistant) parseCommand(input string) (AIAction, string) {
 		"/status":   ActionStatus,
 		"/help":     ActionHelp,
 	}
-	
+
 	for prefix, action := range commands {
 		if strings.HasPrefix(input, prefix) {
 			content := strings.TrimSpace(strings.TrimPrefix(input, prefix))
 			return action, content
 		}
 	}
-	
+
 	// 默认为自然语言查询
 	return ActionQuery, input
 }
@@ -898,7 +898,7 @@ func (a *UnifiedAIAssistant) parseCommand(input string) (AIAction, string) {
 // ExecuteCommand 执行命令
 func (a *UnifiedAIAssistant) ExecuteCommand(sessionID, command string) (*AIResult, error) {
 	action, content := a.parseCommand(command)
-	
+
 	switch action {
 	case ActionQuery:
 		return a.Query(sessionID, content)
@@ -947,17 +947,17 @@ func (a *UnifiedAIAssistant) ExecuteCommand(sessionID, command string) (*AIResul
 func (a *UnifiedAIAssistant) GetStats() map[string]interface{} {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
-	
+
 	stats := make(map[string]interface{})
 	stats["total_providers"] = len(a.providers)
 	stats["active_conversations"] = len(a.conversations)
 	stats["max_history"] = a.maxHistory
-	
+
 	totalMessages := 0
 	for _, history := range a.conversations {
 		totalMessages += len(history)
 	}
 	stats["total_messages"] = totalMessages
-	
+
 	return stats
 }

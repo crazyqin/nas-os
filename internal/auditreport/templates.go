@@ -10,11 +10,11 @@ import (
 type ComplianceStandard string
 
 const (
-	StandardGDPR   ComplianceStandard = "GDPR"
-	StandardFIPS140 ComplianceStandard = "FIPS140"
-	StandardDJB20  ComplianceStandard = "等保2.0"
-	StandardSOC2   ComplianceStandard = "SOC2"
-	StandardHIPAA  ComplianceStandard = "HIPAA"
+	StandardGDPR     ComplianceStandard = "GDPR"
+	StandardFIPS140  ComplianceStandard = "FIPS140"
+	StandardDJB20    ComplianceStandard = "等保2.0"
+	StandardSOC2     ComplianceStandard = "SOC2"
+	StandardHIPAA    ComplianceStandard = "HIPAA"
 	StandardISO27001 ComplianceStandard = "ISO27001"
 )
 
@@ -47,24 +47,24 @@ type SectionItem struct {
 
 // ComplianceReport 合规报告.
 type ComplianceReport struct {
-	ID           string             `json:"id"`
-	Standard     ComplianceStandard `json:"standard"`
-	GeneratedAt  time.Time          `json:"generated_at"`
-	Score        float64            `json:"score"`
-	Passed       int                `json:"passed"`
-	Failed       int                `json:"failed"`
-	Total        int                `json:"total"`
-	Sections     []ComplianceSection `json:"sections"`
-	Summary      string             `json:"summary"`
-	Template     string             `json:"template"`
+	ID          string              `json:"id"`
+	Standard    ComplianceStandard  `json:"standard"`
+	GeneratedAt time.Time           `json:"generated_at"`
+	Score       float64             `json:"score"`
+	Passed      int                 `json:"passed"`
+	Failed      int                 `json:"failed"`
+	Total       int                 `json:"total"`
+	Sections    []ComplianceSection `json:"sections"`
+	Summary     string              `json:"summary"`
+	Template    string              `json:"template"`
 }
 
 // ComplianceSection 合规章节结果.
 type ComplianceSection struct {
-	ID       string               `json:"id"`
-	Title    string               `json:"title"`
-	Score    float64              `json:"score"`
-	Items    []ComplianceItemResult `json:"items"`
+	ID    string                 `json:"id"`
+	Title string                 `json:"title"`
+	Score float64                `json:"score"`
+	Items []ComplianceItemResult `json:"items"`
 }
 
 // ComplianceItemResult 合规项结果.

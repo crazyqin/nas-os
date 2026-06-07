@@ -13,13 +13,13 @@ import (
 // ============================================================
 
 var (
-	ErrDeviceNotFound   = errors.New("device not found")
-	ErrRoomNotFound     = errors.New("room not found")
-	ErrGroupNotFound    = errors.New("group not found")
-	ErrDeviceExists     = errors.New("device already exists")
-	ErrRoomExists       = errors.New("room already exists")
-	ErrGroupExists      = errors.New("group already exists")
-	ErrInvalidProtocol  = errors.New("invalid protocol")
+	ErrDeviceNotFound    = errors.New("device not found")
+	ErrRoomNotFound      = errors.New("room not found")
+	ErrGroupNotFound     = errors.New("group not found")
+	ErrDeviceExists      = errors.New("device already exists")
+	ErrRoomExists        = errors.New("room already exists")
+	ErrGroupExists       = errors.New("group already exists")
+	ErrInvalidProtocol   = errors.New("invalid protocol")
 	ErrInvalidDeviceType = errors.New("invalid device type")
 )
 

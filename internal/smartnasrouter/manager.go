@@ -14,15 +14,15 @@ import (
 
 // Manager 智能路由管理器
 type Manager struct {
-	mu          sync.RWMutex
-	nodes       map[string]*Node
-	rules       map[string]*RouteRule
-	healthCfg   HealthCheckConfig
-	failovers   []*FailoverEvent
+	mu           sync.RWMutex
+	nodes        map[string]*Node
+	rules        map[string]*RouteRule
+	healthCfg    HealthCheckConfig
+	failovers    []*FailoverEvent
 	probeResults map[string][]*ProbeResult
-	totalReqs   int64
-	failedReqs  int64
-	roundRobin  int
+	totalReqs    int64
+	failedReqs   int64
+	roundRobin   int
 }
 
 // NewManager 创建路由管理器
@@ -542,10 +542,10 @@ func (m *Manager) GetStats() RouterStats {
 	defer m.mu.RUnlock()
 
 	stats := RouterStats{
-		TotalNodes:    len(m.nodes),
-		TotalRequests: m.totalReqs,
+		TotalNodes:     len(m.nodes),
+		TotalRequests:  m.totalReqs,
 		FailedRequests: m.failedReqs,
-		TotalRoutes:   len(m.rules),
+		TotalRoutes:    len(m.rules),
 	}
 
 	var totalLatency int64

@@ -28,35 +28,35 @@ const (
 
 // FileChange 文件变更记录
 type FileChange struct {
-	Path      string    `json:"path"`       // 文件路径
-	OldPath   string    `json:"old_path"`   // 原路径（重命名时）
+	Path      string     `json:"path"`      // 文件路径
+	OldPath   string     `json:"old_path"`  // 原路径（重命名时）
 	Type      ChangeType `json:"type"`      // 变更类型
-	Size      int64     `json:"size"`       // 文件大小
-	Checksum  string    `json:"checksum"`   // 文件校验和
-	Timestamp time.Time `json:"timestamp"`  // 变更时间
+	Size      int64      `json:"size"`      // 文件大小
+	Checksum  string     `json:"checksum"`  // 文件校验和
+	Timestamp time.Time  `json:"timestamp"` // 变更时间
 }
 
 // BlockInfo 数据块信息
 type BlockInfo struct {
-	Index     int    `json:"index"`     // 块序号
-	Offset    int64  `json:"offset"`    // 文件内偏移量
-	Size      int    `json:"size"`      // 块大小
-	Checksum  string `json:"checksum"`  // 块校验和
-	RefCount  int    `json:"ref_count"` // 引用计数（去重用）
-	StorePath string `json:"store_path"`// 存储路径
+	Index     int    `json:"index"`      // 块序号
+	Offset    int64  `json:"offset"`     // 文件内偏移量
+	Size      int    `json:"size"`       // 块大小
+	Checksum  string `json:"checksum"`   // 块校验和
+	RefCount  int    `json:"ref_count"`  // 引用计数（去重用）
+	StorePath string `json:"store_path"` // 存储路径
 }
 
 // ChangeTracker 变更追踪器
 // 监控文件系统变更，为增量备份提供变更清单
 type ChangeTracker struct {
-	mu            sync.RWMutex
-	basePath      string              // 被监控的根路径
-	lastSnapshot  map[string]string   // path -> checksum（上次快照的文件清单）
-	currentState  map[string]string   // path -> checksum（当前状态）
-	changes       []FileChange        // 变更记录
-	blockSize     int                 // 块大小（字节）
-	logger        *zap.Logger
-	dbPath        string              // 追踪数据库路径
+	mu           sync.RWMutex
+	basePath     string            // 被监控的根路径
+	lastSnapshot map[string]string // path -> checksum（上次快照的文件清单）
+	currentState map[string]string // path -> checksum（当前状态）
+	changes      []FileChange      // 变更记录
+	blockSize    int               // 块大小（字节）
+	logger       *zap.Logger
+	dbPath       string // 追踪数据库路径
 }
 
 // NewChangeTracker 创建变更追踪器
@@ -249,11 +249,11 @@ func (ct *ChangeTracker) saveState() error {
 // BlockLevelBackupEngine 块级增量备份引擎
 // 将文件切分为固定大小的数据块，仅备份变更的块
 type BlockLevelBackupEngine struct {
-	mu           sync.RWMutex
-	blockSize    int                // 块大小（字节）
-	blockIndex   map[string]*BlockInfo // checksum -> block info
-	dedup        *DedupEngine       // 去重引擎
-	logger       *zap.Logger
+	mu         sync.RWMutex
+	blockSize  int                   // 块大小（字节）
+	blockIndex map[string]*BlockInfo // checksum -> block info
+	dedup      *DedupEngine          // 去重引擎
+	logger     *zap.Logger
 }
 
 // NewBlockLevelBackupEngine 创建块级备份引擎
@@ -350,11 +350,11 @@ func (be *BlockLevelBackupEngine) Backup(filePath, outputDir string) (int, int64
 // DedupEngine 去重引擎
 // 使用滚动哈希 + 强校验实现数据块级去重
 type DedupEngine struct {
-	mu           sync.RWMutex
-	blockSize    int
-	chunkIndex   map[string]*ChunkEntry // checksum -> chunk info
-	stats        DedupStats
-	logger       *zap.Logger
+	mu         sync.RWMutex
+	blockSize  int
+	chunkIndex map[string]*ChunkEntry // checksum -> chunk info
+	stats      DedupStats
+	logger     *zap.Logger
 }
 
 // ChunkEntry 数据块条目
@@ -368,11 +368,11 @@ type ChunkEntry struct {
 
 // DedupStats 去重统计
 type DedupStats struct {
-	TotalChunks    int   `json:"total_chunks"`    // 总处理块数
-	UniqueChunks   int   `json:"unique_chunks"`   // 唯一块数
-	DuplicateChunks int  `json:"duplicate_chunks"` // 重复块数
-	TotalBytes     int64 `json:"total_bytes"`      // 总处理字节数
-	SavedBytes     int64 `json:"saved_bytes"`      // 节省字节数
+	TotalChunks     int   `json:"total_chunks"`     // 总处理块数
+	UniqueChunks    int   `json:"unique_chunks"`    // 唯一块数
+	DuplicateChunks int   `json:"duplicate_chunks"` // 重复块数
+	TotalBytes      int64 `json:"total_bytes"`      // 总处理字节数
+	SavedBytes      int64 `json:"saved_bytes"`      // 节省字节数
 }
 
 // NewDedupEngine 创建去重引擎

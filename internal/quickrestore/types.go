@@ -35,24 +35,24 @@ type RestorePoint struct {
 	Description string        `json:"description"`
 	Source      RestoreSource `json:"source"`
 	Path        string        `json:"path"`           // 快照/备份路径
-	Timestamp   time.Time     `json:"timestamp"`       // 恢复点时间
-	FileCount   int           `json:"file_count"`      // 包含的文件数
-	TotalSize   int64         `json:"total_size"`      // 总大小（字节）
-	IsAutomatic bool          `json:"is_automatic"`    // 是否自动创建
-	Tags        []string      `json:"tags,omitempty"`  // 标签
+	Timestamp   time.Time     `json:"timestamp"`      // 恢复点时间
+	FileCount   int           `json:"file_count"`     // 包含的文件数
+	TotalSize   int64         `json:"total_size"`     // 总大小（字节）
+	IsAutomatic bool          `json:"is_automatic"`   // 是否自动创建
+	Tags        []string      `json:"tags,omitempty"` // 标签
 	CreatedAt   time.Time     `json:"created_at"`
 	ExpiresAt   *time.Time    `json:"expires_at,omitempty"` // 过期时间
 }
 
 // FileDiff 文件差异
 type FileDiff struct {
-	Path         string    `json:"path"`
-	CurrentSize  int64     `json:"current_size"`
-	RestoreSize  int64     `json:"restore_size"`
-	CurrentMod   time.Time `json:"current_modified"`
-	RestoreMod   time.Time `json:"restore_modified"`
-	Status       string    `json:"status"` // added/modified/deleted
-	HasConflict  bool      `json:"has_conflict"`
+	Path        string    `json:"path"`
+	CurrentSize int64     `json:"current_size"`
+	RestoreSize int64     `json:"restore_size"`
+	CurrentMod  time.Time `json:"current_modified"`
+	RestoreMod  time.Time `json:"restore_modified"`
+	Status      string    `json:"status"` // added/modified/deleted
+	HasConflict bool      `json:"has_conflict"`
 }
 
 // RestorePreview 恢复预览
@@ -85,20 +85,20 @@ type BatchRestoreRequest struct {
 
 // RestoreTask 恢复任务
 type RestoreTask struct {
-	ID           string        `json:"id"`
-	PointID      string        `json:"point_id"`
-	TargetPath   string        `json:"target_path"`
-	Status       RestoreStatus `json:"status"`
-	TotalFiles   int           `json:"total_files"`
-	RestoredFiles int          `json:"restored_files"`
-	FailedFiles  int           `json:"failed_files"`
-	TotalSize    int64         `json:"total_size"`
-	RestoredSize int64         `json:"restored_size"`
-	Progress     float64       `json:"progress"` // 0-100
-	Error        string        `json:"error,omitempty"`
-	StartedAt    *time.Time    `json:"started_at,omitempty"`
-	CompletedAt  *time.Time    `json:"completed_at,omitempty"`
-	CreatedAt    time.Time     `json:"created_at"`
+	ID            string        `json:"id"`
+	PointID       string        `json:"point_id"`
+	TargetPath    string        `json:"target_path"`
+	Status        RestoreStatus `json:"status"`
+	TotalFiles    int           `json:"total_files"`
+	RestoredFiles int           `json:"restored_files"`
+	FailedFiles   int           `json:"failed_files"`
+	TotalSize     int64         `json:"total_size"`
+	RestoredSize  int64         `json:"restored_size"`
+	Progress      float64       `json:"progress"` // 0-100
+	Error         string        `json:"error,omitempty"`
+	StartedAt     *time.Time    `json:"started_at,omitempty"`
+	CompletedAt   *time.Time    `json:"completed_at,omitempty"`
+	CreatedAt     time.Time     `json:"created_at"`
 }
 
 // RestoreHistory 恢复历史记录
@@ -129,11 +129,11 @@ type CreatePointRequest struct {
 
 // Manager 快速恢复管理器
 type Manager struct {
-	mu       sync.RWMutex
-	points   map[string]*RestorePoint
-	tasks    map[string]*RestoreTask
-	history  []*RestoreHistory
-	stopCh   chan struct{}
+	mu      sync.RWMutex
+	points  map[string]*RestorePoint
+	tasks   map[string]*RestoreTask
+	history []*RestoreHistory
+	stopCh  chan struct{}
 }
 
 // NewManager 创建管理器

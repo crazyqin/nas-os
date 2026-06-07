@@ -36,7 +36,7 @@ func (d *defaultDetector) Detect(ctx context.Context, host string, port int, use
 		Version:      "1.0",
 		Hostname:     host,
 		TotalStorage: 1024 * 1024 * 1024 * 100, // 100GB
-		UsedStorage:  1024 * 1024 * 1024 * 50,   // 50GB
+		UsedStorage:  1024 * 1024 * 1024 * 50,  // 50GB
 		TotalUsers:   5,
 		TotalShares:  10,
 		TotalApps:    3,

@@ -62,9 +62,9 @@ func (cs *CollaborationService) NotifyFileChange(filePath string, changeType Act
 	msg := WebSocketMessage{
 		Type: "file_change",
 		Payload: map[string]interface{}{
-			"file_path":    filePath,
-			"change_type":  string(changeType),
-			"user_id":      userID,
+			"file_path":   filePath,
+			"change_type": string(changeType),
+			"user_id":     userID,
 		},
 		Time: time.Now(),
 	}

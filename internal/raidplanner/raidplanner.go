@@ -15,14 +15,14 @@ import (
 // ========== 常量 ==========
 
 const (
-	Version         = "1.0.0"
-	MaxDrives       = 24
-	MinDrives       = 1
-	MaxPlans        = 100
-	MaxVDisks       = 50
-	TB              = 1024 * 1024 * 1024 * 1024
-	GB              = 1024 * 1024 * 1024
-	MB              = 1024 * 1024
+	Version   = "1.0.0"
+	MaxDrives = 24
+	MinDrives = 1
+	MaxPlans  = 100
+	MaxVDisks = 50
+	TB        = 1024 * 1024 * 1024 * 1024
+	GB        = 1024 * 1024 * 1024
+	MB        = 1024 * 1024
 )
 
 // ========== 类型定义 ==========
@@ -31,28 +31,28 @@ const (
 type RAIDLevel string
 
 const (
-	RAID0   RAIDLevel = "raid0"
-	RAID1   RAIDLevel = "raid1"
-	RAID5   RAIDLevel = "raid5"
-	RAID6   RAIDLevel = "raid6"
-	RAID10  RAIDLevel = "raid10"
-	RAID50  RAIDLevel = "raid50"
-	RAID60  RAIDLevel = "raid60"
-	RAIDZ1  RAIDLevel = "raidz1"
-	RAIDZ2  RAIDLevel = "raidz2"
-	RAIDZ3  RAIDLevel = "raidz3"
-	JBOD    RAIDLevel = "jbod"
-	Single  RAIDLevel = "single"
+	RAID0  RAIDLevel = "raid0"
+	RAID1  RAIDLevel = "raid1"
+	RAID5  RAIDLevel = "raid5"
+	RAID6  RAIDLevel = "raid6"
+	RAID10 RAIDLevel = "raid10"
+	RAID50 RAIDLevel = "raid50"
+	RAID60 RAIDLevel = "raid60"
+	RAIDZ1 RAIDLevel = "raidz1"
+	RAIDZ2 RAIDLevel = "raidz2"
+	RAIDZ3 RAIDLevel = "raidz3"
+	JBOD   RAIDLevel = "jbod"
+	Single RAIDLevel = "single"
 )
 
 // DiskType 磁盘类型
 type DiskType string
 
 const (
-	DiskHDD   DiskType = "hdd"
-	DiskSSD   DiskType = "ssd"
-	DiskNVMe  DiskType = "nvme"
-	DiskSATA  DiskType = "sata"
+	DiskHDD  DiskType = "hdd"
+	DiskSSD  DiskType = "ssd"
+	DiskNVMe DiskType = "nvme"
+	DiskSATA DiskType = "sata"
 )
 
 // Drive 磁盘信息
@@ -61,12 +61,12 @@ type Drive struct {
 	Name       string   `json:"name"`
 	Capacity   int64    `json:"capacity"` // bytes
 	Type       DiskType `json:"type"`
-	RPM        int      `json:"rpm"`        // HDD only
-	ReadSpeed  int64    `json:"read_speed"` // MB/s
+	RPM        int      `json:"rpm"`         // HDD only
+	ReadSpeed  int64    `json:"read_speed"`  // MB/s
 	WriteSpeed int64    `json:"write_speed"` // MB/s
-	Price      float64  `json:"price"`      // 元
-	MTBF       int      `json:"mtbf"`       // 小时
-	Interface  string   `json:"interface"`  // SATA, SAS, NVMe
+	Price      float64  `json:"price"`       // 元
+	MTBF       int      `json:"mtbf"`        // 小时
+	Interface  string   `json:"interface"`   // SATA, SAS, NVMe
 }
 
 // RAIDConfig RAID配置
@@ -79,32 +79,32 @@ type RAIDConfig struct {
 
 // RAIDPlan RAID方案
 type RAIDPlan struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	Config       RAIDConfig `json:"config"`
-	TotalRaw     int64     `json:"total_raw"`     // 原始容量
-	Usable       int64     `json:"usable"`        // 可用容量
-	Redundancy   int       `json:"redundancy"`    // 容错盘数
-	ReadSpeed    int64     `json:"read_speed"`    // MB/s
-	WriteSpeed   int64     `json:"write_speed"`   // MB/s
-	IOPS         int       `json:"iops"`
-	FaultRisk    float64   `json:"fault_risk"`    // 年故障概率
-	TotalPrice   float64   `json:"total_price"`
-	Efficiency   float64   `json:"efficiency"`    // 可用/原始
-	Pros         []string  `json:"pros"`
-	Cons         []string  `json:"cons"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID         string     `json:"id"`
+	Name       string     `json:"name"`
+	Config     RAIDConfig `json:"config"`
+	TotalRaw   int64      `json:"total_raw"`   // 原始容量
+	Usable     int64      `json:"usable"`      // 可用容量
+	Redundancy int        `json:"redundancy"`  // 容错盘数
+	ReadSpeed  int64      `json:"read_speed"`  // MB/s
+	WriteSpeed int64      `json:"write_speed"` // MB/s
+	IOPS       int        `json:"iops"`
+	FaultRisk  float64    `json:"fault_risk"` // 年故障概率
+	TotalPrice float64    `json:"total_price"`
+	Efficiency float64    `json:"efficiency"` // 可用/原始
+	Pros       []string   `json:"pros"`
+	Cons       []string   `json:"cons"`
+	CreatedAt  time.Time  `json:"created_at"`
 }
 
 // VDisk 虚拟磁盘
 type VDisk struct {
-	ID         string    `json:"id"`
-	Name       string    `json:"name"`
-	Capacity   int64     `json:"capacity"`
-	RAIDLevel  RAIDLevel `json:"raid_level"`
-	Drives     int       `json:"drives"`
-	UsedSpace  int64     `json:"used_space"`
-	CreatedAt  time.Time `json:"created_at"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Capacity  int64     `json:"capacity"`
+	RAIDLevel RAIDLevel `json:"raid_level"`
+	Drives    int       `json:"drives"`
+	UsedSpace int64     `json:"used_space"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // FaultSimulation 故障模拟

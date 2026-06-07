@@ -23,10 +23,10 @@ const (
 type SessionStatus string
 
 const (
-	StatusConnecting  SessionStatus = "connecting"
-	StatusConnected   SessionStatus = "connected"
+	StatusConnecting   SessionStatus = "connecting"
+	StatusConnected    SessionStatus = "connected"
 	StatusDisconnected SessionStatus = "disconnected"
-	StatusError       SessionStatus = "error"
+	StatusError        SessionStatus = "error"
 )
 
 // Session represents a remote desktop session
@@ -50,16 +50,16 @@ type Session struct {
 
 // Host represents a remote host configuration
 type Host struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Hostname    string   `json:"hostname"`
-	Protocol    Protocol `json:"protocol"`
-	Port        int      `json:"port"`
-	Username    string   `json:"username"`
-	PasswordRef string   `json:"password_ref"` // Reference to vault
-	Resolution  string   `json:"resolution"`
-	Tags        []string `json:"tags"`
-	Enabled     bool     `json:"enabled"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Hostname    string    `json:"hostname"`
+	Protocol    Protocol  `json:"protocol"`
+	Port        int       `json:"port"`
+	Username    string    `json:"username"`
+	PasswordRef string    `json:"password_ref"` // Reference to vault
+	Resolution  string    `json:"resolution"`
+	Tags        []string  `json:"tags"`
+	Enabled     bool      `json:"enabled"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 
@@ -87,37 +87,37 @@ type ClipboardEntry struct {
 
 // SessionStats represents session statistics
 type SessionStats struct {
-	TotalSessions    int   `json:"total_sessions"`
-	ActiveSessions   int   `json:"active_sessions"`
-	TotalRecordings  int   `json:"total_recordings"`
-	TotalHosts       int   `json:"total_hosts"`
-	TotalBandwidth   int64 `json:"total_bandwidth_bytes"`
-	AvgLatency       int   `json:"avg_latency_ms"`
+	TotalSessions   int   `json:"total_sessions"`
+	ActiveSessions  int   `json:"active_sessions"`
+	TotalRecordings int   `json:"total_recordings"`
+	TotalHosts      int   `json:"total_hosts"`
+	TotalBandwidth  int64 `json:"total_bandwidth_bytes"`
+	AvgLatency      int   `json:"avg_latency_ms"`
 }
 
 // Config holds remote desktop configuration
 type Config struct {
-	Enabled          bool   `json:"enabled"`
-	WebSocketPort    int    `json:"websocket_port"`
-	MaxSessions      int    `json:"max_sessions"`
-	RecordingEnabled bool   `json:"recording_enabled"`
-	ClipSyncEnabled  bool   `json:"clipboard_sync_enabled"`
-	DefaultWidth     int    `json:"default_width"`
-	DefaultHeight    int    `json:"default_height"`
-	DefaultColor     int    `json:"default_color_depth"`
-	SessionTimeout   int    `json:"session_timeout_minutes"`
+	Enabled          bool `json:"enabled"`
+	WebSocketPort    int  `json:"websocket_port"`
+	MaxSessions      int  `json:"max_sessions"`
+	RecordingEnabled bool `json:"recording_enabled"`
+	ClipSyncEnabled  bool `json:"clipboard_sync_enabled"`
+	DefaultWidth     int  `json:"default_width"`
+	DefaultHeight    int  `json:"default_height"`
+	DefaultColor     int  `json:"default_color_depth"`
+	SessionTimeout   int  `json:"session_timeout_minutes"`
 }
 
 // Manager manages remote desktop sessions
 type Manager struct {
-	config    *Config
-	sessions  map[string]*Session
-	hosts     map[string]*Host
+	config     *Config
+	sessions   map[string]*Session
+	hosts      map[string]*Host
 	recordings []*Recording
 	clipboard  map[string][]*ClipboardEntry
-	mu        sync.RWMutex
-	ctx       context.Context
-	cancel    context.CancelFunc
+	mu         sync.RWMutex
+	ctx        context.Context
+	cancel     context.CancelFunc
 }
 
 // NewManager creates a new remote desktop manager

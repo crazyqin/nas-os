@@ -14,9 +14,9 @@ import (
 type StorageTier string
 
 const (
-	TierHot    StorageTier = "hot"    // 热存储：SSD/NVMe，高性能
-	TierWarm   StorageTier = "warm"   // 温存储：SATA SSD，中等性能
-	TierCold   StorageTier = "cold"   // 冷存储：HDD，大容量
+	TierHot     StorageTier = "hot"     // 热存储：SSD/NVMe，高性能
+	TierWarm    StorageTier = "warm"    // 温存储：SATA SSD，中等性能
+	TierCold    StorageTier = "cold"    // 冷存储：HDD，大容量
 	TierArchive StorageTier = "archive" // 归档存储：磁带/云存储，最低成本
 )
 
@@ -24,62 +24,62 @@ const (
 type DataTemperature string
 
 const (
-	TempHot   DataTemperature = "hot"   // 频繁访问
-	TempWarm  DataTemperature = "warm"  // 偶尔访问
-	TempCold  DataTemperature = "cold"  // 很少访问
+	TempHot    DataTemperature = "hot"    // 频繁访问
+	TempWarm   DataTemperature = "warm"   // 偶尔访问
+	TempCold   DataTemperature = "cold"   // 很少访问
 	TempFrozen DataTemperature = "frozen" // 几乎不访问
 )
 
 // TieringPolicy 分层策略
 type TieringPolicy struct {
-	ID                 string           `json:"id"`
-	Name               string           `json:"name"`
-	Description        string           `json:"description"`
-	Enabled            bool             `json:"enabled"`
-	TierTransitions    []TierTransition `json:"tier_transitions"`
-	MonitorIntervalMin int              `json:"monitor_interval_min"`
-	AutoMigrate        bool             `json:"auto_migrate"`
-	MaxMigrationsPerDay int             `json:"max_migrations_per_day"`
-	CostOptimization   bool             `json:"cost_optimization"`
-	CreatedAt          time.Time        `json:"created_at"`
-	UpdatedAt          time.Time        `json:"updated_at"`
+	ID                  string           `json:"id"`
+	Name                string           `json:"name"`
+	Description         string           `json:"description"`
+	Enabled             bool             `json:"enabled"`
+	TierTransitions     []TierTransition `json:"tier_transitions"`
+	MonitorIntervalMin  int              `json:"monitor_interval_min"`
+	AutoMigrate         bool             `json:"auto_migrate"`
+	MaxMigrationsPerDay int              `json:"max_migrations_per_day"`
+	CostOptimization    bool             `json:"cost_optimization"`
+	CreatedAt           time.Time        `json:"created_at"`
+	UpdatedAt           time.Time        `json:"updated_at"`
 }
 
 // TierTransition 层级转换规则
 type TierTransition struct {
-	FromTier         StorageTier     `json:"from_tier"`
-	ToTier           StorageTier     `json:"to_tier"`
-	Temperature      DataTemperature `json:"temperature"`
-	DaysInactive     int             `json:"days_inactive"`
-	AccessThreshold  float64         `json:"access_threshold"` // 每日访问次数阈值
-	Priority         int             `json:"priority"`
+	FromTier        StorageTier     `json:"from_tier"`
+	ToTier          StorageTier     `json:"to_tier"`
+	Temperature     DataTemperature `json:"temperature"`
+	DaysInactive    int             `json:"days_inactive"`
+	AccessThreshold float64         `json:"access_threshold"` // 每日访问次数阈值
+	Priority        int             `json:"priority"`
 }
 
 // DataItem 数据项
 type DataItem struct {
-	ID               string          `json:"id"`
-	Path             string          `json:"path"`
-	Size             int64           `json:"size"`
-	CurrentTier      StorageTier     `json:"current_tier"`
-	Temperature      DataTemperature `json:"temperature"`
-	AccessCount      int64           `json:"access_count"`
-	LastAccessed     time.Time       `json:"last_accessed"`
-	LastModified     time.Time       `json:"last_modified"`
-	CreatedAt        time.Time       `json:"created_at"`
-	AccessFrequency  float64         `json:"access_frequency"` // 每日访问频率
-	EstimatedCost    float64         `json:"estimated_cost"`
+	ID               string            `json:"id"`
+	Path             string            `json:"path"`
+	Size             int64             `json:"size"`
+	CurrentTier      StorageTier       `json:"current_tier"`
+	Temperature      DataTemperature   `json:"temperature"`
+	AccessCount      int64             `json:"access_count"`
+	LastAccessed     time.Time         `json:"last_accessed"`
+	LastModified     time.Time         `json:"last_modified"`
+	CreatedAt        time.Time         `json:"created_at"`
+	AccessFrequency  float64           `json:"access_frequency"` // 每日访问频率
+	EstimatedCost    float64           `json:"estimated_cost"`
 	MigrationHistory []MigrationRecord `json:"migration_history,omitempty"`
 }
 
 // MigrationRecord 迁移记录
 type MigrationRecord struct {
-	FromTier    StorageTier `json:"from_tier"`
-	ToTier      StorageTier `json:"to_tier"`
-	Timestamp   time.Time   `json:"timestamp"`
-	Size        int64       `json:"size"`
-	Reason      string      `json:"reason"`
-	Duration    int         `json:"duration_seconds"`
-	Success     bool        `json:"success"`
+	FromTier  StorageTier `json:"from_tier"`
+	ToTier    StorageTier `json:"to_tier"`
+	Timestamp time.Time   `json:"timestamp"`
+	Size      int64       `json:"size"`
+	Reason    string      `json:"reason"`
+	Duration  int         `json:"duration_seconds"`
+	Success   bool        `json:"success"`
 }
 
 // TierConfig 层级配置
@@ -112,37 +112,37 @@ type MigrationJob struct {
 
 // TieringStats 分层统计
 type TieringStats struct {
-	TotalItems       int                    `json:"total_items"`
-	TotalSize        int64                  `json:"total_size_bytes"`
-	TierDistribution map[StorageTier]int    `json:"tier_distribution"`
-	TierSizes        map[StorageTier]int64  `json:"tier_sizes"`
-	TemperatureDist  map[DataTemperature]int `json:"temperature_distribution"`
-	TotalMigrations  int                    `json:"total_migrations"`
-	ActiveMigrations int                    `json:"active_migrations"`
-	CostSavings      float64                `json:"cost_savings_monthly"`
-	OptimizationScore float64               `json:"optimization_score"` // 0-100
-	LastOptimization *time.Time             `json:"last_optimization,omitempty"`
+	TotalItems        int                     `json:"total_items"`
+	TotalSize         int64                   `json:"total_size_bytes"`
+	TierDistribution  map[StorageTier]int     `json:"tier_distribution"`
+	TierSizes         map[StorageTier]int64   `json:"tier_sizes"`
+	TemperatureDist   map[DataTemperature]int `json:"temperature_distribution"`
+	TotalMigrations   int                     `json:"total_migrations"`
+	ActiveMigrations  int                     `json:"active_migrations"`
+	CostSavings       float64                 `json:"cost_savings_monthly"`
+	OptimizationScore float64                 `json:"optimization_score"` // 0-100
+	LastOptimization  *time.Time              `json:"last_optimization,omitempty"`
 }
 
 // SmartDataTiering 智能数据分层管理器
 type SmartDataTiering struct {
-	mu           sync.RWMutex
-	policies     map[string]*TieringPolicy
-	dataItems    map[string]*DataItem
-	tierConfigs  map[StorageTier]*TierConfig
+	mu            sync.RWMutex
+	policies      map[string]*TieringPolicy
+	dataItems     map[string]*DataItem
+	tierConfigs   map[StorageTier]*TierConfig
 	migrationJobs []MigrationJob
-	config       *TieringManagerConfig
+	config        *TieringManagerConfig
 }
 
 // TieringManagerConfig 管理器配置
 type TieringManagerConfig struct {
-	DefaultPolicyID    string  `json:"default_policy_id"`
-	AutoTieringEnabled bool    `json:"auto_tiering_enabled"`
-	MonitorIntervalMin int     `json:"monitor_interval_min"`
-	MaxConcurrentMigrations int `json:"max_concurrent_migrations"`
-	CostThreshold      float64 `json:"cost_threshold"`
-	PerformanceWeight  float64 `json:"performance_weight"`
-	CostWeight         float64 `json:"cost_weight"`
+	DefaultPolicyID         string  `json:"default_policy_id"`
+	AutoTieringEnabled      bool    `json:"auto_tiering_enabled"`
+	MonitorIntervalMin      int     `json:"monitor_interval_min"`
+	MaxConcurrentMigrations int     `json:"max_concurrent_migrations"`
+	CostThreshold           float64 `json:"cost_threshold"`
+	PerformanceWeight       float64 `json:"performance_weight"`
+	CostWeight              float64 `json:"cost_weight"`
 }
 
 // NewSmartDataTiering 创建智能数据分层管理器
@@ -410,7 +410,7 @@ func (sdt *SmartDataTiering) EstimateMigrationCost(itemID string, targetTier Sto
 	// 计算迁移成本（基于数据大小和网络/IO成本）
 	sizeGB := float64(item.Size) / (1024 * 1024 * 1024)
 	costPerGB := 0.01 // 迁移成本
-迁移成本 := sizeGB * costPerGB
+	迁移成本 := sizeGB * costPerGB
 
 	// 计算存储成本差异
 	currentConfig := sdt.tierConfigs[item.CurrentTier]
@@ -425,11 +425,11 @@ func (sdt *SmartDataTiering) MarshalJSON() ([]byte, error) {
 	defer sdt.mu.RUnlock()
 
 	return json.Marshal(struct {
-		Policies     map[string]*TieringPolicy    `json:"policies"`
-		DataItems    map[string]*DataItem          `json:"data_items"`
-		TierConfigs  map[StorageTier]*TierConfig   `json:"tier_configs"`
-		MigrationJobs []MigrationJob               `json:"migration_jobs"`
-		Config       *TieringManagerConfig         `json:"config"`
+		Policies      map[string]*TieringPolicy   `json:"policies"`
+		DataItems     map[string]*DataItem        `json:"data_items"`
+		TierConfigs   map[StorageTier]*TierConfig `json:"tier_configs"`
+		MigrationJobs []MigrationJob              `json:"migration_jobs"`
+		Config        *TieringManagerConfig       `json:"config"`
 	}{
 		Policies:      sdt.policies,
 		DataItems:     sdt.dataItems,
@@ -607,11 +607,11 @@ func GenerateDefaultPolicy() *TieringPolicy {
 			{FromTier: TierCold, ToTier: TierWarm, Temperature: TempWarm, DaysInactive: 0, AccessThreshold: 5.0, Priority: 5},
 			{FromTier: TierWarm, ToTier: TierHot, Temperature: TempHot, DaysInactive: 0, AccessThreshold: 20.0, Priority: 6},
 		},
-		MonitorIntervalMin:   30,
-		AutoMigrate:          true,
-		MaxMigrationsPerDay:  100,
-		CostOptimization:     true,
-		CreatedAt:            time.Now(),
-		UpdatedAt:            time.Now(),
+		MonitorIntervalMin:  30,
+		AutoMigrate:         true,
+		MaxMigrationsPerDay: 100,
+		CostOptimization:    true,
+		CreatedAt:           time.Now(),
+		UpdatedAt:           time.Now(),
 	}
 }

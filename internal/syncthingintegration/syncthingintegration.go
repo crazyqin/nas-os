@@ -14,29 +14,29 @@ import (
 
 // SyncthingDevice Syncthing 设备
 type SyncthingDevice struct {
-	ID              string            `json:"id"`
-	Name            string            `json:"name"`
-	DeviceID        string            `json:"device_id"` // Syncthing 设备 ID
-	Addresses       []string          `json:"addresses"`
-	Compression     CompressionMode   `json:"compression"`
-	Introducer      bool              `json:"introducer"`
-	SkipIntroductionRemovals bool     `json:"skip_introduction_removals"`
-	AutoAcceptFolders bool            `json:"auto_accept_folders"`
-	MaxSendKbps     int               `json:"max_send_kbps"`
-	MaxRecvKbps     int               `json:"max_recv_kbps"`
-	Paused          bool              `json:"paused"`
-	Stats           DeviceStats       `json:"stats"`
-	Metadata        map[string]string `json:"metadata,omitempty"`
-	LastSeen        time.Time         `json:"last_seen"`
-	CreatedAt       time.Time         `json:"created_at"`
+	ID                       string            `json:"id"`
+	Name                     string            `json:"name"`
+	DeviceID                 string            `json:"device_id"` // Syncthing 设备 ID
+	Addresses                []string          `json:"addresses"`
+	Compression              CompressionMode   `json:"compression"`
+	Introducer               bool              `json:"introducer"`
+	SkipIntroductionRemovals bool              `json:"skip_introduction_removals"`
+	AutoAcceptFolders        bool              `json:"auto_accept_folders"`
+	MaxSendKbps              int               `json:"max_send_kbps"`
+	MaxRecvKbps              int               `json:"max_recv_kbps"`
+	Paused                   bool              `json:"paused"`
+	Stats                    DeviceStats       `json:"stats"`
+	Metadata                 map[string]string `json:"metadata,omitempty"`
+	LastSeen                 time.Time         `json:"last_seen"`
+	CreatedAt                time.Time         `json:"created_at"`
 }
 
 // CompressionMode 压缩模式
 type CompressionMode string
 
 const (
-	CompressionAlways  CompressionMode = "always"
-	CompressionNever   CompressionMode = "never"
+	CompressionAlways   CompressionMode = "always"
+	CompressionNever    CompressionMode = "never"
 	CompressionMetadata CompressionMode = "metadata"
 )
 
@@ -57,33 +57,33 @@ type DeviceStats struct {
 
 // SyncFolder 同步文件夹
 type SyncFolder struct {
-	ID                 string            `json:"id"`
-	Label              string            `json:"label"`
-	Path               string            `json:"path"`
-	Type               FolderType        `json:"type"`
-	Devices            []FolderDevice    `json:"devices"`
-	RescanIntervalS    int               `json:"rescan_interval_s"`
-	FSWatcherEnabled   bool              `json:"fs_watcher_enabled"`
-	FSWatcherDelayS    int               `json:"fs_watcher_delay_s"`
-	IgnorePerms        bool              `json:"ignore_perms"`
-	AutoNormalize      bool              `json:"auto_normalize"`
-	MinDiskFree        FolderMinDiskFree `json:"min_disk_free"`
-	Versioning         FolderVersioning  `json:"versioning"`
-	Copiers            int               `json:"copiers"`
-	PullerMaxPendingKiB int              `json:"puller_max_pending_kib"`
-	Hashers            int               `json:"hashers"`
-	Order              PullOrder         `json:"order"`
-	IgnoreDelete       bool              `json:"ignore_delete"`
-	ScanProgressIntervalS int            `json:"scan_progress_interval_s"`
-	PullerPauseS       int               `json:"puller_pause_s"`
-	MaxConflicts       int               `json:"max_conflicts"`
-	DisableSparseFiles bool             `json:"disable_sparse_files"`
-	DisableTempIndexes bool             `json:"disable_temp_indexes"`
-	Paused             bool              `json:"paused"`
-	Stats              FolderStats       `json:"stats"`
-	Metadata           map[string]string `json:"metadata,omitempty"`
-	CreatedAt          time.Time         `json:"created_at"`
-	UpdatedAt          time.Time         `json:"updated_at"`
+	ID                    string            `json:"id"`
+	Label                 string            `json:"label"`
+	Path                  string            `json:"path"`
+	Type                  FolderType        `json:"type"`
+	Devices               []FolderDevice    `json:"devices"`
+	RescanIntervalS       int               `json:"rescan_interval_s"`
+	FSWatcherEnabled      bool              `json:"fs_watcher_enabled"`
+	FSWatcherDelayS       int               `json:"fs_watcher_delay_s"`
+	IgnorePerms           bool              `json:"ignore_perms"`
+	AutoNormalize         bool              `json:"auto_normalize"`
+	MinDiskFree           FolderMinDiskFree `json:"min_disk_free"`
+	Versioning            FolderVersioning  `json:"versioning"`
+	Copiers               int               `json:"copiers"`
+	PullerMaxPendingKiB   int               `json:"puller_max_pending_kib"`
+	Hashers               int               `json:"hashers"`
+	Order                 PullOrder         `json:"order"`
+	IgnoreDelete          bool              `json:"ignore_delete"`
+	ScanProgressIntervalS int               `json:"scan_progress_interval_s"`
+	PullerPauseS          int               `json:"puller_pause_s"`
+	MaxConflicts          int               `json:"max_conflicts"`
+	DisableSparseFiles    bool              `json:"disable_sparse_files"`
+	DisableTempIndexes    bool              `json:"disable_temp_indexes"`
+	Paused                bool              `json:"paused"`
+	Stats                 FolderStats       `json:"stats"`
+	Metadata              map[string]string `json:"metadata,omitempty"`
+	CreatedAt             time.Time         `json:"created_at"`
+	UpdatedAt             time.Time         `json:"updated_at"`
 }
 
 // FolderType 文件夹类型
@@ -109,10 +109,10 @@ const (
 
 // FolderDevice 文件夹关联设备
 type FolderDevice struct {
-	DeviceID              string `json:"device_id"`
-	IntroducedBy          string `json:"introduced_by"`
-	EncryptionPassword    string `json:"encryption_password"`
-	SkipIntroductionRemovals bool `json:"skip_introduction_removals"`
+	DeviceID                 string `json:"device_id"`
+	IntroducedBy             string `json:"introduced_by"`
+	EncryptionPassword       string `json:"encryption_password"`
+	SkipIntroductionRemovals bool   `json:"skip_introduction_removals"`
 }
 
 // FolderMinDiskFree 文件夹最小磁盘空间
@@ -123,23 +123,23 @@ type FolderMinDiskFree struct {
 
 // FolderVersioning 文件夹版本控制
 type FolderVersioning struct {
-	Type             string                 `json:"type"` // simple, staggered, external, trashcan
-	Params           map[string]string      `json:"params"`
-	CleanupIntervalS int                    `json:"cleanup_interval_s"`
+	Type             string            `json:"type"` // simple, staggered, external, trashcan
+	Params           map[string]string `json:"params"`
+	CleanupIntervalS int               `json:"cleanup_interval_s"`
 }
 
 // FolderStats 文件夹统计
 type FolderStats struct {
-	Files         int       `json:"files"`
-	Directories   int       `json:"directories"`
-	Symlinks      int       `json:"symlinks"`
-	Bytes         int64     `json:"bytes"`
-	DeletedFiles  int       `json:"deleted_files"`
-	LastScanTime  time.Time `json:"last_scan_time"`
-	LastScanDurationS float64 `json:"last_scan_duration_s"`
-	NeedFiles     int       `json:"need_files"`
-	NeedBytes     int64     `json:"need_bytes"`
-	Sequence      int64     `json:"sequence"`
+	Files             int       `json:"files"`
+	Directories       int       `json:"directories"`
+	Symlinks          int       `json:"symlinks"`
+	Bytes             int64     `json:"bytes"`
+	DeletedFiles      int       `json:"deleted_files"`
+	LastScanTime      time.Time `json:"last_scan_time"`
+	LastScanDurationS float64   `json:"last_scan_duration_s"`
+	NeedFiles         int       `json:"need_files"`
+	NeedBytes         int64     `json:"need_bytes"`
+	Sequence          int64     `json:"sequence"`
 }
 
 // ========== 同步管理器 ==========
@@ -156,38 +156,38 @@ type SyncthingManager struct {
 
 // SyncthingConfig Syncthing 配置
 type SyncthingConfig struct {
-	APIKey           string `json:"api_key"`
-	APIURL           string `json:"api_url"`
-	GUIAddress       string `json:"gui_address"`
-	ListenAddress    string `json:"listen_address"`
-	MaxSendKbps      int    `json:"max_send_kbps"`
-	MaxRecvKbps      int    `json:"max_recv_kbps"`
-	NATEnabled       bool   `json:"nat_enabled"`
-	NATLeaseM        int    `json:"nat_lease_m"`
-	NATRenewalM      int    `json:"nat_renewal_m"`
-	NATTimeoutS      int    `json:"nat_timeout_s"`
-	RelayEnabled     bool   `json:"relay_enabled"`
-	RelayServers     []string `json:"relay_servers"`
-	GlobalAnnounceEnabled bool `json:"global_announce_enabled"`
-	LocalAnnounceEnabled  bool `json:"local_announce_enabled"`
-	LocalAnnouncePort     int  `json:"local_announce_port"`
-	AutoAcceptIncomming   bool `json:"auto_accept_incoming"`
-	DefaultFolderPath     string `json:"default_folder_path"`
-	TempIndexMinMessageSize int `json:"temp_index_min_message"`
+	APIKey                  string   `json:"api_key"`
+	APIURL                  string   `json:"api_url"`
+	GUIAddress              string   `json:"gui_address"`
+	ListenAddress           string   `json:"listen_address"`
+	MaxSendKbps             int      `json:"max_send_kbps"`
+	MaxRecvKbps             int      `json:"max_recv_kbps"`
+	NATEnabled              bool     `json:"nat_enabled"`
+	NATLeaseM               int      `json:"nat_lease_m"`
+	NATRenewalM             int      `json:"nat_renewal_m"`
+	NATTimeoutS             int      `json:"nat_timeout_s"`
+	RelayEnabled            bool     `json:"relay_enabled"`
+	RelayServers            []string `json:"relay_servers"`
+	GlobalAnnounceEnabled   bool     `json:"global_announce_enabled"`
+	LocalAnnounceEnabled    bool     `json:"local_announce_enabled"`
+	LocalAnnouncePort       int      `json:"local_announce_port"`
+	AutoAcceptIncomming     bool     `json:"auto_accept_incoming"`
+	DefaultFolderPath       string   `json:"default_folder_path"`
+	TempIndexMinMessageSize int      `json:"temp_index_min_message"`
 }
 
 // ManagerStats 管理器统计
 type ManagerStats struct {
-	TotalDevices    int       `json:"total_devices"`
-	OnlineDevices   int       `json:"online_devices"`
-	TotalFolders    int       `json:"total_folders"`
-	SyncingFolders  int       `json:"syncing_folders"`
-	TotalFiles      int       `json:"total_files"`
-	TotalBytes      int64     `json:"total_bytes"`
-	NeedFiles       int       `json:"need_files"`
-	NeedBytes       int64     `json:"need_bytes"`
-	LastSyncTime    time.Time `json:"last_sync_time"`
-	Connections     int       `json:"connections"`
+	TotalDevices   int       `json:"total_devices"`
+	OnlineDevices  int       `json:"online_devices"`
+	TotalFolders   int       `json:"total_folders"`
+	SyncingFolders int       `json:"syncing_folders"`
+	TotalFiles     int       `json:"total_files"`
+	TotalBytes     int64     `json:"total_bytes"`
+	NeedFiles      int       `json:"need_files"`
+	NeedBytes      int64     `json:"need_bytes"`
+	LastSyncTime   time.Time `json:"last_sync_time"`
+	Connections    int       `json:"connections"`
 }
 
 // APIClient API 客户端

@@ -10,9 +10,9 @@ import (
 
 // InferScheduler 推理任务调度器
 type InferScheduler struct {
-	mu           sync.RWMutex
+	mu            sync.RWMutex
 	priorityQueue *PriorityQueue
-	processing   map[string]*ScheduledTask
+	processing    map[string]*ScheduledTask
 	maxConcurrent int
 	maxQueueSize  int
 	stats         *SchedulerStats
@@ -21,13 +21,13 @@ type InferScheduler struct {
 
 // ScheduledTask 调度任务
 type ScheduledTask struct {
-	ID         string
-	Request    *InferenceRequest
-	Priority   TaskPriority
-	CreatedAt  time.Time
-	StartedAt  *time.Time
-	Status     TaskStatus
-	Device     ComputeDevice
+	ID        string
+	Request   *InferenceRequest
+	Priority  TaskPriority
+	CreatedAt time.Time
+	StartedAt *time.Time
+	Status    TaskStatus
+	Device    ComputeDevice
 }
 
 // NewInferScheduler 创建推理调度器
@@ -253,22 +253,22 @@ func (pq *PriorityQueue) Pop() interface{} {
 
 // ResourceScheduler 资源调度器
 type ResourceScheduler struct {
-	mu           sync.RWMutex
-	cpuCores     int
-	gpuDevices   int
-	memoryTotal  int64
-	memoryUsed   int64
-	cpuUsage     float64
-	gpuUsage     float64
-	taskLimits   map[ComputeDevice]int
-	taskCounts   map[ComputeDevice]int
+	mu          sync.RWMutex
+	cpuCores    int
+	gpuDevices  int
+	memoryTotal int64
+	memoryUsed  int64
+	cpuUsage    float64
+	gpuUsage    float64
+	taskLimits  map[ComputeDevice]int
+	taskCounts  map[ComputeDevice]int
 }
 
 // NewResourceScheduler 创建资源调度器
 func NewResourceScheduler(cpuCores, gpuDevices int, memoryTotal int64) *ResourceScheduler {
 	return &ResourceScheduler{
-		cpuCores:   cpuCores,
-		gpuDevices: gpuDevices,
+		cpuCores:    cpuCores,
+		gpuDevices:  gpuDevices,
 		memoryTotal: memoryTotal,
 		taskLimits: map[ComputeDevice]int{
 			ComputeDeviceCPU: cpuCores * 2,

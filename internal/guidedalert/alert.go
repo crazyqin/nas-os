@@ -172,10 +172,10 @@ func (m *Manager) GetRules() []*AlertRule {
 // registerBuiltinRules 注册内置告警规则
 func (m *Manager) registerBuiltinRules() {
 	m.rules["smart_warning"] = &AlertRule{
-		Name:     "smart_warning",
+		Name:      "smart_warning",
 		Condition: "disk SMART health check failed",
-		Severity: SeverityWarning,
-		Category: CategoryHardware,
+		Severity:  SeverityWarning,
+		Category:  CategoryHardware,
 		TroubleshootingGuide: &TroubleshootingGuide{
 			Title:       "磁盘SMART健康告警排查",
 			Description: "磁盘SMART检测到潜在问题，需要及时处理",
@@ -190,10 +190,10 @@ func (m *Manager) registerBuiltinRules() {
 	}
 
 	m.rules["pool_degraded"] = &AlertRule{
-		Name:     "pool_degraded",
+		Name:      "pool_degraded",
 		Condition: "storage pool status is DEGRADED",
-		Severity: SeverityCritical,
-		Category: CategoryStorage,
+		Severity:  SeverityCritical,
+		Category:  CategoryStorage,
 		TroubleshootingGuide: &TroubleshootingGuide{
 			Title:       "存储池降级排查",
 			Description: "存储池处于降级状态，数据冗余受损",
@@ -206,10 +206,10 @@ func (m *Manager) registerBuiltinRules() {
 	}
 
 	m.rules["disk_space_low"] = &AlertRule{
-		Name:     "disk_space_low",
+		Name:      "disk_space_low",
 		Condition: "disk usage exceeds 90%",
-		Severity: SeverityWarning,
-		Category: CategoryStorage,
+		Severity:  SeverityWarning,
+		Category:  CategoryStorage,
 		TroubleshootingGuide: &TroubleshootingGuide{
 			Title:       "磁盘空间不足排查",
 			Description: "存储空间即将耗尽，需要清理或扩容",
@@ -222,10 +222,10 @@ func (m *Manager) registerBuiltinRules() {
 	}
 
 	m.rules["network_down"] = &AlertRule{
-		Name:     "network_down",
+		Name:      "network_down",
 		Condition: "network interface is down",
-		Severity: SeverityCritical,
-		Category: CategoryNetwork,
+		Severity:  SeverityCritical,
+		Category:  CategoryNetwork,
 		TroubleshootingGuide: &TroubleshootingGuide{
 			Title:       "网络连接故障排查",
 			Description: "网络接口断开，需要检查物理连接和配置",
@@ -238,10 +238,10 @@ func (m *Manager) registerBuiltinRules() {
 	}
 
 	m.rules["high_cpu"] = &AlertRule{
-		Name:     "high_cpu",
+		Name:      "high_cpu",
 		Condition: "CPU usage exceeds 90% for 5 minutes",
-		Severity: SeverityWarning,
-		Category: CategoryPerformance,
+		Severity:  SeverityWarning,
+		Category:  CategoryPerformance,
 		TroubleshootingGuide: &TroubleshootingGuide{
 			Title:       "CPU高负载排查",
 			Description: "CPU持续高负载，需要排查占用进程",
@@ -253,10 +253,10 @@ func (m *Manager) registerBuiltinRules() {
 	}
 
 	m.rules["security_breach"] = &AlertRule{
-		Name:     "security_breach",
+		Name:      "security_breach",
 		Condition: "suspicious login attempts detected",
-		Severity: SeverityCritical,
-		Category: CategorySecurity,
+		Severity:  SeverityCritical,
+		Category:  CategorySecurity,
 		TroubleshootingGuide: &TroubleshootingGuide{
 			Title:       "安全告警排查",
 			Description: "检测到可疑登录尝试，需要检查安全状态",

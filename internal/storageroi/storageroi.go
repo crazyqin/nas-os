@@ -24,12 +24,12 @@ const (
 type StorageType string
 
 const (
-	StorageTypeHDD     StorageType = "hdd"
-	StorageTypeSSD     StorageType = "ssd"
-	StorageTypeNVMe    StorageType = "nvme"
-	StorageTypeTape    StorageType = "tape"
-	StorageTypeCloud   StorageType = "cloud"
-	StorageTypeHybrid  StorageType = "hybrid"
+	StorageTypeHDD    StorageType = "hdd"
+	StorageTypeSSD    StorageType = "ssd"
+	StorageTypeNVMe   StorageType = "nvme"
+	StorageTypeTape   StorageType = "tape"
+	StorageTypeCloud  StorageType = "cloud"
+	StorageTypeHybrid StorageType = "hybrid"
 )
 
 // ========== 成本类型 ==========
@@ -57,12 +57,12 @@ type StorageAsset struct {
 	ID           string      `json:"id"`
 	Name         string      `json:"name"`
 	Type         StorageType `json:"type"`
-	Capacity     int64       `json:"capacity"`      // 总容量 (bytes)
-	Used         int64       `json:"used"`          // 已用容量
-	CostPerTB    float64     `json:"cost_per_tb"`   // 每TB成本
+	Capacity     int64       `json:"capacity"`    // 总容量 (bytes)
+	Used         int64       `json:"used"`        // 已用容量
+	CostPerTB    float64     `json:"cost_per_tb"` // 每TB成本
 	PurchaseDate time.Time   `json:"purchase_date"`
-	Lifespan     int         `json:"lifespan"`      // 预期寿命 (年)
-	PowerWatts   float64     `json:"power_watts"`   // 功耗
+	Lifespan     int         `json:"lifespan"`    // 预期寿命 (年)
+	PowerWatts   float64     `json:"power_watts"` // 功耗
 	Location     string      `json:"location"`
 }
 
@@ -81,19 +81,19 @@ type CostRecord struct {
 
 // ROIReport ROI报告
 type ROIReport struct {
-	ID              string          `json:"id"`
-	GeneratedAt     time.Time       `json:"generated_at"`
-	Period          string          `json:"period"`
-	TotalInvestment float64         `json:"total_investment"`
-	TotalSavings    float64         `json:"total_savings"`
-	NetBenefit      float64         `json:"net_benefit"`
-	ROIPercent      float64         `json:"roi_percent"`
-	PaybackPeriod   float64         `json:"payback_period"` // 月
-	NPV             float64         `json:"npv"`            // 净现值
-	IRR             float64         `json:"irr"`            // 内部收益率
-	BreakEvenPoint  time.Time       `json:"break_even_point"`
+	ID              string              `json:"id"`
+	GeneratedAt     time.Time           `json:"generated_at"`
+	Period          string              `json:"period"`
+	TotalInvestment float64             `json:"total_investment"`
+	TotalSavings    float64             `json:"total_savings"`
+	NetBenefit      float64             `json:"net_benefit"`
+	ROIPercent      float64             `json:"roi_percent"`
+	PaybackPeriod   float64             `json:"payback_period"` // 月
+	NPV             float64             `json:"npv"`            // 净现值
+	IRR             float64             `json:"irr"`            // 内部收益率
+	BreakEvenPoint  time.Time           `json:"break_even_point"`
 	Categories      []CategoryBreakdown `json:"categories"`
-	Recommendations []string        `json:"recommendations"`
+	Recommendations []string            `json:"recommendations"`
 }
 
 // CategoryBreakdown 分类明细
@@ -106,35 +106,35 @@ type CategoryBreakdown struct {
 
 // TCOResult TCO分析结果
 type TCOResult struct {
-	ID              string            `json:"id"`
-	GeneratedAt     time.Time         `json:"generated_at"`
-	AnalysisPeriod  int               `json:"analysis_period"` // 年
-	InitialCost     float64           `json:"initial_cost"`
-	AnnualCosts     map[string]float64 `json:"annual_costs"`
-	TotalCost       float64           `json:"total_cost"`
-	CostPerTB       float64           `json:"cost_per_tb"`
-	CostPerTBMonth  float64           `json:"cost_per_tb_month"`
-	Breakdown       []CategoryBreakdown `json:"breakdown"`
-	Projection      []CostProjection  `json:"projection"`
+	ID             string              `json:"id"`
+	GeneratedAt    time.Time           `json:"generated_at"`
+	AnalysisPeriod int                 `json:"analysis_period"` // 年
+	InitialCost    float64             `json:"initial_cost"`
+	AnnualCosts    map[string]float64  `json:"annual_costs"`
+	TotalCost      float64             `json:"total_cost"`
+	CostPerTB      float64             `json:"cost_per_tb"`
+	CostPerTBMonth float64             `json:"cost_per_tb_month"`
+	Breakdown      []CategoryBreakdown `json:"breakdown"`
+	Projection     []CostProjection    `json:"projection"`
 }
 
 // CostProjection 成本预测
 type CostProjection struct {
-	Year        int     `json:"year"`
-	Capacity    int64   `json:"capacity"`
-	TotalCost   float64 `json:"total_cost"`
-	CostPerTB   float64 `json:"cost_per_tb"`
-	GrowthRate  float64 `json:"growth_rate"`
+	Year       int     `json:"year"`
+	Capacity   int64   `json:"capacity"`
+	TotalCost  float64 `json:"total_cost"`
+	CostPerTB  float64 `json:"cost_per_tb"`
+	GrowthRate float64 `json:"growth_rate"`
 }
 
 // CapacityPlan 容量规划
 type CapacityPlan struct {
-	ID              string           `json:"id"`
-	GeneratedAt     time.Time        `json:"generated_at"`
-	CurrentUsage    int64            `json:"current_usage"`
-	CurrentCapacity int64            `json:"current_capacity"`
-	GrowthRate      float64          `json:"growth_rate"` // 每月增长率
-	Projection      []CapacityPoint  `json:"projection"`
+	ID              string              `json:"id"`
+	GeneratedAt     time.Time           `json:"generated_at"`
+	CurrentUsage    int64               `json:"current_usage"`
+	CurrentCapacity int64               `json:"current_capacity"`
+	GrowthRate      float64             `json:"growth_rate"` // 每月增长率
+	Projection      []CapacityPoint     `json:"projection"`
 	Recommendations []CapRecommendation `json:"recommendations"`
 }
 
@@ -157,23 +157,23 @@ type CapRecommendation struct {
 
 // CloudComparison 云端对比
 type CloudComparison struct {
-	ID               string            `json:"id"`
-	GeneratedAt      time.Time         `json:"generated_at"`
-	LocalTCO         float64           `json:"local_tco"`
-	CloudTCO         float64           `json:"cloud_tco"`
-	Savings          float64           `json:"savings"`
-	Recommendation   string            `json:"recommendation"`
-	Providers        []CloudProvider   `json:"providers"`
-	Breakdown        []ComparisonItem  `json:"breakdown"`
+	ID             string           `json:"id"`
+	GeneratedAt    time.Time        `json:"generated_at"`
+	LocalTCO       float64          `json:"local_tco"`
+	CloudTCO       float64          `json:"cloud_tco"`
+	Savings        float64          `json:"savings"`
+	Recommendation string           `json:"recommendation"`
+	Providers      []CloudProvider  `json:"providers"`
+	Breakdown      []ComparisonItem `json:"breakdown"`
 }
 
 // CloudProvider 云服务商
 type CloudProvider struct {
-	Name       string  `json:"name"`
-	MonthlyCost float64 `json:"monthly_cost"`
-	Storage    int64   `json:"storage"`
-	Egress     float64 `json:"egress_cost"`
-	Features   []string `json:"features"`
+	Name        string   `json:"name"`
+	MonthlyCost float64  `json:"monthly_cost"`
+	Storage     int64    `json:"storage"`
+	Egress      float64  `json:"egress_cost"`
+	Features    []string `json:"features"`
 }
 
 // ComparisonItem 对比项
@@ -188,12 +188,12 @@ type ComparisonItem struct {
 
 // ROIAnalyzer ROI分析器
 type ROIAnalyzer struct {
-	mu       sync.RWMutex
-	assets   map[string]*StorageAsset
-	costs    []*CostRecord
-	reports  map[string]*ROIReport
+	mu         sync.RWMutex
+	assets     map[string]*StorageAsset
+	costs      []*CostRecord
+	reports    map[string]*ROIReport
 	tcoResults map[string]*TCOResult
-	plans    map[string]*CapacityPlan
+	plans      map[string]*CapacityPlan
 }
 
 // NewROIAnalyzer 创建ROI分析器
@@ -370,7 +370,7 @@ func (a *ROIAnalyzer) CalculateTCO(years int) *TCOResult {
 	result.AnnualCosts["power"] = powerCost
 	result.AnnualCosts["cooling"] = coolingCost
 	result.AnnualCosts["maintenance"] = maintenanceCost
-	result.AnnualCosts["labor"] = 5000 // 假设每年$5000人力成本
+	result.AnnualCosts["labor"] = 5000   // 假设每年$5000人力成本
 	result.AnnualCosts["network"] = 1200 // 假设每年$1200网络成本
 
 	// 总成本

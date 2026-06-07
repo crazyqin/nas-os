@@ -76,24 +76,24 @@ func (a *Auditor) CheckOverPrivileged(users []UserPerm) []PermIssue {
 		}
 		if u.IsAdmin && !contains(u.Groups, "admin") {
 			issues = append(issues, PermIssue{
-				Type:        "over-privileged",
-				Severity:    "high",
-				UserID:      u.UserID,
-				UserName:    u.UserName,
-				Resource:    "admin",
-				Description: fmt.Sprintf("用户 %s 标记为管理员但不在 admin 组中", u.UserName),
+				Type:           "over-privileged",
+				Severity:       "high",
+				UserID:         u.UserID,
+				UserName:       u.UserName,
+				Resource:       "admin",
+				Description:    fmt.Sprintf("用户 %s 标记为管理员但不在 admin 组中", u.UserName),
 				Recommendation: "检查该用户的管理员权限是否正确，如非必要请移除管理员标志",
 			})
 		}
 		// 也检查：普通用户却拥有过多共享目录访问权限
 		if !u.IsAdmin && len(u.Shares) > 5 {
 			issues = append(issues, PermIssue{
-				Type:        "over-privileged",
-				Severity:    "medium",
-				UserID:      u.UserID,
-				UserName:    u.UserName,
-				Resource:    "shares",
-				Description: fmt.Sprintf("普通用户 %s 可访问 %d 个共享目录，数量偏多", u.UserName, len(u.Shares)),
+				Type:           "over-privileged",
+				Severity:       "medium",
+				UserID:         u.UserID,
+				UserName:       u.UserName,
+				Resource:       "shares",
+				Description:    fmt.Sprintf("普通用户 %s 可访问 %d 个共享目录，数量偏多", u.UserName, len(u.Shares)),
 				Recommendation: "审查该用户的共享目录权限，遵循最小权限原则",
 			})
 		}
@@ -109,12 +109,12 @@ func (a *Auditor) CheckOrphans(users []UserPerm, existingGroups []string) []Perm
 		for _, g := range u.Groups {
 			if !groupSet[g] {
 				issues = append(issues, PermIssue{
-					Type:        "orphan",
-					Severity:    "medium",
-					UserID:      u.UserID,
-					UserName:    u.UserName,
-					Resource:    g,
-					Description: fmt.Sprintf("用户 %s 所属的组 %q 不存在", u.UserName, g),
+					Type:           "orphan",
+					Severity:       "medium",
+					UserID:         u.UserID,
+					UserName:       u.UserName,
+					Resource:       g,
+					Description:    fmt.Sprintf("用户 %s 所属的组 %q 不存在", u.UserName, g),
 					Recommendation: fmt.Sprintf("删除该用户的 %q 组关联，或重新创建该组", g),
 				})
 			}
@@ -135,12 +135,12 @@ func (a *Auditor) CheckStaleUsers(users []UserPerm, inactiveDays int) []PermIssu
 				days = int(now.Sub(u.LastLogin).Hours() / 24)
 			}
 			issues = append(issues, PermIssue{
-				Type:        "stale",
-				Severity:    severityForStale(days),
-				UserID:      u.UserID,
-				UserName:    u.UserName,
-				Resource:    "account",
-				Description: fmt.Sprintf("用户 %s 已 %d 天未登录", u.UserName, days),
+				Type:           "stale",
+				Severity:       severityForStale(days),
+				UserID:         u.UserID,
+				UserName:       u.UserName,
+				Resource:       "account",
+				Description:    fmt.Sprintf("用户 %s 已 %d 天未登录", u.UserName, days),
 				Recommendation: "确认该用户是否仍需此账号，如不需要建议禁用或删除",
 			})
 		}
@@ -154,12 +154,12 @@ func (a *Auditor) CheckWeakPasswords(users []UserPerm, minLength int) []PermIssu
 	for _, u := range users {
 		if u.PasswordLen > 0 && u.PasswordLen < minLength {
 			issues = append(issues, PermIssue{
-				Type:        "weak-password",
-				Severity:    "high",
-				UserID:      u.UserID,
-				UserName:    u.UserName,
-				Resource:    "password",
-				Description: fmt.Sprintf("用户 %s 密码长度 %d，低于最低要求 %d", u.UserName, u.PasswordLen, minLength),
+				Type:           "weak-password",
+				Severity:       "high",
+				UserID:         u.UserID,
+				UserName:       u.UserName,
+				Resource:       "password",
+				Description:    fmt.Sprintf("用户 %s 密码长度 %d，低于最低要求 %d", u.UserName, u.PasswordLen, minLength),
 				Recommendation: "强制用户修改密码，要求至少 8 位并包含大小写字母和数字",
 			})
 		}
@@ -169,7 +169,8 @@ func (a *Auditor) CheckWeakPasswords(users []UserPerm, minLength int) []PermIssu
 
 // CalculateScore 计算安全评分
 // 基础分 100，按问题严重级别扣分：
-//   critical -15, high -10, medium -5, low -2
+//
+//	critical -15, high -10, medium -5, low -2
 func CalculateScore(issues []PermIssue) int {
 	score := 100
 	for _, iss := range issues {

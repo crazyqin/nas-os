@@ -16,36 +16,36 @@ type EnergyAnalyzer struct {
 // EnergyConfig 能耗配置
 type EnergyConfig struct {
 	// 磁盘功耗参数（瓦特）
-	ActivePowerWatts    float64 `json:"active_power_watts"`    // 活跃状态功耗
-	IdlePowerWatts      float64 `json:"idle_power_watts"`      // 空闲状态功耗
-	SleepPowerWatts     float64 `json:"sleep_power_watts"`     // 休眠状态功耗
-	
+	ActivePowerWatts float64 `json:"active_power_watts"` // 活跃状态功耗
+	IdlePowerWatts   float64 `json:"idle_power_watts"`   // 空闲状态功耗
+	SleepPowerWatts  float64 `json:"sleep_power_watts"`  // 休眠状态功耗
+
 	// 电费参数
 	ElectricityRatePerKWh float64 `json:"electricity_rate_per_kwh"` // 电费单价（元/kWh）
-	
+
 	// 时间参数
-	DaysPerMonth  int `json:"days_per_month"`  // 每月天数
-	HoursPerDay   int `json:"hours_per_day"`   // 每天运行小时
+	DaysPerMonth int `json:"days_per_month"` // 每月天数
+	HoursPerDay  int `json:"hours_per_day"`  // 每天运行小时
 }
 
 // EnergyStats 能耗统计
 type EnergyStats struct {
-	Device           string    `json:"device"`
-	ActiveHours      float64   `json:"active_hours"`
-	SleepHours       float64   `json:"sleep_hours"`
-	ActivePowerKWh   float64   `json:"active_power_kwh"`
-	SleepPowerKWh    float64   `json:"sleep_power_kwh"`
-	TotalPowerKWh    float64   `json:"total_power_kwh"`
-	CostYuan         float64   `json:"cost_yuan"`
-	SavingsKWh       float64   `json:"savings_kwh"`      // 节省电量
-	SavingsYuan      float64   `json:"savings_yuan"`     // 节省费用
-	SavingsPercent   float64   `json:"savings_percent"`  // 节省百分比
+	Device         string  `json:"device"`
+	ActiveHours    float64 `json:"active_hours"`
+	SleepHours     float64 `json:"sleep_hours"`
+	ActivePowerKWh float64 `json:"active_power_kwh"`
+	SleepPowerKWh  float64 `json:"sleep_power_kwh"`
+	TotalPowerKWh  float64 `json:"total_power_kwh"`
+	CostYuan       float64 `json:"cost_yuan"`
+	SavingsKWh     float64 `json:"savings_kwh"`     // 节省电量
+	SavingsYuan    float64 `json:"savings_yuan"`    // 节省费用
+	SavingsPercent float64 `json:"savings_percent"` // 节省百分比
 }
 
 // EnergyReport 能耗报告
 type EnergyReport struct {
 	GeneratedAt      time.Time     `json:"generated_at"`
-	Period           string        `json:"period"`           // daily, monthly, yearly
+	Period           string        `json:"period"` // daily, monthly, yearly
 	Stats            []EnergyStats `json:"stats"`
 	TotalPowerKWh    float64       `json:"total_power_kwh"`
 	TotalCostYuan    float64       `json:"total_cost_yuan"`
@@ -59,12 +59,12 @@ func NewEnergyAnalyzer(configPath string) *EnergyAnalyzer {
 	analyzer := &EnergyAnalyzer{
 		configPath: configPath,
 		config: EnergyConfig{
-			ActivePowerWatts:     10.0,   // HDD活跃约10W
-			IdlePowerWatts:       5.0,    // HDD空闲约5W
-			SleepPowerWatts:      1.0,    // HDD休眠约1W
-			ElectricityRatePerKWh: 0.5,   // 电费约0.5元/kWh
-			DaysPerMonth:         30,
-			HoursPerDay:          24,
+			ActivePowerWatts:      10.0, // HDD活跃约10W
+			IdlePowerWatts:        5.0,  // HDD空闲约5W
+			SleepPowerWatts:       1.0,  // HDD休眠约1W
+			ElectricityRatePerKWh: 0.5,  // 电费约0.5元/kWh
+			DaysPerMonth:          30,
+			HoursPerDay:           24,
 		},
 	}
 	analyzer.loadConfig()
@@ -106,16 +106,16 @@ func (a *EnergyAnalyzer) CalculateIdlePower(device string, activeHours, sleepHou
 	savingsPercent := (savingsKWh / noSleepPowerKWh) * 100
 
 	return EnergyStats{
-		Device:          device,
-		ActiveHours:     activeHours,
-		SleepHours:      sleepHours,
-		ActivePowerKWh:  activePowerKWh,
-		SleepPowerKWh:   sleepPowerKWh,
-		TotalPowerKWh:   totalPowerKWh,
-		CostYuan:        costYuan,
-		SavingsKWh:      savingsKWh,
-		SavingsYuan:     savingsYuan,
-		SavingsPercent:  savingsPercent,
+		Device:         device,
+		ActiveHours:    activeHours,
+		SleepHours:     sleepHours,
+		ActivePowerKWh: activePowerKWh,
+		SleepPowerKWh:  sleepPowerKWh,
+		TotalPowerKWh:  totalPowerKWh,
+		CostYuan:       costYuan,
+		SavingsKWh:     savingsKWh,
+		SavingsYuan:    savingsYuan,
+		SavingsPercent: savingsPercent,
 	}
 }
 
@@ -175,14 +175,14 @@ func (r *EnergyReport) TotalSavingsPercent() float64 {
 // GenerateMonthlyReport 生成月度报告
 func (a *EnergyAnalyzer) GenerateMonthlyReport(stats []EnergyStats) EnergyReport {
 	daily := a.GenerateDailyReport(stats)
-	
+
 	// 扩展为月度
 	daily.Period = "monthly"
 	daily.TotalPowerKWh *= float64(a.config.DaysPerMonth)
 	daily.TotalCostYuan *= float64(a.config.DaysPerMonth)
 	daily.TotalSavingsKWh *= float64(a.config.DaysPerMonth)
 	daily.TotalSavingsYuan *= float64(a.config.DaysPerMonth)
-	
+
 	for i := range daily.Stats {
 		daily.Stats[i].ActiveHours *= float64(a.config.DaysPerMonth)
 		daily.Stats[i].SleepHours *= float64(a.config.DaysPerMonth)
@@ -193,14 +193,14 @@ func (a *EnergyAnalyzer) GenerateMonthlyReport(stats []EnergyStats) EnergyReport
 		daily.Stats[i].SavingsKWh *= float64(a.config.DaysPerMonth)
 		daily.Stats[i].SavingsYuan *= float64(a.config.DaysPerMonth)
 	}
-	
+
 	return daily
 }
 
 // GenerateAnnualReport 生成年度报告
 func (a *EnergyAnalyzer) GenerateAnnualReport(stats []EnergyStats) EnergyReport {
 	monthly := a.GenerateMonthlyReport(stats)
-	
+
 	// 扩展为年度
 	monthly.Period = "annual"
 	monthsPerYear := 12
@@ -208,16 +208,16 @@ func (a *EnergyAnalyzer) GenerateAnnualReport(stats []EnergyStats) EnergyReport 
 	monthly.TotalCostYuan *= float64(monthsPerYear)
 	monthly.TotalSavingsKWh *= float64(monthsPerYear)
 	monthly.TotalSavingsYuan *= float64(monthsPerYear)
-	
+
 	for i := range monthly.Stats {
 		monthly.Stats[i].CostYuan *= float64(monthsPerYear)
 		monthly.Stats[i].SavingsYuan *= float64(monthsPerYear)
 	}
-	
+
 	// 年度建议
 	monthly.Recommendations = append(monthly.Recommendations,
 		fmt.Sprintf("预计年度节省电费: %.2f元", monthly.TotalSavingsYuan))
-	
+
 	return monthly
 }
 
@@ -225,22 +225,22 @@ func (a *EnergyAnalyzer) GenerateAnnualReport(stats []EnergyStats) EnergyReport 
 func (a *EnergyAnalyzer) EstimateSavings(diskCount int, avgSleepHoursPerDay float64) EnergyStats {
 	totalActiveHours := float64(a.config.HoursPerDay) - avgSleepHoursPerDay
 	totalSleepHours := avgSleepHoursPerDay
-	
+
 	// 每日节能
 	dailySavings := (totalSleepHours * (a.config.ActivePowerWatts - a.config.SleepPowerWatts)) / 1000
-	
+
 	// 月度节能
 	monthlySavings := dailySavings * float64(a.config.DaysPerMonth)
-	
+
 	// 年度节能（用于统计，暂不返回）
 	_ = monthlySavings * 12
-	
+
 	return EnergyStats{
-		Device:      fmt.Sprintf("%d disks", diskCount),
-		ActiveHours: totalActiveHours * float64(diskCount),
-		SleepHours:  totalSleepHours * float64(diskCount),
-		SavingsKWh:  dailySavings,
-		SavingsYuan: dailySavings * a.config.ElectricityRatePerKWh,
+		Device:         fmt.Sprintf("%d disks", diskCount),
+		ActiveHours:    totalActiveHours * float64(diskCount),
+		SleepHours:     totalSleepHours * float64(diskCount),
+		SavingsKWh:     dailySavings,
+		SavingsYuan:    dailySavings * a.config.ElectricityRatePerKWh,
 		SavingsPercent: (avgSleepHoursPerDay / float64(a.config.HoursPerDay)) * 100,
 	}
 }

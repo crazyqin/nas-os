@@ -9,7 +9,7 @@ import (
 
 // ClipboardSync 剪贴板同步管理器.
 type ClipboardSync struct {
-	mu        sync.RWMutex
+	mu         sync.RWMutex
 	clipboards map[string]*ClipboardState // sessionID -> state
 	history    []ClipboardEntry
 	maxHistory int

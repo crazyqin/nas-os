@@ -129,113 +129,113 @@ type ScanError struct {
 // 扩展支持更多格式，包括蓝光原盘格式
 var SupportedExtensions = map[string]bool{
 	// 标准视频格式
-	".mp4":  true,  // MPEG-4 Part 14
-	".mkv":  true,  // Matroska
-	".avi":  true,  // AVI
-	".mov":  true,  // QuickTime
-	".wmv":  true,  // Windows Media Video
-	".flv":  true,  // Flash Video
-	".webm": true,  // WebM
-	".m4v":  true,  // MPEG-4 Video
-	".ts":   true,  // MPEG Transport Stream
-	".m2ts": true,  // MPEG-2 Transport Stream (蓝光)
-	".mts":  true,  // AVCHD
-	".vob":  true,  // DVD Video Object
-	".mpg":  true,  // MPEG
-	".mpeg": true,  // MPEG
-	".mpe":  true,  // MPEG
-	".3gp":  true,  // 3GPP
-	".3g2":  true,  // 3GPP2
-	".ogv":  true,  // Ogg Video
-	".ogg":  true,  // Ogg
-	".rm":   true,  // RealMedia
-	".rmvb": true,  // RealMedia Variable Bitrate
-	".asf":  true,  // Advanced Systems Format
-	".divx": true,  // DivX
-	".f4v":  true,  // Flash Video (MP4 container)
-	".hevc": true,  // HEVC raw stream
-	".h264": true,  // H.264 raw stream
-	".h265": true,  // H.265 raw stream
-	".avc":  true,  // AVC raw stream
-	".vp9":  true,  // VP9 raw stream
-	".av1":  true,  // AV1 raw stream
-	".dav":  true,  // DVR-AV (监控录像)
-	".wtv":  true,  // Windows Recorded TV Show
+	".mp4":    true, // MPEG-4 Part 14
+	".mkv":    true, // Matroska
+	".avi":    true, // AVI
+	".mov":    true, // QuickTime
+	".wmv":    true, // Windows Media Video
+	".flv":    true, // Flash Video
+	".webm":   true, // WebM
+	".m4v":    true, // MPEG-4 Video
+	".ts":     true, // MPEG Transport Stream
+	".m2ts":   true, // MPEG-2 Transport Stream (蓝光)
+	".mts":    true, // AVCHD
+	".vob":    true, // DVD Video Object
+	".mpg":    true, // MPEG
+	".mpeg":   true, // MPEG
+	".mpe":    true, // MPEG
+	".3gp":    true, // 3GPP
+	".3g2":    true, // 3GPP2
+	".ogv":    true, // Ogg Video
+	".ogg":    true, // Ogg
+	".rm":     true, // RealMedia
+	".rmvb":   true, // RealMedia Variable Bitrate
+	".asf":    true, // Advanced Systems Format
+	".divx":   true, // DivX
+	".f4v":    true, // Flash Video (MP4 container)
+	".hevc":   true, // HEVC raw stream
+	".h264":   true, // H.264 raw stream
+	".h265":   true, // H.265 raw stream
+	".avc":    true, // AVC raw stream
+	".vp9":    true, // VP9 raw stream
+	".av1":    true, // AV1 raw stream
+	".dav":    true, // DVR-AV (监控录像)
+	".wtv":    true, // Windows Recorded TV Show
 	".dvr-ms": true, // Microsoft DVR
-	".iso": true,   // ISO镜像（蓝光/DVD原盘）
-	".m3u": true,   // M3U播放列表
-	".m3u8": true,  // M3U8 HLS播放列表
-	".pls": true,   // PLS播放列表
+	".iso":    true, // ISO镜像（蓝光/DVD原盘）
+	".m3u":    true, // M3U播放列表
+	".m3u8":   true, // M3U8 HLS播放列表
+	".pls":    true, // PLS播放列表
 }
 
 // MediaCategory 媒体分类
 type MediaCategory string
 
 const (
-	CategoryMovie    MediaCategory = "movie"    // 电影
-	CategoryTVShow   MediaCategory = "tv"       // 电视剧
+	CategoryMovie       MediaCategory = "movie"       // 电影
+	CategoryTVShow      MediaCategory = "tv"          // 电视剧
 	CategoryDocumentary MediaCategory = "documentary" // 纪录片
-	CategoryAnimation MediaCategory = "animation"     // 动画/动漫
-	CategoryMusic    MediaCategory = "music"    // 音乐MV
-	CategorySport    MediaCategory = "sport"    // 体育
-	CategoryVariety  MediaCategory = "variety"  // 综艺
-	CategoryNews     MediaCategory = "news"     // 新闻
+	CategoryAnimation   MediaCategory = "animation"   // 动画/动漫
+	CategoryMusic       MediaCategory = "music"       // 音乐MV
+	CategorySport       MediaCategory = "sport"       // 体育
+	CategoryVariety     MediaCategory = "variety"     // 综艺
+	CategoryNews        MediaCategory = "news"        // 新闻
 	CategoryEducational MediaCategory = "educational" // 教育
-	CategoryOther    MediaCategory = "other"    // 其他
+	CategoryOther       MediaCategory = "other"       // 其他
 )
 
 // VideoQuality 视频质量等级
 type VideoQuality string
 
 const (
-	QualitySD      VideoQuality = "sd"      // 标清 480p
-	QualityHD      VideoQuality = "hd"      // 高清 720p
-	QualityFHD     VideoQuality = "fhd"     // 全高清 1080p
-	QualityUHD     VideoQuality = "uhd"     // 超高清 4K 2160p
-	Quality8K      VideoQuality = "8k"      // 8K
-	QualityBluRay  VideoQuality = "bluray"  // 蓝光原盘
-	QualityRemux   VideoQuality = "remux"   // 蓝光Remux
-	QualityWEBDL   VideoQuality = "webdl"   // WEB-DL
-	QualityHDTV    VideoQuality = "hdtv"    // HDTV
+	QualitySD     VideoQuality = "sd"     // 标清 480p
+	QualityHD     VideoQuality = "hd"     // 高清 720p
+	QualityFHD    VideoQuality = "fhd"    // 全高清 1080p
+	QualityUHD    VideoQuality = "uhd"    // 超高清 4K 2160p
+	Quality8K     VideoQuality = "8k"     // 8K
+	QualityBluRay VideoQuality = "bluray" // 蓝光原盘
+	QualityRemux  VideoQuality = "remux"  // 蓝光Remux
+	QualityWEBDL  VideoQuality = "webdl"  // WEB-DL
+	QualityHDTV   VideoQuality = "hdtv"   // HDTV
 )
 
 // HDRType HDR类型 - 使用dolby_config.go中的HDRFormat
 type HDRType = HDRFormat
 
-// AudioType 音频类型 - 使用dolby_config.go中的AudioCodec  
+// AudioType 音频类型 - 使用dolby_config.go中的AudioCodec
 type AudioType = AudioCodec
 
 // IntelligentClassification 智能分类结果
 type IntelligentClassification struct {
-	Category      MediaCategory `json:"category"`
-	SubCategory   string        `json:"sub_category,omitempty"`
-	Quality       VideoQuality  `json:"quality"`
-	HDR           HDRType       `json:"hdr"`
-	Audio         AudioType     `json:"audio"`
-	Resolution    string        `json:"resolution"` // 1920x1080
-	BitDepth      int           `json:"bit_depth"`  // 8, 10, 12
-	FrameRate     float64       `json:"frame_rate"`
-	Confidence    float64       `json:"confidence"`
-	DetectedTags  []string      `json:"detected_tags"`
+	Category     MediaCategory `json:"category"`
+	SubCategory  string        `json:"sub_category,omitempty"`
+	Quality      VideoQuality  `json:"quality"`
+	HDR          HDRType       `json:"hdr"`
+	Audio        AudioType     `json:"audio"`
+	Resolution   string        `json:"resolution"` // 1920x1080
+	BitDepth     int           `json:"bit_depth"`  // 8, 10, 12
+	FrameRate    float64       `json:"frame_rate"`
+	Confidence   float64       `json:"confidence"`
+	DetectedTags []string      `json:"detected_tags"`
 }
 
 // MediaCollection 媒体合集/系列
 type MediaCollection struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Type        MediaType `json:"type"`
-	Items       []string `json:"items"` // 媒体ID列表
-	PosterPath  string   `json:"poster_path,omitempty"`
-	Overview    string   `json:"overview,omitempty"`
-	TotalCount  int      `json:"total_count"`
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	Type       MediaType `json:"type"`
+	Items      []string  `json:"items"` // 媒体ID列表
+	PosterPath string    `json:"poster_path,omitempty"`
+	Overview   string    `json:"overview,omitempty"`
+	TotalCount int       `json:"total_count"`
 }
 
 // WatchProgress 观看进度
 type WatchProgress struct {
 	MediaID     string    `json:"media_id"`
 	FilePath    string    `json:"file_path"`
-	Position    int       `json:"position"`    // 秒
-	Duration    int       `json:"duration"`    // 总时长
+	Position    int       `json:"position"` // 秒
+	Duration    int       `json:"duration"` // 总时长
 	Percentage  float64   `json:"percentage"`
 	LastWatched time.Time `json:"last_watched"`
 	Completed   bool      `json:"completed"`

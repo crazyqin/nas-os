@@ -15,18 +15,18 @@ type FailoverCallback func(event FailoverEvent)
 
 // TransparentReconnectConfig 透明重连配置
 type TransparentReconnectConfig struct {
-	MaxRetries        int           // 最大重试次数
-	RetryInterval     time.Duration // 重试间隔
-	SessionTimeout    time.Duration // 会话超时
-	GracefulTimeout   time.Duration // 优雅切换超时
+	MaxRetries      int           // 最大重试次数
+	RetryInterval   time.Duration // 重试间隔
+	SessionTimeout  time.Duration // 会话超时
+	GracefulTimeout time.Duration // 优雅切换超时
 }
 
 // FailoverIntegration 故障转移集成器
 // Phase3: 负责与HA模块深度集成、故障检测、自动切换、会话回归
 type FailoverIntegration struct {
-	manager  *StatefulFailoverManager
-	lb       *SMBClientLoadBalancer
-	config   *FailoverConfig
+	manager *StatefulFailoverManager
+	lb      *SMBClientLoadBalancer
+	config  *FailoverConfig
 
 	mu              sync.RWMutex
 	reconnectCfg    TransparentReconnectConfig
@@ -40,19 +40,19 @@ type FailoverIntegration struct {
 
 // FailoverConfig 故障转移配置
 type FailoverConfig struct {
-	Enabled                   bool          `json:"enabled"`
-	AutoFailover              bool          `json:"auto_failover"`
-	FailoverThreshold         int           `json:"failover_threshold"`          // 连续失败次数阈值
-	HealthCheckInterval       time.Duration `json:"health_check_interval"`      // 健康检查间隔
-	FailoverTimeout           time.Duration `json:"failover_timeout"`           // 故障转移超时
-	RecoveryCheckInterval     time.Duration `json:"recovery_check_interval"`    // 恢复检查间隔
-	GracePeriod               time.Duration `json:"grace_period"`                // 故障判定宽限期
-	TransparentReconnect      bool          `json:"transparent_reconnect"`      // 透明重连
-	MaxReconnectRetries       int           `json:"max_reconnect_retries"`       // 最大重连次数
-	ReconnectBackoff         time.Duration `json:"reconnect_backoff"`           // 重连退避间隔
-	SessionMigrationTimeout   time.Duration `json:"session_migration_timeout"`   // 会话迁移超时
-	EnableAutoReturn         bool          `json:"enable_auto_return"`           // 启用自动回归
-	AutoReturnThreshold      int           `json:"auto_return_threshold"`       // 自动回归判定次数
+	Enabled                 bool          `json:"enabled"`
+	AutoFailover            bool          `json:"auto_failover"`
+	FailoverThreshold       int           `json:"failover_threshold"`        // 连续失败次数阈值
+	HealthCheckInterval     time.Duration `json:"health_check_interval"`     // 健康检查间隔
+	FailoverTimeout         time.Duration `json:"failover_timeout"`          // 故障转移超时
+	RecoveryCheckInterval   time.Duration `json:"recovery_check_interval"`   // 恢复检查间隔
+	GracePeriod             time.Duration `json:"grace_period"`              // 故障判定宽限期
+	TransparentReconnect    bool          `json:"transparent_reconnect"`     // 透明重连
+	MaxReconnectRetries     int           `json:"max_reconnect_retries"`     // 最大重连次数
+	ReconnectBackoff        time.Duration `json:"reconnect_backoff"`         // 重连退避间隔
+	SessionMigrationTimeout time.Duration `json:"session_migration_timeout"` // 会话迁移超时
+	EnableAutoReturn        bool          `json:"enable_auto_return"`        // 启用自动回归
+	AutoReturnThreshold     int           `json:"auto_return_threshold"`     // 自动回归判定次数
 }
 
 // DefaultFailoverConfig 默认配置
@@ -81,14 +81,14 @@ func NewFailoverIntegration(manager *StatefulFailoverManager, lb *SMBClientLoadB
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	fi := &FailoverIntegration{
-		manager:  manager,
-		lb:       lb,
-		config:   cfg,
+		manager: manager,
+		lb:      lb,
+		config:  cfg,
 		reconnectCfg: TransparentReconnectConfig{
 			MaxRetries:      cfg.MaxReconnectRetries,
 			RetryInterval:   cfg.ReconnectBackoff,
 			SessionTimeout:  cfg.SessionMigrationTimeout,
-			GracefulTimeout:  cfg.FailoverTimeout,
+			GracefulTimeout: cfg.FailoverTimeout,
 		},
 		callbacks: make([]FailoverCallback, 0),
 		ctx:       ctx,
@@ -468,12 +468,12 @@ func (fi *FailoverIntegration) GetPendingFailovers() []string {
 
 // TransparentReconnectInfo 透明重连信息
 type TransparentReconnectInfo struct {
-	SessionID     string    `json:"session_id"`
-	ClientIP      string    `json:"client_ip"`
-	OldNodeID     string    `json:"old_node_id"`
-	NewNodeID     string    `json:"new_node_id"`
-	RetryCount    int       `json:"retry_count"`
-	ConnectedAt   time.Time `json:"connected_at"`
+	SessionID   string    `json:"session_id"`
+	ClientIP    string    `json:"client_ip"`
+	OldNodeID   string    `json:"old_node_id"`
+	NewNodeID   string    `json:"new_node_id"`
+	RetryCount  int       `json:"retry_count"`
+	ConnectedAt time.Time `json:"connected_at"`
 }
 
 // PrepareTransparentReconnect 准备透明重连（为客户端生成重连令牌）
@@ -529,19 +529,19 @@ type HAIntegrationInterface interface {
 
 // ClusterHealth 集群健康状态
 type ClusterHealth struct {
-	ClusterName string                    `json:"cluster_name"`
+	ClusterName string                     `json:"cluster_name"`
 	Nodes       map[string]*NodeHealthInfo `json:"nodes"`
-	Overall     string                    `json:"overall"` // "healthy", "degraded", "critical"
+	Overall     string                     `json:"overall"` // "healthy", "degraded", "critical"
 }
 
 // NodeHealthInfo 节点健康信息
 type NodeHealthInfo struct {
-	NodeID      string    `json:"node_id"`
+	NodeID      string     `json:"node_id"`
 	Status      NodeStatus `json:"status"`
-	HealthScore int       `json:"health_score"`
-	LoadAvg     float64   `json:"load_avg"`
-	MemUsage    float64   `json:"mem_usage"`
-	CPUUsage    float64   `json:"cpu_usage"`
+	HealthScore int        `json:"health_score"`
+	LoadAvg     float64    `json:"load_avg"`
+	MemUsage    float64    `json:"mem_usage"`
+	CPUUsage    float64    `json:"cpu_usage"`
 }
 
 // GetClusterHealth 获取集群健康状态

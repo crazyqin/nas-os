@@ -35,31 +35,31 @@ const (
 type DataType string
 
 const (
-	DataTypeDocument DataType = "document"
-	DataTypeImage    DataType = "image"
-	DataTypeVideo    DataType = "video"
-	DataTypeAudio    DataType = "audio"
-	DataTypeCode     DataType = "code"
-	DataTypeArchive  DataType = "archive"
-	DataTypeDatabase DataType = "database"
+	DataTypeDocument  DataType = "document"
+	DataTypeImage     DataType = "image"
+	DataTypeVideo     DataType = "video"
+	DataTypeAudio     DataType = "audio"
+	DataTypeCode      DataType = "code"
+	DataTypeArchive   DataType = "archive"
+	DataTypeDatabase  DataType = "database"
 	DataTypeFinancial DataType = "financial"
-	DataTypeMedical  DataType = "medical"
-	DataTypeLegal    DataType = "legal"
-	DataTypePersonal DataType = "personal"
+	DataTypeMedical   DataType = "medical"
+	DataTypeLegal     DataType = "legal"
+	DataTypePersonal  DataType = "personal"
 )
 
 // PIIType represents types of PII detected
 type PIIType string
 
 const (
-	PIIEmail    PIIType = "email"
-	PIIPhone    PIIType = "phone"
-	PIISSN      PIIType = "ssn"
+	PIIEmail      PIIType = "email"
+	PIIPhone      PIIType = "phone"
+	PIISSN        PIIType = "ssn"
 	PIICreditCard PIIType = "credit_card"
-	PIIPassport PIIType = "passport"
-	PIIAddress  PIIType = "address"
-	PIIName     PIIType = "name"
-	PIIDOB      PIIType = "date_of_birth"
+	PIIPassport   PIIType = "passport"
+	PIIAddress    PIIType = "address"
+	PIIName       PIIType = "name"
+	PIIDOB        PIIType = "date_of_birth"
 )
 
 // ClassifiedFile represents a classified file
@@ -93,16 +93,16 @@ type PIIDetection struct {
 
 // ClassificationRule represents an auto-classification rule
 type ClassificationRule struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Enabled     bool           `json:"enabled"`
-	Priority    int            `json:"priority"`
-	Conditions  []Condition    `json:"conditions"`
-	Tags        []string       `json:"tags"`
-	Classification Classification `json:"classification"`
-	Sensitivity SensitivityLevel `json:"sensitivity"`
-	CreatedAt   time.Time      `json:"created_at"`
+	ID             string           `json:"id"`
+	Name           string           `json:"name"`
+	Description    string           `json:"description"`
+	Enabled        bool             `json:"enabled"`
+	Priority       int              `json:"priority"`
+	Conditions     []Condition      `json:"conditions"`
+	Tags           []string         `json:"tags"`
+	Classification Classification   `json:"classification"`
+	Sensitivity    SensitivityLevel `json:"sensitivity"`
+	CreatedAt      time.Time        `json:"created_at"`
 }
 
 // Condition represents a rule condition
@@ -114,31 +114,31 @@ type Condition struct {
 
 // ScanConfig represents a scan configuration
 type ScanConfig struct {
-	Paths          []string `json:"paths"`
-	ExcludePaths   []string `json:"exclude_paths"`
-	FileTypes      []string `json:"file_types"`
-	MaxFileSize    int64    `json:"max_file_size"`
-	ScanContent    bool     `json:"scan_content"`
-	AutoTag        bool     `json:"auto_tag"`
-	AutoClassify   bool     `json:"auto_classify"`
-	DetectPII      bool     `json:"detect_pii"`
-	Concurrent     int      `json:"concurrent"`
+	Paths        []string `json:"paths"`
+	ExcludePaths []string `json:"exclude_paths"`
+	FileTypes    []string `json:"file_types"`
+	MaxFileSize  int64    `json:"max_file_size"`
+	ScanContent  bool     `json:"scan_content"`
+	AutoTag      bool     `json:"auto_tag"`
+	AutoClassify bool     `json:"auto_classify"`
+	DetectPII    bool     `json:"detect_pii"`
+	Concurrent   int      `json:"concurrent"`
 }
 
 // ScanResult represents scan results
 type ScanResult struct {
-	ScanID          string           `json:"scan_id"`
-	StartTime       time.Time        `json:"start_time"`
-	EndTime         time.Time        `json:"end_time"`
-	FilesScanned    int              `json:"files_scanned"`
-	FilesClassified int              `json:"files_classified"`
-	PIIFound        int              `json:"pii_found"`
-	TagsApplied     int              `json:"tags_applied"`
-	ByClassification map[string]int  `json:"by_classification"`
-	ByDataType      map[string]int   `json:"by_data_type"`
-	BySensitivity   map[string]int   `json:"by_sensitivity"`
-	TopTags         []TagCount       `json:"top_tags"`
-	Errors          []string         `json:"errors"`
+	ScanID           string         `json:"scan_id"`
+	StartTime        time.Time      `json:"start_time"`
+	EndTime          time.Time      `json:"end_time"`
+	FilesScanned     int            `json:"files_scanned"`
+	FilesClassified  int            `json:"files_classified"`
+	PIIFound         int            `json:"pii_found"`
+	TagsApplied      int            `json:"tags_applied"`
+	ByClassification map[string]int `json:"by_classification"`
+	ByDataType       map[string]int `json:"by_data_type"`
+	BySensitivity    map[string]int `json:"by_sensitivity"`
+	TopTags          []TagCount     `json:"top_tags"`
+	Errors           []string       `json:"errors"`
 }
 
 // TagCount represents a tag and its count
@@ -149,38 +149,38 @@ type TagCount struct {
 
 // ClassificationStats represents classification statistics
 type ClassificationStats struct {
-	TotalFiles       int                    `json:"total_files"`
-	ByClassification map[string]int         `json:"by_classification"`
-	ByDataType       map[string]int         `json:"by_data_type"`
-	BySensitivity    map[string]int         `json:"by_sensitivity"`
-	PIICount         int                    `json:"pii_count"`
-	TopTags          []TagCount             `json:"top_tags"`
-	LastScan         time.Time              `json:"last_scan"`
-	ComplianceScore  float64                `json:"compliance_score"`
+	TotalFiles       int            `json:"total_files"`
+	ByClassification map[string]int `json:"by_classification"`
+	ByDataType       map[string]int `json:"by_data_type"`
+	BySensitivity    map[string]int `json:"by_sensitivity"`
+	PIICount         int            `json:"pii_count"`
+	TopTags          []TagCount     `json:"top_tags"`
+	LastScan         time.Time      `json:"last_scan"`
+	ComplianceScore  float64        `json:"compliance_score"`
 }
 
 // Config holds data classification configuration
 type Config struct {
-	Enabled          bool    `json:"enabled"`
-	AutoClassify     bool    `json:"auto_classify"`
-	AutoTag          bool    `json:"auto_tag"`
-	DetectPII        bool    `json:"detect_pii"`
-	ScanInterval     int     `json:"scan_interval_hours"`
-	MaxFileSize      int64   `json:"max_file_size"`
-	ConcurrentScans  int     `json:"concurrent_scans"`
+	Enabled               bool   `json:"enabled"`
+	AutoClassify          bool   `json:"auto_classify"`
+	AutoTag               bool   `json:"auto_tag"`
+	DetectPII             bool   `json:"detect_pii"`
+	ScanInterval          int    `json:"scan_interval_hours"`
+	MaxFileSize           int64  `json:"max_file_size"`
+	ConcurrentScans       int    `json:"concurrent_scans"`
 	DefaultClassification string `json:"default_classification"`
 }
 
 // Manager manages data classification
 type Manager struct {
-	config    *Config
-	files     map[string]*ClassifiedFile
-	rules     map[string]*ClassificationRule
-	scans     []*ScanResult
-	stats     *ClassificationStats
-	mu        sync.RWMutex
-	ctx       context.Context
-	cancel    context.CancelFunc
+	config *Config
+	files  map[string]*ClassifiedFile
+	rules  map[string]*ClassificationRule
+	scans  []*ScanResult
+	stats  *ClassificationStats
+	mu     sync.RWMutex
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
 // NewManager creates a new data classification manager

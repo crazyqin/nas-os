@@ -104,11 +104,11 @@ func (m *Monitor) collectMetrics() {
 	}
 
 	metrics := TieringMetrics{
-		Timestamp:      time.Now(),
+		Timestamp:        time.Now(),
 		TierDistribution: make(map[StorageTier]int64),
-		TierSizesGB:    make(map[StorageTier]float64),
-		AvgHeatScores:  make(map[StorageTier]float64),
-		HitRates:       make(map[StorageTier]float64),
+		TierSizesGB:      make(map[StorageTier]float64),
+		AvgHeatScores:    make(map[StorageTier]float64),
+		HitRates:         make(map[StorageTier]float64),
 	}
 
 	// 统计各层级文件数和大小

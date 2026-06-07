@@ -163,9 +163,9 @@ type RAIDZCalculator struct {
 // DefaultRAIDZCalculator 默认计算器配置
 func DefaultRAIDZCalculator() *RAIDZCalculator {
 	return &RAIDZCalculator{
-		StorageCostPerGB:     0.05, // 0.05元/GB/月
-		DiskCostPerTB:        300,  // 300元/TB
-		ZFSMetadataOverhead:  0.02, // 2%元数据开销
+		StorageCostPerGB:    0.05, // 0.05元/GB/月
+		DiskCostPerTB:       300,  // 300元/TB
+		ZFSMetadataOverhead: 0.02, // 2%元数据开销
 		MinDiskRecommendations: map[RAIDZLevel]int{
 			RAIDZ1: 3, // RAIDZ1最少3盘
 			RAIDZ2: 4, // RAIDZ2最少4盘
@@ -284,7 +284,7 @@ func (c *RAIDZCalculator) calculateEfficiencyScore(config RAIDZConfig, utilizati
 	minDisks := c.MinDiskRecommendations[config.Level]
 	if config.DiskCount < minDisks {
 		// 盘数不足扣分
-		score -= float64(minDisks - config.DiskCount) * 15
+		score -= float64(minDisks-config.DiskCount) * 15
 	}
 
 	// 空间利用率评分
@@ -440,7 +440,7 @@ func (c *RAIDZCalculator) generateSameLevelPlan(currentConfig RAIDZConfig, targe
 		CurrentCapacityGB:     currentCapacityGB,
 		TargetCapacityGB:      targetResult.UsableCapacityGB,
 		CapacityIncreaseGB:    targetResult.UsableCapacityGB - currentCapacityGB,
-		CapacityGrowthPercent: round((targetResult.UsableCapacityGB - currentCapacityGB) / currentCapacityGB * 100, 2),
+		CapacityGrowthPercent: round((targetResult.UsableCapacityGB-currentCapacityGB)/currentCapacityGB*100, 2),
 		ExpansionCost:         float64(newDiskCount) * currentConfig.DiskPrice,
 		CostPerGBAdded:        round(float64(newDiskCount)*currentConfig.DiskPrice/(targetResult.UsableCapacityGB-currentCapacityGB), 2),
 		Warnings:              make([]string, 0),
@@ -520,7 +520,7 @@ func (c *RAIDZCalculator) generateUpgradePlan(currentConfig RAIDZConfig, targetC
 		CurrentCapacityGB:     currentCapacityGB,
 		TargetCapacityGB:      targetResult.UsableCapacityGB,
 		CapacityIncreaseGB:    targetResult.UsableCapacityGB - currentCapacityGB,
-		CapacityGrowthPercent: round((targetResult.UsableCapacityGB - currentCapacityGB) / currentCapacityGB * 100, 2),
+		CapacityGrowthPercent: round((targetResult.UsableCapacityGB-currentCapacityGB)/currentCapacityGB*100, 2),
 		ExpansionCost:         float64(newDiskCount) * currentConfig.DiskPrice,
 		CostPerGBAdded:        round(float64(newDiskCount)*currentConfig.DiskPrice/(targetResult.UsableCapacityGB-currentCapacityGB), 2),
 		Warnings:              make([]string, 0),
@@ -579,7 +579,7 @@ func (c *RAIDZCalculator) generateReplaceDiskPlan(currentConfig RAIDZConfig, tar
 		CurrentCapacityGB:     currentResult.UsableCapacityGB,
 		TargetCapacityGB:      targetResult.UsableCapacityGB,
 		CapacityIncreaseGB:    targetResult.UsableCapacityGB - currentResult.UsableCapacityGB,
-		CapacityGrowthPercent: round((targetResult.UsableCapacityGB - currentResult.UsableCapacityGB) / currentResult.UsableCapacityGB * 100, 2),
+		CapacityGrowthPercent: round((targetResult.UsableCapacityGB-currentResult.UsableCapacityGB)/currentResult.UsableCapacityGB*100, 2),
 		ExpansionCost:         float64(currentConfig.DiskCount) * newDiskPrice, // 替换所有磁盘
 		CostPerGBAdded:        round(float64(currentConfig.DiskCount)*newDiskPrice/(targetResult.UsableCapacityGB-currentResult.UsableCapacityGB), 2),
 		Warnings:              make([]string, 0),

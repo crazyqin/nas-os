@@ -14,15 +14,15 @@ import (
 
 // ==================== 错误定义 ====================
 var (
-	ErrClusterNotFound    = errors.New("cluster not found")
+	ErrClusterNotFound      = errors.New("cluster not found")
 	ErrClusterAlreadyExists = errors.New("cluster already exists")
-	ErrClusterOffline     = errors.New("cluster offline")
-	ErrClusterUnhealthy   = errors.New("cluster unhealthy")
-	ErrNoHealthyCluster   = errors.New("no healthy cluster available")
-	ErrNamespaceConflict  = errors.New("namespace conflict")
-	ErrSyncInProgress     = errors.New("sync in progress")
-	ErrDiscoveryFailed    = errors.New("discovery failed")
-	ErrManagerNotRunning  = errors.New("manager not running")
+	ErrClusterOffline       = errors.New("cluster offline")
+	ErrClusterUnhealthy     = errors.New("cluster unhealthy")
+	ErrNoHealthyCluster     = errors.New("no healthy cluster available")
+	ErrNamespaceConflict    = errors.New("namespace conflict")
+	ErrSyncInProgress       = errors.New("sync in progress")
+	ErrDiscoveryFailed      = errors.New("discovery failed")
+	ErrManagerNotRunning    = errors.New("manager not running")
 )
 
 // ==================== 类型定义 ====================
@@ -31,11 +31,11 @@ var (
 type ClusterState string
 
 const (
-	ClusterStateOnline  ClusterState = "online"
-	ClusterStateOffline ClusterState = "offline"
-	ClusterStateJoining ClusterState = "joining"
-	ClusterStateLeaving ClusterState = "leaving"
-	ClusterStateSyncing ClusterState = "syncing"
+	ClusterStateOnline   ClusterState = "online"
+	ClusterStateOffline  ClusterState = "offline"
+	ClusterStateJoining  ClusterState = "joining"
+	ClusterStateLeaving  ClusterState = "leaving"
+	ClusterStateSyncing  ClusterState = "syncing"
 	ClusterStateDegraded ClusterState = "degraded"
 )
 
@@ -63,8 +63,8 @@ const (
 type SyncMode string
 
 const (
-	SyncModeAsync   SyncMode = "async"
-	SyncModeSync    SyncMode = "sync"
+	SyncModeAsync    SyncMode = "async"
+	SyncModeSync     SyncMode = "sync"
 	SyncModeSnapshot SyncMode = "snapshot"
 )
 
@@ -86,32 +86,32 @@ type ClusterNode struct {
 
 // Cluster 集群信息
 type Cluster struct {
-	ID               string            `json:"id"`
-	Name             string            `json:"name"`
-	Description      string            `json:"description"`
-	Endpoint         string            `json:"endpoint"`
-	State            ClusterState      `json:"state"`
-	HealthStatus     HealthStatus      `json:"health_status"`
+	ID               string                  `json:"id"`
+	Name             string                  `json:"name"`
+	Description      string                  `json:"description"`
+	Endpoint         string                  `json:"endpoint"`
+	State            ClusterState            `json:"state"`
+	HealthStatus     HealthStatus            `json:"health_status"`
 	Nodes            map[string]*ClusterNode `json:"nodes"`
-	Namespaces       []string          `json:"namespaces"`
-	Weight           int               `json:"weight"`
-	Region           string            `json:"region"`
-	Tags             []string          `json:"tags"`
-	LastHealthCheck  time.Time         `json:"last_health_check"`
-	LastSyncTime     time.Time         `json:"last_sync_time"`
-	FailoverPriority int               `json:"failover_priority"`
-	Metadata         map[string]string `json:"metadata"`
-	CreatedAt        time.Time         `json:"created_at"`
-	UpdatedAt        time.Time         `json:"updated_at"`
+	Namespaces       []string                `json:"namespaces"`
+	Weight           int                     `json:"weight"`
+	Region           string                  `json:"region"`
+	Tags             []string                `json:"tags"`
+	LastHealthCheck  time.Time               `json:"last_health_check"`
+	LastSyncTime     time.Time               `json:"last_sync_time"`
+	FailoverPriority int                     `json:"failover_priority"`
+	Metadata         map[string]string       `json:"metadata"`
+	CreatedAt        time.Time               `json:"created_at"`
+	UpdatedAt        time.Time               `json:"updated_at"`
 }
 
 // Namespace 统一命名空间定义
 type Namespace struct {
-	Path            string   `json:"path"`
-	PrimaryCluster string   `json:"primary_cluster"`
-	ReplicaClusters []string `json:"replica_clusters"`
-	SyncMode        SyncMode `json:"sync_mode"`
-	ReadOnly        bool     `json:"read_only"`
+	Path            string    `json:"path"`
+	PrimaryCluster  string    `json:"primary_cluster"`
+	ReplicaClusters []string  `json:"replica_clusters"`
+	SyncMode        SyncMode  `json:"sync_mode"`
+	ReadOnly        bool      `json:"read_only"`
 	CreatedAt       time.Time `json:"created_at"`
 }
 
@@ -183,14 +183,14 @@ type SyncConfig struct {
 
 // FederationConfig 联邦配置
 type FederationConfig struct {
-	ClusterID          string              `json:"cluster_id"`
-	ClusterName        string              `json:"cluster_name"`
-	ListenPort         int                 `json:"listen_port"`
+	ClusterID           string              `json:"cluster_id"`
+	ClusterName         string              `json:"cluster_name"`
+	ListenPort          int                 `json:"listen_port"`
 	LoadBalanceStrategy LoadBalanceStrategy `json:"load_balance_strategy"`
-	Discovery          DiscoveryConfig     `json:"discovery"`
-	HealthCheck        HealthCheckConfig   `json:"health_check"`
-	Failover           FailoverConfig      `json:"failover"`
-	Sync               SyncConfig          `json:"sync"`
+	Discovery           DiscoveryConfig     `json:"discovery"`
+	HealthCheck         HealthCheckConfig   `json:"health_check"`
+	Failover            FailoverConfig      `json:"failover"`
+	Sync                SyncConfig          `json:"sync"`
 }
 
 // syncTask 内部同步任务
@@ -221,18 +221,18 @@ type failoverEvent struct {
 // ClusterFederationManager 多集群联邦管理器
 // 提供集群发现、统一命名空间、负载均衡、故障转移、数据同步和集中监控
 type ClusterFederationManager struct {
-	mu               sync.RWMutex
-	config           FederationConfig
-	clusters         map[string]*Cluster
-	namespaces       map[string]*Namespace
-	syncTasks        []*syncTask
-	failoverEvents   []*failoverEvent
-	roundRobinIndex  int
-	stats            FederationStats
-	running          bool
-	ctx              context.Context
-	cancel           context.CancelFunc
-	startedAt        time.Time
+	mu              sync.RWMutex
+	config          FederationConfig
+	clusters        map[string]*Cluster
+	namespaces      map[string]*Namespace
+	syncTasks       []*syncTask
+	failoverEvents  []*failoverEvent
+	roundRobinIndex int
+	stats           FederationStats
+	running         bool
+	ctx             context.Context
+	cancel          context.CancelFunc
+	startedAt       time.Time
 }
 
 // ==================== 初始化 ====================
@@ -1079,8 +1079,7 @@ func (m *ClusterFederationManager) loadBalanceUpdateLoop() {
 		select {
 		case <-m.ctx.Done():
 			return
-		case
-		<-ticker.C:
+		case <-ticker.C:
 			m.updateStats()
 		}
 	}

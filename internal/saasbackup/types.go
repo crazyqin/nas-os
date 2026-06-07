@@ -44,18 +44,18 @@ const (
 
 // BackupJob 备份任务.
 type BackupJob struct {
-	ID             string       `json:"id"`
-	Provider       SaaSProvider `json:"provider"`
-	TenantID       string       `json:"tenant_id"`
-	UserID         string       `json:"user_id"`
-	ResourceType   ResourceType `json:"resource_type"`
-	Schedule       string       `json:"schedule,omitempty"`        // cron 表达式
-	LastRun        *time.Time   `json:"last_run,omitempty"`
-	NextRun        *time.Time   `json:"next_run,omitempty"`
-	Status         JobStatus    `json:"status"`
-	RetentionDays  int          `json:"retention_days"`
-	ItemCount      int          `json:"item_count"`
-	SizeBytes      int64        `json:"size_bytes"`
+	ID            string       `json:"id"`
+	Provider      SaaSProvider `json:"provider"`
+	TenantID      string       `json:"tenant_id"`
+	UserID        string       `json:"user_id"`
+	ResourceType  ResourceType `json:"resource_type"`
+	Schedule      string       `json:"schedule,omitempty"` // cron 表达式
+	LastRun       *time.Time   `json:"last_run,omitempty"`
+	NextRun       *time.Time   `json:"next_run,omitempty"`
+	Status        JobStatus    `json:"status"`
+	RetentionDays int          `json:"retention_days"`
+	ItemCount     int          `json:"item_count"`
+	SizeBytes     int64        `json:"size_bytes"`
 }
 
 // ResourceType 备份资源类型.
@@ -90,14 +90,14 @@ const (
 
 // BackupItem 单个备份项.
 type BackupItem struct {
-	ID         string     `json:"id"`
-	JobID      string     `json:"job_id"`
-	SourcePath string     `json:"source_path"`
-	BackupPath string     `json:"backup_path"`
-	SizeBytes  int64      `json:"size_bytes"`
-	Checksum   string     `json:"checksum"`
-	CreatedAt  time.Time  `json:"created_at"`
-	ItemType   string     `json:"item_type"`
+	ID         string    `json:"id"`
+	JobID      string    `json:"job_id"`
+	SourcePath string    `json:"source_path"`
+	BackupPath string    `json:"backup_path"`
+	SizeBytes  int64     `json:"size_bytes"`
+	Checksum   string    `json:"checksum"`
+	CreatedAt  time.Time `json:"created_at"`
+	ItemType   string    `json:"item_type"`
 }
 
 // ========== 恢复请求类型 ==========

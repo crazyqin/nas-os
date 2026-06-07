@@ -11,22 +11,22 @@ import (
 
 // RiskEngine 风险评估引擎
 type RiskEngine struct {
-	mu              sync.RWMutex
-	riskProfiles    map[string]*RiskProfile
-	riskFactors     map[string]RiskFactorConfig
-	thresholds      RiskThresholds
-	alertHandlers   []AlertHandler
+	mu            sync.RWMutex
+	riskProfiles  map[string]*RiskProfile
+	riskFactors   map[string]RiskFactorConfig
+	thresholds    RiskThresholds
+	alertHandlers []AlertHandler
 }
 
 // RiskProfile 风险档案
 type RiskProfile struct {
-	UserID        string           `json:"user_id"`
-	DeviceID      string           `json:"device_id"`
-	CurrentScore  float64          `json:"current_score"` // 0-100
-	History       []RiskScoreRecord `json:"history"`
-	Factors       map[string]float64 `json:"factors"`
-	LastUpdated   time.Time        `json:"last_updated"`
-	Level         RiskLevel        `json:"level"`
+	UserID       string             `json:"user_id"`
+	DeviceID     string             `json:"device_id"`
+	CurrentScore float64            `json:"current_score"` // 0-100
+	History      []RiskScoreRecord  `json:"history"`
+	Factors      map[string]float64 `json:"factors"`
+	LastUpdated  time.Time          `json:"last_updated"`
+	Level        RiskLevel          `json:"level"`
 }
 
 // RiskScoreRecord 风险分数记录
@@ -81,28 +81,28 @@ type RiskAlert struct {
 
 // DynamicPermission 动态权限
 type DynamicPermission struct {
-	ID          string              `json:"id"`
-	UserID      string              `json:"user_id"`
-	DeviceID    string              `json:"device_id"`
-	Resource    string              `json:"resource"`
-	BaseLevel   AccessLevel         `json:"base_level"`
-	CurrentLevel AccessLevel        `json:"current_level"`
-	Constraints []PermissionConstraint `json:"constraints"`
-	ExpiresAt   time.Time           `json:"expires_at"`
-	GrantedAt   time.Time           `json:"granted_at"`
-	UpdatedAt   time.Time           `json:"updated_at"`
-	Reason      string              `json:"reason"`
+	ID           string                 `json:"id"`
+	UserID       string                 `json:"user_id"`
+	DeviceID     string                 `json:"device_id"`
+	Resource     string                 `json:"resource"`
+	BaseLevel    AccessLevel            `json:"base_level"`
+	CurrentLevel AccessLevel            `json:"current_level"`
+	Constraints  []PermissionConstraint `json:"constraints"`
+	ExpiresAt    time.Time              `json:"expires_at"`
+	GrantedAt    time.Time              `json:"granted_at"`
+	UpdatedAt    time.Time              `json:"updated_at"`
+	Reason       string                 `json:"reason"`
 }
 
 // AccessLevel 访问级别
 type AccessLevel int
 
 const (
-	AccessLevelNone     AccessLevel = 0 // 无访问
-	AccessLevelRead     AccessLevel = 1 // 只读
-	AccessLevelWrite    AccessLevel = 2 // 读写
-	AccessLevelAdmin    AccessLevel = 3 // 管理
-	AccessLevelFull     AccessLevel = 4 // 完全控制
+	AccessLevelNone  AccessLevel = 0 // 无访问
+	AccessLevelRead  AccessLevel = 1 // 只读
+	AccessLevelWrite AccessLevel = 2 // 读写
+	AccessLevelAdmin AccessLevel = 3 // 管理
+	AccessLevelFull  AccessLevel = 4 // 完全控制
 )
 
 func (l AccessLevel) String() string {
@@ -141,19 +141,19 @@ type PermissionManager struct {
 
 // DowngradePolicy 降级策略
 type DowngradePolicy struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	RiskLevel   RiskLevel   `json:"risk_level"`
-	MaxLevel    AccessLevel `json:"max_level"`
-	Conditions  []string    `json:"conditions"`
-	Enabled     bool        `json:"enabled"`
+	ID         string      `json:"id"`
+	Name       string      `json:"name"`
+	RiskLevel  RiskLevel   `json:"risk_level"`
+	MaxLevel   AccessLevel `json:"max_level"`
+	Conditions []string    `json:"conditions"`
+	Enabled    bool        `json:"enabled"`
 }
 
 // NewPermissionManager 创建权限管理器
 func NewPermissionManager(riskEngine *RiskEngine) *PermissionManager {
 	return &PermissionManager{
-		permissions: make(map[string]*DynamicPermission),
-		riskEngine:  riskEngine,
+		permissions:       make(map[string]*DynamicPermission),
+		riskEngine:        riskEngine,
 		downgradePolicies: getDefaultDowngradePolicies(),
 	}
 }
@@ -310,9 +310,9 @@ func (m *PermissionManager) permissionKey(userID, deviceID, resource string) str
 // NewRiskEngine 创建风险引擎
 func NewRiskEngine(thresholds RiskThresholds) *RiskEngine {
 	engine := &RiskEngine{
-		riskProfiles: make(map[string]*RiskProfile),
-		riskFactors:  make(map[string]RiskFactorConfig),
-		thresholds:   thresholds,
+		riskProfiles:  make(map[string]*RiskProfile),
+		riskFactors:   make(map[string]RiskFactorConfig),
+		thresholds:    thresholds,
 		alertHandlers: make([]AlertHandler, 0),
 	}
 

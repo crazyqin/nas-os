@@ -10,9 +10,9 @@ import (
 
 // TimelineManager 时间线管理器
 type TimelineManager struct {
-	mu       sync.RWMutex
-	photos   map[string]*Photo // id -> photo
-	config   Config
+	mu     sync.RWMutex
+	photos map[string]*Photo // id -> photo
+	config Config
 }
 
 // NewTimelineManager 创建时间线管理器

@@ -165,11 +165,11 @@ func TestAdaptiveThreshold(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		path := fmt.Sprintf("/data/file%d.dat", i)
 		s.ioMeta[path] = &FileIOMetadata{
-			FilePath:       path,
-			Pattern:        PatternRandom,
-			AccessWindows:  make([]AccessWindow, 10),
-			WindowSize:     time.Minute,
-			MaxWindows:     10,
+			FilePath:      path,
+			Pattern:       PatternRandom,
+			AccessWindows: make([]AccessWindow, 10),
+			WindowSize:    time.Minute,
+			MaxWindows:    10,
 		}
 	}
 

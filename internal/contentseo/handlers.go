@@ -25,7 +25,7 @@ func NewHandlers(engine *Engine) *Handlers {
 
 // RegisterRoutes 注册路由
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
-seo := r.Group("/contentseo")
+	seo := r.Group("/contentseo")
 	{
 		seo.POST("/search", h.Search)
 		seo.GET("/stats", h.GetStats)

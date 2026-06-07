@@ -41,9 +41,9 @@ func DefaultPredictConfig() PredictConfig {
 		Thresholds: map[string]int{
 			"reallocated_sectors": 10,
 			"pending_sectors":     5,
-			"crc_error":          50,
-			"temperature":        55,
-			"power_on_hours":     40000,
+			"crc_error":           50,
+			"temperature":         55,
+			"power_on_hours":      40000,
 		},
 		MaxHistoryDays: 365,
 		ScanInterval:   24 * time.Hour,
@@ -82,15 +82,15 @@ type SMARTAttribute struct {
 
 // SMARTData SMART 数据
 type SMARTData struct {
-	Device      string           `json:"device"`       // 设备路径 e.g. /dev/sda
-	Model       string           `json:"model"`        // 磁盘型号
-	Serial      string           `json:"serial"`       // 序列号
-	Capacity    uint64           `json:"capacity"`     // 容量 (字节)
-	Temperature int              `json:"temperature"`  // 当前温度 (°C)
-	PowerOnHours uint64          `json:"power_on_hours"` // 通电时间 (小时)
-	HealthState string           `json:"health_state"` // 健康状态
-	Attributes  []SMARTAttribute `json:"attributes"`   // SMART属性列表
-	CollectedAt time.Time        `json:"collected_at"` // 采集时间
+	Device       string           `json:"device"`         // 设备路径 e.g. /dev/sda
+	Model        string           `json:"model"`          // 磁盘型号
+	Serial       string           `json:"serial"`         // 序列号
+	Capacity     uint64           `json:"capacity"`       // 容量 (字节)
+	Temperature  int              `json:"temperature"`    // 当前温度 (°C)
+	PowerOnHours uint64           `json:"power_on_hours"` // 通电时间 (小时)
+	HealthState  string           `json:"health_state"`   // 健康状态
+	Attributes   []SMARTAttribute `json:"attributes"`     // SMART属性列表
+	CollectedAt  time.Time        `json:"collected_at"`   // 采集时间
 }
 
 // ============================================================
@@ -132,16 +132,16 @@ type DiskInfo struct {
 
 // PredictionResult 预测结果
 type PredictionResult struct {
-	Device             string              `json:"device"`               // 设备路径
-	Model              string              `json:"model"`                // 型号
-	Serial             string              `json:"serial"`               // 序列号
-	HealthScore        float64             `json:"health_score"`         // 健康评分 (0-100)
-	Status             DiskStatus          `json:"status"`               // 状态
-	EstimatedLifeDays  int                 `json:"estimated_life_days"`  // 预计剩余寿命（天）
-	EstimatedFailDate  *time.Time          `json:"estimated_fail_date"`  // 预计故障日期
-	RiskFactors        []string            `json:"risk_factors"`         // 风险因素
-	AnalyzedAttributes []AttributeAnalysis `json:"analyzed_attributes"`  // 分析的属性
-	PredictedAt        time.Time           `json:"predicted_at"`         // 预测时间
+	Device             string              `json:"device"`              // 设备路径
+	Model              string              `json:"model"`               // 型号
+	Serial             string              `json:"serial"`              // 序列号
+	HealthScore        float64             `json:"health_score"`        // 健康评分 (0-100)
+	Status             DiskStatus          `json:"status"`              // 状态
+	EstimatedLifeDays  int                 `json:"estimated_life_days"` // 预计剩余寿命（天）
+	EstimatedFailDate  *time.Time          `json:"estimated_fail_date"` // 预计故障日期
+	RiskFactors        []string            `json:"risk_factors"`        // 风险因素
+	AnalyzedAttributes []AttributeAnalysis `json:"analyzed_attributes"` // 分析的属性
+	PredictedAt        time.Time           `json:"predicted_at"`        // 预测时间
 }
 
 // ============================================================
@@ -163,11 +163,11 @@ type AlertInfo struct {
 
 // DiskStats 磁盘统计信息
 type DiskStats struct {
-	TotalDisks    int     `json:"total_disks"`    // 总磁盘数
-	HealthyDisks  int     `json:"healthy_disks"`  // 健康磁盘数
-	WarningDisks  int     `json:"warning_disks"`  // 警告磁盘数
-	CriticalDisks int     `json:"critical_disks"` // 严重磁盘数
-	FailedDisks   int     `json:"failed_disks"`   // 故障磁盘数
+	TotalDisks     int     `json:"total_disks"`      // 总磁盘数
+	HealthyDisks   int     `json:"healthy_disks"`    // 健康磁盘数
+	WarningDisks   int     `json:"warning_disks"`    // 警告磁盘数
+	CriticalDisks  int     `json:"critical_disks"`   // 严重磁盘数
+	FailedDisks    int     `json:"failed_disks"`     // 故障磁盘数
 	AvgHealthScore float64 `json:"avg_health_score"` // 平均健康评分
 }
 
@@ -177,23 +177,23 @@ type DiskStats struct {
 
 // HealthReport 健康巡检报告
 type HealthReport struct {
-	Disks            []*DiskHealth `json:"disks"`              // 磁盘列表
-	OverallHealth    string        `json:"overall_health"`     // 整体健康: "healthy", "warning", "critical"
-	CriticalCount    int           `json:"critical_count"`     // 严重问题数
-	WarningCount     int           `json:"warning_count"`      // 警告数
-	PredictedFailures int          `json:"predicted_failures"` // 预测故障数
-	ScanTime         time.Time     `json:"scan_time"`          // 扫描时间
-	Duration         time.Duration `json:"duration"`           // 扫描耗时
+	Disks             []*DiskHealth `json:"disks"`              // 磁盘列表
+	OverallHealth     string        `json:"overall_health"`     // 整体健康: "healthy", "warning", "critical"
+	CriticalCount     int           `json:"critical_count"`     // 严重问题数
+	WarningCount      int           `json:"warning_count"`      // 警告数
+	PredictedFailures int           `json:"predicted_failures"` // 预测故障数
+	ScanTime          time.Time     `json:"scan_time"`          // 扫描时间
+	Duration          time.Duration `json:"duration"`           // 扫描耗时
 }
 
 // DiskHealth 磁盘健康状态（简化版）
 type DiskHealth struct {
-	Device           string    `json:"device"`             // 设备路径
-	Score            float64   `json:"score"`              // 健康评分 (0-100)
-	Status           string    `json:"status"`             // 状态
-	PredictedFailure bool      `json:"predicted_failure"`  // 是否预测故障
-	LastCheck        time.Time `json:"last_check"`         // 最后检查时间
-	SMARTData        SMARTData `json:"smart_data"`         // SMART数据
+	Device           string    `json:"device"`            // 设备路径
+	Score            float64   `json:"score"`             // 健康评分 (0-100)
+	Status           string    `json:"status"`            // 状态
+	PredictedFailure bool      `json:"predicted_failure"` // 是否预测故障
+	LastCheck        time.Time `json:"last_check"`        // 最后检查时间
+	SMARTData        SMARTData `json:"smart_data"`        // SMART数据
 }
 
 // ============================================================
@@ -202,12 +202,12 @@ type DiskHealth struct {
 
 // FailurePrediction 故障预测结果
 type FailurePrediction struct {
-	Device         string   `json:"device"`          // 设备路径
-	Probability    float64  `json:"probability"`     // 故障概率 (0-1)
-	EstimatedDays  int      `json:"estimated_days"`  // 预计故障天数
-	Confidence     string   `json:"confidence"`      // 置信度: "high", "medium", "low"
-	FailureType    string   `json:"failure_type"`    // 预测故障类型
-	RiskFactors    []string `json:"risk_factors"`    // 风险因子
+	Device        string   `json:"device"`         // 设备路径
+	Probability   float64  `json:"probability"`    // 故障概率 (0-1)
+	EstimatedDays int      `json:"estimated_days"` // 预计故障天数
+	Confidence    string   `json:"confidence"`     // 置信度: "high", "medium", "low"
+	FailureType   string   `json:"failure_type"`   // 预测故障类型
+	RiskFactors   []string `json:"risk_factors"`   // 风险因子
 }
 
 // ============================================================
@@ -228,16 +228,16 @@ type PredictResponse struct {
 
 // PredictionListResponse 预测列表响应
 type PredictionListResponse struct {
-	Code    int                 `json:"code"`
-	Message string              `json:"message"`
-	Data    []PredictionResult  `json:"data,omitempty"`
+	Code    int                `json:"code"`
+	Message string             `json:"message"`
+	Data    []PredictionResult `json:"data,omitempty"`
 }
 
 // DiskListResponse 磁盘列表响应
 type DiskListResponse struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    []DiskInfo  `json:"data,omitempty"`
+	Code    int        `json:"code"`
+	Message string     `json:"message"`
+	Data    []DiskInfo `json:"data,omitempty"`
 }
 
 // StatsResponse 统计响应

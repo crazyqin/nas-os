@@ -143,11 +143,11 @@ func TestUpdatePolicy(t *testing.T) {
 	manager := NewQoSManager(nil)
 
 	policy, _ := manager.CreatePolicy(&QoSPolicy{
-		Name:       "原始策略",
-		Level:      QoSLevelSilver,
-		TargetType: "volume",
-		TargetID:   "vol_003",
-		MaxIOPS:    2000,
+		Name:         "原始策略",
+		Level:        QoSLevelSilver,
+		TargetType:   "volume",
+		TargetID:     "vol_003",
+		MaxIOPS:      2000,
 		MaxBandwidth: 200,
 	})
 

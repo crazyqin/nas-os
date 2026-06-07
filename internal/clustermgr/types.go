@@ -22,21 +22,21 @@ const (
 type NodeRole string
 
 const (
-	RoleLeader   NodeRole = "leader"   // 领导者
-	RoleFollower NodeRole = "follower" // 跟随者
+	RoleLeader    NodeRole = "leader"    // 领导者
+	RoleFollower  NodeRole = "follower"  // 跟随者
 	RoleCandidate NodeRole = "candidate" // 候选者
-	RoleObserver NodeRole = "observer" // 观察者
+	RoleObserver  NodeRole = "observer"  // 观察者
 )
 
 // LoadBalanceStrategy 负载均衡策略.
 type LoadBalanceStrategy string
 
 const (
-	StrategyRoundRobin  LoadBalanceStrategy = "round_robin"  // 轮询
-	StrategyWeighted    LoadBalanceStrategy = "weighted"      // 加权
-	StrategyLeastConn   LoadBalanceStrategy = "least_conn"   // 最少连接
-	StrategyIPHash      LoadBalanceStrategy = "ip_hash"      // IP哈希
-	StrategyRandom      LoadBalanceStrategy = "random"       // 随机
+	StrategyRoundRobin LoadBalanceStrategy = "round_robin" // 轮询
+	StrategyWeighted   LoadBalanceStrategy = "weighted"    // 加权
+	StrategyLeastConn  LoadBalanceStrategy = "least_conn"  // 最少连接
+	StrategyIPHash     LoadBalanceStrategy = "ip_hash"     // IP哈希
+	StrategyRandom     LoadBalanceStrategy = "random"      // 随机
 )
 
 // ClusterStatus 集群状态.
@@ -53,35 +53,35 @@ const (
 type ServiceProtocol string
 
 const (
-	ProtocolHTTP  ServiceProtocol = "http"  // HTTP协议
-	ProtocolGRPC  ServiceProtocol = "grpc"  // gRPC协议
-	ProtocolTCP   ServiceProtocol = "tcp"   // TCP协议
-	ProtocolUDP   ServiceProtocol = "udp"   // UDP协议
+	ProtocolHTTP ServiceProtocol = "http" // HTTP协议
+	ProtocolGRPC ServiceProtocol = "grpc" // gRPC协议
+	ProtocolTCP  ServiceProtocol = "tcp"  // TCP协议
+	ProtocolUDP  ServiceProtocol = "udp"  // UDP协议
 )
 
 // Node 节点信息.
 type Node struct {
 	mu sync.RWMutex `json:"-"`
 
-	ID          string     `json:"id"`          // 节点ID
-	Name        string     `json:"name"`        // 节点名称
-	Address     string     `json:"address"`     // 节点地址（IP:Port）
-	Role        NodeRole   `json:"role"`        // 节点角色
-	Status      NodeStatus `json:"status"`      // 节点状态
-	Weight      int        `json:"weight"`      // 权重（用于加权负载均衡）
-	Zone        string     `json:"zone"`        // 可用区
-	Tags        []string   `json:"tags"`        // 标签
+	ID      string     `json:"id"`      // 节点ID
+	Name    string     `json:"name"`    // 节点名称
+	Address string     `json:"address"` // 节点地址（IP:Port）
+	Role    NodeRole   `json:"role"`    // 节点角色
+	Status  NodeStatus `json:"status"`  // 节点状态
+	Weight  int        `json:"weight"`  // 权重（用于加权负载均衡）
+	Zone    string     `json:"zone"`    // 可用区
+	Tags    []string   `json:"tags"`    // 标签
 
 	// 连接统计
-	Connections int        `json:"connections"` // 当前连接数
-	MaxConns    int        `json:"maxConns"`    // 最大连接数
-	ActiveConns int        `json:"activeConns"` // 活跃连接数
+	Connections int `json:"connections"` // 当前连接数
+	MaxConns    int `json:"maxConns"`    // 最大连接数
+	ActiveConns int `json:"activeConns"` // 活跃连接数
 
 	// 性能指标
-	CPUUsage    float64    `json:"cpuUsage"`    // CPU使用率
-	MemoryUsage float64    `json:"memoryUsage"` // 内存使用率
-	DiskUsage   float64    `json:"diskUsage"`   // 磁盘使用率
-	LoadAvg     float64    `json:"loadAvg"`     // 平均负载
+	CPUUsage    float64 `json:"cpuUsage"`    // CPU使用率
+	MemoryUsage float64 `json:"memoryUsage"` // 内存使用率
+	DiskUsage   float64 `json:"diskUsage"`   // 磁盘使用率
+	LoadAvg     float64 `json:"loadAvg"`     // 平均负载
 
 	// 时间信息
 	LastHeartbeat time.Time `json:"lastHeartbeat"` // 最后心跳时间
@@ -121,19 +121,19 @@ func (n *Node) UpdateMetrics(cpu, memory, disk, load float64) {
 type Cluster struct {
 	mu sync.RWMutex `json:"-"`
 
-	ID          string        `json:"id"`          // 集群ID
-	Name        string        `json:"name"`        // 集群名称
-	Status      ClusterStatus `json:"status"`      // 集群状态
-	LeaderID    string        `json:"leaderId"`    // 领导者节点ID
-	Version     int64         `json:"version"`     // 集群版本号
-	CreatedAt   time.Time     `json:"createdAt"`   // 创建时间
-	UpdatedAt   time.Time     `json:"updatedAt"`   // 更新时间
+	ID        string        `json:"id"`        // 集群ID
+	Name      string        `json:"name"`      // 集群名称
+	Status    ClusterStatus `json:"status"`    // 集群状态
+	LeaderID  string        `json:"leaderId"`  // 领导者节点ID
+	Version   int64         `json:"version"`   // 集群版本号
+	CreatedAt time.Time     `json:"createdAt"` // 创建时间
+	UpdatedAt time.Time     `json:"updatedAt"` // 更新时间
 
 	// 配置信息
-	Config      ClusterConfig `json:"config"`      // 集群配置
+	Config ClusterConfig `json:"config"` // 集群配置
 
 	// 节点列表
-	Nodes       map[string]*Node `json:"nodes"`   // 节点映射（ID -> Node）
+	Nodes map[string]*Node `json:"nodes"` // 节点映射（ID -> Node）
 }
 
 // GetNode 获取节点.
@@ -233,9 +233,9 @@ type ClusterConfig struct {
 	HeartbeatTimeout  time.Duration `json:"heartbeatTimeout"`  // 心跳超时
 
 	// 故障转移配置
-	FailoverEnabled   bool          `json:"failoverEnabled"`   // 启用故障转移
-	FailoverTimeout   time.Duration `json:"failoverTimeout"`   // 故障转移超时
-	MaxFailoverAttempts int         `json:"maxFailoverAttempts"` // 最大故障转移尝试次数
+	FailoverEnabled     bool          `json:"failoverEnabled"`     // 启用故障转移
+	FailoverTimeout     time.Duration `json:"failoverTimeout"`     // 故障转移超时
+	MaxFailoverAttempts int           `json:"maxFailoverAttempts"` // 最大故障转移尝试次数
 
 	// 负载均衡配置
 	LoadBalanceStrategy LoadBalanceStrategy `json:"loadBalanceStrategy"` // 负载均衡策略
@@ -247,9 +247,9 @@ type ClusterConfig struct {
 	HealthCheckInterval time.Duration `json:"healthCheckInterval"` // 健康检查间隔
 
 	// 节点配置
-	MaxNodes            int  `json:"maxNodes"`            // 最大节点数
-	AutoRemoveFailed    bool `json:"autoRemoveFailed"`    // 自动移除故障节点
-	FailedNodeTimeout   time.Duration `json:"failedNodeTimeout"` // 故障节点超时时间
+	MaxNodes          int           `json:"maxNodes"`          // 最大节点数
+	AutoRemoveFailed  bool          `json:"autoRemoveFailed"`  // 自动移除故障节点
+	FailedNodeTimeout time.Duration `json:"failedNodeTimeout"` // 故障节点超时时间
 }
 
 // DefaultClusterConfig 返回默认集群配置.
@@ -275,20 +275,20 @@ func DefaultClusterConfig() ClusterConfig {
 type ServiceInfo struct {
 	mu sync.RWMutex `json:"-"`
 
-	ID          string          `json:"id"`          // 服务ID
-	Name        string          `json:"name"`        // 服务名称
-	Version     string          `json:"version"`     // 服务版本
-	Protocol    ServiceProtocol `json:"protocol"`    // 服务协议
-	Address     string          `json:"address"`     // 服务地址
-	Port        int             `json:"port"`        // 服务端口
-	Tags        []string        `json:"tags"`        // 服务标签
-	Metadata    map[string]string `json:"metadata,omitempty"` // 服务元数据
+	ID       string            `json:"id"`                 // 服务ID
+	Name     string            `json:"name"`               // 服务名称
+	Version  string            `json:"version"`            // 服务版本
+	Protocol ServiceProtocol   `json:"protocol"`           // 服务协议
+	Address  string            `json:"address"`            // 服务地址
+	Port     int               `json:"port"`               // 服务端口
+	Tags     []string          `json:"tags"`               // 服务标签
+	Metadata map[string]string `json:"metadata,omitempty"` // 服务元数据
 
 	// 健康状态
-	Healthy     bool      `json:"healthy"`     // 是否健康
-	LastCheck   time.Time `json:"lastCheck"`   // 最后检查时间
-	CheckCount  int       `json:"checkCount"`  // 检查次数
-	FailCount   int       `json:"failCount"`   // 失败次数
+	Healthy    bool      `json:"healthy"`    // 是否健康
+	LastCheck  time.Time `json:"lastCheck"`  // 最后检查时间
+	CheckCount int       `json:"checkCount"` // 检查次数
+	FailCount  int       `json:"failCount"`  // 失败次数
 
 	// 注册信息
 	RegisteredAt time.Time `json:"registeredAt"` // 注册时间
@@ -382,49 +382,49 @@ func (sd *ServiceDiscovery) GetHealthyServices() []*ServiceInfo {
 
 // HeartbeatRequest 心跳请求.
 type HeartbeatRequest struct {
-	NodeID    string  `json:"nodeId"`    // 节点ID
-	CPUUsage  float64 `json:"cpuUsage"`  // CPU使用率
-	MemoryUsage float64 `json:"memoryUsage"` // 内存使用率
-	DiskUsage float64 `json:"diskUsage"` // 磁盘使用率
-	LoadAvg   float64 `json:"loadAvg"`   // 平均负载
-	Connections int   `json:"connections"` // 当前连接数
-	Timestamp time.Time `json:"timestamp"` // 时间戳
+	NodeID      string    `json:"nodeId"`      // 节点ID
+	CPUUsage    float64   `json:"cpuUsage"`    // CPU使用率
+	MemoryUsage float64   `json:"memoryUsage"` // 内存使用率
+	DiskUsage   float64   `json:"diskUsage"`   // 磁盘使用率
+	LoadAvg     float64   `json:"loadAvg"`     // 平均负载
+	Connections int       `json:"connections"` // 当前连接数
+	Timestamp   time.Time `json:"timestamp"`   // 时间戳
 }
 
 // HeartbeatResponse 心跳响应.
 type HeartbeatResponse struct {
-	Success   bool   `json:"success"`   // 是否成功
-	LeaderID  string `json:"leaderId"`  // 领导者ID
-	Version   int64  `json:"version"`   // 集群版本
-	Message   string `json:"message"`   // 消息
+	Success  bool   `json:"success"`  // 是否成功
+	LeaderID string `json:"leaderId"` // 领导者ID
+	Version  int64  `json:"version"`  // 集群版本
+	Message  string `json:"message"`  // 消息
 }
 
 // JoinRequest 加入集群请求.
 type JoinRequest struct {
-	NodeID    string            `json:"nodeId"`    // 节点ID
-	Name      string            `json:"name"`      // 节点名称
-	Address   string            `json:"address"`   // 节点地址
-	Zone      string            `json:"zone"`      // 可用区
-	Tags      []string          `json:"tags"`      // 标签
-	Weight    int               `json:"weight"`    // 权重
-	MaxConns  int               `json:"maxConns"`  // 最大连接数
-	Metadata  map[string]string `json:"metadata"`  // 元数据
+	NodeID   string            `json:"nodeId"`   // 节点ID
+	Name     string            `json:"name"`     // 节点名称
+	Address  string            `json:"address"`  // 节点地址
+	Zone     string            `json:"zone"`     // 可用区
+	Tags     []string          `json:"tags"`     // 标签
+	Weight   int               `json:"weight"`   // 权重
+	MaxConns int               `json:"maxConns"` // 最大连接数
+	Metadata map[string]string `json:"metadata"` // 元数据
 }
 
 // JoinResponse 加入集群响应.
 type JoinResponse struct {
-	Success    bool          `json:"success"`    // 是否成功
-	ClusterID  string        `json:"clusterId"`  // 集群ID
-	LeaderID   string        `json:"leaderId"`   // 领导者ID
-	Nodes      []*Node       `json:"nodes"`      // 节点列表
-	Config     ClusterConfig `json:"config"`     // 集群配置
-	Message    string        `json:"message"`    // 消息
+	Success   bool          `json:"success"`   // 是否成功
+	ClusterID string        `json:"clusterId"` // 集群ID
+	LeaderID  string        `json:"leaderId"`  // 领导者ID
+	Nodes     []*Node       `json:"nodes"`     // 节点列表
+	Config    ClusterConfig `json:"config"`    // 集群配置
+	Message   string        `json:"message"`   // 消息
 }
 
 // LeaveRequest 离开集群请求.
 type LeaveRequest struct {
-	NodeID  string `json:"nodeId"`  // 节ID
-	Reason  string `json:"reason"`  // 离开原因
+	NodeID string `json:"nodeId"` // 节ID
+	Reason string `json:"reason"` // 离开原因
 }
 
 // LeaveResponse 离开集群响应.
@@ -438,9 +438,9 @@ type ClusterStats struct {
 	mu sync.RWMutex `json:"-"`
 
 	// 节点统计
-	TotalNodes   int `json:"totalNodes"`   // 总节点数
-	ActiveNodes  int `json:"activeNodes"`  // 活跃节点数
-	FailedNodes  int `json:"failedNodes"`  // 故障节点数
+	TotalNodes  int `json:"totalNodes"`  // 总节点数
+	ActiveNodes int `json:"activeNodes"` // 活跃节点数
+	FailedNodes int `json:"failedNodes"` // 故障节点数
 
 	// 请求统计
 	TotalRequests   int64 `json:"totalRequests"`   // 总请求数
@@ -448,8 +448,8 @@ type ClusterStats struct {
 	FailedRequests  int64 `json:"failedRequests"`  // 失败请求数
 
 	// 负载统计
-	TotalConnections int `json:"totalConnections"` // 总连接数
-	AvgResponseTime  float64 `json:"avgResponseTime"` // 平均响应时间（毫秒）
+	TotalConnections int     `json:"totalConnections"` // 总连接数
+	AvgResponseTime  float64 `json:"avgResponseTime"`  // 平均响应时间（毫秒）
 
 	// 时间统计
 	LastFailoverTime time.Time     `json:"lastFailoverTime"` // 最后故障转移时间

@@ -8,47 +8,47 @@ import (
 
 // TieringCostAnalysis provides tiering cost-benefit analysis
 type TieringCostAnalysis struct {
-	HotStorageCost   float64 // cost per GB per month
-	WarmStorageCost  float64
-	ColdStorageCost  float64
-	HotAccessCost    float64 // access cost per operation
-	WarmAccessCost   float64
-	ColdAccessCost   float64
+	HotStorageCost  float64 // cost per GB per month
+	WarmStorageCost float64
+	ColdStorageCost float64
+	HotAccessCost   float64 // access cost per operation
+	WarmAccessCost  float64
+	ColdAccessCost  float64
 }
 
 // StorageTier represents a storage tier with its costs
 type StorageTier struct {
-	Name         string
-	CostPerGB    float64
-	AccessCost   float64
-	AccessFreq   float64 // average access frequency per day
-	DataVolume   float64 // GB stored
+	Name          string
+	CostPerGB     float64
+	AccessCost    float64
+	AccessFreq    float64 // average access frequency per day
+	DataVolume    float64 // GB stored
 	MigrationCost float64 // cost to migrate data
 }
 
 // CostBenefitReport represents tiering analysis result
 type CostBenefitReport struct {
-	CurrentCost       float64
-	OptimizedCost     float64
-	Savings           float64
-	SavingsPercent    float64
-	Recommendations   []TieringRecommendation
-	GeneratedAt       time.Time
+	CurrentCost     float64
+	OptimizedCost   float64
+	Savings         float64
+	SavingsPercent  float64
+	Recommendations []TieringRecommendation
+	GeneratedAt     time.Time
 }
 
 // TieringRecommendation represents a tiering recommendation
 type TieringRecommendation struct {
-	Path        string
-	CurrentTier string
+	Path          string
+	CurrentTier   string
 	SuggestedTier string
-	Reason      string
-	Savings     float64
+	Reason        string
+	Savings       float64
 }
 
 // TieringAnalyzer analyzes storage tiering options
 type TieringAnalyzer struct {
-	tiers       []StorageTier
-	analysis    TieringCostAnalysis
+	tiers    []StorageTier
+	analysis TieringCostAnalysis
 }
 
 // NewTieringAnalyzer creates a new tiering analyzer
@@ -84,11 +84,11 @@ func (a *TieringAnalyzer) AnalyzeDataTiering(ctx context.Context, accessPatterns
 		if suggestedTier != currentTier {
 			savings := currentDataCost + currentAccessCost - tierCost
 			recommendations = append(recommendations, TieringRecommendation{
-				Path:         pattern.Path,
-				CurrentTier:  currentTier,
+				Path:          pattern.Path,
+				CurrentTier:   currentTier,
 				SuggestedTier: suggestedTier,
-				Reason:       a.getReason(pattern, suggestedTier),
-				Savings:      savings,
+				Reason:        a.getReason(pattern, suggestedTier),
+				Savings:       savings,
 			})
 		}
 	}
@@ -110,12 +110,12 @@ func (a *TieringAnalyzer) AnalyzeDataTiering(ctx context.Context, accessPatterns
 
 // AccessPattern represents data access pattern
 type AccessPattern struct {
-	Path           string
-	DataVolumeGB   float64
-	AccessCount    float64
-	AccessFreq     float64 // accesses per day
-	LastAccess     time.Time
-	ContentType    string
+	Path         string
+	DataVolumeGB float64
+	AccessCount  float64
+	AccessFreq   float64 // accesses per day
+	LastAccess   time.Time
+	ContentType  string
 }
 
 // determineOptimalTier determines the best tier for data
@@ -175,13 +175,13 @@ func (a *TieringAnalyzer) CompareCloudStorage(ctx context.Context, dataVolumeGB 
 	cloudColdMonthlyCost := dataVolumeGB * cloudColdCost
 
 	return CloudComparisonReport{
-		LocalCost:        localMonthlyCost,
-		CloudHotCost:     cloudHotMonthlyCost,
-		CloudWarmCost:    cloudWarmMonthlyCost,
-		CloudColdCost:    cloudColdMonthlyCost,
-		BestOption:       "local",
-		SavingsIfCloud:   localMonthlyCost - cloudColdMonthlyCost,
-		Recommendation:   "Local storage recommended for high-frequency access data",
+		LocalCost:      localMonthlyCost,
+		CloudHotCost:   cloudHotMonthlyCost,
+		CloudWarmCost:  cloudWarmMonthlyCost,
+		CloudColdCost:  cloudColdMonthlyCost,
+		BestOption:     "local",
+		SavingsIfCloud: localMonthlyCost - cloudColdMonthlyCost,
+		Recommendation: "Local storage recommended for high-frequency access data",
 	}
 }
 

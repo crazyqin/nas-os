@@ -19,12 +19,12 @@ type AuditOperationType string
 
 const (
 	// 文件操作
-	OpFileCreate  AuditOperationType = "file_create"
-	OpFileDelete  AuditOperationType = "file_delete"
-	OpFileModify  AuditOperationType = "file_modify"
-	OpFileRename  AuditOperationType = "file_rename"
-	OpFileRead    AuditOperationType = "file_read"
-	OpFileCopy    AuditOperationType = "file_copy"
+	OpFileCreate AuditOperationType = "file_create"
+	OpFileDelete AuditOperationType = "file_delete"
+	OpFileModify AuditOperationType = "file_modify"
+	OpFileRename AuditOperationType = "file_rename"
+	OpFileRead   AuditOperationType = "file_read"
+	OpFileCopy   AuditOperationType = "file_copy"
 
 	// 目录操作
 	OpDirCreate AuditOperationType = "dir_create"
@@ -394,12 +394,12 @@ func (al *EnhancedAuditLogger) matchFilter(entry EnhancedAuditEntry, filter Audi
 
 // AuditStats 审计统计.
 type AuditStats struct {
-	TotalEntries  int                      `json:"total_entries"`
-	ByOperation   map[string]int           `json:"by_operation"`
-	ByResult      map[string]int           `json:"by_result"`
-	ByUser        map[string]int           `json:"by_user"`
-	ByShare       map[string]int           `json:"by_share"`
-	TimeRange     *TimeRange               `json:"time_range,omitempty"`
+	TotalEntries int            `json:"total_entries"`
+	ByOperation  map[string]int `json:"by_operation"`
+	ByResult     map[string]int `json:"by_result"`
+	ByUser       map[string]int `json:"by_user"`
+	ByShare      map[string]int `json:"by_share"`
+	TimeRange    *TimeRange     `json:"time_range,omitempty"`
 }
 
 // TimeRange 时间范围.

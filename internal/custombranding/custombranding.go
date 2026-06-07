@@ -12,136 +12,136 @@ import (
 
 // BrandingEngine 品牌定制引擎主入口
 type BrandingEngine struct {
-	mu              sync.Mutex              // 并发保护
-	config          *BrandingConfig         // 当前品牌配置
-	themes          map[string]*Theme       // 主题集合
-	assets          map[string]*BrandAsset  // 品牌资产
-	templates       map[string]*Template    // 预设模板
-	cssVars         map[string]string       // CSS/SCSS 变量
-	locales         map[string]*Locale      // 多语言配置
-	previewCallback func(*BrandingConfig)   // 预览回调
-	running         bool                    // 运行状态
-	startTime       time.Time               // 启动时间
-	version         string                  // 版本号
-	history         []*ConfigSnapshot       // 配置快照历史
-	maxHistory      int                     // 最大历史记录数
+	mu              sync.Mutex             // 并发保护
+	config          *BrandingConfig        // 当前品牌配置
+	themes          map[string]*Theme      // 主题集合
+	assets          map[string]*BrandAsset // 品牌资产
+	templates       map[string]*Template   // 预设模板
+	cssVars         map[string]string      // CSS/SCSS 变量
+	locales         map[string]*Locale     // 多语言配置
+	previewCallback func(*BrandingConfig)  // 预览回调
+	running         bool                   // 运行状态
+	startTime       time.Time              // 启动时间
+	version         string                 // 版本号
+	history         []*ConfigSnapshot      // 配置快照历史
+	maxHistory      int                    // 最大历史记录数
 }
 
 // BrandingConfig 品牌配置
 type BrandingConfig struct {
-	Name         string            `json:"name"`          // 品牌名称
-	Logo         LogoConfig        `json:"logo"`          // Logo 配置
-	Colors       ColorScheme       `json:"colors"`        // 颜色方案
-	Fonts        FontConfig        `json:"fonts"`         // 字体配置
-	Splash       SplashConfig      `json:"splash"`        // 启动画面
-	ThemeID      string            `json:"theme_id"`      // 当前主题 ID
-	Locale       string            `json:"locale"`        // 当前语言
-	CustomCSS    map[string]string `json:"custom_css"`    // 自定义 CSS 变量
-	UpdatedAt    time.Time         `json:"updated_at"`    // 更新时间
-	Version      int               `json:"version"`       // 配置版本
+	Name      string            `json:"name"`       // 品牌名称
+	Logo      LogoConfig        `json:"logo"`       // Logo 配置
+	Colors    ColorScheme       `json:"colors"`     // 颜色方案
+	Fonts     FontConfig        `json:"fonts"`      // 字体配置
+	Splash    SplashConfig      `json:"splash"`     // 启动画面
+	ThemeID   string            `json:"theme_id"`   // 当前主题 ID
+	Locale    string            `json:"locale"`     // 当前语言
+	CustomCSS map[string]string `json:"custom_css"` // 自定义 CSS 变量
+	UpdatedAt time.Time         `json:"updated_at"` // 更新时间
+	Version   int               `json:"version"`    // 配置版本
 }
 
 // LogoConfig Logo 配置
 type LogoConfig struct {
-	Primary     string `json:"primary"`      // 主 Logo 路径
-	Secondary   string `json:"secondary"`    // 备用 Logo
-	Favicon     string `json:"favicon"`      // 网站图标
-	Width       int    `json:"width"`        // 宽度
-	Height      int    `json:"height"`       // 高度
-	AltText     string `json:"alt_text"`     // 替代文本
-	DarkMode    string `json:"dark_mode"`    // 暗色模式 Logo
+	Primary   string `json:"primary"`   // 主 Logo 路径
+	Secondary string `json:"secondary"` // 备用 Logo
+	Favicon   string `json:"favicon"`   // 网站图标
+	Width     int    `json:"width"`     // 宽度
+	Height    int    `json:"height"`    // 高度
+	AltText   string `json:"alt_text"`  // 替代文本
+	DarkMode  string `json:"dark_mode"` // 暗色模式 Logo
 }
 
 // ColorScheme 颜色方案
 type ColorScheme struct {
-	Primary     string `json:"primary"`      // 主色
-	Secondary   string `json:"secondary"`    // 次色
-	Accent      string `json:"accent"`       // 强调色
-	Background  string `json:"background"`   // 背景色
-	Surface     string `json:"surface"`      // 表面色
-	Text        string `json:"text"`         // 文本色
-	TextLight   string `json:"text_light"`   // 浅色文本
-	Border      string `json:"border"`       // 边框色
-	Success     string `json:"success"`      // 成功色
-	Warning     string `json:"warning"`      // 警告色
-	Error       string `json:"error"`        // 错误色
-	Info        string `json:"info"`         // 信息色
+	Primary    string `json:"primary"`    // 主色
+	Secondary  string `json:"secondary"`  // 次色
+	Accent     string `json:"accent"`     // 强调色
+	Background string `json:"background"` // 背景色
+	Surface    string `json:"surface"`    // 表面色
+	Text       string `json:"text"`       // 文本色
+	TextLight  string `json:"text_light"` // 浅色文本
+	Border     string `json:"border"`     // 边框色
+	Success    string `json:"success"`    // 成功色
+	Warning    string `json:"warning"`    // 警告色
+	Error      string `json:"error"`      // 错误色
+	Info       string `json:"info"`       // 信息色
 }
 
 // FontConfig 字体配置
 type FontConfig struct {
-	Primary     string `json:"primary"`      // 主字体
-	Secondary   string `json:"secondary"`    // 备用字体
-	Monospace   string `json:"monospace"`    // 等宽字体
-	BaseSize    string `json:"base_size"`    // 基础字号
-	LineHeight  string `json:"line_height"`  // 行高
-	Weight      string `json:"weight"`       // 字重
+	Primary    string `json:"primary"`     // 主字体
+	Secondary  string `json:"secondary"`   // 备用字体
+	Monospace  string `json:"monospace"`   // 等宽字体
+	BaseSize   string `json:"base_size"`   // 基础字号
+	LineHeight string `json:"line_height"` // 行高
+	Weight     string `json:"weight"`      // 字重
 }
 
 // SplashConfig 启动画面配置
 type SplashConfig struct {
-	Enabled     bool   `json:"enabled"`      // 是否启用
-	Image       string `json:"image"`        // 启动图片
-	BgColor     string `json:"bg_color"`     // 背景色
-	TextColor   string `json:"text_color"`   // 文本色
-	Duration    int    `json:"duration"`     // 显示时长(ms)
-	Animation   string `json:"animation"`    // 动画效果
-	Message     string `json:"message"`      // 启动消息
+	Enabled   bool   `json:"enabled"`    // 是否启用
+	Image     string `json:"image"`      // 启动图片
+	BgColor   string `json:"bg_color"`   // 背景色
+	TextColor string `json:"text_color"` // 文本色
+	Duration  int    `json:"duration"`   // 显示时长(ms)
+	Animation string `json:"animation"`  // 动画效果
+	Message   string `json:"message"`    // 启动消息
 }
 
 // Theme 主题定义
 type Theme struct {
-	ID          string            `json:"id"`           // 主题 ID
-	Name        string            `json:"name"`         // 主题名称
-	Description string            `json:"description"`  // 主题描述
-	Config      BrandingConfig    `json:"config"`       // 主题配置
-	IsPreset    bool              `json:"is_preset"`    // 是否预设主题
-	Tags        []string          `json:"tags"`         // 标签
-	CreatedAt   time.Time         `json:"created_at"`   // 创建时间
-	Author      string            `json:"author"`       // 作者
-	Thumbnail   string            `json:"thumbnail"`    // 缩略图
+	ID          string         `json:"id"`          // 主题 ID
+	Name        string         `json:"name"`        // 主题名称
+	Description string         `json:"description"` // 主题描述
+	Config      BrandingConfig `json:"config"`      // 主题配置
+	IsPreset    bool           `json:"is_preset"`   // 是否预设主题
+	Tags        []string       `json:"tags"`        // 标签
+	CreatedAt   time.Time      `json:"created_at"`  // 创建时间
+	Author      string         `json:"author"`      // 作者
+	Thumbnail   string         `json:"thumbnail"`   // 缩略图
 }
 
 // BrandAsset 品牌资产
 type BrandAsset struct {
-	ID          string    `json:"id"`           // 资产 ID
-	Name        string    `json:"name"`         // 资产名称
-	Type        string    `json:"type"`         // 类型(image/icon/font等)
-	Path        string    `json:"path"`         // 存储路径
-	Size        int64     `json:"size"`         // 文件大小
-	MimeType    string    `json:"mime_type"`    // MIME 类型
-	Version     int       `json:"version"`      // 版本号
-	UploadedAt  time.Time `json:"uploaded_at"`  // 上传时间
-	UploadedBy  string    `json:"uploaded_by"`  // 上传者
-	Checksum    string    `json:"checksum"`     // 校验和
-	Tags        []string  `json:"tags"`         // 标签
+	ID         string    `json:"id"`          // 资产 ID
+	Name       string    `json:"name"`        // 资产名称
+	Type       string    `json:"type"`        // 类型(image/icon/font等)
+	Path       string    `json:"path"`        // 存储路径
+	Size       int64     `json:"size"`        // 文件大小
+	MimeType   string    `json:"mime_type"`   // MIME 类型
+	Version    int       `json:"version"`     // 版本号
+	UploadedAt time.Time `json:"uploaded_at"` // 上传时间
+	UploadedBy string    `json:"uploaded_by"` // 上传者
+	Checksum   string    `json:"checksum"`    // 校验和
+	Tags       []string  `json:"tags"`        // 标签
 }
 
 // Template 品牌模板
 type Template struct {
-	ID          string         `json:"id"`           // 模板 ID
-	Name        string         `json:"name"`         // 模板名称
-	Description string         `json:"description"`  // 模板描述
-	Category    string         `json:"category"`     // 分类(enterprise/personal/creative)
-	Config      BrandingConfig `json:"config"`       // 配置
-	Preview     string         `json:"preview"`      // 预览图
+	ID          string         `json:"id"`          // 模板 ID
+	Name        string         `json:"name"`        // 模板名称
+	Description string         `json:"description"` // 模板描述
+	Category    string         `json:"category"`    // 分类(enterprise/personal/creative)
+	Config      BrandingConfig `json:"config"`      // 配置
+	Preview     string         `json:"preview"`     // 预览图
 }
 
 // Locale 多语言配置
 type Locale struct {
-	Code        string            `json:"code"`         // 语言代码
-	Name        string            `json:"name"`         // 语言名称
-	Direction   string            `json:"direction"`    // 文本方向(ltr/rtl)
-	BrandNames  map[string]string `json:"brand_names"`  // 多语言品牌名
-	Slogans     map[string]string `json:"slogans"`      // 多语言标语
-	DateFormat  string            `json:"date_format"`  // 日期格式
+	Code       string            `json:"code"`        // 语言代码
+	Name       string            `json:"name"`        // 语言名称
+	Direction  string            `json:"direction"`   // 文本方向(ltr/rtl)
+	BrandNames map[string]string `json:"brand_names"` // 多语言品牌名
+	Slogans    map[string]string `json:"slogans"`     // 多语言标语
+	DateFormat string            `json:"date_format"` // 日期格式
 }
 
 // ConfigSnapshot 配置快照
 type ConfigSnapshot struct {
-	Timestamp time.Time       `json:"timestamp"`    // 快照时间
-	Config    BrandingConfig  `json:"config"`       // 配置快照
-	Reason    string          `json:"reason"`       // 变更原因
+	Timestamp time.Time      `json:"timestamp"` // 快照时间
+	Config    BrandingConfig `json:"config"`    // 配置快照
+	Reason    string         `json:"reason"`    // 变更原因
 }
 
 // init 注册模块初始化
@@ -273,13 +273,13 @@ func (e *BrandingEngine) ExportConfig() ([]byte, error) {
 	defer e.mu.Unlock()
 
 	export := struct {
-		Config    *BrandingConfig        `json:"config"`
-		Themes    map[string]*Theme      `json:"themes"`
-		Templates map[string]*Template   `json:"templates"`
-		CSSVars   map[string]string      `json:"css_vars"`
-		Locales   map[string]*Locale     `json:"locales"`
-		ExportAt  time.Time              `json:"export_at"`
-		Version   string                 `json:"version"`
+		Config    *BrandingConfig      `json:"config"`
+		Themes    map[string]*Theme    `json:"themes"`
+		Templates map[string]*Template `json:"templates"`
+		CSSVars   map[string]string    `json:"css_vars"`
+		Locales   map[string]*Locale   `json:"locales"`
+		ExportAt  time.Time            `json:"export_at"`
+		Version   string               `json:"version"`
 	}{
 		Config:    e.config,
 		Themes:    e.themes,
@@ -304,9 +304,9 @@ func (e *BrandingEngine) ImportConfig(data []byte) error {
 	defer e.mu.Unlock()
 
 	var importData struct {
-		Config    *BrandingConfig      `json:"config"`
-		Themes    map[string]*Theme    `json:"themes"`
-		CSSVars   map[string]string    `json:"css_vars"`
+		Config  *BrandingConfig   `json:"config"`
+		Themes  map[string]*Theme `json:"themes"`
+		CSSVars map[string]string `json:"css_vars"`
 	}
 
 	if err := json.Unmarshal(data, &importData); err != nil {
@@ -573,11 +573,11 @@ func (e *BrandingEngine) defaultConfig() *BrandingConfig {
 	return &BrandingConfig{
 		Name: "NAS-OS",
 		Logo: LogoConfig{
-			Primary:   "/assets/logo.svg",
-			Favicon:   "/assets/favicon.ico",
-			Width:     200,
-			Height:    60,
-			AltText:   "NAS-OS Logo",
+			Primary: "/assets/logo.svg",
+			Favicon: "/assets/favicon.ico",
+			Width:   200,
+			Height:  60,
+			AltText: "NAS-OS Logo",
 		},
 		Colors: ColorScheme{
 			Primary:    "#1976D2",

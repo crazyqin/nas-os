@@ -12,18 +12,18 @@ import (
 
 // Manager Tailscale 管理器
 type Manager struct {
-	mu          sync.RWMutex
-	logger      *zap.Logger
-	status      *TailscaleStatus
-	nodes       map[string]*TailscaleNode
-	aclPolicy   *ACLPolicy
-	subnets     map[string]*SubnetRoute
-	exitNodes   map[string]*ExitNode
-	dnsConfig   *DNSConfig
-	authKeys    map[string]*AuthKey
-	stats       *TrafficStats
-	stopCh      chan struct{}
-	running     bool
+	mu              sync.RWMutex
+	logger          *zap.Logger
+	status          *TailscaleStatus
+	nodes           map[string]*TailscaleNode
+	aclPolicy       *ACLPolicy
+	subnets         map[string]*SubnetRoute
+	exitNodes       map[string]*ExitNode
+	dnsConfig       *DNSConfig
+	authKeys        map[string]*AuthKey
+	stats           *TrafficStats
+	stopCh          chan struct{}
+	running         bool
 	collectInterval time.Duration
 }
 
@@ -157,8 +157,8 @@ func (m *Manager) initDefaults() {
 
 	// 流量统计
 	m.stats = &TrafficStats{
-		InboundBytes:  1024 * 1024 * 100,  // 100MB
-		OutboundBytes: 1024 * 1024 * 50,   // 50MB
+		InboundBytes:  1024 * 1024 * 100, // 100MB
+		OutboundBytes: 1024 * 1024 * 50,  // 50MB
 		Connections:   5,
 		ActivePeers:   3,
 		Latency:       20,

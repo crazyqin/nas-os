@@ -16,11 +16,11 @@ import (
 type ProtocolType string
 
 const (
-	ProtocolSMB     ProtocolType = "smb"
-	ProtocolNFS     ProtocolType = "nfs"
-	ProtocolWebDAV  ProtocolType = "webdav"
-	ProtocolLocal   ProtocolType = "local"
-	ProtocolS3      ProtocolType = "s3"
+	ProtocolSMB    ProtocolType = "smb"
+	ProtocolNFS    ProtocolType = "nfs"
+	ProtocolWebDAV ProtocolType = "webdav"
+	ProtocolLocal  ProtocolType = "local"
+	ProtocolS3     ProtocolType = "s3"
 )
 
 // ProtocolStatus 协议状态
@@ -35,41 +35,41 @@ const (
 
 // FileInfo 文件信息（协议无关）
 type FileInfo struct {
-	Path        string       `json:"path"`
-	Name        string       `json:"name"`
-	Size        int64        `json:"size"`
-	IsDir       bool         `json:"isDir"`
-	Mode        uint32       `json:"mode"`
-	ModTime     time.Time    `json:"modTime"`
-	AccessTime  time.Time    `json:"accessTime"`
-	CreateTime  time.Time    `json:"createTime"`
-	Owner       string       `json:"owner"`
-	Group       string       `json:"group"`
-	ContentType string       `json:"contentType"`
-	Protocol    ProtocolType `json:"protocol"`
+	Path        string         `json:"path"`
+	Name        string         `json:"name"`
+	Size        int64          `json:"size"`
+	IsDir       bool           `json:"isDir"`
+	Mode        uint32         `json:"mode"`
+	ModTime     time.Time      `json:"modTime"`
+	AccessTime  time.Time      `json:"accessTime"`
+	CreateTime  time.Time      `json:"createTime"`
+	Owner       string         `json:"owner"`
+	Group       string         `json:"group"`
+	ContentType string         `json:"contentType"`
+	Protocol    ProtocolType   `json:"protocol"`
 	Attributes  map[string]any `json:"attributes,omitempty"`
 }
 
 // ProtocolConfig 协议配置
 type ProtocolConfig struct {
-	Type     ProtocolType     `json:"type"`
-	Endpoint string           `json:"endpoint"`
-	Username string           `json:"username,omitempty"`
-	Password string           `json:"password,omitempty"`
-	Domain   string           `json:"domain,omitempty"`
+	Type     ProtocolType      `json:"type"`
+	Endpoint string            `json:"endpoint"`
+	Username string            `json:"username,omitempty"`
+	Password string            `json:"password,omitempty"`
+	Domain   string            `json:"domain,omitempty"`
 	Options  map[string]string `json:"options,omitempty"`
-	Timeout  time.Duration    `json:"timeout"`
-	MaxConns int              `json:"maxConns"`
+	Timeout  time.Duration     `json:"timeout"`
+	MaxConns int               `json:"maxConns"`
 }
 
 // ProtocolConnection 协议连接
 type ProtocolConnection struct {
-	Config    *ProtocolConfig  `json:"config"`
-	Status    ProtocolStatus   `json:"status"`
-	ConnectedAt time.Time      `json:"connectedAt"`
-	LastUsed  time.Time        `json:"lastUsed"`
-	Error     string           `json:"error,omitempty"`
-	connID    string
+	Config      *ProtocolConfig `json:"config"`
+	Status      ProtocolStatus  `json:"status"`
+	ConnectedAt time.Time       `json:"connectedAt"`
+	LastUsed    time.Time       `json:"lastUsed"`
+	Error       string          `json:"error,omitempty"`
+	connID      string
 }
 
 // ProtocolAdapter 协议适配器接口
@@ -99,30 +99,30 @@ type UnifiedFileSystem struct {
 
 // MountPoint 挂载点
 type MountPoint struct {
-	Path       string         `json:"path"`
-	Protocol   ProtocolType   `json:"protocol"`
-	RemotePath string         `json:"remotePath"`
+	Path       string          `json:"path"`
+	Protocol   ProtocolType    `json:"protocol"`
+	RemotePath string          `json:"remotePath"`
 	Config     *ProtocolConfig `json:"config"`
-	ReadOnly   bool           `json:"readOnly"`
-	AutoMount  bool           `json:"autoMount"`
-	MountedAt  time.Time      `json:"mountedAt"`
-	IsActive   bool           `json:"isActive"`
+	ReadOnly   bool            `json:"readOnly"`
+	AutoMount  bool            `json:"autoMount"`
+	MountedAt  time.Time       `json:"mountedAt"`
+	IsActive   bool            `json:"isActive"`
 }
 
 // TransferTask 传输任务
 type TransferTask struct {
-	ID          string        `json:"id"`
-	SrcPath     string        `json:"srcPath"`
-	DstPath     string        `json:"dstPath"`
-	SrcProtocol ProtocolType  `json:"srcProtocol"`
-	DstProtocol ProtocolType  `json:"dstProtocol"`
-	Size        int64         `json:"size"`
-	Transferred int64         `json:"transferred"`
-	Status      string        `json:"status"`
-	Error       string        `json:"error,omitempty"`
-	StartTime   time.Time     `json:"startTime"`
-	EndTime     *time.Time    `json:"endTime,omitempty"`
-	Speed       int64         `json:"speed"` // bytes/sec
+	ID          string       `json:"id"`
+	SrcPath     string       `json:"srcPath"`
+	DstPath     string       `json:"dstPath"`
+	SrcProtocol ProtocolType `json:"srcProtocol"`
+	DstProtocol ProtocolType `json:"dstProtocol"`
+	Size        int64        `json:"size"`
+	Transferred int64        `json:"transferred"`
+	Status      string       `json:"status"`
+	Error       string       `json:"error,omitempty"`
+	StartTime   time.Time    `json:"startTime"`
+	EndTime     *time.Time   `json:"endTime,omitempty"`
+	Speed       int64        `json:"speed"` // bytes/sec
 }
 
 // RateLimiter 速率限制器
@@ -557,17 +557,35 @@ func (a *SMBAdapter) Connect(_ context.Context, _ *ProtocolConfig) error {
 	a.connected = true
 	return nil
 }
-func (a *SMBAdapter) Disconnect() error                                    { a.connected = false; return nil }
-func (a *SMBAdapter) Stat(_ context.Context, _ string) (*FileInfo, error)  { return nil, errors.New("smb: not implemented") }
-func (a *SMBAdapter) ReadDir(_ context.Context, _ string) ([]*FileInfo, error) { return nil, errors.New("smb: not implemented") }
-func (a *SMBAdapter) Read(_ context.Context, _ string) (io.ReadCloser, error)  { return nil, errors.New("smb: not implemented") }
-func (a *SMBAdapter) Write(_ context.Context, _ string, _ io.Reader, _ int64) error { return errors.New("smb: not implemented") }
-func (a *SMBAdapter) Delete(_ context.Context, _ string) error             { return errors.New("smb: not implemented") }
-func (a *SMBAdapter) Mkdir(_ context.Context, _ string) error              { return errors.New("smb: not implemented") }
-func (a *SMBAdapter) Rename(_ context.Context, _, _ string) error          { return errors.New("smb: not implemented") }
-func (a *SMBAdapter) Copy(_ context.Context, _, _ string) error            { return errors.New("smb: not implemented") }
+func (a *SMBAdapter) Disconnect() error { a.connected = false; return nil }
+func (a *SMBAdapter) Stat(_ context.Context, _ string) (*FileInfo, error) {
+	return nil, errors.New("smb: not implemented")
+}
+func (a *SMBAdapter) ReadDir(_ context.Context, _ string) ([]*FileInfo, error) {
+	return nil, errors.New("smb: not implemented")
+}
+func (a *SMBAdapter) Read(_ context.Context, _ string) (io.ReadCloser, error) {
+	return nil, errors.New("smb: not implemented")
+}
+func (a *SMBAdapter) Write(_ context.Context, _ string, _ io.Reader, _ int64) error {
+	return errors.New("smb: not implemented")
+}
+func (a *SMBAdapter) Delete(_ context.Context, _ string) error {
+	return errors.New("smb: not implemented")
+}
+func (a *SMBAdapter) Mkdir(_ context.Context, _ string) error {
+	return errors.New("smb: not implemented")
+}
+func (a *SMBAdapter) Rename(_ context.Context, _, _ string) error {
+	return errors.New("smb: not implemented")
+}
+func (a *SMBAdapter) Copy(_ context.Context, _, _ string) error {
+	return errors.New("smb: not implemented")
+}
 func (a *SMBAdapter) GetStatus() ProtocolStatus {
-	if a.connected { return StatusActive }
+	if a.connected {
+		return StatusActive
+	}
 	return StatusInactive
 }
 
@@ -578,17 +596,35 @@ func (a *NFSAdapter) Connect(_ context.Context, _ *ProtocolConfig) error {
 	a.connected = true
 	return nil
 }
-func (a *NFSAdapter) Disconnect() error                                    { a.connected = false; return nil }
-func (a *NFSAdapter) Stat(_ context.Context, _ string) (*FileInfo, error)  { return nil, errors.New("nfs: not implemented") }
-func (a *NFSAdapter) ReadDir(_ context.Context, _ string) ([]*FileInfo, error) { return nil, errors.New("nfs: not implemented") }
-func (a *NFSAdapter) Read(_ context.Context, _ string) (io.ReadCloser, error)  { return nil, errors.New("nfs: not implemented") }
-func (a *NFSAdapter) Write(_ context.Context, _ string, _ io.Reader, _ int64) error { return errors.New("nfs: not implemented") }
-func (a *NFSAdapter) Delete(_ context.Context, _ string) error             { return errors.New("nfs: not implemented") }
-func (a *NFSAdapter) Mkdir(_ context.Context, _ string) error              { return errors.New("nfs: not implemented") }
-func (a *NFSAdapter) Rename(_ context.Context, _, _ string) error          { return errors.New("nfs: not implemented") }
-func (a *NFSAdapter) Copy(_ context.Context, _, _ string) error            { return errors.New("nfs: not implemented") }
+func (a *NFSAdapter) Disconnect() error { a.connected = false; return nil }
+func (a *NFSAdapter) Stat(_ context.Context, _ string) (*FileInfo, error) {
+	return nil, errors.New("nfs: not implemented")
+}
+func (a *NFSAdapter) ReadDir(_ context.Context, _ string) ([]*FileInfo, error) {
+	return nil, errors.New("nfs: not implemented")
+}
+func (a *NFSAdapter) Read(_ context.Context, _ string) (io.ReadCloser, error) {
+	return nil, errors.New("nfs: not implemented")
+}
+func (a *NFSAdapter) Write(_ context.Context, _ string, _ io.Reader, _ int64) error {
+	return errors.New("nfs: not implemented")
+}
+func (a *NFSAdapter) Delete(_ context.Context, _ string) error {
+	return errors.New("nfs: not implemented")
+}
+func (a *NFSAdapter) Mkdir(_ context.Context, _ string) error {
+	return errors.New("nfs: not implemented")
+}
+func (a *NFSAdapter) Rename(_ context.Context, _, _ string) error {
+	return errors.New("nfs: not implemented")
+}
+func (a *NFSAdapter) Copy(_ context.Context, _, _ string) error {
+	return errors.New("nfs: not implemented")
+}
 func (a *NFSAdapter) GetStatus() ProtocolStatus {
-	if a.connected { return StatusActive }
+	if a.connected {
+		return StatusActive
+	}
 	return StatusInactive
 }
 
@@ -599,17 +635,35 @@ func (a *WebDAVAdapter) Connect(_ context.Context, _ *ProtocolConfig) error {
 	a.connected = true
 	return nil
 }
-func (a *WebDAVAdapter) Disconnect() error                                    { a.connected = false; return nil }
-func (a *WebDAVAdapter) Stat(_ context.Context, _ string) (*FileInfo, error)  { return nil, errors.New("webdav: not implemented") }
-func (a *WebDAVAdapter) ReadDir(_ context.Context, _ string) ([]*FileInfo, error) { return nil, errors.New("webdav: not implemented") }
-func (a *WebDAVAdapter) Read(_ context.Context, _ string) (io.ReadCloser, error)  { return nil, errors.New("webdav: not implemented") }
-func (a *WebDAVAdapter) Write(_ context.Context, _ string, _ io.Reader, _ int64) error { return errors.New("webdav: not implemented") }
-func (a *WebDAVAdapter) Delete(_ context.Context, _ string) error             { return errors.New("webdav: not implemented") }
-func (a *WebDAVAdapter) Mkdir(_ context.Context, _ string) error              { return errors.New("webdav: not implemented") }
-func (a *WebDAVAdapter) Rename(_ context.Context, _, _ string) error          { return errors.New("webdav: not implemented") }
-func (a *WebDAVAdapter) Copy(_ context.Context, _, _ string) error            { return errors.New("webdav: not implemented") }
+func (a *WebDAVAdapter) Disconnect() error { a.connected = false; return nil }
+func (a *WebDAVAdapter) Stat(_ context.Context, _ string) (*FileInfo, error) {
+	return nil, errors.New("webdav: not implemented")
+}
+func (a *WebDAVAdapter) ReadDir(_ context.Context, _ string) ([]*FileInfo, error) {
+	return nil, errors.New("webdav: not implemented")
+}
+func (a *WebDAVAdapter) Read(_ context.Context, _ string) (io.ReadCloser, error) {
+	return nil, errors.New("webdav: not implemented")
+}
+func (a *WebDAVAdapter) Write(_ context.Context, _ string, _ io.Reader, _ int64) error {
+	return errors.New("webdav: not implemented")
+}
+func (a *WebDAVAdapter) Delete(_ context.Context, _ string) error {
+	return errors.New("webdav: not implemented")
+}
+func (a *WebDAVAdapter) Mkdir(_ context.Context, _ string) error {
+	return errors.New("webdav: not implemented")
+}
+func (a *WebDAVAdapter) Rename(_ context.Context, _, _ string) error {
+	return errors.New("webdav: not implemented")
+}
+func (a *WebDAVAdapter) Copy(_ context.Context, _, _ string) error {
+	return errors.New("webdav: not implemented")
+}
 func (a *WebDAVAdapter) GetStatus() ProtocolStatus {
-	if a.connected { return StatusActive }
+	if a.connected {
+		return StatusActive
+	}
 	return StatusInactive
 }
 
@@ -620,16 +674,34 @@ func (a *S3Adapter) Connect(_ context.Context, _ *ProtocolConfig) error {
 	a.connected = true
 	return nil
 }
-func (a *S3Adapter) Disconnect() error                                    { a.connected = false; return nil }
-func (a *S3Adapter) Stat(_ context.Context, _ string) (*FileInfo, error)  { return nil, errors.New("s3: not implemented") }
-func (a *S3Adapter) ReadDir(_ context.Context, _ string) ([]*FileInfo, error) { return nil, errors.New("s3: not implemented") }
-func (a *S3Adapter) Read(_ context.Context, _ string) (io.ReadCloser, error)  { return nil, errors.New("s3: not implemented") }
-func (a *S3Adapter) Write(_ context.Context, _ string, _ io.Reader, _ int64) error { return errors.New("s3: not implemented") }
-func (a *S3Adapter) Delete(_ context.Context, _ string) error             { return errors.New("s3: not implemented") }
-func (a *S3Adapter) Mkdir(_ context.Context, _ string) error              { return errors.New("s3: not implemented") }
-func (a *S3Adapter) Rename(_ context.Context, _, _ string) error          { return errors.New("s3: not implemented") }
-func (a *S3Adapter) Copy(_ context.Context, _, _ string) error            { return errors.New("s3: not implemented") }
+func (a *S3Adapter) Disconnect() error { a.connected = false; return nil }
+func (a *S3Adapter) Stat(_ context.Context, _ string) (*FileInfo, error) {
+	return nil, errors.New("s3: not implemented")
+}
+func (a *S3Adapter) ReadDir(_ context.Context, _ string) ([]*FileInfo, error) {
+	return nil, errors.New("s3: not implemented")
+}
+func (a *S3Adapter) Read(_ context.Context, _ string) (io.ReadCloser, error) {
+	return nil, errors.New("s3: not implemented")
+}
+func (a *S3Adapter) Write(_ context.Context, _ string, _ io.Reader, _ int64) error {
+	return errors.New("s3: not implemented")
+}
+func (a *S3Adapter) Delete(_ context.Context, _ string) error {
+	return errors.New("s3: not implemented")
+}
+func (a *S3Adapter) Mkdir(_ context.Context, _ string) error {
+	return errors.New("s3: not implemented")
+}
+func (a *S3Adapter) Rename(_ context.Context, _, _ string) error {
+	return errors.New("s3: not implemented")
+}
+func (a *S3Adapter) Copy(_ context.Context, _, _ string) error {
+	return errors.New("s3: not implemented")
+}
 func (a *S3Adapter) GetStatus() ProtocolStatus {
-	if a.connected { return StatusActive }
+	if a.connected {
+		return StatusActive
+	}
 	return StatusInactive
 }

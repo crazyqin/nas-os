@@ -48,16 +48,16 @@ func (m *Manager) initDefaultPolicies() {
 		{
 			ID: "policy-001", Name: "默认拒绝策略", Description: "未明确允许的访问将被拒绝",
 			Priority: 1, Enabled: true,
-			Subject: PolicySubject{Type: "*", IDs: []string{"*"}},
+			Subject:  PolicySubject{Type: "*", IDs: []string{"*"}},
 			Resource: PolicyResource{Type: "*", IDs: []string{"*"}},
-			Action: "deny",
+			Action:   "deny",
 		},
 		{
 			ID: "policy-002", Name: "管理员完全访问", Description: "管理员拥有完全访问权限",
 			Priority: 100, Enabled: true,
-			Subject: PolicySubject{Type: "user", Roles: []string{"admin"}},
+			Subject:  PolicySubject{Type: "user", Roles: []string{"admin"}},
 			Resource: PolicyResource{Type: "*", IDs: []string{"*"}},
-			Action: "allow",
+			Action:   "allow",
 			Conditions: []Condition{
 				{Type: "device-trust", Operator: "greater-than", Value: "80"},
 			},
@@ -65,9 +65,9 @@ func (m *Manager) initDefaultPolicies() {
 		{
 			ID: "policy-003", Name: "MFA 要求策略", Description: "敏感资源需要多因素认证",
 			Priority: 50, Enabled: true,
-			Subject: PolicySubject{Type: "*", IDs: []string{"*"}},
+			Subject:  PolicySubject{Type: "*", IDs: []string{"*"}},
 			Resource: PolicyResource{Type: "database", IDs: []string{"*"}},
-			Action: "require-mfa",
+			Action:   "require-mfa",
 			Constraints: []Constraint{
 				{Type: "mfa-required", Value: "true"},
 			},

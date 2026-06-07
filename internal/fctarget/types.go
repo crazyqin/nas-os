@@ -7,19 +7,19 @@ import (
 
 // FCTarget represents a Fibre Channel target.
 type FCTarget struct {
-	ID            string      `json:"id"`
-	Name          string      `json:"name"`                    // Friendly name
-	Alias         string      `json:"alias,omitempty"`         // Target alias
-	WWPN          string      `json:"wwpn"`                    // World Wide Port Name
-	WWNN          string      `json:"wwnn"`                    // World Wide Node Name
-	Mode          TargetMode  `json:"mode"`                    // Target mode
-	LUNs          []*LUN      `json:"luns"`                    // Logical Unit Numbers
-	Ports         []*Port     `json:"ports"`                   // FC ports
-	Zones         []*Zone     `json:"zones"`                   // FC zones
-	MaxSessions   int         `json:"maxSessions"`             // Maximum concurrent sessions
-	Enabled       bool        `json:"enabled"`
-	CreatedAt     time.Time   `json:"createdAt"`
-	UpdatedAt     time.Time   `json:"updatedAt"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`            // Friendly name
+	Alias       string     `json:"alias,omitempty"` // Target alias
+	WWPN        string     `json:"wwpn"`            // World Wide Port Name
+	WWNN        string     `json:"wwnn"`            // World Wide Node Name
+	Mode        TargetMode `json:"mode"`            // Target mode
+	LUNs        []*LUN     `json:"luns"`            // Logical Unit Numbers
+	Ports       []*Port    `json:"ports"`           // FC ports
+	Zones       []*Zone    `json:"zones"`           // FC zones
+	MaxSessions int        `json:"maxSessions"`     // Maximum concurrent sessions
+	Enabled     bool       `json:"enabled"`
+	CreatedAt   time.Time  `json:"createdAt"`
+	UpdatedAt   time.Time  `json:"updatedAt"`
 }
 
 // TargetMode defines the FC target operating mode.
@@ -44,16 +44,16 @@ type TargetInput struct {
 
 // LUN represents a Fibre Channel Logical Unit Number.
 type LUN struct {
-	ID        string         `json:"id"`
-	Number    int            `json:"number"`    // LUN number (0-255)
-	Name      string         `json:"name"`      // Friendly name
-	Type      LUNType        `json:"type"`      // file or block
-	Path      string         `json:"path"`      // File path or block device path
-	Size      int64          `json:"size"`      // Size in bytes
-	BlockSize int            `json:"blockSize"` // Block size (512, 4096, etc.)
-	ReadOnly  bool           `json:"readOnly"`
-	CreatedAt time.Time      `json:"createdAt"`
-	UpdatedAt time.Time      `json:"updatedAt"`
+	ID        string    `json:"id"`
+	Number    int       `json:"number"`    // LUN number (0-255)
+	Name      string    `json:"name"`      // Friendly name
+	Type      LUNType   `json:"type"`      // file or block
+	Path      string    `json:"path"`      // File path or block device path
+	Size      int64     `json:"size"`      // Size in bytes
+	BlockSize int       `json:"blockSize"` // Block size (512, 4096, etc.)
+	ReadOnly  bool      `json:"readOnly"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // LUNType defines the type of LUN backing.
@@ -78,9 +78,9 @@ type LUNInput struct {
 
 // LUNMapping represents a LUN mapping to an initiator.
 type LUNMapping struct {
-	LUNID        string `json:"lunId"`
+	LUNID         string `json:"lunId"`
 	InitiatorWWPN string `json:"initiatorWwpn"`
-	LUNNumber    int    `json:"lunNumber"`
+	LUNNumber     int    `json:"lunNumber"`
 }
 
 // LUNMappingInput for creating LUN mappings.
@@ -92,12 +92,12 @@ type LUNMappingInput struct {
 // Port represents a Fibre Channel port.
 type Port struct {
 	ID        string    `json:"id"`
-	Name      string    `json:"name"`      // Port name (e.g., fc0, fc1)
-	WWPN      string    `json:"wwpn"`      // World Wide Port Name
-	WWNN      string    `json:"wwnn"`      // World Wide Node Name
-	Speed     string    `json:"speed"`     // Port speed (8G, 16G, 32G, etc.)
-	State     PortState `json:"state"`     // Port state
-	Type      PortType  `json:"type"`      // Port type
+	Name      string    `json:"name"`  // Port name (e.g., fc0, fc1)
+	WWPN      string    `json:"wwpn"`  // World Wide Port Name
+	WWNN      string    `json:"wwnn"`  // World Wide Node Name
+	Speed     string    `json:"speed"` // Port speed (8G, 16G, 32G, etc.)
+	State     PortState `json:"state"` // Port state
+	Type      PortType  `json:"type"`  // Port type
 	Enabled   bool      `json:"enabled"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
@@ -144,22 +144,22 @@ type PortInput struct {
 
 // Session represents an active FC session.
 type Session struct {
-	ID           string    `json:"id"`
-	TargetWWPN   string    `json:"targetWwpn"`
-	InitiatorWWPN string   `json:"initiatorWwpn"`
-	PortID       string    `json:"portId"`
-	State        string    `json:"state"`
-	ConnectedAt  time.Time `json:"connectedAt"`
+	ID            string    `json:"id"`
+	TargetWWPN    string    `json:"targetWwpn"`
+	InitiatorWWPN string    `json:"initiatorWwpn"`
+	PortID        string    `json:"portId"`
+	State         string    `json:"state"`
+	ConnectedAt   time.Time `json:"connectedAt"`
 }
 
 // Zone represents an FC zone.
 type Zone struct {
-	ID        string      `json:"id"`
-	Name      string      `json:"name"`      // Zone name
-	Members   []ZoneMember `json:"members"`   // Zone members
-	Enabled   bool        `json:"enabled"`
-	CreatedAt time.Time   `json:"createdAt"`
-	UpdatedAt time.Time   `json:"updatedAt"`
+	ID        string       `json:"id"`
+	Name      string       `json:"name"`    // Zone name
+	Members   []ZoneMember `json:"members"` // Zone members
+	Enabled   bool         `json:"enabled"`
+	CreatedAt time.Time    `json:"createdAt"`
+	UpdatedAt time.Time    `json:"updatedAt"`
 }
 
 // ZoneMember represents a member of an FC zone.
@@ -176,24 +176,24 @@ type ZoneInput struct {
 
 // TargetStatus represents target operational status.
 type TargetStatus struct {
-	ID            string     `json:"id"`
-	WWPN          string     `json:"wwpn"`
-	WWNN          string     `json:"wwnn"`
-	Running       bool       `json:"running"`
-	Sessions      []*Session `json:"sessions"`
-	SessionCount  int        `json:"sessionCount"`
-	MaxSessions   int        `json:"maxSessions"`
-	LUNCount      int        `json:"lunCount"`
-	PortCount     int        `json:"portCount"`
+	ID           string     `json:"id"`
+	WWPN         string     `json:"wwpn"`
+	WWNN         string     `json:"wwnn"`
+	Running      bool       `json:"running"`
+	Sessions     []*Session `json:"sessions"`
+	SessionCount int        `json:"sessionCount"`
+	MaxSessions  int        `json:"maxSessions"`
+	LUNCount     int        `json:"lunCount"`
+	PortCount    int        `json:"portCount"`
 }
 
 // PerformanceStats represents FC performance statistics.
 type PerformanceStats struct {
-	TargetID      string    `json:"targetId"`
-	IOPS          IOPSStats `json:"iops"`
-	Throughput    ThroughputStats `json:"throughput"`
-	Latency       LatencyStats `json:"latency"`
-	CollectedAt   time.Time `json:"collectedAt"`
+	TargetID    string          `json:"targetId"`
+	IOPS        IOPSStats       `json:"iops"`
+	Throughput  ThroughputStats `json:"throughput"`
+	Latency     LatencyStats    `json:"latency"`
+	CollectedAt time.Time       `json:"collectedAt"`
 }
 
 // IOPSStats represents IOPS statistics.

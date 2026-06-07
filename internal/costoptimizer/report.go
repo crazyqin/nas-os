@@ -25,9 +25,9 @@ const (
 
 // StorageCostReport 完整存储成本报告
 type StorageCostReport struct {
-	ReportID    string    `json:"report_id"`
-	ReportType  ReportType `json:"report_type"`
-	GeneratedAt time.Time `json:"generated_at"`
+	ReportID    string           `json:"report_id"`
+	ReportType  ReportType       `json:"report_type"`
+	GeneratedAt time.Time        `json:"generated_at"`
 	Period      ReportPeriodInfo `json:"period"`
 
 	// 总览
@@ -71,25 +71,25 @@ type CostOverview struct {
 
 // CostBreakdownDetail 成本明细
 type CostBreakdownDetail struct {
-	ByTier     []TierCostDetail  `json:"by_tier"`
-	ByDataType []TypeCostDetail  `json:"by_data_type"`
+	ByTier     []TierCostDetail `json:"by_tier"`
+	ByDataType []TypeCostDetail `json:"by_data_type"`
 }
 
 // TierCostDetail 各层成本明细
 type TierCostDetail struct {
-	Tier       StorageTier `json:"tier"`
-	TierName   string      `json:"tier_name"`
-	DataTB     float64     `json:"data_tb"`
-	Cost       float64     `json:"cost"`
-	Percent    float64     `json:"percent"`
+	Tier     StorageTier `json:"tier"`
+	TierName string      `json:"tier_name"`
+	DataTB   float64     `json:"data_tb"`
+	Cost     float64     `json:"cost"`
+	Percent  float64     `json:"percent"`
 }
 
 // TypeCostDetail 各类型成本明细
 type TypeCostDetail struct {
-	DataType  DataType `json:"data_type"`
-	DataTB    float64  `json:"data_tb"`
-	Cost      float64  `json:"cost"`
-	Percent   float64  `json:"percent"`
+	DataType DataType `json:"data_type"`
+	DataTB   float64  `json:"data_tb"`
+	Cost     float64  `json:"cost"`
+	Percent  float64  `json:"percent"`
 }
 
 // OptimizationSummary 优化建议汇总
@@ -104,15 +104,15 @@ type OptimizationSummary struct {
 
 // CostForecast 成本预测
 type CostForecast struct {
-	MonthlyGrowthRate float64       `json:"monthly_growth_rate"` // 月增长率
-	Projections       []CostPoint   `json:"projections"`         // 预测点
+	MonthlyGrowthRate float64     `json:"monthly_growth_rate"` // 月增长率
+	Projections       []CostPoint `json:"projections"`         // 预测点
 }
 
 // CostPoint 成本预测点
 type CostPoint struct {
-	Date      time.Time `json:"date"`
-	Cost      float64   `json:"cost"`
-	DataTB    float64   `json:"data_tb"`
+	Date   time.Time `json:"date"`
+	Cost   float64   `json:"cost"`
+	DataTB float64   `json:"data_tb"`
 }
 
 // GenerateMonthlyReport 生成月度报告
@@ -133,8 +133,8 @@ func (rg *ReportGenerator) generateReport(reportType ReportType) *StorageCostRep
 		ReportType:  reportType,
 		GeneratedAt: now,
 		Period: ReportPeriodInfo{
-			Type:      string(reportType),
-			EndDate:   now,
+			Type:    string(reportType),
+			EndDate: now,
 		},
 	}
 

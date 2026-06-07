@@ -216,9 +216,9 @@ func (nms *NodeManagementService) BroadcastCommand(command NodeCommand, filter D
 // CreateSyncCommand 创建同步命令
 func CreateSyncCommand(paths []string) NodeCommand {
 	return NodeCommand{
-		Command:  "sync",
-		Params:   map[string]interface{}{"paths": paths},
-		Priority: 7,
+		Command:   "sync",
+		Params:    map[string]interface{}{"paths": paths},
+		Priority:  7,
 		ExpiresAt: time.Now().Add(10 * time.Minute),
 	}
 }
@@ -226,10 +226,10 @@ func CreateSyncCommand(paths []string) NodeCommand {
 // CreateBackupCommand 创建备份命令
 func CreateBackupCommand(sourcePath, targetPath string, schedule string) NodeCommand {
 	return NodeCommand{
-		Command:  "backup",
+		Command: "backup",
 		Params: map[string]interface{}{
-			"source": sourcePath,
-			"target": targetPath,
+			"source":   sourcePath,
+			"target":   targetPath,
 			"schedule": schedule,
 		},
 		Priority:  8,
@@ -240,8 +240,8 @@ func CreateBackupCommand(sourcePath, targetPath string, schedule string) NodeCom
 // CreateRestartCommand 创建重启命令
 func CreateRestartCommand(reason string) NodeCommand {
 	return NodeCommand{
-		Command:  "restart",
-		Params:   map[string]interface{}{"reason": reason},
+		Command:   "restart",
+		Params:    map[string]interface{}{"reason": reason},
 		Priority:  10, // 最高优先级
 		ExpiresAt: time.Now().Add(2 * time.Minute),
 	}
@@ -263,8 +263,8 @@ func CreateUpdateCommand(version string, force bool) NodeCommand {
 // CreateHealthCheckCommand 创建健康检查命令
 func CreateHealthCheckCommand(full bool) NodeCommand {
 	return NodeCommand{
-		Command:  "health_check",
-		Params:   map[string]interface{}{"full": full},
+		Command:   "health_check",
+		Params:    map[string]interface{}{"full": full},
 		Priority:  5,
 		ExpiresAt: time.Now().Add(5 * time.Minute),
 	}
@@ -282,8 +282,8 @@ func (nms *NodeManagementService) SyncConfig(deviceID string) error {
 
 	// 构建配置同步命令
 	cmd := NodeCommand{
-		Command:  "config_sync",
-		Params:   map[string]interface{}{"config": config},
+		Command:   "config_sync",
+		Params:    map[string]interface{}{"config": config},
 		Priority:  6,
 		ExpiresAt: time.Now().Add(10 * time.Minute),
 	}

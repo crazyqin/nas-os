@@ -128,8 +128,8 @@ func TestHandleUPSEvent_OnBattery(t *testing.T) {
 	defer cancel()
 
 	upsStatus := UPSStatus{
-		Online:       false,
-		BatteryLevel: 50,
+		Online:        false,
+		BatteryLevel:  50,
 		BatteryHealth: "good",
 	}
 
@@ -166,9 +166,9 @@ func TestHandleUPSEvent_CriticalBattery(t *testing.T) {
 	defer cancel()
 
 	upsStatus := UPSStatus{
-		Online:        true,
-		BatteryLevel:  5, // 低于临界电量阈值10%
-		EstimatedMin:  5,
+		Online:       true,
+		BatteryLevel: 5, // 低于临界电量阈值10%
+		EstimatedMin: 5,
 	}
 
 	err := manager.HandleUPSEvent(ctx, PowerEventUPSOnBattery, upsStatus)
@@ -451,9 +451,9 @@ func TestHandleUPSEvent_CriticalBatteryShutdown(t *testing.T) {
 
 	// 模拟临界电量场景
 	upsStatus := UPSStatus{
-		Online:        true,
-		BatteryLevel:  5,
-		EstimatedMin:  2,
+		Online:       true,
+		BatteryLevel: 5,
+		EstimatedMin: 2,
 	}
 
 	err := manager.HandleUPSEvent(ctx, PowerEventUPSOnBattery, upsStatus)
@@ -465,8 +465,8 @@ func TestHandleUPSEvent_CriticalBatteryShutdown(t *testing.T) {
 
 func TestBuildMagicPacket_DifferentMACs(t *testing.T) {
 	tests := []struct {
-		mac    string
-		valid  bool
+		mac   string
+		valid bool
 	}{
 		{"00:11:22:33:44:55", true},
 		{"AA:BB:CC:DD:EE:FF", true},

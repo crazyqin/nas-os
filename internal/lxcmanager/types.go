@@ -107,17 +107,17 @@ type ResourceLimit struct {
 
 // NetworkConfig 容器网络配置.
 type NetworkConfig struct {
-	Mode        NetworkMode `json:"mode"`
-	Bridge      string      `json:"bridge,omitempty"`
-	Interface   string      `json:"interface,omitempty"`
-	IPAddress   string      `json:"ipAddress,omitempty"`
-	Gateway     string      `json:"gateway,omitempty"`
-	DNS         []string    `json:"dns,omitempty"`
-	MACAddress  string      `json:"macAddress,omitempty"`
-	VLAN        int         `json:"vlan,omitempty"`
-	MTU         int         `json:"mtu,omitempty"`
-	Firewall    bool        `json:"firewall"`
-	PortMap     []PortMap   `json:"portMap,omitempty"`
+	Mode       NetworkMode `json:"mode"`
+	Bridge     string      `json:"bridge,omitempty"`
+	Interface  string      `json:"interface,omitempty"`
+	IPAddress  string      `json:"ipAddress,omitempty"`
+	Gateway    string      `json:"gateway,omitempty"`
+	DNS        []string    `json:"dns,omitempty"`
+	MACAddress string      `json:"macAddress,omitempty"`
+	VLAN       int         `json:"vlan,omitempty"`
+	MTU        int         `json:"mtu,omitempty"`
+	Firewall   bool        `json:"firewall"`
+	PortMap    []PortMap   `json:"portMap,omitempty"`
 }
 
 // PortMap 端口映射.
@@ -137,36 +137,36 @@ type MountPoint struct {
 
 // Stats 容器统计信息.
 type Stats struct {
-	CPUUsage     float64 `json:"cpuUsage"`     // CPU 使用率 (%)
-	MemoryUsage  uint64  `json:"memoryUsage"`  // 内存使用 (MB)
-	MemoryLimit  uint64  `json:"memoryLimit"`  // 内存限制 (MB)
-	MemoryPct    float64 `json:"memoryPct"`    // 内存使用率 (%)
-	NetRX        uint64  `json:"netRx"`        // 网络接收 (bytes)
-	NetTX        uint64  `json:"netTx"`        // 网络发送 (bytes)
-	BlockRead    uint64  `json:"blockRead"`    // 块设备读取 (bytes)
-	BlockWrite   uint64  `json:"blockWrite"`   // 块设备写入 (bytes)
-	PIDs         int     `json:"pids"`         // 进程数
-	Uptime       int64   `json:"uptime"`       // 运行时间 (秒)
+	CPUUsage    float64 `json:"cpuUsage"`    // CPU 使用率 (%)
+	MemoryUsage uint64  `json:"memoryUsage"` // 内存使用 (MB)
+	MemoryLimit uint64  `json:"memoryLimit"` // 内存限制 (MB)
+	MemoryPct   float64 `json:"memoryPct"`   // 内存使用率 (%)
+	NetRX       uint64  `json:"netRx"`       // 网络接收 (bytes)
+	NetTX       uint64  `json:"netTx"`       // 网络发送 (bytes)
+	BlockRead   uint64  `json:"blockRead"`   // 块设备读取 (bytes)
+	BlockWrite  uint64  `json:"blockWrite"`  // 块设备写入 (bytes)
+	PIDs        int     `json:"pids"`        // 进程数
+	Uptime      int64   `json:"uptime"`      // 运行时间 (秒)
 }
 
 // Template 容器模板.
 type Template struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Distro      string            `json:"distro"`      // ubuntu, debian, alpine, centos 等
-	Version     string            `json:"version"`     // 22.04, 12, 3.18 等
-	Arch        string            `json:"arch"`        // amd64, arm64
-	ImageURL    string            `json:"imageUrl"`    // 模板下载 URL
-	ImageHash   string            `json:"imageHash"`   // 镜像校验和
-	Type        ContainerType     `json:"type"`
-	DefaultConfig ResourceLimit   `json:"defaultConfig"`
-	MinResources  ResourceLimit   `json:"minResources"`
-	MaxResources  ResourceLimit   `json:"maxResources"`
-	PreInstalled  []string        `json:"preInstalled,omitempty"` // 预装软件
-	CreatedAt     time.Time       `json:"createdAt"`
-	UpdatedAt     time.Time       `json:"updatedAt"`
-	BuiltIn       bool            `json:"builtIn"`               // 是否内置模板
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Description   string            `json:"description"`
+	Distro        string            `json:"distro"`    // ubuntu, debian, alpine, centos 等
+	Version       string            `json:"version"`   // 22.04, 12, 3.18 等
+	Arch          string            `json:"arch"`      // amd64, arm64
+	ImageURL      string            `json:"imageUrl"`  // 模板下载 URL
+	ImageHash     string            `json:"imageHash"` // 镜像校验和
+	Type          ContainerType     `json:"type"`
+	DefaultConfig ResourceLimit     `json:"defaultConfig"`
+	MinResources  ResourceLimit     `json:"minResources"`
+	MaxResources  ResourceLimit     `json:"maxResources"`
+	PreInstalled  []string          `json:"preInstalled,omitempty"` // 预装软件
+	CreatedAt     time.Time         `json:"createdAt"`
+	UpdatedAt     time.Time         `json:"updatedAt"`
+	BuiltIn       bool              `json:"builtIn"` // 是否内置模板
 	Tags          map[string]string `json:"tags,omitempty"`
 }
 
@@ -235,10 +235,10 @@ func DefaultResourceLimit() ResourceLimit {
 // DefaultNetworkConfig 返回默认网络配置.
 func DefaultNetworkConfig() NetworkConfig {
 	return NetworkConfig{
-		Mode:    NetworkBridge,
-		Bridge:  "lxcbr0",
+		Mode:     NetworkBridge,
+		Bridge:   "lxcbr0",
 		Firewall: true,
-		MTU:     1500,
-		DNS:     []string{"8.8.8.8", "8.8.4.4"},
+		MTU:      1500,
+		DNS:      []string{"8.8.8.8", "8.8.4.4"},
 	}
 }

@@ -25,8 +25,8 @@ const (
 type MediaType string
 
 const (
-	MediaTypeUSB  MediaType = "usb"  // USB 介质
-	MediaTypeISO  MediaType = "iso"  // ISO 镜像
+	MediaTypeUSB MediaType = "usb" // USB 介质
+	MediaTypeISO MediaType = "iso" // ISO 镜像
 )
 
 // LocationType 存储位置类型
@@ -62,14 +62,14 @@ const (
 
 // BackupOptions 备份选项
 type BackupOptions struct {
-	Type           BackupType `json:"type"`           // 备份类型
-	ParentImageID  string     `json:"parentImageId"`  // 增量备份的父镜像ID
-	Compress       bool       `json:"compress"`       // 是否压缩
-	Encrypt        bool       `json:"encrypt"`        // 是否加密
-	EncryptionKey  string     `json:"encryptionKey"`  // 加密密钥
-	ExcludePaths   []string   `json:"excludePaths"`   // 排除路径
-	LocationID     string     `json:"locationId"`     // 存储位置ID
-	Verify         bool       `json:"verify"`         // 备份后验证
+	Type          BackupType `json:"type"`          // 备份类型
+	ParentImageID string     `json:"parentImageId"` // 增量备份的父镜像ID
+	Compress      bool       `json:"compress"`      // 是否压缩
+	Encrypt       bool       `json:"encrypt"`       // 是否加密
+	EncryptionKey string     `json:"encryptionKey"` // 加密密钥
+	ExcludePaths  []string   `json:"excludePaths"`  // 排除路径
+	LocationID    string     `json:"locationId"`    // 存储位置ID
+	Verify        bool       `json:"verify"`        // 备份后验证
 }
 
 // BackupImage 备份镜像
@@ -77,27 +77,27 @@ type BackupImage struct {
 	ID            string     `json:"id"`
 	Name          string     `json:"name"`
 	Size          int64      `json:"size"`          // 字节
-	Type          BackupType `json:"type"`           // 全量/增量
-	ParentImageID string     `json:"parentImageId"`  // 增量备份的父镜像ID
-	SourceDevice  string     `json:"sourceDevice"`   // 源设备
-	LocationID    string     `json:"locationId"`     // 存储位置ID
-	Path          string     `json:"path"`           // 镜像路径
-	Checksum      string     `json:"checksum"`       // SHA256校验和
-	Encrypted     bool       `json:"encrypted"`      // 是否加密
-	Verified      bool       `json:"verified"`       // 是否已验证
+	Type          BackupType `json:"type"`          // 全量/增量
+	ParentImageID string     `json:"parentImageId"` // 增量备份的父镜像ID
+	SourceDevice  string     `json:"sourceDevice"`  // 源设备
+	LocationID    string     `json:"locationId"`    // 存储位置ID
+	Path          string     `json:"path"`          // 镜像路径
+	Checksum      string     `json:"checksum"`      // SHA256校验和
+	Encrypted     bool       `json:"encrypted"`     // 是否加密
+	Verified      bool       `json:"verified"`      // 是否已验证
 	CreatedAt     time.Time  `json:"createdAt"`
 }
 
 // RecoveryPlan 恢复计划
 type RecoveryPlan struct {
-	ID           string        `json:"id"`
-	Name         string        `json:"name"`
-	Description  string        `json:"description"`
-	ImageIDs     []string      `json:"imageIds"`     // 镜像ID列表
-	TargetDevice string        `json:"targetDevice"`  // 目标设备
+	ID           string         `json:"id"`
+	Name         string         `json:"name"`
+	Description  string         `json:"description"`
+	ImageIDs     []string       `json:"imageIds"`     // 镜像ID列表
+	TargetDevice string         `json:"targetDevice"` // 目标设备
 	Steps        []RecoveryStep `json:"steps"`        // 恢复步骤
-	Status       JobStatus     `json:"status"`
-	CreatedAt    time.Time     `json:"createdAt"`
+	Status       JobStatus      `json:"status"`
+	CreatedAt    time.Time      `json:"createdAt"`
 }
 
 // RecoveryStep 恢复步骤
@@ -113,23 +113,23 @@ type RecoveryStep struct {
 // RecoveryMedia 恢复介质
 type RecoveryMedia struct {
 	ID        string    `json:"id"`
-	Type      MediaType `json:"type"`      // USB/ISO
-	Path      string    `json:"path"`      // 介质路径
-	Label     string    `json:"label"`     // 介质标签
-	Size      int64     `json:"size"`      // 字节
+	Type      MediaType `json:"type"`  // USB/ISO
+	Path      string    `json:"path"`  // 介质路径
+	Label     string    `json:"label"` // 介质标签
+	Size      int64     `json:"size"`  // 字节
 	CreatedAt time.Time `json:"createdAt"`
 }
 
 // BackupSchedule 备份调度
 type BackupSchedule struct {
-	ID           string    `json:"id"`
-	PlanID       string    `json:"planId"`       // 关联计划ID
-	Name         string    `json:"name"`
-	Frequency    string    `json:"frequency"`    // 调度频率: daily, weekly, monthly
-	RetainCount  int       `json:"retainCount"`  // 保留份数
-	NextRunTime  time.Time `json:"nextRunTime"`  // 下次执行时间
-	Enabled      bool      `json:"enabled"`
-	CreatedAt    time.Time `json:"createdAt"`
+	ID          string    `json:"id"`
+	PlanID      string    `json:"planId"` // 关联计划ID
+	Name        string    `json:"name"`
+	Frequency   string    `json:"frequency"`   // 调度频率: daily, weekly, monthly
+	RetainCount int       `json:"retainCount"` // 保留份数
+	NextRunTime time.Time `json:"nextRunTime"` // 下次执行时间
+	Enabled     bool      `json:"enabled"`
+	CreatedAt   time.Time `json:"createdAt"`
 }
 
 // BackupLocation 备份存储位置
@@ -147,33 +147,33 @@ type BackupLocation struct {
 
 // RestoreJob 恢复任务
 type RestoreJob struct {
-	ID          string    `json:"id"`
-	PlanID      string    `json:"planId"`      // 关联计划ID
-	Status      JobStatus `json:"status"`      // 任务状态
-	Progress    int       `json:"progress"`    // 总进度 (0-100)
-	CurrentStep int       `json:"currentStep"` // 当前步骤序号
-	ErrorMsg    string    `json:"errorMsg"`    // 错误信息
-	StartTime   time.Time `json:"startTime"`   // 开始时间
-	EndTime     *time.Time `json:"endTime"`    // 结束时间
+	ID          string     `json:"id"`
+	PlanID      string     `json:"planId"`      // 关联计划ID
+	Status      JobStatus  `json:"status"`      // 任务状态
+	Progress    int        `json:"progress"`    // 总进度 (0-100)
+	CurrentStep int        `json:"currentStep"` // 当前步骤序号
+	ErrorMsg    string     `json:"errorMsg"`    // 错误信息
+	StartTime   time.Time  `json:"startTime"`   // 开始时间
+	EndTime     *time.Time `json:"endTime"`     // 结束时间
 }
 
 // ========== Manager ==========
 
 // Manager 裸机恢复管理器
 type Manager struct {
-	mu         sync.RWMutex
-	images     map[string]*BackupImage
-	plans      map[string]*RecoveryPlan
-	media      map[string]*RecoveryMedia
-	schedules  map[string]*BackupSchedule
-	locations  map[string]*BackupLocation
-	jobs       map[string]*RestoreJob
-	imageSeq   int
-	mediaSeq   int
-	jobSeq     int
-	locSeq     int
-	schedSeq   int
-	planSeq    int
+	mu        sync.RWMutex
+	images    map[string]*BackupImage
+	plans     map[string]*RecoveryPlan
+	media     map[string]*RecoveryMedia
+	schedules map[string]*BackupSchedule
+	locations map[string]*BackupLocation
+	jobs      map[string]*RestoreJob
+	imageSeq  int
+	mediaSeq  int
+	jobSeq    int
+	locSeq    int
+	schedSeq  int
+	planSeq   int
 }
 
 // NewManager 创建管理器

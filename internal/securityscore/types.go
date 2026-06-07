@@ -387,12 +387,12 @@ type StandardDefinition struct {
 
 // SecurityTrend 安全趋势.
 type SecurityTrend struct {
-	Period       TrendPeriod     `json:"period"`
-	StartDate    time.Time       `json:"start_date"`
-	EndDate      time.Time       `json:"end_date"`
-	DataPoints   []TrendDataPoint `json:"data_points"`
-	Analysis     TrendAnalysis   `json:"analysis"`
-	Predictions  []TrendPrediction `json:"predictions,omitempty"`
+	Period      TrendPeriod       `json:"period"`
+	StartDate   time.Time         `json:"start_date"`
+	EndDate     time.Time         `json:"end_date"`
+	DataPoints  []TrendDataPoint  `json:"data_points"`
+	Analysis    TrendAnalysis     `json:"analysis"`
+	Predictions []TrendPrediction `json:"predictions,omitempty"`
 }
 
 // TrendPeriod 趋势周期.
@@ -407,84 +407,84 @@ const (
 
 // TrendDataPoint 趋势数据点.
 type TrendDataPoint struct {
-	Timestamp    time.Time                `json:"timestamp"`
-	Score        float64                  `json:"score"`
-	Grade        Grade                    `json:"grade"`
-	Categories   map[string]float64       `json:"categories"`
-	VulnCount    int                      `json:"vuln_count"`
-	Compliance   int                      `json:"compliance_score"`
-	IncidentCount int                    `json:"incident_count"`
-	Changes      []TrendChange            `json:"changes,omitempty"`
+	Timestamp     time.Time          `json:"timestamp"`
+	Score         float64            `json:"score"`
+	Grade         Grade              `json:"grade"`
+	Categories    map[string]float64 `json:"categories"`
+	VulnCount     int                `json:"vuln_count"`
+	Compliance    int                `json:"compliance_score"`
+	IncidentCount int                `json:"incident_count"`
+	Changes       []TrendChange      `json:"changes,omitempty"`
 }
 
 // TrendChange 趋势变化.
 type TrendChange struct {
-	Category    string  `json:"category"`
-	OldScore    float64 `json:"old_score"`
-	NewScore    float64 `json:"new_score"`
-	Change      float64 `json:"change"`
-	Reason      string  `json:"reason"`
+	Category string  `json:"category"`
+	OldScore float64 `json:"old_score"`
+	NewScore float64 `json:"new_score"`
+	Change   float64 `json:"change"`
+	Reason   string  `json:"reason"`
 }
 
 // TrendAnalysis 趋势分析.
 type TrendAnalysis struct {
-	OverallTrend    string  `json:"overall_trend"` // improving, declining, stable
-	ImprovementRate float64 `json:"improvement_rate"`
-	DeclineRate     float64 `json:"decline_rate"`
-	Volatility      float64 `json:"volatility"`
-	BestCategory    string  `json:"best_category"`
-	WorstCategory   string  `json:"worst_category"`
+	OverallTrend    string   `json:"overall_trend"` // improving, declining, stable
+	ImprovementRate float64  `json:"improvement_rate"`
+	DeclineRate     float64  `json:"decline_rate"`
+	Volatility      float64  `json:"volatility"`
+	BestCategory    string   `json:"best_category"`
+	WorstCategory   string   `json:"worst_category"`
 	Insights        []string `json:"insights"`
 }
 
 // TrendPrediction 趋势预测.
 type TrendPrediction struct {
-	Date          time.Time `json:"date"`
-	PredictedScore float64  `json:"predicted_score"`
-	Confidence    float64   `json:"confidence"`
-	Factors       []string  `json:"factors"`
+	Date           time.Time `json:"date"`
+	PredictedScore float64   `json:"predicted_score"`
+	Confidence     float64   `json:"confidence"`
+	Factors        []string  `json:"factors"`
 }
 
 // ========== 安全报告类型 ==========
 
 // SecurityReport 安全报告.
 type SecurityReport struct {
-	ReportID      string                   `json:"report_id"`
-	Title         string                   `json:"title"`
-	GeneratedAt   time.Time                `json:"generated_at"`
-	ValidUntil    time.Time                `json:"valid_until"`
-	Score         SecurityScore            `json:"score"`
-	VulnScan      *VulnerabilityScanResult `json:"vuln_scan,omitempty"`
-	Compliance    []*ComplianceReport      `json:"compliance,omitempty"`
-	Trends        *SecurityTrend           `json:"trends,omitempty"`
-	Recommendations []Recommendation       `json:"recommendations"`
-	Summary       ReportSummary            `json:"summary"`
-	RiskMatrix    RiskMatrix               `json:"risk_matrix"`
-	ExecutiveSummary string               `json:"executive_summary"`
-	Version       string                   `json:"version"`
+	ReportID         string                   `json:"report_id"`
+	Title            string                   `json:"title"`
+	GeneratedAt      time.Time                `json:"generated_at"`
+	ValidUntil       time.Time                `json:"valid_until"`
+	Score            SecurityScore            `json:"score"`
+	VulnScan         *VulnerabilityScanResult `json:"vuln_scan,omitempty"`
+	Compliance       []*ComplianceReport      `json:"compliance,omitempty"`
+	Trends           *SecurityTrend           `json:"trends,omitempty"`
+	Recommendations  []Recommendation         `json:"recommendations"`
+	Summary          ReportSummary            `json:"summary"`
+	RiskMatrix       RiskMatrix               `json:"risk_matrix"`
+	ExecutiveSummary string                   `json:"executive_summary"`
+	Version          string                   `json:"version"`
 }
 
 // ReportSummary 报告摘要.
 type ReportSummary struct {
-	OverallScore     float64 `json:"overall_score"`
-	Grade            Grade   `json:"grade"`
-	TotalChecks      int     `json:"total_checks"`
-	PassedChecks     int     `json:"passed_checks"`
-	FailedChecks     int     `json:"failed_checks"`
-	WarningChecks    int     `json:"warning_checks"`
-	CriticalVulns    int     `json:"critical_vulns"`
-	HighVulns        int     `json:"high_vulns"`
-	ComplianceScore  int     `json:"compliance_score"`
-	TrendDirection   string  `json:"trend_direction"`
-	RiskLevel        string  `json:"risk_level"`
+	OverallScore    float64 `json:"overall_score"`
+	Grade           Grade   `json:"grade"`
+	TotalChecks     int     `json:"total_checks"`
+	PassedChecks    int     `json:"passed_checks"`
+	FailedChecks    int     `json:"failed_checks"`
+	WarningChecks   int     `json:"warning_checks"`
+	CriticalVulns   int     `json:"critical_vulns"`
+	HighVulns       int     `json:"high_vulns"`
+	ComplianceScore int     `json:"compliance_score"`
+	TrendDirection  string  `json:"trend_direction"`
+	RiskLevel       string  `json:"risk_level"`
 }
 
 // RiskMatrix 风险矩阵.
 type RiskMatrix struct {
-	HighImpactHighProb    []RiskItem `json:"high_impact_high_prob"`
-	HighImpactLowProb     []RiskItem `json:"high_impact_low_prob"`
-	LowImpactHighProb     []RiskItem `json:"low_impact_high_prob"`
-	LowImpactLowProb      []RiskItem `json:"low_impact_low_prob"`
+	HighImpactHighProb []RiskItem `json:"high_impact_high_prob"`
+	HighImpactLowProb  []RiskItem `json:"high_impact_low_prob"`
+	LowImpactHighProb  []RiskItem `json:"low_impact_high_prob"`
+	LowImpactLowProb   []RiskItem `json:"low_impact_low_prob"`
 }
 
 // RiskItem 风险项.
@@ -507,43 +507,43 @@ type SecurityAdvisor struct {
 
 // AdvisorRule 建议规则.
 type AdvisorRule struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Category    string   `json:"category"`
-	Condition   string   `json:"condition"`
-	Severity    string   `json:"severity"`
-	Suggestion  string   `json:"suggestion"`
-	References  []string `json:"references"`
-	AutoFix     bool     `json:"auto_fix"`
-	FixScript   string   `json:"fix_script,omitempty"`
+	ID         string   `json:"id"`
+	Name       string   `json:"name"`
+	Category   string   `json:"category"`
+	Condition  string   `json:"condition"`
+	Severity   string   `json:"severity"`
+	Suggestion string   `json:"suggestion"`
+	References []string `json:"references"`
+	AutoFix    bool     `json:"auto_fix"`
+	FixScript  string   `json:"fix_script,omitempty"`
 }
 
 // AdvisorAdvice 建议.
 type AdvisorAdvice struct {
-	RuleID      string   `json:"rule_id"`
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Category    string   `json:"category"`
-	Priority    string   `json:"priority"`
-	Impact      string   `json:"impact"`
-	Steps       []string `json:"steps"`
-	References  []string `json:"references"`
-	AutoFixable bool     `json:"auto_fixable"`
-	EstimatedTime string `json:"estimated_time"`
+	RuleID        string   `json:"rule_id"`
+	Title         string   `json:"title"`
+	Description   string   `json:"description"`
+	Category      string   `json:"category"`
+	Priority      string   `json:"priority"`
+	Impact        string   `json:"impact"`
+	Steps         []string `json:"steps"`
+	References    []string `json:"references"`
+	AutoFixable   bool     `json:"auto_fixable"`
+	EstimatedTime string   `json:"estimated_time"`
 }
 
 // ========== 配置类型 ==========
 
 // SecurityScoreConfig 安全评分配置.
 type SecurityScoreConfig struct {
-	Enabled            bool                   `json:"enabled"`
-	AutoScan           bool                   `json:"auto_scan"`
-	ScanInterval       time.Duration          `json:"scan_interval"`
-	EnabledStandards   []ComplianceStandard   `json:"enabled_standards"`
-	ScoreThreshold     float64                `json:"score_threshold"`
-	NotifyOnLowScore   bool                   `json:"notify_on_low_score"`
-	ReportRetention    int                    `json:"report_retention"`
-	MaxHistoryEntries  int                    `json:"max_history_entries"`
+	Enabled           bool                 `json:"enabled"`
+	AutoScan          bool                 `json:"auto_scan"`
+	ScanInterval      time.Duration        `json:"scan_interval"`
+	EnabledStandards  []ComplianceStandard `json:"enabled_standards"`
+	ScoreThreshold    float64              `json:"score_threshold"`
+	NotifyOnLowScore  bool                 `json:"notify_on_low_score"`
+	ReportRetention   int                  `json:"report_retention"`
+	MaxHistoryEntries int                  `json:"max_history_entries"`
 }
 
 // DefaultSecurityScoreConfig 默认配置.

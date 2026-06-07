@@ -36,20 +36,20 @@ const (
 
 // AgentInfo 远程代理信息
 type AgentInfo struct {
-	ID           string        `json:"id"`
-	Hostname     string        `json:"hostname"`
-	Platform     AgentPlatform `json:"platform"`
-	OSVersion    string        `json:"os_version"`
-	AgentVersion string        `json:"agent_version"`
-	IPAddress    string        `json:"ip_address"`
-	Capabilities []string      `json:"capabilities"` // "file_backup", "disk_image", "database", "vm"
-	Status       AgentStatus   `json:"status"`
-	LastSeen     time.Time     `json:"last_seen"`
-	ConnectedAt  time.Time     `json:"connected_at"`
-	Labels       map[string]string `json:"labels"`
-	BytesSent     int64 `json:"bytes_sent"`
-	BytesReceived int64 `json:"bytes_received"`
-	ActiveJobs    int   `json:"active_jobs"`
+	ID            string            `json:"id"`
+	Hostname      string            `json:"hostname"`
+	Platform      AgentPlatform     `json:"platform"`
+	OSVersion     string            `json:"os_version"`
+	AgentVersion  string            `json:"agent_version"`
+	IPAddress     string            `json:"ip_address"`
+	Capabilities  []string          `json:"capabilities"` // "file_backup", "disk_image", "database", "vm"
+	Status        AgentStatus       `json:"status"`
+	LastSeen      time.Time         `json:"last_seen"`
+	ConnectedAt   time.Time         `json:"connected_at"`
+	Labels        map[string]string `json:"labels"`
+	BytesSent     int64             `json:"bytes_sent"`
+	BytesReceived int64             `json:"bytes_received"`
+	ActiveJobs    int               `json:"active_jobs"`
 }
 
 // AgentMessage 代理通信消息
@@ -94,9 +94,9 @@ type BackupDataPayload struct {
 
 // RestoreRequestPayload 恢复请求
 type RestoreRequestPayload struct {
-	JobID       string        `json:"job_id"`
-	SnapshotID  string        `json:"snapshot_id"`
-	TargetPaths []string      `json:"target_paths"`
+	JobID       string         `json:"job_id"`
+	SnapshotID  string         `json:"snapshot_id"`
+	TargetPaths []string       `json:"target_paths"`
 	Options     RestoreOptions `json:"options"`
 }
 

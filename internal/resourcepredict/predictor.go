@@ -15,11 +15,11 @@ import (
 type ResourceType string
 
 const (
-	ResourceDisk     ResourceType = "disk"
-	ResourceMemory   ResourceType = "memory"
-	ResourceCPU      ResourceType = "cpu"
-	ResourceNetwork  ResourceType = "network"
-	ResourceInode    ResourceType = "inode"
+	ResourceDisk    ResourceType = "disk"
+	ResourceMemory  ResourceType = "memory"
+	ResourceCPU     ResourceType = "cpu"
+	ResourceNetwork ResourceType = "network"
+	ResourceInode   ResourceType = "inode"
 )
 
 // AlertLevel 告警级别
@@ -34,20 +34,20 @@ const (
 
 // Thresholds 预测告警阈值
 type Thresholds struct {
-	WarningDays  int     `json:"warningDays"`  // 跄尽前N天告警(Warning)
-	CriticalDays int     `json:"criticalDays"` // 耗尽前N天告警(Critical)
-	UrgentDays   int     `json:"urgentDays"`   // 耗尽前N天告警(Urgent)
-	MinR2        float64 `json:"minR2"`        // 最低R²拟合度(低于此值不做预测)
-	MinDataPoints int    `json:"minDataPoints"` // 最少数据点
+	WarningDays   int     `json:"warningDays"`   // 跄尽前N天告警(Warning)
+	CriticalDays  int     `json:"criticalDays"`  // 耗尽前N天告警(Critical)
+	UrgentDays    int     `json:"urgentDays"`    // 耗尽前N天告警(Urgent)
+	MinR2         float64 `json:"minR2"`         // 最低R²拟合度(低于此值不做预测)
+	MinDataPoints int     `json:"minDataPoints"` // 最少数据点
 }
 
 // DefaultThresholds 默认阈值
 func DefaultThresholds() Thresholds {
 	return Thresholds{
-		WarningDays:  30,
-		CriticalDays: 14,
-		UrgentDays:   7,
-		MinR2:        0.5,
+		WarningDays:   30,
+		CriticalDays:  14,
+		UrgentDays:    7,
+		MinR2:         0.5,
 		MinDataPoints: 10,
 	}
 }
@@ -55,15 +55,15 @@ func DefaultThresholds() Thresholds {
 // DataPoint 资源使用数据点
 type DataPoint struct {
 	Timestamp time.Time `json:"timestamp"`
-	Value     float64   `json:"value"`     // 使用率 (0-100) 或绝对值
-	Total     float64   `json:"total"`     // 总量(如磁盘总容量)
+	Value     float64   `json:"value"` // 使用率 (0-100) 或绝对值
+	Total     float64   `json:"total"` // 总量(如磁盘总容量)
 }
 
 // ResourceMetric 资源指标
 type ResourceMetric struct {
 	Type         ResourceType `json:"type"`
-	Name         string       `json:"name"`         // 如 "/dev/sda1", "system-memory"
-	Unit         string       `json:"unit"`         // "bytes", "percent", "count"
+	Name         string       `json:"name"` // 如 "/dev/sda1", "system-memory"
+	Unit         string       `json:"unit"` // "bytes", "percent", "count"
 	Points       []DataPoint  `json:"points"`
 	CurrentValue float64      `json:"currentValue"`
 	MaxValue     float64      `json:"maxValue"`
@@ -96,10 +96,10 @@ type PredictionReport struct {
 
 // PredictorConfig 预测器配置
 type PredictorConfig struct {
-	Thresholds       Thresholds `json:"thresholds"`
-	RetentionDays    int        `json:"retentionDays"`    // 数据保留天数
+	Thresholds       Thresholds    `json:"thresholds"`
+	RetentionDays    int           `json:"retentionDays"`    // 数据保留天数
 	SamplingInterval time.Duration `json:"samplingInterval"` // 采样间隔
-	MaxDataPoints    int        `json:"maxDataPoints"`    // 每资源最大数据点数
+	MaxDataPoints    int           `json:"maxDataPoints"`    // 每资源最大数据点数
 }
 
 // DefaultPredictorConfig 默认预测器配置
@@ -114,12 +114,12 @@ func DefaultPredictorConfig() PredictorConfig {
 
 // ResourcePredictor 资源预测器
 type ResourcePredictor struct {
-	config    PredictorConfig
-	metrics   map[ResourceType]*ResourceMetric
+	config      PredictorConfig
+	metrics     map[ResourceType]*ResourceMetric
 	predictions []Prediction
-	mu        sync.RWMutex
-	stopCh    chan struct{}
-	running   bool
+	mu          sync.RWMutex
+	stopCh      chan struct{}
+	running     bool
 
 	// 回调
 	onAlert func(prediction Prediction)
@@ -247,12 +247,12 @@ func (rp *ResourcePredictor) GetLatest() []Prediction {
 // predictResource 预测单个资源
 func (rp *ResourcePredictor) predictResource(metric *ResourceMetric) Prediction {
 	prediction := Prediction{
-		ResourceType: metric.Type,
-		ResourceName: metric.Name,
-		CurrentValue: metric.CurrentValue,
-		MaxValue:     metric.MaxValue,
+		ResourceType:  metric.Type,
+		ResourceName:  metric.Name,
+		CurrentValue:  metric.CurrentValue,
+		MaxValue:      metric.MaxValue,
 		DaysUntilFull: -1,
-		AlertLevel:   AlertInfo,
+		AlertLevel:    AlertInfo,
 	}
 
 	if metric.MaxValue > 0 {

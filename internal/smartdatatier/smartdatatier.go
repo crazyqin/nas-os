@@ -16,9 +16,9 @@ import (
 type TierLevel int
 
 const (
-	TierHot    TierLevel = 3 // 热数据（SSD/NVMe）
-	TierWarm   TierLevel = 2 // 温数据（快速HDD）
-	TierCold   TierLevel = 1 // 冷数据（大容量HDD）
+	TierHot     TierLevel = 3 // 热数据（SSD/NVMe）
+	TierWarm    TierLevel = 2 // 温数据（快速HDD）
+	TierCold    TierLevel = 1 // 冷数据（大容量HDD）
 	TierArchive TierLevel = 0 // 归档数据
 )
 
@@ -34,15 +34,15 @@ const (
 
 // DataFile 数据文件信息
 type DataFile struct {
-	ID           string    `json:"id"`
-	Path         string    `json:"path"`
-	Size         int64     `json:"size"`
-	CurrentTier  TierLevel `json:"currentTier"`
-	AccessCount  int64     `json:"accessCount"`
-	LastAccess   time.Time `json:"lastAccess"`
-	AccessFreq   float64   `json:"accessFreq"` // 次/天
-	IOPattern    IOPattern `json:"ioPattern"`
-	CreatedAt    time.Time `json:"createdAt"`
+	ID          string    `json:"id"`
+	Path        string    `json:"path"`
+	Size        int64     `json:"size"`
+	CurrentTier TierLevel `json:"currentTier"`
+	AccessCount int64     `json:"accessCount"`
+	LastAccess  time.Time `json:"lastAccess"`
+	AccessFreq  float64   `json:"accessFreq"` // 次/天
+	IOPattern   IOPattern `json:"ioPattern"`
+	CreatedAt   time.Time `json:"createdAt"`
 }
 
 // TierConfig 分层配置
@@ -90,12 +90,12 @@ type TierManager struct {
 func NewTierManager(config *TierConfig) *TierManager {
 	if config == nil {
 		config = &TierConfig{
-			HotThreshold:    10.0,  // 每天10次以上为热数据
-			WarmThreshold:   1.0,   // 每天1-10次为温数据
-			ColdThreshold:   0.1,   // 每天0.1-1次为冷数据
-			MaxHotSize:      100 * 1024 * 1024 * 1024,  // 100GB
-			MaxWarmSize:     500 * 1024 * 1024 * 1024,  // 500GB
-			MigrationWindow: 2,    // 凌晨2点
+			HotThreshold:    10.0,                     // 每天10次以上为热数据
+			WarmThreshold:   1.0,                      // 每天1-10次为温数据
+			ColdThreshold:   0.1,                      // 每天0.1-1次为冷数据
+			MaxHotSize:      100 * 1024 * 1024 * 1024, // 100GB
+			MaxWarmSize:     500 * 1024 * 1024 * 1024, // 500GB
+			MigrationWindow: 2,                        // 凌晨2点
 			BatchSize:       100,
 		}
 	}

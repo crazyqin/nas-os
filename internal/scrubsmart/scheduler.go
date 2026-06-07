@@ -24,21 +24,21 @@ type ScrubBackend interface {
 
 // Scheduler 智能避峰调度器.
 type Scheduler struct {
-	mu          sync.RWMutex
-	config      *Config
-	state       ScrubState
-	backend     ScrubBackend
-	logger      *zap.Logger
-	progress    *ScrubProgress
-	ioLoad      *IOLoad
+	mu             sync.RWMutex
+	config         *Config
+	state          ScrubState
+	backend        ScrubBackend
+	logger         *zap.Logger
+	progress       *ScrubProgress
+	ioLoad         *IOLoad
 	ioLoadOverride *IOLoad // 测试用：非 nil 时跳过真实 IO 读取
-	lastError   string
-	cancelCtx   context.CancelFunc
-	wg          sync.WaitGroup
-	done        chan struct{}
-	manualPause bool // 手动暂停标记
-	forceResume bool // 强制恢复标记（忽略避峰窗口）
-	startTime   time.Time
+	lastError      string
+	cancelCtx      context.CancelFunc
+	wg             sync.WaitGroup
+	done           chan struct{}
+	manualPause    bool // 手动暂停标记
+	forceResume    bool // 强制恢复标记（忽略避峰窗口）
+	startTime      time.Time
 }
 
 // NewScheduler 创建调度器.
@@ -112,13 +112,13 @@ func (s *Scheduler) GetStatus() Status {
 	defer s.mu.RUnlock()
 
 	status := Status{
-		State:                s.state,
-		Pool:                 s.config.TargetPool,
-		Progress:             s.progress,
-		IOLoad:               s.ioLoad,
-		InAvoidanceWindow:    s.isInAvoidanceWindowLocked(time.Now()),
-		LastError:            s.lastError,
-		Config:               *s.config,
+		State:             s.state,
+		Pool:              s.config.TargetPool,
+		Progress:          s.progress,
+		IOLoad:            s.ioLoad,
+		InAvoidanceWindow: s.isInAvoidanceWindowLocked(time.Now()),
+		LastError:         s.lastError,
+		Config:            *s.config,
 	}
 
 	// 计算预计恢复时间

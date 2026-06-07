@@ -14,9 +14,9 @@ import (
 type PredictionMethod string
 
 const (
-	MethodLinearRegression PredictionMethod = "linear_regression" // 线性回归
+	MethodLinearRegression     PredictionMethod = "linear_regression"     // 线性回归
 	MethodExponentialSmoothing PredictionMethod = "exponential_smoothing" // 指数平滑
-	MethodMovingAverage    PredictionMethod = "moving_average"    // 移动平均
+	MethodMovingAverage        PredictionMethod = "moving_average"        // 移动平均
 )
 
 // ConfidenceLevel 置信度水平
@@ -32,10 +32,10 @@ const (
 type ForecastHorizon string
 
 const (
-	Horizon3Months  ForecastHorizon = "3_months"
-	Horizon6Months  ForecastHorizon = "6_months"
-	Horizon1Year    ForecastHorizon = "1_year"
-	Horizon2Years   ForecastHorizon = "2_years"
+	Horizon3Months ForecastHorizon = "3_months"
+	Horizon6Months ForecastHorizon = "6_months"
+	Horizon1Year   ForecastHorizon = "1_year"
+	Horizon2Years  ForecastHorizon = "2_years"
 )
 
 // ============================================================
@@ -60,37 +60,37 @@ type GrowthRecord struct {
 
 // ForecastPoint 预测点
 type ForecastPoint struct {
-	Date         time.Time       `json:"date"`
-	StorageGB    float64         `json:"storage_gb"`
-	Cost         float64         `json:"cost"`
-	Confidence   ConfidenceLevel `json:"confidence"`
-	UpperBound   float64         `json:"upper_bound"` // 上界
-	LowerBound   float64         `json:"lower_bound"` // 下界
+	Date       time.Time       `json:"date"`
+	StorageGB  float64         `json:"storage_gb"`
+	Cost       float64         `json:"cost"`
+	Confidence ConfidenceLevel `json:"confidence"`
+	UpperBound float64         `json:"upper_bound"` // 上界
+	LowerBound float64         `json:"lower_bound"` // 下界
 }
 
 // ForecastResult 预测结果
 type ForecastResult struct {
-	ID              string          `json:"id"`
-	Method          PredictionMethod `json:"method"`
-	Horizon         ForecastHorizon `json:"horizon"`
-	HistoricalData  []CostRecord    `json:"historical_data"`
-	Forecasts       []ForecastPoint `json:"forecasts"`
-	Accuracy        float64         `json:"accuracy"` // 预测准确度 (0-100)
-	Confidence      ConfidenceLevel `json:"confidence"`
-	Trend           string          `json:"trend"` // "increasing", "decreasing", "stable"
-	GrowthRate      float64         `json:"growth_rate"`
-	GeneratedAt     time.Time       `json:"generated_at"`
+	ID             string           `json:"id"`
+	Method         PredictionMethod `json:"method"`
+	Horizon        ForecastHorizon  `json:"horizon"`
+	HistoricalData []CostRecord     `json:"historical_data"`
+	Forecasts      []ForecastPoint  `json:"forecasts"`
+	Accuracy       float64          `json:"accuracy"` // 预测准确度 (0-100)
+	Confidence     ConfidenceLevel  `json:"confidence"`
+	Trend          string           `json:"trend"` // "increasing", "decreasing", "stable"
+	GrowthRate     float64          `json:"growth_rate"`
+	GeneratedAt    time.Time        `json:"generated_at"`
 }
 
 // GrowthForecast 增长预测
 type GrowthForecast struct {
-	ID              string          `json:"id"`
-	CurrentStorage  float64         `json:"current_storage_gb"`
-	Forecasts       []GrowthPoint   `json:"forecasts"`
-	GrowthRate      float64         `json:"growth_rate"`
-	StorageCapacity float64         `json:"storage_capacity_gb"` // 预计达到容量的时间
-	DaysToCapacity  int             `json:"days_to_capacity"`
-	GeneratedAt     time.Time       `json:"generated_at"`
+	ID              string        `json:"id"`
+	CurrentStorage  float64       `json:"current_storage_gb"`
+	Forecasts       []GrowthPoint `json:"forecasts"`
+	GrowthRate      float64       `json:"growth_rate"`
+	StorageCapacity float64       `json:"storage_capacity_gb"` // 预计达到容量的时间
+	DaysToCapacity  int           `json:"days_to_capacity"`
+	GeneratedAt     time.Time     `json:"generated_at"`
 }
 
 // GrowthPoint 增长预测点
@@ -125,29 +125,29 @@ const (
 
 // AlertConfig 告警配置
 type AlertConfig struct {
-	ID              string        `json:"id"`
-	Name            string        `json:"name"`
-	Type            AlertType     `json:"type"`
-	Budget          float64       `json:"budget"`
-	WarningThreshold  float64     `json:"warning_threshold"`  // 警告阈值 (百分比)
-	CriticalThreshold float64     `json:"critical_threshold"` // 严重阈值 (百分比)
-	Enabled         bool          `json:"enabled"`
-	Provider        string        `json:"provider,omitempty"`
-	Region          string        `json:"region,omitempty"`
-	CreatedAt       time.Time     `json:"created_at"`
-	UpdatedAt       time.Time     `json:"updated_at"`
+	ID                string    `json:"id"`
+	Name              string    `json:"name"`
+	Type              AlertType `json:"type"`
+	Budget            float64   `json:"budget"`
+	WarningThreshold  float64   `json:"warning_threshold"`  // 警告阈值 (百分比)
+	CriticalThreshold float64   `json:"critical_threshold"` // 严重阈值 (百分比)
+	Enabled           bool      `json:"enabled"`
+	Provider          string    `json:"provider,omitempty"`
+	Region            string    `json:"region,omitempty"`
+	CreatedAt         time.Time `json:"created_at"`
+	UpdatedAt         time.Time `json:"updated_at"`
 }
 
 // AlertConfigRequest 告警配置请求
 type AlertConfigRequest struct {
-	Name              string  `json:"name" binding:"required"`
+	Name              string    `json:"name" binding:"required"`
 	Type              AlertType `json:"type" binding:"required"`
-	Budget            float64 `json:"budget" binding:"required,gt=0"`
-	WarningThreshold  float64 `json:"warning_threshold" binding:"required,gte=0,lte=100"`
-	CriticalThreshold float64 `json:"critical_threshold" binding:"required,gte=0,lte=100"`
-	Enabled           bool    `json:"enabled"`
-	Provider          string  `json:"provider"`
-	Region            string  `json:"region"`
+	Budget            float64   `json:"budget" binding:"required,gt=0"`
+	WarningThreshold  float64   `json:"warning_threshold" binding:"required,gte=0,lte=100"`
+	CriticalThreshold float64   `json:"critical_threshold" binding:"required,gte=0,lte=100"`
+	Enabled           bool      `json:"enabled"`
+	Provider          string    `json:"provider"`
+	Region            string    `json:"region"`
 }
 
 // ============================================================
@@ -156,27 +156,27 @@ type AlertConfigRequest struct {
 
 // PredictionReport 预测报告
 type PredictionReport struct {
-	ID              string           `json:"id"`
-	Title           string           `json:"title"`
-	Summary         ReportSummary    `json:"summary"`
-	CostForecast    ForecastResult   `json:"cost_forecast"`
-	GrowthForecast  GrowthForecast   `json:"growth_forecast"`
-	Alerts          []BudgetAlert    `json:"alerts"`
-	Recommendations []string         `json:"recommendations"`
-	GeneratedAt     time.Time        `json:"generated_at"`
-	ValidUntil      time.Time        `json:"valid_until"`
+	ID              string         `json:"id"`
+	Title           string         `json:"title"`
+	Summary         ReportSummary  `json:"summary"`
+	CostForecast    ForecastResult `json:"cost_forecast"`
+	GrowthForecast  GrowthForecast `json:"growth_forecast"`
+	Alerts          []BudgetAlert  `json:"alerts"`
+	Recommendations []string       `json:"recommendations"`
+	GeneratedAt     time.Time      `json:"generated_at"`
+	ValidUntil      time.Time      `json:"valid_until"`
 }
 
 // ReportSummary 报告摘要
 type ReportSummary struct {
-	CurrentMonthlyCost  float64 `json:"current_monthly_cost"`
-	ForecastedCost      float64 `json:"forecasted_cost"`
-	CostChange          float64 `json:"cost_change"` // 百分比
-	CurrentStorage      float64 `json:"current_storage_gb"`
-	ForecastedStorage   float64 `json:"forecasted_storage_gb"`
-	GrowthRate          float64 `json:"growth_rate"`
-	BudgetUtilization   float64 `json:"budget_utilization"` // 百分比
-	ActiveAlerts        int     `json:"active_alerts"`
+	CurrentMonthlyCost float64 `json:"current_monthly_cost"`
+	ForecastedCost     float64 `json:"forecasted_cost"`
+	CostChange         float64 `json:"cost_change"` // 百分比
+	CurrentStorage     float64 `json:"current_storage_gb"`
+	ForecastedStorage  float64 `json:"forecasted_storage_gb"`
+	GrowthRate         float64 `json:"growth_rate"`
+	BudgetUtilization  float64 `json:"budget_utilization"` // 百分比
+	ActiveAlerts       int     `json:"active_alerts"`
 }
 
 // ============================================================
@@ -185,13 +185,13 @@ type ReportSummary struct {
 
 // CostPredictConfig 成本预测配置
 type CostPredictConfig struct {
-	Enabled             bool    `json:"enabled"`
+	Enabled             bool             `json:"enabled"`
 	DefaultMethod       PredictionMethod `json:"default_method"`
 	DefaultHorizon      ForecastHorizon  `json:"default_horizon"`
-	MinHistoryMonths    int     `json:"min_history_months"`    // 最少历史月数
-	MaxForecastMonths   int     `json:"max_forecast_months"`   // 最大预测月数
-	ConfidenceThreshold float64 `json:"confidence_threshold"` // 置信度阈值
-	UpdateIntervalHours int     `json:"update_interval_hours"`
+	MinHistoryMonths    int              `json:"min_history_months"`   // 最少历史月数
+	MaxForecastMonths   int              `json:"max_forecast_months"`  // 最大预测月数
+	ConfidenceThreshold float64          `json:"confidence_threshold"` // 置信度阈值
+	UpdateIntervalHours int              `json:"update_interval_hours"`
 }
 
 // DefaultCostPredictConfig 默认配置

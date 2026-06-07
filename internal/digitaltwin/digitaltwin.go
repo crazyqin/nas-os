@@ -12,7 +12,7 @@ import (
 type TwinState string
 
 const (
-	StateIdle      TwinState = "idle"
+	StateIdle       TwinState = "idle"
 	StateSimulating TwinState = "simulating"
 	StatePredicting TwinState = "predicting"
 	StateOptimizing TwinState = "optimizing"
@@ -40,35 +40,35 @@ type SimulationScenario struct {
 
 // SimulationResult 模拟结果
 type SimulationResult struct {
-	ScenarioID  string                 `json:"scenario_id"`
-	StartTime   time.Time              `json:"start_time"`
-	EndTime     time.Time              `json:"end_time"`
-	Metrics     map[string]float64     `json:"metrics"`
-	Bottlenecks []string               `json:"bottlenecks"`
-	Recommendations []string          `json:"recommendations"`
-	Success     bool                   `json:"success"`
+	ScenarioID      string             `json:"scenario_id"`
+	StartTime       time.Time          `json:"start_time"`
+	EndTime         time.Time          `json:"end_time"`
+	Metrics         map[string]float64 `json:"metrics"`
+	Bottlenecks     []string           `json:"bottlenecks"`
+	Recommendations []string           `json:"recommendations"`
+	Success         bool               `json:"success"`
 }
 
 // Component 系统组件
 type Component struct {
-	ID         string            `json:"id"`
-	Type       ComponentType     `json:"type"`
-	Name       string            `json:"name"`
-	Capacity   float64           `json:"capacity"`
-	Usage      float64           `json:"usage"`
-	Metadata   map[string]string `json:"metadata,omitempty"`
-	UpdatedAt  time.Time         `json:"updated_at"`
+	ID        string            `json:"id"`
+	Type      ComponentType     `json:"type"`
+	Name      string            `json:"name"`
+	Capacity  float64           `json:"capacity"`
+	Usage     float64           `json:"usage"`
+	Metadata  map[string]string `json:"metadata,omitempty"`
+	UpdatedAt time.Time         `json:"updated_at"`
 }
 
 // Prediction 预测
 type Prediction struct {
-	ID          string    `json:"id"`
-	ComponentID string    `json:"component_id"`
-	Metric      string    `json:"metric"`
-	Value       float64   `json:"value"`
-	Confidence  float64   `json:"confidence"`
+	ID          string        `json:"id"`
+	ComponentID string        `json:"component_id"`
+	Metric      string        `json:"metric"`
+	Value       float64       `json:"value"`
+	Confidence  float64       `json:"confidence"`
 	TimeHorizon time.Duration `json:"time_horizon"`
-	CreatedAt   time.Time `json:"created_at"`
+	CreatedAt   time.Time     `json:"created_at"`
 }
 
 // DigitalTwin 数字孪生
@@ -234,12 +234,12 @@ func (dt *DigitalTwin) GetStats() map[string]interface{} {
 	defer dt.mu.RUnlock()
 
 	return map[string]interface{}{
-		"state":        dt.state,
-		"components":   len(dt.components),
-		"scenarios":    len(dt.scenarios),
-		"results":      len(dt.results),
-		"predictions":  len(dt.predictions),
-		"last_sync":    dt.lastSync,
+		"state":       dt.state,
+		"components":  len(dt.components),
+		"scenarios":   len(dt.scenarios),
+		"results":     len(dt.results),
+		"predictions": len(dt.predictions),
+		"last_sync":   dt.lastSync,
 	}
 }
 

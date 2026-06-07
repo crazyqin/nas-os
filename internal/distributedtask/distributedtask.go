@@ -38,68 +38,68 @@ const (
 type TaskType string
 
 const (
-	TaskTypeBackup      TaskType = "backup"
-	TaskTypeSync        TaskType = "sync"
-	TaskTypeConvert     TaskType = "convert"
-	TaskTypeCompress    TaskType = "compress"
-	TaskTypeAnalyze     TaskType = "analyze"
-	TaskTypeCleanup     TaskType = "cleanup"
-	TaskTypeReplicate   TaskType = "replicate"
-	TaskTypeMigrate     TaskType = "migrate"
-	TaskTypeIndex       TaskType = "index"
-	TaskTypeScan        TaskType = "scan"
-	TaskTypeCustom      TaskType = "custom"
+	TaskTypeBackup    TaskType = "backup"
+	TaskTypeSync      TaskType = "sync"
+	TaskTypeConvert   TaskType = "convert"
+	TaskTypeCompress  TaskType = "compress"
+	TaskTypeAnalyze   TaskType = "analyze"
+	TaskTypeCleanup   TaskType = "cleanup"
+	TaskTypeReplicate TaskType = "replicate"
+	TaskTypeMigrate   TaskType = "migrate"
+	TaskTypeIndex     TaskType = "index"
+	TaskTypeScan      TaskType = "scan"
+	TaskTypeCustom    TaskType = "custom"
 )
 
 // NodeStatus 节点状态
 type NodeStatus string
 
 const (
-	NodeOnline    NodeStatus = "online"
-	NodeOffline   NodeStatus = "offline"
-	NodeBusy      NodeStatus = "busy"
-	NodeDraining  NodeStatus = "draining"
+	NodeOnline   NodeStatus = "online"
+	NodeOffline  NodeStatus = "offline"
+	NodeBusy     NodeStatus = "busy"
+	NodeDraining NodeStatus = "draining"
 )
 
 // WorkerNode 工作节点
 type WorkerNode struct {
-	ID           string      `json:"id"`
-	Name         string      `json:"name"`
-	Address      string      `json:"address"`
-	Status       NodeStatus  `json:"status"`
-	MaxConcurrent int        `json:"maxConcurrent"`
-	RunningTasks  int        `json:"runningTasks"`
-	CPUCores     int         `json:"cpuCores"`
-	MemoryMB     int         `json:"memoryMB"`
-	DiskGB       int         `json:"diskGB"`
-	Labels       map[string]string `json:"labels"`
-	LastHeartbeat time.Time  `json:"lastHeartbeat"`
-	RegisteredAt  time.Time  `json:"registeredAt"`
-	CompletedTasks int64     `json:"completedTasks"`
-	FailedTasks    int64     `json:"failedTasks"`
+	ID             string            `json:"id"`
+	Name           string            `json:"name"`
+	Address        string            `json:"address"`
+	Status         NodeStatus        `json:"status"`
+	MaxConcurrent  int               `json:"maxConcurrent"`
+	RunningTasks   int               `json:"runningTasks"`
+	CPUCores       int               `json:"cpuCores"`
+	MemoryMB       int               `json:"memoryMB"`
+	DiskGB         int               `json:"diskGB"`
+	Labels         map[string]string `json:"labels"`
+	LastHeartbeat  time.Time         `json:"lastHeartbeat"`
+	RegisteredAt   time.Time         `json:"registeredAt"`
+	CompletedTasks int64             `json:"completedTasks"`
+	FailedTasks    int64             `json:"failedTasks"`
 }
 
 // Task 任务定义
 type Task struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	Type         TaskType          `json:"type"`
-	Priority     TaskPriority      `json:"priority"`
-	Status       TaskStatus        `json:"status"`
+	ID           string                 `json:"id"`
+	Name         string                 `json:"name"`
+	Type         TaskType               `json:"type"`
+	Priority     TaskPriority           `json:"priority"`
+	Status       TaskStatus             `json:"status"`
 	Params       map[string]interface{} `json:"params"`
-	Dependencies []string          `json:"dependencies,omitempty"` // 依赖的任务ID
-	AssignedNode string            `json:"assignedNode,omitempty"`
-	RetryCount   int               `json:"retryCount"`
-	MaxRetries   int               `json:"maxRetries"`
-	TimeoutSec   int               `json:"timeoutSec"`
-	Progress     float64           `json:"progress"` // 0-100
-	Result       interface{}       `json:"result,omitempty"`
-	Error        string            `json:"error,omitempty"`
-	CreatedAt    time.Time         `json:"createdAt"`
-	StartedAt    time.Time         `json:"startedAt,omitempty"`
-	CompletedAt  time.Time         `json:"completedAt,omitempty"`
-	CreatedBy    string            `json:"createdBy"`
-	Tags         map[string]string `json:"tags,omitempty"`
+	Dependencies []string               `json:"dependencies,omitempty"` // 依赖的任务ID
+	AssignedNode string                 `json:"assignedNode,omitempty"`
+	RetryCount   int                    `json:"retryCount"`
+	MaxRetries   int                    `json:"maxRetries"`
+	TimeoutSec   int                    `json:"timeoutSec"`
+	Progress     float64                `json:"progress"` // 0-100
+	Result       interface{}            `json:"result,omitempty"`
+	Error        string                 `json:"error,omitempty"`
+	CreatedAt    time.Time              `json:"createdAt"`
+	StartedAt    time.Time              `json:"startedAt,omitempty"`
+	CompletedAt  time.Time              `json:"completedAt,omitempty"`
+	CreatedBy    string                 `json:"createdBy"`
+	Tags         map[string]string      `json:"tags,omitempty"`
 }
 
 // TaskResult 任务结果
@@ -115,24 +115,24 @@ type TaskResult struct {
 
 // Scheduler 调度器
 type Scheduler struct {
-	mu          sync.RWMutex
-	tasks       map[string]*Task
-	nodes       map[string]*WorkerNode
-	taskQueue   chan string // task ID queue
-	results     []TaskResult
-	strategy    ScheduleStrategy
-	running     bool
-	quit        chan struct{}
+	mu        sync.RWMutex
+	tasks     map[string]*Task
+	nodes     map[string]*WorkerNode
+	taskQueue chan string // task ID queue
+	results   []TaskResult
+	strategy  ScheduleStrategy
+	running   bool
+	quit      chan struct{}
 }
 
 // ScheduleStrategy 调度策略
 type ScheduleStrategy string
 
 const (
-	StrategyRoundRobin  ScheduleStrategy = "round-robin"
-	StrategyLeastLoad   ScheduleStrategy = "least-load"
-	StrategyPriority    ScheduleStrategy = "priority"
-	StrategyAffinity    ScheduleStrategy = "affinity" // 基于标签亲和
+	StrategyRoundRobin ScheduleStrategy = "round-robin"
+	StrategyLeastLoad  ScheduleStrategy = "least-load"
+	StrategyPriority   ScheduleStrategy = "priority"
+	StrategyAffinity   ScheduleStrategy = "affinity" // 基于标签亲和
 )
 
 // NewScheduler 创建调度器
@@ -417,15 +417,15 @@ func (s *Scheduler) FailTask(taskID string, errMsg string) error {
 
 // GetStats 获取调度器统计
 type SchedulerStats struct {
-	TotalTasks    int            `json:"totalTasks"`
-	QueuedTasks   int            `json:"queuedTasks"`
-	RunningTasks  int            `json:"runningTasks"`
-	CompletedTasks int           `json:"completedTasks"`
-	FailedTasks   int            `json:"failedTasks"`
-	TotalNodes    int            `json:"totalNodes"`
-	OnlineNodes   int            `json:"onlineNodes"`
-	Strategy      ScheduleStrategy `json:"strategy"`
-	QueueLength   int            `json:"queueLength"`
+	TotalTasks     int              `json:"totalTasks"`
+	QueuedTasks    int              `json:"queuedTasks"`
+	RunningTasks   int              `json:"runningTasks"`
+	CompletedTasks int              `json:"completedTasks"`
+	FailedTasks    int              `json:"failedTasks"`
+	TotalNodes     int              `json:"totalNodes"`
+	OnlineNodes    int              `json:"onlineNodes"`
+	Strategy       ScheduleStrategy `json:"strategy"`
+	QueueLength    int              `json:"queueLength"`
 }
 
 func (s *Scheduler) GetStats() SchedulerStats {
@@ -433,9 +433,9 @@ func (s *Scheduler) GetStats() SchedulerStats {
 	defer s.mu.RUnlock()
 
 	stats := SchedulerStats{
-		TotalTasks: len(s.tasks),
-		TotalNodes: len(s.nodes),
-		Strategy:   s.strategy,
+		TotalTasks:  len(s.tasks),
+		TotalNodes:  len(s.nodes),
+		Strategy:    s.strategy,
 		QueueLength: len(s.taskQueue),
 	}
 	for _, t := range s.tasks {

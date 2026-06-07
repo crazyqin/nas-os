@@ -9,12 +9,12 @@ import (
 // DiskPredictManager 磁盘故障预测管理器
 type DiskPredictManager struct {
 	mu          sync.RWMutex
-	disks       map[string]*DiskInfo       // 磁盘信息
-	smartData   map[string]*SMARTData      // SMART数据
+	disks       map[string]*DiskInfo         // 磁盘信息
+	smartData   map[string]*SMARTData        // SMART数据
 	predictions map[string]*PredictionResult // 预测结果
-	alerts      []AlertInfo                // 告警信息
-	analyzer    *Analyzer                  // 分析器
-	scorer      *Scorer                    // 评分器
+	alerts      []AlertInfo                  // 告警信息
+	analyzer    *Analyzer                    // 分析器
+	scorer      *Scorer                      // 评分器
 }
 
 // NewDiskPredictManager 创建管理器

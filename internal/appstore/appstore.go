@@ -12,41 +12,41 @@ import (
 type AppStatus string
 
 const (
-	AppStatusInstalled   AppStatus = "installed"
-	AppStatusAvailable  AppStatus = "available"
-	AppStatusUpdating   AppStatus = "updating"
-	AppStatusError      AppStatus = "error"
+	AppStatusInstalled AppStatus = "installed"
+	AppStatusAvailable AppStatus = "available"
+	AppStatusUpdating  AppStatus = "updating"
+	AppStatusError     AppStatus = "error"
 )
 
 // AppCategory 应用分类
 type AppCategory string
 
 const (
-	CategoryMedia     AppCategory = "media"
+	CategoryMedia        AppCategory = "media"
 	CategoryProductivity AppCategory = "productivity"
-	CategoryDevelopment AppCategory = "development"
-	CategoryNetwork   AppCategory = "network"
-	CategorySecurity  AppCategory = "security"
-	CategoryStorage   AppCategory = "storage"
-	CategoryUtility   AppCategory = "utility"
+	CategoryDevelopment  AppCategory = "development"
+	CategoryNetwork      AppCategory = "network"
+	CategorySecurity     AppCategory = "security"
+	CategoryStorage      AppCategory = "storage"
+	CategoryUtility      AppCategory = "utility"
 )
 
 // App 应用
 type App struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	Version     string      `json:"version"`
-	Category    AppCategory `json:"category"`
-	Icon        string      `json:"icon,omitempty"`
-	Author      string      `json:"author"`
-	License     string      `json:"license,omitempty"`
-	Homepage    string      `json:"homepage,omitempty"`
-	Repository  string      `json:"repository,omitempty"`
-	Tags        []string    `json:"tags,omitempty"`
-	Status      AppStatus   `json:"status"`
-	Installed   bool        `json:"installed"`
-	InstalledAt *time.Time  `json:"installed_at,omitempty"`
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Version     string         `json:"version"`
+	Category    AppCategory    `json:"category"`
+	Icon        string         `json:"icon,omitempty"`
+	Author      string         `json:"author"`
+	License     string         `json:"license,omitempty"`
+	Homepage    string         `json:"homepage,omitempty"`
+	Repository  string         `json:"repository,omitempty"`
+	Tags        []string       `json:"tags,omitempty"`
+	Status      AppStatus      `json:"status"`
+	Installed   bool           `json:"installed"`
+	InstalledAt *time.Time     `json:"installed_at,omitempty"`
 	Config      map[string]any `json:"config,omitempty"`
 }
 
@@ -63,7 +63,7 @@ func NewAppStore() *AppStore {
 		apps:    make(map[string]*App),
 		updates: make(map[string]string),
 	}
-	
+
 	store.initDefaultApps()
 	return store
 }
@@ -111,7 +111,7 @@ func (s *AppStore) initDefaultApps() {
 			Author:      "Gitea",
 		},
 	}
-	
+
 	for _, app := range defaultApps {
 		app.Status = AppStatusAvailable
 		s.apps[app.ID] = app
@@ -122,7 +122,7 @@ func (s *AppStore) initDefaultApps() {
 func (s *AppStore) ListApps(ctx context.Context, category AppCategory) []*App {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	var result []*App
 	for _, app := range s.apps {
 		if category != "" && app.Category != category {
@@ -137,7 +137,7 @@ func (s *AppStore) ListApps(ctx context.Context, category AppCategory) []*App {
 func (s *AppStore) GetApp(ctx context.Context, id string) (*App, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	app, ok := s.apps[id]
 	if !ok {
 		return nil, fmt.Errorf("app %s not found", id)
@@ -149,17 +149,17 @@ func (s *AppStore) GetApp(ctx context.Context, id string) (*App, error) {
 func (s *AppStore) InstallApp(ctx context.Context, id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	app, ok := s.apps[id]
 	if !ok {
 		return fmt.Errorf("app %s not found", id)
 	}
-	
+
 	app.Installed = true
 	app.Status = AppStatusInstalled
 	now := time.Now()
 	app.InstalledAt = &now
-	
+
 	return nil
 }
 
@@ -167,16 +167,16 @@ func (s *AppStore) InstallApp(ctx context.Context, id string) error {
 func (s *AppStore) UninstallApp(ctx context.Context, id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	app, ok := s.apps[id]
 	if !ok {
 		return fmt.Errorf("app %s not found", id)
 	}
-	
+
 	app.Installed = false
 	app.Status = AppStatusAvailable
 	app.InstalledAt = nil
-	
+
 	return nil
 }
 
@@ -184,15 +184,15 @@ func (s *AppStore) UninstallApp(ctx context.Context, id string) error {
 func (s *AppStore) UpdateApp(ctx context.Context, id, version string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	app, ok := s.apps[id]
 	if !ok {
 		return fmt.Errorf("app %s not found", id)
 	}
-	
+
 	app.Version = version
 	app.Status = AppStatusInstalled
-	
+
 	return nil
 }
 
@@ -200,7 +200,7 @@ func (s *AppStore) UpdateApp(ctx context.Context, id, version string) error {
 func (s *AppStore) SearchApps(ctx context.Context, query string) []*App {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	var result []*App
 	for _, app := range s.apps {
 		if contains(app.Name, query) || contains(app.Description, query) {

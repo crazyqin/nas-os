@@ -43,12 +43,12 @@ func TestCreatePlan(t *testing.T) {
 	advisor := NewAdvisor()
 
 	plan := &BackupPlan{
-		Name:        "每日全量备份",
-		Strategy:    AdvisorStrategyFull,
-		Schedule:    "0 2 * * *",
-		Destination: "/backup/daily",
+		Name:          "每日全量备份",
+		Strategy:      AdvisorStrategyFull,
+		Schedule:      "0 2 * * *",
+		Destination:   "/backup/daily",
 		RetentionDays: 30,
-		Enabled:     true,
+		Enabled:       true,
 	}
 
 	if err := advisor.CreatePlan(plan); err != nil {

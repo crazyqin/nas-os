@@ -14,14 +14,14 @@ import (
 
 // Manager 不可变快照核心管理器
 type Manager struct {
-	mu             sync.RWMutex
-	logger         *slog.Logger
-	snapshots      map[string]*Snapshot
-	policies       map[string]*SnapshotPolicy
-	retentionRules map[string]*RetentionRule
+	mu              sync.RWMutex
+	logger          *slog.Logger
+	snapshots       map[string]*Snapshot
+	policies        map[string]*SnapshotPolicy
+	retentionRules  map[string]*RetentionRule
 	replicationJobs map[string]*ReplicationJob
-	threatEvents   []ThreatEvent
-	alertConfig    AlertConfig
+	threatEvents    []ThreatEvent
+	alertConfig     AlertConfig
 }
 
 // NewManager 创建管理器
@@ -64,17 +64,17 @@ func (m *Manager) CreateSnapshot(datasetName, sourcePath, storagePath string, re
 	id := uuid.New().String()
 
 	snap := &Snapshot{
-		ID:           id,
-		DatasetName:  datasetName,
-		Status:       StatusPending,
-		CreatedAt:    now,
-		ExpiresAt:    now.Add(time.Duration(hours) * time.Hour),
-		Locked:       false,
-		WORM:         worm,
-		Size:         0,
-		Tags:         tags,
-		SourcePath:   sourcePath,
-		StoragePath:  storagePath,
+		ID:          id,
+		DatasetName: datasetName,
+		Status:      StatusPending,
+		CreatedAt:   now,
+		ExpiresAt:   now.Add(time.Duration(hours) * time.Hour),
+		Locked:      false,
+		WORM:        worm,
+		Size:        0,
+		Tags:        tags,
+		SourcePath:  sourcePath,
+		StoragePath: storagePath,
 	}
 
 	m.snapshots[id] = snap

@@ -52,7 +52,7 @@ func (h *Handlers) overview(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"tiers":             tiers,
+		"tiers":              tiers,
 		"total_monthly_cost": totalCost,
 		"total_capacity_tb":  totalCap,
 		"total_used_tb":      totalUsed,
@@ -169,12 +169,12 @@ func (h *Handlers) compare(c *gin.Context) {
 	bestSavings := results[len(results)-1].TotalCost - results[0].TotalCost
 
 	c.JSON(http.StatusOK, CompareResult{
-		GeneratedAt:   time.Now(),
-		PeriodMonths:  req.PeriodMonths,
-		CapacityTB:    req.CapacityTB,
-		Results:       results,
-		BestOption:    bestOption,
-		BestSavings:   bestSavings,
-		Analysis:      "基于 " + strconv.Itoa(req.PeriodMonths) + " 个月周期的成本对比分析",
+		GeneratedAt:  time.Now(),
+		PeriodMonths: req.PeriodMonths,
+		CapacityTB:   req.CapacityTB,
+		Results:      results,
+		BestOption:   bestOption,
+		BestSavings:  bestSavings,
+		Analysis:     "基于 " + strconv.Itoa(req.PeriodMonths) + " 个月周期的成本对比分析",
 	})
 }

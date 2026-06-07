@@ -62,9 +62,9 @@ func TestPowerState(t *testing.T) {
 
 func TestBudgetEstimation(t *testing.T) {
 	config := &Config{
-		Enabled:        true,
+		Enabled:         true,
 		ElectricityRate: 0.6,
-		Currency:       "CNY",
+		Currency:        "CNY",
 	}
 	manager := NewManager(config)
 
@@ -105,9 +105,9 @@ func TestProfiles(t *testing.T) {
 
 	settings := PowerSettings{
 		HDDSpindown: 30,
-		LEDControl:   true,
-		FanMode:      "quiet",
-		WakeOnLAN:    true,
+		LEDControl:  true,
+		FanMode:     "quiet",
+		WakeOnLAN:   true,
 	}
 
 	profile := manager.CreateProfile("Quiet Mode", "Minimal noise and power", "quiet", settings)

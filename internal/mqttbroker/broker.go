@@ -46,20 +46,20 @@ const (
 
 // Client MQTT 客户端.
 type Client struct {
-	mu          sync.RWMutex
-	ClientID    string      `json:"clientId"`
-	Username    string      `json:"username"`
-	State       ClientState `json:"state"`
-	CleanSession bool       `json:"cleanSession"`
-	KeepAlive   int         `json:"keepAlive"` // 秒
-	WillTopic   string      `json:"willTopic"`
-	WillMessage []byte      `json:"willMessage"`
-	WillQoS     QoS         `json:"willQoS"`
-	WillRetain  bool        `json:"willRetain"`
-	Subscriptions []string  `json:"subscriptions"`
-	ConnectedAt time.Time   `json:"connectedAt"`
-	LastSeen    time.Time   `json:"lastSeen"`
-	RemoteAddr  string      `json:"remoteAddr"`
+	mu            sync.RWMutex
+	ClientID      string      `json:"clientId"`
+	Username      string      `json:"username"`
+	State         ClientState `json:"state"`
+	CleanSession  bool        `json:"cleanSession"`
+	KeepAlive     int         `json:"keepAlive"` // 秒
+	WillTopic     string      `json:"willTopic"`
+	WillMessage   []byte      `json:"willMessage"`
+	WillQoS       QoS         `json:"willQoS"`
+	WillRetain    bool        `json:"willRetain"`
+	Subscriptions []string    `json:"subscriptions"`
+	ConnectedAt   time.Time   `json:"connectedAt"`
+	LastSeen      time.Time   `json:"lastSeen"`
+	RemoteAddr    string      `json:"remoteAddr"`
 }
 
 // Message MQTT 消息.
@@ -74,13 +74,13 @@ type Message struct {
 
 // Broker MQTT 代理.
 type Broker struct {
-	mu          sync.RWMutex
-	config      *BrokerConfig
-	clients     map[string]*Client
+	mu            sync.RWMutex
+	config        *BrokerConfig
+	clients       map[string]*Client
 	subscriptions map[string][]*Client // topic -> clients
-	retained    map[string]*Message   // topic -> message
-	messages    []*Message
-	stats       *BrokerStats
+	retained      map[string]*Message  // topic -> message
+	messages      []*Message
+	stats         *BrokerStats
 }
 
 // BrokerConfig 代理配置.
@@ -96,14 +96,14 @@ type BrokerConfig struct {
 
 // BrokerStats 代理统计.
 type BrokerStats struct {
-	mu              sync.RWMutex
-	TotalClients    int       `json:"totalClients"`
-	ConnectedClients int      `json:"connectedClients"`
-	TotalMessages   int64     `json:"totalMessages"`
-	TotalSubscriptions int    `json:"totalSubscriptions"`
-	TotalRetained   int       `json:"totalRetained"`
-	StartedAt       time.Time `json:"startedAt"`
-	LastMessageAt   time.Time `json:"lastMessageAt"`
+	mu                 sync.RWMutex
+	TotalClients       int       `json:"totalClients"`
+	ConnectedClients   int       `json:"connectedClients"`
+	TotalMessages      int64     `json:"totalMessages"`
+	TotalSubscriptions int       `json:"totalSubscriptions"`
+	TotalRetained      int       `json:"totalRetained"`
+	StartedAt          time.Time `json:"startedAt"`
+	LastMessageAt      time.Time `json:"lastMessageAt"`
 }
 
 // NewBroker 创建 MQTT 代理.

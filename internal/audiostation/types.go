@@ -78,50 +78,50 @@ var SupportedFormats = []AudioFormat{
 
 // Track 音乐文件信息.
 type Track struct {
-	ID         string      `json:"id"`          // 唯一标识
-	Title      string      `json:"title"`       // 标题
-	Artist     string      `json:"artist"`      // 艺术家
-	Album      string      `json:"album"`       // 专辑
-	AlbumArtist string     `json:"album_artist"` // 专辑艺术家
-	Genre      string      `json:"genre"`       // 流派
-	Year       int         `json:"year"`        // 年份
-	TrackNum   int         `json:"track_num"`   // 曲目号
-	DiscNum    int         `json:"disc_num"`    // 碟片号
-	Duration   int         `json:"duration"`    // 时长（秒）
-	Bitrate    int         `json:"bitrate"`     // 码率（kbps）
-	SampleRate int         `json:"sample_rate"` // 采样率（Hz）
-	Channels   int         `json:"channels"`    // 声道数
-	Format     AudioFormat `json:"format"`      // 音频格式
-	FileSize   int64       `json:"file_size"`   // 文件大小（字节）
-	FilePath   string      `json:"file_path"`   // 文件路径
-	CoverPath  string      `json:"cover_path"`  // 封面图路径
-	PlayCount  int64       `json:"play_count"`  // 播放次数
-	LastPlayed *time.Time  `json:"last_played"` // 最后播放时间
-	IsFavorite bool        `json:"is_favorite"` // 是否收藏
-	CreatedAt  time.Time   `json:"created_at"`  // 入库时间
-	UpdatedAt  time.Time   `json:"updated_at"`  // 更新时间
+	ID          string      `json:"id"`           // 唯一标识
+	Title       string      `json:"title"`        // 标题
+	Artist      string      `json:"artist"`       // 艺术家
+	Album       string      `json:"album"`        // 专辑
+	AlbumArtist string      `json:"album_artist"` // 专辑艺术家
+	Genre       string      `json:"genre"`        // 流派
+	Year        int         `json:"year"`         // 年份
+	TrackNum    int         `json:"track_num"`    // 曲目号
+	DiscNum     int         `json:"disc_num"`     // 碟片号
+	Duration    int         `json:"duration"`     // 时长（秒）
+	Bitrate     int         `json:"bitrate"`      // 码率（kbps）
+	SampleRate  int         `json:"sample_rate"`  // 采样率（Hz）
+	Channels    int         `json:"channels"`     // 声道数
+	Format      AudioFormat `json:"format"`       // 音频格式
+	FileSize    int64       `json:"file_size"`    // 文件大小（字节）
+	FilePath    string      `json:"file_path"`    // 文件路径
+	CoverPath   string      `json:"cover_path"`   // 封面图路径
+	PlayCount   int64       `json:"play_count"`   // 播放次数
+	LastPlayed  *time.Time  `json:"last_played"`  // 最后播放时间
+	IsFavorite  bool        `json:"is_favorite"`  // 是否收藏
+	CreatedAt   time.Time   `json:"created_at"`   // 入库时间
+	UpdatedAt   time.Time   `json:"updated_at"`   // 更新时间
 }
 
 // Album 专辑信息.
 type Album struct {
-	ID          string    `json:"id"`          // 唯一标识
-	Title       string    `json:"title"`       // 专辑名
-	Artist      string    `json:"artist"`      // 专辑艺术家
-	Genre       string    `json:"genre"`       // 流派
-	Year        int       `json:"year"`        // 年份
-	TrackCount  int       `json:"track_count"` // 曲目数
-	Duration    int       `json:"duration"`    // 总时长（秒）
-	CoverPath   string    `json:"cover_path"`  // 封面图路径
-	Tracks      []*Track  `json:"tracks,omitempty"` // 曲目列表（详情时包含）
-	CreatedAt   time.Time `json:"created_at"`  // 创建时间
+	ID         string    `json:"id"`               // 唯一标识
+	Title      string    `json:"title"`            // 专辑名
+	Artist     string    `json:"artist"`           // 专辑艺术家
+	Genre      string    `json:"genre"`            // 流派
+	Year       int       `json:"year"`             // 年份
+	TrackCount int       `json:"track_count"`      // 曲目数
+	Duration   int       `json:"duration"`         // 总时长（秒）
+	CoverPath  string    `json:"cover_path"`       // 封面图路径
+	Tracks     []*Track  `json:"tracks,omitempty"` // 曲目列表（详情时包含）
+	CreatedAt  time.Time `json:"created_at"`       // 创建时间
 }
 
 // Artist 艺术家信息.
 type Artist struct {
-	ID         string   `json:"id"`          // 唯一标识
-	Name       string   `json:"name"`        // 艺术家名
-	AlbumCount int      `json:"album_count"` // 专辑数
-	TrackCount int      `json:"track_count"` // 曲目数
+	ID         string   `json:"id"`               // 唯一标识
+	Name       string   `json:"name"`             // 艺术家名
+	AlbumCount int      `json:"album_count"`      // 专辑数
+	TrackCount int      `json:"track_count"`      // 曲目数
 	Albums     []*Album `json:"albums,omitempty"` // 专辑列表
 }
 
@@ -134,67 +134,67 @@ type Genre struct {
 
 // Playlist 播放列表.
 type Playlist struct {
-	ID          string    `json:"id"`          // 唯一标识
-	Name        string    `json:"name"`        // 列表名称
-	Description string    `json:"description"` // 描述
-	TrackCount  int       `json:"track_count"` // 曲目数
-	Duration    int       `json:"duration"`    // 总时长（秒）
-	CoverPath   string    `json:"cover_path"`  // 封面图路径
+	ID          string    `json:"id"`               // 唯一标识
+	Name        string    `json:"name"`             // 列表名称
+	Description string    `json:"description"`      // 描述
+	TrackCount  int       `json:"track_count"`      // 曲目数
+	Duration    int       `json:"duration"`         // 总时长（秒）
+	CoverPath   string    `json:"cover_path"`       // 封面图路径
 	Tracks      []*Track  `json:"tracks,omitempty"` // 曲目列表（详情时包含）
-	CreatedAt   time.Time `json:"created_at"`  // 创建时间
-	UpdatedAt   time.Time `json:"updated_at"`  // 更新时间
+	CreatedAt   time.Time `json:"created_at"`       // 创建时间
+	UpdatedAt   time.Time `json:"updated_at"`       // 更新时间
 }
 
 // QueueItem 播放队列项.
 type QueueItem struct {
-	Index   int    `json:"index"`   // 队列中的位置
-	TrackID string `json:"track_id"` // 音乐ID
+	Index   int    `json:"index"`           // 队列中的位置
+	TrackID string `json:"track_id"`        // 音乐ID
 	Track   *Track `json:"track,omitempty"` // 音乐详情
 }
 
 // PlayQueue 播放队列.
 type PlayQueue struct {
-	Items       []QueueItem `json:"items"`        // 队列列表
-	CurrentIndex int        `json:"current_index"` // 当前播放索引
-	Mode        PlayMode    `json:"mode"`          // 播放模式
-	TotalCount  int         `json:"total_count"`   // 总曲目数
-	TotalDuration int       `json:"total_duration"` // 总时长（秒）
+	Items         []QueueItem `json:"items"`          // 队列列表
+	CurrentIndex  int         `json:"current_index"`  // 当前播放索引
+	Mode          PlayMode    `json:"mode"`           // 播放模式
+	TotalCount    int         `json:"total_count"`    // 总曲目数
+	TotalDuration int         `json:"total_duration"` // 总时长（秒）
 }
 
 // DLNADevice DLNA设备信息.
 type DLNADevice struct {
-	ID         string `json:"id"`          // 设备ID
-	Name       string `json:"name"`        // 设备名称
-	Type       string `json:"type"`        // 设备类型
-	IP         string `json:"ip"`          // IP地址
-	Port       int    `json:"port"`        // 端口
-	IconURL    string `json:"icon_url"`    // 图标URL
-	IsOnline   bool   `json:"is_online"`   // 是否在线
-	IsPlaying  bool   `json:"is_playing"`  // 是否正在播放
-	TrackID    string `json:"track_id"`    // 当前播放曲目
+	ID        string `json:"id"`         // 设备ID
+	Name      string `json:"name"`       // 设备名称
+	Type      string `json:"type"`       // 设备类型
+	IP        string `json:"ip"`         // IP地址
+	Port      int    `json:"port"`       // 端口
+	IconURL   string `json:"icon_url"`   // 图标URL
+	IsOnline  bool   `json:"is_online"`  // 是否在线
+	IsPlaying bool   `json:"is_playing"` // 是否正在播放
+	TrackID   string `json:"track_id"`   // 当前播放曲目
 }
 
 // ScanStatus 扫描状态.
 type ScanStatus struct {
-	IsRunning    bool      `json:"is_running"`    // 是否正在扫描
-	Progress     float64   `json:"progress"`      // 进度（0-100）
-	TotalFiles   int       `json:"total_files"`   // 总文件数
-	ScannedFiles int       `json:"scanned_files"` // 已扫描数
-	NewFiles     int       `json:"new_files"`     // 新增文件数
-	ErrorFiles   int       `json:"error_files"`   // 错误文件数
-	StartedAt    time.Time `json:"started_at"`    // 开始时间
-	CompletedAt  *time.Time `json:"completed_at"` // 完成时间
+	IsRunning    bool       `json:"is_running"`    // 是否正在扫描
+	Progress     float64    `json:"progress"`      // 进度（0-100）
+	TotalFiles   int        `json:"total_files"`   // 总文件数
+	ScannedFiles int        `json:"scanned_files"` // 已扫描数
+	NewFiles     int        `json:"new_files"`     // 新增文件数
+	ErrorFiles   int        `json:"error_files"`   // 错误文件数
+	StartedAt    time.Time  `json:"started_at"`    // 开始时间
+	CompletedAt  *time.Time `json:"completed_at"`  // 完成时间
 }
 
 // LibraryStats 音乐库统计信息.
 type LibraryStats struct {
-	TotalTracks  int     `json:"total_tracks"`  // 总曲目数
-	TotalAlbums  int     `json:"total_albums"`  // 总专辑数
-	TotalArtists int     `json:"total_artists"` // 总艺术家数
-	TotalGenres  int     `json:"total_genres"`  // 总流派数
-	TotalSize    int64   `json:"total_size"`    // 总大小（字节）
-	TotalDuration int    `json:"total_duration"` // 总时长（秒）
-	FavoriteCount int    `json:"favorite_count"` // 收藏数
+	TotalTracks   int   `json:"total_tracks"`   // 总曲目数
+	TotalAlbums   int   `json:"total_albums"`   // 总专辑数
+	TotalArtists  int   `json:"total_artists"`  // 总艺术家数
+	TotalGenres   int   `json:"total_genres"`   // 总流派数
+	TotalSize     int64 `json:"total_size"`     // 总大小（字节）
+	TotalDuration int   `json:"total_duration"` // 总时长（秒）
+	FavoriteCount int   `json:"favorite_count"` // 收藏数
 }
 
 // PlaybackStats 播放统计.
@@ -209,22 +209,22 @@ type PlaybackStats struct {
 
 // LibraryQuery 音乐库查询参数.
 type LibraryQuery struct {
-	Search  string `form:"search"`  // 搜索关键词
-	Artist  string `form:"artist"`  // 按艺术家过滤
-	Album   string `form:"album"`   // 按专辑过滤
-	Genre   string `form:"genre"`   // 按流派过滤
-	Year    int    `form:"year"`    // 按年份过滤
-	Sort    string `form:"sort"`    // 排序字段：title, artist, album, year, duration, play_count
-	Order   string `form:"order"`   // 排序方向：asc, desc
-	Page    int    `form:"page"`    // 页码（从1开始）
+	Search  string `form:"search"`   // 搜索关键词
+	Artist  string `form:"artist"`   // 按艺术家过滤
+	Album   string `form:"album"`    // 按专辑过滤
+	Genre   string `form:"genre"`    // 按流派过滤
+	Year    int    `form:"year"`     // 按年份过滤
+	Sort    string `form:"sort"`     // 排序字段：title, artist, album, year, duration, play_count
+	Order   string `form:"order"`    // 排序方向：asc, desc
+	Page    int    `form:"page"`     // 页码（从1开始）
 	PerPage int    `form:"per_page"` // 每页数量
 }
 
 // PlaylistInput 创建/更新播放列表输入.
 type PlaylistInput struct {
-	Name        string   `json:"name" binding:"required"`        // 列表名称
-	Description string   `json:"description"`                    // 描述
-	TrackIDs    []string `json:"track_ids,omitempty"`            // 曲目ID列表
+	Name        string   `json:"name" binding:"required"` // 列表名称
+	Description string   `json:"description"`             // 描述
+	TrackIDs    []string `json:"track_ids,omitempty"`     // 曲目ID列表
 }
 
 // QueueAddRequest 添加到播放队列请求.

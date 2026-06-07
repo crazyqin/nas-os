@@ -60,10 +60,10 @@ type ConfigSnapshot struct {
 
 // ConfigChange 配置变更
 type ConfigChange struct {
-	Path      string      `json:"path"`
-	OldValue  interface{} `json:"old_value,omitempty"`
-	NewValue  interface{} `json:"new_value,omitempty"`
-	Type      ChangeType  `json:"type"`
+	Path     string      `json:"path"`
+	OldValue interface{} `json:"old_value,omitempty"`
+	NewValue interface{} `json:"new_value,omitempty"`
+	Type     ChangeType  `json:"type"`
 }
 
 // DriftReport 漂移报告
@@ -78,10 +78,10 @@ type DriftReport struct {
 
 // Manager 配置漂移管理器
 type Manager struct {
-	mu          sync.RWMutex
-	storageDir  string
-	snapshots   map[string]*ConfigSnapshot
-	baselineID  string
+	mu           sync.RWMutex
+	storageDir   string
+	snapshots    map[string]*ConfigSnapshot
+	baselineID   string
 	driftHistory []DriftReport
 }
 

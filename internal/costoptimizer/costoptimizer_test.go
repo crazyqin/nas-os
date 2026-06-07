@@ -14,8 +14,8 @@ func testAllocations() []StorageAllocation {
 		{
 			Path:        "/data/hot",
 			Tier:        TierNVMe,
-			UsedBytes:   500 * 1024 * 1024 * 1024,   // 500GB
-			SizeBytes:   1024 * 1024 * 1024 * 1024,   // 1TB
+			UsedBytes:   500 * 1024 * 1024 * 1024,  // 500GB
+			SizeBytes:   1024 * 1024 * 1024 * 1024, // 1TB
 			AccessCount: 10000,
 			DataType:    DataTypeDocuments,
 		},
@@ -32,14 +32,14 @@ func testAllocations() []StorageAllocation {
 			Tier:        TierNVMe,
 			UsedBytes:   1 * 1024 * 1024 * 1024 * 1024, // 1TB
 			SizeBytes:   2 * 1024 * 1024 * 1024 * 1024, // 2TB
-			AccessCount: 2, // 冷数据在NVMe上
+			AccessCount: 2,                             // 冷数据在NVMe上
 			DataType:    DataTypeBackup,
 		},
 		{
 			Path:        "/data/archive",
 			Tier:        TierHDD,
 			UsedBytes:   200 * 1024 * 1024 * 1024, // 200GB
-			SizeBytes:   500 * 1024 * 1024 * 1024,  // 500GB
+			SizeBytes:   500 * 1024 * 1024 * 1024, // 500GB
 			AccessCount: 0,
 			DataType:    DataTypeArchive,
 		},
@@ -485,8 +485,8 @@ func TestBytesToTB(t *testing.T) {
 func TestSafePercent(t *testing.T) {
 	assert.Equal(t, 50.0, safePercent(50, 100))
 	assert.Equal(t, 0.0, safePercent(0, 100))
-	assert.Equal(t, 0.0, safePercent(100, 0))   // 除零保护
-	assert.Equal(t, 0.0, safePercent(100, -1))   // 负数保护
+	assert.Equal(t, 0.0, safePercent(100, 0))  // 除零保护
+	assert.Equal(t, 0.0, safePercent(100, -1)) // 负数保护
 }
 
 // ========== 默认值测试 ==========

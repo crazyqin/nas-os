@@ -12,50 +12,50 @@ import (
 type Step string
 
 const (
-	StepDiskSelection  Step = "disk_selection"  // 磁盘选择
-	StepRAIDConfig     Step = "raid_config"     // RAID配置
-	StepPoolCreation   Step = "pool_creation"   // 存储池创建
-	StepVolumeSetup    Step = "volume_setup"    // 卷设置
-	StepShareConfig    Step = "share_config"    // 共享配置
-	StepReview         Step = "review"          // 确认
-	StepComplete       Step = "complete"        // 完成
+	StepDiskSelection Step = "disk_selection" // 磁盘选择
+	StepRAIDConfig    Step = "raid_config"    // RAID配置
+	StepPoolCreation  Step = "pool_creation"  // 存储池创建
+	StepVolumeSetup   Step = "volume_setup"   // 卷设置
+	StepShareConfig   Step = "share_config"   // 共享配置
+	StepReview        Step = "review"         // 确认
+	StepComplete      Step = "complete"       // 完成
 )
 
 // RAIDType RAID类型
 type RAIDType string
 
 const (
-	RAIDBasic  RAIDType = "basic"  // 基础（单盘）
-	RAID0      RAIDType = "raid0"  // 条带化
-	RAID1      RAIDType = "raid1"  // 镜像
-	RAID5      RAIDType = "raid5"  // RAID5
-	RAID6      RAIDType = "raid6"  // RAID6
-	RAID10     RAIDType = "raid10" // RAID10
-	RAIDZ1     RAIDType = "raidz1" // ZFS RAIDZ1
-	RAIDZ2     RAIDType = "raidz2" // ZFS RAIDZ2
-	RAIDZ3     RAIDType = "raidz3" // ZFS RAIDZ3
+	RAIDBasic RAIDType = "basic"  // 基础（单盘）
+	RAID0     RAIDType = "raid0"  // 条带化
+	RAID1     RAIDType = "raid1"  // 镜像
+	RAID5     RAIDType = "raid5"  // RAID5
+	RAID6     RAIDType = "raid6"  // RAID6
+	RAID10    RAIDType = "raid10" // RAID10
+	RAIDZ1    RAIDType = "raidz1" // ZFS RAIDZ1
+	RAIDZ2    RAIDType = "raidz2" // ZFS RAIDZ2
+	RAIDZ3    RAIDType = "raidz3" // ZFS RAIDZ3
 )
 
 // DiskInfo 磁盘信息
 type DiskInfo struct {
-	ID         string  `json:"id"`
-	Device     string  `json:"device"`
-	Model      string  `json:"model"`
-	Serial     string  `json:"serial"`
-	Size       int64   `json:"size"`       // 字节
-	RPM        int     `json:"rpm"`        // 转速（SSD为0）
-	Type       string  `json:"type"`       // hdd/ssd/nvme
-	Health     string  `json:"health"`     // healthy/degraded/faulted
+	ID          string `json:"id"`
+	Device      string `json:"device"`
+	Model       string `json:"model"`
+	Serial      string `json:"serial"`
+	Size        int64  `json:"size"`        // 字节
+	RPM         int    `json:"rpm"`         // 转速（SSD为0）
+	Type        string `json:"type"`        // hdd/ssd/nvme
+	Health      string `json:"health"`      // healthy/degraded/faulted
 	Temperature int    `json:"temperature"` // 温度
-	Interface  string  `json:"interface"`  // sata/sas/nvme/usb
+	Interface   string `json:"interface"`   // sata/sas/nvme/usb
 }
 
 // RAIDConfig RAID配置
 type RAIDConfig struct {
-	Type        RAIDType `json:"type"`
-	Disks       []string `json:"disks"`       // 磁盘ID列表
-	StripeSize  int      `json:"stripe_size"` // 条带大小（KB）
-	Spares      int      `json:"spares"`      // 热备盘数量
+	Type       RAIDType `json:"type"`
+	Disks      []string `json:"disks"`       // 磁盘ID列表
+	StripeSize int      `json:"stripe_size"` // 条带大小（KB）
+	Spares     int      `json:"spares"`      // 热备盘数量
 }
 
 // PoolConfig 存储池配置
@@ -72,21 +72,21 @@ type PoolConfig struct {
 type VolumeConfig struct {
 	Name       string `json:"name"`
 	PoolName   string `json:"pool_name"`
-	Size       int64  `json:"size"`        // 字节
-	FileSystem string `json:"filesystem"`  // ext4/btrfs/zfs/xfs
+	Size       int64  `json:"size"`       // 字节
+	FileSystem string `json:"filesystem"` // ext4/btrfs/zfs/xfs
 	MountPoint string `json:"mount_point"`
 	Quota      int64  `json:"quota"`
 }
 
 // ShareConfig 共享配置
 type ShareConfig struct {
-	Name       string   `json:"name"`
-	Path       string   `json:"path"`
-	Protocol   []string `json:"protocol"` // smb/nfs/ftp/webdav
-	ReadOnly   bool     `json:"read_only"`
-	GuestAccess bool    `json:"guest_access"`
-	Users      []string `json:"users"`
-	Groups     []string `json:"groups"`
+	Name        string   `json:"name"`
+	Path        string   `json:"path"`
+	Protocol    []string `json:"protocol"` // smb/nfs/ftp/webdav
+	ReadOnly    bool     `json:"read_only"`
+	GuestAccess bool     `json:"guest_access"`
+	Users       []string `json:"users"`
+	Groups      []string `json:"groups"`
 }
 
 // SetupSession 设置会话
@@ -106,31 +106,31 @@ type SetupSession struct {
 
 // RAIDRecommendation RAID推荐
 type RAIDRecommendation struct {
-	Type        RAIDType `json:"type"`
-	Description string   `json:"description"`
-	MinDisks    int      `json:"min_disks"`
-	MaxDisks    int      `json:"max_disks"`
-	FaultTolerance int   `json:"fault_tolerance"` // 容错盘数
-	UsableRatio float64  `json:"usable_ratio"`    // 可用空间比例
-	Performance string   `json:"performance"`     // 读写性能评级
-	Recommended bool     `json:"recommended"`     // 是否推荐
-	Reason      string   `json:"reason"`          // 推荐原因
+	Type           RAIDType `json:"type"`
+	Description    string   `json:"description"`
+	MinDisks       int      `json:"min_disks"`
+	MaxDisks       int      `json:"max_disks"`
+	FaultTolerance int      `json:"fault_tolerance"` // 容错盘数
+	UsableRatio    float64  `json:"usable_ratio"`    // 可用空间比例
+	Performance    string   `json:"performance"`     // 读写性能评级
+	Recommended    bool     `json:"recommended"`     // 是否推荐
+	Reason         string   `json:"reason"`          // 推荐原因
 }
 
 // DiskRecommendation 磁盘推荐
 type DiskRecommendation struct {
-	DiskID      string `json:"disk_id"`
-	Role        string `json:"role"` // data/spare/cache/log
-	Reason      string `json:"reason"`
+	DiskID string `json:"disk_id"`
+	Role   string `json:"role"` // data/spare/cache/log
+	Reason string `json:"reason"`
 }
 
 // CapacityEstimation 容量估算
 type CapacityEstimation struct {
-	TotalRaw     int64   `json:"total_raw"`     // 原始总容量
-	Usable       int64   `json:"usable"`         // 可用容量
-	Overhead     int64   `json:"overhead"`       // 开销
-	OverheadPct  float64 `json:"overhead_pct"`   // 开销比例
-	Recommended  bool    `json:"recommended"`    // 是否推荐此配置
+	TotalRaw    int64   `json:"total_raw"`    // 原始总容量
+	Usable      int64   `json:"usable"`       // 可用容量
+	Overhead    int64   `json:"overhead"`     // 开销
+	OverheadPct float64 `json:"overhead_pct"` // 开销比例
+	Recommended bool    `json:"recommended"`  // 是否推荐此配置
 }
 
 // DefaultRAIDDefaults 返回默认RAID配置
@@ -223,121 +223,121 @@ func RecommendRAID(diskCount int, priority string) []RAIDRecommendation {
 	switch {
 	case diskCount == 1:
 		recommendations = append(recommendations, RAIDRecommendation{
-			Type:        RAIDBasic,
-			Description: "单盘基础存储",
-			MinDisks:    1,
-			MaxDisks:    1,
+			Type:           RAIDBasic,
+			Description:    "单盘基础存储",
+			MinDisks:       1,
+			MaxDisks:       1,
 			FaultTolerance: 0,
-			UsableRatio: 1.0,
-			Performance: "单盘性能",
-			Recommended: true,
-			Reason:      "单盘配置，无冗余",
+			UsableRatio:    1.0,
+			Performance:    "单盘性能",
+			Recommended:    true,
+			Reason:         "单盘配置，无冗余",
 		})
 	case diskCount == 2:
 		if priority == "performance" {
 			recommendations = append(recommendations, RAIDRecommendation{
-				Type:        RAID0,
-				Description: "条带化，高性能",
-				MinDisks:    2,
-				MaxDisks:    2,
+				Type:           RAID0,
+				Description:    "条带化，高性能",
+				MinDisks:       2,
+				MaxDisks:       2,
 				FaultTolerance: 0,
-				UsableRatio: 1.0,
-				Performance: "高",
-				Recommended: true,
-				Reason:      "追求性能，无冗余",
+				UsableRatio:    1.0,
+				Performance:    "高",
+				Recommended:    true,
+				Reason:         "追求性能，无冗余",
 			})
 		}
 		recommendations = append(recommendations, RAIDRecommendation{
-			Type:        RAID1,
-			Description: "镜像，数据安全",
-			MinDisks:    2,
-			MaxDisks:    2,
+			Type:           RAID1,
+			Description:    "镜像，数据安全",
+			MinDisks:       2,
+			MaxDisks:       2,
 			FaultTolerance: 1,
-			UsableRatio: 0.5,
-			Performance: "中",
-			Recommended: priority != "performance",
-			Reason:      "数据安全优先",
+			UsableRatio:    0.5,
+			Performance:    "中",
+			Recommended:    priority != "performance",
+			Reason:         "数据安全优先",
 		})
 	case diskCount >= 3 && diskCount <= 4:
 		recommendations = append(recommendations, RAIDRecommendation{
-			Type:        RAID5,
-			Description: "RAID5，平衡性能与安全",
-			MinDisks:    3,
-			MaxDisks:    16,
+			Type:           RAID5,
+			Description:    "RAID5，平衡性能与安全",
+			MinDisks:       3,
+			MaxDisks:       16,
 			FaultTolerance: 1,
-			UsableRatio: float64(diskCount-1) / float64(diskCount),
-			Performance: "中高",
-			Recommended: true,
-			Reason:      "性能与安全的平衡",
+			UsableRatio:    float64(diskCount-1) / float64(diskCount),
+			Performance:    "中高",
+			Recommended:    true,
+			Reason:         "性能与安全的平衡",
 		})
 		if diskCount >= 4 {
 			recommendations = append(recommendations, RAIDRecommendation{
-				Type:        RAID6,
-				Description: "RAID6，双重冗余",
-				MinDisks:    4,
-				MaxDisks:    16,
+				Type:           RAID6,
+				Description:    "RAID6，双重冗余",
+				MinDisks:       4,
+				MaxDisks:       16,
 				FaultTolerance: 2,
-				UsableRatio: float64(diskCount-2) / float64(diskCount),
-				Performance: "中",
-				Recommended: false,
-				Reason:      "更高安全性",
+				UsableRatio:    float64(diskCount-2) / float64(diskCount),
+				Performance:    "中",
+				Recommended:    false,
+				Reason:         "更高安全性",
 			})
 			recommendations = append(recommendations, RAIDRecommendation{
-				Type:        RAID10,
-				Description: "RAID10，高性能镜像",
-				MinDisks:    4,
-				MaxDisks:    16,
+				Type:           RAID10,
+				Description:    "RAID10，高性能镜像",
+				MinDisks:       4,
+				MaxDisks:       16,
 				FaultTolerance: 1,
-				UsableRatio: 0.5,
-				Performance: "高",
-				Recommended: priority == "performance",
-				Reason:      "高性能需求",
+				UsableRatio:    0.5,
+				Performance:    "高",
+				Recommended:    priority == "performance",
+				Reason:         "高性能需求",
 			})
 		}
 	case diskCount >= 5:
 		recommendations = append(recommendations, RAIDRecommendation{
-			Type:        RAID5,
-			Description: "RAID5，平衡性能与安全",
-			MinDisks:    3,
-			MaxDisks:    16,
+			Type:           RAID5,
+			Description:    "RAID5，平衡性能与安全",
+			MinDisks:       3,
+			MaxDisks:       16,
 			FaultTolerance: 1,
-			UsableRatio: float64(diskCount-1) / float64(diskCount),
-			Performance: "中高",
-			Recommended: priority == "balanced",
-			Reason:      "性能与安全的平衡",
+			UsableRatio:    float64(diskCount-1) / float64(diskCount),
+			Performance:    "中高",
+			Recommended:    priority == "balanced",
+			Reason:         "性能与安全的平衡",
 		})
 		recommendations = append(recommendations, RAIDRecommendation{
-			Type:        RAID6,
-			Description: "RAID6，双重冗余",
-			MinDisks:    4,
-			MaxDisks:    16,
+			Type:           RAID6,
+			Description:    "RAID6，双重冗余",
+			MinDisks:       4,
+			MaxDisks:       16,
 			FaultTolerance: 2,
-			UsableRatio: float64(diskCount-2) / float64(diskCount),
-			Performance: "中",
-			Recommended: priority == "safety",
-			Reason:      "更高安全性",
+			UsableRatio:    float64(diskCount-2) / float64(diskCount),
+			Performance:    "中",
+			Recommended:    priority == "safety",
+			Reason:         "更高安全性",
 		})
 		recommendations = append(recommendations, RAIDRecommendation{
-			Type:        RAID10,
-			Description: "RAID10，高性能镜像",
-			MinDisks:    4,
-			MaxDisks:    16,
+			Type:           RAID10,
+			Description:    "RAID10，高性能镜像",
+			MinDisks:       4,
+			MaxDisks:       16,
 			FaultTolerance: 1,
-			UsableRatio: 0.5,
-			Performance: "高",
-			Recommended: priority == "performance",
-			Reason:      "高性能需求",
+			UsableRatio:    0.5,
+			Performance:    "高",
+			Recommended:    priority == "performance",
+			Reason:         "高性能需求",
 		})
 		recommendations = append(recommendations, RAIDRecommendation{
-			Type:        RAIDZ2,
-			Description: "ZFS RAIDZ2，企业级冗余",
-			MinDisks:    4,
-			MaxDisks:    16,
+			Type:           RAIDZ2,
+			Description:    "ZFS RAIDZ2，企业级冗余",
+			MinDisks:       4,
+			MaxDisks:       16,
 			FaultTolerance: 2,
-			UsableRatio: float64(diskCount-2) / float64(diskCount),
-			Performance: "中",
-			Recommended: false,
-			Reason:      "ZFS高级功能",
+			UsableRatio:    float64(diskCount-2) / float64(diskCount),
+			Performance:    "中",
+			Recommended:    false,
+			Reason:         "ZFS高级功能",
 		})
 	}
 

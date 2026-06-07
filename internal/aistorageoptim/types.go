@@ -70,26 +70,26 @@ func DefaultTieringPolicy() TieringPolicy {
 		HDDDemoteThreshold:    20.0,
 		AnalysisInterval:      15 * time.Minute,
 		BatchSize:             100,
-		SmallFileThreshold:    1024 * 1024,         // 1MB
-		LargeFileThreshold:    1024 * 1024 * 1024,  // 1GB
+		SmallFileThreshold:    1024 * 1024,        // 1MB
+		LargeFileThreshold:    1024 * 1024 * 1024, // 1GB
 	}
 }
 
 // FileAccessStats 文件访问统计
 type FileAccessStats struct {
-	FilePath         string        `json:"filePath"`
-	FileSize         int64         `json:"fileSize"`
-	FileType         string        `json:"fileType"`
-	CurrentTier      StorageTier   `json:"currentTier"`
-	AccessCount      int64         `json:"accessCount"`
-	LastAccessTime   time.Time     `json:"lastAccessTime"`
-	FirstAccessTime  time.Time     `json:"firstAccessTime"`
-	TotalBytesRead   int64         `json:"totalBytesRead"`
-	TotalBytesWrite  int64         `json:"totalBytesWrite"`
-	AccessFrequency  float64       `json:"accessFrequency"`  // 每小时访问次数
-	IOPattern        IOPattern     `json:"ioPattern"`
-	AccessPattern    AccessPattern `json:"accessPattern"`
-	Windows          []AccessWindow `json:"-"` // 访问窗口
+	FilePath        string         `json:"filePath"`
+	FileSize        int64          `json:"fileSize"`
+	FileType        string         `json:"fileType"`
+	CurrentTier     StorageTier    `json:"currentTier"`
+	AccessCount     int64          `json:"accessCount"`
+	LastAccessTime  time.Time      `json:"lastAccessTime"`
+	FirstAccessTime time.Time      `json:"firstAccessTime"`
+	TotalBytesRead  int64          `json:"totalBytesRead"`
+	TotalBytesWrite int64          `json:"totalBytesWrite"`
+	AccessFrequency float64        `json:"accessFrequency"` // 每小时访问次数
+	IOPattern       IOPattern      `json:"ioPattern"`
+	AccessPattern   AccessPattern  `json:"accessPattern"`
+	Windows         []AccessWindow `json:"-"` // 访问窗口
 }
 
 // AccessWindow 访问时间窗口
@@ -101,28 +101,28 @@ type AccessWindow struct {
 
 // OptimizationScore 优化评分
 type OptimizationScore struct {
-	FilePath           string      `json:"filePath"`
-	CurrentTier        StorageTier `json:"currentTier"`
-	RecommendedTier    StorageTier `json:"recommendedTier"`
-	Score              float64     `json:"score"`
-	AccessFrequencyScore float64   `json:"accessFrequencyScore"`
-	FileSizeScore      float64     `json:"fileSizeScore"`
-	IOPatternScore     float64     `json:"ioPatternScore"`
-	TimeDecayScore     float64     `json:"timeDecayScore"`
-	Priority           int         `json:"priority"` // 1-10, 10最高
-	Reason             string      `json:"reason"`
+	FilePath             string      `json:"filePath"`
+	CurrentTier          StorageTier `json:"currentTier"`
+	RecommendedTier      StorageTier `json:"recommendedTier"`
+	Score                float64     `json:"score"`
+	AccessFrequencyScore float64     `json:"accessFrequencyScore"`
+	FileSizeScore        float64     `json:"fileSizeScore"`
+	IOPatternScore       float64     `json:"ioPatternScore"`
+	TimeDecayScore       float64     `json:"timeDecayScore"`
+	Priority             int         `json:"priority"` // 1-10, 10最高
+	Reason               string      `json:"reason"`
 }
 
 // OptimizationDecision 优化决策
 type OptimizationDecision struct {
-	FilePath       string      `json:"filePath"`
-	Action         string      `json:"action"` // promote/demote/keep
-	FromTier       StorageTier `json:"fromTier"`
-	ToTier         StorageTier `json:"toTier"`
-	Score          float64     `json:"score"`
-	Priority       int         `json:"priority"`
-	Reason         string      `json:"reason"`
-	EstimatedBenefit float64   `json:"estimatedBenefit"` // 预估性能提升百分比
+	FilePath         string      `json:"filePath"`
+	Action           string      `json:"action"` // promote/demote/keep
+	FromTier         StorageTier `json:"fromTier"`
+	ToTier           StorageTier `json:"toTier"`
+	Score            float64     `json:"score"`
+	Priority         int         `json:"priority"`
+	Reason           string      `json:"reason"`
+	EstimatedBenefit float64     `json:"estimatedBenefit"` // 预估性能提升百分比
 }
 
 // StorageMetrics 存储层指标
@@ -151,18 +151,18 @@ type OptimizationStats struct {
 
 // AnalysisRequest 分析请求
 type AnalysisRequest struct {
-	Path    string `json:"path"`    // 分析路径
-	Force   bool   `json:"force"`   // 强制重新分析
-	DryRun  bool   `json:"dryRun"`  // 只分析不执行
+	Path   string `json:"path"`   // 分析路径
+	Force  bool   `json:"force"`  // 强制重新分析
+	DryRun bool   `json:"dryRun"` // 只分析不执行
 }
 
 // OptimizationResponse 优化响应
 type OptimizationResponse struct {
-	Status    string                `json:"status"`
+	Status    string                 `json:"status"`
 	Decisions []OptimizationDecision `json:"decisions,omitempty"`
-	Stats     OptimizationStats     `json:"stats"`
-	Scores    []OptimizationScore   `json:"scores,omitempty"`
-	Timestamp string                `json:"timestamp"`
+	Stats     OptimizationStats      `json:"stats"`
+	Scores    []OptimizationScore    `json:"scores,omitempty"`
+	Timestamp string                 `json:"timestamp"`
 }
 
 // TierConfig 存储层配置
@@ -175,12 +175,12 @@ type TierConfig struct {
 
 // MigrationRecord 迁移记录
 type MigrationRecord struct {
-	ID         string      `json:"id"`
-	FilePath   string      `json:"filePath"`
-	FromTier   StorageTier `json:"fromTier"`
-	ToTier     StorageTier `json:"toTier"`
-	Timestamp  time.Time   `json:"timestamp"`
-	Status     string      `json:"status"` // pending/running/completed/failed
-	Score      float64     `json:"score"`
-	Error      string      `json:"error,omitempty"`
+	ID        string      `json:"id"`
+	FilePath  string      `json:"filePath"`
+	FromTier  StorageTier `json:"fromTier"`
+	ToTier    StorageTier `json:"toTier"`
+	Timestamp time.Time   `json:"timestamp"`
+	Status    string      `json:"status"` // pending/running/completed/failed
+	Score     float64     `json:"score"`
+	Error     string      `json:"error,omitempty"`
 }

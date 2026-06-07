@@ -16,10 +16,10 @@ type Manager struct {
 	config Config
 	logger *zap.Logger
 
-	predictor    *Predictor
-	migrator     *Migrator
+	predictor     *Predictor
+	migrator      *Migrator
 	costOptimizer *CostOptimizer
-	monitor      *Monitor
+	monitor       *Monitor
 
 	policies map[string]*TierPolicy
 
@@ -457,13 +457,13 @@ func (m *Manager) GetAccessPattern(filePath string) (*AccessPattern, error) {
 	predictedTier, _ := m.predictor.PredictTier(filePath, m.config.Migrator)
 
 	return &AccessPattern{
-		FilePath:        filePath,
-		TotalAccesses:   meta.AccessCount,
-		ReadCount:       meta.ReadCount,
-		WriteCount:      meta.WriteCount,
-		LastAccess:      meta.AccessedAt,
-		Pattern:         pattern,
-		HeatScore:       meta.HeatScore,
-		PredictedTier:   predictedTier,
+		FilePath:      filePath,
+		TotalAccesses: meta.AccessCount,
+		ReadCount:     meta.ReadCount,
+		WriteCount:    meta.WriteCount,
+		LastAccess:    meta.AccessedAt,
+		Pattern:       pattern,
+		HeatScore:     meta.HeatScore,
+		PredictedTier: predictedTier,
 	}, nil
 }

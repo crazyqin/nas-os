@@ -47,8 +47,8 @@ func createTestConfig(t *testing.T, router *gin.Engine, name string) ScheduleCon
 		BackupWindows: []BackupWindow{
 			{Name: "夜间窗口", StartTime: "22:00", EndTime: "06:00", Days: []string{"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"}},
 		},
-		PeakHours:    []TimeRange{{Start: "09:00", End: "18:00"}},
-		MaxRetries:   3,
+		PeakHours:     []TimeRange{{Start: "09:00", End: "18:00"}},
+		MaxRetries:    3,
 		RetentionDays: 30,
 	}
 	body, _ := json.Marshal(config)

@@ -215,10 +215,10 @@ func (h *Handler) SearchMedia(c *gin.Context) {
 
 	items, total := h.manager.SearchMedia(req)
 	c.JSON(http.StatusOK, gin.H{
-		"items":      items,
-		"total":      total,
-		"page":       req.Page,
-		"page_size":  req.PageSize,
+		"items":     items,
+		"total":     total,
+		"page":      req.Page,
+		"page_size": req.PageSize,
 	})
 }
 

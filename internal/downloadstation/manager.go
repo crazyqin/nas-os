@@ -21,19 +21,19 @@ import (
 
 // Manager 下载站管理器.
 type Manager struct {
-	mu          sync.RWMutex
-	tasks       map[string]*DownloadTask
-	taskURLs    map[string]string // URL -> taskID 映射，用于重复检测
-	history     []HistoryEntry
-	queue       *DownloadQueue
-	limiter     *SpeedLimiter
-	config      QueueConfig
-	feeds       map[string]*RSSFeed
-	feedItems   map[string][]RSSItem
-	schedules   map[string]*DownloadSchedule
-	ctx         context.Context
-	cancel      context.CancelFunc
-	downloadDir string
+	mu           sync.RWMutex
+	tasks        map[string]*DownloadTask
+	taskURLs     map[string]string // URL -> taskID 映射，用于重复检测
+	history      []HistoryEntry
+	queue        *DownloadQueue
+	limiter      *SpeedLimiter
+	config       QueueConfig
+	feeds        map[string]*RSSFeed
+	feedItems    map[string][]RSSItem
+	schedules    map[string]*DownloadSchedule
+	ctx          context.Context
+	cancel       context.CancelFunc
+	downloadDir  string
 	autoClassify bool // 是否启用自动分类
 }
 

@@ -19,35 +19,35 @@ import (
 
 // Subsystem represents an NVMe subsystem configuration.
 type Subsystem struct {
-	NQN            string    `json:"nqn"`             // NVMe Qualified Name
-	SerialNumber   string    `json:"serial_number"`
-	ModelNumber    string    `json:"model_number"`
-	MaxNamespaces  int       `json:"max_namespaces"`
-	AllowAnyHost   bool      `json:"allow_any_host"`
-	Hosts          []string  `json:"allowed_hosts"`   // Allowed host NQNs
-	NamespaceIDs   []int     `json:"namespace_ids"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	NQN           string    `json:"nqn"` // NVMe Qualified Name
+	SerialNumber  string    `json:"serial_number"`
+	ModelNumber   string    `json:"model_number"`
+	MaxNamespaces int       `json:"max_namespaces"`
+	AllowAnyHost  bool      `json:"allow_any_host"`
+	Hosts         []string  `json:"allowed_hosts"` // Allowed host NQNs
+	NamespaceIDs  []int     `json:"namespace_ids"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 // Namespace represents an NVMe namespace (LUN equivalent).
 type Namespace struct {
-	ID            int       `json:"id"`
-	Path          string    `json:"path"`           // Backing device/file path
-	Size          int64     `json:"size"`           // Size in bytes
-	BlockSize     int       `json:"block_size"`     // Typically 512 or 4096
-	ReadOnly      bool      `json:"read_only"`
-	SubsystemNQN  string    `json:"subsystem_nqn"`
-	CreatedAt     time.Time `json:"created_at"`
+	ID           int       `json:"id"`
+	Path         string    `json:"path"`       // Backing device/file path
+	Size         int64     `json:"size"`       // Size in bytes
+	BlockSize    int       `json:"block_size"` // Typically 512 or 4096
+	ReadOnly     bool      `json:"read_only"`
+	SubsystemNQN string    `json:"subsystem_nqn"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 // Port represents an NVMe/TCP listener port.
 type Port struct {
 	ID          string    `json:"id"`
-	Transport   string    `json:"transport"`      // "tcp" or "rdma"
-	Address     string    `json:"address"`        // IP address
-	Port        int       `json:"port"`           // TCP port (default 4420)
-	Status      string    `json:"status"`         // "listening", "stopped"
+	Transport   string    `json:"transport"` // "tcp" or "rdma"
+	Address     string    `json:"address"`   // IP address
+	Port        int       `json:"port"`      // TCP port (default 4420)
+	Status      string    `json:"status"`    // "listening", "stopped"
 	Connections int       `json:"connections"`
 	CreatedAt   time.Time `json:"created_at"`
 }
@@ -59,18 +59,18 @@ type Connection struct {
 	SubsystemNQN string    `json:"subsystem_nqn"`
 	PortID       string    `json:"port_id"`
 	RemoteAddr   string    `json:"remote_addr"`
-	Status       string    `json:"status"`         // "active", "idle", "disconnected"
+	Status       string    `json:"status"` // "active", "idle", "disconnected"
 	ConnectedAt  time.Time `json:"connected_at"`
 	LastActive   time.Time `json:"last_active"`
 }
 
 // Config holds NVMe-oF manager configuration.
 type Config struct {
-	DefaultPort    int    `json:"default_port"`     // Default NVMe/TCP port (4420)
-	MaxConnections int    `json:"max_connections"`  // Max concurrent connections
-	EnableRDMA     bool   `json:"enable_rdma"`      // Enable NVMe/RDMA (requires hardware)
+	DefaultPort    int    `json:"default_port"`    // Default NVMe/TCP port (4420)
+	MaxConnections int    `json:"max_connections"` // Max concurrent connections
+	EnableRDMA     bool   `json:"enable_rdma"`     // Enable NVMe/RDMA (requires hardware)
 	LogLevel       string `json:"log_level"`
-	DataDir        string `json:"data_dir"`         // Path for config storage
+	DataDir        string `json:"data_dir"` // Path for config storage
 }
 
 // Manager manages NVMe over Fabric targets.
@@ -445,13 +445,13 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"subsystems":       len(m.subsystems),
-		"namespaces":       len(m.namespaces),
-		"ports":            len(m.ports),
-		"listening_ports":  listeningPorts,
-		"connections":      len(m.connections),
+		"subsystems":         len(m.subsystems),
+		"namespaces":         len(m.namespaces),
+		"ports":              len(m.ports),
+		"listening_ports":    listeningPorts,
+		"connections":        len(m.connections),
 		"active_connections": activeConns,
-		"rdma_enabled":     m.config.EnableRDMA,
+		"rdma_enabled":       m.config.EnableRDMA,
 	}
 }
 

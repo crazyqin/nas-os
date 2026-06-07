@@ -20,11 +20,11 @@ const (
 type TriggerType string
 
 const (
-	TriggerManual     TriggerType = "manual"      // 手动触发
-	TriggerInactivity TriggerType = "inactivity"  // 不活跃触发
-	TriggerDeathCert  TriggerType = "death_cert"  // 死亡证明触发
-	TriggerEmergency  TriggerType = "emergency"   // 紧急触发
-	TriggerScheduled  TriggerType = "scheduled"   // 定时触发
+	TriggerManual     TriggerType = "manual"     // 手动触发
+	TriggerInactivity TriggerType = "inactivity" // 不活跃触发
+	TriggerDeathCert  TriggerType = "death_cert" // 死亡证明触发
+	TriggerEmergency  TriggerType = "emergency"  // 紧急触发
+	TriggerScheduled  TriggerType = "scheduled"  // 定时触发
 )
 
 // AssetType 数字资产类型
@@ -127,10 +127,10 @@ type TriggerConditions struct {
 type TimeLock struct {
 	ID            string     `json:"id"`
 	PlanID        string     `json:"plan_id"`
-	UnlockAt      time.Time  `json:"unlock_at"`                // 解锁时间
+	UnlockAt      time.Time  `json:"unlock_at"` // 解锁时间
 	IsActive      bool       `json:"is_active"`
 	UnlockedAt    *time.Time `json:"unlocked_at,omitempty"`
-	RequiredLevel int        `json:"required_level"`           // 所需验证级别
+	RequiredLevel int        `json:"required_level"` // 所需验证级别
 	CreatedAt     time.Time  `json:"created_at"`
 }
 

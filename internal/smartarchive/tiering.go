@@ -24,9 +24,9 @@ type TierManager struct {
 // TierManagerConfig 分层管理器配置.
 type TierManagerConfig struct {
 	// 自动平衡
-	EnableAutoBalance   bool    `json:"enableAutoBalance"`
-	BalanceThreshold    float64 `json:"balanceThreshold"`    // 触发平衡的使用率差异阈值
-	BalanceCooldown     time.Duration `json:"balanceCooldown"`
+	EnableAutoBalance bool          `json:"enableAutoBalance"`
+	BalanceThreshold  float64       `json:"balanceThreshold"` // 触发平衡的使用率差异阈值
+	BalanceCooldown   time.Duration `json:"balanceCooldown"`
 
 	// 迁移配置
 	MaxConcurrentMigrations int           `json:"maxConcurrentMigrations"`
@@ -54,27 +54,27 @@ func DefaultTierManagerConfig() TierManagerConfig {
 
 // TierMigration 层级迁移记录.
 type TierMigration struct {
-	ID          string        `json:"id"`
-	SourceTier  StorageTier   `json:"sourceTier"`
-	TargetTier  StorageTier   `json:"targetTier"`
-	StartTime   time.Time     `json:"startTime"`
-	EndTime     time.Time     `json:"endTime,omitempty"`
-	Status      string        `json:"status"`
-	FilesMoved  int64         `json:"filesMoved"`
-	BytesMoved  int64         `json:"bytesMoved"`
-	Reason      string        `json:"reason"`
-	Error       string        `json:"error,omitempty"`
+	ID         string      `json:"id"`
+	SourceTier StorageTier `json:"sourceTier"`
+	TargetTier StorageTier `json:"targetTier"`
+	StartTime  time.Time   `json:"startTime"`
+	EndTime    time.Time   `json:"endTime,omitempty"`
+	Status     string      `json:"status"`
+	FilesMoved int64       `json:"filesMoved"`
+	BytesMoved int64       `json:"bytesMoved"`
+	Reason     string      `json:"reason"`
+	Error      string      `json:"error,omitempty"`
 }
 
 // TierHealth 层级健康状态.
 type TierHealth struct {
-	Tier          StorageTier `json:"tier"`
-	Status        string      `json:"status"` // healthy/warning/critical/offline
-	UsagePercent  float64     `json:"usagePercent"`
-	IOPSUsage     float64     `json:"iopsUsage"`
-	ThroughputUsage float64   `json:"throughputUsage"`
-	LastCheck     time.Time   `json:"lastCheck"`
-	Issues        []string    `json:"issues,omitempty"`
+	Tier            StorageTier `json:"tier"`
+	Status          string      `json:"status"` // healthy/warning/critical/offline
+	UsagePercent    float64     `json:"usagePercent"`
+	IOPSUsage       float64     `json:"iopsUsage"`
+	ThroughputUsage float64     `json:"throughputUsage"`
+	LastCheck       time.Time   `json:"lastCheck"`
+	Issues          []string    `json:"issues,omitempty"`
 }
 
 // NewTierManager 创建分层管理器.
@@ -299,21 +299,21 @@ func (tm *TierManager) GetBalanceRecommendations() []BalanceRecommendation {
 		if diff > tm.config.BalanceThreshold {
 			// 需要迁移出
 			recommendations = append(recommendations, BalanceRecommendation{
-				SourceTier:  tier,
-				TargetTier:  tm.findLessUsedTier(usageMap, tier),
-				Action:      "migrate_out",
-				Reason:      fmt.Sprintf("使用率 %.1f%% 高于平均 %.1f%%", usage, avgUsage),
-				Priority:    int(diff),
-				EstSaving:   int64(diff * float64(tm.tiers[tier].Capacity) / 100),
+				SourceTier: tier,
+				TargetTier: tm.findLessUsedTier(usageMap, tier),
+				Action:     "migrate_out",
+				Reason:     fmt.Sprintf("使用率 %.1f%% 高于平均 %.1f%%", usage, avgUsage),
+				Priority:   int(diff),
+				EstSaving:  int64(diff * float64(tm.tiers[tier].Capacity) / 100),
 			})
 		} else if diff < -tm.config.BalanceThreshold {
 			// 可以迁入
 			recommendations = append(recommendations, BalanceRecommendation{
-				SourceTier:  tm.findMostUsedTier(usageMap, tier),
-				TargetTier:  tier,
-				Action:      "migrate_in",
-				Reason:      fmt.Sprintf("使用率 %.1f%% 低于平均 %.1f%%", usage, avgUsage),
-				Priority:    int(-diff),
+				SourceTier: tm.findMostUsedTier(usageMap, tier),
+				TargetTier: tier,
+				Action:     "migrate_in",
+				Reason:     fmt.Sprintf("使用率 %.1f%% 低于平均 %.1f%%", usage, avgUsage),
+				Priority:   int(-diff),
 			})
 		}
 	}
@@ -394,13 +394,13 @@ func (tm *TierManager) GetTierStats() map[StorageTier]*TierStatsInfo {
 
 	for tier, config := range tm.tiers {
 		info := &TierStatsInfo{
-			Tier:        tier,
-			Name:        config.Name,
-			Capacity:    config.Capacity,
-			Used:        config.Used,
-			Available:   config.Capacity - config.Used,
-			CostPerGB:   config.CostPerGB,
-			Enabled:     config.Enabled,
+			Tier:      tier,
+			Name:      config.Name,
+			Capacity:  config.Capacity,
+			Used:      config.Used,
+			Available: config.Capacity - config.Used,
+			CostPerGB: config.CostPerGB,
+			Enabled:   config.Enabled,
 		}
 
 		if config.Capacity > 0 {

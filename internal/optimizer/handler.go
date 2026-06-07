@@ -67,10 +67,10 @@ func (h *EngineHandlers) RegisterRoutes(api *gin.RouterGroup) {
 
 // EngineStatusResponse 引擎状态响应
 type EngineStatusResponse struct {
-	Running    bool          `json:"running"`
-	Uptime     time.Duration `json:"uptime"`
-	Stats      *EngineStats  `json:"stats"`
-	Config     *AutoTuneConfig `json:"config"`
+	Running bool            `json:"running"`
+	Uptime  time.Duration   `json:"uptime"`
+	Stats   *EngineStats    `json:"stats"`
+	Config  *AutoTuneConfig `json:"config"`
 }
 
 // getStatus 获取引擎状态

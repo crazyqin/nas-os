@@ -27,7 +27,7 @@ func (m *Manager) initTemplates() {
 		Services: map[string]*ServiceNode{
 			"wordpress": {
 				Name: "wordpress", Image: "wordpress:6.4-php8.2-apache",
-				Ports: []PortMapping{{HostPort: 8080, ContainerPort: 80, Protocol: "tcp"}},
+				Ports:   []PortMapping{{HostPort: 8080, ContainerPort: 80, Protocol: "tcp"}},
 				Volumes: []VolumeMapping{{Type: "volume", Source: "wp_data", Target: "/var/www/html"}},
 				Environment: map[string]string{
 					"WORDPRESS_DB_HOST":     "db:3306",
@@ -58,16 +58,16 @@ func (m *Manager) initTemplates() {
 				Ports:     []PortMapping{{HostPort: 8081, ContainerPort: 80, Protocol: "tcp"}},
 				DependsOn: []string{"db"},
 				Environment: map[string]string{
-					"PMA_HOST":     "db",
-					"PMA_PORT":     "3306",
+					"PMA_HOST":            "db",
+					"PMA_PORT":            "3306",
 					"MYSQL_ROOT_PASSWORD": "${MYSQL_ROOT_PASSWORD}",
 				},
 				Restart: "unless-stopped",
 			},
 		},
 		Volumes: map[string]*VolumeConfig{
-			"wp_data":  {Driver: "local"},
-			"db_data":  {Driver: "local"},
+			"wp_data": {Driver: "local"},
+			"db_data": {Driver: "local"},
 		},
 		CreatedAt: now,
 	}
@@ -100,12 +100,12 @@ func (m *Manager) initTemplates() {
 				},
 				DependsOn: []string{"db", "redis"},
 				Environment: map[string]string{
-					"MYSQL_HOST":            "db:3306",
-					"MYSQL_DATABASE":        "${MYSQL_DATABASE}",
-					"MYSQL_USER":            "${MYSQL_USER}",
-					"MYSQL_PASSWORD":        "${MYSQL_PASSWORD}",
-					"REDIS_HOST":            "redis",
-					"NEXTCLOUD_ADMIN_USER":  "admin",
+					"MYSQL_HOST":               "db:3306",
+					"MYSQL_DATABASE":           "${MYSQL_DATABASE}",
+					"MYSQL_USER":               "${MYSQL_USER}",
+					"MYSQL_PASSWORD":           "${MYSQL_PASSWORD}",
+					"REDIS_HOST":               "redis",
+					"NEXTCLOUD_ADMIN_USER":     "admin",
 					"NEXTCLOUD_ADMIN_PASSWORD": "admin_password",
 				},
 				Restart: "unless-stopped",
@@ -124,7 +124,7 @@ func (m *Manager) initTemplates() {
 			},
 			"redis": {
 				Name: "redis", Image: "redis:7-alpine",
-				Restart: "unless-stopped",
+				Restart:   "unless-stopped",
 				Resources: &ResourceLimits{CPUs: "0.5", Memory: "256M", Reservations: &ResourceReservation{CPUs: "0.1", Memory: "64M"}},
 			},
 		},
@@ -281,7 +281,7 @@ func (m *Manager) initTemplates() {
 				HealthCheck: &HealthCheck{Test: []string{"CMD", "curl", "-f", "http://localhost:8096/health"}, Interval: "30s", Timeout: "10s", Retries: 3, StartPeriod: "60s"},
 			},
 		},
-		Volumes: map[string]*VolumeConfig{},
+		Volumes:   map[string]*VolumeConfig{},
 		CreatedAt: now,
 	}
 
@@ -314,7 +314,7 @@ func (m *Manager) initTemplates() {
 			},
 			"php": {
 				Name: "php", Image: "php:8.2-fpm-alpine",
-				Volumes: []VolumeMapping{{Type: "bind", Source: "./www", Target: "/var/www/html"}},
+				Volumes:   []VolumeMapping{{Type: "bind", Source: "./www", Target: "/var/www/html"}},
 				DependsOn: []string{"db"},
 				Restart:   "unless-stopped",
 				Resources: SuggestResources("php"),
@@ -331,7 +331,7 @@ func (m *Manager) initTemplates() {
 				HealthCheck: &HealthCheck{Test: []string{"CMD", "mysqladmin", "ping", "-h", "localhost"}, Interval: "10s", Timeout: "5s", Retries: 5},
 			},
 		},
-		Volumes: map[string]*VolumeConfig{"mysql_data": {Driver: "local"}},
+		Volumes:   map[string]*VolumeConfig{"mysql_data": {Driver: "local"}},
 		CreatedAt: now,
 	}
 
@@ -360,7 +360,7 @@ func (m *Manager) initTemplates() {
 				HealthCheck: &HealthCheck{Test: []string{"CMD", "wget", "--spider", "-q", "http://localhost:9000/"}, Interval: "30s", Timeout: "5s", Retries: 3},
 			},
 		},
-		Volumes: map[string]*VolumeConfig{"portainer_data": {Driver: "local"}},
+		Volumes:   map[string]*VolumeConfig{"portainer_data": {Driver: "local"}},
 		CreatedAt: now,
 	}
 
@@ -447,7 +447,7 @@ func (m *Manager) initTemplates() {
 				HealthCheck: &HealthCheck{Test: []string{"CMD", "curl", "-f", "http://localhost:9000/minio/health/live"}, Interval: "30s", Timeout: "10s", Retries: 3},
 			},
 		},
-		Volumes: map[string]*VolumeConfig{"minio_data": {Driver: "local"}},
+		Volumes:   map[string]*VolumeConfig{"minio_data": {Driver: "local"}},
 		CreatedAt: now,
 	}
 
@@ -560,14 +560,14 @@ func (m *Manager) initTemplates() {
 		Services: map[string]*ServiceNode{
 			"uptimekuma": {
 				Name: "uptimekuma", Image: "louislam/uptime-kuma:latest",
-				Ports:   []PortMapping{{HostPort: 3001, ContainerPort: 3001, Protocol: "tcp"}},
-				Volumes: []VolumeMapping{{Type: "volume", Source: "uptimekuma_data", Target: "/app/data"}},
+				Ports:       []PortMapping{{HostPort: 3001, ContainerPort: 3001, Protocol: "tcp"}},
+				Volumes:     []VolumeMapping{{Type: "volume", Source: "uptimekuma_data", Target: "/app/data"}},
 				Restart:     "unless-stopped",
 				Resources:   &ResourceLimits{CPUs: "0.5", Memory: "256M", Reservations: &ResourceReservation{CPUs: "0.1", Memory: "64M"}},
 				HealthCheck: &HealthCheck{Test: []string{"CMD", "curl", "-f", "http://localhost:3001/"}, Interval: "30s", Timeout: "10s", Retries: 3, StartPeriod: "30s"},
 			},
 		},
-		Volumes: map[string]*VolumeConfig{"uptimekuma_data": {Driver: "local"}},
+		Volumes:   map[string]*VolumeConfig{"uptimekuma_data": {Driver: "local"}},
 		CreatedAt: now,
 	}
 }

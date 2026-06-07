@@ -23,7 +23,7 @@ const (
 type AppStatus string
 
 const (
-	AppStatusAvailable AppStatus = "available"
+	AppStatusAvailable  AppStatus = "available"
 	AppStatusInstalling AppStatus = "installing"
 	AppStatusInstalled  AppStatus = "installed"
 	AppStatusUpdating   AppStatus = "updating"
@@ -37,57 +37,57 @@ const (
 type AppCategory string
 
 const (
-	CategoryMedia      AppCategory = "media"
-	CategoryProductivity AppCategory = "productivity"
-	CategoryDevelopment AppCategory = "development"
-	CategoryNetworking  AppCategory = "networking"
-	CategorySecurity    AppCategory = "security"
-	CategoryMonitoring  AppCategory = "monitoring"
-	CategoryDatabase    AppCategory = "database"
-	CategoryStorage     AppCategory = "storage"
+	CategoryMedia         AppCategory = "media"
+	CategoryProductivity  AppCategory = "productivity"
+	CategoryDevelopment   AppCategory = "development"
+	CategoryNetworking    AppCategory = "networking"
+	CategorySecurity      AppCategory = "security"
+	CategoryMonitoring    AppCategory = "monitoring"
+	CategoryDatabase      AppCategory = "database"
+	CategoryStorage       AppCategory = "storage"
 	CategoryCommunication AppCategory = "communication"
-	CategoryAutomation  AppCategory = "automation"
-	CategoryAI          AppCategory = "ai"
-	CategoryGaming      AppCategory = "gaming"
-	CategoryOther       AppCategory = "other"
+	CategoryAutomation    AppCategory = "automation"
+	CategoryAI            AppCategory = "ai"
+	CategoryGaming        AppCategory = "gaming"
+	CategoryOther         AppCategory = "other"
 )
 
 // ========== 数据结构 ==========
 
 // App 应用信息
 type App struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	DisplayName string      `json:"display_name"`
-	Description string      `json:"description"`
-	Category    AppCategory `json:"category"`
-	Version     string      `json:"version"`
-	LatestVersion string    `json:"latest_version"`
-	Author      string      `json:"author"`
-	Website     string      `json:"website"`
-	Repository  string      `json:"repository"`
-	License     string      `json:"license"`
-	Icon        string      `json:"icon"`
-	Screenshots []string    `json:"screenshots"`
-	Tags        []string    `json:"tags"`
-	Status      AppStatus   `json:"status"`
-	Installed   bool        `json:"installed"`
-	InstalledAt *time.Time  `json:"installed_at,omitempty"`
-	UpdatedAt   *time.Time  `json:"updated_at,omitempty"`
-	Size        int64       `json:"size"`
-	Downloads   int64       `json:"downloads"`
-	Rating      float64     `json:"rating"`
-	RatingCount int         `json:"rating_count"`
-	Featured    bool        `json:"featured"`
-	Verified    bool        `json:"verified"`
-	MinCPU      int         `json:"min_cpu"`
-	MinMemory   int64       `json:"min_memory"`
-	MinDisk     int64       `json:"min_disk"`
-	Ports       []int       `json:"ports"`
-	Volumes     []string    `json:"volumes"`
-	EnvVars     []EnvVar    `json:"env_vars"`
-	Compose     string      `json:"compose"`
-	HealthCheck string      `json:"health_check"`
+	ID            string      `json:"id"`
+	Name          string      `json:"name"`
+	DisplayName   string      `json:"display_name"`
+	Description   string      `json:"description"`
+	Category      AppCategory `json:"category"`
+	Version       string      `json:"version"`
+	LatestVersion string      `json:"latest_version"`
+	Author        string      `json:"author"`
+	Website       string      `json:"website"`
+	Repository    string      `json:"repository"`
+	License       string      `json:"license"`
+	Icon          string      `json:"icon"`
+	Screenshots   []string    `json:"screenshots"`
+	Tags          []string    `json:"tags"`
+	Status        AppStatus   `json:"status"`
+	Installed     bool        `json:"installed"`
+	InstalledAt   *time.Time  `json:"installed_at,omitempty"`
+	UpdatedAt     *time.Time  `json:"updated_at,omitempty"`
+	Size          int64       `json:"size"`
+	Downloads     int64       `json:"downloads"`
+	Rating        float64     `json:"rating"`
+	RatingCount   int         `json:"rating_count"`
+	Featured      bool        `json:"featured"`
+	Verified      bool        `json:"verified"`
+	MinCPU        int         `json:"min_cpu"`
+	MinMemory     int64       `json:"min_memory"`
+	MinDisk       int64       `json:"min_disk"`
+	Ports         []int       `json:"ports"`
+	Volumes       []string    `json:"volumes"`
+	EnvVars       []EnvVar    `json:"env_vars"`
+	Compose       string      `json:"compose"`
+	HealthCheck   string      `json:"health_check"`
 }
 
 // EnvVar 环境变量
@@ -114,36 +114,36 @@ type Review struct {
 
 // InstallTask 安装任务
 type InstallTask struct {
-	ID        string    `json:"id"`
-	AppID     string    `json:"app_id"`
-	Action    string    `json:"action"` // "install", "update", "remove"
-	Status    string    `json:"status"` // "pending", "running", "completed", "failed"
-	Progress  int       `json:"progress"` // 0-100
-	Message   string    `json:"message"`
-	StartedAt time.Time `json:"started_at"`
+	ID        string     `json:"id"`
+	AppID     string     `json:"app_id"`
+	Action    string     `json:"action"`   // "install", "update", "remove"
+	Status    string     `json:"status"`   // "pending", "running", "completed", "failed"
+	Progress  int        `json:"progress"` // 0-100
+	Message   string     `json:"message"`
+	StartedAt time.Time  `json:"started_at"`
 	EndedAt   *time.Time `json:"ended_at,omitempty"`
-	Error     string    `json:"error,omitempty"`
+	Error     string     `json:"error,omitempty"`
 }
 
 // StoreStats 商店统计
 type StoreStats struct {
-	TotalApps     int            `json:"total_apps"`
-	InstalledApps int            `json:"installed_apps"`
-	Categories    map[string]int `json:"categories"`
-	TotalDownloads int64         `json:"total_downloads"`
-	FeaturedApps  int            `json:"featured_apps"`
-	LastUpdated   time.Time      `json:"last_updated"`
+	TotalApps      int            `json:"total_apps"`
+	InstalledApps  int            `json:"installed_apps"`
+	Categories     map[string]int `json:"categories"`
+	TotalDownloads int64          `json:"total_downloads"`
+	FeaturedApps   int            `json:"featured_apps"`
+	LastUpdated    time.Time      `json:"last_updated"`
 }
 
 // ========== 管理器 ==========
 
 // AppStore 应用商店
 type AppStore struct {
-	mu       sync.RWMutex
-	apps     map[string]*App
-	reviews  map[string][]*Review
-	tasks    map[string]*InstallTask
-	catalog  []*App // 预置目录
+	mu      sync.RWMutex
+	apps    map[string]*App
+	reviews map[string][]*Review
+	tasks   map[string]*InstallTask
+	catalog []*App // 预置目录
 }
 
 // NewAppStore 创建应用商店
@@ -165,80 +165,80 @@ func (s *AppStore) initCatalog() {
 			Description: "私有云存储和协作平台", Category: CategoryStorage,
 			Version: "28.0.0", Author: "Nextcloud GmbH", License: "AGPL-3.0",
 			Tags: []string{"cloud", "sync", "sharing"}, Featured: true, Verified: true,
-			Rating: 4.5, Downloads: 1000000, Size: 500*1024*1024,
-			Ports: []int{8080}, MinCPU: 2, MinMemory: 2*1024*1024*1024,
+			Rating: 4.5, Downloads: 1000000, Size: 500 * 1024 * 1024,
+			Ports: []int{8080}, MinCPU: 2, MinMemory: 2 * 1024 * 1024 * 1024,
 		},
 		{
 			ID: "jellyfin", Name: "jellyfin", DisplayName: "Jellyfin",
 			Description: "免费开源媒体服务器", Category: CategoryMedia,
 			Version: "10.8.0", Author: "Jellyfin Project", License: "GPL-2.0",
 			Tags: []string{"media", "streaming", "video"}, Featured: true, Verified: true,
-			Rating: 4.7, Downloads: 500000, Size: 300*1024*1024,
-			Ports: []int{8096}, MinCPU: 2, MinMemory: 2*1024*1024*1024,
+			Rating: 4.7, Downloads: 500000, Size: 300 * 1024 * 1024,
+			Ports: []int{8096}, MinCPU: 2, MinMemory: 2 * 1024 * 1024 * 1024,
 		},
 		{
 			ID: "homeassistant", Name: "homeassistant", DisplayName: "Home Assistant",
 			Description: "开源智能家居自动化平台", Category: CategoryAutomation,
 			Version: "2024.1.0", Author: "Home Assistant", License: "Apache-2.0",
 			Tags: []string{"iot", "smart-home", "automation"}, Featured: true, Verified: true,
-			Rating: 4.8, Downloads: 800000, Size: 200*1024*1024,
-			Ports: []int{8123}, MinCPU: 1, MinMemory: 1*1024*1024*1024,
+			Rating: 4.8, Downloads: 800000, Size: 200 * 1024 * 1024,
+			Ports: []int{8123}, MinCPU: 1, MinMemory: 1 * 1024 * 1024 * 1024,
 		},
 		{
 			ID: "pihole", Name: "pihole", DisplayName: "Pi-hole",
 			Description: "网络广告拦截器", Category: CategoryNetworking,
 			Version: "5.17.0", Author: "Pi-hole", License: "EUPL-1.2",
 			Tags: []string{"dns", "ad-block", "privacy"}, Featured: true, Verified: true,
-			Rating: 4.6, Downloads: 600000, Size: 50*1024*1024,
-			Ports: []int{80, 53}, MinCPU: 1, MinMemory: 512*1024*1024,
+			Rating: 4.6, Downloads: 600000, Size: 50 * 1024 * 1024,
+			Ports: []int{80, 53}, MinCPU: 1, MinMemory: 512 * 1024 * 1024,
 		},
 		{
 			ID: "portainer", Name: "portainer", DisplayName: "Portainer",
 			Description: "容器管理界面", Category: CategoryDevelopment,
 			Version: "2.19.0", Author: "Portainer.io", License: "Zlib",
 			Tags: []string{"docker", "containers", "management"}, Featured: true, Verified: true,
-			Rating: 4.4, Downloads: 700000, Size: 100*1024*1024,
-			Ports: []int{9000}, MinCPU: 1, MinMemory: 256*1024*1024,
+			Rating: 4.4, Downloads: 700000, Size: 100 * 1024 * 1024,
+			Ports: []int{9000}, MinCPU: 1, MinMemory: 256 * 1024 * 1024,
 		},
 		{
 			ID: "vaultwarden", Name: "vaultwarden", DisplayName: "Vaultwarden",
 			Description: "Bitwarden兼容密码管理器", Category: CategorySecurity,
 			Version: "1.30.0", Author: "Daniel García", License: "AGPL-3.0",
 			Tags: []string{"password", "security", "vault"}, Featured: true, Verified: true,
-			Rating: 4.9, Downloads: 400000, Size: 50*1024*1024,
-			Ports: []int{8080}, MinCPU: 1, MinMemory: 256*1024*1024,
+			Rating: 4.9, Downloads: 400000, Size: 50 * 1024 * 1024,
+			Ports: []int{8080}, MinCPU: 1, MinMemory: 256 * 1024 * 1024,
 		},
 		{
 			ID: "grafana", Name: "grafana", DisplayName: "Grafana",
 			Description: "数据可视化和监控平台", Category: CategoryMonitoring,
 			Version: "10.2.0", Author: "Grafana Labs", License: "AGPL-3.0",
 			Tags: []string{"monitoring", "dashboard", "visualization"}, Featured: true, Verified: true,
-			Rating: 4.6, Downloads: 900000, Size: 150*1024*1024,
-			Ports: []int{3000}, MinCPU: 1, MinMemory: 512*1024*1024,
+			Rating: 4.6, Downloads: 900000, Size: 150 * 1024 * 1024,
+			Ports: []int{3000}, MinCPU: 1, MinMemory: 512 * 1024 * 1024,
 		},
 		{
 			ID: "n8n", Name: "n8n", DisplayName: "n8n",
 			Description: "工作流自动化平台", Category: CategoryAutomation,
 			Version: "1.22.0", Author: "n8n GmbH", License: "Sustainable Use",
 			Tags: []string{"automation", "workflow", "integration"}, Featured: true, Verified: true,
-			Rating: 4.5, Downloads: 300000, Size: 200*1024*1024,
-			Ports: []int{5678}, MinCPU: 2, MinMemory: 1*1024*1024*1024,
+			Rating: 4.5, Downloads: 300000, Size: 200 * 1024 * 1024,
+			Ports: []int{5678}, MinCPU: 2, MinMemory: 1 * 1024 * 1024 * 1024,
 		},
 		{
 			ID: "ollama", Name: "ollama", DisplayName: "Ollama",
 			Description: "本地大语言模型运行", Category: CategoryAI,
 			Version: "0.1.20", Author: "Ollama", License: "MIT",
 			Tags: []string{"ai", "llm", "local"}, Featured: true, Verified: true,
-			Rating: 4.8, Downloads: 200000, Size: 500*1024*1024,
-			Ports: []int{11434}, MinCPU: 4, MinMemory: 8*1024*1024*1024,
+			Rating: 4.8, Downloads: 200000, Size: 500 * 1024 * 1024,
+			Ports: []int{11434}, MinCPU: 4, MinMemory: 8 * 1024 * 1024 * 1024,
 		},
 		{
 			ID: "immich", Name: "immich", DisplayName: "Immich",
 			Description: "自托管照片和视频管理", Category: CategoryMedia,
 			Version: "1.91.0", Author: "Immich", License: "AGPL-3.0",
 			Tags: []string{"photos", "videos", "backup"}, Featured: true, Verified: true,
-			Rating: 4.7, Downloads: 250000, Size: 300*1024*1024,
-			Ports: []int{2283}, MinCPU: 2, MinMemory: 2*1024*1024*1024,
+			Rating: 4.7, Downloads: 250000, Size: 300 * 1024 * 1024,
+			Ports: []int{2283}, MinCPU: 2, MinMemory: 2 * 1024 * 1024 * 1024,
 		},
 	}
 
@@ -554,8 +554,8 @@ func (s *AppStore) GetStats() *StoreStats {
 	defer s.mu.RUnlock()
 
 	stats := &StoreStats{
-		TotalApps:  len(s.apps),
-		Categories: make(map[string]int),
+		TotalApps:   len(s.apps),
+		Categories:  make(map[string]int),
 		LastUpdated: time.Now(),
 	}
 

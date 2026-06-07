@@ -95,10 +95,10 @@ func TestScan(t *testing.T) {
 	defer m.Stop()
 
 	req := &DedupRequest{
-		Paths:              []string{"/data/photos"},
-		Strategy:           StrategyAuto,
+		Paths:               []string{"/data/photos"},
+		Strategy:            StrategyAuto,
 		SimilarityThreshold: 0.9,
-		Recursive:          true,
+		Recursive:           true,
 	}
 
 	result, err := m.Scan(ctx, req)
@@ -164,18 +164,18 @@ func TestDuplicateGroupOperations(t *testing.T) {
 
 	// 添加重复组
 	group := &DuplicateGroup{
-		ID:    "group-001",
+		ID: "group-001",
 		Files: []*FileEntry{
 			{ID: "file-001", Path: "/data/photo1.jpg", Size: 1024},
 			{ID: "file-002", Path: "/data/photo1_copy.jpg", Size: 1024},
 		},
-		Similarity:  0.98,
-		DedupType:   StrategyFuzzyMatch,
-		Status:      StatusPending,
-		TotalSize:   2048,
+		Similarity:   0.98,
+		DedupType:    StrategyFuzzyMatch,
+		Status:       StatusPending,
+		TotalSize:    2048,
 		SaveableSize: 1024,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
 	}
 
 	m.AddDuplicateGroup(group)
@@ -249,9 +249,9 @@ func TestMergeFiles(t *testing.T) {
 			{ID: "f1", Path: "/data/old.jpg", Size: 1000, ModTime: time.Now().Add(-24 * time.Hour)},
 			{ID: "f2", Path: "/data/new.jpg", Size: 1200, ModTime: time.Now()},
 		},
-		Similarity:  0.95,
-		Status:      StatusPending,
-		TotalSize:   2200,
+		Similarity:   0.95,
+		Status:       StatusPending,
+		TotalSize:    2200,
 		SaveableSize: 1000,
 	}
 	m.AddDuplicateGroup(group)
@@ -354,7 +354,7 @@ func TestReports(t *testing.T) {
 			{ID: "rf1", Size: 500, ModTime: time.Now()},
 			{ID: "rf2", Size: 500, ModTime: time.Now()},
 		},
-		Status:      StatusPending,
+		Status:       StatusPending,
 		SaveableSize: 500,
 	}
 	m.AddDuplicateGroup(group)

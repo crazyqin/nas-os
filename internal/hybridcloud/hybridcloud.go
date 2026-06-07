@@ -25,60 +25,60 @@ const (
 
 // Cloud provider types
 const (
-	ProviderS3     = "s3"
-	ProviderOSS    = "oss"     // Alibaba Cloud OSS
-	ProviderCOS    = "cos"     // Tencent Cloud COS
-	ProviderAzure  = "azure"   // Azure Blob Storage
+	ProviderS3    = "s3"
+	ProviderOSS   = "oss"   // Alibaba Cloud OSS
+	ProviderCOS   = "cos"   // Tencent Cloud COS
+	ProviderAzure = "azure" // Azure Blob Storage
 )
 
 // Sync states
 const (
-	SyncStateIdle       = "idle"
-	SyncStateSyncing    = "syncing"
-	SyncStateCompleted  = "completed"
-	SyncStateFailed     = "failed"
-	SyncStatePaused     = "paused"
+	SyncStateIdle      = "idle"
+	SyncStateSyncing   = "syncing"
+	SyncStateCompleted = "completed"
+	SyncStateFailed    = "failed"
+	SyncStatePaused    = "paused"
 )
 
 // Pool status
 const (
-	PoolStatusActive  = "active"
+	PoolStatusActive   = "active"
 	PoolStatusDegraded = "degraded"
-	PoolStatusOffline = "offline"
+	PoolStatusOffline  = "offline"
 )
 
 // Core types
 
 // Manager manages hybrid cloud storage pools
 type Manager struct {
-	mu             sync.RWMutex
-	pools          map[string]*StoragePool
-	providers      map[string]CloudProvider
-	syncTasks      map[string]*SyncTask
-	cache          map[string]*CacheEntry
-	tierPolicies   map[string]*TierPolicy
-	config         *Config
-	encryptionKey  []byte
-	stats          *ManagerStats
+	mu            sync.RWMutex
+	pools         map[string]*StoragePool
+	providers     map[string]CloudProvider
+	syncTasks     map[string]*SyncTask
+	cache         map[string]*CacheEntry
+	tierPolicies  map[string]*TierPolicy
+	config        *Config
+	encryptionKey []byte
+	stats         *ManagerStats
 }
 
 // StoragePool represents a hybrid storage pool
 type StoragePool struct {
-	ID           string                 `json:"id"`
-	Name         string                 `json:"name"`
-	LocalPath    string                 `json:"local_path"`
-	CloudBucket  string                 `json:"cloud_bucket"`
-	Provider     string                 `json:"provider"`
-	Status       string                 `json:"status"`
-	TotalSize    int64                  `json:"total_size"`
-	UsedSize     int64                  `json:"used_size"`
-	LocalSize    int64                  `json:"local_size"`
-	CloudSize    int64                  `json:"cloud_size"`
-	Files        map[string]*FileEntry  `json:"files"`
-	TierPolicy   string                 `json:"tier_policy"`
-	CreatedAt    time.Time              `json:"created_at"`
-	UpdatedAt    time.Time              `json:"updated_at"`
-	Metadata     map[string]string      `json:"metadata"`
+	ID          string                `json:"id"`
+	Name        string                `json:"name"`
+	LocalPath   string                `json:"local_path"`
+	CloudBucket string                `json:"cloud_bucket"`
+	Provider    string                `json:"provider"`
+	Status      string                `json:"status"`
+	TotalSize   int64                 `json:"total_size"`
+	UsedSize    int64                 `json:"used_size"`
+	LocalSize   int64                 `json:"local_size"`
+	CloudSize   int64                 `json:"cloud_size"`
+	Files       map[string]*FileEntry `json:"files"`
+	TierPolicy  string                `json:"tier_policy"`
+	CreatedAt   time.Time             `json:"created_at"`
+	UpdatedAt   time.Time             `json:"updated_at"`
+	Metadata    map[string]string     `json:"metadata"`
 }
 
 // FileEntry represents a file in the storage pool
@@ -124,81 +124,81 @@ type CloudProvider interface {
 type TierPolicy struct {
 	ID              string        `json:"id"`
 	Name            string        `json:"name"`
-	HotThreshold    time.Duration `json:"hot_threshold"`    // Access within this duration = hot
-	WarmThreshold   time.Duration `json:"warm_threshold"`   // Access within this duration = warm
-	MinLocalSize    int64         `json:"min_local_size"`   // Minimum local storage to keep
-	MaxLocalSize    int64         `json:"max_local_size"`   // Maximum local storage allowed
+	HotThreshold    time.Duration `json:"hot_threshold"`  // Access within this duration = hot
+	WarmThreshold   time.Duration `json:"warm_threshold"` // Access within this duration = warm
+	MinLocalSize    int64         `json:"min_local_size"` // Minimum local storage to keep
+	MaxLocalSize    int64         `json:"max_local_size"` // Maximum local storage allowed
 	AutoTierEnabled bool          `json:"auto_tier_enabled"`
-	ScheduleCron    string        `json:"schedule_cron"`    // Cron expression for tier evaluation
+	ScheduleCron    string        `json:"schedule_cron"` // Cron expression for tier evaluation
 	CreatedAt       time.Time     `json:"created_at"`
 }
 
 // SyncTask represents a synchronization task
 type SyncTask struct {
-	ID           string        `json:"id"`
-	PoolID       string        `json:"pool_id"`
-	Direction    string        `json:"direction"` // "up" (local->cloud) or "down" (cloud->local)
-	State        string        `json:"state"`
-	Progress     float64       `json:"progress"` // 0.0 - 1.0
-	TotalBytes   int64         `json:"total_bytes"`
-	SyncedBytes  int64         `json:"synced_bytes"`
-	TotalFiles   int           `json:"total_files"`
-	SyncedFiles  int           `json:"synced_files"`
-	ErrorMessage string        `json:"error_message,omitempty"`
-	StartedAt    *time.Time    `json:"started_at,omitempty"`
-	CompletedAt  *time.Time    `json:"completed_at,omitempty"`
-	CreatedAt    time.Time     `json:"created_at"`
+	ID           string     `json:"id"`
+	PoolID       string     `json:"pool_id"`
+	Direction    string     `json:"direction"` // "up" (local->cloud) or "down" (cloud->local)
+	State        string     `json:"state"`
+	Progress     float64    `json:"progress"` // 0.0 - 1.0
+	TotalBytes   int64      `json:"total_bytes"`
+	SyncedBytes  int64      `json:"synced_bytes"`
+	TotalFiles   int        `json:"total_files"`
+	SyncedFiles  int        `json:"synced_files"`
+	ErrorMessage string     `json:"error_message,omitempty"`
+	StartedAt    *time.Time `json:"started_at,omitempty"`
+	CompletedAt  *time.Time `json:"completed_at,omitempty"`
+	CreatedAt    time.Time  `json:"created_at"`
 }
 
 // CacheEntry represents a cached cloud object
 type CacheEntry struct {
-	Key          string    `json:"key"`
-	LocalPath    string    `json:"local_path"`
-	Size         int64     `json:"size"`
-	LastAccess   time.Time `json:"last_access"`
-	HitCount     int64     `json:"hit_count"`
-	ExpiresAt    time.Time `json:"expires_at"`
-	Pinned       bool      `json:"pinned"` // Prevent eviction
+	Key        string    `json:"key"`
+	LocalPath  string    `json:"local_path"`
+	Size       int64     `json:"size"`
+	LastAccess time.Time `json:"last_access"`
+	HitCount   int64     `json:"hit_count"`
+	ExpiresAt  time.Time `json:"expires_at"`
+	Pinned     bool      `json:"pinned"` // Prevent eviction
 }
 
 // CostEstimate represents cost estimation results
 type CostEstimate struct {
-	StorageCostMonthly   float64            `json:"storage_cost_monthly"`
-	TransferCostMonthly  float64            `json:"transfer_cost_monthly"`
-	TotalCostMonthly     float64            `json:"total_cost_monthly"`
-	CostByTier           map[string]float64 `json:"cost_by_tier"`
-	CostByProvider       map[string]float64 `json:"cost_by_provider"`
-	SavingsEstimate      float64            `json:"savings_estimate"`
-	OptimizationTips     []string           `json:"optimization_tips"`
-	CalculatedAt         time.Time          `json:"calculated_at"`
+	StorageCostMonthly  float64            `json:"storage_cost_monthly"`
+	TransferCostMonthly float64            `json:"transfer_cost_monthly"`
+	TotalCostMonthly    float64            `json:"total_cost_monthly"`
+	CostByTier          map[string]float64 `json:"cost_by_tier"`
+	CostByProvider      map[string]float64 `json:"cost_by_provider"`
+	SavingsEstimate     float64            `json:"savings_estimate"`
+	OptimizationTips    []string           `json:"optimization_tips"`
+	CalculatedAt        time.Time          `json:"calculated_at"`
 }
 
 // Config contains hybrid cloud configuration
 type Config struct {
-	DefaultProvider    string        `json:"default_provider"`
-	EncryptionEnabled  bool          `json:"encryption_enabled"`
-	EncryptionKey      string        `json:"encryption_key"`
-	CacheDir           string        `json:"cache_dir"`
-	MaxCacheSize       int64         `json:"max_cache_size"`
-	CacheTTL           time.Duration `json:"cache_ttl"`
-	ConcurrentSyncs    int           `json:"concurrent_syncs"`
-	SyncInterval       time.Duration `json:"sync_interval"`
-	BandwidthLimit     int64         `json:"bandwidth_limit"` // bytes per second
-	RetryAttempts      int           `json:"retry_attempts"`
-	RetryDelay         time.Duration `json:"retry_delay"`
-	Providers          []ProviderConfig `json:"providers"`
+	DefaultProvider   string           `json:"default_provider"`
+	EncryptionEnabled bool             `json:"encryption_enabled"`
+	EncryptionKey     string           `json:"encryption_key"`
+	CacheDir          string           `json:"cache_dir"`
+	MaxCacheSize      int64            `json:"max_cache_size"`
+	CacheTTL          time.Duration    `json:"cache_ttl"`
+	ConcurrentSyncs   int              `json:"concurrent_syncs"`
+	SyncInterval      time.Duration    `json:"sync_interval"`
+	BandwidthLimit    int64            `json:"bandwidth_limit"` // bytes per second
+	RetryAttempts     int              `json:"retry_attempts"`
+	RetryDelay        time.Duration    `json:"retry_delay"`
+	Providers         []ProviderConfig `json:"providers"`
 }
 
 // ProviderConfig contains provider-specific configuration
 type ProviderConfig struct {
-	Name        string            `json:"name"`
-	Type        string            `json:"type"`
-	Endpoint    string            `json:"endpoint"`
-	Region      string            `json:"region"`
-	Bucket      string            `json:"bucket"`
-	AccessKey   string            `json:"access_key"`
-	SecretKey   string            `json:"secret_key"`
-	Options     map[string]string `json:"options"`
+	Name      string            `json:"name"`
+	Type      string            `json:"type"`
+	Endpoint  string            `json:"endpoint"`
+	Region    string            `json:"region"`
+	Bucket    string            `json:"bucket"`
+	AccessKey string            `json:"access_key"`
+	SecretKey string            `json:"secret_key"`
+	Options   map[string]string `json:"options"`
 }
 
 // UploadOptions contains options for uploading to cloud
@@ -230,32 +230,32 @@ type ProviderInfo struct {
 
 // ManagerStats contains manager statistics
 type ManagerStats struct {
-	TotalPools     int       `json:"total_pools"`
-	TotalFiles     int       `json:"total_files"`
-	TotalSize      int64     `json:"total_size"`
-	LocalSize      int64     `json:"local_size"`
-	CloudSize      int64     `json:"cloud_size"`
-	CacheHits      int64     `json:"cache_hits"`
-	CacheMisses    int64     `json:"cache_misses"`
-	LastSyncTime   time.Time `json:"last_sync_time"`
+	TotalPools   int       `json:"total_pools"`
+	TotalFiles   int       `json:"total_files"`
+	TotalSize    int64     `json:"total_size"`
+	LocalSize    int64     `json:"local_size"`
+	CloudSize    int64     `json:"cloud_size"`
+	CacheHits    int64     `json:"cache_hits"`
+	CacheMisses  int64     `json:"cache_misses"`
+	LastSyncTime time.Time `json:"last_sync_time"`
 }
 
 // Errors
 var (
-	ErrPoolNotFound       = errors.New("pool not found")
-	ErrProviderNotFound   = errors.New("provider not found")
-	ErrFileNotFound       = errors.New("file not found")
-	ErrSyncInProgress     = errors.New("sync already in progress")
-	ErrCacheFull          = errors.New("cache is full")
-	ErrEncryptionFailed   = errors.New("encryption failed")
-	ErrDecryptionFailed   = errors.New("decryption failed")
-	ErrInvalidConfig      = errors.New("invalid configuration")
-	ErrPolicyNotFound     = errors.New("tier policy not found")
-	ErrTaskNotFound       = errors.New("sync task not found")
-	ErrProviderExists     = errors.New("provider already exists")
-	ErrPoolExists         = errors.New("pool already exists")
-	ErrInvalidTier        = errors.New("invalid tier level")
-	ErrCloudUnavailable   = errors.New("cloud provider unavailable")
+	ErrPoolNotFound     = errors.New("pool not found")
+	ErrProviderNotFound = errors.New("provider not found")
+	ErrFileNotFound     = errors.New("file not found")
+	ErrSyncInProgress   = errors.New("sync already in progress")
+	ErrCacheFull        = errors.New("cache is full")
+	ErrEncryptionFailed = errors.New("encryption failed")
+	ErrDecryptionFailed = errors.New("decryption failed")
+	ErrInvalidConfig    = errors.New("invalid configuration")
+	ErrPolicyNotFound   = errors.New("tier policy not found")
+	ErrTaskNotFound     = errors.New("sync task not found")
+	ErrProviderExists   = errors.New("provider already exists")
+	ErrPoolExists       = errors.New("pool already exists")
+	ErrInvalidTier      = errors.New("invalid tier level")
+	ErrCloudUnavailable = errors.New("cloud provider unavailable")
 )
 
 // NewManager creates a new hybrid cloud manager
@@ -361,17 +361,17 @@ func (m *Manager) CreatePool(ctx context.Context, poolConfig *StoragePool) (*Sto
 	}
 
 	pool := &StoragePool{
-		ID:         poolConfig.ID,
-		Name:       poolConfig.Name,
-		LocalPath:  poolConfig.LocalPath,
+		ID:          poolConfig.ID,
+		Name:        poolConfig.Name,
+		LocalPath:   poolConfig.LocalPath,
 		CloudBucket: poolConfig.CloudBucket,
-		Provider:   poolConfig.Provider,
-		Status:     PoolStatusActive,
-		Files:      make(map[string]*FileEntry),
-		TierPolicy: poolConfig.TierPolicy,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
-		Metadata:   poolConfig.Metadata,
+		Provider:    poolConfig.Provider,
+		Status:      PoolStatusActive,
+		Files:       make(map[string]*FileEntry),
+		TierPolicy:  poolConfig.TierPolicy,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+		Metadata:    poolConfig.Metadata,
 	}
 
 	if pool.Metadata == nil {
@@ -638,10 +638,10 @@ func (m *Manager) EstimateCost(poolID string) (*CostEstimate, error) {
 	}
 
 	estimate := &CostEstimate{
-		CostByTier:     make(map[string]float64),
-		CostByProvider: make(map[string]float64),
+		CostByTier:       make(map[string]float64),
+		CostByProvider:   make(map[string]float64),
 		OptimizationTips: []string{},
-		CalculatedAt:    time.Now(),
+		CalculatedAt:     time.Now(),
 	}
 
 	// Calculate costs by tier

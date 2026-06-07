@@ -21,8 +21,8 @@ type Manager struct {
 
 // ManagerConfig 管理器配置.
 type ManagerConfig struct {
-	MaxUsageRecords int  // 最大用量记录数
-	AuditLogSize    int  // 审计日志缓冲大小
+	MaxUsageRecords int // 最大用量记录数
+	AuditLogSize    int // 审计日志缓冲大小
 }
 
 // DefaultConfig 默认配置.

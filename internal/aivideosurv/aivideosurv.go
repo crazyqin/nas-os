@@ -20,21 +20,21 @@ type SurveillanceEngine struct {
 
 // EngineConfig 引擎配置.
 type EngineConfig struct {
-	MaxEvents       int           `json:"max_events"`       // 最大事件数
-	MaxAlerts       int           `json:"max_alerts"`       // 最大告警数
-	TrackTimeout    time.Duration `json:"track_timeout"`    // 跟踪超时
-	LoiterDuration  time.Duration `json:"loiter_duration"`  // 徘徊判定时长
-	MinConfidence   float64       `json:"min_confidence"`   // 最小置信度
+	MaxEvents      int           `json:"max_events"`      // 最大事件数
+	MaxAlerts      int           `json:"max_alerts"`      // 最大告警数
+	TrackTimeout   time.Duration `json:"track_timeout"`   // 跟踪超时
+	LoiterDuration time.Duration `json:"loiter_duration"` // 徘徊判定时长
+	MinConfidence  float64       `json:"min_confidence"`  // 最小置信度
 }
 
 // DefaultEngineConfig 默认引擎配置.
 func DefaultEngineConfig() *EngineConfig {
 	return &EngineConfig{
-		MaxEvents:     10000,
-		MaxAlerts:     5000,
-		TrackTimeout:  5 * time.Minute,
+		MaxEvents:      10000,
+		MaxAlerts:      5000,
+		TrackTimeout:   5 * time.Minute,
 		LoiterDuration: 30 * time.Second,
-		MinConfidence: 0.5,
+		MinConfidence:  0.5,
 	}
 }
 

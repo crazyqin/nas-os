@@ -36,31 +36,31 @@ const (
 type ConditionOperator string
 
 const (
-	OpEquals     ConditionOperator = "eq"
-	OpNotEquals  ConditionOperator = "neq"
-	OpContains   ConditionOperator = "contains"
+	OpEquals      ConditionOperator = "eq"
+	OpNotEquals   ConditionOperator = "neq"
+	OpContains    ConditionOperator = "contains"
 	OpGreaterThan ConditionOperator = "gt"
-	OpLessThan   ConditionOperator = "lt"
-	OpIn         ConditionOperator = "in"
-	OpRegex      ConditionOperator = "regex"
+	OpLessThan    ConditionOperator = "lt"
+	OpIn          ConditionOperator = "in"
+	OpRegex       ConditionOperator = "regex"
 )
 
 // ActionType 动作类型
 type ActionType string
 
 const (
-	ActionNotify       ActionType = "notify"        // 发送通知
-	ActionWebhook      ActionType = "webhook"       // 调用webhook
-	ActionScript       ActionType = "script"        // 执行脚本
-	ActionBackup       ActionType = "backup"        // 触发备份
-	ActionCleanup      ActionType = "cleanup"       // 清理文件
-	ActionRestart      ActionType = "restart"       // 重启服务
-	ActionSnapshot     ActionType = "snapshot"      // 创建快照
-	ActionRecordLog   ActionType = "log"           // 记录日志
-	ActionThrottle     ActionType = "throttle"      // 限流
-	ActionQuarantine   ActionType = "quarantine"    // 隔离文件
-	ActionAlert        ActionType = "alert"         // 升级告警
-	ActionDelay        ActionType = "delay"         // 延迟执行
+	ActionNotify     ActionType = "notify"     // 发送通知
+	ActionWebhook    ActionType = "webhook"    // 调用webhook
+	ActionScript     ActionType = "script"     // 执行脚本
+	ActionBackup     ActionType = "backup"     // 触发备份
+	ActionCleanup    ActionType = "cleanup"    // 清理文件
+	ActionRestart    ActionType = "restart"    // 重启服务
+	ActionSnapshot   ActionType = "snapshot"   // 创建快照
+	ActionRecordLog  ActionType = "log"        // 记录日志
+	ActionThrottle   ActionType = "throttle"   // 限流
+	ActionQuarantine ActionType = "quarantine" // 隔离文件
+	ActionAlert      ActionType = "alert"      // 升级告警
+	ActionDelay      ActionType = "delay"      // 延迟执行
 )
 
 // Condition 条件
@@ -72,16 +72,16 @@ type Condition struct {
 
 // Action 动作
 type Action struct {
-	Type       ActionType            `json:"type"`
+	Type       ActionType             `json:"type"`
 	Params     map[string]interface{} `json:"params"`
-	DelayMs    int                   `json:"delayMs,omitempty"`    // 延迟执行
-	Timeout    int                   `json:"timeout,omitempty"`    // 超时（秒）
-	RetryCount int                   `json:"retryCount,omitempty"` // 重试次数
+	DelayMs    int                    `json:"delayMs,omitempty"`    // 延迟执行
+	Timeout    int                    `json:"timeout,omitempty"`    // 超时（秒）
+	RetryCount int                    `json:"retryCount,omitempty"` // 重试次数
 }
 
 // Trigger 触发器
 type Trigger struct {
-	Type     EventType         `json:"type"`     // 事件类型
+	Type     EventType         `json:"type"`               // 事件类型
 	Schedule string            `json:"schedule,omitempty"` // cron表达式（定时触发）
 	Filters  map[string]string `json:"filters,omitempty"`  // 事件过滤
 }
@@ -92,7 +92,7 @@ type Scene struct {
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
 	Enabled     bool        `json:"enabled"`
-	Priority    int         `json:"priority"`    // 优先级 (1-10)
+	Priority    int         `json:"priority"` // 优先级 (1-10)
 	Trigger     Trigger     `json:"trigger"`
 	Conditions  []Condition `json:"conditions"`
 	Actions     []Action    `json:"actions"`
@@ -116,15 +116,15 @@ type SceneEvent struct {
 
 // ExecutionLog 执行日志
 type ExecutionLog struct {
-	ID        string    `json:"id"`
-	SceneID   string    `json:"sceneId"`
-	SceneName string    `json:"sceneName"`
-	EventID   string    `json:"eventId"`
-	Triggered bool      `json:"triggered"`
+	ID        string      `json:"id"`
+	SceneID   string      `json:"sceneId"`
+	SceneName string      `json:"sceneName"`
+	EventID   string      `json:"eventId"`
+	Triggered bool        `json:"triggered"`
 	Actions   []ActionLog `json:"actions"`
-	StartedAt time.Time `json:"startedAt"`
-	Duration  int64     `json:"durationMs"`
-	Error     string    `json:"error,omitempty"`
+	StartedAt time.Time   `json:"startedAt"`
+	Duration  int64       `json:"durationMs"`
+	Error     string      `json:"error,omitempty"`
 }
 
 // ActionLog 动作执行日志
@@ -137,13 +137,13 @@ type ActionLog struct {
 
 // Engine 场景引擎
 type Engine struct {
-	mu         sync.RWMutex
-	scenes     map[string]*Scene
-	logs       []ExecutionLog
-	lastRun    map[string]time.Time // sceneID -> last run time
-	eventChan  chan SceneEvent
-	quit       chan struct{}
-	running    bool
+	mu        sync.RWMutex
+	scenes    map[string]*Scene
+	logs      []ExecutionLog
+	lastRun   map[string]time.Time // sceneID -> last run time
+	eventChan chan SceneEvent
+	quit      chan struct{}
+	running   bool
 }
 
 // NewEngine 创建场景引擎

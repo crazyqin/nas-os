@@ -14,9 +14,9 @@ import (
 
 // Proxy 代理层
 type Proxy struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	engine   *Engine
+	mu         sync.RWMutex
+	logger     *zap.Logger
+	engine     *Engine
 	rrCounters map[string]*int64 // service -> round-robin counter
 }
 

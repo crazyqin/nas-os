@@ -22,10 +22,10 @@ func NewImporter() *Importer {
 
 // ImportResult 导入结果.
 type ImportResult struct {
-	Docs    []*Document `json:"docs"`
-	Tags    []string    `json:"tags"`
-	Links   []Link      `json:"links"`
-	Errors  []string    `json:"errors,omitempty"`
+	Docs   []*Document `json:"docs"`
+	Tags   []string    `json:"tags"`
+	Links  []Link      `json:"links"`
+	Errors []string    `json:"errors,omitempty"`
 }
 
 // NotionExport Notion导出数据结构.
@@ -35,12 +35,12 @@ type NotionExport struct {
 
 // NotionPage Notion页面.
 type NotionPage struct {
-	ID       string         `json:"id"`
-	Title    string         `json:"title"`
-	Content  string         `json:"content"`
-	Tags     []string       `json:"tags"`
-	Parent   string         `json:"parent,omitempty"`
-	Children []NotionPage   `json:"children,omitempty"`
+	ID       string       `json:"id"`
+	Title    string       `json:"title"`
+	Content  string       `json:"content"`
+	Tags     []string     `json:"tags"`
+	Parent   string       `json:"parent,omitempty"`
+	Children []NotionPage `json:"children,omitempty"`
 }
 
 // ObsidianVault Obsidian仓库结构.
@@ -50,8 +50,8 @@ type ObsidianVault struct {
 
 // ObsidianFile Obsidian文件.
 type ObsidianFile struct {
-	Path     string `json:"path"`
-	Content  string `json:"content"`
+	Path        string                 `json:"path"`
+	Content     string                 `json:"content"`
 	FrontMatter map[string]interface{} `json:"front_matter,omitempty"`
 }
 

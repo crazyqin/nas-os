@@ -13,12 +13,12 @@ import (
 
 // CVEDatabase CVE 漏洞数据库
 type CVEDatabase struct {
-	mu          sync.RWMutex
-	vulns       map[string]*CVEInfo
+	mu           sync.RWMutex
+	vulns        map[string]*CVEInfo
 	packageVulns map[string][]string // package -> CVE IDs
-	indexFile   string
-	dataDir     string
-	lastUpdated time.Time
+	indexFile    string
+	dataDir      string
+	lastUpdated  time.Time
 }
 
 // NewCVEDatabase 创建 CVE 数据库实例
@@ -28,10 +28,10 @@ func NewCVEDatabase(dataDir string) (*CVEDatabase, error) {
 	}
 
 	db := &CVEDatabase{
-		vulns:       make(map[string]*CVEInfo),
+		vulns:        make(map[string]*CVEInfo),
 		packageVulns: make(map[string][]string),
-		dataDir:     dataDir,
-		indexFile:   filepath.Join(dataDir, "cve-index.json"),
+		dataDir:      dataDir,
+		indexFile:    filepath.Join(dataDir, "cve-index.json"),
 	}
 
 	// 加载现有数据
@@ -39,7 +39,7 @@ func NewCVEDatabase(dataDir string) (*CVEDatabase, error) {
 		// 初始化内置漏洞库
 		db.initBuiltinVulnerabilities()
 	}
-	
+
 	// 如果没有加载到数据，初始化内置漏洞库
 	if len(db.vulns) == 0 {
 		db.initBuiltinVulnerabilities()

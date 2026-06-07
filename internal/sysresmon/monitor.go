@@ -17,11 +17,11 @@ import (
 
 // ResourceMonitor 资源监控器
 type ResourceMonitor struct {
-	mu            sync.RWMutex
-	config        *Config
-	history       *RingBuffer
-	cancel        context.CancelFunc
-	stopped       chan struct{}
+	mu      sync.RWMutex
+	config  *Config
+	history *RingBuffer
+	cancel  context.CancelFunc
+	stopped chan struct{}
 }
 
 // Config 监控配置

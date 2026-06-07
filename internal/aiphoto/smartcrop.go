@@ -31,9 +31,9 @@ func NewSmartCropper(opts *SmartCropOptions) *SmartCropper {
 
 // CropResult 裁剪结果
 type CropResult struct {
-	Rect    image.Rectangle `json:"rect"`    // 裁剪区域
-	Score   float64         `json:"score"`   // 裁剪质量评分
-	Image   image.Image     `json:"-"`       // 裁剪后的图像
+	Rect  image.Rectangle `json:"rect"`  // 裁剪区域
+	Score float64         `json:"score"` // 裁剪质量评分
+	Image image.Image     `json:"-"`     // 裁剪后的图像
 }
 
 // SmartCrop 对图像执行智能裁剪

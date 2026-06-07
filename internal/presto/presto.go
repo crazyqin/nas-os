@@ -90,15 +90,15 @@ type Config struct {
 // DefaultConfig 返回默认配置
 func DefaultConfig() *Config {
 	return &Config{
-		ListenAddr:       ":9443",
-		MaxConcurrent:    8,
-		ChunkSize:        4 * 1024 * 1024, // 4MB
+		ListenAddr:        ":9443",
+		MaxConcurrent:     8,
+		ChunkSize:         4 * 1024 * 1024, // 4MB
 		EnableCompression: true,
-		CompressionLevel: 6,
+		CompressionLevel:  6,
 		EnableEncryption:  true,
-		TransferTimeout:  30 * time.Minute,
-		StorageRoot:      "/mnt/presto",
-		TempDir:          "/tmp/presto",
+		TransferTimeout:   30 * time.Minute,
+		StorageRoot:       "/mnt/presto",
+		TempDir:           "/tmp/presto",
 	}
 }
 
@@ -106,26 +106,26 @@ func DefaultConfig() *Config {
 type Transfer struct {
 	mu sync.RWMutex `json:"-"`
 
-	ID            string        `json:"id"`
-	Name          string        `json:"name"`
-	SourcePath    string        `json:"source_path"`
-	DestPath      string        `json:"dest_path"`
-	Mode          string        `json:"mode"` // send/recv
-	Status        string        `json:"status"`
-	TotalBytes    int64         `json:"total_bytes"`
-	Transferred   int64         `json:"transferred"`
-	ChunkCount    int           `json:"chunk_count"`
-	ChunksDone    int           `json:"chunks_done"`
-	SpeedBps      float64       `json:"speed_bps"`
-	Compressed    bool          `json:"compressed"`
-	Encrypted     bool          `json:"encrypted"`
-	FileChecksum  string        `json:"file_checksum"`
-	ErrorMsg      string        `json:"error_msg,omitempty"`
-	StartedAt     time.Time     `json:"started_at"`
-	CompletedAt   *time.Time    `json:"completed_at,omitempty"`
-	Elapsed       time.Duration `json:"elapsed"`
-	ClientAddr    string        `json:"client_addr,omitempty"`
-	RemotePath    string        `json:"remote_path,omitempty"`
+	ID           string        `json:"id"`
+	Name         string        `json:"name"`
+	SourcePath   string        `json:"source_path"`
+	DestPath     string        `json:"dest_path"`
+	Mode         string        `json:"mode"` // send/recv
+	Status       string        `json:"status"`
+	TotalBytes   int64         `json:"total_bytes"`
+	Transferred  int64         `json:"transferred"`
+	ChunkCount   int           `json:"chunk_count"`
+	ChunksDone   int           `json:"chunks_done"`
+	SpeedBps     float64       `json:"speed_bps"`
+	Compressed   bool          `json:"compressed"`
+	Encrypted    bool          `json:"encrypted"`
+	FileChecksum string        `json:"file_checksum"`
+	ErrorMsg     string        `json:"error_msg,omitempty"`
+	StartedAt    time.Time     `json:"started_at"`
+	CompletedAt  *time.Time    `json:"completed_at,omitempty"`
+	Elapsed      time.Duration `json:"elapsed"`
+	ClientAddr   string        `json:"client_addr,omitempty"`
+	RemotePath   string        `json:"remote_path,omitempty"`
 
 	// 内部状态
 	ctx       context.Context    `json:"-"`
@@ -136,51 +136,51 @@ type Transfer struct {
 
 // ChunkState 数据块状态
 type ChunkState struct {
-	Index      int   `json:"index"`
-	Offset     int64 `json:"offset"`
-	Size       int64 `json:"size"`
-	Status     string `json:"status"` // pending/sending/done/failed
-	Checksum   string `json:"checksum"`
-	Transferred int64 `json:"transferred"`
+	Index       int    `json:"index"`
+	Offset      int64  `json:"offset"`
+	Size        int64  `json:"size"`
+	Status      string `json:"status"` // pending/sending/done/failed
+	Checksum    string `json:"checksum"`
+	Transferred int64  `json:"transferred"`
 }
 
 // TransferInfo 传输信息（用于 API 响应）
 type TransferInfo struct {
-	ID            string        `json:"id"`
-	Name          string        `json:"name"`
-	SourcePath    string        `json:"source_path"`
-	DestPath      string        `json:"dest_path"`
-	Mode          string        `json:"mode"`
-	Status        string        `json:"status"`
-	TotalBytes    int64         `json:"total_bytes"`
-	Transferred   int64         `json:"transferred"`
-	Progress      float64       `json:"progress"`
-	ChunkCount    int           `json:"chunk_count"`
-	ChunksDone    int           `json:"chunks_done"`
-	SpeedBps      float64       `json:"speed_bps"`
-	SpeedHuman    string        `json:"speed_human"`
-	Compressed    bool          `json:"compressed"`
-	Encrypted     bool          `json:"encrypted"`
-	FileChecksum  string        `json:"file_checksum"`
-	ErrorMsg      string        `json:"error_msg,omitempty"`
-	StartedAt     time.Time     `json:"started_at"`
-	CompletedAt   *time.Time    `json:"completed_at,omitempty"`
-	Elapsed       time.Duration `json:"elapsed"`
-	ElapsedHuman  string        `json:"elapsed_human"`
-	ClientAddr    string        `json:"client_addr,omitempty"`
-	ETA           string        `json:"eta,omitempty"`
+	ID           string        `json:"id"`
+	Name         string        `json:"name"`
+	SourcePath   string        `json:"source_path"`
+	DestPath     string        `json:"dest_path"`
+	Mode         string        `json:"mode"`
+	Status       string        `json:"status"`
+	TotalBytes   int64         `json:"total_bytes"`
+	Transferred  int64         `json:"transferred"`
+	Progress     float64       `json:"progress"`
+	ChunkCount   int           `json:"chunk_count"`
+	ChunksDone   int           `json:"chunks_done"`
+	SpeedBps     float64       `json:"speed_bps"`
+	SpeedHuman   string        `json:"speed_human"`
+	Compressed   bool          `json:"compressed"`
+	Encrypted    bool          `json:"encrypted"`
+	FileChecksum string        `json:"file_checksum"`
+	ErrorMsg     string        `json:"error_msg,omitempty"`
+	StartedAt    time.Time     `json:"started_at"`
+	CompletedAt  *time.Time    `json:"completed_at,omitempty"`
+	Elapsed      time.Duration `json:"elapsed"`
+	ElapsedHuman string        `json:"elapsed_human"`
+	ClientAddr   string        `json:"client_addr,omitempty"`
+	ETA          string        `json:"eta,omitempty"`
 }
 
 // Stats 传输统计
 type Stats struct {
-	TotalTransfers  int64   `json:"total_transfers"`
-	ActiveTransfers int     `json:"active_transfers"`
-	CompletedCount  int     `json:"completed_count"`
-	FailedCount     int     `json:"failed_count"`
-	TotalBytes      int64   `json:"total_bytes"`
-	TotalTransferred int64  `json:"total_transferred"`
-	AvgSpeedBps     float64 `json:"avg_speed_bps"`
-	AvgSpeedHuman   string  `json:"avg_speed_human"`
+	TotalTransfers   int64   `json:"total_transfers"`
+	ActiveTransfers  int     `json:"active_transfers"`
+	CompletedCount   int     `json:"completed_count"`
+	FailedCount      int     `json:"failed_count"`
+	TotalBytes       int64   `json:"total_bytes"`
+	TotalTransferred int64   `json:"total_transferred"`
+	AvgSpeedBps      float64 `json:"avg_speed_bps"`
+	AvgSpeedHuman    string  `json:"avg_speed_human"`
 }
 
 // Manager Presto 传输管理器
@@ -249,19 +249,19 @@ func (m *Manager) CreateTransfer(name, sourcePath, destPath, mode string) (*Tran
 	ctx, cancel := context.WithTimeout(context.Background(), m.config.TransferTimeout)
 
 	t := &Transfer{
-		ID:           uuid.New().String(),
-		Name:         name,
-		SourcePath:   sourcePath,
-		DestPath:     destPath,
-		Mode:         mode,
-		Status:       StatusPending,
-		Compressed:   m.config.EnableCompression,
-		Encrypted:    m.config.EnableEncryption,
-		StartedAt:    time.Now(),
-		ctx:          ctx,
-		cancel:       cancel,
-		chunks:       make([]ChunkState, 0),
-		checksums:    make(map[int]string),
+		ID:         uuid.New().String(),
+		Name:       name,
+		SourcePath: sourcePath,
+		DestPath:   destPath,
+		Mode:       mode,
+		Status:     StatusPending,
+		Compressed: m.config.EnableCompression,
+		Encrypted:  m.config.EnableEncryption,
+		StartedAt:  time.Now(),
+		ctx:        ctx,
+		cancel:     cancel,
+		chunks:     make([]ChunkState, 0),
+		checksums:  make(map[int]string),
 	}
 
 	m.transfers[t.ID] = t
@@ -601,16 +601,16 @@ func CalculateChunks(fileSize int64, chunkSize int) []ChunkState {
 
 // Message 类型常量
 const (
-	MsgTypeHandshake    = "handshake"
-	MsgTypeFileMeta     = "file_meta"
-	MsgTypeChunkReq     = "chunk_req"
-	MsgTypeChunkData    = "chunk_data"
-	MsgTypeChunkAck     = "chunk_ack"
-	MsgTypeComplete     = "complete"
-	MsgTypeError        = "error"
-	MsgTypeResumeReq    = "resume_req"
-	MsgTypeResumeResp   = "resume_resp"
-	MsgTypeHeartbeat    = "heartbeat"
+	MsgTypeHandshake  = "handshake"
+	MsgTypeFileMeta   = "file_meta"
+	MsgTypeChunkReq   = "chunk_req"
+	MsgTypeChunkData  = "chunk_data"
+	MsgTypeChunkAck   = "chunk_ack"
+	MsgTypeComplete   = "complete"
+	MsgTypeError      = "error"
+	MsgTypeResumeReq  = "resume_req"
+	MsgTypeResumeResp = "resume_resp"
+	MsgTypeHeartbeat  = "heartbeat"
 )
 
 // Message 协议消息
@@ -624,12 +624,12 @@ type Message struct {
 
 // HandshakePayload 握手载荷
 type HandshakePayload struct {
-	Version     string `json:"version"`
-	ClientID    string `json:"client_id"`
-	AuthToken   string `json:"auth_token,omitempty"`
-	Compress    bool   `json:"compress"`
-	Encrypt     bool   `json:"encrypt"`
-	SpeedLimit  int64  `json:"speed_limit,omitempty"`
+	Version    string `json:"version"`
+	ClientID   string `json:"client_id"`
+	AuthToken  string `json:"auth_token,omitempty"`
+	Compress   bool   `json:"compress"`
+	Encrypt    bool   `json:"encrypt"`
+	SpeedLimit int64  `json:"speed_limit,omitempty"`
 }
 
 // FileMetaPayload 文件元数据载荷
@@ -698,10 +698,10 @@ type ErrorPayload struct {
 
 // CompletePayload 完成载荷
 type CompletePayload struct {
-	TransferID string `json:"transfer_id"`
-	Checksum   string `json:"checksum"`
-	Size       int64  `json:"size"`
-	Elapsed    int64  `json:"elapsed_ms"`
+	TransferID string  `json:"transfer_id"`
+	Checksum   string  `json:"checksum"`
+	Size       int64   `json:"size"`
+	Elapsed    int64   `json:"elapsed_ms"`
 	SpeedBps   float64 `json:"speed_bps"`
 }
 

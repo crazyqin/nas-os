@@ -10,10 +10,10 @@ import (
 
 // AlbumManager 相册管理器
 type AlbumManager struct {
-	mu       sync.RWMutex
-	albums   map[string]*Album
-	photos   map[string]*Photo // 共享照片存储引用
-	config   Config
+	mu     sync.RWMutex
+	albums map[string]*Album
+	photos map[string]*Photo // 共享照片存储引用
+	config Config
 }
 
 // NewAlbumManager 创建相册管理器

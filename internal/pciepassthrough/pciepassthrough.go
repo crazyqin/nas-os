@@ -77,12 +77,12 @@ type DeviceInfo struct {
 
 // PassthroughConfig 直通配置.
 type PassthroughConfig struct {
-	TargetID   string   `json:"targetId"`   // 目标 VM/LXC ID
-	TargetType string   `json:"targetType"` // 目标类型: vm 或 lxc
-	PCIAddr    string   `json:"pciAddr"`    // PCI 设备地址
-	VFIOID     string   `json:"vfioId"`     // VFIO 设备 ID
-	ROMFile    string   `json:"romFile"`    // ROM 文件路径 (可选)
-	Multifunction bool  `json:"multifunction"` // 是否启用多功能
+	TargetID      string `json:"targetId"`      // 目标 VM/LXC ID
+	TargetType    string `json:"targetType"`    // 目标类型: vm 或 lxc
+	PCIAddr       string `json:"pciAddr"`       // PCI 设备地址
+	VFIOID        string `json:"vfioId"`        // VFIO 设备 ID
+	ROMFile       string `json:"romFile"`       // ROM 文件路径 (可选)
+	Multifunction bool   `json:"multifunction"` // 是否启用多功能
 }
 
 // Manager PCIe 直通管理器.

@@ -64,10 +64,10 @@ func TestBackupJob(t *testing.T) {
 	m := newTestManager()
 	_ = m.AddAccount(&CloudAccount{ID: "acc-1", Name: "test", Provider: ProviderM365})
 	job := &BackupJob{
-		ID:        "job-1",
-		AccountID: "acc-1",
-		Provider:  ProviderM365,
-		Services:  []ServiceType{ServiceOneDrive, ServiceExchange},
+		ID:         "job-1",
+		AccountID:  "acc-1",
+		Provider:   ProviderM365,
+		Services:   []ServiceType{ServiceOneDrive, ServiceExchange},
 		TotalItems: 100,
 		TotalBytes: 1024 * 1024,
 	}

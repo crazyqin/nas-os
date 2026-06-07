@@ -76,29 +76,29 @@ type MediaCollection struct {
 
 // MediaIndex 索引统计.
 type MediaIndex struct {
-	TotalFiles    int            `json:"total_files"`
-	TotalSize     int64          `json:"total_size"`
-	ByType        map[string]int `json:"by_type"`
-	LastIndexed   time.Time      `json:"last_indexed"`
-	IndexedDirs   []string       `json:"indexed_dirs"`
-	DuplicateCount int           `json:"duplicate_count"`
+	TotalFiles     int            `json:"total_files"`
+	TotalSize      int64          `json:"total_size"`
+	ByType         map[string]int `json:"by_type"`
+	LastIndexed    time.Time      `json:"last_indexed"`
+	IndexedDirs    []string       `json:"indexed_dirs"`
+	DuplicateCount int            `json:"duplicate_count"`
 }
 
 // SearchQuery 搜索查询.
 type SearchQuery struct {
-	Keyword    string     `json:"keyword,omitempty"`
-	Tags       []string   `json:"tags,omitempty"`
-	Type       MediaType  `json:"type,omitempty"`
-	DateFrom   *time.Time `json:"date_from,omitempty"`
-	DateTo     *time.Time `json:"date_to,omitempty"`
-	MinSize    int64      `json:"min_size,omitempty"`
-	MaxSize    int64      `json:"max_size,omitempty"`
-	Location   string     `json:"location,omitempty"`
-	Collections []string  `json:"collections,omitempty"`
-	SortBy     string     `json:"sort_by,omitempty"` // name, date, size
-	SortOrder  string     `json:"sort_order,omitempty"` // asc, desc
-	Page       int        `json:"page"`
-	PageSize   int        `json:"page_size"`
+	Keyword     string     `json:"keyword,omitempty"`
+	Tags        []string   `json:"tags,omitempty"`
+	Type        MediaType  `json:"type,omitempty"`
+	DateFrom    *time.Time `json:"date_from,omitempty"`
+	DateTo      *time.Time `json:"date_to,omitempty"`
+	MinSize     int64      `json:"min_size,omitempty"`
+	MaxSize     int64      `json:"max_size,omitempty"`
+	Location    string     `json:"location,omitempty"`
+	Collections []string   `json:"collections,omitempty"`
+	SortBy      string     `json:"sort_by,omitempty"`    // name, date, size
+	SortOrder   string     `json:"sort_order,omitempty"` // asc, desc
+	Page        int        `json:"page"`
+	PageSize    int        `json:"page_size"`
 }
 
 // SearchResult 搜索结果.

@@ -363,9 +363,9 @@ func (m *Manager) executeNotification(action Action) error {
 	defer m.mu.Unlock()
 
 	m.addEvent(DeviceEvent{
-		DeviceID: "system",
-		Type:     "notification",
-		State:    map[string]any{"message": action.Message},
+		DeviceID:  "system",
+		Type:      "notification",
+		State:     map[string]any{"message": action.Message},
 		Timestamp: time.Now(),
 	})
 

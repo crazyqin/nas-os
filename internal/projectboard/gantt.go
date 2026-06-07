@@ -19,16 +19,16 @@ func NewGanttManager(engine *Engine) *GanttManager {
 
 // GanttTask 甘特图任务。
 type GanttTask struct {
-	CardID      string     `json:"card_id"`
-	Title       string     `json:"title"`
-	StartDate   time.Time  `json:"start_date"`
-	EndDate     time.Time  `json:"end_date"`
-	Duration    int        `json:"duration"` // 天数
-	Progress    int        `json:"progress"`
-	AssigneeID  string     `json:"assignee_id"`
+	CardID       string    `json:"card_id"`
+	Title        string    `json:"title"`
+	StartDate    time.Time `json:"start_date"`
+	EndDate      time.Time `json:"end_date"`
+	Duration     int       `json:"duration"` // 天数
+	Progress     int       `json:"progress"`
+	AssigneeID   string    `json:"assignee_id"`
 	Dependencies []string  `json:"dependencies"`
-	IsCritical  bool       `json:"is_critical"`
-	Level       int        `json:"level"` // 层级
+	IsCritical   bool      `json:"is_critical"`
+	Level        int       `json:"level"` // 层级
 }
 
 // DependencyType 依赖类型。
@@ -36,9 +36,9 @@ type DependencyType string
 
 const (
 	DependencyFS DependencyType = "finish_to_start"  // 完成-开始
-	DependencySS DependencyType = "start_to_start"    // 开始-开始
-	DependencyFF DependencyType = "finish_to_finish"  // 完成-完成
-	DependencySF DependencyType = "start_to_finish"   // 开始-完成
+	DependencySS DependencyType = "start_to_start"   // 开始-开始
+	DependencyFF DependencyType = "finish_to_finish" // 完成-完成
+	DependencySF DependencyType = "start_to_finish"  // 开始-完成
 )
 
 // AddDependency 添加任务依赖。
@@ -414,11 +414,11 @@ func (g *GanttManager) GetResourceUtilization(boardID string, start, end time.Ti
 		}
 
 		result[userID] = map[string]interface{}{
-			"total_tasks":    len(tasks),
-			"active_tasks":   activeTasks,
-			"total_days":     totalTaskDays,
-			"period_days":    totalDays,
-			"utilization":    utilization,
+			"total_tasks":  len(tasks),
+			"active_tasks": activeTasks,
+			"total_days":   totalTaskDays,
+			"period_days":  totalDays,
+			"utilization":  utilization,
 		}
 	}
 
@@ -473,10 +473,10 @@ func (g *GanttManager) GetTimeline(boardID string) map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"tasks":          tasks,
-		"min_date":       minDate,
-		"max_date":       maxDate,
-		"critical_path":  criticalPath,
-		"total_tasks":    len(tasks),
+		"tasks":         tasks,
+		"min_date":      minDate,
+		"max_date":      maxDate,
+		"critical_path": criticalPath,
+		"total_tasks":   len(tasks),
 	}
 }

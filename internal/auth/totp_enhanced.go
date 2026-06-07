@@ -36,26 +36,26 @@ var DefaultEnhancedTOTPConfig = EnhancedTOTPConfig{
 
 // EnhancedTOTPManager 增强版 TOTP 管理器.
 type EnhancedTOTPManager struct {
-	mu             sync.RWMutex
-	config         EnhancedTOTPConfig
-	usedCodes      map[string]*UsedCodeRecord // userID -> 最近使用的验证码记录
-	attemptCount   map[string]*TOTPAttemptCount // userID -> 验证尝试计数
-	encryption     *SecretEncryption
-	auditLogger    *SecurityAuditLogger
+	mu           sync.RWMutex
+	config       EnhancedTOTPConfig
+	usedCodes    map[string]*UsedCodeRecord   // userID -> 最近使用的验证码记录
+	attemptCount map[string]*TOTPAttemptCount // userID -> 验证尝试计数
+	encryption   *SecretEncryption
+	auditLogger  *SecurityAuditLogger
 }
 
 // UsedCodeRecord 已使用验证码记录（防重放攻击）.
 type UsedCodeRecord struct {
-	Code      string    `json:"code"`
-	UsedAt    time.Time `json:"used_at"`
-	Period    uint      `json:"period"` // 使用的时间周期
+	Code   string    `json:"code"`
+	UsedAt time.Time `json:"used_at"`
+	Period uint      `json:"period"` // 使用的时间周期
 }
 
 // TOTPAttemptCount TOTP 验证尝试计数.
 type TOTPAttemptCount struct {
-	Count     int       `json:"count"`
-	ResetAt   time.Time `json:"reset_at"` // 计数重置时间
-	LastCode  string    `json:"last_code"` // 最后尝试的验证码
+	Count    int       `json:"count"`
+	ResetAt  time.Time `json:"reset_at"`  // 计数重置时间
+	LastCode string    `json:"last_code"` // 最后尝试的验证码
 }
 
 // NewEnhancedTOTPManager 创建增强版 TOTP 管理器.
@@ -178,8 +178,8 @@ func (m *EnhancedTOTPManager) VerifyTOTPEnhanced(userID, secret, code, ip string
 					Status:   "failure",
 					Reason:   "验证码已被使用（重放攻击）",
 					Details: map[string]interface{}{
-						"code":        code,
-						"used_at":     usedRecord.UsedAt,
+						"code":    code,
+						"used_at": usedRecord.UsedAt,
 					},
 				})
 			}
@@ -299,13 +299,13 @@ func (m *EnhancedTOTPManager) GetStats() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	return map[string]interface{}{
-		"algorithm":      m.config.Algorithm,
-		"digits":         m.config.Digits,
-		"period":         m.config.Period,
-		"skew":           m.config.Skew,
-		"rate_limit":     m.config.RateLimit,
-		"replay_window":  m.config.ReplayWindow.String(),
-		"tracked_users":  len(m.usedCodes),
+		"algorithm":       m.config.Algorithm,
+		"digits":          m.config.Digits,
+		"period":          m.config.Period,
+		"skew":            m.config.Skew,
+		"rate_limit":      m.config.RateLimit,
+		"replay_window":   m.config.ReplayWindow.String(),
+		"tracked_users":   len(m.usedCodes),
 		"active_attempts": len(m.attemptCount),
 	}
 }

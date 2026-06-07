@@ -10,17 +10,17 @@ import (
 
 // Manager 网络监控管理器.
 type Manager struct {
-	mu            sync.RWMutex
-	interfaces    map[string]*NetworkInterface
-	trafficLog    map[string][]*TrafficStats
-	connections   []*ConnectionInfo
-	alertRules    map[string]*AlertRule
-	alertEvents   []*AlertEvent
-	topology      *NetworkTopology
-	portMonitors  map[string]*PortMonitorConfig
-	stopChan      chan struct{}
-	running       bool
-	maxLogSize    int
+	mu           sync.RWMutex
+	interfaces   map[string]*NetworkInterface
+	trafficLog   map[string][]*TrafficStats
+	connections  []*ConnectionInfo
+	alertRules   map[string]*AlertRule
+	alertEvents  []*AlertEvent
+	topology     *NetworkTopology
+	portMonitors map[string]*PortMonitorConfig
+	stopChan     chan struct{}
+	running      bool
+	maxLogSize   int
 }
 
 // NewManager 创建网络监控管理器.
@@ -230,7 +230,7 @@ func (m *Manager) DiscoverTopology() *NetworkTopology {
 				Name:     "NAS",
 				Type:     "nas",
 				IPAddr:   "192.168.1.100",
-				MACAddr:   "00:11:22:33:44:55",
+				MACAddr:  "00:11:22:33:44:55",
 				IsOnline: true,
 				LastSeen: time.Now(),
 			},

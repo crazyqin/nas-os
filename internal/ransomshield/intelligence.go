@@ -49,7 +49,7 @@ type ThreatIntelligence struct {
 	httpClient *http.Client
 
 	// running 运行状态
-	running bool
+	running  bool
 	stopChan chan struct{}
 }
 
@@ -57,45 +57,45 @@ type ThreatIntelligence struct {
 type IOCType string
 
 const (
-	IOCTypeHash    IOCType = "hash"    // 文件哈希
-	IOCTypeIP      IOCType = "ip"      // IP 地址
-	IOCTypeDomain  IOCType = "domain"  // 域名
-	IOCTypeURL     IOCType = "url"     // URL
-	IOCTypeEmail   IOCType = "email"   // 邮箱
-	IOCTypeMutex   IOCType = "mutex"   // 互斥体
-	IOCTypeRegKey  IOCType = "regkey"  // 注册表键
-	IOCTypeYARA    IOCType = "yara"    // YARA 规则
+	IOCTypeHash   IOCType = "hash"   // 文件哈希
+	IOCTypeIP     IOCType = "ip"     // IP 地址
+	IOCTypeDomain IOCType = "domain" // 域名
+	IOCTypeURL    IOCType = "url"    // URL
+	IOCTypeEmail  IOCType = "email"  // 邮箱
+	IOCTypeMutex  IOCType = "mutex"  // 互斥体
+	IOCTypeRegKey IOCType = "regkey" // 注册表键
+	IOCTypeYARA   IOCType = "yara"   // YARA 规则
 )
 
 // IOC 失陷指标
 type IOC struct {
-	ID          string    `json:"id"`
-	Type        IOCType   `json:"type"`
-	Value       string    `json:"value"`
+	ID          string      `json:"id"`
+	Type        IOCType     `json:"type"`
+	Value       string      `json:"value"`
 	ThreatLevel ThreatLevel `json:"threat_level"`
-	Confidence  float64   `json:"confidence"` // 0-1
-	Source      string    `json:"source"`
-	Description string    `json:"description"`
-	Tags        []string  `json:"tags"`
-	FirstSeen   time.Time `json:"first_seen"`
-	LastSeen    time.Time `json:"last_seen"`
-	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
-	Active      bool      `json:"active"`
+	Confidence  float64     `json:"confidence"` // 0-1
+	Source      string      `json:"source"`
+	Description string      `json:"description"`
+	Tags        []string    `json:"tags"`
+	FirstSeen   time.Time   `json:"first_seen"`
+	LastSeen    time.Time   `json:"last_seen"`
+	ExpiresAt   *time.Time  `json:"expires_at,omitempty"`
+	Active      bool        `json:"active"`
 }
 
 // RansomwareSignature 勒索软件签名
 type RansomwareSignature struct {
-	ID          string    `json:"id"`
-	Family      string    `json:"family"`       // 勒索软件家族
-	Name        string    `json:"name"`
-	Hashes      []string  `json:"hashes"`       // 已知哈希
-	FileExts    []string  `json:"file_exts"`    // 加密后扩展名
-	RansomNote  []string  `json:"ransom_note"`  // 勒索信特征
-	Behaviors   []string  `json:"behaviors"`    // 行为特征
-	IOCs        []string  `json:"iocs"`         // 关联IOC
-	Severity    ThreatLevel `json:"severity"`
-	FirstSeen   time.Time `json:"first_seen"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID         string      `json:"id"`
+	Family     string      `json:"family"` // 勒索软件家族
+	Name       string      `json:"name"`
+	Hashes     []string    `json:"hashes"`      // 已知哈希
+	FileExts   []string    `json:"file_exts"`   // 加密后扩展名
+	RansomNote []string    `json:"ransom_note"` // 勒索信特征
+	Behaviors  []string    `json:"behaviors"`   // 行为特征
+	IOCs       []string    `json:"iocs"`        // 关联IOC
+	Severity   ThreatLevel `json:"severity"`
+	FirstSeen  time.Time   `json:"first_seen"`
+	UpdatedAt  time.Time   `json:"updated_at"`
 }
 
 // IntelFeed 情报源
@@ -114,24 +114,24 @@ type IntelFeed struct {
 
 // MatchResult 匹配结果
 type MatchResult struct {
-	Matched     bool      `json:"matched"`
-	IOC         *IOC      `json:"ioc,omitempty"`
+	Matched     bool                 `json:"matched"`
+	IOC         *IOC                 `json:"ioc,omitempty"`
 	Signature   *RansomwareSignature `json:"signature,omitempty"`
-	Confidence  float64   `json:"confidence"`
-	Description string    `json:"description"`
-	MatchedAt   time.Time `json:"matched_at"`
+	Confidence  float64              `json:"confidence"`
+	Description string               `json:"description"`
+	MatchedAt   time.Time            `json:"matched_at"`
 }
 
 // IntelStats 情报统计
 type IntelStats struct {
-	TotalIOCs       int       `json:"total_iocs"`
-	ActiveIOCs      int       `json:"active_iocs"`
-	Signatures      int       `json:"signatures"`
-	FeedsActive     int       `json:"feeds_active"`
-	MatchesTotal    int64     `json:"matches_total"`
-	LastUpdateTime  time.Time `json:"last_update_time"`
-	TotalLookups    int64     `json:"total_lookups"`
-	CacheHits       int64     `json:"cache_hits"`
+	TotalIOCs      int       `json:"total_iocs"`
+	ActiveIOCs     int       `json:"active_iocs"`
+	Signatures     int       `json:"signatures"`
+	FeedsActive    int       `json:"feeds_active"`
+	MatchesTotal   int64     `json:"matches_total"`
+	LastUpdateTime time.Time `json:"last_update_time"`
+	TotalLookups   int64     `json:"total_lookups"`
+	CacheHits      int64     `json:"cache_hits"`
 }
 
 // ============================================================
@@ -141,12 +141,12 @@ type IntelStats struct {
 // NewThreatIntelligence 创建威胁情报管理器
 func NewThreatIntelligence(dataDir string) *ThreatIntelligence {
 	ti := &ThreatIntelligence{
-		iocs:        make(map[IOCType][]IOC),
-		signatures:  make(map[string]*RansomwareSignature),
-		matchCache:  make(map[string]*MatchResult),
-		dataDir:     dataDir,
-		httpClient:  &http.Client{Timeout: 30 * time.Second},
-		stopChan:    make(chan struct{}),
+		iocs:       make(map[IOCType][]IOC),
+		signatures: make(map[string]*RansomwareSignature),
+		matchCache: make(map[string]*MatchResult),
+		dataDir:    dataDir,
+		httpClient: &http.Client{Timeout: 30 * time.Second},
+		stopChan:   make(chan struct{}),
 	}
 
 	ti.initBuiltinSignatures()
@@ -159,66 +159,66 @@ func (ti *ThreatIntelligence) initBuiltinSignatures() {
 	ti.signatures = map[string]*RansomwareSignature{
 		"wannacry": {
 			ID: "wannacry", Family: "WannaCry", Name: "WannaCry 勒索软件",
-			FileExts: []string{".wncry", ".wncryt"},
+			FileExts:   []string{".wncry", ".wncryt"},
 			RansomNote: []string{"@Please_Read_Me@.txt", "WNcry@2Ol7"},
-			Behaviors: []string{"ms17-010", "eternalblue", "kill_switch"},
-			Severity: ThreatLevelCritical,
-			FirstSeen: time.Date(2017, 5, 12, 0, 0, 0, 0, time.UTC),
-			UpdatedAt: time.Now(),
+			Behaviors:  []string{"ms17-010", "eternalblue", "kill_switch"},
+			Severity:   ThreatLevelCritical,
+			FirstSeen:  time.Date(2017, 5, 12, 0, 0, 0, 0, time.UTC),
+			UpdatedAt:  time.Now(),
 		},
 		"ryuk": {
 			ID: "ryuk", Family: "Ryuk", Name: "Ryuk 勒索软件",
-			FileExts: []string{".ryk", ".ryuk"},
+			FileExts:   []string{".ryk", ".ryuk"},
 			RansomNote: []string{"RyukReadMe.txt", "UNIQUE_ID_DO_NOT_REMOVE.txt"},
-			Behaviors: []string{"shadow_copy_deletion", "disable_recovery", "network_spread"},
-			Severity: ThreatLevelCritical,
-			FirstSeen: time.Date(2018, 8, 1, 0, 0, 0, 0, time.UTC),
-			UpdatedAt: time.Now(),
+			Behaviors:  []string{"shadow_copy_deletion", "disable_recovery", "network_spread"},
+			Severity:   ThreatLevelCritical,
+			FirstSeen:  time.Date(2018, 8, 1, 0, 0, 0, 0, time.UTC),
+			UpdatedAt:  time.Now(),
 		},
 		"conti": {
 			ID: "conti", Family: "Conti", Name: "Conti 勒索软件",
-			FileExts: []string{".conti", ".CONTI"},
+			FileExts:   []string{".conti", ".CONTI"},
 			RansomNote: []string{"CONTI_README.txt", "readme.txt"},
-			Behaviors: []string{"double_extortion", "data_exfil", "rapid_encrypt"},
-			Severity: ThreatLevelCritical,
-			FirstSeen: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
-			UpdatedAt: time.Now(),
+			Behaviors:  []string{"double_extortion", "data_exfil", "rapid_encrypt"},
+			Severity:   ThreatLevelCritical,
+			FirstSeen:  time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+			UpdatedAt:  time.Now(),
 		},
 		"lockbit": {
 			ID: "lockbit", Family: "LockBit", Name: "LockBit 勒索软件",
-			FileExts: []string{".lockbit", ".abcd", ".lockbit3.0"},
+			FileExts:   []string{".lockbit", ".abcd", ".lockbit3.0"},
 			RansomNote: []string{"LockBit_Ransomware.hta", "Restore-My-Files.txt"},
-			Behaviors: []string{"self_spread", "disable_defender", "delete_backups"},
-			Severity: ThreatLevelCritical,
-			FirstSeen: time.Date(2019, 9, 1, 0, 0, 0, 0, time.UTC),
-			UpdatedAt: time.Now(),
+			Behaviors:  []string{"self_spread", "disable_defender", "delete_backups"},
+			Severity:   ThreatLevelCritical,
+			FirstSeen:  time.Date(2019, 9, 1, 0, 0, 0, 0, time.UTC),
+			UpdatedAt:  time.Now(),
 		},
 		"revil": {
 			ID: "revil", Family: "REvil/Sodinokibi", Name: "REvil 勒索软件",
-			FileExts: []string{".revil", ".sodinokibi", ".random_ext"},
+			FileExts:   []string{".revil", ".sodinokibi", ".random_ext"},
 			RansomNote: []string{"[ransomware_id]-readme.txt"},
-			Behaviors: []string{"double_extortion", "ransomware_as_service"},
-			Severity: ThreatLevelCritical,
-			FirstSeen: time.Date(2019, 4, 1, 0, 0, 0, 0, time.UTC),
-			UpdatedAt: time.Now(),
+			Behaviors:  []string{"double_extortion", "ransomware_as_service"},
+			Severity:   ThreatLevelCritical,
+			FirstSeen:  time.Date(2019, 4, 1, 0, 0, 0, 0, time.UTC),
+			UpdatedAt:  time.Now(),
 		},
 		"maze": {
 			ID: "maze", Family: "Maze", Name: "Maze 勒索软件",
-			FileExts: []string{".maze"},
+			FileExts:   []string{".maze"},
 			RansomNote: []string{"DECRYPT-FILES.txt"},
-			Behaviors: []string{"data_exfil", "double_extortion", "vm_escape"},
-			Severity: ThreatLevelCritical,
-			FirstSeen: time.Date(2019, 5, 1, 0, 0, 0, 0, time.UTC),
-			UpdatedAt: time.Now(),
+			Behaviors:  []string{"data_exfil", "double_extortion", "vm_escape"},
+			Severity:   ThreatLevelCritical,
+			FirstSeen:  time.Date(2019, 5, 1, 0, 0, 0, 0, time.UTC),
+			UpdatedAt:  time.Now(),
 		},
 		"blackcat": {
 			ID: "blackcat", Family: "BlackCat/ALPHV", Name: "BlackCat 勒索软件",
-			FileExts: []string{".alphv"},
+			FileExts:   []string{".alphv"},
 			RansomNote: []string{"RECOVER-[id]-FILES.txt"},
-			Behaviors: []string{"rust_impl", "cross_platform", "triple_extortion"},
-			Severity: ThreatLevelCritical,
-			FirstSeen: time.Date(2021, 11, 1, 0, 0, 0, 0, time.UTC),
-			UpdatedAt: time.Now(),
+			Behaviors:  []string{"rust_impl", "cross_platform", "triple_extortion"},
+			Severity:   ThreatLevelCritical,
+			FirstSeen:  time.Date(2021, 11, 1, 0, 0, 0, 0, time.UTC),
+			UpdatedAt:  time.Now(),
 		},
 	}
 }
@@ -232,12 +232,12 @@ func (ti *ThreatIntelligence) initDefaultFeeds() {
 		},
 		{
 			ID: "alienvault-otx", Name: "AlienVault OTX",
-			URL: "https://otx.alienvault.com/api/v1/indicators/export",
+			URL:  "https://otx.alienvault.com/api/v1/indicators/export",
 			Type: "alienvault", Enabled: false, IntervalMin: 60,
 		},
 		{
 			ID: "ransomwaretracker", Name: "Ransomware Tracker",
-			URL: "https://ransomwaretracker.abuse.ch/downloads/",
+			URL:  "https://ransomwaretracker.abuse.ch/downloads/",
 			Type: "abuse_ch", Enabled: false, IntervalMin: 30,
 		},
 	}

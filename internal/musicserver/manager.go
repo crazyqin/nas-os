@@ -15,24 +15,24 @@ import (
 
 // Manager 音乐服务管理器.
 type Manager struct {
-	songs        map[string]*Song
-	albums       map[string]*Album
-	artists      map[string]*Artist
-	playlists    map[string]*Playlist
+	songs         map[string]*Song
+	albums        map[string]*Album
+	artists       map[string]*Artist
+	playlists     map[string]*Playlist
 	playlistSongs map[string][]*PlaylistSong // playlistID -> songs
-	playQueues   map[string]*PlayQueue       // owner -> queue
-	coverArts    map[string]*CoverArt
-	lyrics       map[string]*Lyrics          // songID -> lyrics
-	playHistory  map[string][]*PlayHistoryEntry // owner -> history
-	favorites    map[string][]string           // owner -> songIDs
-	mu           sync.RWMutex
+	playQueues    map[string]*PlayQueue      // owner -> queue
+	coverArts     map[string]*CoverArt
+	lyrics        map[string]*Lyrics             // songID -> lyrics
+	playHistory   map[string][]*PlayHistoryEntry // owner -> history
+	favorites     map[string][]string            // owner -> songIDs
+	mu            sync.RWMutex
 }
 
 // PlayHistoryEntry 播放历史记录.
 type PlayHistoryEntry struct {
-	SongID    string    `json:"song_id"`
-	PlayedAt  time.Time `json:"played_at"`
-	Owner     string    `json:"owner"`
+	SongID   string    `json:"song_id"`
+	PlayedAt time.Time `json:"played_at"`
+	Owner    string    `json:"owner"`
 }
 
 // NewManager 创建音乐服务管理器.
@@ -276,15 +276,15 @@ func (m *Manager) CreatePlaylist(req CreatePlaylistRequest) *Playlist {
 
 	now := time.Now()
 	playlist := &Playlist{
-		ID:          uuid.New().String(),
-		Name:        req.Name,
-		Description: req.Description,
-		Owner:       req.Owner,
-		IsPublic:    req.IsPublic,
-		SongCount:   0,
+		ID:            uuid.New().String(),
+		Name:          req.Name,
+		Description:   req.Description,
+		Owner:         req.Owner,
+		IsPublic:      req.IsPublic,
+		SongCount:     0,
 		TotalDuration: 0,
-		CreatedAt:   now,
-		UpdatedAt:   now,
+		CreatedAt:     now,
+		UpdatedAt:     now,
 	}
 
 	m.playlists[playlist.ID] = playlist
@@ -502,13 +502,13 @@ func (m *Manager) GetPlayQueue(owner string) *PlayQueue {
 	queue, ok := m.playQueues[owner]
 	if !ok {
 		queue = &PlayQueue{
-			ID:        uuid.New().String(),
-			Owner:     owner,
-			Songs:     []PlayQueueSong{},
+			ID:           uuid.New().String(),
+			Owner:        owner,
+			Songs:        []PlayQueueSong{},
 			CurrentIndex: 0,
-			Shuffle:   false,
-			Repeat:    RepeatOff,
-			UpdatedAt: time.Now(),
+			Shuffle:      false,
+			Repeat:       RepeatOff,
+			UpdatedAt:    time.Now(),
 		}
 		m.playQueues[owner] = queue
 	}

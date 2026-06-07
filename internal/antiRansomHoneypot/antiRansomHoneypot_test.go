@@ -20,10 +20,10 @@ func TestCreateHoneypot(t *testing.T) {
 	m := NewHoneypotManager()
 
 	hp := &HoneypotFile{
-		Path:     "/shares/documents/decoy.docx",
-		Type:     HoneypotTypeDocument,
-		FileName: "decoy.docx",
-		Enabled:  true,
+		Path:      "/shares/documents/decoy.docx",
+		Type:      HoneypotTypeDocument,
+		FileName:  "decoy.docx",
+		Enabled:   true,
 		ShareName: "documents",
 	}
 
@@ -147,12 +147,12 @@ func TestAnalyzeEntropy(t *testing.T) {
 func TestSetProtectionPolicy(t *testing.T) {
 	m := NewHoneypotManager()
 	policy := &ProtectionPolicy{
-		Name:             "默认防护",
-		Enabled:          true,
-		EntropyThreshold: 7.0,
+		Name:              "默认防护",
+		Enabled:           true,
+		EntropyThreshold:  7.0,
 		FileChangeRateMax: 10,
-		DefaultAction:    ActionQuarantine,
-		AutoResponse:     true,
+		DefaultAction:     ActionQuarantine,
+		AutoResponse:      true,
 	}
 
 	if err := m.SetProtectionPolicy(policy); err != nil {
@@ -170,9 +170,9 @@ func TestGetEvents(t *testing.T) {
 
 	for i := 0; i < 5; i++ {
 		m.ReportThreat(&ThreatEvent{
-			HoneypotID:  hp.ID,
-			Operation:   "read",
-			SourceIP:    "192.168.1.1",
+			HoneypotID:   hp.ID,
+			Operation:    "read",
+			SourceIP:     "192.168.1.1",
 			EntropyAfter: 3.0,
 		})
 	}
@@ -189,9 +189,9 @@ func TestGetStats(t *testing.T) {
 	m.CreateHoneypot(hp)
 
 	m.ReportThreat(&ThreatEvent{
-		HoneypotID: hp.ID,
-		Operation:  "encrypt",
-		SourceIP:   "10.0.0.1",
+		HoneypotID:    hp.ID,
+		Operation:     "encrypt",
+		SourceIP:      "10.0.0.1",
 		EntropyBefore: 4.0,
 		EntropyAfter:  7.5,
 		ActionTaken:   ActionQuarantine,
@@ -213,9 +213,9 @@ func TestListHoneypots(t *testing.T) {
 	m := NewHoneypotManager()
 	for i := 0; i < 3; i++ {
 		m.CreateHoneypot(&HoneypotFile{
-			Path:     fmt.Sprintf("/test%d", i),
-			Type:     HoneypotTypeDocument,
-			Enabled:  true,
+			Path:    fmt.Sprintf("/test%d", i),
+			Type:    HoneypotTypeDocument,
+			Enabled: true,
 		})
 	}
 

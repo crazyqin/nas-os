@@ -539,11 +539,11 @@ func HandleWebXRManifest() http.HandlerFunc {
 		}
 
 		manifest := map[string]interface{}{
-			"name":             "NAS-OS AR/VR Media",
-			"short_name":       "ARVR",
-			"start_url":        "/api/v1/arvr/webxr",
-			"display":          "immersive-vr",
-			"xr":               map[string]interface{}{
+			"name":       "NAS-OS AR/VR Media",
+			"short_name": "ARVR",
+			"start_url":  "/api/v1/arvr/webxr",
+			"display":    "immersive-vr",
+			"xr": map[string]interface{}{
 				"optional_features": []string{
 					"local-floor",
 					"bounded-floor",

@@ -157,12 +157,12 @@ func (h *SearchAPIHandler) TriggerIndex(c *gin.Context) {
 	h.engine.rebuildSearchIndex()
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":       "索引完成",
-		"totalFiles":    resp.TotalFiles,
-		"indexedFiles":  resp.IndexedFiles,
-		"failedFiles":   resp.FailedFiles,
-		"took":          resp.Took.String(),
-		"errors":        resp.Errors,
+		"message":      "索引完成",
+		"totalFiles":   resp.TotalFiles,
+		"indexedFiles": resp.IndexedFiles,
+		"failedFiles":  resp.FailedFiles,
+		"took":         resp.Took.String(),
+		"errors":       resp.Errors,
 	})
 }
 

@@ -28,14 +28,14 @@ type SnapshotAnomalyDetector struct {
 // SnapshotAnomalyConfig 快照异常检测配置
 type SnapshotAnomalyConfig struct {
 	Enabled             bool          `json:"enabled"`
-	CheckInterval       time.Duration `json:"check_interval"`       // 检查间隔
-	HistoryWindow       time.Duration `json:"history_window"`       // 历史记录窗口
+	CheckInterval       time.Duration `json:"check_interval"`        // 检查间隔
+	HistoryWindow       time.Duration `json:"history_window"`        // 历史记录窗口
 	SizeIncreasePercent float64       `json:"size_increase_percent"` // 大小突增阈值（百分比）
-	CountIncreaseRate   int           `json:"count_increase_rate"`  // 快照数量突增阈值
-	SpaceUsedPercent    float64       `json:"space_used_percent"`   // 空间占用率阈值
-	DeletionAlert       bool          `json:"deletion_alert"`       // 快照删除告警
-	MonitorDatasets     []string      `json:"monitor_datasets"`     // 监控的数据集
-	ExcludeDatasets     []string      `json:"exclude_datasets"`     // 排除的数据集
+	CountIncreaseRate   int           `json:"count_increase_rate"`   // 快照数量突增阈值
+	SpaceUsedPercent    float64       `json:"space_used_percent"`    // 空间占用率阈值
+	DeletionAlert       bool          `json:"deletion_alert"`        // 快照删除告警
+	MonitorDatasets     []string      `json:"monitor_datasets"`      // 监控的数据集
+	ExcludeDatasets     []string      `json:"exclude_datasets"`      // 排除的数据集
 }
 
 // DefaultSnapshotAnomalyConfig 默认配置
@@ -69,39 +69,39 @@ type SnapshotThresholds struct {
 
 // SnapshotAnomaly 快照异常类型
 type SnapshotAnomaly struct {
-	ID           string            `json:"id"`
-	Type         AnomalyType       `json:"type"`
-	Dataset      string            `json:"dataset"`
-	Snapshot     string            `json:"snapshot,omitempty"`
-	Rate         float64           `json:"rate,omitempty"`
-	Threshold    float64           `json:"threshold"`
-	Details      map[string]string `json:"details,omitempty"`
-	Timestamp    time.Time         `json:"timestamp"`
-	ThreatLevel  ThreatLevel       `json:"threat_level"`
-	SuggestedAction string         `json:"suggested_action"`
-	DeletedSnapshots []string      `json:"deleted_snapshots,omitempty"`
+	ID               string            `json:"id"`
+	Type             AnomalyType       `json:"type"`
+	Dataset          string            `json:"dataset"`
+	Snapshot         string            `json:"snapshot,omitempty"`
+	Rate             float64           `json:"rate,omitempty"`
+	Threshold        float64           `json:"threshold"`
+	Details          map[string]string `json:"details,omitempty"`
+	Timestamp        time.Time         `json:"timestamp"`
+	ThreatLevel      ThreatLevel       `json:"threat_level"`
+	SuggestedAction  string            `json:"suggested_action"`
+	DeletedSnapshots []string          `json:"deleted_snapshots,omitempty"`
 }
 
 // AnomalyType 异常类型
 type AnomalyType string
 
 const (
-	AnomalySizeIncrease     AnomalyType = "size_increase"      // 快照大小突增
-	AnomalyCountIncrease    AnomalyType = "count_increase"     // 快照数量突增
-	AnomalySpaceUsed        AnomalyType = "space_used"         // 空间占用过高
-	AnomalySnapshotDeletion AnomalyType = "snapshot_deletion"  // 快照被删除
-	AnomalyRapidChange      AnomalyType = "rapid_change"       // 快速数据变化
+	AnomalySizeIncrease     AnomalyType = "size_increase"     // 快照大小突增
+	AnomalyCountIncrease    AnomalyType = "count_increase"    // 快照数量突增
+	AnomalySpaceUsed        AnomalyType = "space_used"        // 空间占用过高
+	AnomalySnapshotDeletion AnomalyType = "snapshot_deletion" // 快照被删除
+	AnomalyRapidChange      AnomalyType = "rapid_change"      // 快速数据变化
 )
 
 // AnomalyStats 异常统计
 type AnomalyStats struct {
-	TotalChecks       int64               `json:"total_checks"`
-	AnomaliesDetected int64               `json:"anomalies_detected"`
+	TotalChecks       int64                 `json:"total_checks"`
+	AnomaliesDetected int64                 `json:"anomalies_detected"`
 	ByType            map[AnomalyType]int64 `json:"by_type"`
-	ByDataset         map[string]int64    `json:"by_dataset"`
-	LastCheckTime     *time.Time          `json:"last_check_time,omitempty"`
-	LastAnomalyTime   *time.Time          `json:"last_anomaly_time,omitempty"`
-	AlertsSent        int64               `json:"alerts_sent"`
+	ByDataset         map[string]int64      `json:"by_dataset"`
+	LastCheckTime     *time.Time            `json:"last_check_time,omitempty"`
+	LastAnomalyTime   *time.Time            `json:"last_anomaly_time,omitempty"`
+	AlertsSent        int64                 `json:"alerts_sent"`
 }
 
 // ZFSAdapterInterface ZFS适配器接口
@@ -117,23 +117,23 @@ type ZFSAdapterInterface interface {
 
 // SnapshotInfo 快照信息
 type SnapshotInfo struct {
-	Name      string    `json:"name"`
-	Dataset   string    `json:"dataset"`
-	Created   time.Time `json:"created"`
-	Used      int64     `json:"used"`      // 已用空间（字节）
-	Referenced int64    `json:"referenced"` // 引用空间（字节）
-	Written   int64     `json:"written"`   // 写入数据量
-	HoldTag   string    `json:"hold_tag,omitempty"` // Hold标签
+	Name       string    `json:"name"`
+	Dataset    string    `json:"dataset"`
+	Created    time.Time `json:"created"`
+	Used       int64     `json:"used"`               // 已用空间（字节）
+	Referenced int64     `json:"referenced"`         // 引用空间（字节）
+	Written    int64     `json:"written"`            // 写入数据量
+	HoldTag    string    `json:"hold_tag,omitempty"` // Hold标签
 }
 
 // DatasetUsage 数据集使用情况
 type DatasetUsage struct {
-	Dataset      string `json:"dataset"`
-	Used         int64  `json:"used"`
-	Available    int64  `json:"available"`
-	TotalReferenced int64 `json:"total_referenced"`
-	UsedPercent  float64 `json:"used_percent"`
-	SnapshotCount int    `json:"snapshot_count"`
+	Dataset         string  `json:"dataset"`
+	Used            int64   `json:"used"`
+	Available       int64   `json:"available"`
+	TotalReferenced int64   `json:"total_referenced"`
+	UsedPercent     float64 `json:"used_percent"`
+	SnapshotCount   int     `json:"snapshot_count"`
 }
 
 // SnapshotHistoryStore 快照历史存储
@@ -297,18 +297,18 @@ func (d *SnapshotAnomalyDetector) Detect(ctx context.Context) []SnapshotAnomaly 
 		// 3. 检测空间占用异常
 		if usage.UsedPercent >= d.thresholds.SpaceUsedPercent {
 			anomaly := SnapshotAnomaly{
-				ID:            generateAnomalyID(),
-				Type:          AnomalySpaceUsed,
-				Dataset:       dataset,
-				Rate:          usage.UsedPercent,
-				Threshold:     d.thresholds.SpaceUsedPercent,
-				Timestamp:     now,
-				ThreatLevel:   ThreatLevelHigh,
+				ID:              generateAnomalyID(),
+				Type:            AnomalySpaceUsed,
+				Dataset:         dataset,
+				Rate:            usage.UsedPercent,
+				Threshold:       d.thresholds.SpaceUsedPercent,
+				Timestamp:       now,
+				ThreatLevel:     ThreatLevelHigh,
 				SuggestedAction: "数据集空间占用过高，勒索攻击可能导致空间耗尽。建议立即检查数据状态。",
 				Details: map[string]string{
-					"used_bytes":     fmt.Sprintf("%d", usage.Used),
+					"used_bytes":      fmt.Sprintf("%d", usage.Used),
 					"available_bytes": fmt.Sprintf("%d", usage.Available),
-					"snapshot_count": fmt.Sprintf("%d", usage.SnapshotCount),
+					"snapshot_count":  fmt.Sprintf("%d", usage.SnapshotCount),
 				},
 			}
 			anomalies = append(anomalies, anomaly)
@@ -356,7 +356,7 @@ func (d *SnapshotAnomalyDetector) detectSizeIncrease(dataset string, snapshots [
 		timeDiff := current.Created.Sub(prev.Created).Minutes()
 
 		// 计算增长百分比
-		increaseRate := float64(current.Used - prev.Used) / float64(prev.Used) * 100
+		increaseRate := float64(current.Used-prev.Used) / float64(prev.Used) * 100
 
 		// 检测异常突增
 		if increaseRate >= d.thresholds.SizeIncreasePercent {
@@ -368,20 +368,20 @@ func (d *SnapshotAnomalyDetector) detectSizeIncrease(dataset string, snapshots [
 			}
 
 			anomaly := SnapshotAnomaly{
-				ID:        generateAnomalyID(),
-				Type:      AnomalySizeIncrease,
-				Dataset:   dataset,
-				Snapshot:  current.Name,
-				Rate:      increaseRate,
-				Threshold: d.thresholds.SizeIncreasePercent,
-				Timestamp: now,
-				ThreatLevel: threatLevel,
+				ID:              generateAnomalyID(),
+				Type:            AnomalySizeIncrease,
+				Dataset:         dataset,
+				Snapshot:        current.Name,
+				Rate:            increaseRate,
+				Threshold:       d.thresholds.SizeIncreasePercent,
+				Timestamp:       now,
+				ThreatLevel:     threatLevel,
 				SuggestedAction: "快照大小突增异常，疑似勒索攻击正在加密文件。立即检查数据状态，锁定快照，准备恢复。",
 				Details: map[string]string{
-					"current_used":   fmt.Sprintf("%d", current.Used),
-					"previous_used":  fmt.Sprintf("%d", prev.Used),
-					"time_diff_min":  fmt.Sprintf("%.2f", timeDiff),
-					"increase_rate":  fmt.Sprintf("%.2f%%", increaseRate),
+					"current_used":  fmt.Sprintf("%d", current.Used),
+					"previous_used": fmt.Sprintf("%d", prev.Used),
+					"time_diff_min": fmt.Sprintf("%.2f", timeDiff),
+					"increase_rate": fmt.Sprintf("%.2f%%", increaseRate),
 				},
 			}
 			anomalies = append(anomalies, anomaly)
@@ -391,18 +391,18 @@ func (d *SnapshotAnomalyDetector) detectSizeIncrease(dataset string, snapshots [
 		// 检测快速数据变化（短时间内大量写入）
 		if current.Written > 0 && timeDiff < 10 && current.Written > 100*1024*1024 { // 10分钟内写入超过100MB
 			anomaly := SnapshotAnomaly{
-				ID:        generateAnomalyID(),
-				Type:      AnomalyRapidChange,
-				Dataset:   dataset,
-				Snapshot:  current.Name,
-				Rate:      float64(current.Written),
-				Threshold: 100 * 1024 * 1024,
-				Timestamp: now,
-				ThreatLevel: ThreatLevelHigh,
+				ID:              generateAnomalyID(),
+				Type:            AnomalyRapidChange,
+				Dataset:         dataset,
+				Snapshot:        current.Name,
+				Rate:            float64(current.Written),
+				Threshold:       100 * 1024 * 1024,
+				Timestamp:       now,
+				ThreatLevel:     ThreatLevelHigh,
 				SuggestedAction: "短时间内大量数据写入，疑似勒索攻击。建议加强监控。",
 				Details: map[string]string{
-					"written_bytes":  fmt.Sprintf("%d", current.Written),
-					"time_diff_min":  fmt.Sprintf("%.2f", timeDiff),
+					"written_bytes": fmt.Sprintf("%d", current.Written),
+					"time_diff_min": fmt.Sprintf("%.2f", timeDiff),
 				},
 			}
 			anomalies = append(anomalies, anomaly)
@@ -430,18 +430,18 @@ func (d *SnapshotAnomalyDetector) detectCountIncrease(dataset string, snapshots 
 	// 检测异常
 	if newCount >= d.thresholds.CountIncreaseRate {
 		anomaly := SnapshotAnomaly{
-			ID:        generateAnomalyID(),
-			Type:      AnomalyCountIncrease,
-			Dataset:   dataset,
-			Rate:      float64(newCount),
-			Threshold: float64(d.thresholds.CountIncreaseRate),
-			Timestamp: now,
-			ThreatLevel: ThreatLevelMedium,
+			ID:              generateAnomalyID(),
+			Type:            AnomalyCountIncrease,
+			Dataset:         dataset,
+			Rate:            float64(newCount),
+			Threshold:       float64(d.thresholds.CountIncreaseRate),
+			Timestamp:       now,
+			ThreatLevel:     ThreatLevelMedium,
 			SuggestedAction: "短时间内创建大量快照，可能存在异常操作。建议检查快照创建原因。",
 			Details: map[string]string{
-				"new_snapshots": fmt.Sprintf("%d", newCount),
+				"new_snapshots":   fmt.Sprintf("%d", newCount),
 				"total_snapshots": fmt.Sprintf("%d", len(snapshots)),
-				"window_minutes": fmt.Sprintf("%.0f", d.config.CheckInterval.Minutes()),
+				"window_minutes":  fmt.Sprintf("%.0f", d.config.CheckInterval.Minutes()),
 			},
 		}
 		anomalies = append(anomalies, anomaly)
@@ -480,15 +480,15 @@ func (d *SnapshotAnomalyDetector) detectSnapshotDeletion(ctx context.Context, da
 	// 如果有快照被删除，触发告警
 	if len(deletedSnapshots) > 0 {
 		anomaly := SnapshotAnomaly{
-			ID:            generateAnomalyID(),
-			Type:          AnomalySnapshotDeletion,
-			Dataset:       dataset,
-			Timestamp:     now,
-			ThreatLevel:   ThreatLevelCritical, // 删除快照是勒索攻击的高级指标
-			SuggestedAction: "快照被删除，勒索攻击可能正在尝试阻止数据恢复。立即锁定剩余快照，检查数据状态。",
+			ID:               generateAnomalyID(),
+			Type:             AnomalySnapshotDeletion,
+			Dataset:          dataset,
+			Timestamp:        now,
+			ThreatLevel:      ThreatLevelCritical, // 删除快照是勒索攻击的高级指标
+			SuggestedAction:  "快照被删除，勒索攻击可能正在尝试阻止数据恢复。立即锁定剩余快照，检查数据状态。",
 			DeletedSnapshots: deletedSnapshots,
 			Details: map[string]string{
-				"deleted_count": fmt.Sprintf("%d", len(deletedSnapshots)),
+				"deleted_count":   fmt.Sprintf("%d", len(deletedSnapshots)),
 				"remaining_count": fmt.Sprintf("%d", len(currentSnapshots)),
 			},
 		}

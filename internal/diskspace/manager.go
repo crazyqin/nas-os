@@ -35,38 +35,38 @@ func NewDiskSpaceManager() *DiskSpaceManager {
 // StartScan starts a disk scan operation
 func (m *DiskSpaceManager) StartScan(ctx context.Context, config ScanConfig) error {
 	m.mu.Lock()
-	
+
 	// Cancel any existing scan
 	if m.scanCancel != nil {
 		m.scanCancel()
 	}
-	
+
 	scanCtx, cancel := context.WithCancel(ctx)
 	m.scanCancel = cancel
-	
+
 	m.scanProgress = ScanProgress{
 		Status: "running",
 	}
 	m.mu.Unlock()
-	
+
 	go m.runScan(scanCtx, config)
-	
+
 	return nil
 }
 
 // runScan performs the actual scan operation
 func (m *DiskSpaceManager) runScan(ctx context.Context, config ScanConfig) {
 	startTime := time.Now()
-	
+
 	m.mu.Lock()
 	m.scanProgress.Status = "running"
 	m.mu.Unlock()
-	
+
 	// Simulate scanning with mock data
 	paths := []string{
 		"/home", "/var", "/usr", "/tmp", "/opt",
 	}
-	
+
 	for i, path := range paths {
 		select {
 		case <-ctx.Done():
@@ -76,7 +76,7 @@ func (m *DiskSpaceManager) runScan(ctx context.Context, config ScanConfig) {
 			return
 		default:
 		}
-		
+
 		m.mu.Lock()
 		m.scanProgress.CurrentPath = path
 		m.scanProgress.ScannedDirs = (i + 1) * 100
@@ -84,16 +84,16 @@ func (m *DiskSpaceManager) runScan(ctx context.Context, config ScanConfig) {
 		m.scanProgress.Percent = float64(i+1) / float64(len(paths)) * 100
 		m.scanProgress.Elapsed = time.Since(startTime).Seconds()
 		m.mu.Unlock()
-		
+
 		time.Sleep(100 * time.Millisecond)
 	}
-	
+
 	// Generate mock results
 	m.mu.Lock()
 	m.scanProgress.Status = "completed"
 	m.scanProgress.Percent = 100
 	m.scanProgress.Elapsed = time.Since(startTime).Seconds()
-	
+
 	// Store results for each path
 	for _, path := range paths {
 		m.stats[path] = m.generateMockStats(path)
@@ -112,13 +112,13 @@ func (m *DiskSpaceManager) GetScanProgress() ScanProgress {
 func (m *DiskSpaceManager) GetDiskUsage(path string) DiskUsage {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	// Try to get real disk usage
 	usage, err := getRealDiskUsage(path)
 	if err == nil {
 		return usage
 	}
-	
+
 	// Return mock data
 	return DiskUsage{
 		Total:        1024 * 1024 * 1024 * 100, // 100GB
@@ -136,7 +136,7 @@ func (m *DiskSpaceManager) GetDiskUsage(path string) DiskUsage {
 func (m *DiskSpaceManager) GetDirectoryTree(path string, maxDepth int) DirectoryNode {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	return m.buildDirectoryTree(path, 0, maxDepth)
 }
 
@@ -146,14 +146,14 @@ func (m *DiskSpaceManager) buildDirectoryTree(path string, depth, maxDepth int) 
 	if path == "/" {
 		name = "/"
 	}
-	
+
 	node := DirectoryNode{
 		Path:       path,
 		Name:       name,
 		Depth:      depth,
 		ParentPath: filepath.Dir(path),
 	}
-	
+
 	if depth >= maxDepth {
 		// Return leaf node with mock data
 		node.Size = 1024 * 1024 * 100 // 100MB
@@ -161,7 +161,7 @@ func (m *DiskSpaceManager) buildDirectoryTree(path string, depth, maxDepth int) 
 		node.DirCount = 3
 		return node
 	}
-	
+
 	// Generate mock children
 	mockDirs := []string{"documents", "pictures", "videos", "music", "downloads"}
 	for _, dir := range mockDirs {
@@ -172,7 +172,7 @@ func (m *DiskSpaceManager) buildDirectoryTree(path string, depth, maxDepth int) 
 		node.FileCount += child.FileCount
 		node.DirCount += child.DirCount + 1
 	}
-	
+
 	return node
 }
 
@@ -180,7 +180,7 @@ func (m *DiskSpaceManager) buildDirectoryTree(path string, depth, maxDepth int) 
 func (m *DiskSpaceManager) GetFileTypeStats(path string) []FileTypeStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	// Mock file type statistics
 	stats := []FileTypeStats{
 		{Extension: ".mp4", Count: 150, TotalSize: 1024 * 1024 * 1024 * 50, Percentage: 45.0},
@@ -191,7 +191,7 @@ func (m *DiskSpaceManager) GetFileTypeStats(path string) []FileTypeStats {
 		{Extension: ".mp3", Count: 1000, TotalSize: 1024 * 1024 * 1024 * 15, Percentage: 13.5},
 		{Extension: "other", Count: 3000, TotalSize: 1024 * 1024 * 1024 * 9, Percentage: 8.2},
 	}
-	
+
 	return stats
 }
 
@@ -199,7 +199,7 @@ func (m *DiskSpaceManager) GetFileTypeStats(path string) []FileTypeStats {
 func (m *DiskSpaceManager) FindLargeFiles(path string, minSize int64, limit int) []LargeFileInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	// Mock large files
 	files := []LargeFileInfo{
 		{
@@ -238,7 +238,7 @@ func (m *DiskSpaceManager) FindLargeFiles(path string, minSize int64, limit int)
 			Extension:  ".raw",
 		},
 	}
-	
+
 	// Filter by minSize
 	filtered := make([]LargeFileInfo, 0)
 	for _, f := range files {
@@ -246,12 +246,12 @@ func (m *DiskSpaceManager) FindLargeFiles(path string, minSize int64, limit int)
 			filtered = append(filtered, f)
 		}
 	}
-	
+
 	// Apply limit
 	if limit > 0 && limit < len(filtered) {
 		filtered = filtered[:limit]
 	}
-	
+
 	return filtered
 }
 
@@ -259,7 +259,7 @@ func (m *DiskSpaceManager) FindLargeFiles(path string, minSize int64, limit int)
 func (m *DiskSpaceManager) FindDuplicates(ctx context.Context, path string) ([]DuplicateFile, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	// Mock duplicate files
 	duplicates := []DuplicateFile{
 		{
@@ -288,7 +288,7 @@ func (m *DiskSpaceManager) FindDuplicates(ctx context.Context, path string) ([]D
 			TotalWastedSpace: 1024 * 1024 * 8,
 		},
 	}
-	
+
 	return duplicates, nil
 }
 
@@ -296,7 +296,7 @@ func (m *DiskSpaceManager) FindDuplicates(ctx context.Context, path string) ([]D
 func (m *DiskSpaceManager) GetTreemapData(path string, maxDepth int) TreemapData {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	return m.buildTreemap(path, 0, maxDepth)
 }
 
@@ -306,18 +306,18 @@ func (m *DiskSpaceManager) buildTreemap(path string, depth, maxDepth int) Treema
 	if path == "/" {
 		name = "root"
 	}
-	
+
 	node := TreemapData{
 		Name: name,
 		Path: path,
 	}
-	
+
 	if depth >= maxDepth {
 		node.Size = 1024 * 1024 * 500 // 500MB
 		node.Color = getColorForDepth(depth)
 		return node
 	}
-	
+
 	// Generate mock children
 	mockDirs := []string{"documents", "pictures", "videos", "music", "downloads", "backups"}
 	for _, dir := range mockDirs {
@@ -326,9 +326,9 @@ func (m *DiskSpaceManager) buildTreemap(path string, depth, maxDepth int) Treema
 		node.Children = append(node.Children, child)
 		node.Size += child.Size
 	}
-	
+
 	node.Color = getColorForDepth(depth)
-	
+
 	return node
 }
 
@@ -336,15 +336,15 @@ func (m *DiskSpaceManager) buildTreemap(path string, depth, maxDepth int) Treema
 func (m *DiskSpaceManager) GetGrowthTrend(days int) []GrowthTrend {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	if days <= 0 {
 		days = 30
 	}
-	
+
 	if days > len(m.growthData) {
 		days = len(m.growthData)
 	}
-	
+
 	return m.growthData[:days]
 }
 
@@ -352,7 +352,7 @@ func (m *DiskSpaceManager) GetGrowthTrend(days int) []GrowthTrend {
 func (m *DiskSpaceManager) CleanupCache() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	m.stats = make(map[string]DiskStats)
 	m.scanProgress = ScanProgress{}
 }
@@ -361,17 +361,17 @@ func (m *DiskSpaceManager) CleanupCache() {
 func (m *DiskSpaceManager) ExportReport(format string) ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	report := map[string]interface{}{
 		"generated_at": time.Now(),
 		"format":       format,
 		"summary": map[string]interface{}{
-			"total_space":    1024 * 1024 * 1024 * 100,
-			"used_space":     1024 * 1024 * 1024 * 65,
-			"free_space":     1024 * 1024 * 1024 * 35,
-			"usage_percent":  65.0,
-			"total_files":    15000,
-			"total_dirs":     500,
+			"total_space":   1024 * 1024 * 1024 * 100,
+			"used_space":    1024 * 1024 * 1024 * 65,
+			"free_space":    1024 * 1024 * 1024 * 35,
+			"usage_percent": 65.0,
+			"total_files":   15000,
+			"total_dirs":    500,
 		},
 		"file_types": m.GetFileTypeStats("/"),
 		"top_dirs": []map[string]interface{}{
@@ -380,7 +380,7 @@ func (m *DiskSpaceManager) ExportReport(format string) ([]byte, error) {
 			{"path": "/usr", "size": 1024 * 1024 * 1024 * 10},
 		},
 	}
-	
+
 	switch format {
 	case "json":
 		return json.MarshalIndent(report, "", "  ")
@@ -394,10 +394,10 @@ func (m *DiskSpaceManager) ExportReport(format string) ([]byte, error) {
 // formatTextReport formats the report as text
 func formatTextReport(report map[string]interface{}) string {
 	var sb strings.Builder
-	
+
 	sb.WriteString("=== Disk Usage Report ===\n")
 	sb.WriteString(fmt.Sprintf("Generated: %v\n\n", report["generated_at"]))
-	
+
 	if summary, ok := report["summary"].(map[string]interface{}); ok {
 		sb.WriteString("--- Summary ---\n")
 		sb.WriteString(fmt.Sprintf("Total Space: %s\n", formatBytes(toInt64(summary["total_space"]))))
@@ -405,7 +405,7 @@ func formatTextReport(report map[string]interface{}) string {
 		sb.WriteString(fmt.Sprintf("Free Space: %s\n", formatBytes(toInt64(summary["free_space"]))))
 		sb.WriteString(fmt.Sprintf("Usage: %.1f%%\n", toFloat64(summary["usage_percent"])))
 	}
-	
+
 	return sb.String()
 }
 
@@ -469,15 +469,15 @@ func generateMockGrowthData() []GrowthTrend {
 	data := make([]GrowthTrend, 30)
 	baseSpace := int64(1024 * 1024 * 1024 * 50) // 50GB
 	baseFiles := 10000
-	
+
 	for i := 0; i < 30; i++ {
 		data[i] = GrowthTrend{
-			Date:       time.Now().AddDate(0, 0, -30+i),
-			UsedSpace:  baseSpace + int64(i*1024*1024*500), // +500MB per day
-			FileCount:  baseFiles + i*100,
+			Date:      time.Now().AddDate(0, 0, -30+i),
+			UsedSpace: baseSpace + int64(i*1024*1024*500), // +500MB per day
+			FileCount: baseFiles + i*100,
 		}
 	}
-	
+
 	return data
 }
 
@@ -510,12 +510,12 @@ func calculateFileHash(path string) (string, error) {
 		return "", err
 	}
 	defer file.Close()
-	
+
 	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
 		return "", err
 	}
-	
+
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 

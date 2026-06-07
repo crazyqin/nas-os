@@ -34,12 +34,12 @@ const (
 
 // CostTier 成本等级（每 1M tokens）
 type CostTier struct {
-	ModelID        string  `json:"modelId"`
-	ModelName      string  `json:"modelName"`
-	Provider       string  `json:"provider"`
-	InputCostPer1M float64 `json:"inputCostPer1M"`  // 输入成本 $/1M tokens
+	ModelID         string  `json:"modelId"`
+	ModelName       string  `json:"modelName"`
+	Provider        string  `json:"provider"`
+	InputCostPer1M  float64 `json:"inputCostPer1M"`  // 输入成本 $/1M tokens
 	OutputCostPer1M float64 `json:"outputCostPer1M"` // 输出成本 $/1M tokens
-	Currency       string  `json:"currency"`
+	Currency        string  `json:"currency"`
 }
 
 // Budget 预算配置
@@ -50,10 +50,10 @@ type Budget struct {
 	OwnerID       string       `json:"ownerId"`
 	Period        BudgetPeriod `json:"period"`
 	MaxTokens     int64        `json:"maxTokens"`     // Token 上限
-	MaxCost       float64      `json:"maxCost"`        // 成本上限（美元）
-	WarnThreshold float64      `json:"warnThreshold"`  // 告警阈值（0.8 = 80%）
-	HardLimit     bool         `json:"hardLimit"`      // 是否硬限制
-	FallbackModel string       `json:"fallbackModel"`  // 超限后降级模型
+	MaxCost       float64      `json:"maxCost"`       // 成本上限（美元）
+	WarnThreshold float64      `json:"warnThreshold"` // 告警阈值（0.8 = 80%）
+	HardLimit     bool         `json:"hardLimit"`     // 是否硬限制
+	FallbackModel string       `json:"fallbackModel"` // 超限后降级模型
 	Enabled       bool         `json:"enabled"`
 	CreatedAt     time.Time    `json:"createdAt"`
 	UpdatedAt     time.Time    `json:"updatedAt"`
@@ -61,34 +61,34 @@ type Budget struct {
 
 // UsageRecord 用量记录
 type UsageRecord struct {
-	ID              string    `json:"id"`
-	BudgetID        string    `json:"budgetId"`
-	UserID          string    `json:"userId"`
-	ServiceName     string    `json:"serviceName"`
-	ModelID         string    `json:"modelId"`
-	PromptTokens    int       `json:"promptTokens"`
-	CompletionTokens int     `json:"completionTokens"`
-	TotalTokens     int       `json:"totalTokens"`
-	Cost            float64   `json:"cost"`
-	Timestamp       time.Time `json:"timestamp"`
-	RequestID       string    `json:"requestId"`
+	ID               string    `json:"id"`
+	BudgetID         string    `json:"budgetId"`
+	UserID           string    `json:"userId"`
+	ServiceName      string    `json:"serviceName"`
+	ModelID          string    `json:"modelId"`
+	PromptTokens     int       `json:"promptTokens"`
+	CompletionTokens int       `json:"completionTokens"`
+	TotalTokens      int       `json:"totalTokens"`
+	Cost             float64   `json:"cost"`
+	Timestamp        time.Time `json:"timestamp"`
+	RequestID        string    `json:"requestId"`
 }
 
 // UsageSummary 用量汇总
 type UsageSummary struct {
-	BudgetID         string    `json:"budgetId"`
-	Period           BudgetPeriod `json:"period"`
-	PeriodStart      time.Time `json:"periodStart"`
-	PeriodEnd        time.Time `json:"periodEnd"`
-	TotalTokens      int64     `json:"totalTokens"`
-	TotalCost        float64   `json:"totalCost"`
-	RequestCount     int       `json:"requestCount"`
-	AvgTokensPerReq  float64   `json:"avgTokensPerReq"`
-	Status           BudgetStatus `json:"status"`
-	UsagePercent     float64   `json:"usagePercent"`
-	ProjectedTokens  int64     `json:"projectedTokens"`  // 预测用量
-	ProjectedCost    float64   `json:"projectedCost"`
-	TopModels        []ModelUsage `json:"topModels"`
+	BudgetID        string       `json:"budgetId"`
+	Period          BudgetPeriod `json:"period"`
+	PeriodStart     time.Time    `json:"periodStart"`
+	PeriodEnd       time.Time    `json:"periodEnd"`
+	TotalTokens     int64        `json:"totalTokens"`
+	TotalCost       float64      `json:"totalCost"`
+	RequestCount    int          `json:"requestCount"`
+	AvgTokensPerReq float64      `json:"avgTokensPerReq"`
+	Status          BudgetStatus `json:"status"`
+	UsagePercent    float64      `json:"usagePercent"`
+	ProjectedTokens int64        `json:"projectedTokens"` // 预测用量
+	ProjectedCost   float64      `json:"projectedCost"`
+	TopModels       []ModelUsage `json:"topModels"`
 }
 
 // ModelUsage 模型用量
@@ -103,47 +103,47 @@ type ModelUsage struct {
 
 // CostAnalysis 成本分析
 type CostAnalysis struct {
-	Period          string             `json:"period"`
-	TotalCost       float64            `json:"totalCost"`
-	CostByModel     map[string]float64 `json:"costByModel"`
-	CostByUser      map[string]float64 `json:"costByUser"`
-	CostByService   map[string]float64 `json:"costByService"`
-	Trend           string             `json:"trend"` // increasing, stable, decreasing
-	SavingsOpportunity float64         `json:"savingsOpportunity"` // 可节省金额
-	Recommendations []string           `json:"recommendations"`
+	Period             string             `json:"period"`
+	TotalCost          float64            `json:"totalCost"`
+	CostByModel        map[string]float64 `json:"costByModel"`
+	CostByUser         map[string]float64 `json:"costByUser"`
+	CostByService      map[string]float64 `json:"costByService"`
+	Trend              string             `json:"trend"`              // increasing, stable, decreasing
+	SavingsOpportunity float64            `json:"savingsOpportunity"` // 可节省金额
+	Recommendations    []string           `json:"recommendations"`
 }
 
 // Manager 预算管理器
 type Manager struct {
-	mu       sync.RWMutex
-	config   *Config
-	budgets  map[string]*Budget
-	records  []*UsageRecord
+	mu        sync.RWMutex
+	config    *Config
+	budgets   map[string]*Budget
+	records   []*UsageRecord
 	costTiers map[string]*CostTier
-	alerts   []*BudgetAlert
+	alerts    []*BudgetAlert
 }
 
 // Config 管理器配置
 type Config struct {
-	Enabled          bool          `json:"enabled"`
-	DefaultPeriod    BudgetPeriod  `json:"defaultPeriod"`
-	WarnThreshold    float64       `json:"warnThreshold"`    // 默认 0.8
-	CriticalThreshold float64      `json:"criticalThreshold"` // 默认 0.95
-	RecordRetention  time.Duration `json:"recordRetention"`   // 记录保留时间
-	AlertWebhook     string        `json:"alertWebhook"`
-	Currency         string        `json:"currency"`          // USD, CNY
+	Enabled           bool          `json:"enabled"`
+	DefaultPeriod     BudgetPeriod  `json:"defaultPeriod"`
+	WarnThreshold     float64       `json:"warnThreshold"`     // 默认 0.8
+	CriticalThreshold float64       `json:"criticalThreshold"` // 默认 0.95
+	RecordRetention   time.Duration `json:"recordRetention"`   // 记录保留时间
+	AlertWebhook      string        `json:"alertWebhook"`
+	Currency          string        `json:"currency"` // USD, CNY
 }
 
 // BudgetAlert 预算告警
 type BudgetAlert struct {
-	ID        string       `json:"id"`
-	BudgetID  string       `json:"budgetId"`
-	Level     string       `json:"level"` // info, warning, critical, exceeded
-	Message   string       `json:"message"`
-	Threshold float64      `json:"threshold"`
-	Actual    float64      `json:"actual"`
-	Timestamp time.Time    `json:"timestamp"`
-	Dismissed bool         `json:"dismissed"`
+	ID        string    `json:"id"`
+	BudgetID  string    `json:"budgetId"`
+	Level     string    `json:"level"` // info, warning, critical, exceeded
+	Message   string    `json:"message"`
+	Threshold float64   `json:"threshold"`
+	Actual    float64   `json:"actual"`
+	Timestamp time.Time `json:"timestamp"`
+	Dismissed bool      `json:"dismissed"`
 }
 
 // NewManager 创建预算管理器
@@ -298,12 +298,12 @@ func (m *Manager) GetModelComparison(tokenCount int) []map[string]interface{} {
 		inputCost := float64(tokenCount) / 1_000_000 * tier.InputCostPer1M
 		outputCost := float64(tokenCount) / 1_000_000 * tier.OutputCostPer1M
 		results = append(results, map[string]interface{}{
-			"modelId":     tier.ModelID,
-			"modelName":   tier.ModelName,
-			"provider":    tier.Provider,
-			"inputCost":   inputCost,
-			"outputCost":  outputCost,
-			"totalCost":   inputCost + outputCost,
+			"modelId":    tier.ModelID,
+			"modelName":  tier.ModelName,
+			"provider":   tier.Provider,
+			"inputCost":  inputCost,
+			"outputCost": outputCost,
+			"totalCost":  inputCost + outputCost,
 		})
 	}
 	return results

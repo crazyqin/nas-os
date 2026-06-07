@@ -19,8 +19,8 @@ import (
 type BackupType string
 
 const (
-	BackupTypeFull        BackupType = "full"        // 全量备份
-	BackupTypeIncremental BackupType = "incremental" // 增量备份
+	BackupTypeFull         BackupType = "full"         // 全量备份
+	BackupTypeIncremental  BackupType = "incremental"  // 增量备份
 	BackupTypeDifferential BackupType = "differential" // 差异备份
 )
 
@@ -38,89 +38,89 @@ const (
 // BackupPolicy 备份策略
 type BackupPolicy struct {
 	Type              BackupType `json:"type"`                // 备份类型
-	FullInterval      int        `json:"full_interval"`      // 全量备份间隔天数（增量/差异模式下使用）
-	RetentionCount    int        `json:"retention_count"`    // 保留备份数量
-	RetentionDays     int        `json:"retention_days"`     // 保留天数
-	CompressionType   string     `json:"compression_type"`   // 压缩类型（gzip, zstd, lz4）
-	CompressionLevel  int        `json:"compression_level"`  // 压缩级别（1-9）
-	EnableEncryption  bool       `json:"enable_encryption"`  // 是否启用加密
-	EncryptionKey     string     `json:"encryption_key"`     // 加密密钥标识（非明文）
-	VerifyAfterBackup bool       `json:"verify_after_backup"`// 备份后验证完整性
-	MaxBandwidth      int        `json:"max_bandwidth"`      // 最大带宽限制（MB/s，0 无限制）
+	FullInterval      int        `json:"full_interval"`       // 全量备份间隔天数（增量/差异模式下使用）
+	RetentionCount    int        `json:"retention_count"`     // 保留备份数量
+	RetentionDays     int        `json:"retention_days"`      // 保留天数
+	CompressionType   string     `json:"compression_type"`    // 压缩类型（gzip, zstd, lz4）
+	CompressionLevel  int        `json:"compression_level"`   // 压缩级别（1-9）
+	EnableEncryption  bool       `json:"enable_encryption"`   // 是否启用加密
+	EncryptionKey     string     `json:"encryption_key"`      // 加密密钥标识（非明文）
+	VerifyAfterBackup bool       `json:"verify_after_backup"` // 备份后验证完整性
+	MaxBandwidth      int        `json:"max_bandwidth"`       // 最大带宽限制（MB/s，0 无限制）
 }
 
 // ScheduleConfig 定时备份配置
 type ScheduleConfig struct {
-	Enabled   bool   `json:"enabled"`    // 是否启用定时备份
-	Cron      string `json:"cron"`       // Cron 表达式
-	TimeZone  string `json:"timezone"`   // 时区
-	StartTime string `json:"start_time"` // 允许备份的开始时间（HH:MM）
-	EndTime   string `json:"end_time"`   // 允许备份的结束时间（HH:MM）
-	SkipOnBattery bool `json:"skip_on_battery"` // 电池供电时跳过
+	Enabled       bool   `json:"enabled"`         // 是否启用定时备份
+	Cron          string `json:"cron"`            // Cron 表达式
+	TimeZone      string `json:"timezone"`        // 时区
+	StartTime     string `json:"start_time"`      // 允许备份的开始时间（HH:MM）
+	EndTime       string `json:"end_time"`        // 允许备份的结束时间（HH:MM）
+	SkipOnBattery bool   `json:"skip_on_battery"` // 电池供电时跳过
 }
 
 // BackupSource 备份源配置
 type BackupSource struct {
-	Type       string   `json:"type"`        // file, directory, volume, database
-	Paths      []string `json:"paths"`       // 源路径列表
-	Excludes   []string `json:"excludes"`    // 排除模式
-	Includes   []string `json:"includes"`    // 包含模式（为空时包含全部）
+	Type     string   `json:"type"`     // file, directory, volume, database
+	Paths    []string `json:"paths"`    // 源路径列表
+	Excludes []string `json:"excludes"` // 排除模式
+	Includes []string `json:"includes"` // 包含模式（为空时包含全部）
 }
 
 // BackupDestination 备份目标配置
 type BackupDestination struct {
-	Type     string `json:"type"`      // local, s3, nfs, smb, rsync
-	Path     string `json:"path"`      // 目标路径
-	Host     string `json:"host"`      // 远程主机（NFS/SMB/Rsync）
-	Username string `json:"username"`   // 认证用户名
+	Type       string `json:"type"`       // local, s3, nfs, smb, rsync
+	Path       string `json:"path"`       // 目标路径
+	Host       string `json:"host"`       // 远程主机（NFS/SMB/Rsync）
+	Username   string `json:"username"`   // 认证用户名
 	Credential string `json:"credential"` // 凭证标识（引用密钥管理）
 }
 
 // BackupJob 备份任务
 type BackupJob struct {
 	ID          string            `json:"id"`
-	Name        string            `json:"name"`         // 任务名称
-	Description string            `json:"description"`  // 任务描述
-	Source      BackupSource      `json:"source"`       // 备份源
-	Destination BackupDestination `json:"destination"`  // 备份目标
-	Policy      BackupPolicy      `json:"policy"`       // 备份策略
-	Schedule    ScheduleConfig    `json:"schedule"`     // 定时配置
-	Status      BackupStatus      `json:"status"`       // 当前状态
-	LastRun     *time.Time        `json:"last_run"`     // 上次执行时间
-	NextRun     *time.Time        `json:"next_run"`     // 下次执行时间
-	LastResult  *BackupResult     `json:"last_result"`  // 上次执行结果
-	Snapshots   []string          `json:"snapshots"`    // 快照 ID 列表
-	Labels      map[string]string `json:"labels"`       // 自定义标签
+	Name        string            `json:"name"`        // 任务名称
+	Description string            `json:"description"` // 任务描述
+	Source      BackupSource      `json:"source"`      // 备份源
+	Destination BackupDestination `json:"destination"` // 备份目标
+	Policy      BackupPolicy      `json:"policy"`      // 备份策略
+	Schedule    ScheduleConfig    `json:"schedule"`    // 定时配置
+	Status      BackupStatus      `json:"status"`      // 当前状态
+	LastRun     *time.Time        `json:"last_run"`    // 上次执行时间
+	NextRun     *time.Time        `json:"next_run"`    // 下次执行时间
+	LastResult  *BackupResult     `json:"last_result"` // 上次执行结果
+	Snapshots   []string          `json:"snapshots"`   // 快照 ID 列表
+	Labels      map[string]string `json:"labels"`      // 自定义标签
 	CreatedAt   time.Time         `json:"created_at"`
 	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
 // BackupResult 备份执行结果
 type BackupResult struct {
-	SnapshotID    string    `json:"snapshot_id"`    // 生成的快照 ID
-	BackupType    BackupType `json:"backup_type"`   // 实际备份类型
-	TotalFiles    int       `json:"total_files"`    // 总文件数
-	TotalSize     int64     `json:"total_size"`     // 总大小（字节）
-	CompressedSize int64    `json:"compressed_size"` // 压缩后大小
-	Duration      time.Duration `json:"duration"`   // 耗时
-	Speed         float64   `json:"speed"`          // 速度（MB/s）
-	Verified      bool      `json:"verified"`       // 是否已验证
-	ErrorMessage  string    `json:"error_message"`  // 错误信息
-	StartedAt     time.Time `json:"started_at"`
-	CompletedAt   time.Time `json:"completed_at"`
+	SnapshotID     string        `json:"snapshot_id"`     // 生成的快照 ID
+	BackupType     BackupType    `json:"backup_type"`     // 实际备份类型
+	TotalFiles     int           `json:"total_files"`     // 总文件数
+	TotalSize      int64         `json:"total_size"`      // 总大小（字节）
+	CompressedSize int64         `json:"compressed_size"` // 压缩后大小
+	Duration       time.Duration `json:"duration"`        // 耗时
+	Speed          float64       `json:"speed"`           // 速度（MB/s）
+	Verified       bool          `json:"verified"`        // 是否已验证
+	ErrorMessage   string        `json:"error_message"`   // 错误信息
+	StartedAt      time.Time     `json:"started_at"`
+	CompletedAt    time.Time     `json:"completed_at"`
 }
 
 // BackupSnapshot 备份快照信息
 type BackupSnapshot struct {
-	ID          string            `json:"id"`
-	JobID       string            `json:"job_id"`       // 所属任务 ID
-	BackupType  BackupType        `json:"backup_type"`  // 备份类型
-	Size        int64             `json:"size"`         // 快照大小
-	FileCount   int               `json:"file_count"`   // 文件数量
-	Path        string            `json:"path"`         // 快照存储路径
-	ParentID    string            `json:"parent_id"`    // 父快照 ID（增量备份）
-	Labels      map[string]string `json:"labels"`
-	CreatedAt   time.Time         `json:"created_at"`
+	ID         string            `json:"id"`
+	JobID      string            `json:"job_id"`      // 所属任务 ID
+	BackupType BackupType        `json:"backup_type"` // 备份类型
+	Size       int64             `json:"size"`        // 快照大小
+	FileCount  int               `json:"file_count"`  // 文件数量
+	Path       string            `json:"path"`        // 快照存储路径
+	ParentID   string            `json:"parent_id"`   // 父快照 ID（增量备份）
+	Labels     map[string]string `json:"labels"`
+	CreatedAt  time.Time         `json:"created_at"`
 }
 
 // BackupManager 备份管理器
@@ -136,11 +136,11 @@ type BackupManager struct {
 
 // ManagerConfig 备份管理器配置
 type ManagerConfig struct {
-	StoragePath    string `json:"storage_path"`     // 备份存储根路径
-	MaxConcurrent  int    `json:"max_concurrent"`    // 最大并发备份任务数
-	TempPath       string `json:"temp_path"`         // 临时文件路径
-	ChecksumAlgo   string `json:"checksum_algo"`     // 校验算法（sha256, blake3）
-	WorkerCount    int    `json:"worker_count"`       // 工作线程数
+	StoragePath   string `json:"storage_path"`   // 备份存储根路径
+	MaxConcurrent int    `json:"max_concurrent"` // 最大并发备份任务数
+	TempPath      string `json:"temp_path"`      // 临时文件路径
+	ChecksumAlgo  string `json:"checksum_algo"`  // 校验算法（sha256, blake3）
+	WorkerCount   int    `json:"worker_count"`   // 工作线程数
 }
 
 // NewBackupManager 创建备份管理器

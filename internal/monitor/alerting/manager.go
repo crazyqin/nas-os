@@ -11,15 +11,15 @@ import (
 
 // Manager 告警增强管理器 - 整合模板、路由、聚合
 type Manager struct {
-	engine    *TemplateEngine
-	router    *Router
+	engine     *TemplateEngine
+	router     *Router
 	aggregator *Aggregator
 
 	// 配置
 	config *ManagerConfig
 
 	// 回调
-	onSend   func(channelID string, alert *AlertVars) error
+	onSend      func(channelID string, alert *AlertVars) error
 	onAggregate func(aggregated []*AggregatedAlert)
 
 	mu     sync.RWMutex
@@ -28,7 +28,7 @@ type Manager struct {
 
 // ManagerConfig 管理器配置
 type ManagerConfig struct {
-	EnableAggregation  bool          `json:"enableAggregation"`
+	EnableAggregation bool          `json:"enableAggregation"`
 	AggregationWindow time.Duration `json:"aggregationWindow"`
 	EnableRouting     bool          `json:"enableRouting"`
 	EnableTemplates   bool          `json:"enableTemplates"`
@@ -37,10 +37,10 @@ type ManagerConfig struct {
 // DefaultManagerConfig 默认配置
 func DefaultManagerConfig() ManagerConfig {
 	return ManagerConfig{
-		EnableAggregation:  true,
-		AggregationWindow:  5 * time.Minute,
-		EnableRouting:      true,
-		EnableTemplates:    true,
+		EnableAggregation: true,
+		AggregationWindow: 5 * time.Minute,
+		EnableRouting:     true,
+		EnableTemplates:   true,
 	}
 }
 
@@ -127,7 +127,7 @@ func (m *Manager) ProcessAlert(ctx context.Context, vars *AlertVars) error {
 func (m *Manager) ProcessAggregatedAlert(ctx context.Context, aggregated *AggregatedAlert) error {
 	// 构建聚合告警的变量
 	vars := &AlertVars{
-		AlertID:      aggregated.Key,
+		AlertID:     aggregated.Key,
 		AlertName:   aggregated.AlertName,
 		Level:       aggregated.Level,
 		ServiceType: aggregated.ServiceType,
@@ -135,10 +135,10 @@ func (m *Manager) ProcessAggregatedAlert(ctx context.Context, aggregated *Aggreg
 		Timestamp:   aggregated.LastSeen,
 		Tags:        make(map[string]string),
 		Extra: map[string]interface{}{
-			"count":      aggregated.Count,
-			"firstSeen":  aggregated.FirstSeen,
-			"lastSeen":   aggregated.LastSeen,
-			"children":   aggregated.Children,
+			"count":     aggregated.Count,
+			"firstSeen": aggregated.FirstSeen,
+			"lastSeen":  aggregated.LastSeen,
+			"children":  aggregated.Children,
 		},
 	}
 
@@ -164,7 +164,7 @@ func (m *Manager) handleAggregatedAlerts(aggregated []*AggregatedAlert) {
 	for _, agg := range aggregated {
 		// 构建告警变量并发送
 		vars := &AlertVars{
-			AlertID:      agg.Key,
+			AlertID:     agg.Key,
 			AlertName:   agg.AlertName,
 			Level:       agg.Level,
 			ServiceType: agg.ServiceType,
@@ -202,11 +202,11 @@ func (m *Manager) SetOnAggregate(fn func(aggregated []*AggregatedAlert)) {
 // GetStatus 获取状态
 func (m *Manager) GetStatus() map[string]interface{} {
 	return map[string]interface{}{
-		"config":    m.config,
-		"templates": len(m.engine.ListTemplates()),
-		"channels":  len(m.router.ListChannels()),
-		"rules":     len(m.router.GetRules()),
-		"pending":   m.aggregator.GetPending(),
+		"config":     m.config,
+		"templates":  len(m.engine.ListTemplates()),
+		"channels":   len(m.router.ListChannels()),
+		"rules":      len(m.router.GetRules()),
+		"pending":    m.aggregator.GetPending(),
 		"suppressed": m.router.GetSuppressionCount(),
 	}
 }

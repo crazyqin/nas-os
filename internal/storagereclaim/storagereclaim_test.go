@@ -124,23 +124,23 @@ func TestGetFiles(t *testing.T) {
 	// 手动添加一些文件
 	rm.mu.Lock()
 	rm.files["file1"] = &FileInfo{
-		ID:       "file1",
-		Path:     "/test/file1.tmp",
-		IsJunk:   true,
-		JunkType: JunkTypeTemp,
+		ID:           "file1",
+		Path:         "/test/file1.tmp",
+		IsJunk:       true,
+		JunkType:     JunkTypeTemp,
 		ReclaimScore: 80,
 	}
 	rm.files["file2"] = &FileInfo{
-		ID:       "file2",
-		Path:     "/test/file2.txt",
-		IsJunk:   false,
+		ID:           "file2",
+		Path:         "/test/file2.txt",
+		IsJunk:       false,
 		ReclaimScore: 30,
 	}
 	rm.files["file3"] = &FileInfo{
-		ID:       "file3",
-		Path:     "/test/file3.cache",
-		IsJunk:   true,
-		JunkType: JunkTypeCache,
+		ID:           "file3",
+		Path:         "/test/file3.cache",
+		IsJunk:       true,
+		JunkType:     JunkTypeCache,
 		ReclaimScore: 90,
 	}
 	rm.mu.Unlock()
@@ -282,30 +282,30 @@ func TestStorageOverview(t *testing.T) {
 
 	rm.mu.Lock()
 	rm.files["file1"] = &FileInfo{
-		ID:       "file1",
-		Path:     "/data/file1.txt",
-		Size:     1024,
-		Owner:    "user1",
+		ID:        "file1",
+		Path:      "/data/file1.txt",
+		Size:      1024,
+		Owner:     "user1",
 		Extension: ".txt",
-		IsJunk:   false,
+		IsJunk:    false,
 	}
 	rm.files["file2"] = &FileInfo{
-		ID:       "file2",
-		Path:     "/data/file2.tmp",
-		Size:     2048,
-		Owner:    "user1",
-		Extension: ".tmp",
-		IsJunk:   true,
-		JunkType: JunkTypeTemp,
+		ID:           "file2",
+		Path:         "/data/file2.tmp",
+		Size:         2048,
+		Owner:        "user1",
+		Extension:    ".tmp",
+		IsJunk:       true,
+		JunkType:     JunkTypeTemp,
 		ReclaimScore: 80,
 	}
 	rm.files["file3"] = &FileInfo{
-		ID:       "file3",
-		Path:     "/data/file3.txt",
-		Size:     512,
-		Owner:    "user2",
+		ID:        "file3",
+		Path:      "/data/file3.txt",
+		Size:      512,
+		Owner:     "user2",
 		Extension: ".txt",
-		IsJunk:   false,
+		IsJunk:    false,
 	}
 	rm.mu.Unlock()
 
@@ -404,7 +404,7 @@ func TestCalculateReclaimScore(t *testing.T) {
 
 	// 低重要性、很久没访问的大文件
 	file := &FileInfo{
-		Size:       1024 * 1024 * 1024, // 1GB
+		Size:       1024 * 1024 * 1024,                   // 1GB
 		AccessedAt: time.Now().Add(-90 * 24 * time.Hour), // 90天前
 		Importance: ImportanceLow,
 		IsJunk:     true,

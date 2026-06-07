@@ -15,18 +15,18 @@ type AuditEventType string
 
 const (
 	// 访问事件
-	AuditEventAccessRequest  AuditEventType = "access_request"
-	AuditEventAccessGranted  AuditEventType = "access_granted"
-	AuditEventAccessDenied   AuditEventType = "access_denied"
-	AuditEventAccessRevoked  AuditEventType = "access_revoked"
+	AuditEventAccessRequest AuditEventType = "access_request"
+	AuditEventAccessGranted AuditEventType = "access_granted"
+	AuditEventAccessDenied  AuditEventType = "access_denied"
+	AuditEventAccessRevoked AuditEventType = "access_revoked"
 
 	// 身份事件
-	AuditEventLogin          AuditEventType = "login"
-	AuditEventLogout         AuditEventType = "logout"
-	AuditEventLoginFailed    AuditEventType = "login_failed"
-	AuditEventMFAChallenge   AuditEventType = "mfa_challenge"
-	AuditEventMFASuccess     AuditEventType = "mfa_success"
-	AuditEventMFAFailed      AuditEventType = "mfa_failed"
+	AuditEventLogin        AuditEventType = "login"
+	AuditEventLogout       AuditEventType = "logout"
+	AuditEventLoginFailed  AuditEventType = "login_failed"
+	AuditEventMFAChallenge AuditEventType = "mfa_challenge"
+	AuditEventMFASuccess   AuditEventType = "mfa_success"
+	AuditEventMFAFailed    AuditEventType = "mfa_failed"
 
 	// 设备事件
 	AuditEventDeviceRegister AuditEventType = "device_register"
@@ -35,14 +35,14 @@ const (
 	AuditEventDeviceTrust    AuditEventType = "device_trust_change"
 
 	// 风险事件
-	AuditEventRiskDetected   AuditEventType = "risk_detected"
-	AuditEventRiskEscalated  AuditEventType = "risk_escalated"
+	AuditEventRiskDetected    AuditEventType = "risk_detected"
+	AuditEventRiskEscalated   AuditEventType = "risk_escalated"
 	AuditEventAnomalyDetected AuditEventType = "anomaly_detected"
 
 	// 系统事件
-	AuditEventPolicyChange   AuditEventType = "policy_change"
-	AuditEventConfigChange   AuditEventType = "config_change"
-	AuditEventSystemAlert    AuditEventType = "system_alert"
+	AuditEventPolicyChange AuditEventType = "policy_change"
+	AuditEventConfigChange AuditEventType = "config_change"
+	AuditEventSystemAlert  AuditEventType = "system_alert"
 )
 
 // AuditSeverity 审计严重级别
@@ -57,23 +57,23 @@ const (
 
 // SecurityAuditLog 安全审计日志
 type SecurityAuditLog struct {
-	ID          string                 `json:"id"`
-	Timestamp   time.Time              `json:"timestamp"`
-	EventType   AuditEventType         `json:"event_type"`
-	Severity    AuditSeverity          `json:"severity"`
-	Actor       AuditActor             `json:"actor"`
-	Resource    AuditResource          `json:"resource"`
-	Action      string                 `json:"action"`
-	Result      string                 `json:"result"`
-	Details     map[string]interface{} `json:"details"`
-	RiskScore   float64                `json:"risk_score"`
-	IPAddress   string                 `json:"ip_address"`
-	UserAgent   string                 `json:"user_agent"`
-	Location    *GeoLocation           `json:"location,omitempty"`
-	SessionID   string                 `json:"session_id"`
-	TraceID     string                 `json:"trace_id"`
-	Tags        []string               `json:"tags,omitempty"`
-	Retention   time.Duration          `json:"retention"`
+	ID        string                 `json:"id"`
+	Timestamp time.Time              `json:"timestamp"`
+	EventType AuditEventType         `json:"event_type"`
+	Severity  AuditSeverity          `json:"severity"`
+	Actor     AuditActor             `json:"actor"`
+	Resource  AuditResource          `json:"resource"`
+	Action    string                 `json:"action"`
+	Result    string                 `json:"result"`
+	Details   map[string]interface{} `json:"details"`
+	RiskScore float64                `json:"risk_score"`
+	IPAddress string                 `json:"ip_address"`
+	UserAgent string                 `json:"user_agent"`
+	Location  *GeoLocation           `json:"location,omitempty"`
+	SessionID string                 `json:"session_id"`
+	TraceID   string                 `json:"trace_id"`
+	Tags      []string               `json:"tags,omitempty"`
+	Retention time.Duration          `json:"retention"`
 }
 
 // AuditActor 审计主体
@@ -106,12 +106,12 @@ type GeoLocation struct {
 
 // AuditManager 审计管理器
 type AuditManager struct {
-	mu             sync.RWMutex
-	logs           []*SecurityAuditLog
-	maxLogs        int
-	retentionDays  int
+	mu              sync.RWMutex
+	logs            []*SecurityAuditLog
+	maxLogs         int
+	retentionDays   int
 	alertThresholds map[AuditEventType]int
-	alertHandlers  []AuditAlertHandler
+	alertHandlers   []AuditAlertHandler
 }
 
 // AuditAlertHandler 审计告警处理器
@@ -119,48 +119,48 @@ type AuditAlertHandler func(log *SecurityAuditLog)
 
 // AuditSearchCriteria 审计搜索条件
 type AuditSearchCriteria struct {
-	StartTime  *time.Time       `json:"start_time,omitempty"`
-	EndTime    *time.Time       `json:"end_time,omitempty"`
-	EventTypes []AuditEventType `json:"event_types,omitempty"`
-	Severity   []AuditSeverity  `json:"severity,omitempty"`
-	ActorID    string           `json:"actor_id,omitempty"`
-	ActorType  string           `json:"actor_type,omitempty"`
-	ResourceType string         `json:"resource_type,omitempty"`
-	ResourceID string           `json:"resource_id,omitempty"`
-	RiskScoreMin *float64       `json:"risk_score_min,omitempty"`
-	RiskScoreMax *float64       `json:"risk_score_max,omitempty"`
-	IPAddress  string           `json:"ip_address,omitempty"`
-	Tags       []string         `json:"tags,omitempty"`
-	Limit      int              `json:"limit"`
-	Offset     int              `json:"offset"`
+	StartTime    *time.Time       `json:"start_time,omitempty"`
+	EndTime      *time.Time       `json:"end_time,omitempty"`
+	EventTypes   []AuditEventType `json:"event_types,omitempty"`
+	Severity     []AuditSeverity  `json:"severity,omitempty"`
+	ActorID      string           `json:"actor_id,omitempty"`
+	ActorType    string           `json:"actor_type,omitempty"`
+	ResourceType string           `json:"resource_type,omitempty"`
+	ResourceID   string           `json:"resource_id,omitempty"`
+	RiskScoreMin *float64         `json:"risk_score_min,omitempty"`
+	RiskScoreMax *float64         `json:"risk_score_max,omitempty"`
+	IPAddress    string           `json:"ip_address,omitempty"`
+	Tags         []string         `json:"tags,omitempty"`
+	Limit        int              `json:"limit"`
+	Offset       int              `json:"offset"`
 }
 
 // AuditStatistics 审计统计
 type AuditStatistics struct {
-	TotalEvents     int                     `json:"total_events"`
-	EventsByType    map[AuditEventType]int  `json:"events_by_type"`
+	TotalEvents      int                    `json:"total_events"`
+	EventsByType     map[AuditEventType]int `json:"events_by_type"`
 	EventsBySeverity map[AuditSeverity]int  `json:"events_by_severity"`
-	FailedAttempts  int                     `json:"failed_attempts"`
-	HighRiskEvents  int                     `json:"high_risk_events"`
+	FailedAttempts   int                    `json:"failed_attempts"`
+	HighRiskEvents   int                    `json:"high_risk_events"`
 	AverageRiskScore float64                `json:"average_risk_score"`
-	TopActors       []ActorStatistics       `json:"top_actors"`
-	TopResources    []ResourceStatistics    `json:"top_resources"`
-	TimeRange       TimeRange               `json:"time_range"`
+	TopActors        []ActorStatistics      `json:"top_actors"`
+	TopResources     []ResourceStatistics   `json:"top_resources"`
+	TimeRange        TimeRange              `json:"time_range"`
 }
 
 // ActorStatistics 主体统计
 type ActorStatistics struct {
-	ActorID      string `json:"actor_id"`
-	EventCount   int    `json:"event_count"`
-	FailedCount  int    `json:"failed_count"`
+	ActorID      string  `json:"actor_id"`
+	EventCount   int     `json:"event_count"`
+	FailedCount  int     `json:"failed_count"`
 	AvgRiskScore float64 `json:"avg_risk_score"`
 }
 
 // ResourceStatistics 资源统计
 type ResourceStatistics struct {
-	ResourceID   string `json:"resource_id"`
-	AccessCount  int    `json:"access_count"`
-	DeniedCount  int    `json:"denied_count"`
+	ResourceID  string `json:"resource_id"`
+	AccessCount int    `json:"access_count"`
+	DeniedCount int    `json:"denied_count"`
 }
 
 // TimeRange 时间范围
@@ -172,11 +172,11 @@ type TimeRange struct {
 // NewAuditManager 创建审计管理器
 func NewAuditManager(maxLogs, retentionDays int) *AuditManager {
 	return &AuditManager{
-		logs:           make([]*SecurityAuditLog, 0, maxLogs),
-		maxLogs:        maxLogs,
-		retentionDays:  retentionDays,
+		logs:            make([]*SecurityAuditLog, 0, maxLogs),
+		maxLogs:         maxLogs,
+		retentionDays:   retentionDays,
 		alertThresholds: make(map[AuditEventType]int),
-		alertHandlers:  make([]AuditAlertHandler, 0),
+		alertHandlers:   make([]AuditAlertHandler, 0),
 	}
 }
 

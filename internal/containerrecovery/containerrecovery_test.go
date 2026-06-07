@@ -17,18 +17,18 @@ import (
 
 // mockContainerOperator 模拟容器操作器.
 type mockContainerOperator struct {
-	restartErr    error
-	stopErr       error
-	startErr      error
-	status        string
-	statusErr     error
-	healthStatus  HealthStatus
-	healthErr     error
-	rollbackErr   error
-	scaleErr      error
-	restartCalled bool
+	restartErr     error
+	stopErr        error
+	startErr       error
+	status         string
+	statusErr      error
+	healthStatus   HealthStatus
+	healthErr      error
+	rollbackErr    error
+	scaleErr       error
+	restartCalled  bool
 	rollbackCalled bool
-	scaleCalled   bool
+	scaleCalled    bool
 }
 
 func newMockContainerOperator() *mockContainerOperator {
@@ -71,12 +71,12 @@ func (m *mockContainerOperator) Scale(container string, count int) error {
 
 // mockStore 模拟存储.
 type mockStore struct {
-	records   []*RecoveryRecord
-	saveErr   error
-	queryErr  error
-	stats     *RecoveryStats
-	statsErr  error
-	updateErr error
+	records    []*RecoveryRecord
+	saveErr    error
+	queryErr   error
+	stats      *RecoveryStats
+	statsErr   error
+	updateErr  error
 	cleanupErr error
 }
 
@@ -150,8 +150,8 @@ func (m *mockStore) Cleanup(olderThan time.Duration) error {
 
 // mockAlertSender 模拟告警发送器.
 type mockAlertSender struct {
-	alerts   []*Alert
-	sendErr  error
+	alerts  []*Alert
+	sendErr error
 }
 
 func newMockAlertSender() *mockAlertSender {

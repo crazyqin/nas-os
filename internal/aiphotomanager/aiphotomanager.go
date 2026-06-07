@@ -279,7 +279,7 @@ type SyncConfig struct {
 	TargetPaths     []string `json:"target_paths"`
 	AutoSync        bool     `json:"auto_sync"`
 	SyncInterval    int      `json:"sync_interval"` // 分钟
-	ConflictRule    string   `json:"conflict_rule"`  // "newer", "larger", "source", "target"
+	ConflictRule    string   `json:"conflict_rule"` // "newer", "larger", "source", "target"
 	ExcludePatterns []string `json:"exclude_patterns"`
 }
 
@@ -579,9 +579,9 @@ func (m *Manager) processFaces(_ string, faces []FaceInfo) {
 			}
 		} else {
 			person := &Person{
-				ID:         fmt.Sprintf("person-%d", time.Now().UnixNano()),
-				Name:       fmt.Sprintf("人物_%d", len(m.persons)+1),
-				FaceCount:  1, PhotoCount: 1,
+				ID:        fmt.Sprintf("person-%d", time.Now().UnixNano()),
+				Name:      fmt.Sprintf("人物_%d", len(m.persons)+1),
+				FaceCount: 1, PhotoCount: 1,
 				FirstSeen: time.Now(), LastSeen: time.Now(),
 			}
 			m.persons[person.ID] = person
@@ -992,7 +992,7 @@ func (m *Manager) GetRecommendations(_ context.Context) ([]*AlbumRecommendation,
 	recent := m.getRecentPhotos(7 * 24 * time.Hour)
 	if len(recent) >= 3 {
 		recs = append(recs, &AlbumRecommendation{
-			ID: fmt.Sprintf("rec-%d", time.Now().UnixNano()),
+			ID:   fmt.Sprintf("rec-%d", time.Now().UnixNano()),
 			Name: "本周精选", Description: "最近一周的精彩照片",
 			Type: CategoryTime, PhotoIDs: recent, Confidence: 0.9,
 			Reason: "基于拍摄时间的智能推荐",
@@ -1002,7 +1002,7 @@ func (m *Manager) GetRecommendations(_ context.Context) ([]*AlbumRecommendation,
 	landscapes := m.getPhotosByScene(SceneLandscape)
 	if len(landscapes) >= 3 {
 		recs = append(recs, &AlbumRecommendation{
-			ID: fmt.Sprintf("rec-%d", time.Now().UnixNano()+1),
+			ID:   fmt.Sprintf("rec-%d", time.Now().UnixNano()+1),
 			Name: "风景集锦", Description: "AI识别的风景照片合集",
 			Type: CategoryScene, PhotoIDs: landscapes, Confidence: 0.85,
 			Reason: "基于场景识别的智能推荐",
@@ -1013,7 +1013,7 @@ func (m *Manager) GetRecommendations(_ context.Context) ([]*AlbumRecommendation,
 		personPhotos := m.getPhotosByPerson(pid)
 		if len(personPhotos) >= 5 {
 			recs = append(recs, &AlbumRecommendation{
-				ID: fmt.Sprintf("rec-%d", time.Now().UnixNano()+2),
+				ID:   fmt.Sprintf("rec-%d", time.Now().UnixNano()+2),
 				Name: person.Name + "的照片", Description: fmt.Sprintf("包含%d张照片", len(personPhotos)),
 				Type: CategoryPerson, PhotoIDs: personPhotos, Confidence: 0.8,
 				Reason: "基于人脸识别的智能推荐",
@@ -1042,7 +1042,8 @@ func (m *Manager) getPhotosByScene(scene SceneType) []string {
 			ids = append(ids, pid)
 		}
 	}
-	return ids}
+	return ids
+}
 
 func (m *Manager) getPhotosByPerson(personID string) []string {
 	var ids []string

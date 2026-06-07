@@ -47,22 +47,22 @@ func DefaultEntropyDetectorConfig() EntropyDetectorConfig {
 
 // EntropySample 熵值采样点.
 type EntropySample struct {
-	Path      string        `json:"path"`       // 文件路径
-	Entropy   float64       `json:"entropy"`    // Shannon 熵值 (0~8)
-	Timestamp time.Time     `json:"timestamp"`  // 采样时间
-	Size      int64         `json:"size"`       // 文件大小
-	Operation FileOperation `json:"operation"`  // 操作类型
+	Path      string        `json:"path"`      // 文件路径
+	Entropy   float64       `json:"entropy"`   // Shannon 熵值 (0~8)
+	Timestamp time.Time     `json:"timestamp"` // 采样时间
+	Size      int64         `json:"size"`      // 文件大小
+	Operation FileOperation `json:"operation"` // 操作类型
 }
 
 // EntropyAlert 熵值告警.
 type EntropyAlert struct {
 	Timestamp   time.Time       `json:"timestamp"`
-	AlertType   string          `json:"alert_type"`   // high_entropy, batch_detected, trend_anomaly
+	AlertType   string          `json:"alert_type"` // high_entropy, batch_detected, trend_anomaly
 	Severity    ThreatLevel     `json:"severity"`
 	Path        string          `json:"path"`
 	Entropy     float64         `json:"entropy"`
-	Baseline    float64         `json:"baseline"`  // 历史基线均值
-	StdDev      float64         `json:"std_dev"`   // 历史标准差
+	Baseline    float64         `json:"baseline"` // 历史基线均值
+	StdDev      float64         `json:"std_dev"`  // 历史标准差
 	Description string          `json:"description"`
 	Samples     []EntropySample `json:"samples,omitempty"` // 关联采样
 }

@@ -20,9 +20,9 @@ import (
 
 // CryptoEngine 加密引擎.
 type CryptoEngine struct {
-	mu      sync.RWMutex
-	engine  *Engine
-	certs   map[string]*CertKeyPair
+	mu        sync.RWMutex
+	engine    *Engine
+	certs     map[string]*CertKeyPair
 	idCounter int64
 }
 

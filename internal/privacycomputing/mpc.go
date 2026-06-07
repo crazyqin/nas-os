@@ -169,9 +169,9 @@ func (mm *MPCManager) simulateSecretSharing(protocol *MPCProtocol) map[string]in
 	}
 
 	return map[string]interface{}{
-		"shares":       shares,
-		"threshold":    threshold,
-		"participants": n,
+		"shares":        shares,
+		"threshold":     threshold,
+		"participants":  n,
 		"reconstructed": secret,
 	}
 }
@@ -192,10 +192,10 @@ func (mm *MPCManager) simulateGarbledCircuit(protocol *MPCProtocol) map[string]i
 func (mm *MPCManager) simulateHomomorphic(protocol *MPCProtocol) map[string]interface{} {
 	// 模拟同态加密计算
 	return map[string]interface{}{
-		"scheme":       "paillier",
-		"key_size":     2048,
-		"operations":   []string{"add", "multiply"},
-		"result_enc":   "encrypted_result_placeholder",
+		"scheme":          "paillier",
+		"key_size":        2048,
+		"operations":      []string{"add", "multiply"},
+		"result_enc":      "encrypted_result_placeholder",
 		"ciphertext_size": "512B",
 	}
 }

@@ -23,12 +23,12 @@ func NewPreprocessor(cfg *Config) *Preprocessor {
 
 // ProcessedImage 预处理后的图像.
 type ProcessedImage struct {
-	Path     string      `json:"path"`      // 文件路径
-	Image    image.Image `json:"-"`         // 图像对象
-	Width    int         `json:"width"`     // 宽度
-	Height   int         `json:"height"`    // 高度
-	Format   string      `json:"format"`    // 格式
-	Pages    int         `json:"pages"`     // 页数
+	Path   string      `json:"path"`   // 文件路径
+	Image  image.Image `json:"-"`      // 图像对象
+	Width  int         `json:"width"`  // 宽度
+	Height int         `json:"height"` // 高度
+	Format string      `json:"format"` // 格式
+	Pages  int         `json:"pages"`  // 页数
 }
 
 // Process 图像预处理.
@@ -182,8 +182,8 @@ func (p *Preprocessor) deskew(img *image.Gray) *image.Gray {
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			// 反向旋转
-			srcX := int(cos*float64(x)-sin*float64(y) + cx)
-			srcY := int(sin*float64(x)+cos*float64(y) + cy)
+			srcX := int(cos*float64(x) - sin*float64(y) + cx)
+			srcY := int(sin*float64(x) + cos*float64(y) + cy)
 
 			if srcX >= 0 && srcX < width && srcY >= 0 && srcY < height {
 				result.SetGray(x, y, img.GrayAt(srcX, srcY))

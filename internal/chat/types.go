@@ -10,8 +10,8 @@ type ChannelType string
 
 const (
 	ChannelTypeDirect  ChannelType = "direct"  // 私聊
-	ChannelTypeGroup   ChannelType = "group"    // 群组
-	ChannelTypeChannel ChannelType = "channel"  // 频道
+	ChannelTypeGroup   ChannelType = "group"   // 群组
+	ChannelTypeChannel ChannelType = "channel" // 频道
 )
 
 // MemberRole 成员角色.
@@ -60,11 +60,11 @@ type Message struct {
 
 // ChannelMember 频道成员.
 type ChannelMember struct {
-	ChannelID string    `json:"channel_id"`
-	UserID    string    `json:"user_id"`
+	ChannelID string     `json:"channel_id"`
+	UserID    string     `json:"user_id"`
 	Role      MemberRole `json:"role"`
-	JoinedAt  time.Time `json:"joined_at"`
-	LastRead  time.Time `json:"last_read"`
+	JoinedAt  time.Time  `json:"joined_at"`
+	LastRead  time.Time  `json:"last_read"`
 }
 
 // Reaction 消息表情反应.

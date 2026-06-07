@@ -24,12 +24,12 @@ const (
 type AlertType string
 
 const (
-	AlertMassRename   AlertType = "mass_rename"   // 批量重命名
-	AlertMassDelete   AlertType = "mass_delete"    // 批量删除
-	AlertHoneypotHit  AlertType = "honeypot_hit"   // 蜜罐触发
+	AlertMassRename    AlertType = "mass_rename"    // 批量重命名
+	AlertMassDelete    AlertType = "mass_delete"    // 批量删除
+	AlertHoneypotHit   AlertType = "honeypot_hit"   // 蜜罐触发
 	AlertSuspiciousExt AlertType = "suspicious_ext" // 可疑扩展名
-	AlertRapidEncrypt AlertType = "rapid_encrypt"  // 快速加密模式
-	AlertAbnormalIO   AlertType = "abnormal_io"    // 异常IO模式
+	AlertRapidEncrypt  AlertType = "rapid_encrypt"  // 快速加密模式
+	AlertAbnormalIO    AlertType = "abnormal_io"    // 异常IO模式
 )
 
 // SuspiciousExt 可疑扩展名列表
@@ -63,11 +63,11 @@ type SecurityAlert struct {
 
 // ProtectionStatus 防护状态
 type ProtectionStatus struct {
-	Enabled         bool      `json:"enabled"`
-	MonitoredPaths  []string  `json:"monitored_paths"`
-	HoneypotCount   int       `json:"honeypot_count"`
-	ActiveAlerts    int       `json:"active_alerts"`
-	TotalBlocked    int64     `json:"total_blocked"`
+	Enabled         bool       `json:"enabled"`
+	MonitoredPaths  []string   `json:"monitored_paths"`
+	HoneypotCount   int        `json:"honeypot_count"`
+	ActiveAlerts    int        `json:"active_alerts"`
+	TotalBlocked    int64      `json:"total_blocked"`
 	LastSnapshot    *time.Time `json:"last_snapshot,omitempty"`
 	ProtectionSince *time.Time `json:"protection_since,omitempty"`
 }
@@ -83,28 +83,28 @@ type FileEvent struct {
 
 // Manager 勒索软件防护管理器
 type Manager struct {
-	mu            sync.RWMutex
-	enabled       bool
+	mu             sync.RWMutex
+	enabled        bool
 	monitoredPaths []string
-	honeypots     map[string]*HoneypotFile
-	alerts        map[string]*SecurityAlert
-	recentEvents  []FileEvent
-	windowSec     int           // 检测时间窗口（秒）
-	threshold     int           // 触发阈值
+	honeypots      map[string]*HoneypotFile
+	alerts         map[string]*SecurityAlert
+	recentEvents   []FileEvent
+	windowSec      int // 检测时间窗口（秒）
+	threshold      int // 触发阈值
 	protectedSince *time.Time
-	totalBlocked  int64
+	totalBlocked   int64
 }
 
 // NewManager 创建管理器
 func NewManager() *Manager {
 	return &Manager{
-		enabled:      true,
+		enabled:        true,
 		monitoredPaths: []string{"/data", "/shared"},
-		honeypots:    make(map[string]*HoneypotFile),
-		alerts:       make(map[string]*SecurityAlert),
-		recentEvents: make([]FileEvent, 0, 1000),
-		windowSec:    60,
-		threshold:    50,
+		honeypots:      make(map[string]*HoneypotFile),
+		alerts:         make(map[string]*SecurityAlert),
+		recentEvents:   make([]FileEvent, 0, 1000),
+		windowSec:      60,
+		threshold:      50,
 	}
 }
 

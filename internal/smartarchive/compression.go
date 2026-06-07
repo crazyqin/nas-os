@@ -23,44 +23,44 @@ type CompressionManager struct {
 
 // CompressionStats 压缩统计.
 type CompressionStats struct {
-	TotalCompressed   int64                          `json:"totalCompressed"`
-	TotalOriginal     int64                          `json:"totalOriginal"`
-	TotalCompressedSize int64                        `json:"totalCompressedSize"`
-	AvgRatio          float64                        `json:"avgRatio"`
-	ByAlgorithm       map[CompressionAlgorithm]*AlgorithmStats `json:"byAlgorithm"`
-	ByFileType        map[string]*FileTypeStats      `json:"byFileType"`
+	TotalCompressed     int64                                    `json:"totalCompressed"`
+	TotalOriginal       int64                                    `json:"totalOriginal"`
+	TotalCompressedSize int64                                    `json:"totalCompressedSize"`
+	AvgRatio            float64                                  `json:"avgRatio"`
+	ByAlgorithm         map[CompressionAlgorithm]*AlgorithmStats `json:"byAlgorithm"`
+	ByFileType          map[string]*FileTypeStats                `json:"byFileType"`
 }
 
 // AlgorithmStats 算法统计.
 type AlgorithmStats struct {
-	Algorithm     CompressionAlgorithm `json:"algorithm"`
-	Count         int64                `json:"count"`
-	OriginalSize  int64                `json:"originalSize"`
-	CompressedSize int64               `json:"compressedSize"`
-	AvgRatio      float64              `json:"avgRatio"`
-	AvgSpeed      float64              `json:"avgSpeed"` // MB/s
+	Algorithm      CompressionAlgorithm `json:"algorithm"`
+	Count          int64                `json:"count"`
+	OriginalSize   int64                `json:"originalSize"`
+	CompressedSize int64                `json:"compressedSize"`
+	AvgRatio       float64              `json:"avgRatio"`
+	AvgSpeed       float64              `json:"avgSpeed"` // MB/s
 }
 
 // FileTypeStats 文件类型统计.
 type FileTypeStats struct {
-	Extension     string  `json:"extension"`
-	Count         int64   `json:"count"`
-	OriginalSize  int64   `json:"originalSize"`
-	CompressedSize int64  `json:"compressedSize"`
-	AvgRatio      float64 `json:"avgRatio"`
-	BestAlgorithm string  `json:"bestAlgorithm"`
+	Extension      string  `json:"extension"`
+	Count          int64   `json:"count"`
+	OriginalSize   int64   `json:"originalSize"`
+	CompressedSize int64   `json:"compressedSize"`
+	AvgRatio       float64 `json:"avgRatio"`
+	BestAlgorithm  string  `json:"bestAlgorithm"`
 }
 
 // CompressionResult 压缩结果.
 type CompressionResult struct {
-	Algorithm     CompressionAlgorithm `json:"algorithm"`
-	Level         int                  `json:"level"`
-	OriginalSize  int64                `json:"originalSize"`
-	CompressedSize int64               `json:"compressedSize"`
-	Ratio         float64              `json:"ratio"`
-	Speed         float64              `json:"speed"` // MB/s
-	Duration      int64                `json:"duration"` // 毫秒
-	SpaceSaved    int64                `json:"spaceSaved"`
+	Algorithm      CompressionAlgorithm `json:"algorithm"`
+	Level          int                  `json:"level"`
+	OriginalSize   int64                `json:"originalSize"`
+	CompressedSize int64                `json:"compressedSize"`
+	Ratio          float64              `json:"ratio"`
+	Speed          float64              `json:"speed"`    // MB/s
+	Duration       int64                `json:"duration"` // 毫秒
+	SpaceSaved     int64                `json:"spaceSaved"`
 }
 
 // NewCompressionManager 创建压缩管理器.
@@ -544,81 +544,81 @@ func (cm *CompressionManager) GetAlgorithmInfo(algorithm CompressionAlgorithm) *
 	switch algorithm {
 	case CompressionGzip:
 		return &AlgorithmInfo{
-			Algorithm:   CompressionGzip,
-			Name:        "Gzip",
-			Description: "通用压缩算法，平衡速度和压缩率",
-			MinLevel:    1,
-			MaxLevel:    9,
+			Algorithm:    CompressionGzip,
+			Name:         "Gzip",
+			Description:  "通用压缩算法，平衡速度和压缩率",
+			MinLevel:     1,
+			MaxLevel:     9,
 			DefaultLevel: 5,
-			SpeedRating: 6,
-			RatioRating: 7,
-			CPURating:   5,
-			UseCases:    []string{"通用文件", "Web 内容", "日志文件"},
+			SpeedRating:  6,
+			RatioRating:  7,
+			CPURating:    5,
+			UseCases:     []string{"通用文件", "Web 内容", "日志文件"},
 		}
 	case CompressionZstd:
 		return &AlgorithmInfo{
-			Algorithm:   CompressionZstd,
-			Name:        "Zstandard",
-			Description: "高速压缩算法，优秀的压缩率",
-			MinLevel:    1,
-			MaxLevel:    9,
+			Algorithm:    CompressionZstd,
+			Name:         "Zstandard",
+			Description:  "高速压缩算法，优秀的压缩率",
+			MinLevel:     1,
+			MaxLevel:     9,
 			DefaultLevel: 3,
-			SpeedRating: 8,
-			RatioRating: 8,
-			CPURating:   6,
-			UseCases:    []string{"数据库备份", "大文件归档", "实时压缩"},
+			SpeedRating:  8,
+			RatioRating:  8,
+			CPURating:    6,
+			UseCases:     []string{"数据库备份", "大文件归档", "实时压缩"},
 		}
 	case CompressionLZ4:
 		return &AlgorithmInfo{
-			Algorithm:   CompressionLZ4,
-			Name:        "LZ4",
-			Description: "极速压缩算法，适合实时场景",
-			MinLevel:    1,
-			MaxLevel:    1,
+			Algorithm:    CompressionLZ4,
+			Name:         "LZ4",
+			Description:  "极速压缩算法，适合实时场景",
+			MinLevel:     1,
+			MaxLevel:     1,
 			DefaultLevel: 1,
-			SpeedRating: 10,
-			RatioRating: 4,
-			CPURating:   2,
-			UseCases:    []string{"实时数据", "缓存", "临时文件"},
+			SpeedRating:  10,
+			RatioRating:  4,
+			CPURating:    2,
+			UseCases:     []string{"实时数据", "缓存", "临时文件"},
 		}
 	case CompressionBrotli:
 		return &AlgorithmInfo{
-			Algorithm:   CompressionBrotli,
-			Name:        "Brotli",
-			Description: "Google 开发的压缩算法，文本压缩优秀",
-			MinLevel:    1,
-			MaxLevel:    11,
+			Algorithm:    CompressionBrotli,
+			Name:         "Brotli",
+			Description:  "Google 开发的压缩算法，文本压缩优秀",
+			MinLevel:     1,
+			MaxLevel:     11,
 			DefaultLevel: 6,
-			SpeedRating: 5,
-			RatioRating: 9,
-			CPURating:   7,
-			UseCases:    []string{"文本文件", "Web 资源", "静态内容"},
+			SpeedRating:  5,
+			RatioRating:  9,
+			CPURating:    7,
+			UseCases:     []string{"文本文件", "Web 资源", "静态内容"},
 		}
 	case CompressionXZ:
 		return &AlgorithmInfo{
-			Algorithm:   CompressionXZ,
-			Name:        "XZ",
-			Description: "高压缩比算法，适合长期归档",
-			MinLevel:    1,
-			MaxLevel:    9,
+			Algorithm:    CompressionXZ,
+			Name:         "XZ",
+			Description:  "高压缩比算法，适合长期归档",
+			MinLevel:     1,
+			MaxLevel:     9,
 			DefaultLevel: 6,
-			SpeedRating: 3,
-			RatioRating: 10,
-			CPURating:   9,
-			UseCases:    []string{"长期归档", "备份", "分发包"},
+			SpeedRating:  3,
+			RatioRating:  10,
+			CPURating:    9,
+			UseCases:     []string{"长期归档", "备份", "分发包"},
 		}
 	default:
 		return &AlgorithmInfo{
-			Algorithm:   CompressionNone,
-			Name:        "None",
-			Description: "不压缩",
-			MinLevel:    0,
-			MaxLevel:    0,
+			Algorithm:    CompressionNone,
+			Name:         "None",
+			Description:  "不压缩",
+			MinLevel:     0,
+			MaxLevel:     0,
 			DefaultLevel: 0,
-			SpeedRating: 10,
-			RatioRating: 0,
-			CPURating:   0,
-			UseCases:    []string{"已压缩文件", "媒体文件"},
+			SpeedRating:  10,
+			RatioRating:  0,
+			CPURating:    0,
+			UseCases:     []string{"已压缩文件", "媒体文件"},
 		}
 	}
 }
@@ -631,9 +631,9 @@ type AlgorithmInfo struct {
 	MinLevel     int                  `json:"minLevel"`
 	MaxLevel     int                  `json:"maxLevel"`
 	DefaultLevel int                  `json:"defaultLevel"`
-	SpeedRating  int                  `json:"speedRating"`  // 1-10
-	RatioRating  int                  `json:"ratioRating"`  // 1-10
-	CPURating    int                  `json:"cpuRating"`    // 1-10
+	SpeedRating  int                  `json:"speedRating"` // 1-10
+	RatioRating  int                  `json:"ratioRating"` // 1-10
+	CPURating    int                  `json:"cpuRating"`   // 1-10
 	UseCases     []string             `json:"useCases"`
 }
 

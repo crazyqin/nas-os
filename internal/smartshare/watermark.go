@@ -44,10 +44,10 @@ type UserInfo struct {
 
 // WatermarkResult 水印结果
 type WatermarkResult struct {
-	OutputPath   string `json:"output_path"`
-	OriginalSize int64  `json:"original_size"`
-	OutputSize   int64  `json:"output_size"`
-	Format       string `json:"format"`
+	OutputPath   string    `json:"output_path"`
+	OriginalSize int64     `json:"original_size"`
+	OutputSize   int64     `json:"output_size"`
+	Format       string    `json:"format"`
 	CreatedAt    time.Time `json:"created_at"`
 }
 
@@ -78,9 +78,9 @@ func (we *WatermarkEngine) AddTextWatermark(req *WatermarkRequest) (*WatermarkRe
 
 	// 模拟水印处理
 	result := &WatermarkResult{
-		OutputPath:  outputPath,
-		Format:      "png",
-		CreatedAt:   time.Now(),
+		OutputPath: outputPath,
+		Format:     "png",
+		CreatedAt:  time.Now(),
 	}
 
 	we.logger.Info("watermark added successfully",

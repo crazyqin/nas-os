@@ -94,15 +94,15 @@ func (pq *PriorityQueue) Pop() interface{} {
 
 // Manager 智能容器调度管理器
 type Manager struct {
-	nodes         map[string]*Node
-	placements    map[string]*Placement
-	queue         PriorityQueue
-	autoScale     map[string]*AutoScalePolicy
-	powerSave     *PowerSaveConfig
-	mu            sync.RWMutex
-	ctx           context.Context
-	cancel        context.CancelFunc
-	stats         *ScheduleStats
+	nodes      map[string]*Node
+	placements map[string]*Placement
+	queue      PriorityQueue
+	autoScale  map[string]*AutoScalePolicy
+	powerSave  *PowerSaveConfig
+	mu         sync.RWMutex
+	ctx        context.Context
+	cancel     context.CancelFunc
+	stats      *ScheduleStats
 }
 
 // NewManager 创建调度管理器

@@ -82,45 +82,45 @@ func ClassifyLevel(score float64) HealthLevel {
 
 // ComponentScore 单维度评分结果。
 type ComponentScore struct {
-	Category    ScoreCategory `json:"category"`     // 评分维度
-	Score       float64       `json:"score"`        // 评分 0-100
-	Weight      float64       `json:"weight"`       // 权重 0-1
-	Level       HealthLevel   `json:"level"`        // 健康等级
-	Description string        `json:"description"`  // 评分描述
-	Metrics     []Metric      `json:"metrics"`      // 具体指标
+	Category    ScoreCategory `json:"category"`    // 评分维度
+	Score       float64       `json:"score"`       // 评分 0-100
+	Weight      float64       `json:"weight"`      // 权重 0-1
+	Level       HealthLevel   `json:"level"`       // 健康等级
+	Description string        `json:"description"` // 评分描述
+	Metrics     []Metric      `json:"metrics"`     // 具体指标
 }
 
 // Metric 单项指标。
 type Metric struct {
-	Name    string  `json:"name"`    // 指标名称
-	Value   float64 `json:"value"`   // 指标值
-	Unit    string  `json:"unit"`    // 单位
-	Status  string  `json:"status"`  // 状态: healthy, warning, critical
-	Detail  string  `json:"detail"`  // 详细说明
+	Name   string  `json:"name"`   // 指标名称
+	Value  float64 `json:"value"`  // 指标值
+	Unit   string  `json:"unit"`   // 单位
+	Status string  `json:"status"` // 状态: healthy, warning, critical
+	Detail string  `json:"detail"` // 详细说明
 }
 
 // ========== 健康评分 ==========
 
 // HealthScore 综合健康评分结果。
 type HealthScore struct {
-	Overall     float64         `json:"overall"`       // 综合评分 0-100
-	Level       HealthLevel     `json:"level"`         // 健康等级
-	Components  []ComponentScore `json:"components"`   // 各维度评分
-	Alerts      []Alert         `json:"alerts,omitempty"` // 触发的告警
-	Suggestions []Suggestion    `json:"suggestions"`   // 改进建议
-	EvaluatedAt time.Time       `json:"evaluated_at"`  // 评估时间
+	Overall     float64          `json:"overall"`          // 综合评分 0-100
+	Level       HealthLevel      `json:"level"`            // 健康等级
+	Components  []ComponentScore `json:"components"`       // 各维度评分
+	Alerts      []Alert          `json:"alerts,omitempty"` // 触发的告警
+	Suggestions []Suggestion     `json:"suggestions"`      // 改进建议
+	EvaluatedAt time.Time        `json:"evaluated_at"`     // 评估时间
 }
 
 // ========== 告警 ==========
 
 // Alert 告警记录。
 type Alert struct {
-	Timestamp  time.Time     `json:"timestamp"`   // 告警时间
-	Category   ScoreCategory `json:"category"`    // 所属维度
-	Score      float64       `json:"score"`       // 触发时的分数
-	Threshold  float64       `json:"threshold"`   // 阈值
-	Level      HealthLevel   `json:"level"`       // 严重程度
-	Message    string        `json:"message"`     // 告警消息
+	Timestamp time.Time     `json:"timestamp"` // 告警时间
+	Category  ScoreCategory `json:"category"`  // 所属维度
+	Score     float64       `json:"score"`     // 触发时的分数
+	Threshold float64       `json:"threshold"` // 阈值
+	Level     HealthLevel   `json:"level"`     // 严重程度
+	Message   string        `json:"message"`   // 告警消息
 }
 
 // ========== 改进建议 ==========
@@ -138,17 +138,17 @@ type Suggestion struct {
 
 // HealthTrend 健康趋势记录。
 type HealthTrend struct {
-	Timestamp  time.Time              `json:"timestamp"`   // 记录时间
-	Overall    float64                `json:"overall"`     // 综合评分
-	Level      HealthLevel            `json:"level"`       // 健康等级
+	Timestamp  time.Time                 `json:"timestamp"`  // 记录时间
+	Overall    float64                   `json:"overall"`    // 综合评分
+	Level      HealthLevel               `json:"level"`      // 健康等级
 	Components map[ScoreCategory]float64 `json:"components"` // 各维度分数
 }
 
 // TrendQuery 趋势查询参数。
 type TrendQuery struct {
-	Days      int           `form:"days"`       // 查询最近N天，默认30
-	Limit     int           `form:"limit"`      // 最大条数，默认100
-	Category  ScoreCategory `form:"category"`   // 过滤特定维度（可选）
+	Days     int           `form:"days"`     // 查询最近N天，默认30
+	Limit    int           `form:"limit"`    // 最大条数，默认100
+	Category ScoreCategory `form:"category"` // 过滤特定维度（可选）
 }
 
 // TrendResponse 趋势查询响应。
@@ -175,7 +175,7 @@ type AlertQuery struct {
 // Config 评分配置。
 type Config struct {
 	Weights   map[ScoreCategory]float64 `json:"weights"`   // 各维度权重
-	Threshold float64                    `json:"threshold"` // 告警阈值，默认60
+	Threshold float64                   `json:"threshold"` // 告警阈值，默认60
 }
 
 // DefaultConfig 返回默认配置。

@@ -39,12 +39,12 @@ const (
 type BackupTarget string
 
 const (
-	TargetLocal   BackupTarget = "local"   // 本地存储
-	TargetRemote  BackupTarget = "remote"  // 远程NAS
-	TargetS3      BackupTarget = "s3"      // S3兼容存储
-	TargetAzure   BackupTarget = "azure"   // Azure Blob
-	TargetGCS     BackupTarget = "gcs"     // Google Cloud Storage
-	TargetTape    BackupTarget = "tape"    // 磁带存储
+	TargetLocal  BackupTarget = "local"  // 本地存储
+	TargetRemote BackupTarget = "remote" // 远程NAS
+	TargetS3     BackupTarget = "s3"     // S3兼容存储
+	TargetAzure  BackupTarget = "azure"  // Azure Blob
+	TargetGCS    BackupTarget = "gcs"    // Google Cloud Storage
+	TargetTape   BackupTarget = "tape"   // 磁带存储
 )
 
 // PriorityLevel 优先级
@@ -59,33 +59,33 @@ const (
 
 // BackupJob 备份任务
 type BackupJob struct {
-	ID            string            `json:"id"`
-	Name          string            `json:"name"`
-	Description   string            `json:"description"`
-	Type          BackupType        `json:"type"`
-	Source        *SourceConfig     `json:"source"`
-	Targets       []*TargetConfig   `json:"targets"`
-	Schedule      *ScheduleConfig   `json:"schedule"`
-	RetryPolicy   *RetryPolicy      `json:"retry_policy"`
-	DependsOn     []string          `json:"depends_on"`     // 依赖的任务ID
-	Priority      PriorityLevel     `json:"priority"`
-	Enabled       bool              `json:"enabled"`
-	Tags          []string          `json:"tags"`
-	Retention     *RetentionPolicy  `json:"retention"`
-	Encryption    *EncryptionConfig `json:"encryption"`
-	Compression   *CompressionConfig `json:"compression"`
-	Status        BackupStatus      `json:"status"`
-	LastRun       *time.Time        `json:"last_run,omitempty"`
-	NextRun       *time.Time        `json:"next_run,omitempty"`
-	RunCount      int64             `json:"run_count"`
-	FailCount     int64             `json:"fail_count"`
-	CreatedAt     time.Time         `json:"created_at"`
-	UpdatedAt     time.Time         `json:"updated_at"`
+	ID          string             `json:"id"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Type        BackupType         `json:"type"`
+	Source      *SourceConfig      `json:"source"`
+	Targets     []*TargetConfig    `json:"targets"`
+	Schedule    *ScheduleConfig    `json:"schedule"`
+	RetryPolicy *RetryPolicy       `json:"retry_policy"`
+	DependsOn   []string           `json:"depends_on"` // 依赖的任务ID
+	Priority    PriorityLevel      `json:"priority"`
+	Enabled     bool               `json:"enabled"`
+	Tags        []string           `json:"tags"`
+	Retention   *RetentionPolicy   `json:"retention"`
+	Encryption  *EncryptionConfig  `json:"encryption"`
+	Compression *CompressionConfig `json:"compression"`
+	Status      BackupStatus       `json:"status"`
+	LastRun     *time.Time         `json:"last_run,omitempty"`
+	NextRun     *time.Time         `json:"next_run,omitempty"`
+	RunCount    int64              `json:"run_count"`
+	FailCount   int64              `json:"fail_count"`
+	CreatedAt   time.Time          `json:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
 // SourceConfig 源配置
 type SourceConfig struct {
-	Type     string   `json:"type"`     // file, database, vm, container, cloud
+	Type     string   `json:"type"` // file, database, vm, container, cloud
 	Path     string   `json:"path"`
 	Host     string   `json:"host,omitempty"`
 	Port     int      `json:"port,omitempty"`
@@ -97,16 +97,16 @@ type SourceConfig struct {
 
 // TargetConfig 目标配置
 type TargetConfig struct {
-	Type       BackupTarget `json:"type"`
-	Name       string       `json:"name"`
-	Endpoint   string       `json:"endpoint,omitempty"`
-	Bucket     string       `json:"bucket,omitempty"`
-	Path       string       `json:"path"`
-	AccessKey  string       `json:"access_key,omitempty"`
-	SecretKey  string       `json:"secret_key,omitempty"`
-	Region     string       `json:"region,omitempty"`
-	IsPrimary  bool         `json:"is_primary"`
-	Weight     int          `json:"weight"` // 负载均衡权重
+	Type      BackupTarget `json:"type"`
+	Name      string       `json:"name"`
+	Endpoint  string       `json:"endpoint,omitempty"`
+	Bucket    string       `json:"bucket,omitempty"`
+	Path      string       `json:"path"`
+	AccessKey string       `json:"access_key,omitempty"`
+	SecretKey string       `json:"secret_key,omitempty"`
+	Region    string       `json:"region,omitempty"`
+	IsPrimary bool         `json:"is_primary"`
+	Weight    int          `json:"weight"` // 负载均衡权重
 }
 
 // ScheduleConfig 调度配置
@@ -149,42 +149,42 @@ type EncryptionConfig struct {
 
 // CompressionConfig 压缩配置
 type CompressionConfig struct {
-	Enabled  bool    `json:"enabled"`
+	Enabled   bool   `json:"enabled"`
 	Algorithm string `json:"algorithm"` // gzip, lz4, zstd, snappy
-	Level    int     `json:"level"`     // 压缩级别 1-9
+	Level     int    `json:"level"`     // 压缩级别 1-9
 }
 
 // BackupChain 备份链（全量+增量链）
 type BackupChain struct {
-	ID          string        `json:"id"`
-	JobID       string        `json:"job_id"`
-	FullBackup  *BackupRecord `json:"full_backup"`
+	ID          string          `json:"id"`
+	JobID       string          `json:"job_id"`
+	FullBackup  *BackupRecord   `json:"full_backup"`
 	IncrBackups []*BackupRecord `json:"incr_backups"`
-	TotalSize   int64         `json:"total_size"`
-	ChainLength int           `json:"chain_length"`
-	CreatedAt   time.Time     `json:"created_at"`
-	IsValid     bool          `json:"is_valid"`
+	TotalSize   int64           `json:"total_size"`
+	ChainLength int             `json:"chain_length"`
+	CreatedAt   time.Time       `json:"created_at"`
+	IsValid     bool            `json:"is_valid"`
 }
 
 // BackupRecord 备份记录
 type BackupRecord struct {
-	ID           string       `json:"id"`
-	JobID        string       `json:"job_id"`
-	ChainID      string       `json:"chain_id"`
-	Type         BackupType   `json:"type"`
-	Status       BackupStatus `json:"status"`
-	SourceSize   int64        `json:"source_size"`
-	BackupSize   int64        `json:"backup_size"`
-	DedupSize    int64        `json:"dedup_size"`
-	CompSize     int64        `json:"comp_size"`
-	Duration     time.Duration `json:"duration"`
-	Target       string       `json:"target"`
-	Checksum     string       `json:"checksum"`
-	Verified     bool         `json:"verified"`
-	VerifiedAt   *time.Time   `json:"verified_at,omitempty"`
-	Error        string       `json:"error,omitempty"`
-	StartedAt    time.Time    `json:"started_at"`
-	CompletedAt  *time.Time   `json:"completed_at,omitempty"`
+	ID          string        `json:"id"`
+	JobID       string        `json:"job_id"`
+	ChainID     string        `json:"chain_id"`
+	Type        BackupType    `json:"type"`
+	Status      BackupStatus  `json:"status"`
+	SourceSize  int64         `json:"source_size"`
+	BackupSize  int64         `json:"backup_size"`
+	DedupSize   int64         `json:"dedup_size"`
+	CompSize    int64         `json:"comp_size"`
+	Duration    time.Duration `json:"duration"`
+	Target      string        `json:"target"`
+	Checksum    string        `json:"checksum"`
+	Verified    bool          `json:"verified"`
+	VerifiedAt  *time.Time    `json:"verified_at,omitempty"`
+	Error       string        `json:"error,omitempty"`
+	StartedAt   time.Time     `json:"started_at"`
+	CompletedAt *time.Time    `json:"completed_at,omitempty"`
 }
 
 // BackupMetrics 备份指标
@@ -202,25 +202,25 @@ type BackupMetrics struct {
 
 // Orchestrator 智能备份编排器
 type Orchestrator struct {
-	mu          sync.RWMutex
-	config      *Config
-	jobs        map[string]*BackupJob
-	chains      map[string]*BackupChain
-	records     []*BackupRecord
-	metrics     *BackupMetrics
-	running     bool
-	ctx         context.Context
-	cancel      context.CancelFunc
+	mu      sync.RWMutex
+	config  *Config
+	jobs    map[string]*BackupJob
+	chains  map[string]*BackupChain
+	records []*BackupRecord
+	metrics *BackupMetrics
+	running bool
+	ctx     context.Context
+	cancel  context.CancelFunc
 }
 
 // Config 编排器配置
 type Config struct {
-	MaxConcurrent    int           `json:"max_concurrent"`     // 最大并发备份数
-	DefaultRetry     *RetryPolicy  `json:"default_retry"`      // 默认重试策略
-	VerifyAfterBackup bool         `json:"verify_after_backup"` // 备份后自动验证
-	AutoOptimize     bool          `json:"auto_optimize"`      // 自动优化备份链
-	AlertOnFailure   bool          `json:"alert_on_failure"`   // 失败时告警
-	RetentionCheck   time.Duration `json:"retention_check"`    // 保留策略检查间隔
+	MaxConcurrent     int           `json:"max_concurrent"`      // 最大并发备份数
+	DefaultRetry      *RetryPolicy  `json:"default_retry"`       // 默认重试策略
+	VerifyAfterBackup bool          `json:"verify_after_backup"` // 备份后自动验证
+	AutoOptimize      bool          `json:"auto_optimize"`       // 自动优化备份链
+	AlertOnFailure    bool          `json:"alert_on_failure"`    // 失败时告警
+	RetentionCheck    time.Duration `json:"retention_check"`     // 保留策略检查间隔
 }
 
 // NewOrchestrator 创建新的备份编排器

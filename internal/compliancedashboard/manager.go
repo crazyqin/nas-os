@@ -10,31 +10,31 @@ import (
 
 // ComplianceConfig 合规配置
 type ComplianceConfig struct {
-	Enabled            bool                   `json:"enabled"`
-	EnabledFrameworks  []ComplianceFramework  `json:"enabledFrameworks"`
-	AutoScan           bool                   `json:"autoScan"`
-	ScanInterval       int                    `json:"scanInterval"` // 小时
-	AlertThreshold     float64                `json:"alertThreshold"` // 合规分数阈值
-	NotifyEmail        string                 `json:"notifyEmail"`
-	RetentionDays      int                    `json:"retentionDays"`
+	Enabled           bool                  `json:"enabled"`
+	EnabledFrameworks []ComplianceFramework `json:"enabledFrameworks"`
+	AutoScan          bool                  `json:"autoScan"`
+	ScanInterval      int                   `json:"scanInterval"`   // 小时
+	AlertThreshold    float64               `json:"alertThreshold"` // 合规分数阈值
+	NotifyEmail       string                `json:"notifyEmail"`
+	RetentionDays     int                   `json:"retentionDays"`
 }
 
 // ComplianceReport 合规报告
 type ComplianceReport struct {
-	ID              string              `json:"id"`
-	Framework       ComplianceFramework `json:"framework"`
-	OverallScore    float64             `json:"overallScore"`
-	MaxScore        float64             `json:"maxScore"`
-	Status          ComplianceStatus    `json:"status"`
-	TotalChecks     int                 `json:"totalChecks"`
-	PassedChecks    int                 `json:"passedChecks"`
-	FailedChecks    int                 `json:"failedChecks"`
-	PartialChecks   int                 `json:"partialChecks"`
-	Categories      []CategoryScore     `json:"categories"`
-	CriticalFindings []Finding         `json:"criticalFindings"`
-	GeneratedAt     time.Time           `json:"generatedAt"`
-	ValidUntil      time.Time           `json:"validUntil"`
-	GeneratedBy     string              `json:"generatedBy"`
+	ID               string              `json:"id"`
+	Framework        ComplianceFramework `json:"framework"`
+	OverallScore     float64             `json:"overallScore"`
+	MaxScore         float64             `json:"maxScore"`
+	Status           ComplianceStatus    `json:"status"`
+	TotalChecks      int                 `json:"totalChecks"`
+	PassedChecks     int                 `json:"passedChecks"`
+	FailedChecks     int                 `json:"failedChecks"`
+	PartialChecks    int                 `json:"partialChecks"`
+	Categories       []CategoryScore     `json:"categories"`
+	CriticalFindings []Finding           `json:"criticalFindings"`
+	GeneratedAt      time.Time           `json:"generatedAt"`
+	ValidUntil       time.Time           `json:"validUntil"`
+	GeneratedBy      string              `json:"generatedBy"`
 }
 
 // CategoryScore 分类分数
@@ -63,33 +63,33 @@ type Finding struct {
 
 // AuditEvent 审计事件
 type AuditEvent struct {
-	ID          string    `json:"id"`
-	Timestamp   time.Time `json:"timestamp"`
-	UserID      string    `json:"userId"`
-	UserName    string    `json:"userName"`
-	Action      string    `json:"action"`
-	Resource    string    `json:"resource"`
-	ResourceID  string    `json:"resourceId"`
-	Details     string    `json:"details"`
-	IPAddress   string    `json:"ipAddress"`
-	UserAgent   string    `json:"userAgent"`
-	Result      string    `json:"result"` // success/failure/denied
-	RiskLevel   string    `json:"riskLevel"` // low/medium/high/critical
+	ID         string    `json:"id"`
+	Timestamp  time.Time `json:"timestamp"`
+	UserID     string    `json:"userId"`
+	UserName   string    `json:"userName"`
+	Action     string    `json:"action"`
+	Resource   string    `json:"resource"`
+	ResourceID string    `json:"resourceId"`
+	Details    string    `json:"details"`
+	IPAddress  string    `json:"ipAddress"`
+	UserAgent  string    `json:"userAgent"`
+	Result     string    `json:"result"`    // success/failure/denied
+	RiskLevel  string    `json:"riskLevel"` // low/medium/high/critical
 }
 
 // ComplianceStats 合规统计
 type ComplianceStats struct {
-	OverallScore       float64                       `json:"overallScore"`
-	FrameworkScores    map[ComplianceFramework]float64 `json:"frameworkScores"`
-	TotalChecks        int                           `json:"totalChecks"`
-	PassedChecks       int                           `json:"passedChecks"`
-	FailedChecks       int                           `json:"failedChecks"`
-	OpenFindings       int                           `json:"openFindings"`
-	CriticalFindings   int                           `json:"criticalFindings"`
-	LastScanTime       time.Time                     `json:"lastScanTime"`
-	NextScanTime       time.Time                     `json:"nextScanTime"`
-	TrendLast30Days    []ScorePoint                  `json:"trendLast30Days"`
-	RecentAuditEvents  []AuditEvent                  `json:"recentAuditEvents"`
+	OverallScore      float64                         `json:"overallScore"`
+	FrameworkScores   map[ComplianceFramework]float64 `json:"frameworkScores"`
+	TotalChecks       int                             `json:"totalChecks"`
+	PassedChecks      int                             `json:"passedChecks"`
+	FailedChecks      int                             `json:"failedChecks"`
+	OpenFindings      int                             `json:"openFindings"`
+	CriticalFindings  int                             `json:"criticalFindings"`
+	LastScanTime      time.Time                       `json:"lastScanTime"`
+	NextScanTime      time.Time                       `json:"nextScanTime"`
+	TrendLast30Days   []ScorePoint                    `json:"trendLast30Days"`
+	RecentAuditEvents []AuditEvent                    `json:"recentAuditEvents"`
 }
 
 // ScorePoint 分数趋势点
@@ -100,13 +100,13 @@ type ScorePoint struct {
 
 // Manager 合规管理器
 type Manager struct {
-	mu          sync.RWMutex
-	config      ComplianceConfig
-	checks      map[string]*ComplianceCheck
-	reports     map[string]*ComplianceReport
-	findings    map[string]*Finding
-	auditLog    []AuditEvent
-	running     bool
+	mu       sync.RWMutex
+	config   ComplianceConfig
+	checks   map[string]*ComplianceCheck
+	reports  map[string]*ComplianceReport
+	findings map[string]*Finding
+	auditLog []AuditEvent
+	running  bool
 }
 
 // NewManager 创建管理器
@@ -164,8 +164,8 @@ func (m *Manager) RunScan(framework ComplianceFramework) (*ComplianceReport, err
 	defer m.mu.Unlock()
 
 	report := &ComplianceReport{
-		ID:        fmt.Sprintf("rpt-%d", time.Now().UnixNano()),
-		Framework: framework,
+		ID:          fmt.Sprintf("rpt-%d", time.Now().UnixNano()),
+		Framework:   framework,
 		GeneratedAt: time.Now(),
 		ValidUntil:  time.Now().Add(30 * 24 * time.Hour),
 		GeneratedBy: "system",

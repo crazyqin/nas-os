@@ -18,8 +18,8 @@ import (
 type LockType int
 
 const (
-	LockTypeShared LockType = iota // 共享锁（读锁）- 多用户可同时持有
-	LockTypeExclusive              // 独占锁（写锁）- 只有一个用户可持有
+	LockTypeShared    LockType = iota // 共享锁（读锁）- 多用户可同时持有
+	LockTypeExclusive                 // 独占锁（写锁）- 只有一个用户可持有
 )
 
 func (lt LockType) String() string {
@@ -66,12 +66,12 @@ type FileLock struct {
 	FilePath      string            `json:"filePath"`
 	LockType      LockType          `json:"lockType"`
 	Status        LockStatus        `json:"status"`
-	Owner         string            `json:"owner"`        // 用户ID
-	OwnerName     string            `json:"ownerName"`    // 用户显示名
-	ClientID      string            `json:"clientId"`     // 客户端标识
-	SessionID     string            `json:"sessionId"`    // 会话ID（用于协作）
-	Protocol      string            `json:"protocol"`     // SMB/NFS/WebDAV/Drive/API
-	AppName       string            `json:"appName"`      // 应用名称（如Synology Drive）
+	Owner         string            `json:"owner"`     // 用户ID
+	OwnerName     string            `json:"ownerName"` // 用户显示名
+	ClientID      string            `json:"clientId"`  // 客户端标识
+	SessionID     string            `json:"sessionId"` // 会话ID（用于协作）
+	Protocol      string            `json:"protocol"`  // SMB/NFS/WebDAV/Drive/API
+	AppName       string            `json:"appName"`   // 应用名称（如Synology Drive）
 	CreatedAt     time.Time         `json:"createdAt"`
 	ExpiresAt     time.Time         `json:"expiresAt"`
 	LastAccessed  time.Time         `json:"lastAccessed"`
@@ -79,9 +79,9 @@ type FileLock struct {
 	Metadata      map[string]string `json:"metadata"`
 
 	// 协作字段
-	SharedWith    []string          `json:"sharedWith"`    // 共享锁的用户列表
-	Version       int64             `json:"version"`       // 锁版本号
-	ParentLockID  string            `json:"parentLockId"`  // 父锁ID（嵌套锁定）
+	SharedWith   []string `json:"sharedWith"`   // 共享锁的用户列表
+	Version      int64    `json:"version"`      // 锁版本号
+	ParentLockID string   `json:"parentLockId"` // 父锁ID（嵌套锁定）
 
 	mu sync.RWMutex
 }
@@ -128,18 +128,18 @@ func (fl *FileLock) Release() {
 
 // LockRequest 锁请求
 type LockRequest struct {
-	FilePath      string            `json:"filePath" binding:"required"`
-	LockType      LockType          `json:"lockType"`
-	Owner         string            `json:"owner" binding:"required"`
-	OwnerName     string            `json:"ownerName,omitempty"`
-	ClientID      string            `json:"clientId,omitempty"`
-	SessionID     string            `json:"sessionId,omitempty"`
-	Protocol      string            `json:"protocol,omitempty"`
-	AppName       string            `json:"appName,omitempty"`
-	Timeout       int               `json:"timeout"`        // 超时秒数
-	Metadata      map[string]string `json:"metadata,omitempty"`
-	WaitForLock   bool              `json:"waitForLock"`    // 是否等待锁释放
-	WaitTimeout   int               `json:"waitTimeout"`    // 等待超时秒数
+	FilePath    string            `json:"filePath" binding:"required"`
+	LockType    LockType          `json:"lockType"`
+	Owner       string            `json:"owner" binding:"required"`
+	OwnerName   string            `json:"ownerName,omitempty"`
+	ClientID    string            `json:"clientId,omitempty"`
+	SessionID   string            `json:"sessionId,omitempty"`
+	Protocol    string            `json:"protocol,omitempty"`
+	AppName     string            `json:"appName,omitempty"`
+	Timeout     int               `json:"timeout"` // 超时秒数
+	Metadata    map[string]string `json:"metadata,omitempty"`
+	WaitForLock bool              `json:"waitForLock"` // 是否等待锁释放
+	WaitTimeout int               `json:"waitTimeout"` // 等待超时秒数
 }
 
 // LockConflict 锁冲突信息
@@ -163,7 +163,7 @@ type LockInfo struct {
 	AppName       string            `json:"appName,omitempty"`
 	CreatedAt     time.Time         `json:"createdAt"`
 	ExpiresAt     time.Time         `json:"expiresAt"`
-	ExpiresIn     int64             `json:"expiresIn"`    // 剩余秒数
+	ExpiresIn     int64             `json:"expiresIn"` // 剩余秒数
 	IsExpired     bool              `json:"isExpired"`
 	LastHeartbeat time.Time         `json:"lastHeartbeat"`
 	Metadata      map[string]string `json:"metadata,omitempty"`
@@ -209,9 +209,9 @@ type LockConfig struct {
 	DefaultTimeout      time.Duration `json:"defaultTimeout"`
 	MaxTimeout          time.Duration `json:"maxTimeout"`
 	CleanupInterval     time.Duration `json:"cleanupInterval"`
-	HeartbeatInterval   time.Duration `json:"heartbeatInterval"`   // 心跳检查间隔
-	HeartbeatTimeout    time.Duration `json:"heartbeatTimeout"`    // 心跳超时
-	MaxLocksPerFile     int           `json:"maxLocksPerFile"`     // 每文件最大共享锁
+	HeartbeatInterval   time.Duration `json:"heartbeatInterval"` // 心跳检查间隔
+	HeartbeatTimeout    time.Duration `json:"heartbeatTimeout"`  // 心跳超时
+	MaxLocksPerFile     int           `json:"maxLocksPerFile"`   // 每文件最大共享锁
 	EnableAutoRenewal   bool          `json:"enableAutoRenewal"`
 	AutoRenewalInterval time.Duration `json:"autoRenewalInterval"`
 	EnableCollaboration bool          `json:"enableCollaboration"` // 启用协作锁定
@@ -241,13 +241,13 @@ type LockManager struct {
 	config LockConfig
 
 	// 锁存储
-	locks       sync.Map // map[string]*FileLock (filePath -> lock)
-	locksByID   sync.Map // map[string]*FileLock (id -> lock)
-	ownerLocks  sync.Map // map[string]sync.Map (owner -> locks)
+	locks        sync.Map // map[string]*FileLock (filePath -> lock)
+	locksByID    sync.Map // map[string]*FileLock (id -> lock)
+	ownerLocks   sync.Map // map[string]sync.Map (owner -> locks)
 	sessionLocks sync.Map // map[string]sync.Map (sessionID -> locks) 协作会话
 
 	// 等待队列
-	waitQueue   sync.Map // map[string][]*LockWaiter (filePath -> waiters)
+	waitQueue sync.Map // map[string][]*LockWaiter (filePath -> waiters)
 
 	// 事件通知
 	notifiers   []LockNotifier
@@ -271,10 +271,10 @@ type LockManager struct {
 
 // LockWaiter 锁等待者
 type LockWaiter struct {
-	Request   *LockRequest
+	Request    *LockRequest
 	NotifyChan chan *FileLock
-	StartTime time.Time
-	Timeout   time.Duration
+	StartTime  time.Time
+	Timeout    time.Duration
 }
 
 // LockNotifier 锁事件通知器接口
@@ -284,7 +284,7 @@ type LockNotifier interface {
 
 // LockEvent 锁事件
 type LockEvent struct {
-	Type      EventType `json:"type"`      // acquired/released/conflict/expired/heartbeat/wait
+	Type      EventType `json:"type"` // acquired/released/conflict/expired/heartbeat/wait
 	LockID    string    `json:"lockId"`
 	FilePath  string    `json:"filePath"`
 	Owner     string    `json:"owner"`
@@ -292,7 +292,7 @@ type LockEvent struct {
 	SessionID string    `json:"sessionId"`
 	Protocol  string    `json:"protocol"`
 	Message   string    `json:"message,omitempty"`
-	Timestamp time.Time  `json:"timestamp"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // EventType 事件类型
@@ -351,22 +351,22 @@ func (m *LockManager) Lock(ctx context.Context, req *LockRequest) (*FileLock, *L
 
 	now := time.Now()
 	lock := &FileLock{
-		ID:           uuid.New().String(),
-		FilePath:     req.FilePath,
-		LockType:     req.LockType,
-		Status:       LockStatusActive,
-		Owner:        req.Owner,
-		OwnerName:    req.OwnerName,
-		ClientID:     req.ClientID,
-		SessionID:    req.SessionID,
-		Protocol:     req.Protocol,
-		AppName:      req.AppName,
-		CreatedAt:    now,
-		ExpiresAt:    now.Add(timeout),
-		LastAccessed: now,
+		ID:            uuid.New().String(),
+		FilePath:      req.FilePath,
+		LockType:      req.LockType,
+		Status:        LockStatusActive,
+		Owner:         req.Owner,
+		OwnerName:     req.OwnerName,
+		ClientID:      req.ClientID,
+		SessionID:     req.SessionID,
+		Protocol:      req.Protocol,
+		AppName:       req.AppName,
+		CreatedAt:     now,
+		ExpiresAt:     now.Add(timeout),
+		LastAccessed:  now,
 		LastHeartbeat: now,
-		Metadata:     req.Metadata,
-		Version:      1,
+		Metadata:      req.Metadata,
+		Version:       1,
 	}
 
 	// 检查现有锁
@@ -875,10 +875,10 @@ func (m *LockManager) cleanupExpiredLocks() {
 		m.releaseLockInternal(lock)
 
 		m.emitEvent(LockEvent{
-			Type:     EventLockExpired,
-			LockID:   lock.ID,
-			FilePath: lock.FilePath,
-			Owner:    lock.Owner,
+			Type:      EventLockExpired,
+			LockID:    lock.ID,
+			FilePath:  lock.FilePath,
+			Owner:     lock.Owner,
 			Timestamp: time.Now(),
 		})
 
@@ -969,11 +969,11 @@ func (m *LockManager) checkHeartbeats() {
 		m.releaseLockInternal(lock)
 
 		m.emitEvent(LockEvent{
-			Type:     EventLockExpired,
-			LockID:   lock.ID,
-			FilePath: lock.FilePath,
-			Owner:    lock.Owner,
-			Message:  "heartbeat timeout",
+			Type:      EventLockExpired,
+			LockID:    lock.ID,
+			FilePath:  lock.FilePath,
+			Owner:     lock.Owner,
+			Message:   "heartbeat timeout",
 			Timestamp: time.Now(),
 		})
 

@@ -13,10 +13,10 @@ import (
 
 // FeedManager 情报订阅管理器
 type FeedManager struct {
-	engine     *Engine
+	engine      *Engine
 	subscribers map[string][]chan *IOC
-	mu         sync.RWMutex
-	stopChan   chan struct{}
+	mu          sync.RWMutex
+	stopChan    chan struct{}
 }
 
 // NewFeedManager 创建情报订阅管理器
@@ -349,12 +349,12 @@ func (tsm *TrustedSourceManager) VerifySource(id string) error {
 
 // UpdateScheduler 自动更新调度器
 type UpdateScheduler struct {
-	engine    *Engine
-	feedMgr   *FeedManager
-	interval  time.Duration
-	stopChan  chan struct{}
-	running   bool
-	mu        sync.Mutex
+	engine   *Engine
+	feedMgr  *FeedManager
+	interval time.Duration
+	stopChan chan struct{}
+	running  bool
+	mu       sync.Mutex
 }
 
 // NewUpdateScheduler 创建自动更新调度器

@@ -29,13 +29,13 @@ func setupTest(t *testing.T) (*Manager, *gin.Engine) {
 func registerTestProvider(t *testing.T, r *gin.Engine, id string, provider CloudProvider) {
 	t.Helper()
 	cfg := CloudProviderConfig{
-		ID:       id,
-		Name:     "Test " + string(provider),
-		Provider: provider,
-		Region:   "cn-north-1",
+		ID:        id,
+		Name:      "Test " + string(provider),
+		Provider:  provider,
+		Region:    "cn-north-1",
 		AccessKey: "test-key",
 		SecretKey: "test-secret",
-		Bucket:   "test-bucket",
+		Bucket:    "test-bucket",
 	}
 	body, _ := json.Marshal(cfg)
 	req := httptest.NewRequest(http.MethodPost, "/cloudfederation/providers", bytes.NewReader(body))
@@ -83,9 +83,9 @@ func TestProviderCRUD(t *testing.T) {
 
 	// Update
 	updateCfg := CloudProviderConfig{
-		Name:     "Updated Aliyun",
-		Provider: ProviderAliyun,
-		Region:   "cn-east-1",
+		Name:      "Updated Aliyun",
+		Provider:  ProviderAliyun,
+		Region:    "cn-east-1",
 		AccessKey: "new-key",
 		SecretKey: "new-secret",
 	}
@@ -218,8 +218,8 @@ func TestSyncTask(t *testing.T) {
 	task := SyncTask{
 		ID:             "sync-1",
 		Namespace:      "ns-1",
-		SourceProvider:  "aws-1",
-		TargetProvider:  "gcs-1",
+		SourceProvider: "aws-1",
+		TargetProvider: "gcs-1",
 		TotalObjects:   100,
 		TotalBytes:     1024000,
 	}
@@ -260,8 +260,8 @@ func TestMigrationTask(t *testing.T) {
 	task := MigrationTask{
 		ID:             "mig-1",
 		Namespace:      "ns-1",
-		SourceProvider:  "aws-1",
-		TargetProvider:  "ali-1",
+		SourceProvider: "aws-1",
+		TargetProvider: "ali-1",
 		TotalObjects:   50,
 		TotalBytes:     512000,
 		DeleteSource:   true,
@@ -286,16 +286,16 @@ func TestMigrationTask(t *testing.T) {
 func TestCancelMigration(t *testing.T) {
 	mgr, _ := setupTest(t)
 	require.NoError(t, mgr.RegisterProvider(&CloudProviderConfig{
-		ID:       "aws-1",
-		Name:     "AWS",
-		Provider: ProviderAWS,
+		ID:        "aws-1",
+		Name:      "AWS",
+		Provider:  ProviderAWS,
 		AccessKey: "k",
 		SecretKey: "s",
 	}))
 	require.NoError(t, mgr.RegisterProvider(&CloudProviderConfig{
-		ID:       "gcs-1",
-		Name:     "GCS",
-		Provider: ProviderGCS,
+		ID:        "gcs-1",
+		Name:      "GCS",
+		Provider:  ProviderGCS,
 		AccessKey: "k",
 		SecretKey: "s",
 	}))
@@ -309,8 +309,8 @@ func TestCancelMigration(t *testing.T) {
 	err := mgr.CreateMigrationTask(&MigrationTask{
 		ID:             "mig-1",
 		Namespace:      "ns-1",
-		SourceProvider:  "aws-1",
-		TargetProvider:  "gcs-1",
+		SourceProvider: "aws-1",
+		TargetProvider: "gcs-1",
 		TotalObjects:   10,
 		TotalBytes:     1024,
 	})
@@ -363,9 +363,9 @@ func TestFederationStats(t *testing.T) {
 func TestSameProviderSync(t *testing.T) {
 	mgr, _ := setupTest(t)
 	require.NoError(t, mgr.RegisterProvider(&CloudProviderConfig{
-		ID:       "aws-1",
-		Name:     "AWS",
-		Provider: ProviderAWS,
+		ID:        "aws-1",
+		Name:      "AWS",
+		Provider:  ProviderAWS,
 		AccessKey: "k",
 		SecretKey: "s",
 	}))
@@ -379,8 +379,8 @@ func TestSameProviderSync(t *testing.T) {
 	err := mgr.CreateSyncTask(&SyncTask{
 		ID:             "sync-1",
 		Namespace:      "ns-1",
-		SourceProvider:  "aws-1",
-		TargetProvider:  "aws-1",
+		SourceProvider: "aws-1",
+		TargetProvider: "aws-1",
 	})
 	assert.ErrorIs(t, err, ErrSameProvider)
 }

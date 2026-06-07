@@ -1,6 +1,6 @@
 // Package smb SMB Spotlight Search 模块
 // 对标 TrueNAS 26 SMB Spotlight - macOS Spotlight 集成
-// 
+//
 // 功能特性：
 //   - macOS Spotlight 可直接搜索 SMB 共享内容
 //   - 支持文件名、内容、类型等多维度搜索
@@ -10,16 +10,18 @@
 //   - 内容全文索引
 //
 // 架构设计：
-//   spotlight.go          - RPC 接口定义（本文件）
-//   spotlight_integration.go - 核心实现（索引器、搜索器）
-//   spotlight_api.go      - HTTP API handlers
+//
+//	spotlight.go          - RPC 接口定义（本文件）
+//	spotlight_integration.go - 核心实现（索引器、搜索器）
+//	spotlight_api.go      - HTTP API handlers
 //
 // RPC 接口：
-//   SpotlightService.Search(query) -> results
-//   SpotlightService.GetIndexStatus() -> status
-//   SpotlightService.EnableForShare(shareName) -> void
-//   SpotlightService.DisableForShare(shareName) -> void
-//   SpotlightService.RebuildIndex(path) -> void
+//
+//	SpotlightService.Search(query) -> results
+//	SpotlightService.GetIndexStatus() -> status
+//	SpotlightService.EnableForShare(shareName) -> void
+//	SpotlightService.DisableForShare(shareName) -> void
+//	SpotlightService.RebuildIndex(path) -> void
 package smb
 
 import (
@@ -328,9 +330,9 @@ type SpotlightShareInfo struct {
 // SpotlightService Spotlight 服务
 // 实现 SpotlightServiceRPC 接口
 type SpotlightService struct {
-	rpc      SpotlightServiceRPC
+	rpc         SpotlightServiceRPC
 	integration *SpotlightIntegration
-	manager  *Manager
+	manager     *Manager
 }
 
 // NewSpotlightService 创建 Spotlight 服务
@@ -397,14 +399,14 @@ func (s *SpotlightService) GetIndexStatus(ctx context.Context) (*SpotlightIndexS
 	stats := s.integration.GetIndexStatus()
 
 	return &SpotlightIndexStatus{
-		Enabled:       s.integration.config.Enabled,
-		Status:        stats.Status,
-		TotalFiles:    stats.TotalFiles,
-		IndexedFiles:  stats.IndexedFiles,
-		IndexedSize:   stats.IndexedSize,
-		Progress:      stats.Progress,
-		LastUpdate:    stats.LastUpdate,
-		SharePaths:    s.integration.config.SharePaths,
+		Enabled:        s.integration.config.Enabled,
+		Status:         stats.Status,
+		TotalFiles:     stats.TotalFiles,
+		IndexedFiles:   stats.IndexedFiles,
+		IndexedSize:    stats.IndexedSize,
+		Progress:       stats.Progress,
+		LastUpdate:     stats.LastUpdate,
+		SharePaths:     s.integration.config.SharePaths,
 		ContentIndexed: s.integration.config.EnableContentIdx,
 	}, nil
 }
@@ -477,12 +479,12 @@ func (s *SpotlightService) ListSpotlightShares(ctx context.Context) ([]*Spotligh
 
 	for _, share := range shares {
 		enabled := contains(s.integration.config.SharePaths, share.Path)
-		
+
 		info := &SpotlightShareInfo{
-			ShareName: share.Name,
-			Path:      share.Path,
-			Enabled:   enabled,
-			Status:    stats.Status,
+			ShareName:   share.Name,
+			Path:        share.Path,
+			Enabled:     enabled,
+			Status:      stats.Status,
 			LastIndexed: stats.LastUpdate,
 		}
 

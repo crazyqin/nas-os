@@ -29,8 +29,8 @@ type Notebook struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description,omitempty"`
 	Owner       string    `json:"owner"`
-	Color       string    `json:"color,omitempty"`   // 笔记本颜色
-	Icon        string    `json:"icon,omitempty"`     // 笔记本图标
+	Color       string    `json:"color,omitempty"` // 笔记本颜色
+	Icon        string    `json:"icon,omitempty"`  // 笔记本图标
 	NoteCount   int       `json:"note_count"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
@@ -46,15 +46,15 @@ type Tag struct {
 
 // ShareLink 分享链接.
 type ShareLink struct {
-	ID          string    `json:"id"`
-	NoteID      string    `json:"note_id"`
-	Token       string    `json:"token"`
-	Password    string    `json:"password,omitempty"` // 密码保护
-	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
-	AllowEdit   bool      `json:"allow_edit"`
-	VisitCount  int       `json:"visit_count"`
-	CreatedAt   time.Time `json:"created_at"`
-	CreatedBy   string    `json:"created_by"`
+	ID         string     `json:"id"`
+	NoteID     string     `json:"note_id"`
+	Token      string     `json:"token"`
+	Password   string     `json:"password,omitempty"` // 密码保护
+	ExpiresAt  *time.Time `json:"expires_at,omitempty"`
+	AllowEdit  bool       `json:"allow_edit"`
+	VisitCount int        `json:"visit_count"`
+	CreatedAt  time.Time  `json:"created_at"`
+	CreatedBy  string     `json:"created_by"`
 }
 
 // Attachment 笔记附件.
@@ -139,6 +139,6 @@ type ImportMarkdownRequest struct {
 
 // ExportNotesRequest 导出笔记请求.
 type ExportNotesRequest struct {
-	NoteIDs  []string `json:"note_ids" binding:"required"`
-	Format   string   `json:"format"`   // markdown, html, pdf
+	NoteIDs []string `json:"note_ids" binding:"required"`
+	Format  string   `json:"format"` // markdown, html, pdf
 }

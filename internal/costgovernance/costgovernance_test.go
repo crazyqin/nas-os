@@ -39,18 +39,18 @@ func newTestManager() *Manager {
 		EndDate:         time.Now(),
 	})
 	m.UpdateResourceUsage(&ResourceUsage{
-		ID:              "usage-01",
-		ResourceID:      "i-abc123",
-		ResourceName:    "web-server-1",
-		ResourceType:    ResourceCompute,
-		Provider:        ProviderAWS,
-		Region:          "us-east-1",
-		CPUPercent:      45.0,
-		MemoryPercent:   60.0,
-		StorageUsedGB:   100,
-		StorageTotalGB:  500,
-		DailyCost:       50.0,
-		Tags:            map[string]string{"env": "prod"},
+		ID:             "usage-01",
+		ResourceID:     "i-abc123",
+		ResourceName:   "web-server-1",
+		ResourceType:   ResourceCompute,
+		Provider:       ProviderAWS,
+		Region:         "us-east-1",
+		CPUPercent:     45.0,
+		MemoryPercent:  60.0,
+		StorageUsedGB:  100,
+		StorageTotalGB: 500,
+		DailyCost:      50.0,
+		Tags:           map[string]string{"env": "prod"},
 	})
 	return m
 }

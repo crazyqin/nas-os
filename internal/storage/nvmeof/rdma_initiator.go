@@ -183,13 +183,13 @@ func (m *RDMAInitiatorSysManager) loadExistingConnections() {
 
 		// 创建控制器对象
 		ctrl := &RDMAController{
-			Name:         entry.Name(),
-			TargetNQN:    subsysNQN,
+			Name:          entry.Name(),
+			TargetNQN:     subsysNQN,
 			TargetAddress: address,
-			TargetPort:   port,
-			Transport:    pkgnvmeof.TransportRDMA,
-			State:        pkgnvmeof.ControllerStateLive,
-			ConnectedAt:  time.Now(),
+			TargetPort:    port,
+			Transport:     pkgnvmeof.TransportRDMA,
+			State:         pkgnvmeof.ControllerStateLive,
+			ConnectedAt:   time.Now(),
 		}
 
 		m.controllers[ctrl.Name] = ctrl
@@ -336,18 +336,18 @@ func (m *RDMAInitiatorSysManager) ConnectRDMATarget(ctx context.Context, req *Co
 
 	// 创建控制器对象
 	ctrl := &RDMAController{
-		Name:          newCtrlName,
-		TargetNQN:     req.TargetNQN,
-		TargetAddress: req.TargetAddress,
-		TargetPort:    req.TargetPort,
-		Transport:     pkgnvmeof.TransportRDMA,
-		State:         pkgnvmeof.ControllerStateLive,
-		QueueDepth:    req.QueueDepth,
-		IOQueues:      req.IOQueues,
-		KeepAlive:     req.KeepAlive,
+		Name:           newCtrlName,
+		TargetNQN:      req.TargetNQN,
+		TargetAddress:  req.TargetAddress,
+		TargetPort:     req.TargetPort,
+		Transport:      pkgnvmeof.TransportRDMA,
+		State:          pkgnvmeof.ControllerStateLive,
+		QueueDepth:     req.QueueDepth,
+		IOQueues:       req.IOQueues,
+		KeepAlive:      req.KeepAlive,
 		ReconnectDelay: req.ReconnectDelay,
-		ConnectedAt:   time.Now(),
-		Namespaces:    make([]*RDMANamespace, 0),
+		ConnectedAt:    time.Now(),
+		Namespaces:     make([]*RDMANamespace, 0),
 	}
 
 	// 扫描命名空间
@@ -671,8 +671,8 @@ func (m *RDMAInitiatorSysManager) GetRDMAInitiatorStats() *RDMAInitiatorStats {
 	defer m.mu.RUnlock()
 
 	stats := &RDMAInitiatorStats{
-		Available: m.pkgRdmaManager.IsAvailable(),
-		Running:   m.running,
+		Available:       m.pkgRdmaManager.IsAvailable(),
+		Running:         m.running,
 		ControllerCount: len(m.controllers),
 	}
 
@@ -710,9 +710,9 @@ type RDMAController struct {
 	State pkgnvmeof.ControllerState `json:"state"`
 
 	// 配置
-	QueueDepth    int `json:"queueDepth"`
-	IOQueues      int `json:"ioQueues"`
-	KeepAlive     int `json:"keepAlive"`
+	QueueDepth     int `json:"queueDepth"`
+	IOQueues       int `json:"ioQueues"`
+	KeepAlive      int `json:"keepAlive"`
 	ReconnectDelay int `json:"reconnectDelay"`
 
 	// 命名空间列表

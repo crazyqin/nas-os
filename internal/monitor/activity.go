@@ -51,28 +51,28 @@ type ActivityConfig struct {
 // DefaultActivityConfig 默认配置
 func DefaultActivityConfig() *ActivityConfig {
 	return &ActivityConfig{
-		WatchPaths: []string{"/"},
+		WatchPaths:   []string{"/"},
 		ExcludePaths: []string{"/proc", "/sys", "/dev", "/tmp"},
-		WatchEvents: []string{"create", "modify", "delete", "rename", "access"},
+		WatchEvents:  []string{"create", "modify", "delete", "rename", "access"},
 		Thresholds: map[string]int{
-			"maxDeletePerMinute":    100,
-			"maxModifyPerMinute":    500,
-			"maxCreatePerMinute":    200,
-			"maxRenamePerMinute":    50,
-			"maxAccessPerMinute":    1000,
-			"maxFileSizeChange":     100 * 1024 * 1024, // 100MB
-			"suspiciousFileTypes":   10,
-			"unusualTimeThreshold":  3,
+			"maxDeletePerMinute":   100,
+			"maxModifyPerMinute":   500,
+			"maxCreatePerMinute":   200,
+			"maxRenamePerMinute":   50,
+			"maxAccessPerMinute":   1000,
+			"maxFileSizeChange":    100 * 1024 * 1024, // 100MB
+			"suspiciousFileTypes":  10,
+			"unusualTimeThreshold": 3,
 		},
-		MonitorInterval:         5,
-		EnableRealtime:          true,
-		MaxActivityRecords:      10000,
-		HistoryRetentionDays:    30,
-		EnableAnomalyDetection:  true,
-		EnableUserBehavior:      true,
-		EnableTimePattern:       true,
-		EnableFileTypeAnalysis:  true,
-		EnableNetworkBehavior:   false,
+		MonitorInterval:        5,
+		EnableRealtime:         true,
+		MaxActivityRecords:     10000,
+		HistoryRetentionDays:   30,
+		EnableAnomalyDetection: true,
+		EnableUserBehavior:     true,
+		EnableTimePattern:      true,
+		EnableFileTypeAnalysis: true,
+		EnableNetworkBehavior:  false,
 	}
 }
 
@@ -93,20 +93,20 @@ func NewActivityMonitor(config *ActivityConfig, logger interface{}) *ActivityMon
 
 // FileActivity 文件活动事件
 type FileActivity struct {
-	ID         string        `json:"id"`
-	Path       string        `json:"path"`
-	EventType  ActivityType  `json:"eventType"`
-	User       string        `json:"user"`
-	Process    string        `json:"process"`
-	Size       int64         `json:"size"`
-	SizeChange int64         `json:"sizeChange"`
-	Timestamp  time.Time     `json:"timestamp"`
-	ClientIP   string        `json:"clientIp"`
-	Share      string        `json:"share"`
-	FileType   string        `json:"fileType"`
-	IsAnomaly  bool          `json:"isAnomaly"`
-	RiskScore  float64       `json:"riskScore"`
-	Tags       []string      `json:"tags"`
+	ID         string       `json:"id"`
+	Path       string       `json:"path"`
+	EventType  ActivityType `json:"eventType"`
+	User       string       `json:"user"`
+	Process    string       `json:"process"`
+	Size       int64        `json:"size"`
+	SizeChange int64        `json:"sizeChange"`
+	Timestamp  time.Time    `json:"timestamp"`
+	ClientIP   string       `json:"clientIp"`
+	Share      string       `json:"share"`
+	FileType   string       `json:"fileType"`
+	IsAnomaly  bool         `json:"isAnomaly"`
+	RiskScore  float64      `json:"riskScore"`
+	Tags       []string     `json:"tags"`
 }
 
 // ActivityType 活动类型
@@ -146,15 +146,15 @@ func (am *ActivityMonitor) RecordActivity(activity *FileActivity) error {
 		// 如果检测到异常，生成告警
 		if activity.IsAnomaly {
 			am.alertManager.CreateAlert(&AnomalyAlert{
-				ID:         activity.ID,
-				Type:       anomalyResult.Type,
-				Severity:   anomalyResult.Severity,
-				Path:       activity.Path,
-				User:       activity.User,
-				Timestamp:  activity.Timestamp,
-				RiskScore:  activity.RiskScore,
-				Details:    anomalyResult.Details,
-				Tags:       activity.Tags,
+				ID:        activity.ID,
+				Type:      anomalyResult.Type,
+				Severity:  anomalyResult.Severity,
+				Path:      activity.Path,
+				User:      activity.User,
+				Timestamp: activity.Timestamp,
+				RiskScore: activity.RiskScore,
+				Details:   anomalyResult.Details,
+				Tags:      activity.Tags,
 			})
 		}
 	}
@@ -199,30 +199,30 @@ func (am *ActivityMonitor) GetStatistics() *ActivityStatistics {
 
 // ActivityFilter 活动过滤条件
 type ActivityFilter struct {
-	Path       string        `json:"path"`
-	User       string        `json:"user"`
-	EventTypes []ActivityType `json:"eventTypes"`
-	StartTime  time.Time     `json:"startTime"`
-	EndTime    time.Time     `json:"endTime"`
-	IsAnomaly  bool          `json:"isAnomaly"`
-	MinRiskScore float64     `json:"minRiskScore"`
-	FileType   string        `json:"fileType"`
-	Limit      int           `json:"limit"`
+	Path         string         `json:"path"`
+	User         string         `json:"user"`
+	EventTypes   []ActivityType `json:"eventTypes"`
+	StartTime    time.Time      `json:"startTime"`
+	EndTime      time.Time      `json:"endTime"`
+	IsAnomaly    bool           `json:"isAnomaly"`
+	MinRiskScore float64        `json:"minRiskScore"`
+	FileType     string         `json:"fileType"`
+	Limit        int            `json:"limit"`
 }
 
 // ActivityStatistics 活动统计
 type ActivityStatistics struct {
-	TotalActivities   int64             `json:"totalActivities"`
-	AnomalyCount      int64             `json:"anomalyCount"`
-	AlertCount        int64             `json:"alertCount"`
-	EventCounts       map[string]int64  `json:"eventCounts"`
-	UserActivity      map[string]int64  `json:"userActivity"`
-	FileTypeActivity  map[string]int64  `json:"fileTypeActivity"`
-	HourlyActivity    map[int]int64     `json:"hourlyActivity"`
-	TopPaths          []PathActivity    `json:"topPaths"`
-	TopUsers          []UserActivity    `json:"topUsers"`
-	LastHourRate      int64             `json:"lastHourRate"`
-	AvgDailyRate      float64           `json:"avgDailyRate"`
+	TotalActivities  int64            `json:"totalActivities"`
+	AnomalyCount     int64            `json:"anomalyCount"`
+	AlertCount       int64            `json:"alertCount"`
+	EventCounts      map[string]int64 `json:"eventCounts"`
+	UserActivity     map[string]int64 `json:"userActivity"`
+	FileTypeActivity map[string]int64 `json:"fileTypeActivity"`
+	HourlyActivity   map[int]int64    `json:"hourlyActivity"`
+	TopPaths         []PathActivity   `json:"topPaths"`
+	TopUsers         []UserActivity   `json:"topUsers"`
+	LastHourRate     int64            `json:"lastHourRate"`
+	AvgDailyRate     float64          `json:"avgDailyRate"`
 }
 
 // PathActivity 路径活动统计
@@ -233,8 +233,8 @@ type PathActivity struct {
 
 // UserActivity 用户活动统计
 type UserActivity struct {
-	User        string `json:"user"`
-	Count       int64  `json:"count"`
+	User        string  `json:"user"`
+	Count       int64   `json:"count"`
 	AnomalyRate float64 `json:"anomalyRate"`
 }
 
@@ -251,7 +251,7 @@ func NewActivityTracker(maxRecords int) *ActivityTracker {
 	return &ActivityTracker{
 		records:    make([]*FileActivity, 0),
 		maxRecords: maxRecords,
-		stats:      &ActivityStatistics{
+		stats: &ActivityStatistics{
 			EventCounts:      make(map[string]int64),
 			UserActivity:     make(map[string]int64),
 			FileTypeActivity: make(map[string]int64),
@@ -377,21 +377,21 @@ func (t *ActivityTracker) GetStatistics() *ActivityStatistics {
 
 // AnomalyDetector 异常检测器
 type AnomalyDetector struct {
-	config     *ActivityConfig
-	patterns   map[string]*BehaviorPattern
-	rules      []*AnomalyRule
-	stats      *DetectionStats
-	mu         sync.RWMutex
+	config   *ActivityConfig
+	patterns map[string]*BehaviorPattern
+	rules    []*AnomalyRule
+	stats    *DetectionStats
+	mu       sync.RWMutex
 }
 
 // BehaviorPattern 行为模式
 type BehaviorPattern struct {
-	User       string                `json:"user"`
-	Path       string                `json:"path"`
-	NormalEvents map[string]int      `json:"normalEvents"` // 正常事件频率
-	TimePatterns  map[int]int        `json:"timePatterns"` // 时间模式
-	FileTypes     map[string]int     `json:"fileTypes"`    // 常用文件类型
-	LastUpdate    time.Time          `json:"lastUpdate"`
+	User         string         `json:"user"`
+	Path         string         `json:"path"`
+	NormalEvents map[string]int `json:"normalEvents"` // 正常事件频率
+	TimePatterns map[int]int    `json:"timePatterns"` // 时间模式
+	FileTypes    map[string]int `json:"fileTypes"`    // 常用文件类型
+	LastUpdate   time.Time      `json:"lastUpdate"`
 }
 
 // AnomalyRule 异常规则
@@ -409,15 +409,15 @@ type AnomalyRule struct {
 type AnomalyType string
 
 const (
-	AnomalyHighFrequency    AnomalyType = "high_frequency"     // 高频操作
-	AnomalyUnusualTime      AnomalyType = "unusual_time"       // 异常时间
-	AnomalySuspiciousFile   AnomalyType = "suspicious_file"    // 可疑文件
-	AnomalyMassDelete       AnomalyType = "mass_delete"        // 大量删除
-	AnomalyMassModify       AnomalyType = "mass_modify"        // 大量修改
-	AnomalyRansomware       AnomalyType = "ransomware"         // 勒索软件行为
-	AnomalyDataExfiltration AnomalyType = "data_exfiltration"  // 数据外泄
-	AnomalyUnauthorized     AnomalyType = "unauthorized"       // 未授权访问
-	AnomalyAbnormalPath     AnomalyType = "abnormal_path"      // 异常路径
+	AnomalyHighFrequency    AnomalyType = "high_frequency"    // 高频操作
+	AnomalyUnusualTime      AnomalyType = "unusual_time"      // 异常时间
+	AnomalySuspiciousFile   AnomalyType = "suspicious_file"   // 可疑文件
+	AnomalyMassDelete       AnomalyType = "mass_delete"       // 大量删除
+	AnomalyMassModify       AnomalyType = "mass_modify"       // 大量修改
+	AnomalyRansomware       AnomalyType = "ransomware"        // 勒索软件行为
+	AnomalyDataExfiltration AnomalyType = "data_exfiltration" // 数据外泄
+	AnomalyUnauthorized     AnomalyType = "unauthorized"      // 未授权访问
+	AnomalyAbnormalPath     AnomalyType = "abnormal_path"     // 异常路径
 )
 
 // AlertSeverity 告警严重性
@@ -436,7 +436,7 @@ func NewAnomalyDetector(config *ActivityConfig) *AnomalyDetector {
 		config:   config,
 		patterns: make(map[string]*BehaviorPattern),
 		rules:    DefaultAnomalyRules(),
-		stats:    &DetectionStats{
+		stats: &DetectionStats{
 			DetectionCounts: make(map[string]int64),
 		},
 	}
@@ -506,21 +506,21 @@ func DefaultAnomalyRules() []*AnomalyRule {
 
 // DetectionStats 检测统计
 type DetectionStats struct {
-	TotalDetected    int64            `json:"totalDetected"`
-	AnomalyCount     int64            `json:"anomalyCount"`
-	DetectionCounts  map[string]int64 `json:"detectionCounts"`
-	LastDetection    time.Time        `json:"lastDetection"`
+	TotalDetected   int64            `json:"totalDetected"`
+	AnomalyCount    int64            `json:"anomalyCount"`
+	DetectionCounts map[string]int64 `json:"detectionCounts"`
+	LastDetection   time.Time        `json:"lastDetection"`
 }
 
 // AnomalyResult 异常检测结果
 type AnomalyResult struct {
-	IsAnomaly  bool          `json:"isAnomaly"`
-	Type       AnomalyType   `json:"type"`
-	Severity   AlertSeverity `json:"severity"`
-	RiskScore  float64       `json:"riskScore"`
-	Details    string        `json:"details"`
-	Tags       []string      `json:"tags"`
-	RuleID     string        `json:"ruleId"`
+	IsAnomaly bool          `json:"isAnomaly"`
+	Type      AnomalyType   `json:"type"`
+	Severity  AlertSeverity `json:"severity"`
+	RiskScore float64       `json:"riskScore"`
+	Details   string        `json:"details"`
+	Tags      []string      `json:"tags"`
+	RuleID    string        `json:"ruleId"`
 }
 
 // DetectAnomaly 检测异常行为
@@ -700,9 +700,9 @@ func (ad *AnomalyDetector) RemoveRule(ruleID string) {
 
 // AlertManager 告警管理器
 type AlertManager struct {
-	alerts   []*AnomalyAlert
+	alerts    []*AnomalyAlert
 	maxAlerts int
-	mu       sync.RWMutex
+	mu        sync.RWMutex
 }
 
 // NewAlertManager 创建告警管理器
@@ -732,8 +732,8 @@ type AnomalyAlert struct {
 type AlertStatus string
 
 const (
-	AlertActive   AlertStatus = "active"
-	AlertCleared  AlertStatus = "cleared"
+	AlertActive       AlertStatus = "active"
+	AlertCleared      AlertStatus = "cleared"
 	AlertAcknowledged AlertStatus = "acknowledged"
 )
 

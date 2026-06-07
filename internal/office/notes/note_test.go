@@ -501,7 +501,7 @@ func TestStore_Tags(t *testing.T) {
 
 	t.Run("获取所有标签", func(t *testing.T) {
 		tags := store.GetAllTags()
-		assert.Equal(t, 2, tags["go"])    // Go出现在2个笔记中（大小写不敏感，存储为小写）
+		assert.Equal(t, 2, tags["go"]) // Go出现在2个笔记中（大小写不敏感，存储为小写）
 		assert.Equal(t, 1, tags["nas"])
 		assert.Equal(t, 1, tags["docker"])
 	})

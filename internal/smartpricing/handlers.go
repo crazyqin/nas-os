@@ -48,8 +48,8 @@ func (h *Handler) GetPlans(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
-			"plans":       plans,
-			"total":       len(plans),
+			"plans":        plans,
+			"total":        len(plans),
 			"generated_at": time.Now(),
 		},
 	})

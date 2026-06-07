@@ -1,6 +1,7 @@
 // Package sharelinks 提供文件共享链接增强功能
 // 支持：公开/私有/加密链接、密码保护、过期时间、访问统计、
-//       批量分享、短链接、预览、二维码、防盗链等
+//
+//	批量分享、短链接、预览、二维码、防盗链等
 package sharelinks
 
 import (
@@ -12,8 +13,8 @@ import (
 type LinkType string
 
 const (
-	LinkTypePublic  LinkType = "public"  // 公开链接
-	LinkTypePrivate LinkType = "private" // 私有链接（需登录）
+	LinkTypePublic    LinkType = "public"    // 公开链接
+	LinkTypePrivate   LinkType = "private"   // 私有链接（需登录）
 	LinkTypeEncrypted LinkType = "encrypted" // 加密链接（需密码）
 )
 
@@ -30,33 +31,33 @@ const (
 
 // ShareLink 共享链接
 type ShareLink struct {
-	ID              string      `json:"id"`
-	ShortCode       string      `json:"shortCode"`       // Base62短码
-	Path            string      `json:"path"`            // 文件/目录路径
-	Name            string      `json:"name"`            // 显示名称
-	Type            LinkType    `json:"type"`            // 链接类型
-	Token           string      `json:"token"`           // 访问令牌
-	Password        string      `json:"password,omitempty"` // 访问密码
-	MaxDownloads    int         `json:"maxDownloads"`    // 最大下载次数（0=不限）
-	DownloadCount   int         `json:"downloadCount"`   // 已下载次数
-	ExpiresAt       *time.Time  `json:"expiresAt"`       // 过期时间
-	CreatedBy       string      `json:"createdBy"`       // 创建者
-	CreatedAt       time.Time   `json:"createdAt"`       // 创建时间
-	UpdatedAt       time.Time   `json:"updatedAt"`       // 更新时间
-	IsActive        bool        `json:"isActive"`        // 是否启用
-	Description     string      `json:"description"`     // 描述
-	Tags            []string    `json:"tags"`            // 标签
-	PreviewType     PreviewType `json:"previewType"`     // 预览类型
-	RefererWhitelist []string   `json:"refererWhitelist,omitempty"` // Referer白名单
+	ID               string      `json:"id"`
+	ShortCode        string      `json:"shortCode"`                  // Base62短码
+	Path             string      `json:"path"`                       // 文件/目录路径
+	Name             string      `json:"name"`                       // 显示名称
+	Type             LinkType    `json:"type"`                       // 链接类型
+	Token            string      `json:"token"`                      // 访问令牌
+	Password         string      `json:"password,omitempty"`         // 访问密码
+	MaxDownloads     int         `json:"maxDownloads"`               // 最大下载次数（0=不限）
+	DownloadCount    int         `json:"downloadCount"`              // 已下载次数
+	ExpiresAt        *time.Time  `json:"expiresAt"`                  // 过期时间
+	CreatedBy        string      `json:"createdBy"`                  // 创建者
+	CreatedAt        time.Time   `json:"createdAt"`                  // 创建时间
+	UpdatedAt        time.Time   `json:"updatedAt"`                  // 更新时间
+	IsActive         bool        `json:"isActive"`                   // 是否启用
+	Description      string      `json:"description"`                // 描述
+	Tags             []string    `json:"tags"`                       // 标签
+	PreviewType      PreviewType `json:"previewType"`                // 预览类型
+	RefererWhitelist []string    `json:"refererWhitelist,omitempty"` // Referer白名单
 
 	// 批量分享相关
-	IsBatch         bool     `json:"isBatch"`         // 是否批量分享
-	BatchPaths      []string `json:"batchPaths,omitempty"` // 批量路径列表
+	IsBatch    bool     `json:"isBatch"`              // 是否批量分享
+	BatchPaths []string `json:"batchPaths,omitempty"` // 批量路径列表
 
 	// 访问统计
-	AccessLog       []AccessEntry `json:"accessLog"`
-	UniqueVisitors  int           `json:"uniqueVisitors"` // 独立访客数
-	LastAccessedAt  *time.Time    `json:"lastAccessedAt"` // 最后访问时间
+	AccessLog      []AccessEntry `json:"accessLog"`
+	UniqueVisitors int           `json:"uniqueVisitors"` // 独立访客数
+	LastAccessedAt *time.Time    `json:"lastAccessedAt"` // 最后访问时间
 }
 
 // AccessEntry 访问记录
@@ -70,13 +71,13 @@ type AccessEntry struct {
 
 // ShareStats 共享统计
 type ShareStats struct {
-	TotalLinks      int   `json:"totalLinks"`
-	ActiveLinks     int   `json:"activeLinks"`
-	ExpiredLinks    int   `json:"expiredLinks"`
-	DisabledLinks   int   `json:"disabledLinks"`
-	TotalDownloads  int64 `json:"totalDownloads"`
-	TotalViews      int64 `json:"totalViews"`
-	TotalPreviews   int64 `json:"totalPreviews"`
+	TotalLinks     int   `json:"totalLinks"`
+	ActiveLinks    int   `json:"activeLinks"`
+	ExpiredLinks   int   `json:"expiredLinks"`
+	DisabledLinks  int   `json:"disabledLinks"`
+	TotalDownloads int64 `json:"totalDownloads"`
+	TotalViews     int64 `json:"totalViews"`
+	TotalPreviews  int64 `json:"totalPreviews"`
 }
 
 // LinkConfig 链接配置

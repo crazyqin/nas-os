@@ -530,11 +530,11 @@ func (h *Handlers) systemStatus(c *gin.Context) {
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
-			"status":     "running",
-			"uptime":     "72h30m",
-			"cpuUsage":   25.5,
-			"memUsage":   45.2,
-			"diskUsage":  68.7,
+			"status":    "running",
+			"uptime":    "72h30m",
+			"cpuUsage":  25.5,
+			"memUsage":  45.2,
+			"diskUsage": 68.7,
 		},
 	})
 }

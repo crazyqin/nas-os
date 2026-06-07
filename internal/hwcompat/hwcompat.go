@@ -9,117 +9,117 @@ import (
 
 // HWCompatChecker 硬件兼容性检测器
 type HWCompatChecker struct {
-	mu              sync.RWMutex
-	hardware        *HardwareInfo
-	drivers         map[string]*DriverInfo
-	compatRules     []*CompatRule
-	reports         map[string]*CompatReport
-	tempMonitor     *TempMonitor
-	stopChan        chan struct{}
+	mu          sync.RWMutex
+	hardware    *HardwareInfo
+	drivers     map[string]*DriverInfo
+	compatRules []*CompatRule
+	reports     map[string]*CompatReport
+	tempMonitor *TempMonitor
+	stopChan    chan struct{}
 }
 
 // HardwareInfo 硬件信息
 type HardwareInfo struct {
-	CPU       *CPUInfo       `json:"cpu"`
-	Memory    *MemoryInfo    `json:"memory"`
-	Disks     []*DiskInfo    `json:"disks"`
-	Network   []*NetworkInfo `json:"network"`
-	GPU       []*GPUInfo     `json:"gpu"`
+	CPU         *CPUInfo         `json:"cpu"`
+	Memory      *MemoryInfo      `json:"memory"`
+	Disks       []*DiskInfo      `json:"disks"`
+	Network     []*NetworkInfo   `json:"network"`
+	GPU         []*GPUInfo       `json:"gpu"`
 	Motherboard *MotherboardInfo `json:"motherboard"`
-	Timestamp time.Time      `json:"timestamp"`
+	Timestamp   time.Time        `json:"timestamp"`
 }
 
 // CPUInfo CPU 信息
 type CPUInfo struct {
-	Model       string  `json:"model"`
-	Vendor      string  `json:"vendor"`
-	Cores       int     `json:"cores"`
-	Threads     int     `json:"threads"`
-	Frequency   float64 `json:"frequency"`     // GHz
-	CacheSize   int64   `json:"cache_size"`    // bytes
+	Model       string   `json:"model"`
+	Vendor      string   `json:"vendor"`
+	Cores       int      `json:"cores"`
+	Threads     int      `json:"threads"`
+	Frequency   float64  `json:"frequency"`  // GHz
+	CacheSize   int64    `json:"cache_size"` // bytes
 	Flags       []string `json:"flags"`
-	VTEnabled   bool    `json:"vt_enabled"`   // 虚拟化支持
-	AESNI       bool    `json:"aes_ni"`       // AES-NI 支持
-	Temperature float64 `json:"temperature"`
+	VTEnabled   bool     `json:"vt_enabled"` // 虚拟化支持
+	AESNI       bool     `json:"aes_ni"`     // AES-NI 支持
+	Temperature float64  `json:"temperature"`
 }
 
 // MemoryInfo 内存信息
 type MemoryInfo struct {
-	Total       int64          `json:"total"`
-	Used        int64          `json:"used"`
-	Free        int64          `json:"free"`
-	Buffers     int64          `json:"buffers"`
-	Cached      int64          `json:"cached"`
-	Modules     []*MemoryModule `json:"modules"`
-	ECC         bool           `json:"ecc"`
+	Total   int64           `json:"total"`
+	Used    int64           `json:"used"`
+	Free    int64           `json:"free"`
+	Buffers int64           `json:"buffers"`
+	Cached  int64           `json:"cached"`
+	Modules []*MemoryModule `json:"modules"`
+	ECC     bool            `json:"ecc"`
 }
 
 // MemoryModule 内存模块
 type MemoryModule struct {
-	Slot     string `json:"slot"`
-	Size     int64  `json:"size"`
-	Type     string `json:"type"`     // DDR4, DDR5
-	Speed    int    `json:"speed"`    // MHz
+	Slot         string `json:"slot"`
+	Size         int64  `json:"size"`
+	Type         string `json:"type"`  // DDR4, DDR5
+	Speed        int    `json:"speed"` // MHz
 	Manufacturer string `json:"manufacturer"`
-	PartNumber string `json:"part_number"`
+	PartNumber   string `json:"part_number"`
 }
 
 // DiskInfo 磁盘信息
 type DiskInfo struct {
-	ID              string       `json:"id"`
-	Name            string       `json:"name"`
-	Path            string       `json:"path"`
-	Model           string       `json:"model"`
-	Serial          string       `json:"serial"`
-	Size            int64        `json:"size"`
-	Type            string       `json:"type"`     // ssd, hdd, nvme
-	Interface       string       `json:"interface"` // sata, sas, nvme
-	RotationSpeed   int          `json:"rotation_speed"`
-	Temperature     float64      `json:"temperature"`
-	PowerOnHours    int64        `json:"power_on_hours"`
-	SMARTStatus     SMARTStatus  `json:"smart_status"`
-	Partitions      []*Partition `json:"partitions"`
+	ID            string       `json:"id"`
+	Name          string       `json:"name"`
+	Path          string       `json:"path"`
+	Model         string       `json:"model"`
+	Serial        string       `json:"serial"`
+	Size          int64        `json:"size"`
+	Type          string       `json:"type"`      // ssd, hdd, nvme
+	Interface     string       `json:"interface"` // sata, sas, nvme
+	RotationSpeed int          `json:"rotation_speed"`
+	Temperature   float64      `json:"temperature"`
+	PowerOnHours  int64        `json:"power_on_hours"`
+	SMARTStatus   SMARTStatus  `json:"smart_status"`
+	Partitions    []*Partition `json:"partitions"`
 }
 
 // SMARTStatus SMART 状态
 type SMARTStatus struct {
-	Healthy             bool  `json:"healthy"`
-	ReallocatedSectors  int64 `json:"reallocated_sectors"`
-	PendingSectors      int64 `json:"pending_sectors"`
+	Healthy              bool  `json:"healthy"`
+	ReallocatedSectors   int64 `json:"reallocated_sectors"`
+	PendingSectors       int64 `json:"pending_sectors"`
 	OfflineUncorrectable int64 `json:"offline_uncorrectable"`
 }
 
 // Partition 分区
 type Partition struct {
-	Name   string `json:"name"`
-	Start  int64  `json:"start"`
-	Size   int64  `json:"size"`
-	Type   string `json:"type"`
-	UUID   string `json:"uuid"`
+	Name  string `json:"name"`
+	Start int64  `json:"start"`
+	Size  int64  `json:"size"`
+	Type  string `json:"type"`
+	UUID  string `json:"uuid"`
 }
 
 // NetworkInfo 网卡信息
 type NetworkInfo struct {
-	Name         string   `json:"name"`
-	MAC          string   `json:"mac"`
-	IP           []string `json:"ip"`
-	Speed        int      `json:"speed"`      // Mbps
-	Driver       string   `json:"driver"`
-	Manufacturer string   `json:"manufacturer"`
-	Model        string   `json:"model"`
-	LinkUp       bool     `json:"link_up"`
-	RingBufferSize int    `json:"ring_buffer_size"`
+	Name           string   `json:"name"`
+	MAC            string   `json:"mac"`
+	IP             []string `json:"ip"`
+	Speed          int      `json:"speed"` // Mbps
+	Driver         string   `json:"driver"`
+	Manufacturer   string   `json:"manufacturer"`
+	Model          string   `json:"model"`
+	LinkUp         bool     `json:"link_up"`
+	RingBufferSize int      `json:"ring_buffer_size"`
 }
 
 // GPUInfo GPU 信息
 type GPUInfo struct {
-	Name         string `json:"name"`
-	Vendor       string `json:"vendor"`
-	Memory       int64  `json:"memory"`
-	Driver       string `json:"driver"`
-	PCIID        string `json:"pci_id"`
-	Temperature  float64 `json:"temperature"`
-	PowerUsage   int    `json:"power_usage"`
+	Name        string  `json:"name"`
+	Vendor      string  `json:"vendor"`
+	Memory      int64   `json:"memory"`
+	Driver      string  `json:"driver"`
+	PCIID       string  `json:"pci_id"`
+	Temperature float64 `json:"temperature"`
+	PowerUsage  int     `json:"power_usage"`
 }
 
 // MotherboardInfo 主板信息
@@ -135,12 +135,12 @@ type MotherboardInfo struct {
 
 // DriverInfo 驱动信息
 type DriverInfo struct {
-	Name        string `json:"name"`
-	Version     string `json:"version"`
-	Device      string `json:"device"`
-	Status      DriverStatus `json:"status"`
-	Loaded      bool   `json:"loaded"`
-	Kernel      string `json:"kernel"`
+	Name    string       `json:"name"`
+	Version string       `json:"version"`
+	Device  string       `json:"device"`
+	Status  DriverStatus `json:"status"`
+	Loaded  bool         `json:"loaded"`
+	Kernel  string       `json:"kernel"`
 }
 
 // DriverStatus 驱动状态
@@ -155,11 +155,11 @@ const (
 
 // CompatRule 兼容性规则
 type CompatRule struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Category    CompatCategory `json:"category"`
-	Severity    CompatSeverity `json:"severity"`
+	ID          string                           `json:"id"`
+	Name        string                           `json:"name"`
+	Description string                           `json:"description"`
+	Category    CompatCategory                   `json:"category"`
+	Severity    CompatSeverity                   `json:"severity"`
 	Validator   func(*HardwareInfo) *CompatIssue `json:"-"`
 }
 
@@ -167,12 +167,12 @@ type CompatRule struct {
 type CompatCategory string
 
 const (
-	CategoryCPU    CompatCategory = "cpu"
-	CategoryMemory CompatCategory = "memory"
-	CategoryDisk   CompatCategory = "disk"
+	CategoryCPU     CompatCategory = "cpu"
+	CategoryMemory  CompatCategory = "memory"
+	CategoryDisk    CompatCategory = "disk"
 	CategoryNetwork CompatCategory = "network"
-	CategoryGPU    CompatCategory = "gpu"
-	CategorySystem CompatCategory = "system"
+	CategoryGPU     CompatCategory = "gpu"
+	CategorySystem  CompatCategory = "system"
 )
 
 // CompatSeverity 兼容性严重程度
@@ -187,74 +187,74 @@ const (
 
 // CompatIssue 兼容性问题
 type CompatIssue struct {
-	RuleID      string         `json:"rule_id"`
-	RuleName    string         `json:"rule_name"`
-	Category    CompatCategory `json:"category"`
-	Severity    CompatSeverity `json:"severity"`
-	Message     string         `json:"message"`
-	Suggestion  string         `json:"suggestion,omitempty"`
-	Timestamp   time.Time      `json:"timestamp"`
+	RuleID     string         `json:"rule_id"`
+	RuleName   string         `json:"rule_name"`
+	Category   CompatCategory `json:"category"`
+	Severity   CompatSeverity `json:"severity"`
+	Message    string         `json:"message"`
+	Suggestion string         `json:"suggestion,omitempty"`
+	Timestamp  time.Time      `json:"timestamp"`
 }
 
 // CompatReport 兼容性报告
 type CompatReport struct {
-	ID              string          `json:"id"`
-	Hardware        *HardwareInfo   `json:"hardware"`
-	Score           float64         `json:"score"`        // 0-100
-	PerformanceLevel string         `json:"performance_level"`
-	Issues          []*CompatIssue  `json:"issues"`
-	DriverStatus    map[string]*DriverInfo `json:"driver_status"`
-	Temperature     *TempStatus     `json:"temperature"`
-	Recommendations []string        `json:"recommendations"`
-	Timestamp       time.Time       `json:"timestamp"`
+	ID               string                 `json:"id"`
+	Hardware         *HardwareInfo          `json:"hardware"`
+	Score            float64                `json:"score"` // 0-100
+	PerformanceLevel string                 `json:"performance_level"`
+	Issues           []*CompatIssue         `json:"issues"`
+	DriverStatus     map[string]*DriverInfo `json:"driver_status"`
+	Temperature      *TempStatus            `json:"temperature"`
+	Recommendations  []string               `json:"recommendations"`
+	Timestamp        time.Time              `json:"timestamp"`
 }
 
 // TempMonitor 温度监控器
 type TempMonitor struct {
-	mu          sync.RWMutex
-	sensors     map[string]*TempSensor
-	thresholds  *TempThresholds
-	alerts      []*TempAlert
+	mu         sync.RWMutex
+	sensors    map[string]*TempSensor
+	thresholds *TempThresholds
+	alerts     []*TempAlert
 }
 
 // TempSensor 温度传感器
 type TempSensor struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Type        string    `json:"type"`   // cpu, disk, gpu, system
-	Current     float64   `json:"current"`
-	Min         float64   `json:"min"`
-	Max         float64   `json:"max"`
-	Critical    float64   `json:"critical"`
-	Timestamp   time.Time `json:"timestamp"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Type      string    `json:"type"` // cpu, disk, gpu, system
+	Current   float64   `json:"current"`
+	Min       float64   `json:"min"`
+	Max       float64   `json:"max"`
+	Critical  float64   `json:"critical"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // TempStatus 温度状态
 type TempStatus struct {
-	CPU    float64 `json:"cpu"`
+	CPU     float64 `json:"cpu"`
 	MaxDisk float64 `json:"max_disk"`
-	GPU    float64 `json:"gpu"`
-	System float64 `json:"system"`
-	Status string  `json:"status"`
+	GPU     float64 `json:"gpu"`
+	System  float64 `json:"system"`
+	Status  string  `json:"status"`
 }
 
 // TempThresholds 温度阈值
 type TempThresholds struct {
-	CPUWarning    float64 `json:"cpu_warning"`
-	CPUCritical   float64 `json:"cpu_critical"`
-	DiskWarning   float64 `json:"disk_warning"`
-	DiskCritical  float64 `json:"disk_critical"`
-	GPUWarning    float64 `json:"gpu_warning"`
-	GPUCritical   float64 `json:"gpu_critical"`
+	CPUWarning   float64 `json:"cpu_warning"`
+	CPUCritical  float64 `json:"cpu_critical"`
+	DiskWarning  float64 `json:"disk_warning"`
+	DiskCritical float64 `json:"disk_critical"`
+	GPUWarning   float64 `json:"gpu_warning"`
+	GPUCritical  float64 `json:"gpu_critical"`
 }
 
 // TempAlert 温度告警
 type TempAlert struct {
-	SensorID  string    `json:"sensor_id"`
-	SensorName string   `json:"sensor_name"`
-	Threshold float64   `json:"threshold"`
-	Current   float64   `json:"current"`
-	Timestamp time.Time `json:"timestamp"`
+	SensorID   string    `json:"sensor_id"`
+	SensorName string    `json:"sensor_name"`
+	Threshold  float64   `json:"threshold"`
+	Current    float64   `json:"current"`
+	Timestamp  time.Time `json:"timestamp"`
 }
 
 // NewHWCompatChecker 创建硬件兼容性检测器
@@ -294,11 +294,11 @@ func (c *HWCompatChecker) initDefaultRules() {
 			Validator: func(hw *HardwareInfo) *CompatIssue {
 				if hw.CPU != nil && hw.CPU.Cores < 4 {
 					return &CompatIssue{
-						RuleID:   "cpu_cores",
-						RuleName: "CPU 核心数检查",
-						Category: CategoryCPU,
-						Severity: SeverityWarning,
-						Message:  fmt.Sprintf("CPU 核心数不足: %d 核 (建议至少 4 核)", hw.CPU.Cores),
+						RuleID:     "cpu_cores",
+						RuleName:   "CPU 核心数检查",
+						Category:   CategoryCPU,
+						Severity:   SeverityWarning,
+						Message:    fmt.Sprintf("CPU 核心数不足: %d 核 (建议至少 4 核)", hw.CPU.Cores),
 						Suggestion: "建议使用 4 核心以上的 CPU",
 					}
 				}
@@ -314,11 +314,11 @@ func (c *HWCompatChecker) initDefaultRules() {
 			Validator: func(hw *HardwareInfo) *CompatIssue {
 				if hw.Memory != nil && hw.Memory.Total < 8*1024*1024*1024 {
 					return &CompatIssue{
-						RuleID:   "memory_size",
-						RuleName: "内存大小检查",
-						Category: CategoryMemory,
-						Severity: SeverityWarning,
-						Message:  fmt.Sprintf("内存不足: %d GB (建议至少 8 GB)", hw.Memory.Total/1024/1024/1024),
+						RuleID:     "memory_size",
+						RuleName:   "内存大小检查",
+						Category:   CategoryMemory,
+						Severity:   SeverityWarning,
+						Message:    fmt.Sprintf("内存不足: %d GB (建议至少 8 GB)", hw.Memory.Total/1024/1024/1024),
 						Suggestion: "建议增加内存到 8GB 以上",
 					}
 				}
@@ -334,11 +334,11 @@ func (c *HWCompatChecker) initDefaultRules() {
 			Validator: func(hw *HardwareInfo) *CompatIssue {
 				if len(hw.Disks) < 2 {
 					return &CompatIssue{
-						RuleID:   "disk_count",
-						RuleName: "磁盘数量检查",
-						Category: CategoryDisk,
-						Severity: SeverityInfo,
-						Message:  fmt.Sprintf("磁盘数量不足: %d 块 (建议至少 2 块)", len(hw.Disks)),
+						RuleID:     "disk_count",
+						RuleName:   "磁盘数量检查",
+						Category:   CategoryDisk,
+						Severity:   SeverityInfo,
+						Message:    fmt.Sprintf("磁盘数量不足: %d 块 (建议至少 2 块)", len(hw.Disks)),
 						Suggestion: "建议增加磁盘以实现 RAID 冗余",
 					}
 				}
@@ -354,11 +354,11 @@ func (c *HWCompatChecker) initDefaultRules() {
 			Validator: func(hw *HardwareInfo) *CompatIssue {
 				if hw.CPU != nil && !hw.CPU.VTEnabled {
 					return &CompatIssue{
-						RuleID:   "virtualization",
-						RuleName: "虚拟化支持检查",
-						Category: CategoryCPU,
-						Severity: SeverityWarning,
-						Message:  "CPU 未启用虚拟化支持",
+						RuleID:     "virtualization",
+						RuleName:   "虚拟化支持检查",
+						Category:   CategoryCPU,
+						Severity:   SeverityWarning,
+						Message:    "CPU 未启用虚拟化支持",
 						Suggestion: "建议在 BIOS 中启用 VT-x/AMD-V",
 					}
 				}

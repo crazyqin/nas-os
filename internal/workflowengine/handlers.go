@@ -658,10 +658,10 @@ func (h *WorkflowHandler) handleAuditLogs(w http.ResponseWriter, r *http.Request
 	writeJSON(w, http.StatusOK, APIResponse{
 		Success: true,
 		Data: map[string]interface{}{
-			"logs":       logs,
-			"total":      len(logs),
-			"page":       filter.Page,
-			"pageSize":   filter.PageSize,
+			"logs":     logs,
+			"total":    len(logs),
+			"page":     filter.Page,
+			"pageSize": filter.PageSize,
 		},
 	})
 }

@@ -617,10 +617,10 @@ func (m *Manager) ListAppsByCategory(category AppCategory) []*AppInfo {
 // ========== 持久化 ==========
 
 type appMarketConfig struct {
-	Apps      map[string]*AppInfo       `json:"apps"`
-	Installed map[string]*InstalledApp  `json:"installed"`
+	Apps      map[string]*AppInfo        `json:"apps"`
+	Installed map[string]*InstalledApp   `json:"installed"`
 	Reviews   map[string][]*ReviewRecord `json:"reviews"`
-	Ratings   map[string][]*Rating      `json:"ratings"`
+	Ratings   map[string][]*Rating       `json:"ratings"`
 }
 
 func (m *Manager) loadConfig() error {

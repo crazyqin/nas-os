@@ -22,15 +22,15 @@ type HealthManager struct {
 	mu sync.RWMutex
 
 	// 温度监控
-	tempConfig      TemperatureConfig
-	tempHistory     map[string][]TemperatureReading // device -> readings
-	tempAlerts      []TemperatureAlert
-	deviceStatuses  map[string]*DeviceTemperatureStatus // device -> status
+	tempConfig     TemperatureConfig
+	tempHistory    map[string][]TemperatureReading // device -> readings
+	tempAlerts     []TemperatureAlert
+	deviceStatuses map[string]*DeviceTemperatureStatus // device -> status
 
 	// 寿命预测
 	lifeConfig      LifePredictionConfig
 	lifePredictions map[string]*DeviceLifePrediction // device -> prediction
-	writePatterns   map[string]*WritePattern          // device -> pattern
+	writePatterns   map[string]*WritePattern         // device -> pattern
 
 	// 性能基准测试
 	benchResults map[string]*BenchmarkResult // id -> result

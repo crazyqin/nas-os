@@ -92,29 +92,29 @@ type VolumeMount struct {
 
 // Container LXC 容器信息.
 type Container struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Template    string         `json:"template"`
-	Status      Status         `json:"status"`
-	CreatedAt   time.Time      `json:"createdAt"`
-	UpdatedAt   time.Time      `json:"updatedAt"`
-	StartedAt   *time.Time     `json:"startedAt,omitempty"`
-	Resources   ResourceLimit  `json:"resources"`
-	Network     NetworkConfig  `json:"network"`
-	Volumes     []VolumeMount  `json:"volumes"`
-	Hostname    string         `json:"hostname"`
-	Tags        map[string]string `json:"tags"`
+	ID        string            `json:"id"`
+	Name      string            `json:"name"`
+	Template  string            `json:"template"`
+	Status    Status            `json:"status"`
+	CreatedAt time.Time         `json:"createdAt"`
+	UpdatedAt time.Time         `json:"updatedAt"`
+	StartedAt *time.Time        `json:"startedAt,omitempty"`
+	Resources ResourceLimit     `json:"resources"`
+	Network   NetworkConfig     `json:"network"`
+	Volumes   []VolumeMount     `json:"volumes"`
+	Hostname  string            `json:"hostname"`
+	Tags      map[string]string `json:"tags"`
 }
 
 // CreateRequest 创建容器请求.
 type CreateRequest struct {
-	Name     string            `json:"name"`
-	Template string            `json:"template"`
-	Hostname string            `json:"hostname"`
-	Resources ResourceLimit    `json:"resources"`
-	Network  NetworkConfig     `json:"network"`
-	Volumes  []VolumeMount     `json:"volumes"`
-	Tags     map[string]string `json:"tags"`
+	Name      string            `json:"name"`
+	Template  string            `json:"template"`
+	Hostname  string            `json:"hostname"`
+	Resources ResourceLimit     `json:"resources"`
+	Network   NetworkConfig     `json:"network"`
+	Volumes   []VolumeMount     `json:"volumes"`
+	Tags      map[string]string `json:"tags"`
 }
 
 // Template 容器模板.

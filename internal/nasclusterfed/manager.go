@@ -12,18 +12,18 @@ import (
 
 // Manager 联邦集群管理器
 type Manager struct {
-	mu            sync.RWMutex
-	clusters      map[string]*Cluster
-	syncTasks     map[string]*SyncTask
-	syncPolicies  map[string]*SyncPolicy
-	metrics       map[string]*ClusterMetrics
-	events        []FederationEvent
-	dataDir       string
-	syncInterval  time.Duration
-	stopChan      chan struct{}
-	running       bool
-	subscribers   []chan *FederationEvent
-	loadBalancer  *LoadBalancerConfig
+	mu              sync.RWMutex
+	clusters        map[string]*Cluster
+	syncTasks       map[string]*SyncTask
+	syncPolicies    map[string]*SyncPolicy
+	metrics         map[string]*ClusterMetrics
+	events          []FederationEvent
+	dataDir         string
+	syncInterval    time.Duration
+	stopChan        chan struct{}
+	running         bool
+	subscribers     []chan *FederationEvent
+	loadBalancer    *LoadBalancerConfig
 	discoveryMethod DiscoveryMethod
 }
 
@@ -300,10 +300,10 @@ func (m *Manager) GetFederationStatus() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"totalClusters":  totalClusters,
-		"onlineClusters": onlineClusters,
-		"totalNodes":     totalNodes,
-		"activeSyncs":    len(m.syncTasks),
+		"totalClusters":   totalClusters,
+		"onlineClusters":  onlineClusters,
+		"totalNodes":      totalNodes,
+		"activeSyncs":     len(m.syncTasks),
 		"discoveryMethod": m.discoveryMethod,
 	}
 }

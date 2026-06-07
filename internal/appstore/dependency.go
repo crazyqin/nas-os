@@ -20,11 +20,11 @@ func NewDependencyResolver(catalog *Catalog) *DependencyResolver {
 
 // ResolveResult 解析结果
 type ResolveResult struct {
-	Resolved   []string          `json:"resolved"`   // 需要安装的依赖（拓扑排序）
-	Conflicts  []Conflict        `json:"conflicts"`  // 冲突列表
-	Warnings   []string          `json:"warnings"`   // 警告信息
-	TotalApps  int               `json:"totalApps"`  // 总需安装数量（含目标应用）
-	InstallOrder []string        `json:"installOrder"` // 推荐安装顺序
+	Resolved     []string   `json:"resolved"`     // 需要安装的依赖（拓扑排序）
+	Conflicts    []Conflict `json:"conflicts"`    // 冲突列表
+	Warnings     []string   `json:"warnings"`     // 警告信息
+	TotalApps    int        `json:"totalApps"`    // 总需安装数量（含目标应用）
+	InstallOrder []string   `json:"installOrder"` // 推荐安装顺序
 }
 
 // Conflict 冲突定义
@@ -349,7 +349,7 @@ func (dr *DependencyResolver) GetDependencyGraph(appID string) *DependencyGraph 
 // DependencyGraph 依赖关系图
 type DependencyGraph struct {
 	Root    string              `json:"root"`
-	Deps    map[string][]string `json:"deps"`    // appID -> [depIDs]
+	Deps    map[string][]string `json:"deps"` // appID -> [depIDs]
 	Visited map[string]bool     `json:"-"`
 }
 

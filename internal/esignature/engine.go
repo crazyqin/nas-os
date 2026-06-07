@@ -9,13 +9,13 @@ import (
 
 // Engine 签名引擎.
 type Engine struct {
-	mu          sync.RWMutex
-	documents   map[string]*Document
-	certs       map[string]*Certificate
-	workflows   map[string]*Workflow
-	templates   map[string]*Template
-	auditLog    []AuditEntry
-	idCounter   int64
+	mu        sync.RWMutex
+	documents map[string]*Document
+	certs     map[string]*Certificate
+	workflows map[string]*Workflow
+	templates map[string]*Template
+	auditLog  []AuditEntry
+	idCounter int64
 }
 
 // NewEngine 创建签名引擎.

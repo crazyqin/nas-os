@@ -67,14 +67,14 @@ var (
 
 // Config NAS安全卫士配置
 type Config struct {
-	ScanInterval       time.Duration `json:"scan_interval"`        // 扫描间隔
-	AlertThreshold     int           `json:"alert_threshold"`      // 告警阈值（每小时最大告警数）
-	AutoRepair         bool          `json:"auto_repair"`          // 自动修复
-	MaxBlockedIPs      int           `json:"max_blocked_ips"`      // 最大封锁IP数
-	BlockDuration      time.Duration `json:"block_duration"`       // 默认封锁时长
-	MaxThreatHistory   int           `json:"max_threat_history"`   // 最大威胁历史记录数
-	VulnScanEnabled    bool          `json:"vuln_scan_enabled"`    // 漏洞扫描开关
-	RealtimeMonitoring bool          `json:"realtime_monitoring"`  // 实时监控
+	ScanInterval       time.Duration `json:"scan_interval"`       // 扫描间隔
+	AlertThreshold     int           `json:"alert_threshold"`     // 告警阈值（每小时最大告警数）
+	AutoRepair         bool          `json:"auto_repair"`         // 自动修复
+	MaxBlockedIPs      int           `json:"max_blocked_ips"`     // 最大封锁IP数
+	BlockDuration      time.Duration `json:"block_duration"`      // 默认封锁时长
+	MaxThreatHistory   int           `json:"max_threat_history"`  // 最大威胁历史记录数
+	VulnScanEnabled    bool          `json:"vuln_scan_enabled"`   // 漏洞扫描开关
+	RealtimeMonitoring bool          `json:"realtime_monitoring"` // 实时监控
 }
 
 // DefaultConfig 默认配置
@@ -164,26 +164,26 @@ type BlockedIP struct {
 
 // SecurityReport 安全报告
 type SecurityReport struct {
-	GeneratedAt     time.Time         `json:"generated_at"`
-	Score           SecurityScore     `json:"score"`
-	ActiveThreats   int               `json:"active_threats"`
-	TotalThreats    int               `json:"total_threats"`
-	OpenVulns       int               `json:"open_vulns"`
-	BlockedIPs      int               `json:"blocked_ips"`
-	ActiveRules     int               `json:"active_rules"`
+	GeneratedAt       time.Time       `json:"generated_at"`
+	Score             SecurityScore   `json:"score"`
+	ActiveThreats     int             `json:"active_threats"`
+	TotalThreats      int             `json:"total_threats"`
+	OpenVulns         int             `json:"open_vulns"`
+	BlockedIPs        int             `json:"blocked_ips"`
+	ActiveRules       int             `json:"active_rules"`
 	AppliedHardenings int             `json:"applied_hardenings"`
-	RecentThreats   []Threat          `json:"recent_threats"`
-	TopVulns        []Vulnerability   `json:"top_vulns"`
+	RecentThreats     []Threat        `json:"recent_threats"`
+	TopVulns          []Vulnerability `json:"top_vulns"`
 }
 
 // ========== NASGuardian 主结构体 ==========
 
 // NASGuardian NAS安全卫士
 type NASGuardian struct {
-	mu             sync.RWMutex
-	config         Config
-	running        bool
-	cancel         context.CancelFunc
+	mu      sync.RWMutex
+	config  Config
+	running bool
+	cancel  context.CancelFunc
 
 	threats        map[string]*Threat
 	vulns          map[string]*Vulnerability
@@ -192,12 +192,12 @@ type NASGuardian struct {
 	blockedIPs     map[string]*BlockedIP
 	threatHistory  []*Threat
 
-	threatCounter  int
-	vulnCounter    int
-	ruleCounter    int
-	taskCounter    int
+	threatCounter int
+	vulnCounter   int
+	ruleCounter   int
+	taskCounter   int
 
-	score          SecurityScore
+	score SecurityScore
 }
 
 // New 创建NAS安全卫士实例

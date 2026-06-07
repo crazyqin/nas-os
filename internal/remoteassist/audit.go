@@ -15,9 +15,9 @@ import (
 
 // AuditService 审计服务.
 type AuditService struct {
-	events    []*AuditEvent
+	events      []*AuditEvent
 	storagePath string
-	mu        sync.RWMutex
+	mu          sync.RWMutex
 }
 
 // NewAuditService 创建审计服务.
@@ -179,10 +179,10 @@ func (s *AuditService) LogFileTransfer(sessionID string, userID string, transfer
 		Action:    "file_transfer",
 		Resource:  transfer.ID,
 		Details: map[string]interface{}{
-			"direction":  transfer.Direction,
-			"file_name":  transfer.FileName,
-			"file_size":  transfer.FileSize,
-			"status":     transfer.Status,
+			"direction": transfer.Direction,
+			"file_name": transfer.FileName,
+			"file_size": transfer.FileSize,
+			"status":    transfer.Status,
 		},
 		Status:    "success",
 		RiskLevel: "medium",

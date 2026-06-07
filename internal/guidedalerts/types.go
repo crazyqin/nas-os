@@ -116,33 +116,33 @@ type MenuHint struct {
 
 // AutoFix 自动修复
 type AutoFix struct {
-	Available  bool     `json:"available"`
-	Commands   []string `json:"commands,omitempty"`
-	NeedsRoot  bool     `json:"needsRoot"`
-	RiskLevel  string   `json:"riskLevel"` // low, medium, high
-	AutoApply  bool     `json:"autoApply"` // 是否自动应用
+	Available bool     `json:"available"`
+	Commands  []string `json:"commands,omitempty"`
+	NeedsRoot bool     `json:"needsRoot"`
+	RiskLevel string   `json:"riskLevel"` // low, medium, high
+	AutoApply bool     `json:"autoApply"` // 是否自动应用
 }
 
 // Escalation 升级策略
 type Escalation struct {
-	Enabled         bool          `json:"enabled"`
-	Timeout         time.Duration `json:"timeout"`         // 未处理多久后升级
-	MaxLevel        int           `json:"maxLevel"`        // 最大升级级别
-	CurrentLevel    int           `json:"currentLevel"`    // 当前升级级别
-	NextEscalation  *time.Time    `json:"nextEscalation"`  // 下次升级时间
-	EscalatedTo     []string      `json:"escalatedTo"`     // 已通知的升级目标
+	Enabled        bool          `json:"enabled"`
+	Timeout        time.Duration `json:"timeout"`        // 未处理多久后升级
+	MaxLevel       int           `json:"maxLevel"`       // 最大升级级别
+	CurrentLevel   int           `json:"currentLevel"`   // 当前升级级别
+	NextEscalation *time.Time    `json:"nextEscalation"` // 下次升级时间
+	EscalatedTo    []string      `json:"escalatedTo"`    // 已通知的升级目标
 }
 
 // SilenceRule 静默规则
 type SilenceRule struct {
-	ID         string            `json:"id"`
-	Name       string            `json:"name"`
-	Matchers   []LabelMatcher    `json:"matchers"`
-	StartsAt   time.Time         `json:"startsAt"`
-	EndsAt     time.Time         `json:"endsAt"`
-	CreatedBy  string            `json:"createdBy"`
-	Comment    string            `json:"comment,omitempty"`
-	Enabled    bool              `json:"enabled"`
+	ID        string         `json:"id"`
+	Name      string         `json:"name"`
+	Matchers  []LabelMatcher `json:"matchers"`
+	StartsAt  time.Time      `json:"startsAt"`
+	EndsAt    time.Time      `json:"endsAt"`
+	CreatedBy string         `json:"createdBy"`
+	Comment   string         `json:"comment,omitempty"`
+	Enabled   bool           `json:"enabled"`
 }
 
 // LabelMatcher 标签匹配器
@@ -165,11 +165,11 @@ type InhibitionRule struct {
 
 // AlertHistory 告警历史记录
 type AlertHistory struct {
-	AlertID   string        `json:"alertId"`
-	Action    string        `json:"action"` // created, acknowledged, silenced, resolved, escalated
-	Timestamp time.Time     `json:"timestamp"`
-	User      string        `json:"user,omitempty"`
-	Details   string        `json:"details,omitempty"`
+	AlertID   string    `json:"alertId"`
+	Action    string    `json:"action"` // created, acknowledged, silenced, resolved, escalated
+	Timestamp time.Time `json:"timestamp"`
+	User      string    `json:"user,omitempty"`
+	Details   string    `json:"details,omitempty"`
 }
 
 // AlertStats 告警统计
@@ -186,11 +186,11 @@ type AlertStats struct {
 
 // RouteChannel 路由通道
 type RouteChannel struct {
-	ID       string        `json:"id"`
-	Name     string        `json:"name"`
-	Type     string        `json:"type"` // email, webhook, slack, syslog, script
-	Config   ChannelConfig `json:"config"`
-	Enabled  bool          `json:"enabled"`
+	ID      string        `json:"id"`
+	Name    string        `json:"name"`
+	Type    string        `json:"type"` // email, webhook, slack, syslog, script
+	Config  ChannelConfig `json:"config"`
+	Enabled bool          `json:"enabled"`
 }
 
 // ChannelConfig 通道配置
@@ -203,11 +203,11 @@ type ChannelConfig struct {
 
 // RouteRule 路由规则
 type RouteRule struct {
-	ID         string         `json:"id"`
-	Name       string         `json:"name"`
-	Matchers   []LabelMatcher `json:"matchers"`
-	Channels   []string       `json:"channels"` // 通道ID列表
-	Continue   bool           `json:"continue"` // 是否继续匹配下一条规则
-	Priority   int            `json:"priority"`
-	Enabled    bool           `json:"enabled"`
+	ID       string         `json:"id"`
+	Name     string         `json:"name"`
+	Matchers []LabelMatcher `json:"matchers"`
+	Channels []string       `json:"channels"` // 通道ID列表
+	Continue bool           `json:"continue"` // 是否继续匹配下一条规则
+	Priority int            `json:"priority"`
+	Enabled  bool           `json:"enabled"`
 }

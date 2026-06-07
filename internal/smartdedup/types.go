@@ -14,13 +14,13 @@ import (
 type ContentType int
 
 const (
-	ContentTypeUnknown ContentType = iota
-	ContentTypeImage               // 图片文件
-	ContentTypeAudio               // 音频文件
-	ContentTypeVideo               // 视频文件
-	ContentTypeDocument            // 文档文件
-	ContentTypeArchive             // 压缩文件
-	ContentTypeBinary              // 其他二进制文件
+	ContentTypeUnknown  ContentType = iota
+	ContentTypeImage                // 图片文件
+	ContentTypeAudio                // 音频文件
+	ContentTypeVideo                // 视频文件
+	ContentTypeDocument             // 文档文件
+	ContentTypeArchive              // 压缩文件
+	ContentTypeBinary               // 其他二进制文件
 )
 
 // String 返回内容类型的字符串表示。
@@ -47,12 +47,12 @@ func (ct ContentType) String() string {
 type RetentionPolicy int
 
 const (
-	RetainNewest  RetentionPolicy = iota // 保留最新文件
-	RetainOldest                         // 保留最旧文件
-	RetainLargest                        // 保留最大文件
-	RetainSmallest                       // 保留最小文件
-	RetainMostUsed                       // 保留最常用文件
-	RetainShortestPath                   // 保留路径最短的文件
+	RetainNewest       RetentionPolicy = iota // 保留最新文件
+	RetainOldest                              // 保留最旧文件
+	RetainLargest                             // 保留最大文件
+	RetainSmallest                            // 保留最小文件
+	RetainMostUsed                            // 保留最常用文件
+	RetainShortestPath                        // 保留路径最短的文件
 )
 
 // String 返回保留策略的字符串表示。
@@ -97,57 +97,57 @@ func (m ScanMode) String() string {
 
 // FileInfo 文件元信息。
 type FileInfo struct {
-	Path           string      `json:"path"`            // 文件路径
-	Size           int64       `json:"size"`            // 文件大小（字节）
-	ModTime        time.Time   `json:"modTime"`         // 修改时间
-	AccessTime     time.Time   `json:"accessTime"`      // 访问时间
-	ContentHash    string      `json:"contentHash"`     // 内容哈希（精确匹配）
-	PerceptHash    string      `json:"perceptHash"`     // 感知哈希（相似匹配）
-	ContentType    ContentType `json:"contentType"`     // 内容类型
-	IsDeduped      bool        `json:"isDeduped"`       // 是否已去重
-	RefCount       int         `json:"refCount"`        // 引用次数
-	UsageCount     int         `json:"usageCount"`      // 使用次数（用于 most_used 策略）
-	IsHardLink     bool        `json:"isHardLink"`      // 是否为硬链接
-	IsSymLink      bool        `json:"isSymLink"`       // 是否为符号链接
-	SymLinkTarget  string      `json:"symLinkTarget,omitempty"` // 符号链接目标
-	Inode          uint64      `json:"inode,omitempty"` // inode 号（硬链接检测）
-	Nlink          uint64      `json:"nlink,omitempty"` // 硬链接数
-	HashAlgorithm  string      `json:"hashAlgorithm"`   // 使用的哈希算法
+	Path          string      `json:"path"`                    // 文件路径
+	Size          int64       `json:"size"`                    // 文件大小（字节）
+	ModTime       time.Time   `json:"modTime"`                 // 修改时间
+	AccessTime    time.Time   `json:"accessTime"`              // 访问时间
+	ContentHash   string      `json:"contentHash"`             // 内容哈希（精确匹配）
+	PerceptHash   string      `json:"perceptHash"`             // 感知哈希（相似匹配）
+	ContentType   ContentType `json:"contentType"`             // 内容类型
+	IsDeduped     bool        `json:"isDeduped"`               // 是否已去重
+	RefCount      int         `json:"refCount"`                // 引用次数
+	UsageCount    int         `json:"usageCount"`              // 使用次数（用于 most_used 策略）
+	IsHardLink    bool        `json:"isHardLink"`              // 是否为硬链接
+	IsSymLink     bool        `json:"isSymLink"`               // 是否为符号链接
+	SymLinkTarget string      `json:"symLinkTarget,omitempty"` // 符号链接目标
+	Inode         uint64      `json:"inode,omitempty"`         // inode 号（硬链接检测）
+	Nlink         uint64      `json:"nlink,omitempty"`         // 硬链接数
+	HashAlgorithm string      `json:"hashAlgorithm"`           // 使用的哈希算法
 }
 
 // DuplicateGroup 重复文件组。
 type DuplicateGroup struct {
-	ContentHash string     `json:"contentHash"` // 组标识哈希
+	ContentHash string      `json:"contentHash"` // 组标识哈希
 	Files       []*FileInfo `json:"files"`       // 组内文件列表
-	TotalSize   int64      `json:"totalSize"`   // 组内文件总大小
-	SavedSize   int64      `json:"savedSize"`   // 去重后可节省空间
+	TotalSize   int64       `json:"totalSize"`   // 组内文件总大小
+	SavedSize   int64       `json:"savedSize"`   // 去重后可节省空间
 }
 
 // SimilarGroup 相似文件组。
 type SimilarGroup struct {
-	GroupID    string     `json:"groupId"`
-	HashValue  string     `json:"hashValue"`
+	GroupID    string      `json:"groupId"`
+	HashValue  string      `json:"hashValue"`
 	Files      []*FileInfo `json:"files"`
-	Threshold  float64    `json:"threshold"`
-	Similarity float64    `json:"similarity"`
+	Threshold  float64     `json:"threshold"`
+	Similarity float64     `json:"similarity"`
 }
 
 // ScanResult 扫描结果。
 type ScanResult struct {
-	StartTime       time.Time        `json:"startTime"`
-	EndTime         time.Time        `json:"endTime"`
-	Duration        time.Duration    `json:"duration"`
-	ScanMode        ScanMode         `json:"scanMode"`
-	TotalFiles      int              `json:"totalFiles"`
-	TotalSize       int64            `json:"totalSize"`
+	StartTime       time.Time         `json:"startTime"`
+	EndTime         time.Time         `json:"endTime"`
+	Duration        time.Duration     `json:"duration"`
+	ScanMode        ScanMode          `json:"scanMode"`
+	TotalFiles      int               `json:"totalFiles"`
+	TotalSize       int64             `json:"totalSize"`
 	DuplicateGroups []*DuplicateGroup `json:"duplicateGroups"`
-	SimilarGroups   []*SimilarGroup  `json:"similarGroups"`
-	DuplicateCount  int              `json:"duplicateCount"`
-	DuplicateSize   int64            `json:"duplicateSize"`
-	HardLinkCount   int              `json:"hardLinkCount"`   // 硬链接文件数
-	SymLinkCount    int              `json:"symLinkCount"`    // 符号链接文件数
-	SkippedFiles    int              `json:"skippedFiles"`    // 增量扫描跳过的文件数
-	Errors          []ScanError      `json:"errors,omitempty"`
+	SimilarGroups   []*SimilarGroup   `json:"similarGroups"`
+	DuplicateCount  int               `json:"duplicateCount"`
+	DuplicateSize   int64             `json:"duplicateSize"`
+	HardLinkCount   int               `json:"hardLinkCount"` // 硬链接文件数
+	SymLinkCount    int               `json:"symLinkCount"`  // 符号链接文件数
+	SkippedFiles    int               `json:"skippedFiles"`  // 增量扫描跳过的文件数
+	Errors          []ScanError       `json:"errors,omitempty"`
 }
 
 // ScanError 扫描过程中的错误。
@@ -158,16 +158,16 @@ type ScanError struct {
 
 // DedupResult 去重执行结果。
 type DedupResult struct {
-	StartTime     time.Time     `json:"startTime"`
-	EndTime       time.Time     `json:"endTime"`
-	Duration      time.Duration `json:"duration"`
-	Processed     int           `json:"processed"`     // 处理的文件数
-	Deleted       int           `json:"deleted"`       // 删除的文件数
-	Trashed       int           `json:"trashed"`       // 移到回收站的文件数
-	SavedBytes    int64         `json:"savedBytes"`    // 节省的空间
-	Failed        int           `json:"failed"`        // 失败的文件数
-	HardLinked    int           `json:"hardLinked"`    // 转换为硬链接的文件数
-	Errors        []DedupError  `json:"errors,omitempty"`
+	StartTime  time.Time     `json:"startTime"`
+	EndTime    time.Time     `json:"endTime"`
+	Duration   time.Duration `json:"duration"`
+	Processed  int           `json:"processed"`  // 处理的文件数
+	Deleted    int           `json:"deleted"`    // 删除的文件数
+	Trashed    int           `json:"trashed"`    // 移到回收站的文件数
+	SavedBytes int64         `json:"savedBytes"` // 节省的空间
+	Failed     int           `json:"failed"`     // 失败的文件数
+	HardLinked int           `json:"hardLinked"` // 转换为硬链接的文件数
+	Errors     []DedupError  `json:"errors,omitempty"`
 }
 
 // DedupError 去重执行错误。
@@ -178,21 +178,21 @@ type DedupError struct {
 
 // DedupReport 去重报告（汇总多轮去重的完整报告）。
 type DedupReport struct {
-	GeneratedAt    time.Time     `json:"generatedAt"`
-	TotalScans     int           `json:"totalScans"`
-	TotalDedups    int           `json:"totalDedups"`
-	TotalFiles     int           `json:"totalFiles"`
-	TotalSize      int64         `json:"totalSize"`
-	DuplicateCount int           `json:"duplicateCount"`
-	DuplicateSize  int64         `json:"duplicateSize"`
-	SavedBytes     int64         `json:"savedBytes"`
-	TrashedCount   int           `json:"trashedCount"`
-	DeletedCount   int           `json:"deletedCount"`
-	HardLinkedCount int          `json:"hardLinkedCount"`
-	SpaceReclaimed int64         `json:"spaceReclaimed"`
-	RecoveryRatio  float64       `json:"recoveryRatio"` // 节省空间/总扫描空间
-	GroupsByType   map[string]int `json:"groupsByType"` // 按文件类型的重复组数量
-	TopDuplicates  []*DuplicateGroup `json:"topDuplicates,omitempty"` // 最大的重复组
+	GeneratedAt     time.Time         `json:"generatedAt"`
+	TotalScans      int               `json:"totalScans"`
+	TotalDedups     int               `json:"totalDedups"`
+	TotalFiles      int               `json:"totalFiles"`
+	TotalSize       int64             `json:"totalSize"`
+	DuplicateCount  int               `json:"duplicateCount"`
+	DuplicateSize   int64             `json:"duplicateSize"`
+	SavedBytes      int64             `json:"savedBytes"`
+	TrashedCount    int               `json:"trashedCount"`
+	DeletedCount    int               `json:"deletedCount"`
+	HardLinkedCount int               `json:"hardLinkedCount"`
+	SpaceReclaimed  int64             `json:"spaceReclaimed"`
+	RecoveryRatio   float64           `json:"recoveryRatio"`           // 节省空间/总扫描空间
+	GroupsByType    map[string]int    `json:"groupsByType"`            // 按文件类型的重复组数量
+	TopDuplicates   []*DuplicateGroup `json:"topDuplicates,omitempty"` // 最大的重复组
 }
 
 // Config 智能去重配置。
@@ -204,7 +204,7 @@ type Config struct {
 	MinFileSize       int64           `json:"minFileSize"`
 	MaxFileSize       int64           `json:"maxFileSize"`
 	RetentionPolicy   RetentionPolicy `json:"retentionPolicy"`
-	HashAlgorithm     HashAlgorithm   `json:"hashAlgorithm"`     // 哈希算法
+	HashAlgorithm     HashAlgorithm   `json:"hashAlgorithm"` // 哈希算法
 	PerceptualEnabled bool            `json:"perceptualEnabled"`
 	PerceptThreshold  float64         `json:"perceptThreshold"`
 	SafeDelete        bool            `json:"safeDelete"`

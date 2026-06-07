@@ -14,18 +14,18 @@ import (
 
 // TerminalSession 终端会话
 type TerminalSession struct {
-	ID         string    `json:"id"`
-	User       string    `json:"user"`
-	TabID      string    `json:"tabId"`      // 多标签页支持
-	StartedAt  time.Time `json:"startedAt"`
-	LastActive time.Time `json:"lastActive"`
-	Status     string    `json:"status"`     // active, closed, recording
-	Remote     string    `json:"remote"`
-	Cols       int       `json:"cols"`
-	Rows       int       `json:"rows"`
-	AuthToken  string    `json:"-"`          // 认证令牌
-	CommandHistory []CommandRecord `json:"commandHistory"` // 命令历史
-	Recording  *Recording `json:"recording,omitempty"` // 录制状态
+	ID             string          `json:"id"`
+	User           string          `json:"user"`
+	TabID          string          `json:"tabId"` // 多标签页支持
+	StartedAt      time.Time       `json:"startedAt"`
+	LastActive     time.Time       `json:"lastActive"`
+	Status         string          `json:"status"` // active, closed, recording
+	Remote         string          `json:"remote"`
+	Cols           int             `json:"cols"`
+	Rows           int             `json:"rows"`
+	AuthToken      string          `json:"-"`                   // 认证令牌
+	CommandHistory []CommandRecord `json:"commandHistory"`      // 命令历史
+	Recording      *Recording      `json:"recording,omitempty"` // 录制状态
 }
 
 // CommandRecord 命令记录
@@ -38,9 +38,9 @@ type CommandRecord struct {
 
 // Recording 终端录制
 type Recording struct {
-	ID        string          `json:"id"`
-	StartTime time.Time       `json:"startTime"`
-	EndTime   *time.Time      `json:"endTime,omitempty"`
+	ID        string           `json:"id"`
+	StartTime time.Time        `json:"startTime"`
+	EndTime   *time.Time       `json:"endTime,omitempty"`
 	Events    []RecordingEvent `json:"events"`
 }
 
@@ -115,12 +115,12 @@ func (b *OutputBuffer) Clear() {
 
 // Manager 终端管理器
 type Manager struct {
-	mu        sync.RWMutex
-	sessions  map[string]*TerminalSession
-	tabs      map[string]map[string]*TerminalSession // user -> tabID -> session
-	config    TerminalConfig
-	authFunc  func(r *http.Request) (string, error) // 认证函数
-	stopCh    chan struct{}
+	mu       sync.RWMutex
+	sessions map[string]*TerminalSession
+	tabs     map[string]map[string]*TerminalSession // user -> tabID -> session
+	config   TerminalConfig
+	authFunc func(r *http.Request) (string, error) // 认证函数
+	stopCh   chan struct{}
 }
 
 // NewManager 创建终端管理器
@@ -129,14 +129,14 @@ func NewManager() *Manager {
 		sessions: make(map[string]*TerminalSession),
 		tabs:     make(map[string]map[string]*TerminalSession),
 		config: TerminalConfig{
-			MaxSessions:    10,
-			MaxTabsPerUser: 5,
-			IdleTimeout:    30 * time.Minute,
-			DefaultShell:   "/bin/bash",
+			MaxSessions:     10,
+			MaxTabsPerUser:  5,
+			IdleTimeout:     30 * time.Minute,
+			DefaultShell:    "/bin/bash",
 			EnableRecording: true,
-			EnableHistory:  true,
-			HistoryMaxSize: 1000,
-			BufferSize:     1024 * 1024, // 1MB
+			EnableHistory:   true,
+			HistoryMaxSize:  1000,
+			BufferSize:      1024 * 1024, // 1MB
 		},
 		stopCh: make(chan struct{}),
 	}
@@ -579,9 +579,9 @@ func (m *Manager) GetUserStats(user string) map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"user":        user,
-		"activeTabs":  0,
-		"totalTabs":   0,
+		"user":          user,
+		"activeTabs":    0,
+		"totalTabs":     0,
 		"totalCommands": 0,
 	}
 
@@ -667,10 +667,10 @@ func (m *Manager) CreateShellCommand(session *TerminalSession) (*exec.Cmd, error
 
 // Stats 管理器统计
 type Stats struct {
-	TotalSessions  int `json:"totalSessions"`
-	ActiveSessions int `json:"activeSessions"`
-	TotalUsers     int `json:"totalUsers"`
-	TotalCommands  int `json:"totalCommands"`
+	TotalSessions   int `json:"totalSessions"`
+	ActiveSessions  int `json:"activeSessions"`
+	TotalUsers      int `json:"totalUsers"`
+	TotalCommands   int `json:"totalCommands"`
 	TotalRecordings int `json:"totalRecordings"`
 }
 

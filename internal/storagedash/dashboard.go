@@ -270,26 +270,26 @@ func (d *Dashboard) generateAlerts(overview *StorageOverview) *AlertSummary {
 		case "faulted":
 			summary.Critical++
 			summary.RecentAlerts = append(summary.RecentAlerts, Alert{
-				Level:     "critical",
-				Message:   fmt.Sprintf("存储池 %s 已故障", p.Name),
-				Source:    p.Name,
-				Time:      now,
+				Level:   "critical",
+				Message: fmt.Sprintf("存储池 %s 已故障", p.Name),
+				Source:  p.Name,
+				Time:    now,
 			})
 		case "degraded":
 			summary.Warning++
 			summary.RecentAlerts = append(summary.RecentAlerts, Alert{
-				Level:     "warning",
-				Message:   fmt.Sprintf("存储池 %s 状态降级", p.Name),
-				Source:    p.Name,
-				Time:      now,
+				Level:   "warning",
+				Message: fmt.Sprintf("存储池 %s 状态降级", p.Name),
+				Source:  p.Name,
+				Time:    now,
 			})
 		case "offline":
 			summary.Critical++
 			summary.RecentAlerts = append(summary.RecentAlerts, Alert{
-				Level:     "critical",
-				Message:   fmt.Sprintf("存储池 %s 离线", p.Name),
-				Source:    p.Name,
-				Time:      now,
+				Level:   "critical",
+				Message: fmt.Sprintf("存储池 %s 离线", p.Name),
+				Source:  p.Name,
+				Time:    now,
 			})
 		}
 
@@ -299,18 +299,18 @@ func (d *Dashboard) generateAlerts(overview *StorageOverview) *AlertSummary {
 			if poolUtil > 0.95 {
 				summary.Critical++
 				summary.RecentAlerts = append(summary.RecentAlerts, Alert{
-					Level:     "critical",
-					Message:   fmt.Sprintf("存储池 %s 容量使用率 %.1f%%，即将满", p.Name, poolUtil*100),
-					Source:    p.Name,
-					Time:      now,
+					Level:   "critical",
+					Message: fmt.Sprintf("存储池 %s 容量使用率 %.1f%%，即将满", p.Name, poolUtil*100),
+					Source:  p.Name,
+					Time:    now,
 				})
 			} else if poolUtil > 0.85 {
 				summary.Warning++
 				summary.RecentAlerts = append(summary.RecentAlerts, Alert{
-					Level:     "warning",
-					Message:   fmt.Sprintf("存储池 %s 容量使用率 %.1f%%", p.Name, poolUtil*100),
-					Source:    p.Name,
-					Time:      now,
+					Level:   "warning",
+					Message: fmt.Sprintf("存储池 %s 容量使用率 %.1f%%", p.Name, poolUtil*100),
+					Source:  p.Name,
+					Time:    now,
 				})
 			}
 		}
@@ -321,10 +321,10 @@ func (d *Dashboard) generateAlerts(overview *StorageOverview) *AlertSummary {
 		if t.MigrationPending > 100 {
 			summary.Warning++
 			summary.RecentAlerts = append(summary.RecentAlerts, Alert{
-				Level:     "warning",
-				Message:   fmt.Sprintf("分层 %s 有 %d 个待迁移任务", t.Tier, t.MigrationPending),
-				Source:    t.Tier,
-				Time:      now,
+				Level:   "warning",
+				Message: fmt.Sprintf("分层 %s 有 %d 个待迁移任务", t.Tier, t.MigrationPending),
+				Source:  t.Tier,
+				Time:    now,
 			})
 		}
 	}

@@ -13,7 +13,7 @@ type MockONNXLoader struct{}
 func (l *MockONNXLoader) Load(modelPath string, config *ModelConfig) (interface{}, error) {
 	return &ONNXModel{Path: modelPath, Config: config}, nil
 }
-func (l *MockONNXLoader) Unload(model interface{}) error { return nil }
+func (l *MockONNXLoader) Unload(model interface{}) error         { return nil }
 func (l *MockONNXLoader) SupportsFormat(format ModelFormat) bool { return format == ModelFormatONNX }
 
 // MockProcessor 模拟处理器
@@ -52,15 +52,15 @@ func TestEngine(t *testing.T) {
 	// 测试加载模型
 	t.Run("LoadModel", func(t *testing.T) {
 		model := &Model{
-			ID:       "test-model-1",
-			Name:     "Test Model",
-			Version:  "1.0.0",
-			Format:   ModelFormatONNX,
-			TaskType: TaskTypeClassification,
-			Device:   ComputeDeviceCPU,
-			Status:   ModelStatusUnloaded,
-			FilePath: "/test/model.onnx",
-			InputShape: []int{1, 3, 224, 224},
+			ID:          "test-model-1",
+			Name:        "Test Model",
+			Version:     "1.0.0",
+			Format:      ModelFormatONNX,
+			TaskType:    TaskTypeClassification,
+			Device:      ComputeDeviceCPU,
+			Status:      ModelStatusUnloaded,
+			FilePath:    "/test/model.onnx",
+			InputShape:  []int{1, 3, 224, 224},
 			OutputShape: []int{1, 1000},
 			Config: &ModelConfig{
 				BatchSize:  1,
@@ -255,9 +255,9 @@ func TestOptimizer(t *testing.T) {
 	// 测试量化
 	t.Run("Quantization", func(t *testing.T) {
 		model := &Model{
-			ID:       "test-model",
-			Format:   ModelFormatONNX,
-			TaskType: TaskTypeClassification,
+			ID:          "test-model",
+			Format:      ModelFormatONNX,
+			TaskType:    TaskTypeClassification,
 			MemoryUsage: 1024 * 1024 * 100, // 100MB
 			Config: &ModelConfig{
 				BatchSize:  1,
@@ -496,20 +496,20 @@ func TestPriorityQueue(t *testing.T) {
 
 	// 添加任务
 	heap.Push(pq, &ScheduledTask{
-		ID:       "task1",
-		Priority: TaskPriorityLow,
+		ID:        "task1",
+		Priority:  TaskPriorityLow,
 		CreatedAt: time.Now(),
 	})
 
 	heap.Push(pq, &ScheduledTask{
-		ID:       "task2",
-		Priority: TaskPriorityHigh,
+		ID:        "task2",
+		Priority:  TaskPriorityHigh,
 		CreatedAt: time.Now(),
 	})
 
 	heap.Push(pq, &ScheduledTask{
-		ID:       "task3",
-		Priority: TaskPriorityNormal,
+		ID:        "task3",
+		Priority:  TaskPriorityNormal,
 		CreatedAt: time.Now(),
 	})
 
