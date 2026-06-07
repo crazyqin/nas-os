@@ -182,6 +182,31 @@ func DefaultConfig() GuardianConfig {
 	}
 }
 
+// Detector 敏感数据检测器
+type Detector struct {
+	patterns []SensitivePattern
+}
+
+// Masker 数据脱敏器
+type Masker struct {
+	rules map[SensitiveCategory]MaskRule
+}
+
+// ComplianceChecker 合规检查器
+type ComplianceChecker struct {
+	frameworks []ComplianceFramework
+}
+
+// Tracker 数据流向追踪器
+type Tracker struct {
+	records []DataFlowRecord
+}
+
+// Scorer 隐私风险评分器
+type Scorer struct {
+	factors map[string]float64
+}
+
 // Guardian AI隐私卫士核心引擎
 type Guardian struct {
 	mu          sync.RWMutex

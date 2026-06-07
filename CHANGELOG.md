@@ -1,3 +1,27 @@
+## v2.569.0 (2026-06-08) - 竞品分析与新功能开发
+
+### 新增模块（5个）
+
+| 模块 | 说明 | 对标竞品 |
+|------|------|----------|
+| fastdedup | NVMe优化快速去重引擎 | TrueNAS Fast Deduplication |
+| iscsiblockclone | iSCSI块克隆加速（10X VM克隆） | TrueNAS iSCSI XCOPY |
+| apikeymgr | 用户API Key管理（创建/轮换/吊销） | TrueNAS User-linked API Keys |
+| teamfile | 团队文件夹协作管理 | 飞牛fnOS团队文件夹 |
+| stigcompliance | STIG安全合规自动审计 | TrueNAS GPOS STIG |
+
+### 修复
+
+- 修复 ai_privacy_guardian 编译错误（5个未定义类型）
+
+### 竞品分析
+
+- 飞牛fnOS: ZFS支持、SSD缓存(L2ARC/SLOG)、团队文件夹、OneDrive挂载
+- 群晖DSM 7.3: 存储分层、AI Console隐私保护、API Key、共享标签
+- TrueNAS 25.04: 快速去重、块克隆、LXC容器、STIG合规、RDMA
+
+---
+
 ## v2.567.0 (2026-06-08) - 户部轮值
 
 ### 资源统计报告
