@@ -179,7 +179,7 @@ func (m *Manager) initDefaultRules() {
 	for i, d := range defaults {
 		m.ruleCounter++
 		m.rules = append(m.rules, &TagRule{
-			ID:        fmt("rule_%d", i+1),
+			ID:        fmt.Sprintf("rule_%d", i+1),
 			Name:      d.name,
 			Pattern:   d.pattern,
 			Category:  d.category,

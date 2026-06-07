@@ -3,7 +3,6 @@ package federatedlearn
 import (
 	"context"
 	"fmt"
-	"math"
 	"math/rand"
 	"sync"
 	"time"
