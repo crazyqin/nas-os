@@ -81,7 +81,7 @@ func TestUpdateRule(t *testing.T) {
 
 	rules := m.GetBuiltinRules(ctx)
 	// 内置规则+自定义规则
-	allRules := append(rules)
+	allRules := rules
 	_ = allRules
 
 	// 通过重新添加验证（因为没有GetRule方法，用GetBuiltinRules只返回内置的）

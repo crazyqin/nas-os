@@ -183,7 +183,7 @@ func (csp *ContainerScanPro) GetContainerResults(containerID string) []*ScanResu
 }
 
 // GetStats 获取统计信息
-func (csp *ContainerScanPro) GetStats() ScanStats {
+func (csp *ContainerScanPro) GetStats() *ScanStats {
 	return csp.scanner.GetStats()
 }
 
