@@ -362,7 +362,9 @@ jobs:
         uses: sigstore/cosign-installer@v3
 
       - name: 安装 Syft (SBOM 生成)
-        uses: anchore/sbom-action/download-syft@v0
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+          syft --version
 
       - name: 获取 digest
         id: digest
