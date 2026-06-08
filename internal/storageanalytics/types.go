@@ -262,3 +262,177 @@ func DefaultConfig() *Config {
 		},
 	}
 }
+
+// ========== 成本分析类型 ==========
+
+// StorageTier 存储层级类型.
+type StorageTier string
+
+const (
+	// TierNVMe NVMe固态硬盘（高性能）.
+	TierNVMe StorageTier = "nvme"
+	// TierSSD SATA固态硬盘.
+	TierSSD StorageTier = "ssd"
+	// TierHDD 机械硬盘（大容量）.
+	TierHDD StorageTier = "hdd"
+	// TierCold 冷存储（归档）.
+	TierCold StorageTier = "cold"
+	// TierCloud 云存储.
+	TierCloud StorageTier = "cloud"
+)
+
+// TierCostConfig 存储层级成本配置.
+type TierCostConfig struct {
+	Tier           StorageTier `json:"tier"`
+	Name           string      `json:"name"`
+	CostPerTBMonth float64     `json:"cost_per_tb_month"` // 每TB月成本（元）
+	IOPSPerTB      int         `json:"iops_per_tb"`       // 每TB IOPS
+	LatencyMs      float64     `json:"latency_ms"`        // 平均延迟（ms）
+	Durability     string      `json:"durability"`        // 耐久性指标
+	MaxCapacityTB  float64     `json:"max_capacity_tb"`   // 最大容量（TB）
+}
+
+// CostBreakdown 成本分解.
+type CostBreakdown struct {
+	Tier         StorageTier `json:"tier"`
+	TierName     string      `json:"tier_name"`
+	CapacityTB   float64     `json:"capacity_tb"`
+	UsedTB       float64     `json:"used_tb"`
+	Utilization  float64     `json:"utilization"`   // 使用率 0-1
+	CostPerTB    float64     `json:"cost_per_tb"`   // 每TB月成本
+	MonthlyCost  float64     `json:"monthly_cost"`  // 月度成本（元）
+	YearlyCost   float64     `json:"yearly_cost"`   // 年度成本（元）
+	CostPerGB    float64     `json:"cost_per_gb"`   // 每GB月成本
+}
+
+// CostPrediction 成本预测.
+type CostPrediction struct {
+	PredictedDate   time.Time `json:"predicted_date"`
+	PredictedSizeTB float64   `json:"predicted_size_tb"`
+	PredictedCost   float64   `json:"predicted_cost"` // 预测月度成本（元）
+	Confidence      float64   `json:"confidence"`     // 置信度 0-1
+	Method          string    `json:"method"`         // 预测方法
+}
+
+// CostForecast 成本预测报告.
+type CostForecast struct {
+	GeneratedAt    time.Time        `json:"generated_at"`
+	CurrentCost    float64          `json:"current_cost"`    // 当前月度成本（元）
+	CurrentSizeTB  float64          `json:"current_size_tb"` // 当前总容量（TB）
+	GrowthRateTB   float64          `json:"growth_rate_tb"`  // 月增长率（TB/月）
+	Predictions    []CostPrediction `json:"predictions"`     // 未来12个月预测
+	Breakpoint     *BreakpointInfo  `json:"breakpoint"`      // 瓶颈预测
+	SavingsOpportunities []SavingOpportunity `json:"savings_opportunities"` // 节省机会
+}
+
+// BreakpointInfo 容量瓶颈预测.
+type BreakpointInfo struct {
+	EstimatedDate time.Time `json:"estimated_date"` // 预计何时达到瓶颈
+	DaysRemaining int       `json:"days_remaining"` // 剩余天数
+	CurrentUsage  float64   `json:"current_usage"`  // 当前使用率
+	WarningLevel  string    `json:"warning_level"`  // critical, warning, info
+}
+
+// SavingOpportunity 节省机会.
+type SavingOpportunity struct {
+	Type        string  `json:"type"`     // tier_migration, dedup, compression, cold_archive
+	Description string  `json:"description"`
+	SavingPerMonth float64 `json:"saving_per_month"` // 每月可节省（元）
+	SavingPerYear  float64 `json:"saving_per_year"`  // 每年可节省（元）
+	Confidence  float64 `json:"confidence"` // 置信度 0-1
+	Difficulty  string  `json:"difficulty"` // easy, medium, hard
+}
+
+// OptimizationRecommendation 存储优化建议.
+type OptimizationRecommendation struct {
+	ID          string  `json:"id"`
+	Category    string  `json:"category"`    // tier, dedup, compression, lifecycle, cleanup
+	Priority    string  `json:"priority"`    // high, medium, low
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	Impact      string  `json:"impact"`      // 预期影响
+	SavingBytes int64   `json:"saving_bytes"` // 可节省空间（字节）
+	SavingCost  float64 `json:"saving_cost"`  // 可节省成本（元/月）
+	Effort      string  `json:"effort"`       // 实施难度
+	Steps       []string `json:"steps"`       // 实施步骤
+}
+
+// StorageCostReport 存储成本分析完整报告.
+type StorageCostReport struct {
+	GeneratedAt     time.Time                  `json:"generated_at"`
+	TierBreakdown   []CostBreakdown            `json:"tier_breakdown"`
+	TotalMonthlyCost float64                   `json:"total_monthly_cost"`
+	TotalYearlyCost  float64                   `json:"total_yearly_cost"`
+	CostPerTBAvg     float64                   `json:"cost_per_tb_avg"`
+	Forecast         *CostForecast             `json:"forecast,omitempty"`
+	Recommendations  []OptimizationRecommendation `json:"recommendations"`
+	ComparisonWithCloud *CloudCostComparison   `json:"comparison_with_cloud,omitempty"`
+}
+
+// CloudCostComparison 云存储成本对比.
+type CloudCostComparison struct {
+	LocalCostPerTB  float64            `json:"local_cost_per_tb"`
+	CloudProviders  []CloudProviderCost `json:"cloud_providers"`
+	BestOption      string             `json:"best_option"`
+	SavingsVsCloud  float64            `json:"savings_vs_cloud"` // 本地 vs 最便宜云的节省（元/月）
+}
+
+// CloudProviderCost 云服务商成本.
+type CloudProviderCost struct {
+	Provider      string  `json:"provider"`       // AWS, Azure, Aliyun, etc.
+	Tier          string  `json:"tier"`           // standard, infrequent, archive
+	CostPerTBMonth float64 `json:"cost_per_tb_month"`
+	MonthlyCost   float64 `json:"monthly_cost"`
+	LatencyMs     float64 `json:"latency_ms"`
+}
+
+// DefaultTierConfigs 返回默认的存储层级成本配置.
+func DefaultTierConfigs() []TierCostConfig {
+	return []TierCostConfig{
+		{
+			Tier:           TierNVMe,
+			Name:           "NVMe SSD",
+			CostPerTBMonth: 800,
+			IOPSPerTB:      100000,
+			LatencyMs:      0.1,
+			Durability:     "99.999%",
+			MaxCapacityTB:  8,
+		},
+		{
+			Tier:           TierSSD,
+			Name:           "SATA SSD",
+			CostPerTBMonth: 400,
+			IOPSPerTB:      50000,
+			LatencyMs:      0.5,
+			Durability:     "99.999%",
+			MaxCapacityTB:  32,
+		},
+		{
+			Tier:           TierHDD,
+			Name:           "机械硬盘",
+			CostPerTBMonth: 80,
+			IOPSPerTB:      200,
+			LatencyMs:      10,
+			Durability:     "99.9%",
+			MaxCapacityTB:  200,
+		},
+		{
+			Tier:           TierCold,
+			Name:           "冷存储/归档",
+			CostPerTBMonth: 20,
+			IOPSPerTB:      10,
+			LatencyMs:      1000,
+			Durability:     "99.999999999%",
+			MaxCapacityTB:  1000,
+		},
+		{
+			Tier:           TierCloud,
+			Name:           "云对象存储",
+			CostPerTBMonth: 150,
+			IOPSPerTB:      5000,
+			LatencyMs:      50,
+			Durability:     "99.999999999%",
+			MaxCapacityTB:  0, // 无上限
+		},
+	}
+}

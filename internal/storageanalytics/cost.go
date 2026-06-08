@@ -1,6 +1,7 @@
 package storageanalytics
 
 import (
+	"fmt"
 	"math"
 	"sort"
 	"time"
@@ -58,7 +59,7 @@ func (ca *CostAnalyzer) AnalyzeCosts(result *CollectResult, report *StorageRepor
 	costReport.Forecast = ca.GenerateForecast(result, report, costReport.TotalMonthlyCost)
 
 	// 优化建议
-	costReport.Recommendations = ca.GenerateRecommendations(result, report, costReport)
+	costReport.Recommendations = ca.generateCostRecommendations(result, report, costReport)
 
 	// 云存储对比
 	costReport.ComparisonWithCloud = ca.CompareCloudCosts(result.TotalSize, costReport.TotalMonthlyCost)
@@ -470,4 +471,91 @@ func DefaultCloudCosts() []CloudProviderCost {
 		{Provider: "腾讯云", Tier: "COS 标准", CostPerTBMonth: 100, LatencyMs: 35},
 		{Provider: "腾讯云", Tier: "COS 归档", CostPerTBMonth: 12, LatencyMs: 3000},
 	}
+}
+
+// generateCostRecommendations 生成基于成本分析的优化建议.
+func (ca *CostAnalyzer) generateCostRecommendations(result *CollectResult, report *StorageReport, costReport *StorageCostReport) []OptimizationRecommendation {
+	var recommendations []OptimizationRecommendation
+
+	if costReport == nil {
+		return recommendations
+	}
+
+	// 1. 层级迁移建议
+	for _, bd := range costReport.TierBreakdown {
+		if bd.Tier == TierNVMe && bd.UsedTB > 2 {
+			migrateTB := bd.UsedTB * 0.5
+			savingPerMonth := migrateTB * (bd.CostPerTB - ca.getTierCost(TierSSD))
+			if savingPerMonth > 10 {
+				recommendations = append(recommendations, OptimizationRecommendation{
+					Category:    "tier",
+					Priority:    "high",
+					Title:       "NVMe层级数据迁移建议",
+					Description: fmt.Sprintf("NVMe层级有 %.1fTB 数据，建议将非频繁访问数据迁移到SSD层级", bd.UsedTB),
+					Impact:      fmt.Sprintf("每月可节省 %.0f 元", savingPerMonth),
+					SavingCost:  round2(savingPerMonth),
+					Effort:      "medium",
+					Steps: []string{
+						"1. 分析NVMe层级中访问频率较低的文件",
+						"2. 创建数据迁移计划",
+						"3. 使用存储分层策略自动迁移",
+						"4. 监控迁移后的性能影响",
+					},
+				})
+			}
+		}
+	}
+
+	// 2. 冷数据归档建议
+	if result != nil {
+		var coldDataSize int64
+		for _, f := range result.Files {
+			if time.Since(f.AccessTime) > 365*24*time.Hour {
+				coldDataSize += f.Size
+			}
+		}
+		if coldDataSize > 1024*1024*1024 {
+			coldTB := float64(coldDataSize) / float64(1024*1024*1024*1024)
+			savingPerMonth := coldTB * (ca.getTierCost(TierHDD) - ca.getTierCost(TierCold))
+			recommendations = append(recommendations, OptimizationRecommendation{
+				Category:    "lifecycle",
+				Priority:    "high",
+				Title:       "冷数据归档策略",
+				Description: fmt.Sprintf("超过1年未访问的数据有 %s，建议归档到冷存储", formatBytes(coldDataSize)),
+				Impact:      fmt.Sprintf("每月可节省 %.0f 元存储成本", savingPerMonth),
+				SavingBytes: coldDataSize,
+				SavingCost:  round2(savingPerMonth),
+				Effort:      "easy",
+				Steps: []string{
+					"1. 配置自动归档策略（访问超过365天）",
+					"2. 设置归档目标为冷存储层",
+					"3. 配置归档前的数据完整性校验",
+				},
+			})
+		}
+	}
+
+	// 3. 浪费空间清理
+	if report != nil && report.Insights.WastedSpace > 100*1024*1024 {
+		savingTB := float64(report.Insights.WastedSpace) / float64(1024*1024*1024*1024)
+		savingPerMonth := savingTB * ca.getTierCost(TierHDD)
+		recommendations = append(recommendations, OptimizationRecommendation{
+			Category:    "cleanup",
+			Priority:    "medium",
+			Title:       "存储空间清理",
+			Description: fmt.Sprintf("检测到 %s 临时文件和缓存占用空间", formatBytes(report.Insights.WastedSpace)),
+			Impact:      fmt.Sprintf("可释放 %s 存储空间", formatBytes(report.Insights.WastedSpace)),
+			SavingBytes: report.Insights.WastedSpace,
+			SavingCost:  round2(savingPerMonth),
+			Effort:      "easy",
+			Steps: []string{
+				"1. 扫描并列出临时文件",
+				"2. 审核清理候选列表",
+				"3. 执行清理操作",
+				"4. 配置自动清理策略",
+			},
+		})
+	}
+
+	return recommendations
 }
