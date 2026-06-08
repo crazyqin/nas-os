@@ -1,3 +1,17 @@
+## v2.575.0 (2026-06-08) - 吏部轮值: 项目管理与里程碑
+
+### 项目状态审计
+- Go 源文件: 3,128 | 测试文件: 1,085 | 源码: 1,386,296 行 | 测试: 469,903 行
+- 内部模块: 902 | Go 依赖: 169 (直接44+间接125)
+- `go mod verify` 全部通过, `go vet ./...` 无错误
+
+### 里程碑更新
+- MILESTONES.md 添加 v2.575.0 吏部轮值记录
+- 依赖关系审计完成，版本一致性检查通过
+- 9个新模块验证通过 (desktopmanager/unifiedgateway/aiconsole2/ipprotection/fastdedup/iscsiblockclone/apikeymgr/teamfile/stigcompliance)
+
+---
+
 ## v2.575.0 (2026-06-08) - 礼部轮值: 文档品牌更新
 
 ### 文档更新

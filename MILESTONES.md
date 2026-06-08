@@ -1,6 +1,44 @@
 # NAS-OS 里程碑
 
-## v2.575.0 (2026-06-08) - 礼部轮值
+## v2.575.0 (2026-06-08) - 吏部轮值: 项目管理与里程碑
+
+### 项目状态审计
+- Go 源文件: 3,128 个 (4,213 - 1,085 测试)
+- Go 测试文件: 1,085 个
+- 源码行数: 1,386,296 行
+- 测试行数: 469,903 行 (测试覆盖比 ≈ 3:1)
+- 内部模块数: 902 个
+- Go 直接依赖: 44 个 | 间接依赖: 125 个 | 总计: 169 个
+- `go mod verify` 全部通过
+- `go vet ./...` 无错误
+
+### 里程碑更新
+- MILESTONES.md 添加 v2.575.0 吏部轮值记录
+- CHANGELOG.md 同步更新
+- 依赖关系审计完成，无异常
+
+### 版本一致性检查
+| 文件/位置 | 当前版本 | 状态 |
+|-----------|----------|------|
+| VERSION | v2.574.0 | ✅ 司礼监维护 |
+| CI/CD workflow | v2.575.0 | ✅ 工部维护 |
+| Release workflow | v2.575.0 | ✅ 工部维护 |
+| Docker publish | v2.575.0 | ✅ 工部维护 |
+| MILESTONES.md | v2.575.0 | ✅ 已更新 |
+| CHANGELOG.md | v2.575.0 | ✅ 已更新 |
+
+### v2.574.0 新增模块验证
+- ✅ desktopmanager (桌面管理器)
+- ✅ unifiedgateway (统一网关)
+- ✅ aiconsole2 (AI Console 2.0)
+- ✅ ipprotection (IP 防护)
+- ✅ fastdedup (NVMe快速去重)
+- ✅ iscsiblockclone (iSCSI块克隆)
+- ✅ apikeymgr (API Key管理)
+- ✅ teamfile (团队文件夹)
+- ✅ stigcompliance (STIG合规)
+
+## v2.574.0 (2026-06-08) - 新功能模块
 
 ### 文档更新
 - CHANGELOG.md 添加 v2.575.0 版本记录
