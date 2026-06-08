@@ -25,7 +25,7 @@ func NewOptimizer(config *Config, costAnalyzer *CostAnalyzer) *Optimizer {
 
 // GenerateRecommendations 生成存储优化建议.
 func (o *Optimizer) GenerateRecommendations(result *CollectResult, report *StorageReport, costReport *StorageCostReport) []OptimizationRecommendation {
-	var recommendations []OptimizationRecommendation
+	recommendations := make([]OptimizationRecommendation, 0)
 
 	// 1. 层级优化建议
 	tierRecs := o.generateTierRecommendations(result, report, costReport)
@@ -70,7 +70,7 @@ func (o *Optimizer) GenerateRecommendations(result *CollectResult, report *Stora
 
 // generateTierRecommendations 生成存储层级优化建议.
 func (o *Optimizer) generateTierRecommendations(result *CollectResult, report *StorageReport, costReport *StorageCostReport) []OptimizationRecommendation {
-	var recs []OptimizationRecommendation
+	recs := make([]OptimizationRecommendation, 0)
 
 	if costReport == nil || len(costReport.TierBreakdown) == 0 {
 		return recs
@@ -131,7 +131,7 @@ func (o *Optimizer) generateTierRecommendations(result *CollectResult, report *S
 
 // generateDedupRecommendations 生成去重建议.
 func (o *Optimizer) generateDedupRecommendations(result *CollectResult, report *StorageReport) []OptimizationRecommendation {
-	var recs []OptimizationRecommendation
+	recs := make([]OptimizationRecommendation, 0)
 
 	if report == nil || report.Health.RedundancyRate < 0.05 {
 		return recs
@@ -175,7 +175,7 @@ func (o *Optimizer) generateDedupRecommendations(result *CollectResult, report *
 
 // generateCompressionRecommendations 生成压缩建议.
 func (o *Optimizer) generateCompressionRecommendations(result *CollectResult, report *StorageReport) []OptimizationRecommendation {
-	var recs []OptimizationRecommendation
+	recs := make([]OptimizationRecommendation, 0)
 
 	// 统计可压缩的大文件
 	var compressibleSize int64
@@ -224,7 +224,7 @@ func (o *Optimizer) generateCompressionRecommendations(result *CollectResult, re
 
 // generateLifecycleRecommendations 生成生命周期管理建议.
 func (o *Optimizer) generateLifecycleRecommendations(result *CollectResult, report *StorageReport) []OptimizationRecommendation {
-	var recs []OptimizationRecommendation
+	recs := make([]OptimizationRecommendation, 0)
 
 	// 统计不同年龄段的数据
 	var coldDataSize int64
@@ -296,7 +296,7 @@ func (o *Optimizer) generateLifecycleRecommendations(result *CollectResult, repo
 
 // generateCleanupRecommendations 生成清理建议.
 func (o *Optimizer) generateCleanupRecommendations(result *CollectResult, report *StorageReport) []OptimizationRecommendation {
-	var recs []OptimizationRecommendation
+	recs := make([]OptimizationRecommendation, 0)
 
 	if report == nil {
 		return recs

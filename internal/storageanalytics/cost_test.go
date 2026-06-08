@@ -512,7 +512,6 @@ func TestHandler_ReportWithCost(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "存储成本分析")
 	// 小文件可能没有优化建议，验证报告格式正确
 }
-}
 
 // ========== Reporter 成本报告测试 ==========
 
