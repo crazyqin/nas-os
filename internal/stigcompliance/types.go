@@ -22,9 +22,9 @@ const (
 type CheckStatus string
 
 const (
-	CheckPass     CheckStatus = "pass"
-	CheckFail     CheckStatus = "fail"
-	CheckSkip     CheckStatus = "skip"
+	CheckPass          CheckStatus = "pass"
+	CheckFail          CheckStatus = "fail"
+	CheckSkip          CheckStatus = "skip"
 	CheckNotApplicable CheckStatus = "not_applicable"
 )
 
@@ -53,32 +53,32 @@ type CheckResult struct {
 
 // AuditReport 审计报告
 type AuditReport struct {
-	ID          string         `json:"id"`
-	TotalRules  int            `json:"total_rules"`
-	Passed      int            `json:"passed"`
-	Failed      int            `json:"failed"`
-	Skipped     int            `json:"skipped"`
-	Score       float64        `json:"score"` // 0-100
-	Results     []CheckResult  `json:"results"`
-	GeneratedAt time.Time      `json:"generated_at"`
-	Duration    int64          `json:"duration_ms"`
+	ID          string        `json:"id"`
+	TotalRules  int           `json:"total_rules"`
+	Passed      int           `json:"passed"`
+	Failed      int           `json:"failed"`
+	Skipped     int           `json:"skipped"`
+	Score       float64       `json:"score"` // 0-100
+	Results     []CheckResult `json:"results"`
+	GeneratedAt time.Time     `json:"generated_at"`
+	Duration    int64         `json:"duration_ms"`
 }
 
 // STIGComplianceChecker STIG合规检查器
 type STIGComplianceChecker struct {
-	mu     sync.RWMutex
-	rules  map[string]*STIGRule
+	mu      sync.RWMutex
+	rules   map[string]*STIGRule
 	reports []*AuditReport
-	config CheckerConfig
+	config  CheckerConfig
 }
 
 // CheckerConfig 检查器配置
 type CheckerConfig struct {
-	AutoFix        bool     `json:"auto_fix"`
-	FailOnCat1     bool     `json:"fail_on_cat1"`
-	FailOnCat2     bool     `json:"fail_on_cat2"`
-	ExcludedRules  []string `json:"excluded_rules"`
-	ReportDir      string   `json:"report_dir"`
+	AutoFix       bool     `json:"auto_fix"`
+	FailOnCat1    bool     `json:"fail_on_cat1"`
+	FailOnCat2    bool     `json:"fail_on_cat2"`
+	ExcludedRules []string `json:"excluded_rules"`
+	ReportDir     string   `json:"report_dir"`
 }
 
 // DefaultCheckerConfig 默认配置
@@ -93,8 +93,8 @@ func DefaultCheckerConfig() CheckerConfig {
 
 // 预定义错误
 var (
-	ErrRuleNotFound    = errors.New("STIG rule not found")
-	ErrRuleExists      = errors.New("STIG rule already exists")
-	ErrReportNotFound  = errors.New("audit report not found")
-	ErrCheckerRunning  = errors.New("checker is already running")
+	ErrRuleNotFound   = errors.New("STIG rule not found")
+	ErrRuleExists     = errors.New("STIG rule already exists")
+	ErrReportNotFound = errors.New("audit report not found")
+	ErrCheckerRunning = errors.New("checker is already running")
 )

@@ -40,8 +40,8 @@ func (h *APIHandler) handleCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusCreated, map[string]interface{}{
-		"key":  key,
-		"raw":  rawKey,
+		"key": key,
+		"raw": rawKey,
 	})
 }
 

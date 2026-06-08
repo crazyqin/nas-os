@@ -13,38 +13,38 @@ import (
 type KeyStatus string
 
 const (
-	StatusActive   KeyStatus = "active"
-	StatusExpired  KeyStatus = "expired"
-	StatusRevoked  KeyStatus = "revoked"
+	StatusActive  KeyStatus = "active"
+	StatusExpired KeyStatus = "expired"
+	StatusRevoked KeyStatus = "revoked"
 )
 
 // Permission 权限
 type Permission string
 
 const (
-	PermRead       Permission = "read"
-	PermWrite      Permission = "write"
-	PermDelete     Permission = "delete"
-	PermAdmin      Permission = "admin"
-	PermShare      Permission = "share"
-	PermDownload   Permission = "download"
+	PermRead     Permission = "read"
+	PermWrite    Permission = "write"
+	PermDelete   Permission = "delete"
+	PermAdmin    Permission = "admin"
+	PermShare    Permission = "share"
+	PermDownload Permission = "download"
 )
 
 // APIKey API密钥
 type APIKey struct {
-	ID          string       `json:"id"`
-	UserID      string       `json:"user_id"`
-	Name        string       `json:"name"`
-	KeyHash     string       `json:"key_hash"`
-	Prefix      string       `json:"prefix"`       // 密钥前缀，用于识别
-	Permissions []Permission `json:"permissions"`
-	Status      KeyStatus    `json:"status"`
-	ExpiresAt   *time.Time   `json:"expires_at,omitempty"`
-	LastUsedAt  *time.Time   `json:"last_used_at,omitempty"`
-	UsageCount  int64        `json:"usage_count"`
-	RateLimit   int          `json:"rate_limit"`    // 每分钟请求限制
-	CreatedAt   time.Time    `json:"created_at"`
-	RevokedAt   *time.Time   `json:"revoked_at,omitempty"`
+	ID          string            `json:"id"`
+	UserID      string            `json:"user_id"`
+	Name        string            `json:"name"`
+	KeyHash     string            `json:"key_hash"`
+	Prefix      string            `json:"prefix"` // 密钥前缀，用于识别
+	Permissions []Permission      `json:"permissions"`
+	Status      KeyStatus         `json:"status"`
+	ExpiresAt   *time.Time        `json:"expires_at,omitempty"`
+	LastUsedAt  *time.Time        `json:"last_used_at,omitempty"`
+	UsageCount  int64             `json:"usage_count"`
+	RateLimit   int               `json:"rate_limit"` // 每分钟请求限制
+	CreatedAt   time.Time         `json:"created_at"`
+	RevokedAt   *time.Time        `json:"revoked_at,omitempty"`
 	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
@@ -59,11 +59,11 @@ type CreateKeyRequest struct {
 
 // KeyUsageStats 使用统计
 type KeyUsageStats struct {
-	KeyID       string    `json:"key_id"`
-	TotalCalls  int64     `json:"total_calls"`
-	Last24h     int64     `json:"last_24h_calls"`
-	LastUsedAt  *time.Time `json:"last_used_at"`
-	AvgLatency  float64   `json:"avg_latency_ms"`
+	KeyID      string     `json:"key_id"`
+	TotalCalls int64      `json:"total_calls"`
+	Last24h    int64      `json:"last_24h_calls"`
+	LastUsedAt *time.Time `json:"last_used_at"`
+	AvgLatency float64    `json:"avg_latency_ms"`
 }
 
 // APIKeyManager API Key管理器
@@ -75,31 +75,31 @@ type APIKeyManager struct {
 
 // ManagerConfig 管理器配置
 type ManagerConfig struct {
-	MaxKeysPerUser  int  `json:"max_keys_per_user"`
-	DefaultRateLimit int `json:"default_rate_limit"`
-	KeyLength       int  `json:"key_length"`
-	HashAlgorithm   string `json:"hash_algorithm"`
-	AllowExpired    bool `json:"allow_expired"`
+	MaxKeysPerUser   int    `json:"max_keys_per_user"`
+	DefaultRateLimit int    `json:"default_rate_limit"`
+	KeyLength        int    `json:"key_length"`
+	HashAlgorithm    string `json:"hash_algorithm"`
+	AllowExpired     bool   `json:"allow_expired"`
 }
 
 // DefaultManagerConfig 默认配置
 func DefaultManagerConfig() ManagerConfig {
 	return ManagerConfig{
-		MaxKeysPerUser:  10,
+		MaxKeysPerUser:   10,
 		DefaultRateLimit: 60,
-		KeyLength:       32,
-		HashAlgorithm:   "sha256",
-		AllowExpired:    false,
+		KeyLength:        32,
+		HashAlgorithm:    "sha256",
+		AllowExpired:     false,
 	}
 }
 
 // 预定义错误
 var (
-	ErrKeyNotFound     = errors.New("API key not found")
-	ErrKeyRevoked      = errors.New("API key is revoked")
-	ErrKeyExpired      = errors.New("API key is expired")
-	ErrMaxKeysReached  = errors.New("max keys per user reached")
-	ErrInvalidPerms    = errors.New("invalid permissions")
-	ErrNameRequired    = errors.New("key name is required")
-	ErrUserIDRequired  = errors.New("user ID is required")
+	ErrKeyNotFound    = errors.New("API key not found")
+	ErrKeyRevoked     = errors.New("API key is revoked")
+	ErrKeyExpired     = errors.New("API key is expired")
+	ErrMaxKeysReached = errors.New("max keys per user reached")
+	ErrInvalidPerms   = errors.New("invalid permissions")
+	ErrNameRequired   = errors.New("key name is required")
+	ErrUserIDRequired = errors.New("user ID is required")
 )

@@ -14,16 +14,16 @@ import (
 
 // TriggerManager 触发器管理器.
 type TriggerManager struct {
-	mu          sync.RWMutex
-	triggers    map[string]*Trigger
-	cronEntries map[string]cron.EntryID
-	engine      *Engine
-	logger      *zap.Logger
-	cron        *cron.Cron
-	stopChan    chan struct{}
-	running     bool
-	eventCh     chan *TriggerEvent
-	webhookCh   chan *WebhookRequest
+	mu           sync.RWMutex
+	triggers     map[string]*Trigger
+	cronEntries  map[string]cron.EntryID
+	engine       *Engine
+	logger       *zap.Logger
+	cron         *cron.Cron
+	stopChan     chan struct{}
+	running      bool
+	eventCh      chan *TriggerEvent
+	webhookCh    chan *WebhookRequest
 	fileWatchers map[string]*FileWatcher
 }
 
@@ -34,7 +34,7 @@ type WebhookRequest struct {
 	Path      string                 `json:"path"`
 	Headers   map[string]string      `json:"headers,omitempty"`
 	Body      map[string]interface{} `json:"body,omitempty"`
-	Response  chan *WebhookResponse   `json:"-"`
+	Response  chan *WebhookResponse  `json:"-"`
 }
 
 // WebhookResponse Webhook 响应.

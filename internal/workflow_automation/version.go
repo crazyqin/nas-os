@@ -173,15 +173,15 @@ func (vm *VersionManager) DiffVersions(workflowID string, v1, v2 int) (*VersionD
 
 // VersionDiff 版本差异.
 type VersionDiff struct {
-	WorkflowID   string      `json:"workflow_id"`
-	Version1     int         `json:"version1"`
-	Version2     int         `json:"version2"`
-	AddedNodes   []string    `json:"added_nodes"`
-	RemovedNodes []string    `json:"removed_nodes"`
-	ChangedNodes []string    `json:"changed_nodes"`
-	AddedEdges   int         `json:"added_edges"`
-	RemovedEdges int         `json:"removed_edges"`
-	StatusChange string      `json:"status_change,omitempty"`
+	WorkflowID   string   `json:"workflow_id"`
+	Version1     int      `json:"version1"`
+	Version2     int      `json:"version2"`
+	AddedNodes   []string `json:"added_nodes"`
+	RemovedNodes []string `json:"removed_nodes"`
+	ChangedNodes []string `json:"changed_nodes"`
+	AddedEdges   int      `json:"added_edges"`
+	RemovedEdges int      `json:"removed_edges"`
+	StatusChange string   `json:"status_change,omitempty"`
 }
 
 // computeDiff 计算版本差异.

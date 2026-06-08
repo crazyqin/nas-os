@@ -13,12 +13,12 @@ import (
 
 // Executor 工作流执行器，负责工作流执行的编排和调度.
 type Executor struct {
-	mu         sync.RWMutex
-	engine     *Engine
-	logger     *zap.Logger
-	executions map[string]*Execution
+	mu            sync.RWMutex
+	engine        *Engine
+	logger        *zap.Logger
+	executions    map[string]*Execution
 	maxConcurrent int
-	semaphore chan struct{}
+	semaphore     chan struct{}
 }
 
 // NewExecutor 创建工作流执行器.

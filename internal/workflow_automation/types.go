@@ -13,11 +13,11 @@ import (
 type WorkflowStatus string
 
 const (
-	StatusDraft     WorkflowStatus = "draft"
-	StatusActive    WorkflowStatus = "active"
-	StatusPaused    WorkflowStatus = "paused"
-	StatusDisabled  WorkflowStatus = "disabled"
-	StatusArchived  WorkflowStatus = "archived"
+	StatusDraft    WorkflowStatus = "draft"
+	StatusActive   WorkflowStatus = "active"
+	StatusPaused   WorkflowStatus = "paused"
+	StatusDisabled WorkflowStatus = "disabled"
+	StatusArchived WorkflowStatus = "archived"
 )
 
 // NodeType 工作流节点类型.
@@ -89,8 +89,8 @@ type RetryPolicy struct {
 
 // LoopConfig 循环配置.
 type LoopConfig struct {
-	MaxIterations int    `json:"max_iterations"`
-	CollectionKey string `json:"collection_key"` // 遍历的变量名
+	MaxIterations  int    `json:"max_iterations"`
+	CollectionKey  string `json:"collection_key"`            // 遍历的变量名
 	BreakCondition string `json:"break_condition,omitempty"` // 中断条件
 }
 
@@ -111,18 +111,18 @@ const (
 
 // Execution 工作流执行实例.
 type Execution struct {
-	ID         string                  `json:"id"`
-	WorkflowID string                  `json:"workflow_id"`
-	Version    int                     `json:"version"`
-	Status     ExecutionStatus         `json:"status"`
-	TriggerID  string                  `json:"trigger_id,omitempty"`
+	ID          string                 `json:"id"`
+	WorkflowID  string                 `json:"workflow_id"`
+	Version     int                    `json:"version"`
+	Status      ExecutionStatus        `json:"status"`
+	TriggerID   string                 `json:"trigger_id,omitempty"`
 	TriggeredBy string                 `json:"triggered_by,omitempty"`
-	Context    map[string]interface{}  `json:"context,omitempty"`
-	Steps      []*StepExecution        `json:"steps"`
-	Error      string                  `json:"error,omitempty"`
-	StartedAt  time.Time               `json:"started_at"`
-	FinishedAt *time.Time              `json:"finished_at,omitempty"`
-	Duration   time.Duration           `json:"duration"`
+	Context     map[string]interface{} `json:"context,omitempty"`
+	Steps       []*StepExecution       `json:"steps"`
+	Error       string                 `json:"error,omitempty"`
+	StartedAt   time.Time              `json:"started_at"`
+	FinishedAt  *time.Time             `json:"finished_at,omitempty"`
+	Duration    time.Duration          `json:"duration"`
 }
 
 // StepExecution 单步执行记录.
@@ -144,11 +144,11 @@ type StepExecution struct {
 type TriggerType string
 
 const (
-	TriggerCron     TriggerType = "cron"      // 定时触发
-	TriggerOnEvent TriggerType = "event"     // 事件触发
-	TriggerWebhook  TriggerType = "webhook"   // Webhook 触发
-	TriggerFile     TriggerType = "file"      // 文件变化触发
-	TriggerManual   TriggerType = "manual"    // 手动触发
+	TriggerCron    TriggerType = "cron"    // 定时触发
+	TriggerOnEvent TriggerType = "event"   // 事件触发
+	TriggerWebhook TriggerType = "webhook" // Webhook 触发
+	TriggerFile    TriggerType = "file"    // 文件变化触发
+	TriggerManual  TriggerType = "manual"  // 手动触发
 )
 
 // Trigger 触发器定义.
@@ -178,12 +178,12 @@ type TriggerEvent struct {
 type ActionType string
 
 const (
-	ActionFileOps      ActionType = "file_ops"       // 文件操作
-	ActionNotification ActionType = "notification"   // 通知
-	ActionAPICall      ActionType = "api_call"       // API 调用
-	ActionContainer    ActionType = "container"       // 容器操作
-	ActionShell        ActionType = "shell"           // Shell 命令
-	ActionTransform    ActionType = "transform"       // 数据转换
+	ActionFileOps      ActionType = "file_ops"     // 文件操作
+	ActionNotification ActionType = "notification" // 通知
+	ActionAPICall      ActionType = "api_call"     // API 调用
+	ActionContainer    ActionType = "container"    // 容器操作
+	ActionShell        ActionType = "shell"        // Shell 命令
+	ActionTransform    ActionType = "transform"    // 数据转换
 )
 
 // ActionHandler 动作处理器接口.
@@ -202,11 +202,11 @@ type ActionHandler interface {
 
 // ActionContext 动作执行上下文.
 type ActionContext struct {
-	Config    map[string]string        `json:"config"`
-	Input     map[string]interface{}   `json:"input"`
-	Variables map[string]interface{}   `json:"variables"`
-	Logger    ExecutionLogger          `json:"-"`
-	Timeout   time.Duration            `json:"timeout"`
+	Config    map[string]string      `json:"config"`
+	Input     map[string]interface{} `json:"input"`
+	Variables map[string]interface{} `json:"variables"`
+	Logger    ExecutionLogger        `json:"-"`
+	Timeout   time.Duration          `json:"timeout"`
 }
 
 // ActionResult 动作执行结果.
