@@ -380,10 +380,10 @@ func (s *ScanStats) UpdateLastScan() {
 }
 
 // GetStats 获取统计信息副本
-func (s *ScanStats) GetStats() ScanStats {
+func (s *ScanStats) GetStats() *ScanStats {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	return ScanStats{
+	return &ScanStats{
 		TotalScans:          s.TotalScans,
 		CompletedScans:      s.CompletedScans,
 		FailedScans:         s.FailedScans,

@@ -18,7 +18,7 @@ func TestNewHybridPool(t *testing.T) {
 		MinFileSize:       1024 * 1024, // 1MB
 		EnableAutoTiering: true,
 	}
-	pool := NewHybridPool(config)
+	pool := NewFlashTierManager(config)
 	if pool == nil {
 		t.Fatal("NewHybridPool returned nil")
 	}
@@ -37,7 +37,7 @@ func TestRecordAccess(t *testing.T) {
 		DemoteThreshold:   30,
 		EnableAutoTiering: false,
 	}
-	pool := NewHybridPool(config)
+	pool := NewFlashTierManager(config)
 
 	// Record multiple accesses to increase heat
 	for i := 0; i < 20; i++ {
@@ -62,7 +62,7 @@ func TestDetermineTier(t *testing.T) {
 		PromoteThreshold: 70,
 		DemoteThreshold:  30,
 	}
-	pool := NewHybridPool(config)
+	pool := NewFlashTierManager(config)
 
 	tests := []struct {
 		score    float64
@@ -88,7 +88,7 @@ func TestGetStats(t *testing.T) {
 	config := HybridPoolConfig{
 		EnableAutoTiering: false,
 	}
-	pool := NewHybridPool(config)
+	pool := NewFlashTierManager(config)
 
 	// Add some files to different tiers
 	pool.mu.Lock()

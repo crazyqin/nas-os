@@ -108,7 +108,7 @@ func TestScan(t *testing.T) {
 	if result.ID == "" {
 		t.Error("expected non-empty scan ID")
 	}
-	if result.Status != ScanStatusRunning && result.Status != ScanStatusComplete {
+	if result.Status != StatusAnalyzing && result.Status != StatusMerged {
 		t.Errorf("unexpected status: %v", result.Status)
 	}
 
@@ -119,7 +119,7 @@ func TestScan(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetScanResult failed: %v", err)
 	}
-	if got.Status != ScanStatusComplete {
+	if got.Status != StatusMerged {
 		t.Errorf("expected status complete, got %v", got.Status)
 	}
 }
@@ -201,7 +201,7 @@ func TestDuplicateGroupOperations(t *testing.T) {
 	}
 
 	got, _ = m.GetDuplicateGroup("group-001")
-	if got.Status != StatusResolved {
+	if got.Status != StatusDeleted {
 		t.Errorf("expected status resolved, got %v", got.Status)
 	}
 }

@@ -695,7 +695,7 @@ func (s *Scanner) GetResultsByContainer(containerID string) []*ScanResult {
 }
 
 // GetStats 获取统计信息
-func (s *Scanner) GetStats() ScanStats {
+func (s *Scanner) GetStats() *ScanStats {
 	return s.stats.GetStats()
 }
 
