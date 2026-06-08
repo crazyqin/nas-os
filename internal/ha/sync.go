@@ -163,7 +163,7 @@ func NewStateSyncer(config *HAConfig, logger *zap.Logger) *StateSyncer {
 
 // Start 启动状态同步器
 func (ss *StateSyncer) Start(ctx context.Context) error {
-	ss.ctx = ctx
+	ss.ctx, ss.cancel = context.WithCancel(ctx)
 
 	// 初始化节点同步状态
 	for _, peer := range ss.config.Peers {

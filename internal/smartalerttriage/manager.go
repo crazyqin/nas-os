@@ -77,10 +77,8 @@ func (m *Manager) Ingest(title, description, source, resource string, labels map
 			if description != "" {
 				a.Description = description
 			}
-			if labels != nil {
-				for k, v := range labels {
-					a.Labels[k] = v
-				}
+			for k, v := range labels {
+				a.Labels[k] = v
 			}
 			// 更新聚合组
 			if a.GroupID != "" {
