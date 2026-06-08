@@ -14,18 +14,18 @@ import (
 type SensitiveCategory string
 
 const (
-	CategoryIDCard      SensitiveCategory = "id_card"       // 身份证
-	CategoryBankCard    SensitiveCategory = "bank_card"      // 银行卡
-	CategoryPhone       SensitiveCategory = "phone"          // 手机号
-	CategoryEmail       SensitiveCategory = "email"          // 邮箱
-	CategoryPassport    SensitiveCategory = "passport"       // 护照
-	CategorySSN         SensitiveCategory = "ssn"            // 社保号
+	CategoryIDCard       SensitiveCategory = "id_card"       // 身份证
+	CategoryBankCard     SensitiveCategory = "bank_card"     // 银行卡
+	CategoryPhone        SensitiveCategory = "phone"         // 手机号
+	CategoryEmail        SensitiveCategory = "email"         // 邮箱
+	CategoryPassport     SensitiveCategory = "passport"      // 护照
+	CategorySSN          SensitiveCategory = "ssn"           // 社保号
 	CategoryLicensePlate SensitiveCategory = "license_plate" // 车牌号
-	CategoryAddress     SensitiveCategory = "address"        // 地址
-	CategoryName        SensitiveCategory = "name"           // 姓名
-	CategoryMedical     SensitiveCategory = "medical"        // 医疗信息
-	CategoryBiometric   SensitiveCategory = "biometric"      // 生物特征
-	CategoryIPAddress   SensitiveCategory = "ip_address"     // IP地址
+	CategoryAddress      SensitiveCategory = "address"       // 地址
+	CategoryName         SensitiveCategory = "name"          // 姓名
+	CategoryMedical      SensitiveCategory = "medical"       // 医疗信息
+	CategoryBiometric    SensitiveCategory = "biometric"     // 生物特征
+	CategoryIPAddress    SensitiveCategory = "ip_address"    // IP地址
 )
 
 // MaskStrategy 脱敏策略
@@ -81,8 +81,8 @@ type SensitivePattern struct {
 // DetectedItem 检测到的敏感数据项
 type DetectedItem struct {
 	ID       string            `json:"id"`
-	Value    string            `json:"value"`    // 原始值
-	Masked   string            `json:"masked"`   // 脱敏后
+	Value    string            `json:"value"`  // 原始值
+	Masked   string            `json:"masked"` // 脱敏后
 	Category SensitiveCategory `json:"category"`
 	Start    int               `json:"start"`
 	End      int               `json:"end"`
@@ -92,20 +92,20 @@ type DetectedItem struct {
 
 // DetectionResult 检测结果
 type DetectionResult struct {
-	Items      []DetectedItem       `json:"items"`
-	TotalCount int                  `json:"total_count"`
+	Items      []DetectedItem            `json:"items"`
+	TotalCount int                       `json:"total_count"`
 	ByCategory map[SensitiveCategory]int `json:"by_category"`
-	ScannedAt  time.Time            `json:"scanned_at"`
+	ScannedAt  time.Time                 `json:"scanned_at"`
 }
 
 // MaskRule 脱敏规则
 type MaskRule struct {
 	Category    SensitiveCategory `json:"category"`
 	Strategy    MaskStrategy      `json:"strategy"`
-	PrefixKeep  int               `json:"prefix_keep"`  // 保留前N位
-	SuffixKeep  int               `json:"suffix_keep"`  // 保留后N位
-	MaskChar    string            `json:"mask_char"`    // 掩码字符
-	Replacement string            `json:"replacement"`  // 固定替换文本（redact/token策略用）
+	PrefixKeep  int               `json:"prefix_keep"` // 保留前N位
+	SuffixKeep  int               `json:"suffix_keep"` // 保留后N位
+	MaskChar    string            `json:"mask_char"`   // 掩码字符
+	Replacement string            `json:"replacement"` // 固定替换文本（redact/token策略用）
 	Enabled     bool              `json:"enabled"`
 }
 
@@ -120,8 +120,8 @@ type MaskResult struct {
 // ComplianceCheckResult 合规检查结果
 type ComplianceCheckResult struct {
 	Framework   ComplianceFramework `json:"framework"`
-	Score       float64             `json:"score"`        // 0-100
-	Status      string              `json:"status"`       // compliant, warning, non-compliant
+	Score       float64             `json:"score"`  // 0-100
+	Status      string              `json:"status"` // compliant, warning, non-compliant
 	Issues      []ComplianceIssue   `json:"issues"`
 	CheckedAt   time.Time           `json:"checked_at"`
 	TotalItems  int                 `json:"total_items"`
@@ -141,34 +141,34 @@ type ComplianceIssue struct {
 
 // DataFlowRecord 数据流向记录
 type DataFlowRecord struct {
-	ID            string            `json:"id"`
-	Source        string            `json:"source"`
-	Destination   string            `json:"destination"`
-	Direction     DataFlowDirection `json:"direction"`
-	Categories    []SensitiveCategory `json:"categories"`
-	ItemCount     int               `json:"item_count"`
-	Masked        bool              `json:"masked"`
-	AISessionID   string            `json:"ai_session_id"`
-	Timestamp     time.Time         `json:"timestamp"`
-	Metadata      map[string]string `json:"metadata,omitempty"`
+	ID          string              `json:"id"`
+	Source      string              `json:"source"`
+	Destination string              `json:"destination"`
+	Direction   DataFlowDirection   `json:"direction"`
+	Categories  []SensitiveCategory `json:"categories"`
+	ItemCount   int                 `json:"item_count"`
+	Masked      bool                `json:"masked"`
+	AISessionID string              `json:"ai_session_id"`
+	Timestamp   time.Time           `json:"timestamp"`
+	Metadata    map[string]string   `json:"metadata,omitempty"`
 }
 
 // RiskAssessment 风险评估
 type RiskAssessment struct {
-	OverallScore    float64              `json:"overall_score"`    // 0-100
-	RiskLevel       RiskLevel            `json:"risk_level"`
-	Factors         map[string]float64   `json:"factors"`          // 各因素得分
-	Recommendations []string             `json:"recommendations"`
-	AssessedAt      time.Time            `json:"assessed_at"`
+	OverallScore    float64            `json:"overall_score"` // 0-100
+	RiskLevel       RiskLevel          `json:"risk_level"`
+	Factors         map[string]float64 `json:"factors"` // 各因素得分
+	Recommendations []string           `json:"recommendations"`
+	AssessedAt      time.Time          `json:"assessed_at"`
 }
 
 // GuardianConfig 配置
 type GuardianConfig struct {
-	AutoMask       bool                    `json:"auto_mask"`       // 自动脱敏
-	StrictMode     bool                    `json:"strict_mode"`     // 严格模式（不允许未脱敏数据进入AI）
-	MaxItemsPerReq int                     `json:"max_items_per_req"`
-	AuditEnabled   bool                    `json:"audit_enabled"`
-	Frameworks     []ComplianceFramework   `json:"frameworks"`      // 启用的合规框架
+	AutoMask       bool                  `json:"auto_mask"`   // 自动脱敏
+	StrictMode     bool                  `json:"strict_mode"` // 严格模式（不允许未脱敏数据进入AI）
+	MaxItemsPerReq int                   `json:"max_items_per_req"`
+	AuditEnabled   bool                  `json:"audit_enabled"`
+	Frameworks     []ComplianceFramework `json:"frameworks"` // 启用的合规框架
 }
 
 // DefaultConfig 默认配置
@@ -232,10 +232,10 @@ type AuditEntry struct {
 
 // 预定义错误
 var (
-	ErrContentEmpty      = errors.New("content cannot be empty")
-	ErrPatternInvalid    = errors.New("invalid pattern")
-	ErrMaxItemsReached   = errors.New("maximum items per request reached")
-	ErrStrictModeReject  = errors.New("strict mode: unmasked sensitive data rejected")
-	ErrFrameworkUnknown  = errors.New("unknown compliance framework")
-	ErrRuleNotFound      = errors.New("mask rule not found for category")
+	ErrContentEmpty     = errors.New("content cannot be empty")
+	ErrPatternInvalid   = errors.New("invalid pattern")
+	ErrMaxItemsReached  = errors.New("maximum items per request reached")
+	ErrStrictModeReject = errors.New("strict mode: unmasked sensitive data rejected")
+	ErrFrameworkUnknown = errors.New("unknown compliance framework")
+	ErrRuleNotFound     = errors.New("mask rule not found for category")
 )

@@ -13,11 +13,11 @@ import (
 type FolderPermission string
 
 const (
-	PermOwner  FolderPermission = "owner"
-	PermAdmin  FolderPermission = "admin"
-	PermWrite  FolderPermission = "write"
-	PermRead   FolderPermission = "read"
-	PermDeny   FolderPermission = "deny"
+	PermOwner FolderPermission = "owner"
+	PermAdmin FolderPermission = "admin"
+	PermWrite FolderPermission = "write"
+	PermRead  FolderPermission = "read"
+	PermDeny  FolderPermission = "deny"
 )
 
 // MemberRole 成员角色
@@ -55,16 +55,16 @@ type FolderMember struct {
 
 // ShareLink 分享链接
 type ShareLink struct {
-	ID         string     `json:"id"`
-	FolderID   string     `json:"folder_id"`
-	Token      string     `json:"token"`
-	Permission FolderPermission `json:"permission"`
-	ExpiresAt  *time.Time `json:"expires_at,omitempty"`
-	MaxDownloads int      `json:"maxDownloads"`
-	DownloadCount int     `json:"download_count"`
-	CreatedBy  string     `json:"created_by"`
-	CreatedAt  time.Time  `json:"created_at"`
-	IsActive   bool       `json:"is_active"`
+	ID            string           `json:"id"`
+	FolderID      string           `json:"folder_id"`
+	Token         string           `json:"token"`
+	Permission    FolderPermission `json:"permission"`
+	ExpiresAt     *time.Time       `json:"expires_at,omitempty"`
+	MaxDownloads  int              `json:"maxDownloads"`
+	DownloadCount int              `json:"download_count"`
+	CreatedBy     string           `json:"created_by"`
+	CreatedAt     time.Time        `json:"created_at"`
+	IsActive      bool             `json:"is_active"`
 }
 
 // AuditLog 审计日志
@@ -90,12 +90,12 @@ type TeamFileManager struct {
 
 // ManagerConfig 管理器配置
 type ManagerConfig struct {
-	MaxFolders       int  `json:"max_folders"`
-	MaxMembersPerFolder int `json:"max_members_per_folder"`
-	AllowGuestAccess bool `json:"allow_guest_access"`
-	LinkExpiryDays   int  `json:"link_expiry_days"`
-	AuditEnabled     bool `json:"audit_enabled"`
-	MaxFileSizeMB    int  `json:"max_file_size_mb"`
+	MaxFolders          int  `json:"max_folders"`
+	MaxMembersPerFolder int  `json:"max_members_per_folder"`
+	AllowGuestAccess    bool `json:"allow_guest_access"`
+	LinkExpiryDays      int  `json:"link_expiry_days"`
+	AuditEnabled        bool `json:"audit_enabled"`
+	MaxFileSizeMB       int  `json:"max_file_size_mb"`
 }
 
 // DefaultManagerConfig 默认配置

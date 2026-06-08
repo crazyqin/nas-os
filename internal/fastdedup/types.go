@@ -49,22 +49,22 @@ type DedupStats struct {
 
 // DedupBlock 去重块
 type DedupBlock struct {
-	Hash      string    `json:"hash"`
-	Size      int64     `json:"size"`
-	RefCount  int       `json:"ref_count"`
+	Hash      string      `json:"hash"`
+	Size      int64       `json:"size"`
+	RefCount  int         `json:"ref_count"`
 	Tier      StorageTier `json:"tier"`
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt time.Time   `json:"created_at"`
 }
 
 // DedupPolicy 去重策略
 type DedupPolicy struct {
-	Name        string          `json:"name"`
-	Mode        DedupMode       `json:"mode"`
-	Algorithm   DedupAlgorithm  `json:"algorithm"`
+	Name         string         `json:"name"`
+	Mode         DedupMode      `json:"mode"`
+	Algorithm    DedupAlgorithm `json:"algorithm"`
 	MinBlockSize int64          `json:"min_block_size"`
 	MaxBlockSize int64          `json:"max_block_size"`
-	Tiers       []StorageTier   `json:"tiers"`
-	Enabled     bool            `json:"enabled"`
+	Tiers        []StorageTier  `json:"tiers"`
+	Enabled      bool           `json:"enabled"`
 }
 
 // DedupResult 去重结果
@@ -78,24 +78,24 @@ type DedupResult struct {
 
 // FastDedupEngine NVMe优化快速去重引擎
 type FastDedupEngine struct {
-	mu        sync.RWMutex
-	config    EngineConfig
-	policies  map[string]*DedupPolicy
+	mu         sync.RWMutex
+	config     EngineConfig
+	policies   map[string]*DedupPolicy
 	blockIndex map[string]*DedupBlock
-	stats     DedupStats
-	running   bool
+	stats      DedupStats
+	running    bool
 }
 
 // EngineConfig 引擎配置
 type EngineConfig struct {
-	DefaultMode     DedupMode       `json:"default_mode"`
-	DefaultAlgo     DedupAlgorithm  `json:"default_algo"`
-	HashAlgorithm   string          `json:"hash_algorithm"`
-	IndexBackend    string          `json:"index_backend"`
-	MaxMemoryMB     int             `json:"max_memory_mb"`
-	NVMeOptimized   bool            `json:"nvme_optimized"`
-	WorkerCount     int             `json:"worker_count"`
-	BatchSizeMB     int             `json:"batch_size_mb"`
+	DefaultMode   DedupMode      `json:"default_mode"`
+	DefaultAlgo   DedupAlgorithm `json:"default_algo"`
+	HashAlgorithm string         `json:"hash_algorithm"`
+	IndexBackend  string         `json:"index_backend"`
+	MaxMemoryMB   int            `json:"max_memory_mb"`
+	NVMeOptimized bool           `json:"nvme_optimized"`
+	WorkerCount   int            `json:"worker_count"`
+	BatchSizeMB   int            `json:"batch_size_mb"`
 }
 
 // DefaultEngineConfig 默认引擎配置

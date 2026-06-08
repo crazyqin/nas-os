@@ -8,8 +8,8 @@ import (
 // NewSTIGComplianceChecker 创建STIG合规检查器
 func NewSTIGComplianceChecker(cfg CheckerConfig) *STIGComplianceChecker {
 	checker := &STIGComplianceChecker{
-		rules:   make(map[string]*STIGRule),
-		config:  cfg,
+		rules:  make(map[string]*STIGRule),
+		config: cfg,
 	}
 	checker.loadDefaultRules()
 	return checker

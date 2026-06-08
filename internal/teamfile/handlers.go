@@ -90,10 +90,10 @@ func (h *APIHandler) handleShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var req struct {
-		FolderID  string           `json:"folder_id"`
-		CreatedBy string           `json:"created_by"`
+		FolderID   string           `json:"folder_id"`
+		CreatedBy  string           `json:"created_by"`
 		Permission FolderPermission `json:"permission"`
-		ExpiryDays int             `json:"expiry_days"`
+		ExpiryDays int              `json:"expiry_days"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

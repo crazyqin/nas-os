@@ -13,18 +13,18 @@ import (
 
 // Engine 工作流引擎.
 type Engine struct {
-	mu          sync.RWMutex
-	workflows   map[string]*Workflow
-	triggers    map[string]*Trigger
-	handlers    map[ActionType]ActionHandler
-	store       Store
-	logger      *zap.Logger
-	execLogger  ExecutionLogger
-	condEval    *ConditionEvaluator
-	triggerMgr  *TriggerManager
-	executions  map[string]*Execution
-	stopChan    chan struct{}
-	running     bool
+	mu         sync.RWMutex
+	workflows  map[string]*Workflow
+	triggers   map[string]*Trigger
+	handlers   map[ActionType]ActionHandler
+	store      Store
+	logger     *zap.Logger
+	execLogger ExecutionLogger
+	condEval   *ConditionEvaluator
+	triggerMgr *TriggerManager
+	executions map[string]*Execution
+	stopChan   chan struct{}
+	running    bool
 }
 
 // NewEngine 创建工作流引擎.
