@@ -13,11 +13,14 @@ import (
 
 // Analyzer 存储分析引擎.
 type Analyzer struct {
-	mu          sync.RWMutex
-	config      *Config
-	logger      *zap.Logger
-	lastReport  *StorageReport
-	lastCollect *CollectResult
+	mu           sync.RWMutex
+	config       *Config
+	logger       *zap.Logger
+	lastReport   *StorageReport
+	lastCollect  *CollectResult
+	lastCostReport *StorageCostReport
+	costAnalyzer *CostAnalyzer
+	optimizer    *Optimizer
 }
 
 // NewAnalyzer 创建分析引擎.
@@ -28,9 +31,12 @@ func NewAnalyzer(config *Config, logger *zap.Logger) *Analyzer {
 	if logger == nil {
 		logger = zap.NewNop()
 	}
+	costAnalyzer := NewCostAnalyzer(config)
 	return &Analyzer{
-		config: config,
-		logger: logger,
+		config:       config,
+		logger:       logger,
+		costAnalyzer: costAnalyzer,
+		optimizer:    NewOptimizer(config, costAnalyzer),
 	}
 }
 
@@ -73,6 +79,14 @@ func (a *Analyzer) Analyze(result *CollectResult) *StorageReport {
 	a.lastCollect = result
 	a.mu.Unlock()
 
+	// 生成成本分析报告
+	costReport := a.costAnalyzer.AnalyzeCosts(result, report)
+	if costReport != nil {
+		a.mu.Lock()
+		a.lastCostReport = costReport
+		a.mu.Unlock()
+	}
+
 	a.logger.Info("分析完成",
 		zap.String("path", result.ScanPath),
 		zap.Int64("total_size", result.TotalSize),
@@ -100,6 +114,26 @@ func (a *Analyzer) GetLastCollect() (*CollectResult, error) {
 		return nil, ErrNoAnalysisData
 	}
 	return a.lastCollect, nil
+}
+
+// GetLastCostReport 获取最后一次成本分析报告.
+func (a *Analyzer) GetLastCostReport() (*StorageCostReport, error) {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+	if a.lastCostReport == nil {
+		return nil, ErrNoAnalysisData
+	}
+	return a.lastCostReport, nil
+}
+
+// GetCostAnalyzer 获取成本分析器.
+func (a *Analyzer) GetCostAnalyzer() *CostAnalyzer {
+	return a.costAnalyzer
+}
+
+// GetOptimizer 获取优化器.
+func (a *Analyzer) GetOptimizer() *Optimizer {
+	return a.optimizer
 }
 
 // buildSummary 构建存储概览.

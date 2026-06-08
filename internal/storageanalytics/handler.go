@@ -40,6 +40,14 @@ func (h *Handler) RegisterRoutes(api *gin.RouterGroup) {
 		storageGroup.GET("/trends", h.trends)
 		storageGroup.GET("/insights", h.insights)
 		storageGroup.GET("/report", h.fullReport)
+		// 存储成本分析
+		storageGroup.GET("/cost/overview", h.costOverview)
+		storageGroup.GET("/cost/forecast", h.costForecast)
+		storageGroup.GET("/cost/tiers", h.costTiers)
+		storageGroup.GET("/cost/cloud-comparison", h.costCloudComparison)
+		// 存储优化建议
+		storageGroup.GET("/optimization/recommendations", h.optimizationRecommendations)
+		storageGroup.GET("/optimization/savings", h.optimizationSavings)
 	}
 }
 
@@ -153,7 +161,13 @@ func (h *Handler) fullReport(c *gin.Context) {
 
 	switch format {
 	case "markdown", "md":
-		markdown := h.reporter.ToMarkdown(report)
+		costReport, _ := h.analyzer.GetLastCostReport()
+		var markdown string
+		if costReport != nil {
+			markdown = h.reporter.ToMarkdownWithCost(report, costReport)
+		} else {
+			markdown = h.reporter.ToMarkdown(report)
+		}
 		c.Header("Content-Type", "text/plain; charset=utf-8")
 		c.String(http.StatusOK, markdown)
 	default:
@@ -165,4 +179,106 @@ func (h *Handler) fullReport(c *gin.Context) {
 		c.Header("Content-Type", "application/json; charset=utf-8")
 		c.Data(http.StatusOK, "application/json; charset=utf-8", data)
 	}
+}
+
+// costOverview 获取存储成本概览.
+func (h *Handler) costOverview(c *gin.Context) {
+	costReport, err := h.analyzer.GetLastCostReport()
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"generated_at":       costReport.GeneratedAt,
+		"total_monthly_cost": costReport.TotalMonthlyCost,
+		"total_yearly_cost":  costReport.TotalYearlyCost,
+		"cost_per_tb_avg":    costReport.CostPerTBAvg,
+		"tier_breakdown":     costReport.TierBreakdown,
+	})
+}
+
+// costForecast 获取成本预测.
+func (h *Handler) costForecast(c *gin.Context) {
+	costReport, err := h.analyzer.GetLastCostReport()
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	if costReport.Forecast == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "暂无预测数据"})
+		return
+	}
+
+	c.JSON(http.StatusOK, costReport.Forecast)
+}
+
+// costTiers 获取各存储层级成本详情.
+func (h *Handler) costTiers(c *gin.Context) {
+	costReport, err := h.analyzer.GetLastCostReport()
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"tiers": costReport.TierBreakdown,
+	})
+}
+
+// costCloudComparison 获取云存储成本对比.
+func (h *Handler) costCloudComparison(c *gin.Context) {
+	costReport, err := h.analyzer.GetLastCostReport()
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	if costReport.ComparisonWithCloud == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "暂无云存储对比数据"})
+		return
+	}
+
+	c.JSON(http.StatusOK, costReport.ComparisonWithCloud)
+}
+
+// optimizationRecommendations 获取优化建议.
+func (h *Handler) optimizationRecommendations(c *gin.Context) {
+	costReport, err := h.analyzer.GetLastCostReport()
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"recommendations": costReport.Recommendations,
+		"count":           len(costReport.Recommendations),
+	})
+}
+
+// optimizationSavings 获取优化节省汇总.
+func (h *Handler) optimizationSavings(c *gin.Context) {
+	costReport, err := h.analyzer.GetLastCostReport()
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	totalSavingBytes := int64(0)
+	totalSavingCost := 0.0
+	byCategory := make(map[string]int64)
+
+	for _, rec := range costReport.Recommendations {
+		totalSavingBytes += rec.SavingBytes
+		totalSavingCost += rec.SavingCost
+		byCategory[rec.Category] += rec.SavingBytes
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"total_saving_bytes": totalSavingBytes,
+		"total_saving_cost":  totalSavingCost,
+		"by_category":        byCategory,
+		"recommendation_count": len(costReport.Recommendations),
+	})
 }
