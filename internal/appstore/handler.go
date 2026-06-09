@@ -29,7 +29,7 @@ func (h *Handler) handleApps(w http.ResponseWriter, r *http.Request) {
 	}
 
 	category := AppCategory(r.URL.Query().Get("category"))
-	apps := h.store.ListApps(r.Context(), category)
+	apps := h.store.ListApps(r.Context(), &category)
 	writeJSON(w, apps)
 }
 

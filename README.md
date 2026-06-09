@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.567.0 Stable (2026-06-08)
+> **最新版本**: v2.581.0 Stable (2026-06-09)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -78,6 +78,13 @@
 | 🔌 SmartNIC/DPU卸载 | OVS/IPsec/TLS/压缩/RDMA卸载、SmartNIC设备管理与监控 | ✅ 完成 |
 | 🎮 GPU推理服务 | 多模型并发、模型热加载、显存管理、推理队列、多精度(FP16/INT8/INT4) | ✅ 完成 |
 | 📰 下载器 | Transmission/qBittorrent 集成 | ✅ 完成 |
+| 🚪 门禁管理 | 设备管理、卡片授权、AI行为分析（对标群晖AC100） | ✅ 完成 |
+| 🔎 AI深度搜索 | 语义搜索、OCR、视觉分析（对标群晖Deep Search） | ✅ 完成 |
+| 🤖 智能运维代理 | 工作流调度、健康监控、自动修复（对标群晖DSM Agent） | ✅ 完成 |
+| 💬 本地通讯套件 | 即时通讯、视频会议、AI摘要/翻译（对标群晖ChatPlus） | ✅ 完成 |
+| 🌐 P2P远程访问 | NAT穿透、端到端加密、连接管理（对标飞牛FN Connect） | ✅ 完成 |
+| 🔍 增强搜索 | 全文索引、语义搜索、Spotlight兼容（对标TrueNAS TrueSearch） | ✅ 完成 |
+| 📂 增强文件共享 | FIPS加密、在线预览、浏览器管理（对标TrueNAS WebShare） | ✅ 完成 |
 | 🎬 媒体服务 | HLS/DASH 流媒体/转码/字幕 | ✅ 完成 |
 | 🖼️ 照片管理 | 相册/AI 分析/缩略图 | ✅ 完成 |
 | 📝 在线文档 | OnlyOffice 集成/协作编辑 | ✅ 完成 |
