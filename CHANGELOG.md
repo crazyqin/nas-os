@@ -1,3 +1,15 @@
+## v2.584.0 (2026-06-09) - 吏部轮值: 版本管理与代码修复
+
+### Bug 修复
+- **数据去重模块** - ResolveDuplicateGroup 状态从 StatusDuplicate 修正为 StatusDeleted
+- **加密保险箱** - EncryptFile 状态检查从 VaultLocked 修正为 VaultUnlocked，修复加密操作前提条件
+- **文件锁路由** - check/file 路由参数从 `:filepath` 改为 `*filepath`，支持路径中含斜杠
+
+### 版本号
+- v2.583.0 → v2.584.0
+
+---
+
 ## v2.583.0 (2026-06-09) - 工部轮值: CI/CD 优化
 
 ### CI/CD 修复

@@ -447,7 +447,7 @@ func (m *Manager) ResolveDuplicateGroup(groupID string, keepFileID string) error
 		return fmt.Errorf("file not found in group: %s", keepFileID)
 	}
 
-	group.Status = StatusDuplicate
+	group.Status = StatusDeleted
 	group.UpdatedAt = time.Now()
 	return nil
 }
