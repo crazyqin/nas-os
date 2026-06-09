@@ -17,7 +17,7 @@
 #
 # v2.375.0 工部优化：增加构建重试机制，优化armv7超时策略
 #
-# 当前版本: v2.575.0（工部维护）
+# 当前版本: v2.583.0（工部维护）
 
 name: Docker Publish
 
@@ -85,7 +85,7 @@ jobs:
           fetch-depth: 0
       
       - name: 检测变更
-        uses: dorny/paths-filter@v4
+        uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |

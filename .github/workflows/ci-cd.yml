@@ -24,8 +24,7 @@
 # - 增加测试结果缓存
 # - 构建与测试并行执行
 #
-# 当前版本: v2.575.0（工部维护）
-
+# 当前版本: v2.583.0（工部维护）
 name: CI/CD
 
 on:
@@ -86,7 +85,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: 检测变更
-        uses: dorny/paths-filter@v4
+        uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
@@ -893,7 +892,7 @@ jobs:
       - name: 生成构建汇总
         run: |
           BUILD_END=$(date +%s)
-          echo "## 📊 CI/CD 构建汇总 (v2.254.0)" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 CI/CD 构建汇总 (v2.583.0)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 任务 | 状态 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|------|" >> $GITHUB_STEP_SUMMARY
@@ -914,10 +913,9 @@ jobs:
           echo "**触发者:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "**运行 ID:** [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🚀 v2.254.0 优化内容" >> $GITHUB_STEP_SUMMARY
-          echo "- 测试分片增加到6个，智能均衡分配" >> $GITHUB_STEP_SUMMARY
-          echo "- 测试与构建并行执行（移除依赖链）" >> $GITHUB_STEP_SUMMARY
-          echo "- 增加编译产物缓存（跨job复用）" >> $GITHUB_STEP_SUMMARY
-          echo "- 优化缓存key策略，提高命中率" >> $GITHUB_STEP_SUMMARY
-          echo "- 测试结果缓存，加速重复测试" >> $GITHUB_STEP_SUMMARY
-          echo "- 构建增加版本信息嵌入" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 v2.583.0 工部维护" >> $GITHUB_STEP_SUMMARY
+          echo "- 测试分片6个，智能均衡分配" >> $GITHUB_STEP_SUMMARY
+          echo "- 测试与构建并行执行" >> $GITHUB_STEP_SUMMARY
+          echo "- 编译产物缓存跨job复用" >> $GITHUB_STEP_SUMMARY
+          echo "- 优化缓存key策略" >> $GITHUB_STEP_SUMMARY
+          echo "- 版本信息嵌入构建" >> $GITHUB_STEP_SUMMARY

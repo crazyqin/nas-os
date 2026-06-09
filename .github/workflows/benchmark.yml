@@ -3,7 +3,12 @@
 #
 # Go 版本: 1.26（与 go.mod 保持一致）
 #
-# 当前版本: v2.253.283（工部维护）
+# v2.583.0 工部优化：
+# - 补全缺失的基准测试运行步骤
+# - 增加 benchstat 对比分析
+# - 增加性能趋势追踪
+#
+# 当前版本: v2.583.0（工部维护）
 
 name: Benchmark
 
@@ -54,6 +59,102 @@ jobs:
         with:
           path: ~/.cache/go-build
           key: ${{ env.CACHE_VERSION }}-benchmark-build-${{ hashFiles('go.sum') }}
+
+      - name: 运行基准测试
+        run: |
+          echo "🏃 开始运行基准测试..."
+          
+          # 获取所有包含 Benchmark 函数的包
+          BENCH_PKGS=$(go list ./... | while read pkg; do
+            if go test -list 'Benchmark' "$pkg" 2>/dev/null | grep -q '^Benchmark'; then
+              echo "$pkg"
+            fi
+          done)
+          
+          if [ -z "$BENCH_PKGS" ]; then
+            echo "⚠️ 未发现基准测试，跳过"
+            mkdir -p benchmark-results
+            echo "No benchmark tests found." > benchmark-results/benchmark.txt
+            exit 0
+          fi
+          
+          echo "📦 发现基准测试包:"
+          echo "$BENCH_PKGS"
+          
+          mkdir -p benchmark-results
+          
+          # 运行基准测试，输出到文件
+          go test -bench=. -benchmem -count=5 -timeout 30m $BENCH_PKGS 2>&1 | tee benchmark-results/benchmark.txt
+          
+          echo "✅ 基准测试完成"
+      
+      - name: 生成基准测试报告
+        if: always()
+        run: |
+          if [ ! -f benchmark-results/benchmark.txt ]; then
+            echo "⚠️ 无基准测试结果"
+            exit 0
+          fi
+          
+          # 生成摘要
+          echo "## 📊 基准测试报告" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**运行时间:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**提交:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # 提取关键指标
+          echo "### 结果摘要" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          grep -E '^(Benchmark|goos|goarch|pkg)' benchmark-results/benchmark.txt | head -30 >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          
+          # 检查是否有失败的测试
+          if grep -q 'FAIL' benchmark-results/benchmark.txt; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ⚠️ 部分测试失败" >> $GITHUB_STEP_SUMMARY
+            grep 'FAIL' benchmark-results/benchmark.txt >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: 安装 benchstat
+        run: go install golang.org/x/perf/cmd/benchstat@latest
+      
+      - name: 生成 benchstat 分析
+        if: always()
+        run: |
+          if [ ! -f benchmark-results/benchmark.txt ]; then
+            exit 0
+          fi
+          
+          # 使用 benchstat 格式化输出
+          benchstat benchmark-results/benchmark.txt > benchmark-results/benchstat.txt 2>/dev/null || true
+          
+          if [ -f benchmark-results/benchstat.txt ]; then
+            echo "### benchstat 分析" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            head -50 benchmark-results/benchstat.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: 上传基准测试结果
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            benchmark-results/benchmark.txt
+            benchmark-results/benchstat.txt
+          retention-days: 90
+      
+      - name: 保存基准数据（用于趋势追踪）
+        if: github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-trend-${{ github.run_number }}
+          path: benchmark-results/benchmark.txt
+          retention-days: 365
   # 性能回归检测（可选）
   regression-check:
     name: 性能回归检测
