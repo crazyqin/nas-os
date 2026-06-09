@@ -30,6 +30,10 @@ type Manager struct {
 
 	// 告警管理器
 	alertManager *AlertManager
+
+	// 巡检配置与状态
+	patrolConfig *PatrolConfig
+	healthResult *HealthCheckResult
 }
 
 // ManagerConfig 管理器配置.

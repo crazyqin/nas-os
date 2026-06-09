@@ -24,26 +24,38 @@ func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 
 // RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
-	health := r.Group("/smarthealth")
+	// 健康检查路由（测试期望的路径）
+	health := r.Group("/health")
+	{
+		health.GET("", h.GetHealth)
+		health.POST("/check", h.RunCheck)
+		health.GET("/trends", h.GetTrendsAPI)
+		health.GET("/alerts", h.GetAlertsAPI)
+		health.GET("/config", h.GetConfigAPI)
+		health.PUT("/config", h.UpdateConfigAPI)
+	}
+
+	// SMART 健康管理路由
+	smart := r.Group("/smarthealth")
 	{
 		// 磁盘扫描
-		health.POST("/scan", h.ScanDisks)
+		smart.POST("/scan", h.ScanDisks)
 
 		// 健康查询
-		health.GET("/disks", h.GetAllDisksHealth)
-		health.GET("/disks/:id", h.GetDiskHealth)
-		health.GET("/disks/:id/trend", h.GetDiskTrend)
+		smart.GET("/disks", h.GetAllDisksHealth)
+		smart.GET("/disks/:id", h.GetDiskHealth)
+		smart.GET("/disks/:id/trend", h.GetDiskTrend)
 
 		// 故障预测
-		health.GET("/disks/:id/prediction", h.PredictFailure)
+		smart.GET("/disks/:id/prediction", h.PredictFailure)
 
 		// 告警管理
-		health.GET("/alerts", h.GetAlerts)
-		health.POST("/alerts/:id/ack", h.AcknowledgeAlert)
-		health.POST("/alerts/:id/resolve", h.ResolveAlert)
+		smart.GET("/alerts", h.GetAlerts)
+		smart.POST("/alerts/:id/ack", h.AcknowledgeAlert)
+		smart.POST("/alerts/:id/resolve", h.ResolveAlert)
 
 		// 报告
-		health.GET("/report", h.GenerateReport)
+		smart.GET("/report", h.GenerateReport)
 	}
 }
 
@@ -190,5 +202,83 @@ func (h *Handler) GenerateReport(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data":    report,
+	})
+}
+
+// GetHealth 获取健康状态.
+func (h *Handler) GetHealth(c *gin.Context) {
+	result := h.manager.RunManualCheck()
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    result,
+	})
+}
+
+// RunCheck 运行健康检查.
+func (h *Handler) RunCheck(c *gin.Context) {
+	result := h.manager.RunManualCheck()
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "检查完成",
+		"data":    result,
+	})
+}
+
+// GetTrendsAPI 获取趋势数据.
+func (h *Handler) GetTrendsAPI(c *gin.Context) {
+	hoursStr := c.DefaultQuery("hours", "24")
+	hours, err := strconv.Atoi(hoursStr)
+	if err != nil {
+		hours = 24
+	}
+	trends := h.manager.GetTrends(hours)
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    trends,
+	})
+}
+
+// GetAlertsAPI 获取告警.
+func (h *Handler) GetAlertsAPI(c *gin.Context) {
+	alerts := h.manager.GetAlerts(false)
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    alerts,
+	})
+}
+
+// GetConfigAPI 获取配置.
+func (h *Handler) GetConfigAPI(c *gin.Context) {
+	config := h.manager.GetConfig()
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    config,
+	})
+}
+
+// UpdateConfigAPI 更新配置.
+func (h *Handler) UpdateConfigAPI(c *gin.Context) {
+	var config PatrolConfig
+	if err := c.ShouldBindJSON(&config); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请求参数错误: " + err.Error(),
+		})
+		return
+	}
+	if err := h.manager.UpdateConfig(&config); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "更新配置失败: " + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "配置已更新",
 	})
 }
