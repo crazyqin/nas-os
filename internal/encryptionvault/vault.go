@@ -111,9 +111,9 @@ func (v *EncryptionVault) Lock() {
 // EncryptFile 加密文件
 func (v *EncryptionVault) EncryptFile(sourcePath, destName string) (*VaultEntry, error) {
 	v.mu.RLock()
-	if v.state != VaultLocked {
+	if v.state != VaultUnlocked {
 		v.mu.RUnlock()
-		return nil, fmt.Errorf("vault must be locked to add files")
+		return nil, fmt.Errorf("vault must be unlocked to add files")
 	}
 	v.mu.RUnlock()
 

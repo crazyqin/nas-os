@@ -35,9 +35,9 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		// 管理员强制释放
 		locks.POST("/force-release", h.forceReleaseLock)
 		// 检查文件是否锁定
-		locks.GET("/check/:filepath", h.checkFileLock)
+		locks.GET("/check/*filepath", h.checkFileLock)
 		// 获取文件锁详情
-		locks.GET("/file/:filepath", h.getFileLocks)
+		locks.GET("/file/*filepath", h.getFileLocks)
 		// 获取统计信息
 		locks.GET("/stats", h.getStats)
 		// 获取历史记录
