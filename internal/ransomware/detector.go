@@ -1,775 +1,403 @@
-// Package ransomware 提供勒索软件检测与防护功能
-// detector.go - 文件行为监控和异常写入检测
+// Package ransomware 勒索软件检测与防护模块
+// 实时监控文件系统异常行为，检测并阻止勒索软件攻击
+// 参考: TrueNAS 勒索软件检测功能
 package ransomware
 
 import (
-	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
-	"log"
-	"math"
-	"os"
-	"path/filepath"
-	"strings"
 	"sync"
 	"time"
-
-	"github.com/google/uuid"
 )
 
-// FileBehaviorMonitor 文件行为监控接口
-type FileBehaviorMonitor interface {
-	// Start 启动监控
-	Start(ctx context.Context) error
+// ActionType 操作类型
+type ActionType string
 
-	// Stop 停止监控
-	Stop() error
+const (
+	ActionTypeFileModified    ActionType = "file_modified"
+	ActionTypeFileDeleted     ActionType = "file_deleted"
+	ActionTypeFileRenamed     ActionType = "file_renamed"
+	ActionTypeBulkOperation   ActionType = "bulk_operation"
+	ActionTypeExtensionChange ActionType = "extension_change"
+	ActionTypeEncryption      ActionType = "encryption"
+)
 
-	// AddWatchPath 添加监控路径
-	AddWatchPath(path string) error
-
-	// RemoveWatchPath 移除监控路径
-	RemoveWatchPath(path string) error
-
-	// GetRecentEvents 获取最近事件
-	GetRecentEvents(limit int) []FileEvent
+// DetectionRule 检测规则
+type DetectionRule struct {
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Enabled     bool        `json:"enabled"`
+	Threshold   int         `json:"threshold"`    // 触发阈值
+	TimeWindow  int         `json:"time_window"`  // 时间窗口（秒）
+	Action      ActionType  `json:"action"`
+	ThreatLevel ThreatLevel `json:"threat_level"`
 }
 
-// AnomalyDetector 异常写入检测接口
-type AnomalyDetector interface {
-	// Analyze 分析文件事件
-	Analyze(events []FileEvent) *ThreatAssessment
-
-	// DetectEncryption 检测加密行为
-	DetectEncryption(path string) (bool, float64, error)
-
-	// GetPatterns 获取已知威胁模式
-	GetPatterns() []BehaviorPattern
+// SuspiciousActivity 可疑活动
+type SuspiciousActivity struct {
+	ID          string      `json:"id"`
+	RuleID      string      `json:"rule_id"`
+	RuleName    string      `json:"rule_name"`
+	Action      ActionType  `json:"action"`
+	FilePath    string      `json:"file_path"`
+	UserID      string      `json:"user_id"`
+	Timestamp   time.Time   `json:"timestamp"`
+	ThreatLevel ThreatLevel `json:"threat_level"`
+	Blocked     bool        `json:"blocked"`
+	Details     string      `json:"details"`
 }
 
-// ProtectionStrategy 防护策略接口
-type ProtectionStrategy interface {
-	// Execute 执行防护动作
-	Execute(assessment *ThreatAssessment) (*ProtectionEvent, error)
-
-	// CreateSnapshot 创建保护快照
-	CreateSnapshot(volume string) (string, error)
-
-	// LockVolume 锁定卷
-	LockVolume(volume string) error
-
-	// UnlockVolume 解锁卷
-	UnlockVolume(volume string) error
+// FileSnapshot 文件快照
+type FileSnapshot struct {
+	FilePath  string    `json:"file_path"`
+	SHA256    string    `json:"sha256"`
+	Size      int64     `json:"size"`
+	ModTime   time.Time `json:"mod_time"`
+	Extension string    `json:"extension"`
 }
 
-// Detector 勒索软件检测器
-type Detector struct {
-	mu sync.RWMutex
-
-	// config 检测配置
-	config DetectionConfig
-
-	// monitor 文件行为监控器
-	monitor FileBehaviorMonitor
-
-	// anomalyDetector 异常检测器
-	anomalyDetector AnomalyDetector
-
-	// protection 防护策略
-	protection ProtectionStrategy
-
-	// writeOncePolicy WriteOnce策略
-	writeOncePolicy WriteOncePolicy
-
-	// snapshotConfig 快照保护配置
-	snapshotConfig SnapshotProtectionConfig
-
-	// eventBuffer 事件缓冲
-	eventBuffer []FileEvent
-
-	// threatQueue 威胁队列
-	threatQueue []*ThreatAssessment
-
-	// stats 统计
-	stats DetectionStats
-
-	// running 运行状态
-	running bool
-
-	// startTime 启动时间
-	startTime time.Time
-
-	// stopChan 停止通道
-	stopChan chan struct{}
-
-	// eventChan 事件通道
-	eventChan chan FileEvent
-
-	// alertChan 告警通道
-	alertChan chan *ThreatAssessment
+// RansomwareDetector 勒索软件检测器
+type RansomwareDetector struct {
+	mu              sync.RWMutex
+	rules           map[string]*DetectionRule
+	activities      []SuspiciousActivity
+	fileSnapshots   map[string]*FileSnapshot
+	actionCounts    map[string]int
+	lastReset       time.Time
+	isMonitoring    bool
+	alertCallback   func(SuspiciousActivity)
+	blockCallback   func(string) bool
+	config          *DetectorConfig
 }
 
-// NewDetector 创建检测器
-func NewDetector(config DetectionConfig) *Detector {
-	d := &Detector{
-		config:      config,
-		eventBuffer: make([]FileEvent, 0, 1000),
-		threatQueue: make([]*ThreatAssessment, 0),
-		stopChan:    make(chan struct{}),
-		eventChan:   make(chan FileEvent, 100),
-		alertChan:   make(chan *ThreatAssessment, 10),
+// DetectorConfig 检测器配置
+type DetectorConfig struct {
+	MaxActivities      int  `json:"max_activities"`
+	MonitorInterval    int  `json:"monitor_interval"` // 秒
+	AutoBlock          bool `json:"auto_block"`
+	AlertThreshold     int  `json:"alert_threshold"`
+	SnapshotRetention  int  `json:"snapshot_retention"` // 天
+	EnableRealTime     bool `json:"enable_real_time"`
+}
+
+// NewRansomwareDetector 创建勒索软件检测器
+func NewRansomwareDetector(config *DetectorConfig) *RansomwareDetector {
+	if config == nil {
+		config = &DetectorConfig{
+			MaxActivities:     10000,
+			MonitorInterval:   5,
+			AutoBlock:         true,
+			AlertThreshold:    10,
+			SnapshotRetention: 30,
+			EnableRealTime:    true,
+		}
 	}
 
-	// 初始化内置异常检测器
-	d.anomalyDetector = NewBuiltInAnomalyDetector(config.Level)
-
-	return d
-}
-
-// SetProtectionStrategy 设置防护策略
-func (d *Detector) SetProtectionStrategy(strategy ProtectionStrategy) {
-	d.mu.Lock()
-	d.protection = strategy
-	d.mu.Unlock()
-}
-
-// SetWriteOncePolicy 设置WriteOnce策略
-func (d *Detector) SetWriteOncePolicy(policy WriteOncePolicy) {
-	d.mu.Lock()
-	d.writeOncePolicy = policy
-	d.mu.Unlock()
-}
-
-// SetSnapshotConfig 设置快照保护配置
-func (d *Detector) SetSnapshotConfig(config SnapshotProtectionConfig) {
-	d.mu.Lock()
-	d.snapshotConfig = config
-	d.mu.Unlock()
-}
-
-// Start 启动检测器
-func (d *Detector) Start(ctx context.Context) error {
-	d.mu.Lock()
-	if d.running {
-		d.mu.Unlock()
-		return nil
+	detector := &RansomwareDetector{
+		rules:         make(map[string]*DetectionRule),
+		activities:    make([]SuspiciousActivity, 0),
+		fileSnapshots: make(map[string]*FileSnapshot),
+		actionCounts:  make(map[string]int),
+		lastReset:     time.Now(),
+		config:        config,
 	}
-	d.running = true
-	d.startTime = time.Now()
-	d.mu.Unlock()
 
-	// 启动事件处理循环
-	go d.eventLoop(ctx)
+	// 初始化默认规则
+	detector.initDefaultRules()
 
-	// 启动定时分析
-	go d.analysisLoop(ctx)
-
-	// 启动防护检查
-	go d.protectionLoop(ctx)
-
-	log.Println("勒索软件检测器已启动")
-	return nil
+	return detector
 }
 
-// Stop 停止检测器
-func (d *Detector) Stop() {
-	d.mu.Lock()
-	if !d.running {
-		d.mu.Unlock()
-		return
+// initDefaultRules 初始化默认检测规则
+func (d *RansomwareDetector) initDefaultRules() {
+	defaultRules := []*DetectionRule{
+		{
+			ID:          "bulk_modify",
+			Name:        "批量文件修改检测",
+			Description: "检测短时间内大量文件被修改的情况",
+			Enabled:     true,
+			Threshold:   50,
+			TimeWindow:  60,
+			Action:      ActionTypeBulkOperation,
+			ThreatLevel: ThreatLevelHigh,
+		},
+		{
+			ID:          "extension_change",
+			Name:        "文件扩展名篡改检测",
+			Description: "检测文件扩展名被批量修改的情况",
+			Enabled:     true,
+			Threshold:   10,
+			TimeWindow:  30,
+			Action:      ActionTypeExtensionChange,
+			ThreatLevel: ThreatLevelCritical,
+		},
+		{
+			ID:          "encryption_pattern",
+			Name:        "加密行为模式检测",
+			Description: "检测疑似加密操作的行为模式",
+			Enabled:     true,
+			Threshold:   20,
+			TimeWindow:  120,
+			Action:      ActionTypeEncryption,
+			ThreatLevel: ThreatLevelCritical,
+		},
+		{
+			ID:          "mass_delete",
+			Name:        "批量删除检测",
+			Description: "检测短时间内大量文件被删除的情况",
+			Enabled:     true,
+			Threshold:   100,
+			TimeWindow:  60,
+			Action:      ActionTypeFileDeleted,
+			ThreatLevel: ThreatLevelHigh,
+		},
+		{
+			ID:          "suspicious_rename",
+			Name:        "可疑重命名检测",
+			Description: "检测文件被重命名为可疑扩展名（如 .encrypted, .locked）",
+			Enabled:     true,
+			Threshold:   5,
+			TimeWindow:  30,
+			Action:      ActionTypeFileRenamed,
+			ThreatLevel: ThreatLevelHigh,
+		},
 	}
-	d.running = false
-	close(d.stopChan)
-	d.mu.Unlock()
 
-	log.Println("勒索软件检测器已停止")
+	for _, rule := range defaultRules {
+		d.rules[rule.ID] = rule
+	}
 }
 
-// GetStatus 获取状态
-func (d *Detector) GetStatus() DetectorStatus {
+// StartMonitoring 开始监控
+func (d *RansomwareDetector) StartMonitoring() {
+	d.mu.Lock()
+	d.isMonitoring = true
+	d.mu.Unlock()
+
+	go d.monitorLoop()
+}
+
+// StopMonitoring 停止监控
+func (d *RansomwareDetector) StopMonitoring() {
+	d.mu.Lock()
+	d.isMonitoring = false
+	d.mu.Unlock()
+}
+
+// monitorLoop 监控循环
+func (d *RansomwareDetector) monitorLoop() {
+	ticker := time.NewTicker(time.Duration(d.config.MonitorInterval) * time.Second)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		d.mu.RLock()
+		monitoring := d.isMonitoring
+		d.mu.RUnlock()
+
+		if !monitoring {
+			return
+		}
+
+		d.checkThresholds()
+	}
+}
+
+// checkThresholds 检查阈值
+func (d *RansomwareDetector) checkThresholds() {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	// 重置计数器（每分钟）
+	if time.Since(d.lastReset) > time.Minute {
+		d.actionCounts = make(map[string]int)
+		d.lastReset = time.Now()
+	}
+
+	// 检查是否有规则被触发
+	for _, rule := range d.rules {
+		if !rule.Enabled {
+			continue
+		}
+
+		count := d.actionCounts[string(rule.Action)]
+		if count >= rule.Threshold {
+			d.triggerAlert(rule, count)
+		}
+	}
+}
+
+// triggerAlert 触发告警
+func (d *RansomwareDetector) triggerAlert(rule *DetectionRule, count int) {
+	activity := SuspiciousActivity{
+		ID:          fmt.Sprintf("alert_%d", time.Now().UnixNano()),
+		RuleID:      rule.ID,
+		RuleName:    rule.Name,
+		Action:      rule.Action,
+		ThreatLevel: rule.ThreatLevel,
+		Timestamp:   time.Now(),
+		Details:     fmt.Sprintf("检测到 %d 次 %s 操作，超过阈值 %d", count, rule.Action, rule.Threshold),
+		Blocked:     d.config.AutoBlock,
+	}
+
+	d.activities = append(d.activities, activity)
+
+	// 限制活动记录数量
+	if len(d.activities) > d.config.MaxActivities {
+		d.activities = d.activities[100:]
+	}
+
+	// 回调通知
+	if d.alertCallback != nil {
+		d.alertCallback(activity)
+	}
+}
+
+// ReportActivity 报告文件活动
+func (d *RansomwareDetector) ReportActivity(action ActionType, filePath, userID string) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	// 更新计数
+	d.actionCounts[string(action)]++
+
+	// 检查是否匹配任何规则
+	for _, rule := range d.rules {
+		if !rule.Enabled || rule.Action != action {
+			continue
+		}
+
+		count := d.actionCounts[string(action)]
+		if count >= rule.Threshold {
+			d.triggerAlert(rule, count)
+		}
+	}
+}
+
+// UpdateSnapshot 更新文件快照
+func (d *RansomwareDetector) UpdateSnapshot(filePath, sha256 string, size int64) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	d.fileSnapshots[filePath] = &FileSnapshot{
+		FilePath: filePath,
+		SHA256:   sha256,
+		Size:     size,
+		ModTime:  time.Now(),
+	}
+}
+
+// GetSnapshot 获取文件快照
+func (d *RansomwareDetector) GetSnapshot(filePath string) *FileSnapshot {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 
-	var uptime int64
-	if d.running {
-		uptime = int64(time.Since(d.startTime).Seconds())
-	}
-
-	return DetectorStatus{
-		Running:       d.running,
-		Uptime:        uptime,
-		Stats:         d.stats,
-		Config:        d.config,
-		ActiveThreats: len(d.threatQueue),
-	}
+	return d.fileSnapshots[filePath]
 }
 
-// RecordEvent 记录文件事件
-func (d *Detector) RecordEvent(event FileEvent) {
+// AddRule 添加检测规则
+func (d *RansomwareDetector) AddRule(rule *DetectionRule) error {
 	d.mu.Lock()
-	d.eventBuffer = append(d.eventBuffer, event)
-	d.stats.TotalEvents++
+	defer d.mu.Unlock()
 
-	// 保持缓冲区大小
-	if len(d.eventBuffer) > 1000 {
-		d.eventBuffer = d.eventBuffer[1:]
+	if rule.ID == "" {
+		return fmt.Errorf("rule ID is required")
 	}
-	d.mu.Unlock()
 
-	// 发送到事件通道
-	select {
-	case d.eventChan <- event:
-	default:
-		// 通道满，丢弃
-	}
+	d.rules[rule.ID] = rule
+	return nil
 }
 
-// eventLoop 事件处理循环
-func (d *Detector) eventLoop(ctx context.Context) {
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-d.stopChan:
-			return
-		case event := <-d.eventChan:
-			d.processEvent(event)
-		}
+// RemoveRule 移除检测规则
+func (d *RansomwareDetector) RemoveRule(ruleID string) error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	if _, exists := d.rules[ruleID]; !exists {
+		return fmt.Errorf("rule not found: %s", ruleID)
 	}
+
+	delete(d.rules, ruleID)
+	return nil
 }
 
-// processEvent 处理单个事件
-func (d *Detector) processEvent(event FileEvent) {
-	// 检查是否在监控路径内
-	if !d.isWatchedPath(event.Path) {
-		return
-	}
-
-	// 检查是否被排除
-	if d.isExcludedPath(event.Path) {
-		return
-	}
-
-	// WriteOnce 保护检查
-	if d.writeOncePolicy.Enabled && d.isWriteOnceProtected(event.Path) {
-		d.handleWriteOnceViolation(event)
-		return
-	}
-
-	// 检查可疑扩展名
-	if d.hasSuspiciousExtension(event.Extension) {
-		d.markSuspicious(event, "suspicious_extension")
-	}
-}
-
-// analysisLoop 定时分析循环
-func (d *Detector) analysisLoop(ctx context.Context) {
-	ticker := time.NewTicker(5 * time.Second)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-d.stopChan:
-			return
-		case <-ticker.C:
-			d.runAnalysis()
-		}
-	}
-}
-
-// runAnalysis 执行分析
-func (d *Detector) runAnalysis() {
+// ListRules 列出所有规则
+func (d *RansomwareDetector) ListRules() []*DetectionRule {
 	d.mu.RLock()
-	events := make([]FileEvent, len(d.eventBuffer))
-	copy(events, d.eventBuffer)
-	d.mu.RUnlock()
+	defer d.mu.RUnlock()
 
-	if len(events) == 0 {
-		return
+	rules := make([]*DetectionRule, 0, len(d.rules))
+	for _, r := range d.rules {
+		rules = append(rules, r)
 	}
-
-	// 分析最近的事件窗口
-	window := d.getRecentWindow(events, 60) // 60秒窗口
-	if len(window) < 3 {
-		return
-	}
-
-	assessment := d.anomalyDetector.Analyze(window)
-	if assessment != nil && assessment.Level >= ThreatLevelLow {
-		d.handleThreat(assessment)
-	}
+	return rules
 }
 
-// protectionLoop 防护检查循环
-func (d *Detector) protectionLoop(ctx context.Context) {
-	ticker := time.NewTicker(1 * time.Second)
-	defer ticker.Stop()
+// GetActivities 获取活动记录
+func (d *RansomwareDetector) GetActivities(limit int) []SuspiciousActivity {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
 
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-d.stopChan:
-			return
-		case <-ticker.C:
-			d.checkProtectionQueue()
-		case assessment := <-d.alertChan:
-			d.executeProtection(assessment)
-		}
+	if limit <= 0 || limit > len(d.activities) {
+		limit = len(d.activities)
 	}
+
+	start := len(d.activities) - limit
+	if start < 0 {
+		start = 0
+	}
+	return d.activities[start:]
 }
 
-// handleThreat 处理威胁
-func (d *Detector) handleThreat(assessment *ThreatAssessment) {
+// SetAlertCallback 设置告警回调
+func (d *RansomwareDetector) SetAlertCallback(callback func(SuspiciousActivity)) {
 	d.mu.Lock()
-	d.threatQueue = append(d.threatQueue, assessment)
-	d.stats.ThreatsDetected++
-	now := time.Now()
-	d.stats.LastThreatTime = &now
-	d.stats.LastThreatLevel = assessment.Level
-	d.mu.Unlock()
-
-	// 发送告警
-	select {
-	case d.alertChan <- assessment:
-	default:
-		log.Printf("威胁告警通道满，威胁ID: %s", assessment.AssessmentID)
-	}
+	defer d.mu.Unlock()
+	d.alertCallback = callback
 }
 
-// executeProtection 执行防护
-func (d *Detector) executeProtection(assessment *ThreatAssessment) {
-	if d.protection == nil {
-		log.Printf("防护策略未配置，威胁ID: %s", assessment.AssessmentID)
-		return
-	}
-
-	// 根据威胁级别决定动作
-	action := d.decideAction(assessment)
-
-	if action == ActionAlert {
-		log.Printf("威胁告警: %s, 级别: %d, 分数: %d",
-			assessment.AssessmentID, assessment.Level, assessment.Score)
-		return
-	}
-
-	// 执行防护
-	pe, err := d.protection.Execute(assessment)
-	if err != nil {
-		log.Printf("防护执行失败: %v", err)
-		return
-	}
-
+// SetBlockCallback 设置阻止回调
+func (d *RansomwareDetector) SetBlockCallback(callback func(string) bool) {
 	d.mu.Lock()
-	d.stats.ProtectionsTriggered++
-	if pe.SnapshotID != "" {
-		d.stats.SnapshotsCreated++
-	}
-	d.mu.Unlock()
-
-	log.Printf("防护已执行: 动作=%s, 成功=%v", pe.Action, pe.Success)
+	defer d.mu.Unlock()
+	d.blockCallback = callback
 }
 
-// checkProtectionQueue 检查防护队列
-func (d *Detector) checkProtectionQueue() {
-	d.mu.Lock()
-	if len(d.threatQueue) == 0 {
-		d.mu.Unlock()
-		return
+// GetStats 获取统计信息
+func (d *RansomwareDetector) GetStats() map[string]interface{} {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+
+	threatCounts := make(map[ThreatLevel]int)
+	for _, a := range d.activities {
+		threatCounts[a.ThreatLevel]++
 	}
 
-	// 取出最严重的威胁
-	maxLevel := ThreatLevelNone
-	maxIdx := -1
-	for i, t := range d.threatQueue {
-		if t.Level > maxLevel {
-			maxLevel = t.Level
-			maxIdx = i
+	blockedCount := 0
+	for _, a := range d.activities {
+		if a.Blocked {
+			blockedCount++
 		}
 	}
 
-	if maxIdx >= 0 && maxLevel >= ThreatLevelMedium {
-		assessment := d.threatQueue[maxIdx]
-		d.threatQueue = append(d.threatQueue[:maxIdx], d.threatQueue[maxIdx+1:]...)
-		d.mu.Unlock()
-
-		d.executeProtection(assessment)
-		return
-	}
-
-	d.mu.Unlock()
-}
-
-// decideAction 决定防护动作
-func (d *Detector) decideAction(assessment *ThreatAssessment) ProtectionAction {
-	if !d.config.AutoProtectionEnabled {
-		return ActionAlert
-	}
-
-	// 根据威胁级别决定
-	switch assessment.Level {
-	case ThreatLevelCritical:
-		return ActionLockdown
-	case ThreatLevelHigh:
-		if d.config.SnapshotOnThreat {
-			return ActionSnapshot
-		}
-		return ActionBlock
-	case ThreatLevelMedium:
-		return ActionQuarantine
-	case ThreatLevelLow:
-		return ActionAlert
-	default:
-		return ActionAlert
+	return map[string]interface{}{
+		"is_monitoring":     d.isMonitoring,
+		"total_rules":       len(d.rules),
+		"enabled_rules":     d.countEnabledRules(),
+		"total_activities":  len(d.activities),
+		"blocked_count":     blockedCount,
+		"threat_breakdown":  threatCounts,
+		"snapshot_count":    len(d.fileSnapshots),
+		"last_reset":        d.lastReset,
 	}
 }
 
-// BuiltInAnomalyDetector 内置异常检测器
-type BuiltInAnomalyDetector struct {
-	level    DetectionLevel
-	patterns []BehaviorPattern
-}
-
-// NewBuiltInAnomalyDetector 创建内置异常检测器
-func NewBuiltInAnomalyDetector(level DetectionLevel) *BuiltInAnomalyDetector {
-	d := &BuiltInAnomalyDetector{
-		level: level,
-	}
-	d.patterns = d.getDefaultPatterns()
-	return d
-}
-
-// getDefaultPatterns 获取默认威胁模式
-func (d *BuiltInAnomalyDetector) getDefaultPatterns() []BehaviorPattern {
-	return []BehaviorPattern{
-		{
-			PatternID:        "rapid-encryption",
-			Name:             "快速加密行为",
-			Description:      "短时间内大量文件被加密",
-			Severity:         ThreatLevelCritical,
-			ConfidenceWeight: 90,
-			Indicators: []PatternIndicator{
-				{EventType: FileEventEncrypt, MinCount: 10, TimeWindowSec: 30, EntropyMin: 7.5},
-			},
-		},
-		{
-			PatternID:        "bulk-extension-change",
-			Name:             "批量扩展名修改",
-			Description:      "大量文件扩展名被修改为可疑类型",
-			Severity:         ThreatLevelHigh,
-			ConfidenceWeight: 80,
-			Indicators: []PatternIndicator{
-				{EventType: FileEventRename, MinCount: 20, TimeWindowSec: 60},
-			},
-		},
-		{
-			PatternID:        "rapid-delete",
-			Name:             "快速删除",
-			Description:      "短时间内大量文件被删除",
-			Severity:         ThreatLevelHigh,
-			ConfidenceWeight: 70,
-			Indicators: []PatternIndicator{
-				{EventType: FileEventDelete, MinCount: 50, TimeWindowSec: 30},
-			},
-		},
-		{
-			PatternID:        "suspicious-write-pattern",
-			Name:             "可疑写入模式",
-			Description:      "非正常用户行为的文件写入",
-			Severity:         ThreatLevelMedium,
-			ConfidenceWeight: 60,
-			Indicators: []PatternIndicator{
-				{EventType: FileEventModify, MinCount: 100, TimeWindowSec: 60},
-			},
-		},
-	}
-}
-
-// Analyze 分析事件
-func (d *BuiltInAnomalyDetector) Analyze(events []FileEvent) *ThreatAssessment {
-	assessment := &ThreatAssessment{
-		AssessmentID:  uuid.New().String(),
-		Timestamp:     time.Now(),
-		Indicators:    make([]ThreatIndicator, 0),
-		AffectedFiles: make([]string, 0),
-		Details:       make(map[string]interface{}),
-	}
-
-	// 统计事件类型
-	counts := make(map[FileEventType]int)
-	encryptedCount := 0
-	highEntropyFiles := 0
-
-	for _, e := range events {
-		counts[e.Type]++
-		if e.IsEncrypted {
-			encryptedCount++
-		}
-		if e.Entropy > 7.5 {
-			highEntropyFiles++
-		}
-	}
-
-	// 检查模式匹配
-	maxScore := 0
-	for _, pattern := range d.patterns {
-		score := d.matchPattern(events, pattern)
-		if score > maxScore {
-			maxScore = score
-			assessment.Details["matched_pattern"] = pattern.PatternID
-			assessment.Details["pattern_name"] = pattern.Name
-		}
-	}
-
-	// 添加指标
-	if encryptedCount > 5 {
-		assessment.Indicators = append(assessment.Indicators, ThreatIndicator{
-			Type:        "encrypted_files",
-			Description: "检测到加密文件",
-			Weight:      30,
-			Value:       encryptedCount,
-			Threshold:   5,
-		})
-	}
-
-	if highEntropyFiles > 10 {
-		assessment.Indicators = append(assessment.Indicators, ThreatIndicator{
-			Type:        "high_entropy",
-			Description: "高熵值文件（可能被加密）",
-			Weight:      25,
-			Value:       highEntropyFiles,
-			Threshold:   10,
-		})
-	}
-
-	// 计算总分和级别
-	assessment.Score = maxScore + encryptedCount*3 + highEntropyFiles*2
-	assessment.Level = d.scoreToLevel(assessment.Score)
-	assessment.Confidence = min(100, assessment.Score)
-
-	// 收集受影响文件
-	for _, e := range events {
-		if e.IsEncrypted || e.Entropy > 7.5 {
-			assessment.AffectedFiles = append(assessment.AffectedFiles, e.Path)
-		}
-	}
-
-	// 低威胁不返回
-	if assessment.Level < ThreatLevelLow {
-		return nil
-	}
-
-	return assessment
-}
-
-// matchPattern 匹配威胁模式
-func (d *BuiltInAnomalyDetector) matchPattern(events []FileEvent, pattern BehaviorPattern) int {
-	score := 0
-	for _, indicator := range pattern.Indicators {
-		count := 0
-		windowStart := time.Now().Add(-time.Duration(indicator.TimeWindowSec) * time.Second)
-
-		for _, e := range events {
-			if e.Timestamp.After(windowStart) && e.Type == indicator.EventType {
-				count++
-				if indicator.EntropyMin > 0 && e.Entropy >= indicator.EntropyMin {
-					score += 10
-				}
-			}
-		}
-
-		if count >= indicator.MinCount {
-			score += pattern.ConfidenceWeight
-		}
-	}
-	return score
-}
-
-// scoreToLevel 分数转级别
-func (d *BuiltInAnomalyDetector) scoreToLevel(score int) ThreatLevel {
-	thresholds := map[DetectionLevel]map[int]ThreatLevel{
-		DetectionLevelLow:    {50: ThreatLevelLow, 70: ThreatLevelMedium, 85: ThreatLevelHigh, 95: ThreatLevelCritical},
-		DetectionLevelMedium: {30: ThreatLevelLow, 50: ThreatLevelMedium, 70: ThreatLevelHigh, 85: ThreatLevelCritical},
-		DetectionLevelHigh:   {20: ThreatLevelLow, 35: ThreatLevelMedium, 50: ThreatLevelHigh, 70: ThreatLevelCritical},
-	}
-
-	t := thresholds[d.level]
-	for threshold, level := range t {
-		if score >= threshold {
-			return level
-		}
-	}
-	return ThreatLevelNone
-}
-
-// DetectEncryption 检测文件是否被加密
-func (d *BuiltInAnomalyDetector) DetectEncryption(path string) (bool, float64, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return false, 0, err
-	}
-
-	if len(data) == 0 {
-		return false, 0, nil
-	}
-
-	// 计算熵值
-	entropy := d.calculateEntropy(data)
-
-	// 高熵值通常表示加密（>7.5）
-	isEncrypted := entropy > 7.5
-
-	return isEncrypted, entropy, nil
-}
-
-// calculateEntropy 计算数据熵值
-func (d *BuiltInAnomalyDetector) calculateEntropy(data []byte) float64 {
-	if len(data) == 0 {
-		return 0
-	}
-
-	frequency := make(map[byte]int)
-	for _, b := range data {
-		frequency[b]++
-	}
-
-	var entropy float64
-	total := float64(len(data))
-
-	for _, count := range frequency {
-		p := float64(count) / total
-		entropy -= p * math.Log2(p)
-	}
-
-	return entropy
-}
-
-// GetPatterns 获取模式列表
-func (d *BuiltInAnomalyDetector) GetPatterns() []BehaviorPattern {
-	return d.patterns
-}
-
-// 辅助方法
-
-func (d *Detector) isWatchedPath(path string) bool {
-	for _, wp := range d.config.WatchPaths {
-		if strings.HasPrefix(path, wp) {
-			return true
-		}
-	}
-	return len(d.config.WatchPaths) == 0 // 未配置则监控所有
-}
-
-func (d *Detector) isExcludedPath(path string) bool {
-	for _, ep := range d.config.ExcludePaths {
-		if strings.HasPrefix(path, ep) {
-			return true
-		}
-	}
-	return false
-}
-
-func (d *Detector) isWriteOnceProtected(path string) bool {
-	for _, pp := range d.writeOncePolicy.ProtectedPaths {
-		if strings.HasPrefix(path, pp) {
-			return true
-		}
-	}
-	return false
-}
-
-func (d *Detector) hasSuspiciousExtension(ext string) bool {
-	ext = strings.ToLower(ext)
-	for _, se := range d.config.SuspiciousExtensions {
-		if ext == strings.ToLower(se) {
-			return true
-		}
-	}
-	return false
-}
-
-func (d *Detector) handleWriteOnceViolation(event FileEvent) {
-	log.Printf("WriteOnce保护违规: path=%s, type=%s, user=%s",
-		event.Path, event.Type, event.UserID)
-	// TODO: 实际阻止操作需要与存储层集成
-}
-
-func (d *Detector) markSuspicious(event FileEvent, reason string) {
-	log.Printf("可疑事件: path=%s, reason=%s", event.Path, reason)
-}
-
-func (d *Detector) getRecentWindow(events []FileEvent, windowSec int) []FileEvent {
-	windowStart := time.Now().Add(-time.Duration(windowSec) * time.Second)
-	result := make([]FileEvent, 0)
-	for _, e := range events {
-		if e.Timestamp.After(windowStart) {
-			result = append(result, e)
-		}
-	}
-	return result
-}
-
-// HashFile 计算文件哈希
-func HashFile(path string) (string, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return "", err
-	}
-
-	hash := sha256.Sum256(data)
-	return hex.EncodeToString(hash[:]), nil
-}
-
-// GenerateEventID 生成事件ID
-func GenerateEventID() string {
-	return uuid.New().String()
-}
-
-// ScanDirectoryForEncryption 扫描目录检测加密文件
-func ScanDirectoryForEncryption(rootPath string, maxFiles int) ([]string, error) {
-	detector := NewBuiltInAnomalyDetector(DetectionLevelMedium)
-	encryptedFiles := make([]string, 0)
+// countEnabledRules 统计启用的规则数
+func (d *RansomwareDetector) countEnabledRules() int {
 	count := 0
-
-	err := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return nil // 忽略错误继续
+	for _, r := range d.rules {
+		if r.Enabled {
+			count++
 		}
-
-		if info.IsDir() {
-			return nil
-		}
-
-		if count >= maxFiles {
-			return fmt.Errorf("达到最大扫描数")
-		}
-
-		isEncrypted, _, err := detector.DetectEncryption(path)
-		if err != nil {
-			return nil
-		}
-
-		if isEncrypted {
-			encryptedFiles = append(encryptedFiles, path)
-		}
-
-		count++
-		return nil
-	})
-
-	if err != nil && err.Error() != "达到最大扫描数" {
-		return nil, err
 	}
-
-	return encryptedFiles, nil
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+	return count
 }
