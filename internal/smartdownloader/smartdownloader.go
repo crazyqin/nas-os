@@ -665,6 +665,7 @@ func (dm *DownloadManager) doDownload(item *DownloadItem) error {
 	if err != nil {
 		return fmt.Errorf("failed to get file info: %w", err)
 	}
+	defer resp.Body.Close()
 	item.FileSize = resp.ContentLength
 
 	// 多线程下载
