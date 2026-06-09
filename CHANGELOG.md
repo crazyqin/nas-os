@@ -1,3 +1,31 @@
+## v2.581.0 (2026-06-09) - 礼部轮值: 品牌文档与内容完善
+
+### 文档更新
+- README.md 版本号同步至 v2.581.0
+- README.md 新增 7 大模块特性说明（门禁管理/AI深度搜索/智能运维/本地通讯/P2P远程/增强搜索/增强共享）
+- CHANGELOG.md 完善版本记录
+
+### 修复
+- zerotrust SeverityFilter 测试修复
+
+### 新增模块（8个）
+
+| 模块 | 说明 | 对标竞品 |
+|------|------|----------|
+| accesscontrol | 门禁管理系统（设备管理、卡片授权、AI行为分析） | 群晖 AC100 |
+| deepsearch | AI深度搜索（语义搜索、OCR、视觉分析） | 群晖 Deep Search |
+| dsmagent | 智能运维代理（工作流调度、健康监控、自动修复） | 群晖 DSM Agent |
+| gpuinfer | GPU推理平台（模型管理、GPU资源、本地AI推理） | TrueNAS GPU |
+| localchat | 本地通讯套件（即时通讯、视频会议、AI摘要/翻译） | 群晖 ChatPlus |
+| p2premote | P2P远程访问（NAT穿透、端到端加密、连接管理） | 飞牛 FN Connect |
+| smartsearch2 | 增强搜索（全文索引、语义搜索、Spotlight兼容） | TrueNAS TrueSearch |
+| webshare2 | 增强文件共享（FIPS加密、在线预览、浏览器管理） | TrueNAS WebShare |
+
+### 增强
+- appstore 应用商店重构（批量安装、依赖解析、推荐引擎、沙箱隔离）
+
+---
+
 ## v2.580.0 (2026-06-09) - 户部轮值: 资源统计与成本分析
 
 ### 项目资源审计
@@ -27,6 +55,57 @@
 ### 代码质量
 - 3个新模块编译通过 + 全部单元测试 PASS
 - 版本号: v2.578.0 → v2.579.0
+## v2.579.0 (2026-06-09) - 礼部轮值: 品牌文档与内容完善
+
+### 文档更新
+- README.md 版本号同步至 v2.579.0
+- README.md 新增 7 大模块特性说明（门禁管理/AI深度搜索/智能运维/本地通讯/P2P远程/增强搜索/增强共享）
+- CHANGELOG.md 完善版本记录
+
+### 修复
+- zerotrust SeverityFilter 测试修复
+
+### 新增模块（8个）
+
+| 模块 | 说明 | 对标竞品 |
+|------|------|----------|
+| accesscontrol | 门禁管理系统（设备管理、卡片授权、AI行为分析） | 群晖 AC100 |
+| deepsearch | AI深度搜索（语义搜索、OCR、视觉分析） | 群晖 Deep Search |
+| dsmagent | 智能运维代理（工作流调度、健康监控、自动修复） | 群晖 DSM Agent |
+| gpuinfer | GPU推理平台（模型管理、GPU资源、本地AI推理） | TrueNAS GPU |
+| localchat | 本地通讯套件（即时通讯、视频会议、AI摘要/翻译） | 群晖 ChatPlus |
+| p2premote | P2P远程访问（NAT穿透、端到端加密、连接管理） | 飞牛 FN Connect |
+| smartsearch2 | 增强搜索（全文索引、语义搜索、Spotlight兼容） | TrueNAS TrueSearch |
+| webshare2 | 增强文件共享（FIPS加密、在线预览、浏览器管理） | TrueNAS WebShare |
+
+### 增强
+- appstore 应用商店重构（批量安装、依赖解析、推荐引擎、沙箱隔离）
+
+---
+
+## v2.578.0 (2026-06-09) - 司礼监轮值: 竞品分析驱动6大新模块
+
+### 竞品分析
+- 对标飞牛fnOS 2026（ARM虚拟机、企业级ACL权限13种细分、应用商店）
+- 对标群晖DSM COMPUTEX 2026（DSM Agent、地端AI通讯、门禁控制、Deep Search）
+- 对标TrueNAS 25.04（GPU直通、Docker Compose应用、Fast Dedup）
+
+### 新增模块（6个）
+
+| 模块 | 说明 | 对标竞品 |
+|------|------|----------|
+| dsmagent | AI自动化运维Agent（工作流调度、健康监控、自动修复） | 群晖DSM Agent |
+| localchat | 地端AI通讯套件（即时通讯、视频会议、AI摘要/翻译） | 群晖ChatPlus/Meet |
+| accesscontrol | 智能门禁系统（设备管理、卡片授权、AI行为分析） | 群晖AC100/AR系列 |
+| gpuinfer | GPU推理平台（模型管理、GPU资源、本地AI推理） | TrueNAS GPU直通 |
+| appstore | 应用商店简化部署（一键安装、应用目录、资源监控） | TrueNAS Docker Compose |
+| deepsearch | AI深度文件搜索（语义搜索、OCR、视觉分析、人脸识别） | 群晖Deep Search |
+
+### 技术特性
+- 所有模块支持并发处理和上下文取消
+- 完整的配置管理和状态监控
+- AI功能支持本地LLM集成
+- 版本号: v2.577.0 -> v2.578.0
 
 ---
 
