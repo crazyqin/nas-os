@@ -921,7 +921,7 @@ func (sem *SecurityEventManager) GetEvents(limit int, severity *Severity) []*Sec
 	defer sem.mu.RUnlock()
 	var result []*SecurityEvent
 	for _, e := range sem.events {
-		if severity != nil && e.Severity != *severity {
+		if severity != nil && e.Severity < *severity {
 			continue
 		}
 		result = append(result, e)
