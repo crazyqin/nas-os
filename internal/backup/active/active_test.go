@@ -48,10 +48,36 @@ func setupTestEnv(t *testing.T) (string, *BackupManager, *Engine, *RestoreManage
 	return tmpDir, mgr, engine, restore, dashboard
 }
 
+
+func setupTestEngine(t *testing.T) *Engine {
+	t.Helper()
+	engine := setupTestEngine(t)
+	return engine
+}
+
+func setupTestMgrRestore(t *testing.T) (*BackupManager, *RestoreManager) {
+	t.Helper()
+	mgr, restore := setupTestMgrRestore(t)
+	return mgr, restore
+}
+
+func setupTestDashboard(t *testing.T) *DashboardHandler {
+	t.Helper()
+	dashboard := setupTestDashboard(t)
+	return dashboard
+}
+
+func setupTestFull(t *testing.T) (*BackupManager, *Engine, *RestoreManager, *DashboardHandler) {
+	t.Helper()
+	_, mgr, engine, restore, dashboard := setupTestEnv(t)
+	return mgr, engine, restore, dashboard
+}
+
+
 // ==================== Engine 测试 ====================
 
 func TestNewEngine(t *testing.T) {
-	_, _, engine, _, _ := setupTestEnv(t)
+	engine := setupTestEngine(t)
 
 	if engine.GetState() != EngineStateIdle {
 		t.Errorf("expected idle state, got %s", engine.GetState())
@@ -59,7 +85,7 @@ func TestNewEngine(t *testing.T) {
 }
 
 func TestEngineStartStop(t *testing.T) {
-	_, _, engine, _, _ := setupTestEnv(t)
+	engine := setupTestEngine(t)
 
 	ctx := context.Background()
 	if err := engine.Start(ctx); err != nil {
@@ -137,7 +163,7 @@ func TestEngineSubmitTask(t *testing.T) {
 }
 
 func TestEngineGetStats(t *testing.T) {
-	_, _, engine, _, _ := setupTestEnv(t)
+	engine := setupTestEngine(t)
 
 	stats := engine.GetStats()
 	if stats.State != string(EngineStateIdle) {
@@ -149,7 +175,7 @@ func TestEngineGetStats(t *testing.T) {
 }
 
 func TestEngineListTaskRuns(t *testing.T) {
-	_, _, engine, _, _ := setupTestEnv(t)
+	engine := setupTestEngine(t)
 
 	runs := engine.ListTaskRuns("")
 	if runs == nil {
@@ -557,7 +583,7 @@ func TestScheduleManagerBandwidth(t *testing.T) {
 // ==================== Restore 测试 ====================
 
 func TestRestoreManagerCreateTasks(t *testing.T) {
-	_, mgr, _, restore, _ := setupTestEnv(t)
+	mgr, restore := setupTestMgrRestore(t)
 
 	ctx := context.Background()
 
@@ -607,7 +633,7 @@ func TestRestoreManagerCreateTasks(t *testing.T) {
 }
 
 func TestRestoreManagerListRestorePoints(t *testing.T) {
-	_, mgr, _, restore, _ := setupTestEnv(t)
+	mgr, restore := setupTestMgrRestore(t)
 
 	ctx := context.Background()
 	job, _ := mgr.CreateJob(ctx, &BackupJob{
@@ -641,7 +667,7 @@ func TestRestoreManagerListRestorePoints(t *testing.T) {
 }
 
 func TestRestoreManagerGetTask(t *testing.T) {
-	_, mgr, _, restore, _ := setupTestEnv(t)
+	mgr, restore := setupTestMgrRestore(t)
 
 	ctx := context.Background()
 	job, _ := mgr.CreateJob(ctx, &BackupJob{
@@ -714,7 +740,7 @@ func TestDashboardSummary(t *testing.T) {
 }
 
 func TestDashboardStorageTrend(t *testing.T) {
-	_, _, _, _, dashboard := setupTestEnv(t)
+	dashboard := setupTestDashboard(t)
 
 	trend := dashboard.buildStorageTrend()
 	if trend == nil {
