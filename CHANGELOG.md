@@ -1,3 +1,23 @@
+## v2.583.0 (2026-06-09) - 工部轮值: CI/CD 优化
+
+### CI/CD 修复
+- **benchmark.yml 补全** - 添加缺失的基准测试运行步骤、benchstat 分析、结果上传
+- **paths-filter 升级** - dorny/paths-filter 从 v4 降至 v3（稳定版本）
+- **版本号统一** - 所有 workflow 文件版本号同步至 v2.583.0
+
+### 工作流维护
+- ci-cd.yml: 更新构建汇总版本标识
+- release.yml: 更新维护版本号
+- security-scan.yml: 更新维护版本号
+- docker-publish.yml: 更新维护版本号 + paths-filter 修复
+- compatibility.yml: 更新维护版本号
+- staged-release.yml: 更新维护版本号
+
+### 版本号
+- v2.582.0 → v2.583.0
+
+---
+
 ## v2.582.0 (2026-06-09) - 礼部轮值: 品牌建设与文档完善（续）
 
 ### 新增文档
