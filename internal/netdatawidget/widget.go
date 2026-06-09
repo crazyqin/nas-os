@@ -263,6 +263,17 @@ func (w *NetdataWidget) GetSystemOverview() map[string]interface{} {
 
 func (w *NetdataWidget) checkThresholds(name string, value float64) {
 	for _, widget := range w.widgets {
+		// 仅检查包含该指标的组件
+		matched := false
+		for _, m := range widget.Metrics {
+			if m == name {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			continue
+		}
 		for _, t := range widget.Thresholds {
 			if value >= t.Value {
 				alert := &SystemAlert{

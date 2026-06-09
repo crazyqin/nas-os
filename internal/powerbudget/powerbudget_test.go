@@ -154,7 +154,7 @@ func TestRecordPowerEnergyCalculation(t *testing.T) {
 	// 设置预算以确定电价
 	engine.SetBudget(SetBudgetRequest{
 		MonthlyAmount:    20000,
-		ElectricityPrice: 56.0,
+		ElectricityPrice: 0.56,
 	})
 
 	req := RecordPowerRequest{
@@ -169,7 +169,7 @@ func TestRecordPowerEnergyCalculation(t *testing.T) {
 
 	// 1000W * 1h = 1kWh
 	assert.InDelta(t, 1.0, record.EnergyKWh, 0.01)
-	// 1kWh * 56分/kWh = 56分
+	// 1kWh * 0.56元/kWh = 0.56元 = 56分
 	assert.Equal(t, int64(56), record.CostCents)
 }
 
@@ -182,7 +182,7 @@ func TestSetBudget(t *testing.T) {
 	req := SetBudgetRequest{
 		Name:              "月度用电预算",
 		MonthlyAmount:     20000,
-		ElectricityPrice:  56.0,
+		ElectricityPrice:  0.56,
 		WarningThreshold:  80,
 		CriticalThreshold: 95,
 	}
@@ -192,7 +192,7 @@ func TestSetBudget(t *testing.T) {
 	assert.NotNil(t, budget)
 	assert.Equal(t, "月度用电预算", budget.Name)
 	assert.Equal(t, 20000.0, budget.MonthlyAmount)
-	assert.Equal(t, 56.0, budget.ElectricityPrice)
+	assert.Equal(t, 0.56, budget.ElectricityPrice)
 	assert.Equal(t, 80.0, budget.WarningThreshold)
 	assert.Equal(t, 95.0, budget.CriticalThreshold)
 	assert.True(t, budget.Enabled)
@@ -250,7 +250,7 @@ func TestGetBudgetStatus(t *testing.T) {
 
 	engine.SetBudget(SetBudgetRequest{
 		MonthlyAmount:    20000,
-		ElectricityPrice: 56.0,
+		ElectricityPrice: 0.56,
 	})
 
 	// 记录一些用电
@@ -285,7 +285,7 @@ func TestGetMonthlyReport(t *testing.T) {
 
 	engine.SetBudget(SetBudgetRequest{
 		MonthlyAmount:    20000,
-		ElectricityPrice: 56.0,
+		ElectricityPrice: 0.56,
 	})
 
 	// 记录一些用电数据
@@ -500,7 +500,7 @@ func TestAnalyzerGetOptimizationSuggestions(t *testing.T) {
 
 	engine.SetBudget(SetBudgetRequest{
 		MonthlyAmount:    20000,
-		ElectricityPrice: 56.0,
+		ElectricityPrice: 0.56,
 	})
 
 	// 记录数据
@@ -518,7 +518,7 @@ func TestAnalyzerPredictMonthly(t *testing.T) {
 
 	engine.SetBudget(SetBudgetRequest{
 		MonthlyAmount:    20000,
-		ElectricityPrice: 56.0,
+		ElectricityPrice: 0.56,
 	})
 
 	// 记录一些数据
@@ -573,7 +573,7 @@ func TestAlertManagerCheckBudgetAlerts(t *testing.T) {
 
 	engine.SetBudget(SetBudgetRequest{
 		MonthlyAmount:    100,
-		ElectricityPrice: 56.0,
+		ElectricityPrice: 0.56,
 		WarningThreshold: 80,
 	})
 
@@ -830,7 +830,7 @@ func TestIntegrationBudgetWorkflow(t *testing.T) {
 	_, err := engine.SetBudget(SetBudgetRequest{
 		Name:              "测试预算",
 		MonthlyAmount:     10000,
-		ElectricityPrice:  56.0,
+		ElectricityPrice:  0.56,
 		WarningThreshold:  80,
 		CriticalThreshold: 95,
 	})
@@ -880,7 +880,7 @@ func TestIntegrationMultipleDevices(t *testing.T) {
 
 	engine.SetBudget(SetBudgetRequest{
 		MonthlyAmount:    50000,
-		ElectricityPrice: 56.0,
+		ElectricityPrice: 0.56,
 	})
 
 	// 记录多个设备
