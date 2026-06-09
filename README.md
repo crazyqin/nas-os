@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.581.0 Stable (2026-06-09)
+> **最新版本**: v2.582.0 Stable (2026-06-09)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -279,6 +279,16 @@ sudo nasd
 - 密码：`admin123`
 
 ⚠️ **首次登录后请立即修改默认密码！**
+
+## 📚 文档
+
+| 文档 | 说明 |
+|------|------|
+| [快速入门](docs/GETTING_STARTED.md) | 5 分钟上手指南 |
+| [架构概览](docs/ARCHITECTURE.md) | 系统架构与模块说明 |
+| [品牌指南](docs/BRAND_GUIDELINES.md) | 品牌资源与使用规范 |
+| [API 文档](docs/api/) | REST API 接口参考 |
+| [竞品分析](docs/COMPETITIVE_ANALYSIS_2026Q2.md) | 与群晖/TrueNAS/飞牛对比 |
 
 ## API 接口
 
