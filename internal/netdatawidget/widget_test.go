@@ -71,7 +71,9 @@ func TestAlerts(t *testing.T) {
 		t.Fatal("expected alerts")
 	}
 
-	widget.AcknowledgeAlert(allAlerts[0].ID)
+	for _, a := range allAlerts {
+		widget.AcknowledgeAlert(a.ID)
+	}
 	unacked := widget.GetAlerts(true)
 	if len(unacked) != 0 {
 		t.Fatalf("all alerts should be acked, got %d unacked", len(unacked))

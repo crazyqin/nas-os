@@ -14,10 +14,9 @@ func NewScoreCalculator(hs *HealthScore) *ScoreCalculator {
 	return &ScoreCalculator{hs: hs}
 }
 
-// CalculateOverallScore calculates the overall health score from components
+// CalculateOverallScore calculates the overall health score from components.
+// Note: caller must hold hs.mu lock (this method does not acquire the lock).
 func (sc *ScoreCalculator) CalculateOverallScore(components []ComponentScore) float64 {
-	sc.hs.mu.RLock()
-	defer sc.hs.mu.RUnlock()
 
 	totalWeight := 0.0
 	weightedSum := 0.0
@@ -53,7 +52,7 @@ func (sc *ScoreCalculator) DetermineStatus(score float64) HealthStatus {
 
 // DetermineTrend determines the trend from historical data
 func (sc *ScoreCalculator) DetermineTrend(history []ScoreHistory) string {
-	if len(history) < 3 {
+	if len(history) < 6 {
 		return "stable"
 	}
 

@@ -18,6 +18,7 @@ type Engine struct {
 	logger   *zap.Logger
 	config   *PowerBudgetConfig
 	running  bool
+	budgetSet bool
 	records  []*PowerRecord
 	alerts   []*Alert
 	devices  map[string]*DeviceProfile
@@ -214,29 +215,35 @@ const (
 // ==================== 辅助结构 ====================
 
 // Tracker 功率追踪器
+// powerReading 存储单次功率读数
+// Tracker 功率追踪器
 type Tracker struct {
 	mu       sync.RWMutex
-	readings map[string]float64
+	readings map[string][]float64
 }
 
-// GetRealtimePower 获取实时功率
+// GetRealtimePower 获取实时功率（每个设备最新读数）
 func (t *Tracker) GetRealtimePower() map[string]float64 {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 	result := make(map[string]float64)
 	for k, v := range t.readings {
-		result[k] = v
+		if len(v) > 0 {
+			result[k] = v[len(v)-1]
+		}
 	}
 	return result
 }
 
-// GetCurrentPower 获取当前总功率
+// GetCurrentPower 获取当前总功率（所有设备最新读数之和）
 func (t *Tracker) GetCurrentPower() float64 {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 	total := 0.0
 	for _, v := range t.readings {
-		total += v
+		if len(v) > 0 {
+			total += v[len(v)-1]
+		}
 	}
 	return total
 }
@@ -251,29 +258,41 @@ func (t *Tracker) AggregateHourly(t2 time.Time) []float64 {
 	return make([]float64, 24)
 }
 
-// AggregateByDevice 按设备聚合
+// AggregateByDevice 按设备聚合（返回每个设备最新读数）
 func (t *Tracker) AggregateByDevice(start, end time.Time) map[string]float64 {
-	return t.readings
+	result := make(map[string]float64)
+	for k, v := range t.readings {
+		if len(v) > 0 {
+			result[k] = v[len(v)-1]
+		}
+	}
+	return result
 }
 
-// GetPeakPower 获取峰值功率
+// GetPeakPower 获取峰值功率（所有设备所有读数中的最大值）
 func (t *Tracker) GetPeakPower(start, end time.Time) (float64, error) {
 	peak := 0.0
+	found := false
 	for _, v := range t.readings {
-		if v > peak {
-			peak = v
+		for _, val := range v {
+			if !found || val > peak {
+				peak = val
+				found = true
+			}
 		}
 	}
 	return peak, nil
 }
 
-// GetAveragePower 获取平均功率
+// GetAveragePower 获取平均功率（所有设备所有读数的平均值）
 func (t *Tracker) GetAveragePower(start, end time.Time) float64 {
 	total := 0.0
 	count := 0
 	for _, v := range t.readings {
-		total += v
-		count++
+		for _, val := range v {
+			total += val
+			count++
+		}
 	}
 	if count == 0 {
 		return 0
@@ -281,14 +300,16 @@ func (t *Tracker) GetAveragePower(start, end time.Time) float64 {
 	return total / float64(count)
 }
 
-// GetMinPower 获取最小功率
+// GetMinPower 获取最小功率（所有设备所有读数中的最小值）
 func (t *Tracker) GetMinPower(start, end time.Time) float64 {
 	min := 0.0
 	first := true
 	for _, v := range t.readings {
-		if first || v < min {
-			min = v
-			first = false
+		for _, val := range v {
+			if first || val < min {
+				min = val
+				first = false
+			}
 		}
 	}
 	return min
@@ -309,24 +330,97 @@ func (a *Analyzer) AnalyzeDailyTrend(days int) []TrendPoint {
 	return []TrendPoint{{Date: time.Now(), Energy: 100.0}}
 }
 
-// DetectAnomalies 检测异常
+// DetectAnomalies 检测异常（基于标准差）
 func (a *Analyzer) DetectAnomalies(days int) []interface{} {
-	return nil
+	a.engine.mu.RLock()
+	defer a.engine.mu.RUnlock()
+
+	if len(a.engine.records) < 2 {
+		return []interface{}{}
+	}
+
+	// 收集所有功率值
+	values := make([]float64, 0, len(a.engine.records))
+	for _, r := range a.engine.records {
+		values = append(values, r.PowerWatts)
+	}
+
+	mean, stddev := calculateStats(values)
+	if stddev == 0 {
+		return []interface{}{}
+	}
+
+	anomalies := make([]interface{}, 0)
+	for _, r := range a.engine.records {
+		zscore := (r.PowerWatts - mean) / stddev
+		if zscore > 3.0 || zscore < -3.0 {
+			anomalies = append(anomalies, map[string]interface{}{
+				"device_id": r.DeviceID,
+				"power":     r.PowerWatts,
+				"zscore":    zscore,
+				"timestamp": r.Timestamp,
+			})
+		}
+	}
+	return anomalies
 }
 
 // GetOptimizationSuggestions 获取优化建议
 func (a *Analyzer) GetOptimizationSuggestions() []interface{} {
-	return nil
+	a.engine.mu.RLock()
+	defer a.engine.mu.RUnlock()
+	return []interface{}{}
 }
 
 // PredictMonthly 预测月度
 func (a *Analyzer) PredictMonthly() *Prediction {
-	return nil
+	a.engine.mu.RLock()
+	defer a.engine.mu.RUnlock()
+
+	if !a.engine.budgetSet {
+		return nil
+	}
+
+	totalEnergy := 0.0
+	for _, r := range a.engine.records {
+		totalEnergy += r.EnergyKWh
+	}
+	now := time.Now()
+	startOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+	daysInMonth := time.Date(now.Year(), now.Month()+1, 0, 0, 0, 0, 0, now.Location()).Day()
+	daysElapsed := int(now.Sub(startOfMonth).Hours()/24)
+	if daysElapsed == 0 {
+		daysElapsed = 1
+	}
+	dailyAvg := totalEnergy / float64(daysElapsed)
+	daysLeft := daysInMonth - daysElapsed
+	return &Prediction{
+		Method:       "linear",
+		DaysLeft:     daysLeft,
+		DailyAvg:     dailyAvg,
+		PredictedKWh: dailyAvg * float64(daysInMonth),
+		Confidence:   &TrendPoint{Date: now, Energy: totalEnergy},
+	}
 }
 
-// PredictDevicePredict 预测设备
+// PredictDevicePredict 预测设备能耗
 func (a *Analyzer) PredictDevicePredict(deviceID string, days int) float64 {
-	return 0.0
+	a.engine.mu.RLock()
+	defer a.engine.mu.RUnlock()
+
+	totalEnergy := 0.0
+	count := 0
+	for _, r := range a.engine.records {
+		if r.DeviceID == deviceID {
+			totalEnergy += r.EnergyKWh
+			count++
+		}
+	}
+	if count == 0 {
+		return 0.0
+	}
+	dailyAvg := totalEnergy / float64(count)
+	return dailyAvg * float64(days)
 }
 
 // AlertManager 告警管理器
@@ -409,7 +503,7 @@ func NewEngine(logger *zap.Logger) *Engine {
 		records: make([]*PowerRecord, 0),
 		alerts:  make([]*Alert, 0),
 		devices: make(map[string]*DeviceProfile),
-		tracker: &Tracker{readings: make(map[string]float64)},
+		tracker: &Tracker{readings: make(map[string][]float64)},
 	}
 	e.analyzer = &Analyzer{engine: e}
 	e.alertMgr = &AlertManager{engine: e}
@@ -474,7 +568,7 @@ func (e *Engine) RecordPower(req RecordPowerRequest) (*PowerRecord, error) {
 
 	e.records = append(e.records, record)
 	e.tracker.mu.Lock()
-	e.tracker.readings[req.DeviceID] = req.PowerWatts
+	e.tracker.readings[req.DeviceID] = append(e.tracker.readings[req.DeviceID], req.PowerWatts)
 	e.tracker.mu.Unlock()
 
 	// 更新设备画像
@@ -518,8 +612,8 @@ func (e *Engine) SetBudget(req SetBudgetRequest) (*Budget, error) {
 		req.CriticalThreshold = DefaultCriticalThreshold
 	}
 
-	e.config.ElectricityRate = req.MonthlyAmount
 	e.config.ElectricityRate = req.ElectricityPrice
+	e.budgetSet = true
 
 	budget := &Budget{
 		Name:              req.Name,
@@ -538,7 +632,7 @@ func (e *Engine) GetBudgetStatus() (*BudgetStatus, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 
-	if e.config.ElectricityRate == 0 {
+	if !e.budgetSet {
 		return nil, ErrBudgetNotSet
 	}
 
@@ -581,9 +675,29 @@ func (e *Engine) GetMonthlyReport() (*MonthlyReport, error) {
 
 	totalEnergy := 0.0
 	totalCost := int64(0)
+	deviceEnergy := make(map[string]*DevicePower)
 	for _, r := range e.records {
 		totalEnergy += r.EnergyKWh
 		totalCost += r.CostCents
+		dp, ok := deviceEnergy[r.DeviceID]
+		if !ok {
+			dp = &DevicePower{DeviceID: r.DeviceID, DeviceName: r.DeviceName}
+			deviceEnergy[r.DeviceID] = dp
+		}
+		dp.TotalPower += r.EnergyKWh
+	}
+
+	topDevices := make([]DevicePower, 0, len(deviceEnergy))
+	for _, dp := range deviceEnergy {
+		topDevices = append(topDevices, *dp)
+	}
+	// 按能耗降序排列
+	for i := 0; i < len(topDevices)-1; i++ {
+		for j := i + 1; j < len(topDevices); j++ {
+			if topDevices[j].TotalPower > topDevices[i].TotalPower {
+				topDevices[i], topDevices[j] = topDevices[j], topDevices[i]
+			}
+		}
 	}
 
 	report := &MonthlyReport{
@@ -592,7 +706,7 @@ func (e *Engine) GetMonthlyReport() (*MonthlyReport, error) {
 		TotalEnergy: totalEnergy,
 		TotalCost:   totalCost,
 		DailyTrend:  []TrendPoint{{Date: time.Now(), Energy: totalEnergy}},
-		TopDevices:  make([]DevicePower, 0),
+		TopDevices:  topDevices,
 		Trend:       &TrendPoint{Date: time.Now(), Energy: totalEnergy},
 		Prediction:  &Prediction{Method: "linear", DaysLeft: 30, DailyAvg: totalEnergy / 30, PredictedKWh: totalEnergy, Confidence: &TrendPoint{}},
 	}
@@ -627,7 +741,7 @@ func (e *Engine) GetReport(req ReportRequest) (*Report, error) {
 func (e *Engine) GetActiveAlerts() []*Alert {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	var result []*Alert
+	result := make([]*Alert, 0)
 	for _, a := range e.alerts {
 		if a.Active {
 			result = append(result, a)
