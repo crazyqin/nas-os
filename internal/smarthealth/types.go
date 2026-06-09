@@ -207,6 +207,17 @@ type ScanRequest struct {
 	Force   bool     `json:"force"`             // 强制重新扫描
 }
 
+// PatrolConfig 巡检配置
+type PatrolConfig struct {
+	Enabled       bool    `json:"enabled"`
+	Interval      int     `json:"interval"`
+	CPUThreshold  float64 `json:"cpu_threshold"`
+	MemThreshold  float64 `json:"mem_threshold"`
+	DiskThreshold float64 `json:"disk_threshold"`
+	TempThreshold float64 `json:"temp_threshold"`
+	RetentionDays int     `json:"retention_days"`
+}
+
 // Response API 响应.
 type Response struct {
 	Code    int         `json:"code"`

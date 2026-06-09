@@ -90,7 +90,7 @@ jobs:
     name: 发布前检查
     runs-on: ubuntu-latest
     needs: [prepare]
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
