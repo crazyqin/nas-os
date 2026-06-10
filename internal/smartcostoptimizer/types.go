@@ -89,7 +89,7 @@ const (
 // 存储资源与定价
 // ============================================================
 
-// StorageAsset 存储资产（设备/卷）
+// StorageAsset 存储资产（设备/卷）.
 type StorageAsset struct {
 	ID            string      `json:"id"`
 	Name          string      `json:"name"`
@@ -107,7 +107,7 @@ type StorageAsset struct {
 	CreatedAt     time.Time   `json:"created_at"`
 }
 
-// PricingRule 定价规则
+// PricingRule 定价规则.
 type PricingRule struct {
 	StorageType     StorageType `json:"storage_type"`
 	PricePerGBMonth float64     `json:"price_per_gb_month"` // 元/GB/月
@@ -116,7 +116,7 @@ type PricingRule struct {
 	RequestPer1K    float64     `json:"request_per_1k"`     // 元/千次请求
 }
 
-// SmartCostConfig 智能成本优化器配置
+// SmartCostConfig 智能成本优化器配置.
 type SmartCostConfig struct {
 	Enabled            bool                        `json:"enabled"`
 	DefaultCurrency    string                      `json:"default_currency"`
@@ -128,7 +128,7 @@ type SmartCostConfig struct {
 	ReportRetention    int                         `json:"report_retention_days"`
 }
 
-// DefaultSmartCostConfig 返回默认配置
+// DefaultSmartCostConfig 返回默认配置.
 func DefaultSmartCostConfig() *SmartCostConfig {
 	return &SmartCostConfig{
 		Enabled:         true,
@@ -152,7 +152,7 @@ func DefaultSmartCostConfig() *SmartCostConfig {
 // 成本记录与汇总
 // ============================================================
 
-// CostEntry 单条成本记录
+// CostEntry 单条成本记录.
 type CostEntry struct {
 	ID          string      `json:"id"`
 	AssetID     string      `json:"asset_id"`
@@ -167,7 +167,7 @@ type CostEntry struct {
 	RecordedAt  time.Time   `json:"recorded_at"`
 }
 
-// CostSummary 成本汇总
+// CostSummary 成本汇总.
 type CostSummary struct {
 	TotalCost       float64                 `json:"total_cost"`
 	TotalCapacityGB float64                 `json:"total_capacity_gb"`
@@ -184,7 +184,7 @@ type CostSummary struct {
 // 成本趋势
 // ============================================================
 
-// TrendPoint 趋势数据点
+// TrendPoint 趋势数据点.
 type TrendPoint struct {
 	Date   time.Time `json:"date"`
 	Cost   float64   `json:"cost"`
@@ -192,7 +192,7 @@ type TrendPoint struct {
 	FreeGB float64   `json:"free_gb"`
 }
 
-// CostTrend 成本趋势分析结果
+// CostTrend 成本趋势分析结果.
 type CostTrend struct {
 	Granularity   TrendGranularity `json:"granularity"`
 	Points        []TrendPoint     `json:"points"`
@@ -206,7 +206,7 @@ type CostTrend struct {
 // 优化建议
 // ============================================================
 
-// OptimizationSuggestion 智能优化建议
+// OptimizationSuggestion 智能优化建议.
 type OptimizationSuggestion struct {
 	ID              string               `json:"id"`
 	Strategy        OptimizationStrategy `json:"strategy"`
@@ -229,7 +229,7 @@ type OptimizationSuggestion struct {
 // ROI 计算
 // ============================================================
 
-// ROIInput 投资回报率计算输入
+// ROIInput 投资回报率计算输入.
 type ROIInput struct {
 	InvestmentCost float64 `json:"investment_cost"` // 投资成本
 	AnnualSaving   float64 `json:"annual_saving"`   // 年节省
@@ -238,7 +238,7 @@ type ROIInput struct {
 	DiscountRate   float64 `json:"discount_rate"`   // 折现率（如 0.08 = 8%）
 }
 
-// ROIResult 投资回报率计算结果
+// ROIResult 投资回报率计算结果.
 type ROIResult struct {
 	InvestmentCost  float64     `json:"investment_cost"`
 	TotalSaving     float64     `json:"total_saving"`
@@ -251,7 +251,7 @@ type ROIResult struct {
 	AnnualBreakdown []AnnualROI `json:"annual_breakdown"`
 }
 
-// AnnualROI 年度 ROI 明细
+// AnnualROI 年度 ROI 明细.
 type AnnualROI struct {
 	Year         int     `json:"year"`
 	Saving       float64 `json:"saving"`
@@ -265,7 +265,7 @@ type AnnualROI struct {
 // 冷数据检测
 // ============================================================
 
-// ColdDataInfo 冷数据信息
+// ColdDataInfo 冷数据信息.
 type ColdDataInfo struct {
 	AssetID       string          `json:"asset_id"`
 	AssetName     string          `json:"asset_name"`
@@ -284,7 +284,7 @@ type ColdDataInfo struct {
 // 报告导出
 // ============================================================
 
-// CostReport 智能成本报告
+// CostReport 智能成本报告.
 type CostReport struct {
 	ID          string                    `json:"id"`
 	ReportName  string                    `json:"report_name"`

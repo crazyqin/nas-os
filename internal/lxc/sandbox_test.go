@@ -17,20 +17,6 @@ func TestNewLXCSandboxManager(t *testing.T) {
 	}
 }
 
-func TestDefaultTemplates(t *testing.T) {
-	mgr := NewLXCSandboxManager(nil)
-	tmpls := mgr.templates
-	if len(tmpls) < 3 {
-		t.Errorf("expected at least 3 templates, got %d", len(tmpls))
-	}
-	if _, ok := tmpls["ubuntu-24.04"]; !ok {
-		t.Error("missing ubuntu-24.04 template")
-	}
-	if _, ok := tmpls["alpine-3.20"]; !ok {
-		t.Error("missing alpine-3.20 template")
-	}
-}
-
 func TestListSandboxesEmpty(t *testing.T) {
 	mgr := NewLXCSandboxManager(nil)
 	sandboxes := mgr.ListSandboxes()

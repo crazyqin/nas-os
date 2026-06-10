@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// TestNewManager 测试管理器创建
+// TestNewManager 测试管理器创建.
 func TestNewManager(t *testing.T) {
 	logger := zap.NewNop()
 	cfg := DefaultSmartCostConfig()
@@ -34,7 +34,7 @@ func TestNewManager(t *testing.T) {
 	}
 }
 
-// TestNewManager_NilLogger 测试管理器创建时 logger 为 nil
+// TestNewManager_NilLogger 测试管理器创建时 logger 为 nil.
 func TestNewManager_NilLogger(t *testing.T) {
 	manager := NewManager(nil, nil)
 
@@ -49,7 +49,7 @@ func TestNewManager_NilLogger(t *testing.T) {
 	}
 }
 
-// TestManager_GetConfig 测试获取配置（返回副本）
+// TestManager_GetConfig 测试获取配置（返回副本）.
 func TestManager_GetConfig(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -64,7 +64,7 @@ func TestManager_GetConfig(t *testing.T) {
 	}
 }
 
-// TestManager_UpdateConfig 测试更新配置
+// TestManager_UpdateConfig 测试更新配置.
 func TestManager_UpdateConfig(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -86,7 +86,7 @@ func TestManager_UpdateConfig(t *testing.T) {
 	}
 }
 
-// TestManager_UpdateConfig_Nil 测试更新配置为 nil
+// TestManager_UpdateConfig_Nil 测试更新配置为 nil.
 func TestManager_UpdateConfig_Nil(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -99,7 +99,7 @@ func TestManager_UpdateConfig_Nil(t *testing.T) {
 	}
 }
 
-// TestManager_AddAsset 测试添加资产
+// TestManager_AddAsset 测试添加资产.
 func TestManager_AddAsset(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -125,7 +125,7 @@ func TestManager_AddAsset(t *testing.T) {
 	}
 }
 
-// TestManager_AddAsset_Nil 测试添加 nil 资产
+// TestManager_AddAsset_Nil 测试添加 nil 资产.
 func TestManager_AddAsset_Nil(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -135,7 +135,7 @@ func TestManager_AddAsset_Nil(t *testing.T) {
 	}
 }
 
-// TestManager_AddAsset_EmptyID 测试添加空 ID 资产
+// TestManager_AddAsset_EmptyID 测试添加空 ID 资产.
 func TestManager_AddAsset_EmptyID(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -150,7 +150,7 @@ func TestManager_AddAsset_EmptyID(t *testing.T) {
 	}
 }
 
-// TestManager_GetAsset_NotFound 测试获取不存在的资产
+// TestManager_GetAsset_NotFound 测试获取不存在的资产.
 func TestManager_GetAsset_NotFound(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -160,7 +160,7 @@ func TestManager_GetAsset_NotFound(t *testing.T) {
 	}
 }
 
-// TestManager_ListAssets 测试列出资产
+// TestManager_ListAssets 测试列出资产.
 func TestManager_ListAssets(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -180,7 +180,7 @@ func TestManager_ListAssets(t *testing.T) {
 	}
 }
 
-// TestManager_RemoveAsset 测试删除资产
+// TestManager_RemoveAsset 测试删除资产.
 func TestManager_RemoveAsset(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -198,7 +198,7 @@ func TestManager_RemoveAsset(t *testing.T) {
 	}
 }
 
-// TestManager_RemoveAsset_NotFound 测试删除不存在的资产
+// TestManager_RemoveAsset_NotFound 测试删除不存在的资产.
 func TestManager_RemoveAsset_NotFound(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -208,7 +208,7 @@ func TestManager_RemoveAsset_NotFound(t *testing.T) {
 	}
 }
 
-// TestManager_RecordCost 测试记录成本
+// TestManager_RecordCost 测试记录成本.
 func TestManager_RecordCost(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -240,7 +240,7 @@ func TestManager_RecordCost(t *testing.T) {
 	}
 }
 
-// TestManager_RecordCost_Nil 测试记录 nil 成本
+// TestManager_RecordCost_Nil 测试记录 nil 成本.
 func TestManager_RecordCost_Nil(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -250,7 +250,7 @@ func TestManager_RecordCost_Nil(t *testing.T) {
 	}
 }
 
-// TestManager_RecordCost_EmptyAssetID 测试记录空 AssetID 成本
+// TestManager_RecordCost_EmptyAssetID 测试记录空 AssetID 成本.
 func TestManager_RecordCost_EmptyAssetID(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -264,7 +264,7 @@ func TestManager_RecordCost_EmptyAssetID(t *testing.T) {
 	}
 }
 
-// TestManager_RecordCost_AutoCalc 测试自动计算总成本
+// TestManager_RecordCost_AutoCalc 测试自动计算总成本.
 func TestManager_RecordCost_AutoCalc(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -286,7 +286,7 @@ func TestManager_RecordCost_AutoCalc(t *testing.T) {
 	}
 }
 
-// TestManager_GetCostSummary 测试获取成本汇总
+// TestManager_GetCostSummary 测试获取成本汇总.
 func TestManager_GetCostSummary(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -310,7 +310,7 @@ func TestManager_GetCostSummary(t *testing.T) {
 	}
 }
 
-// TestManager_GenerateOptimizations 测试生成优化建议
+// TestManager_GenerateOptimizations 测试生成优化建议.
 func TestManager_GenerateOptimizations(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -334,7 +334,7 @@ func TestManager_GenerateOptimizations(t *testing.T) {
 	}
 }
 
-// TestManager_DetectColdData 测试检测冷数据
+// TestManager_DetectColdData 测试检测冷数据.
 func TestManager_DetectColdData(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -354,7 +354,7 @@ func TestManager_DetectColdData(t *testing.T) {
 	}
 }
 
-// TestManager_CalculateROI 测试 ROI 计算
+// TestManager_CalculateROI 测试 ROI 计算.
 func TestManager_CalculateROI(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -378,7 +378,7 @@ func TestManager_CalculateROI(t *testing.T) {
 	}
 }
 
-// TestManager_CalculateROI_Nil 测试 ROI 输入为 nil
+// TestManager_CalculateROI_Nil 测试 ROI 输入为 nil.
 func TestManager_CalculateROI_Nil(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -388,7 +388,7 @@ func TestManager_CalculateROI_Nil(t *testing.T) {
 	}
 }
 
-// TestManager_GenerateReport 测试生成报告
+// TestManager_GenerateReport 测试生成报告.
 func TestManager_GenerateReport(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -412,7 +412,7 @@ func TestManager_GenerateReport(t *testing.T) {
 	}
 }
 
-// TestManager_GetReport 测试获取报告
+// TestManager_GetReport 测试获取报告.
 func TestManager_GetReport(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -428,7 +428,7 @@ func TestManager_GetReport(t *testing.T) {
 	}
 }
 
-// TestManager_GetReport_NotFound 测试获取不存在的报告
+// TestManager_GetReport_NotFound 测试获取不存在的报告.
 func TestManager_GetReport_NotFound(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -438,7 +438,7 @@ func TestManager_GetReport_NotFound(t *testing.T) {
 	}
 }
 
-// TestManager_ListReports 测试列出报告
+// TestManager_ListReports 测试列出报告.
 func TestManager_ListReports(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -452,7 +452,7 @@ func TestManager_ListReports(t *testing.T) {
 	}
 }
 
-// TestManager_ExportReportAsCSV 测试导出报告为 CSV
+// TestManager_ExportReportAsCSV 测试导出报告为 CSV.
 func TestManager_ExportReportAsCSV(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -474,7 +474,7 @@ func TestManager_ExportReportAsCSV(t *testing.T) {
 	}
 }
 
-// TestManager_ExportReportAsCSV_NotFound 测试导出不存在的报告
+// TestManager_ExportReportAsCSV_NotFound 测试导出不存在的报告.
 func TestManager_ExportReportAsCSV_NotFound(t *testing.T) {
 	manager := NewManager(zap.NewNop(), nil)
 
@@ -484,7 +484,7 @@ func TestManager_ExportReportAsCSV_NotFound(t *testing.T) {
 	}
 }
 
-// contains 检查字符串是否包含子串
+// contains 检查字符串是否包含子串.
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && searchString(s, substr)
 }

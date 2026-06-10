@@ -9,13 +9,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Analyzer 成本分析引擎
+// Analyzer 成本分析引擎.
 type Analyzer struct {
 	logger *zap.Logger
 	config *SmartCostConfig
 }
 
-// NewAnalyzer 创建分析引擎
+// NewAnalyzer 创建分析引擎.
 func NewAnalyzer(logger *zap.Logger, config *SmartCostConfig) *Analyzer {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -30,7 +30,7 @@ func NewAnalyzer(logger *zap.Logger, config *SmartCostConfig) *Analyzer {
 // 成本计算
 // ============================================================
 
-// CalculateCostForAsset 计算单个资产的月度成本
+// CalculateCostForAsset 计算单个资产的月度成本.
 func (a *Analyzer) CalculateCostForAsset(asset *StorageAsset) float64 {
 	if asset == nil {
 		return 0
@@ -43,7 +43,7 @@ func (a *Analyzer) CalculateCostForAsset(asset *StorageAsset) float64 {
 	return usedGB * rule.PricePerGBMonth
 }
 
-// CalculateCostSummary 计算成本汇总
+// CalculateCostSummary 计算成本汇总.
 func (a *Analyzer) CalculateCostSummary(entries []*CostEntry, periodStart, periodEnd time.Time) *CostSummary {
 	summary := &CostSummary{
 		ByType:      make(map[StorageType]float64),
@@ -76,7 +76,7 @@ func (a *Analyzer) CalculateCostSummary(entries []*CostEntry, periodStart, perio
 // 趋势分析
 // ============================================================
 
-// AnalyzeTrend 分析成本趋势
+// AnalyzeTrend 分析成本趋势.
 func (a *Analyzer) AnalyzeTrend(entries []*CostEntry, granularity TrendGranularity, months int) *CostTrend {
 	if months <= 0 {
 		months = 6
@@ -150,7 +150,7 @@ func (a *Analyzer) AnalyzeTrend(entries []*CostEntry, granularity TrendGranulari
 	}
 }
 
-// bucketKey 生成聚合键
+// bucketKey 生成聚合键.
 func (a *Analyzer) bucketKey(t time.Time, g TrendGranularity) string {
 	switch g {
 	case TrendDaily:
@@ -165,7 +165,7 @@ func (a *Analyzer) bucketKey(t time.Time, g TrendGranularity) string {
 	}
 }
 
-// simulateTrend 无数据时模拟趋势
+// simulateTrend 无数据时模拟趋势.
 func (a *Analyzer) simulateTrend(g TrendGranularity, months int) []TrendPoint {
 	baseCost := 500.0
 	baseUsed := 800.0
@@ -188,7 +188,7 @@ func (a *Analyzer) simulateTrend(g TrendGranularity, months int) []TrendPoint {
 // 优化建议生成
 // ============================================================
 
-// GenerateOptimizations 生成优化建议
+// GenerateOptimizations 生成优化建议.
 func (a *Analyzer) GenerateOptimizations(assets []*StorageAsset, coldData []*ColdDataInfo) []*OptimizationSuggestion {
 	suggestions := make([]*OptimizationSuggestion, 0)
 	id := 0
@@ -335,7 +335,7 @@ func (a *Analyzer) GenerateOptimizations(assets []*StorageAsset, coldData []*Col
 // ROI 计算
 // ============================================================
 
-// CalculateROI 计算投资回报率
+// CalculateROI 计算投资回报率.
 func (a *Analyzer) CalculateROI(input *ROIInput) (*ROIResult, error) {
 	if input == nil {
 		return nil, fmt.Errorf("roi input is nil")
@@ -408,7 +408,7 @@ func (a *Analyzer) CalculateROI(input *ROIInput) (*ROIResult, error) {
 	return result, nil
 }
 
-// calcIRR 用牛顿迭代法计算 IRR
+// calcIRR 用牛顿迭代法计算 IRR.
 func (a *Analyzer) calcIRR(input *ROIInput) float64 {
 	irr := 0.1 // 初始猜测 10%
 	for i := 0; i < 200; i++ {
@@ -436,7 +436,7 @@ func (a *Analyzer) calcIRR(input *ROIInput) float64 {
 // 冷数据检测
 // ============================================================
 
-// DetectColdData 检测冷数据
+// DetectColdData 检测冷数据.
 func (a *Analyzer) DetectColdData(assets []*StorageAsset, now time.Time) []*ColdDataInfo {
 	cold := make([]*ColdDataInfo, 0)
 	threshold := a.config.ColdThresholdDays

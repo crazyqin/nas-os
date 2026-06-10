@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// TestStorageType_Constants 测试存储类型常量定义
+// TestStorageType_Constants 测试存储类型常量定义.
 func TestStorageType_Constants(t *testing.T) {
 	tests := []struct {
 		name string
@@ -28,7 +28,7 @@ func TestStorageType_Constants(t *testing.T) {
 	}
 }
 
-// TestDataTemperature_Constants 测试数据温度常量定义
+// TestDataTemperature_Constants 测试数据温度常量定义.
 func TestDataTemperature_Constants(t *testing.T) {
 	tests := []struct {
 		name string
@@ -49,7 +49,7 @@ func TestDataTemperature_Constants(t *testing.T) {
 	}
 }
 
-// TestOptimizationStrategy_Constants 测试优化策略常量定义
+// TestOptimizationStrategy_Constants 测试优化策略常量定义.
 func TestOptimizationStrategy_Constants(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -72,7 +72,7 @@ func TestOptimizationStrategy_Constants(t *testing.T) {
 	}
 }
 
-// TestExportFormat_Constants 测试导出格式常量定义
+// TestExportFormat_Constants 测试导出格式常量定义.
 func TestExportFormat_Constants(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -91,7 +91,7 @@ func TestExportFormat_Constants(t *testing.T) {
 	}
 }
 
-// TestTrendGranularity_Constants 测试趋势粒度常量定义
+// TestTrendGranularity_Constants 测试趋势粒度常量定义.
 func TestTrendGranularity_Constants(t *testing.T) {
 	tests := []struct {
 		name string
@@ -112,7 +112,7 @@ func TestTrendGranularity_Constants(t *testing.T) {
 	}
 }
 
-// TestDefaultSmartCostConfig 测试默认配置
+// TestDefaultSmartCostConfig 测试默认配置.
 func TestDefaultSmartCostConfig(t *testing.T) {
 	cfg := DefaultSmartCostConfig()
 
@@ -153,7 +153,7 @@ func TestDefaultSmartCostConfig(t *testing.T) {
 	}
 }
 
-// TestStorageAsset_Creation 测试存储资产创建
+// TestStorageAsset_Creation 测试存储资产创建.
 func TestStorageAsset_Creation(t *testing.T) {
 	now := time.Now()
 	asset := StorageAsset{
@@ -190,7 +190,7 @@ func TestStorageAsset_Creation(t *testing.T) {
 	}
 }
 
-// TestPricingRule 测试定价规则
+// TestPricingRule 测试定价规则.
 func TestPricingRule(t *testing.T) {
 	rule := PricingRule{
 		StorageType:     StorageTypeHDD,
@@ -208,7 +208,7 @@ func TestPricingRule(t *testing.T) {
 	}
 }
 
-// TestCostEntry 测试成本记录
+// TestCostEntry 测试成本记录.
 func TestCostEntry(t *testing.T) {
 	now := time.Now()
 	entry := CostEntry{
@@ -233,7 +233,7 @@ func TestCostEntry(t *testing.T) {
 	}
 }
 
-// TestCostSummary 测试成本汇总
+// TestCostSummary 测试成本汇总.
 func TestCostSummary(t *testing.T) {
 	now := time.Now()
 	summary := CostSummary{
@@ -268,7 +268,7 @@ func TestCostSummary(t *testing.T) {
 	}
 }
 
-// TestOptimizationSuggestion 测试优化建议
+// TestOptimizationSuggestion 测试优化建议.
 func TestOptimizationSuggestion(t *testing.T) {
 	suggestion := OptimizationSuggestion{
 		ID:              "opt-001",
@@ -301,7 +301,7 @@ func TestOptimizationSuggestion(t *testing.T) {
 	}
 }
 
-// TestROIInput 测试 ROI 输入
+// TestROIInput 测试 ROI 输入.
 func TestROIInput(t *testing.T) {
 	input := ROIInput{
 		InvestmentCost: 10000.0,
@@ -319,7 +319,7 @@ func TestROIInput(t *testing.T) {
 	}
 }
 
-// TestROIResult 测试 ROI 结果
+// TestROIResult 测试 ROI 结果.
 func TestROIResult(t *testing.T) {
 	result := ROIResult{
 		InvestmentCost: 10000.0,
@@ -345,7 +345,7 @@ func TestROIResult(t *testing.T) {
 	}
 }
 
-// TestColdDataInfo 测试冷数据信息
+// TestColdDataInfo 测试冷数据信息.
 func TestColdDataInfo(t *testing.T) {
 	cold := ColdDataInfo{
 		AssetID:       "asset-002",
@@ -372,7 +372,7 @@ func TestColdDataInfo(t *testing.T) {
 	}
 }
 
-// TestCostReport 测试成本报告
+// TestCostReport 测试成本报告.
 func TestCostReport(t *testing.T) {
 	report := CostReport{
 		ID:         "report-001",
@@ -403,7 +403,7 @@ func TestCostReport(t *testing.T) {
 	}
 }
 
-// TestTrendPoint 测试趋势数据点
+// TestTrendPoint 测试趋势数据点.
 func TestTrendPoint(t *testing.T) {
 	now := time.Now()
 	point := TrendPoint{
@@ -421,7 +421,7 @@ func TestTrendPoint(t *testing.T) {
 	}
 }
 
-// TestCostTrend 测试成本趋势
+// TestCostTrend 测试成本趋势.
 func TestCostTrend(t *testing.T) {
 	trend := CostTrend{
 		Granularity:   TrendMonthly,
