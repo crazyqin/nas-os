@@ -4,7 +4,6 @@ package smartalbum
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"sort"
 	"sync"
