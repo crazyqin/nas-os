@@ -379,7 +379,7 @@ func (a *Analyzer) CalculateROI(input *ROIInput) (*ROIResult, error) {
 
 	result.TotalSaving = math.Round(totalSaving*100) / 100
 	result.TotalOpex = math.Round(totalOpex*100) / 100
-	result.NetProfit = math.Round((totalSaving - totalOpex - input.InvestmentCost)*100) / 100
+	result.NetProfit = math.Round((totalSaving-totalOpex-input.InvestmentCost)*100) / 100
 	result.AnnualBreakdown = annual
 
 	// ROI 百分比

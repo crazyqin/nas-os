@@ -9,13 +9,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handlers 智能成本优化器 HTTP 处理器
+// Handlers 智能成本优化器 HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{
 		manager: manager,
@@ -23,7 +23,7 @@ func NewHandlers(manager *Manager) *Handlers {
 	}
 }
 
-// RegisterRoutes 注册路由到 /api/v1 下
+// RegisterRoutes 注册路由到 /api/v1 下.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	sco := api.Group("/smart-cost")
 	{
@@ -240,7 +240,7 @@ func (h *Handlers) listCosts(c *gin.Context) {
 
 func (h *Handlers) getCostSummary(c *gin.Context) {
 	var req summaryRequest
-	c.ShouldBindQuery(&req)
+	_ = c.ShouldBindQuery(&req)
 
 	periodStart := time.Now().AddDate(0, -1, 0)
 	periodEnd := time.Now()
@@ -262,7 +262,7 @@ func (h *Handlers) getCostSummary(c *gin.Context) {
 
 func (h *Handlers) analyzeTrend(c *gin.Context) {
 	var req trendRequest
-	c.ShouldBindQuery(&req)
+	_ = c.ShouldBindQuery(&req)
 
 	granularity := TrendMonthly
 	if req.Granularity != "" {

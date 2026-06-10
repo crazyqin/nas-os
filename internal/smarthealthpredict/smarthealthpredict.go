@@ -605,7 +605,7 @@ func (m *Manager) analyzeTrend(device string) *TrendAnalysis {
 	healthTrend := "stable"
 	if healthDiff > 2 {
 		healthTrend = "improving"
-	} else if healthDiff < -2 {
+	} else if healthDiff <= -2 {
 		healthTrend = "degrading"
 	}
 

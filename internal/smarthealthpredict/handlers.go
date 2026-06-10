@@ -39,7 +39,8 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 
 		// 磁盘管理
 		health.GET("/disks", h.ListDisks)
-		health.GET("/disks/:device", h.GetDiskReport)
+		// 磁盘报告（使用查询参数避免路径中 / 的问题）
+		health.GET("/report", h.GetDiskReport)
 
 		// 历史数据
 		health.GET("/history", h.GetDiskHistory)
@@ -89,7 +90,11 @@ func (h *Handler) ListDisks(c *gin.Context) {
 
 // GetDiskReport 获取单个磁盘的健康报告
 func (h *Handler) GetDiskReport(c *gin.Context) {
-	device := c.Param("device")
+	device := c.Query("device")
+	if device == "" {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "请提供磁盘设备参数 (device)"})
+		return
+	}
 
 	// 先扫描获取最新数据
 	report, err := h.manager.ScanDisk(c.Request.Context(), device)
