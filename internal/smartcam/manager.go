@@ -1,4 +1,4 @@
-// Package smartcam 提供摄像头管理核心业务逻辑
+// Package smartcam 提供摄像头管理核心业务逻辑.
 package smartcam
 
 import (
@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 摄像头管理器
+// Manager 摄像头管理器.
 type Manager struct {
 	mu           sync.RWMutex
 	cameras      map[string]*Camera
@@ -25,7 +25,7 @@ type Manager struct {
 	stopCh       chan struct{}
 }
 
-// SystemConfig 系统配置
+// SystemConfig 系统配置.
 type SystemConfig struct {
 	StoragePath    string `json:"storagePath"`
 	MaxStorageGB   int    `json:"maxStorageGB"`
@@ -37,7 +37,7 @@ type SystemConfig struct {
 	RetentionDays  int    `json:"retentionDays"`
 }
 
-// NewManager 创建摄像头管理器
+// NewManager 创建摄像头管理器.
 func NewManager(logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -64,7 +64,7 @@ func NewManager(logger *zap.Logger) *Manager {
 
 // ========== 摄像头管理 ==========
 
-// AddCamera 添加摄像头
+// AddCamera 添加摄像头.
 func (m *Manager) AddCamera(req AddCameraRequest) (*Camera, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -157,7 +157,7 @@ func (m *Manager) AddCamera(req AddCameraRequest) (*Camera, error) {
 	return m.copyCamera(camera), nil
 }
 
-// GetCamera 获取摄像头信息
+// GetCamera 获取摄像头信息.
 func (m *Manager) GetCamera(id string) (*Camera, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -169,7 +169,7 @@ func (m *Manager) GetCamera(id string) (*Camera, error) {
 	return m.copyCamera(camera), nil
 }
 
-// UpdateCamera 更新摄像头配置
+// UpdateCamera 更新摄像头配置.
 func (m *Manager) UpdateCamera(id string, req UpdateCameraRequest) (*Camera, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -226,7 +226,7 @@ func (m *Manager) UpdateCamera(id string, req UpdateCameraRequest) (*Camera, err
 	return m.copyCamera(camera), nil
 }
 
-// RemoveCamera 移除摄像头
+// RemoveCamera 移除摄像头.
 func (m *Manager) RemoveCamera(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -246,7 +246,7 @@ func (m *Manager) RemoveCamera(id string) error {
 	return nil
 }
 
-// ListCameras 列出所有摄像头
+// ListCameras 列出所有摄像头.
 func (m *Manager) ListCameras() []*Camera {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -260,7 +260,7 @@ func (m *Manager) ListCameras() []*Camera {
 
 // ========== 摄像头发现 ==========
 
-// DiscoverCameras 在局域网中发现摄像头
+// DiscoverCameras 在局域网中发现摄像头.
 func (m *Manager) DiscoverCameras(subnet string) (*DiscoverResult, error) {
 	start := time.Now()
 
@@ -300,6 +300,7 @@ func (m *Manager) DiscoverCameras(subnet string) (*DiscoverResult, error) {
 					return
 				}
 				conn.Close()
+				//nolint:errcheck // Best effort close
 
 				mu.Lock()
 				scannedCount++
@@ -333,7 +334,7 @@ func (m *Manager) DiscoverCameras(subnet string) (*DiscoverResult, error) {
 	}, nil
 }
 
-// expandIPRange 展开 IP 范围
+// expandIPRange 展开 IP 范围.
 func (m *Manager) expandIPRange(ipNet *net.IPNet) []string {
 	var ips []string
 	for ip := ipNet.IP.Mask(ipNet.Mask); ipNet.Contains(ip); inc(ip) {
@@ -346,7 +347,7 @@ func (m *Manager) expandIPRange(ipNet *net.IPNet) []string {
 	return ips
 }
 
-// inc 递增 IP
+// inc 递增 IP.
 func inc(ip net.IP) {
 	for j := len(ip) - 1; j >= 0; j-- {
 		ip[j]++
@@ -358,7 +359,7 @@ func inc(ip net.IP) {
 
 // ========== 录像管理 ==========
 
-// StartRecording 开始录像
+// StartRecording 开始录像.
 func (m *Manager) StartRecording(cameraID string, mode string) (*Recording, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -402,7 +403,7 @@ func (m *Manager) StartRecording(cameraID string, mode string) (*Recording, erro
 	return recording, nil
 }
 
-// StopRecording 停止录像
+// StopRecording 停止录像.
 func (m *Manager) StopRecording(cameraID string) (*Recording, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -440,7 +441,7 @@ func (m *Manager) StopRecording(cameraID string) (*Recording, error) {
 	return recording, nil
 }
 
-// GetRecordings 获取录像列表
+// GetRecordings 获取录像列表.
 func (m *Manager) GetRecordings(cameraID string, limit int) []*Recording {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -459,7 +460,7 @@ func (m *Manager) GetRecordings(cameraID string, limit int) []*Recording {
 	return result
 }
 
-// DeleteRecording 删除录像
+// DeleteRecording 删除录像.
 func (m *Manager) DeleteRecording(recordingID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -476,7 +477,7 @@ func (m *Manager) DeleteRecording(recordingID string) error {
 
 // ========== 移动侦测 ==========
 
-// TriggerMotionEvent 触发移动侦测事件
+// TriggerMotionEvent 触发移动侦测事件.
 func (m *Manager) TriggerMotionEvent(cameraID, zoneID string, confidence float64, bbox *BoundingBox) (*MotionEvent, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -537,7 +538,7 @@ func (m *Manager) TriggerMotionEvent(cameraID, zoneID string, confidence float64
 	return event, nil
 }
 
-// executeMotionActions 执行移动侦测触发动作
+// executeMotionActions 执行移动侦测触发动作.
 func (m *Manager) executeMotionActions(camera *Camera, event *MotionEvent) {
 	for _, action := range camera.Motion.Actions {
 		if !action.Enabled {
