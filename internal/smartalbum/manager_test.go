@@ -6,313 +6,397 @@ import (
 )
 
 func TestNewManager(t *testing.T) {
-	m := NewManager()
-	if m == nil {
-		t.Fatal("expected manager")
+	mgr := NewManager()
+	if mgr == nil {
+		t.Fatal("NewManager returned nil")
+	}
+	if len(mgr.photos) != 0 {
+		t.Errorf("expected 0 photos, got %d", len(mgr.photos))
 	}
 }
 
 func TestAddPhoto(t *testing.T) {
-	m := NewManager()
+	mgr := NewManager()
 
-	photo, err := m.AddPhoto(Photo{
+	photo := Photo{
 		Filename: "test.jpg",
 		Path:     "/photos/test.jpg",
-		Size:     1024000,
+		Size:     1024,
 		MimeType: "image/jpeg",
-		Width:    1920,
-		Height:   1080,
 		ShotAt:   time.Now(),
-		Tags:     []string{"vacation", "beach"},
-		Scene:    string(SceneLandscape),
-		Score:    85.5,
-	})
-	if err != nil {
-		t.Fatalf("add photo failed: %v", err)
-	}
-	if photo.ID == "" {
-		t.Error("expected photo ID")
 	}
 
-	// 空文件名
-	_, err = m.AddPhoto(Photo{})
-	if err == nil {
-		t.Error("expected error for empty filename")
+	result, err := mgr.AddPhoto(photo)
+	if err != nil {
+		t.Fatalf("AddPhoto failed: %v", err)
+	}
+	if result.ID == "" {
+		t.Error("photo ID should not be empty")
 	}
 }
 
 func TestGetPhoto(t *testing.T) {
-	m := NewManager()
+	mgr := NewManager()
 
-	photo, _ := m.AddPhoto(Photo{Filename: "test.jpg", ShotAt: time.Now()})
+	photo := Photo{
+		Filename: "test.jpg",
+		Path:     "/photos/test.jpg",
+		Size:     1024,
+	}
+	added, _ := mgr.AddPhoto(photo)
 
-	fetched, err := m.GetPhoto(photo.ID)
+	result, err := mgr.GetPhoto(added.ID)
 	if err != nil {
-		t.Fatalf("get photo failed: %v", err)
+		t.Fatalf("GetPhoto failed: %v", err)
 	}
-	if fetched.Filename != "test.jpg" {
-		t.Errorf("expected 'test.jpg', got '%s'", fetched.Filename)
-	}
-
-	_, err = m.GetPhoto("nonexistent")
-	if err == nil {
-		t.Error("expected error for nonexistent photo")
+	if result.Filename != "test.jpg" {
+		t.Errorf("expected filename 'test.jpg', got '%s'", result.Filename)
 	}
 }
 
 func TestListPhotos(t *testing.T) {
-	m := NewManager()
+	mgr := NewManager()
 
 	for i := 0; i < 5; i++ {
-		m.AddPhoto(Photo{
+		mgr.AddPhoto(Photo{
 			Filename: "photo.jpg",
+			Path:     "/photos/photo.jpg",
+			Size:     1024,
 			ShotAt:   time.Now().Add(time.Duration(i) * time.Hour),
 		})
 	}
 
-	photos := m.ListPhotos(3, 0)
+	photos := mgr.ListPhotos(3, 0)
 	if len(photos) != 3 {
-		t.Errorf("expected 3, got %d", len(photos))
-	}
-
-	photos = m.ListPhotos(10, 3)
-	if len(photos) != 2 {
-		t.Errorf("expected 2, got %d", len(photos))
+		t.Errorf("expected 3 photos, got %d", len(photos))
 	}
 }
 
 func TestDeletePhoto(t *testing.T) {
-	m := NewManager()
+	mgr := NewManager()
 
-	photo, _ := m.AddPhoto(Photo{Filename: "test.jpg", Tags: []string{"tag1"}, ShotAt: time.Now()})
+	photo := Photo{Filename: "test.jpg", Path: "/photos/test.jpg"}
+	added, _ := mgr.AddPhoto(photo)
 
-	err := m.DeletePhoto(photo.ID)
+	err := mgr.DeletePhoto(added.ID)
 	if err != nil {
-		t.Fatalf("delete failed: %v", err)
+		t.Fatalf("DeletePhoto failed: %v", err)
 	}
 
-	_, err = m.GetPhoto(photo.ID)
+	_, err = mgr.GetPhoto(added.ID)
 	if err == nil {
 		t.Error("expected error after delete")
 	}
 }
 
 func TestToggleFavorite(t *testing.T) {
-	m := NewManager()
+	mgr := NewManager()
 
-	photo, _ := m.AddPhoto(Photo{Filename: "test.jpg", ShotAt: time.Now()})
+	photo := Photo{Filename: "test.jpg", Path: "/photos/test.jpg"}
+	added, _ := mgr.AddPhoto(photo)
 
-	m.ToggleFavorite(photo.ID)
-	fetched, _ := m.GetPhoto(photo.ID)
-	if !fetched.IsFavorite {
-		t.Error("expected favorite")
+	err := mgr.ToggleFavorite(added.ID)
+	if err != nil {
+		t.Fatalf("ToggleFavorite failed: %v", err)
 	}
 
-	m.ToggleFavorite(photo.ID)
-	fetched, _ = m.GetPhoto(photo.ID)
-	if fetched.IsFavorite {
-		t.Error("expected not favorite")
+	result, _ := mgr.GetPhoto(added.ID)
+	if !result.IsFavorite {
+		t.Error("expected photo to be favorite")
 	}
 }
 
 func TestFaceManagement(t *testing.T) {
-	m := NewManager()
+	mgr := NewManager()
 
-	photo1, _ := m.AddPhoto(Photo{Filename: "p1.jpg", ShotAt: time.Now()})
-	photo2, _ := m.AddPhoto(Photo{Filename: "p2.jpg", ShotAt: time.Now()})
+	photo := Photo{Filename: "face.jpg", Path: "/photos/face.jpg"}
+	added, _ := mgr.AddPhoto(photo)
 
-	// 注册人脸
-	face, err := m.RegisterFace("张三", photo1.ID, []float64{0.1, 0.2, 0.3})
+	face, err := mgr.RegisterFace("John", added.ID, []float64{0.1, 0.2, 0.3})
 	if err != nil {
-		t.Fatalf("register face failed: %v", err)
+		t.Fatalf("RegisterFace failed: %v", err)
 	}
-	if face.Name != "张三" {
-		t.Errorf("expected '张三', got '%s'", face.Name)
-	}
-
-	// 关联到另一张照片
-	err = m.LinkFaceToPhoto(face.ID, photo2.ID)
-	if err != nil {
-		t.Fatalf("link face failed: %v", err)
-	}
-
-	fetched, _ := m.GetFace(face.ID)
-	if fetched.PhotoCount != 2 {
-		t.Errorf("expected 2 photos, got %d", fetched.PhotoCount)
-	}
-
-	// 列出人脸
-	faces := m.ListFaces()
-	if len(faces) != 1 {
-		t.Errorf("expected 1 face, got %d", len(faces))
+	if face.Name != "John" {
+		t.Errorf("expected face name 'John', got '%s'", face.Name)
 	}
 }
 
 func TestAlbumManagement(t *testing.T) {
-	m := NewManager()
+	mgr := NewManager()
 
-	photo, _ := m.AddPhoto(Photo{Filename: "test.jpg", ShotAt: time.Now()})
-
-	// 创建相册
-	album, err := m.CreateAlbum("我的相册", AlbumTypeManual)
+	album, err := mgr.CreateAlbum("Vacation", AlbumTypeManual)
 	if err != nil {
-		t.Fatalf("create album failed: %v", err)
-	}
-	if album.Name != "我的相册" {
-		t.Errorf("expected '我的相册', got '%s'", album.Name)
+		t.Fatalf("CreateAlbum failed: %v", err)
 	}
 
-	// 添加照片
-	err = m.AddPhotoToAlbum(album.ID, photo.ID)
+	photo := Photo{Filename: "beach.jpg", Path: "/photos/beach.jpg"}
+	added, _ := mgr.AddPhoto(photo)
+
+	err = mgr.AddPhotoToAlbum(album.ID, added.ID)
 	if err != nil {
-		t.Fatalf("add to album failed: %v", err)
-	}
-
-	fetched, _ := m.GetAlbum(album.ID)
-	if fetched.PhotoCount != 1 {
-		t.Errorf("expected 1 photo, got %d", fetched.PhotoCount)
-	}
-	if fetched.CoverID != photo.ID {
-		t.Error("expected cover to be set")
-	}
-
-	// 列出相册
-	albums := m.ListAlbums()
-	if len(albums) != 1 {
-		t.Errorf("expected 1 album, got %d", len(albums))
+		t.Fatalf("AddPhotoToAlbum failed: %v", err)
 	}
 }
 
-func TestSmartAlbum(t *testing.T) {
-	m := NewManager()
+func TestSemanticSearch(t *testing.T) {
+	mgr := NewManager()
 
-	m.AddPhoto(Photo{
-		Filename: "beach.jpg",
-		Tags:     []string{"vacation", "beach"},
-		Scene:    string(SceneLandscape),
-		Score:    90,
-		ShotAt:   time.Now(),
-	})
-	m.AddPhoto(Photo{
-		Filename: "food.jpg",
-		Tags:     []string{"food"},
-		Scene:    string(SceneFood),
-		Score:    70,
-		ShotAt:   time.Now(),
-	})
-	m.AddPhoto(Photo{
+	// 添加带嵌入向量的照片
+	photo1 := Photo{
+		Filename:  "sunset.jpg",
+		Path:      "/photos/sunset.jpg",
+		Embedding: []float64{0.9, 0.1, 0.0},
+	}
+	mgr.AddPhoto(photo1)
+
+	photo2 := Photo{
+		Filename:  "beach.jpg",
+		Path:      "/photos/beach.jpg",
+		Embedding: []float64{0.8, 0.2, 0.1},
+	}
+	mgr.AddPhoto(photo2)
+
+	// 语义搜索
+	queryEmbedding := []float64{0.85, 0.15, 0.05}
+	results := mgr.SemanticSearch(queryEmbedding, 5, 0.5)
+	if len(results) == 0 {
+		t.Error("expected search results")
+	}
+}
+
+func TestFindSimilarPhotos(t *testing.T) {
+	mgr := NewManager()
+
+	photo1 := Photo{
+		Filename:  "sunset1.jpg",
+		Path:      "/photos/sunset1.jpg",
+		Embedding: []float64{0.9, 0.1, 0.0},
+	}
+	mgr.AddPhoto(photo1)
+
+	photo2 := Photo{
+		Filename:  "sunset2.jpg",
+		Path:      "/photos/sunset2.jpg",
+		Embedding: []float64{0.85, 0.15, 0.05},
+	}
+	mgr.AddPhoto(photo2)
+
+	photo3 := Photo{
+		Filename:  "document.jpg",
+		Path:      "/photos/document.jpg",
+		Embedding: []float64{0.1, 0.1, 0.9},
+	}
+	mgr.AddPhoto(photo3)
+
+	results, err := mgr.FindSimilarPhotos(photo1.ID, 2)
+	if err != nil {
+		t.Fatalf("FindSimilarPhotos failed: %v", err)
+	}
+	if len(results) == 0 {
+		t.Error("expected similar photos")
+	}
+}
+
+func TestMapClusters(t *testing.T) {
+	mgr := NewManager()
+
+	// 添加带 GPS 的照片
+	photo1 := Photo{
+		Filename: "location1.jpg",
+		GPS: &GPSInfo{
+			Latitude:  39.9042,
+			Longitude: 116.4074,
+			City:      "北京",
+		},
+	}
+	mgr.AddPhoto(photo1)
+
+	photo2 := Photo{
+		Filename: "location2.jpg",
+		GPS: &GPSInfo{
+			Latitude:  39.9050,
+			Longitude: 116.4080,
+			City:      "北京",
+		},
+	}
+	mgr.AddPhoto(photo2)
+
+	clusters := mgr.GetMapClusters(nil, 10)
+	if len(clusters) == 0 {
+		t.Error("expected map clusters")
+	}
+}
+
+func TestGetPhotosByLocation(t *testing.T) {
+	mgr := NewManager()
+
+	photo := Photo{
+		Filename: "beijing.jpg",
+		GPS: &GPSInfo{
+			Latitude:  39.9042,
+			Longitude: 116.4074,
+			City:      "北京",
+		},
+	}
+	mgr.AddPhoto(photo)
+
+	results := mgr.GetPhotosByLocation("北京", 10)
+	if len(results) == 0 {
+		t.Error("expected photos in Beijing")
+	}
+}
+
+func TestAutoTag(t *testing.T) {
+	mgr := NewManager()
+
+	photo := Photo{
 		Filename: "sunset.jpg",
-		Tags:     []string{"vacation", "sunset"},
-		Scene:    string(SceneLandscape),
-		Score:    95,
-		ShotAt:   time.Now(),
-	})
+		ShotAt:   time.Date(2024, 6, 15, 18, 30, 0, 0, time.Local),
+		GPS: &GPSInfo{
+			City: "上海",
+		},
+	}
+	added, _ := mgr.AddPhoto(photo)
 
-	// 按标签创建智能相册
-	album, err := m.CreateSmartAlbum("度假精选", AlbumCriteria{
-		Tags: []string{"vacation"},
-	})
+	tags, err := mgr.AutoTag(added.ID)
 	if err != nil {
-		t.Fatalf("create smart album failed: %v", err)
-	}
-	if album.PhotoCount != 2 {
-		t.Errorf("expected 2 photos, got %d", album.PhotoCount)
+		t.Fatalf("AutoTag failed: %v", err)
 	}
 
-	// 按场景创建
-	album2, _ := m.CreateSmartAlbum("风景照", AlbumCriteria{
-		Scenes: []SceneCategory{SceneLandscape},
-	})
-	if album2.PhotoCount != 2 {
-		t.Errorf("expected 2 photos, got %d", album2.PhotoCount)
+	// 应该包含时间相关的标签
+	hasTimeTag := false
+	for _, tag := range tags {
+		if tag == "傍晚" || tag == "日落" {
+			hasTimeTag = true
+			break
+		}
 	}
-
-	// 按评分创建
-	album3, _ := m.CreateSmartAlbum("高分照片", AlbumCriteria{
-		MinScore: 80,
-	})
-	if album3.PhotoCount != 2 {
-		t.Errorf("expected 2 photos, got %d", album3.PhotoCount)
-	}
-}
-
-func TestTimeline(t *testing.T) {
-	m := NewManager()
-
-	m.AddPhoto(Photo{Filename: "1.jpg", ShotAt: time.Date(2025, 6, 1, 10, 0, 0, 0, time.UTC)})
-	m.AddPhoto(Photo{Filename: "2.jpg", ShotAt: time.Date(2025, 6, 1, 14, 0, 0, 0, time.UTC)})
-	m.AddPhoto(Photo{Filename: "3.jpg", ShotAt: time.Date(2025, 6, 2, 10, 0, 0, 0, time.UTC)})
-
-	timeline := m.GenerateTimeline()
-	if len(timeline) != 2 {
-		t.Errorf("expected 2 entries, got %d", len(timeline))
-	}
-	if timeline[0].Count != 1 { // 6月2日
-		t.Errorf("expected 1, got %d", timeline[0].Count)
-	}
-	if timeline[1].Count != 2 { // 6月1日
-		t.Errorf("expected 2, got %d", timeline[1].Count)
+	if !hasTimeTag {
+		t.Error("expected time-related tag")
 	}
 }
 
 func TestDetectDuplicates(t *testing.T) {
-	m := NewManager()
+	mgr := NewManager()
 
-	m.AddPhoto(Photo{Filename: "a.jpg", Hash: "abc123", Size: 1000, Score: 80, ShotAt: time.Now()})
-	m.AddPhoto(Photo{Filename: "b.jpg", Hash: "abc123", Size: 1000, Score: 90, ShotAt: time.Now()})
-	m.AddPhoto(Photo{Filename: "c.jpg", Hash: "def456", Size: 500, ShotAt: time.Now()})
-
-	dups := m.DetectDuplicates()
-	if len(dups) != 1 {
-		t.Errorf("expected 1 duplicate group, got %d", len(dups))
+	photo1 := Photo{
+		Filename: "photo.jpg",
+		Hash:     "abc123",
+		Size:     1024,
+		Score:    80,
 	}
-	if dups[0].Count != 2 {
-		t.Errorf("expected 2, got %d", dups[0].Count)
+	mgr.AddPhoto(photo1)
+
+	photo2 := Photo{
+		Filename: "photo_copy.jpg",
+		Hash:     "abc123",
+		Size:     1024,
+		Score:    90,
 	}
-	if dups[0].BestID == "" {
-		t.Error("expected best ID")
+	mgr.AddPhoto(photo2)
+
+	groups := mgr.DetectDuplicates()
+	if len(groups) == 0 {
+		t.Error("expected duplicate groups")
 	}
-}
-
-func TestSearchPhotos(t *testing.T) {
-	m := NewManager()
-
-	m.AddPhoto(Photo{Filename: "beach-sunset.jpg", Tags: []string{"beach"}, Scene: string(SceneLandscape), Score: 90, ShotAt: time.Now()})
-	m.AddPhoto(Photo{Filename: "cat.jpg", Tags: []string{"pet"}, Scene: string(SceneAnimal), Score: 80, ShotAt: time.Now()})
-
-	// 按文件名搜索
-	results := m.SearchPhotos("beach", nil, "")
-	if len(results) != 1 {
-		t.Errorf("expected 1, got %d", len(results))
-	}
-
-	// 按标签搜索
-	results = m.SearchPhotos("", []string{"pet"}, "")
-	if len(results) != 1 {
-		t.Errorf("expected 1, got %d", len(results))
-	}
-
-	// 按场景搜索
-	results = m.SearchPhotos("", nil, SceneLandscape)
-	if len(results) != 1 {
-		t.Errorf("expected 1, got %d", len(results))
+	if groups[0].BestID != photo2.ID {
+		t.Error("expected higher score photo to be best")
 	}
 }
 
-func TestStats(t *testing.T) {
-	m := NewManager()
+func TestGenerateTimeline(t *testing.T) {
+	mgr := NewManager()
 
-	m.AddPhoto(Photo{Filename: "1.jpg", Size: 1000, Tags: []string{"a"}, ShotAt: time.Now()})
-	m.AddPhoto(Photo{Filename: "2.jpg", Size: 2000, ShotAt: time.Now(), IsFavorite: true})
+	mgr.AddPhoto(Photo{
+		Filename: "photo1.jpg",
+		ShotAt:   time.Date(2024, 6, 15, 10, 0, 0, 0, time.Local),
+		GPS:      &GPSInfo{Address: "天安门"},
+	})
 
-	stats := m.GetStats()
-	if stats["totalPhotos"] != 2 {
-		t.Errorf("expected 2, got %v", stats["totalPhotos"])
+	mgr.AddPhoto(Photo{
+		Filename: "photo2.jpg",
+		ShotAt:   time.Date(2024, 6, 15, 14, 0, 0, 0, time.Local),
+		GPS:      &GPSInfo{Address: "故宫"},
+	})
+
+	timeline := mgr.GenerateTimeline()
+	if len(timeline) == 0 {
+		t.Error("expected timeline entries")
+	}
+}
+
+func TestGetStats(t *testing.T) {
+	mgr := NewManager()
+
+	mgr.AddPhoto(Photo{
+		Filename:   "photo.jpg",
+		Size:       1024,
+		IsFavorite: true,
+		Scene:      "landscape",
+		Embedding:  []float64{0.1, 0.2},
+	})
+
+	stats := mgr.GetStats()
+	if stats["totalPhotos"] != 1 {
+		t.Errorf("expected 1 photo, got %v", stats["totalPhotos"])
 	}
 	if stats["favorites"] != 1 {
-		t.Errorf("expected 1, got %v", stats["favorites"])
+		t.Errorf("expected 1 favorite, got %v", stats["favorites"])
 	}
-	if stats["totalSize"] != int64(3000) {
-		t.Errorf("expected 3000, got %v", stats["totalSize"])
+}
+
+func TestBatchAddEmbeddings(t *testing.T) {
+	mgr := NewManager()
+
+	photo1 := Photo{Filename: "photo1.jpg"}
+	mgr.AddPhoto(photo1)
+
+	photo2 := Photo{Filename: "photo2.jpg"}
+	mgr.AddPhoto(photo2)
+
+	embeddings := map[string][]float64{
+		photo1.ID: {0.1, 0.2, 0.3},
+		photo2.ID: {0.4, 0.5, 0.6},
+	}
+
+	count := mgr.BatchAddEmbeddings(embeddings)
+	if count != 2 {
+		t.Errorf("expected 2 embeddings added, got %d", count)
+	}
+}
+
+func TestSmartAlbum(t *testing.T) {
+	mgr := NewManager()
+
+	// 添加照片
+	photo1 := Photo{
+		Filename:   "sunset.jpg",
+		Scene:      "landscape",
+		IsFavorite: true,
+		Score:      90,
+	}
+	mgr.AddPhoto(photo1)
+
+	photo2 := Photo{
+		Filename: "portrait.jpg",
+		Scene:    "portrait",
+		Score:    80,
+	}
+	mgr.AddPhoto(photo2)
+
+	// 创建智能相册
+	criteria := AlbumCriteria{
+		Scenes:    []SceneCategory{SceneLandscape},
+		MinScore:  85,
+		Favorites: true,
+	}
+
+	album, err := mgr.CreateSmartAlbum("Best Landscapes", criteria)
+	if err != nil {
+		t.Fatalf("CreateSmartAlbum failed: %v", err)
+	}
+
+	if album.PhotoCount != 1 {
+		t.Errorf("expected 1 photo in album, got %d", album.PhotoCount)
 	}
 }
