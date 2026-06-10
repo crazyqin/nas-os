@@ -1,154 +1,155 @@
+// Package smarthealthpredict 提供 REST API 处理器（Gin 框架）
 package smarthealthpredict
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
-	"time"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
-// Handler HTTP 处理器
+// response 标准响应结构
+type response struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
+}
+
+// Handler 健康预测 API 处理器
 type Handler struct {
 	manager *Manager
+	logger  *zap.Logger
 }
 
 // NewHandler 创建处理器
-func NewHandler(manager *Manager) *Handler {
-	return &Handler{manager: manager}
+func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+	return &Handler{manager: manager, logger: logger}
 }
 
 // RegisterRoutes 注册路由
-func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/api/v1/storage/health/scan", h.handleScan)
-	mux.HandleFunc("/api/v1/storage/health/disks", h.handleDiskList)
-	mux.HandleFunc("/api/v1/storage/health/history", h.handleHistory)
-	mux.HandleFunc("/api/v1/storage/health/alerts", h.handleAlerts)
-	mux.HandleFunc("/api/v1/storage/health/status", h.handleStatus)
+func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
+	health := r.Group("/storage/health")
+	{
+		// 磁盘扫描
+		health.POST("/scan", h.ScanDisk)
+
+		// 磁盘管理
+		health.GET("/disks", h.ListDisks)
+		health.GET("/disks/:device", h.GetDiskReport)
+
+		// 历史数据
+		health.GET("/history", h.GetDiskHistory)
+
+		// 告警
+		health.GET("/alerts", h.GetAlerts)
+
+		// 系统状态
+		health.GET("/status", h.GetStatus)
+	}
 }
 
-// handleScan 处理扫描请求
-func (h *Handler) handleScan(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+// ========== 磁盘扫描 ==========
 
-	device := r.URL.Query().Get("device")
+// ScanDisk 扫描磁盘健康状态
+func (h *Handler) ScanDisk(c *gin.Context) {
+	device := c.Query("device")
 	if device == "" {
-		http.Error(w, "device parameter required", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "请提供磁盘设备参数 (device)"})
 		return
 	}
 
-	report, err := h.manager.ScanDisk(r.Context(), device)
+	report, err := h.manager.ScanDisk(c.Request.Context(), device)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		h.logger.Error("扫描磁盘失败", zap.String("device", device), zap.Error(err))
+		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(report)
+	c.JSON(http.StatusOK, response{Code: 0, Message: "扫描完成", Data: report})
 }
 
-// handleDiskList 处理磁盘列表请求
-func (h *Handler) handleDiskList(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+// ========== 磁盘管理 ==========
 
+// ListDisks 列出所有已扫描的磁盘
+func (h *Handler) ListDisks(c *gin.Context) {
 	disks := h.manager.GetDiskList()
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"disks": disks,
-		"total": len(disks),
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data: gin.H{
+			"total": len(disks),
+			"disks": disks,
+		},
 	})
 }
 
-// handleHistory 处理历史数据请求
-func (h *Handler) handleHistory(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+// GetDiskReport 获取单个磁盘的健康报告
+func (h *Handler) GetDiskReport(c *gin.Context) {
+	device := c.Param("device")
+
+	// 先扫描获取最新数据
+	report, err := h.manager.ScanDisk(c.Request.Context(), device)
+	if err != nil {
+		h.logger.Error("获取磁盘报告失败", zap.String("device", device), zap.Error(err))
+		c.JSON(http.StatusNotFound, response{Code: 1, Message: err.Error()})
 		return
 	}
 
-	device := r.URL.Query().Get("device")
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: report})
+}
+
+// ========== 历史数据 ==========
+
+// GetDiskHistory 获取磁盘历史数据
+func (h *Handler) GetDiskHistory(c *gin.Context) {
+	device := c.Query("device")
 	if device == "" {
-		http.Error(w, "device parameter required", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: "请提供磁盘设备参数 (device)"})
 		return
 	}
 
-	daysStr := r.URL.Query().Get("days")
-	days := 30
-	if daysStr != "" {
-		if d, err := strconv.Atoi(daysStr); err == nil && d > 0 {
-			days = d
-		}
+	daysStr := c.DefaultQuery("days", "30")
+	days, err := strconv.Atoi(daysStr)
+	if err != nil || days <= 0 {
+		days = 30
 	}
 
 	history := h.manager.GetDiskHistory(device, days)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"device":  device,
-		"history": history,
-		"days":    days,
-		"count":   len(history),
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data: gin.H{
+			"device":  device,
+			"history": history,
+			"days":    days,
+			"count":   len(history),
+		},
 	})
 }
 
-// handleAlerts 处理告警请求
-func (h *Handler) handleAlerts(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+// ========== 告警 ==========
 
+// GetAlerts 获取所有磁盘告警
+func (h *Handler) GetAlerts(c *gin.Context) {
 	alerts := h.manager.GetAlerts()
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"alerts": alerts,
-		"total":  len(alerts),
+	c.JSON(http.StatusOK, response{
+		Code:    0,
+		Message: "success",
+		Data: gin.H{
+			"alerts": alerts,
+			"total":  len(alerts),
+		},
 	})
 }
 
-// handleStatus 处理状态请求
-func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+// ========== 系统状态 ==========
 
-	disks := h.manager.GetDiskList()
-
-	// 统计各状态磁盘数量
-	statusCount := map[string]int{
-		"excellent": 0,
-		"good":      0,
-		"fair":      0,
-		"poor":      0,
-		"critical":  0,
-	}
-
-	var totalScore int
-	for _, disk := range disks {
-		// 获取追踪器获取健康分
-		h.manager.mu.RLock()
-		if tracker, ok := h.manager.disks[disk.Device]; ok {
-			statusCount[string(tracker.Status)]++
-			totalScore += tracker.HealthScore
-		}
-		h.manager.mu.RUnlock()
-	}
-
-	avgScore := 0
-	if len(disks) > 0 {
-		avgScore = totalScore / len(disks)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"totalDisks":   len(disks),
-		"averageScore": avgScore,
-		"statusCount":  statusCount,
-		"timestamp":    time.Now(),
-	})
+// GetStatus 获取系统整体状态
+func (h *Handler) GetStatus(c *gin.Context) {
+	status := h.manager.GetSystemStatus()
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: status})
 }
