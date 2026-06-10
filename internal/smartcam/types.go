@@ -24,42 +24,60 @@ const (
 
 // ========== 核心类型 ==========
 
-// CameraStatus 摄像头状态
+// CameraStatus 摄像头状态.
 type CameraStatus string
 
+// 摄像头状态常量定义.
 const (
-	CameraStatusOnline  CameraStatus = "online"
+	// CameraStatusOnline 摄像头在线.
+	CameraStatusOnline CameraStatus = "online"
+	// CameraStatusOffline 摄像头离线.
 	CameraStatusOffline CameraStatus = "offline"
-	CameraStatusError   CameraStatus = "error"
+	// CameraStatusError 摄像头错误.
+	CameraStatusError CameraStatus = "error"
+	// CameraStatusDisabled 摄像头已禁用.
 	CameraStatusDisabled CameraStatus = "disabled"
 )
 
-// RecordingMode 录像模式
+// RecordingMode 录像模式.
 type RecordingMode string
 
+// 录像模式常量定义.
 const (
-	RecordingModeContinuous RecordingMode = "continuous" // 持续录像
-	RecordingModeMotion     RecordingMode = "motion"     // 移动侦测录像
-	RecordingModeSchedule   RecordingMode = "schedule"   // 计划录像
-	RecordingModeManual     RecordingMode = "manual"     // 手动录像
+	// RecordingModeContinuous 持续录像.
+	RecordingModeContinuous RecordingMode = "continuous"
+	// RecordingModeMotion 移动侦测录像.
+	RecordingModeMotion RecordingMode = "motion"
+	// RecordingModeSchedule 计划录像.
+	RecordingModeSchedule RecordingMode = "schedule"
+	// RecordingModeManual 手动录像.
+	RecordingModeManual RecordingMode = "manual"
 )
 
-// StreamProtocol 视频流协议
+// StreamProtocol 视频流协议.
 type StreamProtocol string
 
+// 视频流协议常量定义.
 const (
-	ProtocolRTSP  StreamProtocol = "rtsp"
+	// ProtocolRTSP RTSP 协议.
+	ProtocolRTSP StreamProtocol = "rtsp"
+	// ProtocolONVIF ONVIF 协议.
 	ProtocolONVIF StreamProtocol = "onvif"
-	ProtocolHTTP  StreamProtocol = "http"
+	// ProtocolHTTP HTTP 协议.
+	ProtocolHTTP StreamProtocol = "http"
 )
 
-// MotionSensitivity 移动侦测灵敏度
+// MotionSensitivity 移动侦测灵敏度.
 type MotionSensitivity string
 
+// 移动侦测灵敏度常量定义.
 const (
-	SensitivityLow    MotionSensitivity = "low"
+	// SensitivityLow 低灵敏度.
+	SensitivityLow MotionSensitivity = "low"
+	// SensitivityMedium 中灵敏度.
 	SensitivityMedium MotionSensitivity = "medium"
-	SensitivityHigh   MotionSensitivity = "high"
+	// SensitivityHigh 高灵敏度.
+	SensitivityHigh MotionSensitivity = "high"
 )
 
 // Camera 摄像头配置
@@ -90,14 +108,14 @@ type Camera struct {
 
 // RecordingConfig 录像配置
 type RecordingConfig struct {
-	Enabled      bool          `json:"enabled"`
-	Mode         RecordingMode `json:"mode"`
-	Quality      string        `json:"quality"`      // high, medium, low
-	PreRecord    int           `json:"preRecord"`    // 预录秒数
-	PostRecord   int           `json:"postRecord"`   // 后录秒数
-	MaxDuration  int           `json:"maxDuration"`  // 最大录像时长（秒）
-	RetentionDays int          `json:"retentionDays"` // 保留天数
-	Schedule     []TimeSlot    `json:"schedule"`      // 录像时间表
+	Enabled       bool          `json:"enabled"`
+	Mode          RecordingMode `json:"mode"`
+	Quality       string        `json:"quality"`       // high, medium, low
+	PreRecord     int           `json:"preRecord"`     // 预录秒数
+	PostRecord    int           `json:"postRecord"`    // 后录秒数
+	MaxDuration   int           `json:"maxDuration"`   // 最大录像时长（秒）
+	RetentionDays int           `json:"retentionDays"` // 保留天数
+	Schedule      []TimeSlot    `json:"schedule"`      // 录像时间表
 }
 
 // TimeSlot 时间段
@@ -121,16 +139,16 @@ type MotionConfig struct {
 type MotionZone struct {
 	ID     string `json:"id"`
 	Name   string `json:"name"`
-	X      int    `json:"x"`      // 左上角 X
-	Y      int    `json:"y"`      // 左上角 Y
+	X      int    `json:"x"` // 左上角 X
+	Y      int    `json:"y"` // 左上角 Y
 	Width  int    `json:"width"`
 	Height int    `json:"height"`
 }
 
 // MotionAction 移动侦测触发动作
 type MotionAction struct {
-	Type    string `json:"type"`    // email, webhook, snapshot, record
-	Target  string `json:"target"`  // 邮箱地址、webhook URL 等
+	Type    string `json:"type"`   // email, webhook, snapshot, record
+	Target  string `json:"target"` // 邮箱地址、webhook URL 等
 	Enabled bool   `json:"enabled"`
 }
 
@@ -138,18 +156,18 @@ type MotionAction struct {
 
 // Recording 录像记录
 type Recording struct {
-	ID         string        `json:"id"`
-	CameraID   string        `json:"cameraId"`
-	CameraName string        `json:"cameraName"`
-	StartTime  time.Time     `json:"startTime"`
-	EndTime    time.Time     `json:"endTime"`
-	Duration   time.Duration `json:"duration"`
-	FileSize   int64         `json:"fileSize"` // bytes
-	FilePath   string        `json:"filePath"`
-	Thumbnail  string        `json:"thumbnail"`
-	Trigger    string        `json:"trigger"` // manual, motion, schedule, continuous
-	MotionEvents int         `json:"motionEvents"`
-	Tags       []string      `json:"tags"`
+	ID           string        `json:"id"`
+	CameraID     string        `json:"cameraId"`
+	CameraName   string        `json:"cameraName"`
+	StartTime    time.Time     `json:"startTime"`
+	EndTime      time.Time     `json:"endTime"`
+	Duration     time.Duration `json:"duration"`
+	FileSize     int64         `json:"fileSize"` // bytes
+	FilePath     string        `json:"filePath"`
+	Thumbnail    string        `json:"thumbnail"`
+	Trigger      string        `json:"trigger"` // manual, motion, schedule, continuous
+	MotionEvents int           `json:"motionEvents"`
+	Tags         []string      `json:"tags"`
 }
 
 // ========== 移动侦测事件类型 ==========
@@ -180,33 +198,33 @@ type BoundingBox struct {
 
 // AddCameraRequest 添加摄像头请求
 type AddCameraRequest struct {
-	Name         string         `json:"name" binding:"required"`
-	Location     string         `json:"location"`
-	IPAddress    string         `json:"ipAddress" binding:"required"`
-	Port         int            `json:"port"`
-	Protocol     StreamProtocol `json:"protocol"`
-	Username     string         `json:"username"`
-	Password     string         `json:"password"`
-	Resolution   string         `json:"resolution"`
-	FrameRate    int            `json:"frameRate"`
-	Recording    *RecordingConfig `json:"recording"`
-	Motion       *MotionConfig    `json:"motion"`
-	Tags         []string       `json:"tags"`
+	Name       string           `json:"name" binding:"required"`
+	Location   string           `json:"location"`
+	IPAddress  string           `json:"ipAddress" binding:"required"`
+	Port       int              `json:"port"`
+	Protocol   StreamProtocol   `json:"protocol"`
+	Username   string           `json:"username"`
+	Password   string           `json:"password"`
+	Resolution string           `json:"resolution"`
+	FrameRate  int              `json:"frameRate"`
+	Recording  *RecordingConfig `json:"recording"`
+	Motion     *MotionConfig    `json:"motion"`
+	Tags       []string         `json:"tags"`
 }
 
 // UpdateCameraRequest 更新摄像头请求
 type UpdateCameraRequest struct {
-	Name         *string         `json:"name"`
-	Location     *string         `json:"location"`
-	IPAddress    *string         `json:"ipAddress"`
-	Port         *int            `json:"port"`
-	Protocol     *StreamProtocol `json:"protocol"`
-	Username     *string         `json:"username"`
-	Password     *string         `json:"password"`
-	Resolution   *string         `json:"resolution"`
-	FrameRate    *int            `json:"frameRate"`
-	Enabled      *bool           `json:"enabled"`
-	Tags         []string        `json:"tags"`
+	Name       *string         `json:"name"`
+	Location   *string         `json:"location"`
+	IPAddress  *string         `json:"ipAddress"`
+	Port       *int            `json:"port"`
+	Protocol   *StreamProtocol `json:"protocol"`
+	Username   *string         `json:"username"`
+	Password   *string         `json:"password"`
+	Resolution *string         `json:"resolution"`
+	FrameRate  *int            `json:"frameRate"`
+	Enabled    *bool           `json:"enabled"`
+	Tags       []string        `json:"tags"`
 }
 
 // StartRecordingRequest 开始录像请求
@@ -232,25 +250,25 @@ type SystemStatus struct {
 	OfflineCameras  int    `json:"offlineCameras"`
 	RecordingCount  int    `json:"recordingCount"`
 	TotalRecordings int    `json:"totalRecordings"`
-	StorageUsed     int64  `json:"storageUsed"`     // bytes
-	StorageTotal    int64  `json:"storageTotal"`    // bytes
+	StorageUsed     int64  `json:"storageUsed"`  // bytes
+	StorageTotal    int64  `json:"storageTotal"` // bytes
 	MotionEvents24h int    `json:"motionEvents24h"`
 	Uptime          string `json:"uptime"`
 }
 
 // StorageStats 存储统计
 type StorageStats struct {
-	TotalRecordings int   `json:"totalRecordings"`
-	TotalSize       int64 `json:"totalSize"`
+	TotalRecordings int        `json:"totalRecordings"`
+	TotalSize       int64      `json:"totalSize"`
 	OldestRecording *time.Time `json:"oldestRecording,omitempty"`
 	NewestRecording *time.Time `json:"newestRecording,omitempty"`
-	AvgFileSize     int64 `json:"avgFileSize"`
+	AvgFileSize     int64      `json:"avgFileSize"`
 }
 
 // DiscoverResult 发现结果
 type DiscoverResult struct {
-	Found   int       `json:"found"`
-	Cameras []Camera  `json:"cameras"`
-	ScannedIPs int    `json:"scannedIPs"`
-	Elapsed string    `json:"elapsed"`
+	Found      int      `json:"found"`
+	Cameras    []Camera `json:"cameras"`
+	ScannedIPs int      `json:"scannedIPs"`
+	Elapsed    string   `json:"elapsed"`
 }

@@ -327,7 +327,7 @@ func TestSystemStatus(t *testing.T) {
 		RecordingCount:  5,
 		TotalRecordings: 1000,
 		StorageUsed:     1024 * 1024 * 1024 * 100, // 100GB
-		StorageTotal:    1024 * 1024 * 1024 * 500,  // 500GB
+		StorageTotal:    1024 * 1024 * 1024 * 500, // 500GB
 		MotionEvents24h: 25,
 		Uptime:          "72h30m",
 	}

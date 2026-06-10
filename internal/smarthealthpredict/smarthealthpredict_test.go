@@ -1,14 +1,47 @@
+// Package smarthealthpredict 测试
 package smarthealthpredict
 
 import (
 	"context"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
+
+func init() {
+	gin.SetMode(gin.TestMode)
+}
+
+func setupTestManager(t *testing.T) *Manager {
+	t.Helper()
+	logger, _ := zap.NewDevelopment()
+	m, err := NewManager(t.TempDir(), WithLogger(logger))
+	if err != nil {
+		t.Fatalf("创建管理器失败: %v", err)
+	}
+	return m
+}
+
+func setupTestRouter(t *testing.T, manager *Manager) *gin.Engine {
+	t.Helper()
+	logger, _ := zap.NewDevelopment()
+	handler := NewHandler(manager, logger)
+	r := gin.New()
+	api := r.Group("/api/v1")
+	handler.RegisterRoutes(api)
+	return r
+}
+
+// ========== Manager 测试 ==========
 
 func TestNewManager(t *testing.T) {
 	t.Run("创建成功", func(t *testing.T) {
-		manager, err := NewManager("/tmp/test-smart")
+		manager, err := NewManager(t.TempDir())
 		if err != nil {
 			t.Fatalf("创建管理器失败: %v", err)
 		}
@@ -25,10 +58,12 @@ func TestNewManager(t *testing.T) {
 	})
 
 	t.Run("自定义选项", func(t *testing.T) {
-		manager, err := NewManager("/tmp/test-smart",
+		logger, _ := zap.NewDevelopment()
+		manager, err := NewManager(t.TempDir(),
 			WithModel(ModelMLBased),
 			WithRetentionDays(30),
 			WithPredictInterval(12*time.Hour),
+			WithLogger(logger),
 		)
 		if err != nil {
 			t.Fatalf("创建管理器失败: %v", err)
@@ -39,14 +74,14 @@ func TestNewManager(t *testing.T) {
 		if manager.retentionDays != 30 {
 			t.Errorf("保留天数不匹配: got %d, want 30", manager.retentionDays)
 		}
+		if manager.logger == nil {
+			t.Error("日志器不应为 nil")
+		}
 	})
 }
 
 func TestScanDisk(t *testing.T) {
-	manager, err := NewManager("/tmp/test-smart-scan")
-	if err != nil {
-		t.Fatalf("创建管理器失败: %v", err)
-	}
+	manager := setupTestManager(t)
 
 	report, err := manager.ScanDisk(context.Background(), "/dev/sda")
 	if err != nil {
@@ -68,13 +103,18 @@ func TestScanDisk(t *testing.T) {
 	if report.Timestamp.IsZero() {
 		t.Error("时间戳为零值")
 	}
+
+	if len(report.Attributes) == 0 {
+		t.Error("S.M.A.R.T 属性不应为空")
+	}
+
+	if report.Disk.Device != "/dev/sda" {
+		t.Errorf("设备路径不匹配: got %s", report.Disk.Device)
+	}
 }
 
 func TestHealthStatus(t *testing.T) {
-	manager, err := NewManager("/tmp/test-smart-status")
-	if err != nil {
-		t.Fatalf("创建管理器失败: %v", err)
-	}
+	manager := setupTestManager(t)
 
 	tests := []struct {
 		score    int
@@ -96,10 +136,7 @@ func TestHealthStatus(t *testing.T) {
 }
 
 func TestAlertRules(t *testing.T) {
-	manager, err := NewManager("/tmp/test-smart-alerts")
-	if err != nil {
-		t.Fatalf("创建管理器失败: %v", err)
-	}
+	manager := setupTestManager(t)
 
 	// 测试温度告警
 	info := DiskInfo{
@@ -134,10 +171,7 @@ func TestAlertRules(t *testing.T) {
 }
 
 func TestTrendAnalysis(t *testing.T) {
-	manager, err := NewManager("/tmp/test-smart-trend")
-	if err != nil {
-		t.Fatalf("创建管理器失败: %v", err)
-	}
+	manager := setupTestManager(t)
 
 	device := "/dev/sda"
 
@@ -162,10 +196,7 @@ func TestTrendAnalysis(t *testing.T) {
 }
 
 func TestPredictions(t *testing.T) {
-	manager, err := NewManager("/tmp/test-smart-predict")
-	if err != nil {
-		t.Fatalf("创建管理器失败: %v", err)
-	}
+	manager := setupTestManager(t)
 
 	info := DiskInfo{
 		Device: "/dev/sda",
@@ -189,10 +220,7 @@ func TestPredictions(t *testing.T) {
 }
 
 func TestGetDiskList(t *testing.T) {
-	manager, err := NewManager("/tmp/test-smart-list")
-	if err != nil {
-		t.Fatalf("创建管理器失败: %v", err)
-	}
+	manager := setupTestManager(t)
 
 	// 扫描两个磁盘
 	manager.ScanDisk(context.Background(), "/dev/sda")
@@ -205,10 +233,7 @@ func TestGetDiskList(t *testing.T) {
 }
 
 func TestGetDiskHistory(t *testing.T) {
-	manager, err := NewManager("/tmp/test-smart-history")
-	if err != nil {
-		t.Fatalf("创建管理器失败: %v", err)
-	}
+	manager := setupTestManager(t)
 
 	device := "/dev/sda"
 
@@ -222,10 +247,7 @@ func TestGetDiskHistory(t *testing.T) {
 }
 
 func TestGetAlerts(t *testing.T) {
-	manager, err := NewManager("/tmp/test-smart-get-alerts")
-	if err != nil {
-		t.Fatalf("创建管理器失败: %v", err)
-	}
+	manager := setupTestManager(t)
 
 	// 扫描磁盘
 	manager.ScanDisk(context.Background(), "/dev/sda")
@@ -235,14 +257,148 @@ func TestGetAlerts(t *testing.T) {
 	t.Logf("获取到 %d 个告警", len(alerts))
 }
 
-func TestHandler(t *testing.T) {
-	manager, err := NewManager("/tmp/test-smart-handler")
-	if err != nil {
-		t.Fatalf("创建管理器失败: %v", err)
+func TestGetSystemStatus(t *testing.T) {
+	manager := setupTestManager(t)
+
+	// 扫描几个磁盘
+	manager.ScanDisk(context.Background(), "/dev/sda")
+	manager.ScanDisk(context.Background(), "/dev/sdb")
+
+	status := manager.GetSystemStatus()
+	totalDisks, ok := status["totalDisks"].(int)
+	if !ok || totalDisks != 2 {
+		t.Errorf("总磁盘数应为 2，得到 %v", status["totalDisks"])
 	}
 
-	handler := NewHandler(manager)
-	if handler == nil {
-		t.Fatal("处理器为 nil")
+	avgScore, ok := status["averageScore"].(int)
+	if !ok || avgScore < 0 || avgScore > 100 {
+		t.Errorf("平均分数应为 0-100，得到 %v", status["averageScore"])
+	}
+
+	statusCount, ok := status["statusCount"].(map[string]int)
+	if !ok {
+		t.Fatal("statusCount 类型不正确")
+	}
+	if _, exists := statusCount["excellent"]; !exists {
+		t.Error("statusCount 应包含 excellent 键")
+	}
+}
+
+// ========== Handler/Router 测试 ==========
+
+func TestHandlerScanDisk(t *testing.T) {
+	manager := setupTestManager(t)
+	r := setupTestRouter(t, manager)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/storage/health/scan?device=/dev/sda", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("状态码应为 200，得到 %d", w.Code)
+	}
+
+	var resp response
+	json.Unmarshal(w.Body.Bytes(), &resp)
+	if resp.Code != 0 {
+		t.Errorf("响应码应为 0，得到 %d", resp.Code)
+	}
+}
+
+func TestHandlerScanDiskMissingDevice(t *testing.T) {
+	manager := setupTestManager(t)
+	r := setupTestRouter(t, manager)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/storage/health/scan", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("缺少设备参数应返回 400，得到 %d", w.Code)
+	}
+}
+
+func TestHandlerListDisks(t *testing.T) {
+	manager := setupTestManager(t)
+	r := setupTestRouter(t, manager)
+
+	// 先扫描一个磁盘
+	manager.ScanDisk(context.Background(), "/dev/sda")
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/storage/health/disks", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("状态码应为 200，得到 %d", w.Code)
+	}
+}
+
+func TestHandlerGetDiskReport(t *testing.T) {
+	manager := setupTestManager(t)
+	r := setupTestRouter(t, manager)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/storage/health/report?device=/dev/sda", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Logf("响应: %s", w.Body.String())
+		t.Errorf("状态码应为 200，得到 %d", w.Code)
+	}
+}
+
+func TestHandlerGetDiskHistory(t *testing.T) {
+	manager := setupTestManager(t)
+	r := setupTestRouter(t, manager)
+
+	// 先扫描生成历史
+	manager.ScanDisk(context.Background(), "/dev/sda")
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/storage/health/history?device=/dev/sda&days=30", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("状态码应为 200，得到 %d", w.Code)
+	}
+}
+
+func TestHandlerGetDiskHistoryMissingDevice(t *testing.T) {
+	manager := setupTestManager(t)
+	r := setupTestRouter(t, manager)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/storage/health/history", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("缺少设备参数应返回 400，得到 %d", w.Code)
+	}
+}
+
+func TestHandlerGetAlerts(t *testing.T) {
+	manager := setupTestManager(t)
+	r := setupTestRouter(t, manager)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/storage/health/alerts", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("状态码应为 200，得到 %d", w.Code)
+	}
+}
+
+func TestHandlerGetStatus(t *testing.T) {
+	manager := setupTestManager(t)
+	r := setupTestRouter(t, manager)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/storage/health/status", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("状态码应为 200，得到 %d", w.Code)
 	}
 }

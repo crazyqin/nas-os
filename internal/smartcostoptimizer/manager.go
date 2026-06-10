@@ -10,13 +10,13 @@ import (
 
 // Manager 智能成本优化器管理器
 type Manager struct {
-	mu      sync.RWMutex
-	logger  *zap.Logger
-	config  *SmartCostConfig
+	mu       sync.RWMutex
+	logger   *zap.Logger
+	config   *SmartCostConfig
 	analyzer *Analyzer
-	assets  map[string]*StorageAsset
-	entries map[string]*CostEntry
-	reports map[string]*CostReport
+	assets   map[string]*StorageAsset
+	entries  map[string]*CostEntry
+	reports  map[string]*CostReport
 }
 
 // NewManager 创建管理器

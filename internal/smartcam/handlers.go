@@ -1,4 +1,4 @@
-// Package smartcam 提供 REST API 处理器
+// Package smartcam 提供 REST API 处理器.
 package smartcam
 
 import (
@@ -9,20 +9,20 @@ import (
 	"go.uber.org/zap"
 )
 
-// response 标准响应结构
+// response 标准响应结构.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// Handler 摄像头 API 处理器
+// Handler 摄像头 API 处理器.
 type Handler struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -30,7 +30,7 @@ func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 	return &Handler{manager: manager, logger: logger}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	cam := r.Group("/surveillance/cameras")
 	{
@@ -77,20 +77,20 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 
 // ========== 摄像头管理 API ==========
 
-// ListCameras 列出所有摄像头
+// ListCameras 列出所有摄像头.
 func (h *Handler) ListCameras(c *gin.Context) {
 	cameras := h.manager.ListCameras()
 	c.JSON(http.StatusOK, response{
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
-			"total":    len(cameras),
-			"cameras":  cameras,
+			"total":   len(cameras),
+			"cameras": cameras,
 		},
 	})
 }
 
-// AddCamera 添加摄像头
+// AddCamera 添加摄像头.
 func (h *Handler) AddCamera(c *gin.Context) {
 	var req AddCameraRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -107,7 +107,7 @@ func (h *Handler) AddCamera(c *gin.Context) {
 	c.JSON(http.StatusCreated, response{Code: 0, Message: "摄像头已添加", Data: camera})
 }
 
-// GetCamera 获取摄像头详情
+// GetCamera 获取摄像头详情.
 func (h *Handler) GetCamera(c *gin.Context) {
 	id := c.Param("id")
 	camera, err := h.manager.GetCamera(id)
@@ -118,7 +118,7 @@ func (h *Handler) GetCamera(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: camera})
 }
 
-// UpdateCamera 更新摄像头
+// UpdateCamera 更新摄像头.
 func (h *Handler) UpdateCamera(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateCameraRequest
@@ -136,7 +136,7 @@ func (h *Handler) UpdateCamera(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "摄像头已更新", Data: camera})
 }
 
-// RemoveCamera 移除摄像头
+// RemoveCamera 移除摄像头.
 func (h *Handler) RemoveCamera(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.RemoveCamera(id); err != nil {
@@ -146,7 +146,7 @@ func (h *Handler) RemoveCamera(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "摄像头已移除"})
 }
 
-// DiscoverCameras 发现摄像头
+// DiscoverCameras 发现摄像头.
 func (h *Handler) DiscoverCameras(c *gin.Context) {
 	subnet := c.Query("subnet")
 	if subnet == "" {
@@ -163,7 +163,7 @@ func (h *Handler) DiscoverCameras(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "发现完成", Data: result})
 }
 
-// EnableCamera 启用摄像头
+// EnableCamera 启用摄像头.
 func (h *Handler) EnableCamera(c *gin.Context) {
 	id := c.Param("id")
 	enabled := true
@@ -175,7 +175,7 @@ func (h *Handler) EnableCamera(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "摄像头已启用", Data: camera})
 }
 
-// DisableCamera 禁用摄像头
+// DisableCamera 禁用摄像头.
 func (h *Handler) DisableCamera(c *gin.Context) {
 	id := c.Param("id")
 	enabled := false
@@ -189,7 +189,7 @@ func (h *Handler) DisableCamera(c *gin.Context) {
 
 // ========== 录像管理 API ==========
 
-// ListRecordings 列出录像
+// ListRecordings 列出录像.
 func (h *Handler) ListRecordings(c *gin.Context) {
 	cameraID := c.Query("cameraId")
 	limitStr := c.DefaultQuery("limit", "50")
@@ -209,7 +209,7 @@ func (h *Handler) ListRecordings(c *gin.Context) {
 	})
 }
 
-// StartRecording 开始录像
+// StartRecording 开始录像.
 func (h *Handler) StartRecording(c *gin.Context) {
 	var req StartRecordingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -226,7 +226,7 @@ func (h *Handler) StartRecording(c *gin.Context) {
 	c.JSON(http.StatusCreated, response{Code: 0, Message: "录像已开始", Data: recording})
 }
 
-// StopRecording 停止录像
+// StopRecording 停止录像.
 func (h *Handler) StopRecording(c *gin.Context) {
 	var req struct {
 		CameraID string `json:"cameraId" binding:"required"`
@@ -245,7 +245,7 @@ func (h *Handler) StopRecording(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "录像已停止", Data: recording})
 }
 
-// DeleteRecording 删除录像
+// DeleteRecording 删除录像.
 func (h *Handler) DeleteRecording(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteRecording(id); err != nil {
@@ -257,7 +257,7 @@ func (h *Handler) DeleteRecording(c *gin.Context) {
 
 // ========== 移动侦测 API ==========
 
-// GetMotionEvents 获取移动侦测事件
+// GetMotionEvents 获取移动侦测事件.
 func (h *Handler) GetMotionEvents(c *gin.Context) {
 	query := MotionEventQuery{
 		CameraID:  c.Query("cameraId"),
@@ -280,12 +280,12 @@ func (h *Handler) GetMotionEvents(c *gin.Context) {
 	})
 }
 
-// TriggerMotion 手动触发移动侦测
+// TriggerMotion 手动触发移动侦测.
 func (h *Handler) TriggerMotion(c *gin.Context) {
 	var req struct {
-		CameraID   string       `json:"cameraId" binding:"required"`
-		ZoneID     string       `json:"zoneId"`
-		Confidence float64      `json:"confidence"`
+		CameraID    string       `json:"cameraId" binding:"required"`
+		ZoneID      string       `json:"zoneId"`
+		Confidence  float64      `json:"confidence"`
 		BoundingBox *BoundingBox `json:"boundingBox"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -308,25 +308,25 @@ func (h *Handler) TriggerMotion(c *gin.Context) {
 
 // ========== 系统 API ==========
 
-// GetStatus 获取系统状态
+// GetStatus 获取系统状态.
 func (h *Handler) GetStatus(c *gin.Context) {
 	status := h.manager.GetStatus()
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: status})
 }
 
-// GetStorageStats 获取存储统计
+// GetStorageStats 获取存储统计.
 func (h *Handler) GetStorageStats(c *gin.Context) {
 	stats := h.manager.GetStorageStats()
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: stats})
 }
 
-// GetConfig 获取系统配置
+// GetConfig 获取系统配置.
 func (h *Handler) GetConfig(c *gin.Context) {
 	cfg := h.manager.GetConfig()
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: cfg})
 }
 
-// UpdateConfig 更新系统配置
+// UpdateConfig 更新系统配置.
 func (h *Handler) UpdateConfig(c *gin.Context) {
 	var cfg SystemConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {
