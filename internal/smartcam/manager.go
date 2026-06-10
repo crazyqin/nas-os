@@ -294,7 +294,7 @@ func (m *Manager) DiscoverCameras(subnet string) (*DiscoverResult, error) {
 				defer wg.Done()
 				defer func() { <-sem }()
 
-				addr := fmt.Sprintf("%s:%d", ipStr, p)
+				addr := net.JoinHostPort(ipStr, fmt.Sprintf("%d", p))
 				conn, err := net.DialTimeout("tcp", addr, 2*time.Second)
 				if err != nil {
 					return
