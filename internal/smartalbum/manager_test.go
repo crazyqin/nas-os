@@ -167,26 +167,23 @@ func TestSemanticSearch(t *testing.T) {
 func TestFindSimilarPhotos(t *testing.T) {
 	mgr := NewManager()
 
-	photo1 := Photo{
+	photo1, _ := mgr.AddPhoto(Photo{
 		Filename:  "sunset1.jpg",
 		Path:      "/photos/sunset1.jpg",
 		Embedding: []float64{0.9, 0.1, 0.0},
-	}
-	mgr.AddPhoto(photo1)
+	})
 
-	photo2 := Photo{
+	mgr.AddPhoto(Photo{
 		Filename:  "sunset2.jpg",
 		Path:      "/photos/sunset2.jpg",
 		Embedding: []float64{0.85, 0.15, 0.05},
-	}
-	mgr.AddPhoto(photo2)
+	})
 
-	photo3 := Photo{
+	mgr.AddPhoto(Photo{
 		Filename:  "document.jpg",
 		Path:      "/photos/document.jpg",
 		Embedding: []float64{0.1, 0.1, 0.9},
-	}
-	mgr.AddPhoto(photo3)
+	})
 
 	results, err := mgr.FindSimilarPhotos(photo1.ID, 2)
 	if err != nil {
@@ -279,21 +276,19 @@ func TestAutoTag(t *testing.T) {
 func TestDetectDuplicates(t *testing.T) {
 	mgr := NewManager()
 
-	photo1 := Photo{
+	mgr.AddPhoto(Photo{
 		Filename: "photo.jpg",
 		Hash:     "abc123",
 		Size:     1024,
 		Score:    80,
-	}
-	mgr.AddPhoto(photo1)
+	})
 
-	photo2 := Photo{
+	photo2, _ := mgr.AddPhoto(Photo{
 		Filename: "photo_copy.jpg",
 		Hash:     "abc123",
 		Size:     1024,
 		Score:    90,
-	}
-	mgr.AddPhoto(photo2)
+	})
 
 	groups := mgr.DetectDuplicates()
 	if len(groups) == 0 {
@@ -348,11 +343,8 @@ func TestGetStats(t *testing.T) {
 func TestBatchAddEmbeddings(t *testing.T) {
 	mgr := NewManager()
 
-	photo1 := Photo{Filename: "photo1.jpg"}
-	mgr.AddPhoto(photo1)
-
-	photo2 := Photo{Filename: "photo2.jpg"}
-	mgr.AddPhoto(photo2)
+	photo1, _ := mgr.AddPhoto(Photo{Filename: "photo1.jpg"})
+	photo2, _ := mgr.AddPhoto(Photo{Filename: "photo2.jpg"})
 
 	embeddings := map[string][]float64{
 		photo1.ID: {0.1, 0.2, 0.3},
