@@ -13,6 +13,8 @@ import (
 	"sort"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 // ========== 错误定义 ==========
@@ -152,6 +154,7 @@ type Manager struct {
 	dataDir         string
 	retentionDays   int
 	predictInterval time.Duration
+	logger          *zap.Logger
 }
 
 // DiskHealthTracker 磁盘健康追踪器
@@ -207,6 +210,7 @@ func NewManager(dataDir string, opts ...Option) (*Manager, error) {
 		dataDir:         dataDir,
 		retentionDays:   90,
 		predictInterval: 24 * time.Hour,
+		logger:          zap.NewNop(),
 	}
 
 	// 应用选项
@@ -221,6 +225,11 @@ func NewManager(dataDir string, opts ...Option) (*Manager, error) {
 
 	// 初始化默认告警规则
 	m.initDefaultAlertRules()
+
+	m.logger.Info("健康预测管理器已初始化",
+		zap.String("dataDir", dataDir),
+		zap.String("model", string(m.model)),
+	)
 
 	return m, nil
 }
@@ -249,6 +258,15 @@ func WithPredictInterval(interval time.Duration) Option {
 	}
 }
 
+// WithLogger 设置日志器
+func WithLogger(logger *zap.Logger) Option {
+	return func(m *Manager) {
+		if logger != nil {
+			m.logger = logger
+		}
+	}
+}
+
 // initDefaultAlertRules 初始化默认告警规则
 func (m *Manager) initDefaultAlertRules() {
 	m.alertRules = []AlertRule{
@@ -267,9 +285,12 @@ func (m *Manager) ScanDisk(ctx context.Context, device string) (*HealthReport, e
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
+	m.logger.Info("开始扫描磁盘", zap.String("device", device))
+
 	// 读取 S.M.A.R.T 数据
 	attrs, err := m.readSMARTData(device)
 	if err != nil {
+		m.logger.Error("读取 S.M.A.R.T 数据失败", zap.String("device", device), zap.Error(err))
 		return nil, fmt.Errorf("读取 S.M.A.R.T 数据失败: %w", err)
 	}
 
@@ -307,6 +328,13 @@ func (m *Manager) ScanDisk(ctx context.Context, device string) (*HealthReport, e
 
 	// 故障预测
 	predictions := m.predictFailures(device, info, attrs, trend)
+
+	m.logger.Info("磁盘扫描完成",
+		zap.String("device", device),
+		zap.Int("score", score),
+		zap.String("status", string(status)),
+		zap.Int("alerts", len(alerts)),
+	)
 
 	return &HealthReport{
 		Disk:        info,
@@ -559,9 +587,7 @@ func (m *Manager) generateSuggestions(info DiskInfo, attrs []SMARTAttribute, sco
 
 // analyzeTrend 分析趋势
 func (m *Manager) analyzeTrend(device string) *TrendAnalysis {
-	m.mu.RLock()
 	snapshots := m.history[device]
-	m.mu.RUnlock()
 
 	if len(snapshots) < 2 {
 		return &TrendAnalysis{
@@ -760,6 +786,38 @@ func (m *Manager) GetAlerts() []Alert {
 	}
 
 	return allAlerts
+}
+
+// GetSystemStatus 获取系统整体状态
+func (m *Manager) GetSystemStatus() map[string]interface{} {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	statusCount := map[string]int{
+		"excellent": 0,
+		"good":      0,
+		"fair":      0,
+		"poor":      0,
+		"critical":  0,
+	}
+
+	var totalScore int
+	for _, tracker := range m.disks {
+		statusCount[string(tracker.Status)]++
+		totalScore += tracker.HealthScore
+	}
+
+	avgScore := 0
+	if len(m.disks) > 0 {
+		avgScore = totalScore / len(m.disks)
+	}
+
+	return map[string]interface{}{
+		"totalDisks":   len(m.disks),
+		"averageScore": avgScore,
+		"statusCount":  statusCount,
+		"timestamp":    time.Now(),
+	}
 }
 
 // ========== 辅助方法（需要实际实现） ==========
