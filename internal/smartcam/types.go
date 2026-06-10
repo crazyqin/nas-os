@@ -8,7 +8,7 @@ import (
 
 // ========== 错误定义 ==========
 
-// 错误常量
+// 错误常量.
 const (
 	ErrCameraNotFound      = "摄像头不存在"
 	ErrCameraOffline       = "摄像头离线"
@@ -80,7 +80,7 @@ const (
 	SensitivityHigh MotionSensitivity = "high"
 )
 
-// Camera 摄像头配置
+// Camera 摄像头配置.
 type Camera struct {
 	ID           string          `json:"id"`
 	Name         string          `json:"name"`
@@ -106,7 +106,7 @@ type Camera struct {
 	LastSeen     *time.Time      `json:"lastSeen,omitempty"`
 }
 
-// RecordingConfig 录像配置
+// RecordingConfig 录像配置.
 type RecordingConfig struct {
 	Enabled       bool          `json:"enabled"`
 	Mode          RecordingMode `json:"mode"`
@@ -118,14 +118,14 @@ type RecordingConfig struct {
 	Schedule      []TimeSlot    `json:"schedule"`      // 录像时间表
 }
 
-// TimeSlot 时间段
+// TimeSlot 时间段.
 type TimeSlot struct {
 	DayOfWeek int    `json:"dayOfWeek"` // 0-6, 0=Sunday
 	StartTime string `json:"startTime"` // HH:MM
 	EndTime   string `json:"endTime"`   // HH:MM
 }
 
-// MotionConfig 移动侦测配置
+// MotionConfig 移动侦测配置.
 type MotionConfig struct {
 	Enabled     bool              `json:"enabled"`
 	Sensitivity MotionSensitivity `json:"sensitivity"`
@@ -135,7 +135,7 @@ type MotionConfig struct {
 	CooldownSec int               `json:"cooldownSec"` // 冷却时间（秒）
 }
 
-// MotionZone 移动侦测区域
+// MotionZone 移动侦测区域.
 type MotionZone struct {
 	ID     string `json:"id"`
 	Name   string `json:"name"`
@@ -145,7 +145,7 @@ type MotionZone struct {
 	Height int    `json:"height"`
 }
 
-// MotionAction 移动侦测触发动作
+// MotionAction 移动侦测触发动作.
 type MotionAction struct {
 	Type    string `json:"type"`   // email, webhook, snapshot, record
 	Target  string `json:"target"` // 邮箱地址、webhook URL 等
@@ -154,7 +154,7 @@ type MotionAction struct {
 
 // ========== 录像相关类型 ==========
 
-// Recording 录像记录
+// Recording 录像记录.
 type Recording struct {
 	ID           string        `json:"id"`
 	CameraID     string        `json:"cameraId"`
@@ -172,7 +172,7 @@ type Recording struct {
 
 // ========== 移动侦测事件类型 ==========
 
-// MotionEvent 移动侦测事件
+// MotionEvent 移动侦测事件.
 type MotionEvent struct {
 	ID          string       `json:"id"`
 	CameraID    string       `json:"cameraId"`
@@ -186,7 +186,7 @@ type MotionEvent struct {
 	Handled     bool         `json:"handled"`
 }
 
-// BoundingBox 检测框
+// BoundingBox 检测框.
 type BoundingBox struct {
 	X      int `json:"x"`
 	Y      int `json:"y"`
@@ -196,7 +196,7 @@ type BoundingBox struct {
 
 // ========== 请求/响应类型 ==========
 
-// AddCameraRequest 添加摄像头请求
+// AddCameraRequest 添加摄像头请求.
 type AddCameraRequest struct {
 	Name       string           `json:"name" binding:"required"`
 	Location   string           `json:"location"`
@@ -212,7 +212,7 @@ type AddCameraRequest struct {
 	Tags       []string         `json:"tags"`
 }
 
-// UpdateCameraRequest 更新摄像头请求
+// UpdateCameraRequest 更新摄像头请求.
 type UpdateCameraRequest struct {
 	Name       *string         `json:"name"`
 	Location   *string         `json:"location"`
@@ -227,13 +227,13 @@ type UpdateCameraRequest struct {
 	Tags       []string        `json:"tags"`
 }
 
-// StartRecordingRequest 开始录像请求
+// StartRecordingRequest 开始录像请求.
 type StartRecordingRequest struct {
 	CameraID string `json:"cameraId" binding:"required"`
 	Mode     string `json:"mode"` // manual, motion
 }
 
-// MotionEventQuery 移动侦测事件查询
+// MotionEventQuery 移动侦测事件查询.
 type MotionEventQuery struct {
 	CameraID  string `form:"cameraId"`
 	StartTime string `form:"startTime"`
@@ -243,7 +243,7 @@ type MotionEventQuery struct {
 
 // ========== 系统状态类型 ==========
 
-// SystemStatus 系统状态
+// SystemStatus 系统状态.
 type SystemStatus struct {
 	TotalCameras    int    `json:"totalCameras"`
 	OnlineCameras   int    `json:"onlineCameras"`
@@ -256,7 +256,7 @@ type SystemStatus struct {
 	Uptime          string `json:"uptime"`
 }
 
-// StorageStats 存储统计
+// StorageStats 存储统计.
 type StorageStats struct {
 	TotalRecordings int        `json:"totalRecordings"`
 	TotalSize       int64      `json:"totalSize"`
@@ -265,7 +265,7 @@ type StorageStats struct {
 	AvgFileSize     int64      `json:"avgFileSize"`
 }
 
-// DiscoverResult 发现结果
+// DiscoverResult 发现结果.
 type DiscoverResult struct {
 	Found      int      `json:"found"`
 	Cameras    []Camera `json:"cameras"`

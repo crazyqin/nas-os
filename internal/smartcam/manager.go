@@ -299,8 +299,7 @@ func (m *Manager) DiscoverCameras(subnet string) (*DiscoverResult, error) {
 				if err != nil {
 					return
 				}
-				conn.Close()
-				//nolint:errcheck // Best effort close
+				conn.Close() //nolint:errcheck // Best effort close
 
 				mu.Lock()
 				scannedCount++
@@ -569,7 +568,7 @@ func (m *Manager) executeMotionActions(camera *Camera, event *MotionEvent) {
 	}
 }
 
-// GetMotionEvents 获取移动侦测事件
+// GetMotionEvents 获取移动侦测事件.
 func (m *Manager) GetMotionEvents(query MotionEventQuery) []*MotionEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -595,7 +594,7 @@ func (m *Manager) GetMotionEvents(query MotionEventQuery) []*MotionEvent {
 
 // ========== 系统状态 ==========
 
-// GetStatus 获取系统状态
+// GetStatus 获取系统状态.
 func (m *Manager) GetStatus() SystemStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -640,7 +639,7 @@ func (m *Manager) GetStatus() SystemStatus {
 	}
 }
 
-// GetStorageStats 获取存储统计
+// GetStorageStats 获取存储统计.
 func (m *Manager) GetStorageStats() StorageStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -677,14 +676,14 @@ func (m *Manager) GetStorageStats() StorageStats {
 	return stats
 }
 
-// GetConfig 获取系统配置
+// GetConfig 获取系统配置.
 func (m *Manager) GetConfig() SystemConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新系统配置
+// UpdateConfig 更新系统配置.
 func (m *Manager) UpdateConfig(cfg SystemConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -694,7 +693,7 @@ func (m *Manager) UpdateConfig(cfg SystemConfig) {
 
 // ========== 辅助方法 ==========
 
-// copyCamera 深拷贝摄像头（隐藏密码）
+// copyCamera 深拷贝摄像头（隐藏密码）.
 func (m *Manager) copyCamera(cam *Camera) *Camera {
 	cp := *cam
 	cp.Password = "" // 不返回密码
@@ -705,7 +704,7 @@ func (m *Manager) copyCamera(cam *Camera) *Camera {
 	return &cp
 }
 
-// SimulateMotionEvent 模拟移动侦测（用于测试）
+// SimulateMotionEvent 模拟移动侦测（用于测试）.
 func (m *Manager) SimulateMotionEvent(cameraID string) (*MotionEvent, error) {
 	return m.TriggerMotionEvent(cameraID, "", rand.Float64(), &BoundingBox{
 		X:      rand.Intn(500),

@@ -18,7 +18,6 @@ type LXCSandboxManager struct {
 	mu        sync.RWMutex
 	config    *LXCConfig
 	sandboxes map[string]*Sandbox
-	templates map[string]*Template
 	ctx       context.Context
 	cancel    context.CancelFunc
 	wg        sync.WaitGroup
@@ -36,70 +35,27 @@ type LXCConfig struct {
 	DefaultDiskGB int    `json:"default_disk_gb"`
 }
 
-// Template LXC模板
-type Template struct {
-	Name        string            `json:"name"`
-	Distro      string            `json:"distro"` // ubuntu, alpine, debian, etc.
-	Version     string            `json:"version"`
-	Description string            `json:"description"`
-	ImageURL    string            `json:"image_url"`
-	Packages    []string          `json:"packages"`
-	Metadata    map[string]string `json:"metadata"`
-	SizeMB      int               `json:"size_mb"`
-}
-
 // Sandbox LXC沙箱实例
 type Sandbox struct {
-	ID            string            `json:"id"`
-	Name          string            `json:"name"`
-	Template      string            `json:"template"`
-	Status        SandboxStatus     `json:"status"`
-	IP            string            `json:"ip"`
-	CPU           int               `json:"cpu"`
-	MemoryMB      int               `json:"memory_mb"`
-	DiskGB        int               `json:"disk_gb"`
-	Ports         []PortMapping     `json:"ports"`
-	Volumes       []VolumeMount     `json:"volumes"`
-	EnvVars       map[string]string `json:"env_vars"`
-	CreatedAt     time.Time         `json:"created_at"`
-	StartedAt     *time.Time        `json:"started_at,omitempty"`
-	Stats         *SandboxStats     `json:"stats,omitempty"`
-	RestartPolicy RestartPolicy     `json:"restart_policy"`
+	ID            string             `json:"id"`
+	Name          string             `json:"name"`
+	Template      string             `json:"template"`
+	Status        ContainerStatus    `json:"status"`
+	IP            string             `json:"ip"`
+	CPU           int                `json:"cpu"`
+	MemoryMB      int                `json:"memory_mb"`
+	DiskGB        int                `json:"disk_gb"`
+	Ports         []PortMap           `json:"ports"`
+	Volumes       []VolumeMount      `json:"volumes"`
+	EnvVars       map[string]string  `json:"env_vars"`
+	CreatedAt     time.Time          `json:"created_at"`
+	StartedAt     *time.Time         `json:"started_at,omitempty"`
+	Stats         *SandboxStats      `json:"stats,omitempty"`
+	RestartPolicy RestartPolicy      `json:"restart_policy"`
 }
 
-// SandboxStatus 沙箱状态
-type SandboxStatus string
-
-const (
-	StatusCreating SandboxStatus = "creating"
-	StatusStopped  SandboxStatus = "stopped"
-	StatusRunning  SandboxStatus = "running"
-	StatusError    SandboxStatus = "error"
-	StatusDeleting SandboxStatus = "deleting"
-)
-
-// RestartPolicy 重启策略
-type RestartPolicy string
-
-const (
-	RestartAlways    RestartPolicy = "always"
-	RestartOnFailure RestartPolicy = "on-failure"
-	RestartNever     RestartPolicy = "never"
-)
-
-// PortMapping 端口映射
-type PortMapping struct {
-	HostPort      int    `json:"host_port"`
-	ContainerPort int    `json:"container_port"`
-	Protocol      string `json:"protocol"` // tcp, udp
-}
-
-// VolumeMount 卷挂载
-type VolumeMount struct {
-	HostPath      string `json:"host_path"`
-	ContainerPath string `json:"container_path"`
-	ReadOnly      bool   `json:"read_only"`
-}
+// RestartPolicy 重启策略（sandbox 版本的别名）
+type SandboxRestartPolicy = RestartPolicy
 
 // SandboxStats 沙箱统计
 type SandboxStats struct {
@@ -111,6 +67,17 @@ type SandboxStats struct {
 	NetTxBytes    int64     `json:"net_tx_bytes"`
 	PIDs          int       `json:"pids"`
 	Timestamp     time.Time `json:"timestamp"`
+}
+
+// SandboxOptions 沙箱选项
+type SandboxOptions struct {
+	CPU           int
+	MemoryMB      int
+	DiskGB        int
+	Ports         []PortMap
+	Volumes       []VolumeMount
+	EnvVars       map[string]string
+	RestartPolicy RestartPolicy
 }
 
 // NewLXCSandboxManager 创建LXC沙箱管理器
@@ -131,32 +98,8 @@ func NewLXCSandboxManager(cfg *LXCConfig) *LXCSandboxManager {
 	return &LXCSandboxManager{
 		config:    cfg,
 		sandboxes: make(map[string]*Sandbox),
-		templates: defaultTemplates(),
 		ctx:       ctx,
 		cancel:    cancel,
-	}
-}
-
-func defaultTemplates() map[string]*Template {
-	return map[string]*Template{
-		"ubuntu-24.04": {
-			Name: "ubuntu-24.04", Distro: "ubuntu", Version: "24.04",
-			Description: "Ubuntu 24.04 LTS - 通用服务器环境",
-			Packages:    []string{"curl", "wget", "vim", "git"},
-			SizeMB:      300,
-		},
-		"alpine-3.20": {
-			Name: "alpine-3.20", Distro: "alpine", Version: "3.20",
-			Description: "Alpine Linux 3.20 - 轻量级容器环境",
-			Packages:    []string{"busybox", "curl"},
-			SizeMB:      50,
-		},
-		"debian-12": {
-			Name: "debian-12", Distro: "debian", Version: "12",
-			Description: "Debian 12 - 稳定服务器环境",
-			Packages:    []string{"curl", "wget", "vim"},
-			SizeMB:      250,
-		},
 	}
 }
 
@@ -191,11 +134,6 @@ func (m *LXCSandboxManager) CreateSandbox(name, templateName string, opts *Sandb
 		return nil, fmt.Errorf("已达到最大沙箱数 %d", m.config.MaxSandboxes)
 	}
 
-	tmpl, exists := m.templates[templateName]
-	if !exists {
-		return nil, fmt.Errorf("模板 %s 不存在", templateName)
-	}
-
 	if opts == nil {
 		opts = &SandboxOptions{}
 	}
@@ -213,7 +151,7 @@ func (m *LXCSandboxManager) CreateSandbox(name, templateName string, opts *Sandb
 		ID:            fmt.Sprintf("lxc-%s-%d", name, time.Now().UnixNano()),
 		Name:          name,
 		Template:      templateName,
-		Status:        StatusCreating,
+		Status:        StatusCreated,
 		CPU:           opts.CPU,
 		MemoryMB:      opts.MemoryMB,
 		DiskGB:        opts.DiskGB,
@@ -235,7 +173,7 @@ func (m *LXCSandboxManager) CreateSandbox(name, templateName string, opts *Sandb
 	}
 
 	// 生成 LXC 配置文件
-	if err := m.generateLXCConfig(sandbox, tmpl); err != nil {
+	if err := m.generateLXCConfig(sandbox); err != nil {
 		os.RemoveAll(sandboxDir)
 		return nil, err
 	}
@@ -244,17 +182,6 @@ func (m *LXCSandboxManager) CreateSandbox(name, templateName string, opts *Sandb
 	m.sandboxes[sandbox.ID] = sandbox
 
 	return sandbox, nil
-}
-
-// SandboxOptions 沙箱选项
-type SandboxOptions struct {
-	CPU           int
-	MemoryMB      int
-	DiskGB        int
-	Ports         []PortMapping
-	Volumes       []VolumeMount
-	EnvVars       map[string]string
-	RestartPolicy RestartPolicy
 }
 
 // StartSandbox 启动沙箱
@@ -385,7 +312,7 @@ func (m *LXCSandboxManager) GetSandboxStats(id string) (*SandboxStats, error) {
 	return stats, nil
 }
 
-func (m *LXCSandboxManager) generateLXCConfig(sandbox *Sandbox, tmpl *Template) error {
+func (m *LXCSandboxManager) generateLXCConfig(sandbox *Sandbox) error {
 	configPath := filepath.Join(m.config.StoragePath, sandbox.ID, "config")
 	config := fmt.Sprintf(`lxc.uts.name = %s
 lxc.arch = amd64

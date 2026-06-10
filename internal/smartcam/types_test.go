@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// TestCameraStatus_Constants 测试摄像头状态常量定义
+// TestCameraStatus_Constants 测试摄像头状态常量定义.
 func TestCameraStatus_Constants(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -26,7 +26,7 @@ func TestCameraStatus_Constants(t *testing.T) {
 	}
 }
 
-// TestRecordingMode_Constants 测试录像模式常量定义
+// TestRecordingMode_Constants 测试录像模式常量定义.
 func TestRecordingMode_Constants(t *testing.T) {
 	tests := []struct {
 		name string
@@ -47,7 +47,7 @@ func TestRecordingMode_Constants(t *testing.T) {
 	}
 }
 
-// TestStreamProtocol_Constants 测试视频流协议常量定义
+// TestStreamProtocol_Constants 测试视频流协议常量定义.
 func TestStreamProtocol_Constants(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -67,7 +67,7 @@ func TestStreamProtocol_Constants(t *testing.T) {
 	}
 }
 
-// TestMotionSensitivity_Constants 测试移动侦测灵敏度常量定义
+// TestMotionSensitivity_Constants 测试移动侦测灵敏度常量定义.
 func TestMotionSensitivity_Constants(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -87,7 +87,7 @@ func TestMotionSensitivity_Constants(t *testing.T) {
 	}
 }
 
-// TestCamera_Creation 测试摄像头结构体创建
+// TestCamera_Creation 测试摄像头结构体创建.
 func TestCamera_Creation(t *testing.T) {
 	now := time.Now()
 	camera := Camera{
@@ -152,7 +152,7 @@ func TestCamera_Creation(t *testing.T) {
 	}
 }
 
-// TestRecordingConfig 测试录像配置
+// TestRecordingConfig 测试录像配置.
 func TestRecordingConfig(t *testing.T) {
 	config := RecordingConfig{
 		Enabled:       true,
@@ -185,7 +185,7 @@ func TestRecordingConfig(t *testing.T) {
 	}
 }
 
-// TestMotionConfig 测试移动侦测配置
+// TestMotionConfig 测试移动侦测配置.
 func TestMotionConfig(t *testing.T) {
 	config := MotionConfig{
 		Enabled:     true,
@@ -219,7 +219,7 @@ func TestMotionConfig(t *testing.T) {
 	}
 }
 
-// TestRecording_Creation 测试录像记录创建
+// TestRecording_Creation 测试录像记录创建.
 func TestRecording_Creation(t *testing.T) {
 	now := time.Now()
 	recording := Recording{
@@ -254,7 +254,7 @@ func TestRecording_Creation(t *testing.T) {
 	}
 }
 
-// TestMotionEvent_Creation 测试移动侦测事件创建
+// TestMotionEvent_Creation 测试移动侦测事件创建.
 func TestMotionEvent_Creation(t *testing.T) {
 	now := time.Now()
 	event := MotionEvent{
@@ -292,7 +292,7 @@ func TestMotionEvent_Creation(t *testing.T) {
 	}
 }
 
-// TestAddCameraRequest 测试添加摄像头请求
+// TestAddCameraRequest 测试添加摄像头请求.
 func TestAddCameraRequest(t *testing.T) {
 	req := AddCameraRequest{
 		Name:       "后门摄像头",
@@ -318,7 +318,7 @@ func TestAddCameraRequest(t *testing.T) {
 	}
 }
 
-// TestSystemStatus 测试系统状态结构体
+// TestSystemStatus 测试系统状态结构体.
 func TestSystemStatus(t *testing.T) {
 	status := SystemStatus{
 		TotalCameras:    10,
@@ -343,7 +343,7 @@ func TestSystemStatus(t *testing.T) {
 	}
 }
 
-// TestDiscoverResult 测试发现结果结构体
+// TestDiscoverResult 测试发现结果结构体.
 func TestDiscoverResult(t *testing.T) {
 	result := DiscoverResult{
 		Found: 3,
@@ -364,7 +364,7 @@ func TestDiscoverResult(t *testing.T) {
 	}
 }
 
-// TestErrorConstants 测试错误常量定义
+// TestErrorConstants 测试错误常量定义.
 func TestErrorConstants(t *testing.T) {
 	tests := []struct {
 		name string

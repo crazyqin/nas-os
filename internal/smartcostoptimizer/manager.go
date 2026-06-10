@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 智能成本优化器管理器
+// Manager 智能成本优化器管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	logger   *zap.Logger
@@ -19,7 +19,7 @@ type Manager struct {
 	reports  map[string]*CostReport
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(logger *zap.Logger, config *SmartCostConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -38,7 +38,7 @@ func NewManager(logger *zap.Logger, config *SmartCostConfig) *Manager {
 	}
 }
 
-// GetConfig 获取配置（副本）
+// GetConfig 获取配置（副本）.
 func (m *Manager) GetConfig() *SmartCostConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -46,7 +46,7 @@ func (m *Manager) GetConfig() *SmartCostConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg *SmartCostConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -61,7 +61,7 @@ func (m *Manager) UpdateConfig(cfg *SmartCostConfig) {
 // 资产管理
 // ============================================================
 
-// AddAsset 添加存储资产
+// AddAsset 添加存储资产.
 func (m *Manager) AddAsset(asset *StorageAsset) error {
 	if asset == nil {
 		return fmt.Errorf("asset is nil")
@@ -85,7 +85,7 @@ func (m *Manager) AddAsset(asset *StorageAsset) error {
 	return nil
 }
 
-// GetAsset 获取资产
+// GetAsset 获取资产.
 func (m *Manager) GetAsset(id string) (*StorageAsset, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -97,7 +97,7 @@ func (m *Manager) GetAsset(id string) (*StorageAsset, error) {
 	return asset, nil
 }
 
-// ListAssets 列出所有资产
+// ListAssets 列出所有资产.
 func (m *Manager) ListAssets() []*StorageAsset {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -109,7 +109,7 @@ func (m *Manager) ListAssets() []*StorageAsset {
 	return result
 }
 
-// RemoveAsset 删除资产
+// RemoveAsset 删除资产.
 func (m *Manager) RemoveAsset(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -126,7 +126,7 @@ func (m *Manager) RemoveAsset(id string) error {
 // 成本记录
 // ============================================================
 
-// RecordCost 记录成本
+// RecordCost 记录成本.
 func (m *Manager) RecordCost(entry *CostEntry) error {
 	if entry == nil {
 		return fmt.Errorf("cost entry is nil")
@@ -157,7 +157,7 @@ func (m *Manager) RecordCost(entry *CostEntry) error {
 	return nil
 }
 
-// ListCostEntries 列出成本记录
+// ListCostEntries 列出成本记录.
 func (m *Manager) ListCostEntries() []*CostEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -173,7 +173,7 @@ func (m *Manager) ListCostEntries() []*CostEntry {
 // 成本分析
 // ============================================================
 
-// GetCostSummary 获取成本汇总
+// GetCostSummary 获取成本汇总.
 func (m *Manager) GetCostSummary(periodStart, periodEnd time.Time) *CostSummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -218,7 +218,7 @@ func (m *Manager) GetCostSummary(periodStart, periodEnd time.Time) *CostSummary 
 	return m.analyzer.CalculateCostSummary(entries, periodStart, periodEnd)
 }
 
-// AnalyzeTrend 分析成本趋势
+// AnalyzeTrend 分析成本趋势.
 func (m *Manager) AnalyzeTrend(granularity TrendGranularity, months int) *CostTrend {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -235,7 +235,7 @@ func (m *Manager) AnalyzeTrend(granularity TrendGranularity, months int) *CostTr
 // 优化建议
 // ============================================================
 
-// GenerateOptimizations 生成优化建议
+// GenerateOptimizations 生成优化建议.
 func (m *Manager) GenerateOptimizations() []*OptimizationSuggestion {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -249,7 +249,7 @@ func (m *Manager) GenerateOptimizations() []*OptimizationSuggestion {
 	return m.analyzer.GenerateOptimizations(assets, coldData)
 }
 
-// DetectColdData 检测冷数据
+// DetectColdData 检测冷数据.
 func (m *Manager) DetectColdData() []*ColdDataInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -266,7 +266,7 @@ func (m *Manager) DetectColdData() []*ColdDataInfo {
 // ROI 计算
 // ============================================================
 
-// CalculateROI 计算投资回报率
+// CalculateROI 计算投资回报率.
 func (m *Manager) CalculateROI(input *ROIInput) (*ROIResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -288,7 +288,7 @@ func (m *Manager) CalculateROI(input *ROIInput) (*ROIResult, error) {
 // 报告生成与导出
 // ============================================================
 
-// GenerateReport 生成综合成本报告
+// GenerateReport 生成综合成本报告.
 func (m *Manager) GenerateReport(name string, periodStart, periodEnd time.Time) *CostReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -312,7 +312,7 @@ func (m *Manager) GenerateReport(name string, periodStart, periodEnd time.Time) 
 	return report
 }
 
-// GetReport 获取报告
+// GetReport 获取报告.
 func (m *Manager) GetReport(id string) (*CostReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -324,7 +324,7 @@ func (m *Manager) GetReport(id string) (*CostReport, error) {
 	return report, nil
 }
 
-// ListReports 列出报告
+// ListReports 列出报告.
 func (m *Manager) ListReports() []*CostReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -336,7 +336,7 @@ func (m *Manager) ListReports() []*CostReport {
 	return result
 }
 
-// ExportReportAsCSV 将报告导出为 CSV
+// ExportReportAsCSV 将报告导出为 CSV.
 func (m *Manager) ExportReportAsCSV(reportID string) (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
