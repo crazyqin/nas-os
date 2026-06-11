@@ -58,6 +58,7 @@ type GPUDevice struct {
 	Driver          string               `json:"driver"`          // 当前驱动
 	VRAM            uint64               `json:"vram"`            // 显存(MB)
 	VRAMUsed        uint64               `json:"vramUsed"`        // 已用显存(MB)
+	Temperature     int                  `json:"temperature"`     // 温度(°C)
 	NUMANode        int                  `json:"numaNode"`        // NUMA节点
 	DevicePath      string               `json:"devicePath"`      // 设备路径
 	Available       bool                 `json:"available"`       // 是否可用
