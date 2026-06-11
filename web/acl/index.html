@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACL权限管理 - NAS-OS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .sidebar h3 {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .path-tree {
+            list-style: none;
+        }
+
+        .path-tree li {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+
+        .path-tree li:hover {
+            background: #f0f0f0;
+        }
+
+        .path-tree li.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .path-tree li .icon {
+            margin-right: 8px;
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .toolbar h2 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-card label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .info-card .value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        .acl-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .acl-table thead th {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #666;
+            font-size: 13px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .acl-table tbody td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .acl-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-allow {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-deny {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-user {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .badge-group {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .badge-explicit {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-inherited {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .permission-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .permission-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #495057;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .modal-header h3 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .form-check input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .form-check label {
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .audit-log {
+            margin-top: 20px;
+        }
+
+        .audit-entry {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+
+        .audit-entry .time {
+            width: 150px;
+            color: #666;
+            flex-shrink: 0;
+        }
+
+        .audit-entry .action {
+            width: 100px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .audit-entry .details {
+            flex: 1;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: #333;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #333;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 ACL权限管理系统</h1>
+            <p>企业级访问控制列表管理 - 支持13种细分权限与继承机制</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- Sidebar - Path Tree -->
+            <div class="sidebar">
+                <h3>📁 文件系统</h3>
+                <ul class="path-tree" id="pathTree">
+                    <li class="active" data-path="/">
+                        <span class="icon">📂</span> 根目录 /
+                    </li>
+                    <li data-path="/data">
+                        <span class="icon">📂</span> data
+                    </li>
+                    <li data-path="/data/documents">
+                        <span class="icon">📁</span> &nbsp;&nbsp;documents
+                    </li>
+                    <li data-path="/data/media">
+                        <span class="icon">📁</span> &nbsp;&nbsp;media
+                    </li>
+                    <li data-path="/data/backups">
+                        <span class="icon">📁</span> &nbsp;&nbsp;backups
+                    </li>
+                    <li data-path="/shared">
+                        <span class="icon">📂</span> shared
+                    </li>
+                    <li data-path="/shared/team">
+                        <span class="icon">📁</span> &nbsp;&nbsp;team
+                    </li>
+                    <li data-path="/shared/public">
+                        <span class="icon">📁</span> &nbsp;&nbsp;public
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main Content -->
+            <div class="content-area">
+                <div class="toolbar">
+                    <h2 id="currentPath">/</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="openAddACEModal()">➕ 添加权限</button>
+                        <button class="btn btn-success" onclick="propagateInheritance()">🔄 传播继承</button>
+                        <button class="btn btn-secondary" onclick="openEditACLModal()">⚙️ ACL设置</button>
+                    </div>
+                </div>
+
+                <!-- Info Cards -->
+                <div class="info-cards">
+                    <div class="info-card">
+                        <label>所有者</label>
+                        <div class="value" id="ownerDisplay">admin</div>
+                    </div>
+                    <div class="info-card">
+                        <label>组</label>
+                        <div class="value" id="groupDisplay">administrators</div>
+                    </div>
+                    <div class="info-card">
+                        <label>继承状态</label>
+                        <div class="value" id="inheritDisplay">已启用</div>
+                    </div>
+                    <div class="info-card">
+                        <label>ACE数量</label>
+                        <div class="value" id="aceCount">0</div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <div class="tab active" data-tab="aces">访问控制条目</div>
+                    <div class="tab" data-tab="check">权限检查</div>
+                    <div class="tab" data-tab="audit">审计日志</div>
+                </div>
+
+                <!-- ACE List Tab -->
+                <div class="tab-content active" id="tab-aces">
+                    <table class="acl-table">
+                        <thead>
+                            <tr>
+                                <th>主体</th>
+                                <th>类型</th>
+                                <th>权限</th>
+                                <th>访问类型</th>
+                                <th>来源</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="aceTableBody">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Permission Check Tab -->
+                <div class="tab-content" id="tab-check">
+                    <div style="padding: 20px;">
+                        <h3 style="margin-bottom: 20px;">权限检查工具</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; align-items: end;">
+                            <div class="form-group">
+                                <label>主体 (用户/组)</label>
+                                <input type="text" class="form-control" id="checkSubject" placeholder="输入用户名或组名">
+                            </div>
+                            <div class="form-group">
+                                <label>路径</label>
+                                <input type="text" class="form-control" id="checkPath" placeholder="/path/to/resource">
+                            </div>
+                            <div class="form-group">
+                                <label>权限</label>
+                                <select class="form-control" id="checkPermission">
+                                    <option value="read">读取 (read)</option>
+                                    <option value="write">写入 (write)</option>
+                                    <option value="delete">删除 (delete)</option>
+                                    <option value="execute">执行 (execute)</option>
+                                    <option value="create">创建 (create)</option>
+                                    <option value="rename">重命名 (rename)</option>
+                                    <option value="move">移动 (move)</option>
+                                    <option value="copy">复制 (copy)</option>
+                                    <option value="view_attr">查看属性 (view_attr)</option>
+                                    <option value="modify_attr">修改属性 (modify_attr)</option>
+                                    <option value="change_perm">更改权限 (change_perm)</option>
+                                    <option value="take_owner">获取所有权 (take_owner)</option>
+                                    <option value="traverse">遍历文件夹 (traverse)</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="checkAccess()">检查</button>
+                        </div>
+                        <div id="checkResult" style="margin-top: 20px; padding: 15px; border-radius: 8px; display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- Audit Log Tab -->
+                <div class="tab-content" id="tab-audit">
+                    <div class="audit-log" id="auditLog">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add ACE Modal -->
+    <div class="modal" id="addACEModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加访问控制条目</h3>
+                <button class="modal-close" onclick="closeModal('addACEModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>主体名称</label>
+                <input type="text" class="form-control" id="aceSubject" placeholder="输入用户名或组名">
+            </div>
+            <div class="form-group">
+                <label>主体类型</label>
+                <select class="form-control" id="aceSubjectType">
+                    <option value="user">用户</option>
+                    <option value="group">组</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>访问控制</label>
+                <select class="form-control" id="aceAllowed">
+                    <option value="true">允许</option>
+                    <option value="false">拒绝</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>权限</label>
+                <div class="checkbox-grid">
+                    <div class="form-check">
+                        <input type="checkbox" id="perm-read" value="read">
+                        <label for="perm-read">📖 读取</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="perm-write" value="write">
+                        <label for="perm-write">✏️ 写入</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="perm-delete" value="delete">
+                        <label for="perm-delete">🗑️ 删除</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="perm-execute" value="execute">
+                        <label for="perm-execute">▶️ 执行</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="perm-create" value="create">
+                        <label for="perm-create">➕ 创建</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="perm-rename" value="rename">
+                        <label for="perm-rename">📝 重命名</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="perm-move" value="move">
+                        <label for="perm-move">📦 移动</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="perm-copy" value="copy">
+                        <label for="perm-copy">📋 复制</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="perm-view_attr" value="view_attr">
+                        <label for="perm-view_attr">👁️ 查看属性</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="perm-modify_attr" value="modify_attr">
+                        <label for="perm-modify_attr">🔧 修改属性</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="perm-change_perm" value="change_perm">
+                        <label for="perm-change_perm">🔑 更改权限</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="perm-take_owner" value="take_owner">
+                        <label for="perm-take_owner">👑 获取所有权</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="perm-traverse" value="traverse">
+                        <label for="perm-traverse">🚶 遍历文件夹</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>继承标志</label>
+                <select class="form-control" id="aceInheritFlags" multiple>
+                    <option value="full">完全继承</option>
+                    <option value="selective">选择性继承</option>
+                    <option value="none">不继承</option>
+                    <option value="container">仅容器继承</option>
+                    <option value="object">仅对象继承</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addACEModal')">取消</button>
+                <button class="btn btn-primary" onclick="addACE()">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit ACL Modal -->
+    <div class="modal" id="editACLModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>ACL设置</h3>
+                <button class="modal-close" onclick="closeModal('editACLModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>所有者</label>
+                <input type="text" class="form-control" id="editOwner" placeholder="输入所有者">
+            </div>
+            <div class="form-group">
+                <label>组</label>
+                <input type="text" class="form-control" id="editGroup" placeholder="输入组名">
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="editInheritEnabled">
+                    <label for="editInheritEnabled">启用继承</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="editInheritPermissions">
+                    <label for="editInheritPermissions">继承权限</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="editProtected">
+                    <label for="editProtected">保护ACL</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('editACLModal')">取消</button>
+                <button class="btn btn-primary" onclick="updateACL()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const API_BASE = '/api/v1/acl';
+        let currentPath = '/';
+        let currentACL = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadACL('/');
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Path tree navigation
+            document.querySelectorAll('.path-tree li').forEach(item => {
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('.path-tree li').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    currentPath = item.dataset.path;
+                    loadACL(currentPath);
+                });
+            });
+
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+                });
+            });
+        }
+
+        async function loadACL(path) {
+            try {
+                const response = await fetch(`${API_BASE}${path}`);
+                const data = await response.json();
+                
+                if (data.code === 0) {
+                    currentACL = data.data;
+                    updateDisplay();
+                } else {
+                    showToast('ACL未找到', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading ACL:', error);
+                showToast('加载ACL失败', 'error');
+            }
+        }
+
+        function updateDisplay() {
+            if (!currentACL) return;
+
+            document.getElementById('currentPath').textContent = currentACL.path;
+            document.getElementById('ownerDisplay').textContent = currentACL.owner;
+            document.getElementById('groupDisplay').textContent = currentACL.group || '-';
+            document.getElementById('inheritDisplay').textContent = currentACL.inherit_enabled ? '已启用' : '已禁用';
+            document.getElementById('aceCount').textContent = currentACL.aces ? currentACL.aces.length : 0;
+
+            // Update ACE table
+            const tbody = document.getElementById('aceTableBody');
+            tbody.innerHTML = '';
+
+            if (currentACL.aces && currentACL.aces.length > 0) {
+                currentACL.aces.forEach(ace => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${ace.subject}</strong></td>
+                        <td><span class="badge badge-${ace.subject_type}">${ace.subject_type === 'user' ? '用户' : '组'}</span></td>
+                        <td>
+                            <div class="permission-tags">
+                                ${ace.permissions.map(p => `<span class="permission-tag">${getPermissionName(p)}</span>`).join('')}
+                            </div>
+                        </td>
+                        <td><span class="badge ${ace.allowed ? 'badge-allow' : 'badge-deny'}">${ace.allowed ? '允许' : '拒绝'}</span></td>
+                        <td><span class="badge badge-${ace.access_type}">${ace.access_type === 'explicit' ? '显式' : '继承'}</span></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn btn-sm btn-secondary" onclick="editACE('${ace.id}')">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="removeACE('${ace.id}')">删除</button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div class="icon">📋</div>
+                            <p>暂无访问控制条目</p>
+                            <p style="font-size: 13px; color: #999;">点击"添加权限"按钮创建新的ACE</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function getPermissionName(perm) {
+            const names = {
+                'read': '📖 读取',
+                'write': '✏️ 写入',
+                'delete': '🗑️ 删除',
+                'execute': '▶️ 执行',
+                'create': '➕ 创建',
+                'rename': '📝 重命名',
+                'move': '📦 移动',
+                'copy': '📋 复制',
+                'view_attr': '👁️ 查看属性',
+                'modify_attr': '🔧 修改属性',
+                'change_perm': '🔑 更改权限',
+                'take_owner': '👑 获取所有权',
+                'traverse': '🚶 遍历'
+            };
+            return names[perm] || perm;
+        }
+
+        async function addACE() {
+            const subject = document.getElementById('aceSubject').value;
+            const subjectType = document.getElementById('aceSubjectType').value;
+            const allowed = document.getElementById('aceAllowed').value === 'true';
+            
+            const permissions = [];
+            document.querySelectorAll('#addACEModal input[type="checkbox"]:checked').forEach(cb => {
+                permissions.push(cb.value);
+            });
+
+            const inheritFlags = Array.from(document.getElementById('aceInheritFlags').selectedOptions).map(o => o.value);
+
+            if (!subject || permissions.length === 0) {
+                showToast('请填写完整信息', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}${currentPath}/aces`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subject,
+                        subject_type: subjectType,
+                        permissions,
+                        allowed,
+                        inherit_flags: inheritFlags
+                    })
+                });
+
+                const data = await response.json();
+                if (data.code === 0) {
+                    showToast('ACE添加成功', 'success');
+                    closeModal('addACEModal');
+                    loadACL(currentPath);
+                } else {
+                    showToast(data.message || '添加失败', 'error');
+                }
+            } catch (error) {
+                showToast('请求失败', 'error');
+            }
+        }
+
+        async function removeACE(aceId) {
+            if (!confirm('确定要删除此ACE吗？')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}${currentPath}/aces/${aceId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+                if (data.code === 0) {
+                    showToast('ACE删除成功', 'success');
+                    loadACL(currentPath);
+                } else {
+                    showToast(data.message || '删除失败', 'error');
+                }
+            } catch (error) {
+                showToast('请求失败', 'error');
+            }
+        }
+
+        function editACE(aceId) {
+            // TODO: Implement edit functionality
+            showToast('编辑功能开发中', 'info');
+        }
+
+        async function updateACL() {
+            const owner = document.getElementById('editOwner').value;
+            const group = document.getElementById('editGroup').value;
+            const inheritEnabled = document.getElementById('editInheritEnabled').checked;
+            const inheritPermissions = document.getElementById('editInheritPermissions').checked;
+            const protected_ = document.getElementById('editProtected').checked;
+
+            try {
+                const response = await fetch(`${API_BASE}${currentPath}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        owner,
+                        group,
+                        inherit_enabled: inheritEnabled,
+                        inherit_permissions: inheritPermissions,
+                        protected: protected_
+                    })
+                });
+
+                const data = await response.json();
+                if (data.code === 0) {
+                    showToast('ACL更新成功', 'success');
+                    closeModal('editACLModal');
+                    loadACL(currentPath);
+                } else {
+                    showToast(data.message || '更新失败', 'error');
+                }
+            } catch (error) {
+                showToast('请求失败', 'error');
+            }
+        }
+
+        async function propagateInheritance() {
+            if (!confirm('确定要将当前ACL的权限传播到所有子路径吗？')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}${currentPath}/propagate`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+                if (data.code === 0) {
+                    showToast('继承传播成功', 'success');
+                    loadACL(currentPath);
+                } else {
+                    showToast(data.message || '传播失败', 'error');
+                }
+            } catch (error) {
+                showToast('请求失败', 'error');
+            }
+        }
+
+        async function checkAccess() {
+            const subject = document.getElementById('checkSubject').value;
+            const path = document.getElementById('checkPath').value;
+            const permission = document.getElementById('checkPermission').value;
+
+            if (!subject || !path) {
+                showToast('请填写完整信息', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/check`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subject, path, permission })
+                });
+
+                const data = await response.json();
+                if (data.code === 0) {
+                    const result = data.data;
+                    const resultDiv = document.getElementById('checkResult');
+                    resultDiv.style.display = 'block';
+                    resultDiv.style.background = result.allowed ? '#d4edda' : '#f8d7da';
+                    resultDiv.style.color = result.allowed ? '#155724' : '#721c24';
+                    resultDiv.innerHTML = `
+                        <strong>${result.allowed ? '✅ 允许访问' : '❌ 拒绝访问'}</strong><br>
+                        <small>原因: ${result.reason}</small><br>
+                        <small>来源: ${result.source} ${result.source_path ? '(来自: ' + result.source_path + ')' : ''}</small>
+                    `;
+                }
+            } catch (error) {
+                showToast('请求失败', 'error');
+            }
+        }
+
+        function openAddACEModal() {
+            // Clear form
+            document.getElementById('aceSubject').value = '';
+            document.querySelectorAll('#addACEModal input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.getElementById('addACEModal').classList.add('active');
+        }
+
+        function openEditACLModal() {
+            if (!currentACL) return;
+            document.getElementById('editOwner').value = currentACL.owner;
+            document.getElementById('editGroup').value = currentACL.group || '';
+            document.getElementById('editInheritEnabled').checked = currentACL.inherit_enabled;
+            document.getElementById('editInheritPermissions').checked = currentACL.inherit_permissions;
+            document.getElementById('editProtected').checked = currentACL.protected;
+            document.getElementById('editACLModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#333';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

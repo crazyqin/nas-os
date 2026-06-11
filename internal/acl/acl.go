@@ -1,160 +1,175 @@
 package acl
 
 import (
-	"fmt"
 	"log"
 	"sync"
 )
 
-// Permission types
-const (
-	PermRead    = "read"
-	PermWrite   = "write"
-	PermExecute = "execute"
-	PermAdmin   = "admin"
-	PermDelete  = "delete"
-	PermShare   = "share"
-)
-
-// ACLRule represents a fine-grained access control rule.
-type ACLRule struct {
-	ID          string   `json:"id"`
-	Path        string   `json:"path"`         // file/folder path
-	Subject     string   `json:"subject"`      // user or group name
-	SubjectType string   `json:"subject_type"` // "user" or "group"
-	Permissions []string `json:"permissions"`  // read, write, execute, delete, share, admin
-	Recursive   bool     `json:"recursive"`    // apply to sub-paths
-	Priority    int      `json:"priority"`     // higher = evaluated first
-	Enabled     bool     `json:"enabled"`
+// ACLSystem is the main entry point for the ACL system
+type ACLSystem struct {
+	Manager  *Manager
+	Handlers *Handlers
 }
 
-// Manager manages ACL rules.
-type Manager struct {
-	mu    sync.RWMutex
-	rules map[string]*ACLRule // id -> rule
-}
-
-// NewManager creates a new ACL manager.
-func NewManager() *Manager {
-	return &Manager{
-		rules: make(map[string]*ACLRule),
+// NewACLSystem creates a new ACL system
+func NewACLSystem() *ACLSystem {
+	manager := NewManager()
+	handlers := NewHandlers(manager)
+	
+	log.Println("企业级ACL权限系统已初始化")
+	
+	return &ACLSystem{
+		Manager:  manager,
+		Handlers: handlers,
 	}
 }
 
-// AddRule adds an ACL rule.
-func (m *Manager) AddRule(rule ACLRule) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	rule.Enabled = true
-	m.rules[rule.ID] = &rule
-	log.Printf("ACL规则已添加: %s -> %s (%s)", rule.Subject, rule.Path, rule.Permissions)
+// Init initializes the ACL system with default configurations
+func (s *ACLSystem) Init() {
+	log.Println("ACL系统正在初始化...")
+	
+	// Create default ACL for root path
+	s.Manager.CreateACL(CreateACLRequest{
+		Path:               "/",
+		EntryType:          EntryDirectory,
+		Owner:              "admin",
+		Group:              "administrators",
+		InheritEnabled:     true,
+		InheritPermissions: true,
+	})
+	
+	log.Println("ACL系统初始化完成")
 }
 
-// RemoveRule removes an ACL rule.
-func (m *Manager) RemoveRule(id string) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	delete(m.rules, id)
+// CheckAccess is a convenience method to check access
+func (s *ACLSystem) CheckAccess(subject, path string, permission Permission) bool {
+	result := s.Manager.CheckAccess(CheckAccessRequest{
+		Subject:    subject,
+		Path:       path,
+		Permission: permission,
+	})
+	return result.Allowed
 }
 
-// UpdateRule updates an existing ACL rule.
-func (m *Manager) UpdateRule(rule ACLRule) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	if _, ok := m.rules[rule.ID]; !ok {
-		return fmt.Errorf("rule not found: %s", rule.ID)
+// GrantPermissions grants permissions to a subject on a path
+func (s *ACLSystem) GrantPermissions(subject string, subjectType SubjectType, path string, permissions []Permission) error {
+	_, err := s.Manager.AddACE(path, AddACERequest{
+		Subject:     subject,
+		SubjectType: subjectType,
+		Permissions: permissions,
+		Allowed:     true,
+	})
+	return err
+}
+
+// DenyPermissions denies permissions to a subject on a path
+func (s *ACLSystem) DenyPermissions(subject string, subjectType SubjectType, path string, permissions []Permission) error {
+	_, err := s.Manager.AddACE(path, AddACERequest{
+		Subject:     subject,
+		SubjectType: subjectType,
+		Permissions: permissions,
+		Allowed:     false,
+	})
+	return err
+}
+
+// RevokePermissions revokes permissions from a subject on a path
+func (s *ACLSystem) RevokePermissions(subject, path string) error {
+	acl, err := s.Manager.GetACL(path)
+	if err != nil {
+		return err
 	}
-	m.rules[rule.ID] = &rule
+	
+	for _, ace := range acl.ACES {
+		if ace.Subject == subject {
+			if err := s.Manager.RemoveACE(path, ace.ID); err != nil {
+				return err
+			}
+		}
+	}
+	
 	return nil
 }
 
-// ListRules returns all ACL rules.
-func (m *Manager) ListRules() []ACLRule {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	result := make([]ACLRule, 0, len(m.rules))
-	for _, r := range m.rules {
-		result = append(result, *r)
-	}
-	return result
+// SetOwner sets the owner of a path
+func (s *ACLSystem) SetOwner(path, owner string) error {
+	return s.Manager.SetOwner(path, owner)
 }
 
-// CheckAccess checks if a subject has a specific permission on a path.
-func (m *Manager) CheckAccess(subject, path, permission string) bool {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	// Collect matching rules
-	type scored struct {
-		rule  *ACLRule
-		score int
-	}
-	var matches []scored
-
-	for _, rule := range m.rules {
-		if !rule.Enabled {
-			continue
-		}
-		if rule.Subject != subject {
-			continue
-		}
-		// Path matching
-		if rule.Recursive {
-			if len(path) >= len(rule.Path) && path[:len(rule.Path)] == rule.Path {
-				matches = append(matches, scored{rule, rule.Priority + len(rule.Path)})
-			}
-		} else if path == rule.Path {
-			matches = append(matches, scored{rule, rule.Priority + len(rule.Path)})
-		}
-	}
-
-	if len(matches) == 0 {
-		return false // default deny
-	}
-
-	// Highest priority wins
-	best := matches[0]
-	for _, m := range matches[1:] {
-		if m.score > best.score {
-			best = m
-		}
-	}
-
-	// Check permission
-	for _, p := range best.rule.Permissions {
-		if p == permission || p == PermAdmin {
-			return true
-		}
-	}
-	return false
+// SetGroup sets the group of a path
+func (s *ACLSystem) SetGroup(path, group string) error {
+	return s.Manager.SetGroup(path, group)
 }
 
-// GetEffectivePermissions returns all effective permissions for a subject on a path.
-func (m *Manager) GetEffectivePermissions(subject, path string) []string {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+// EnableInheritance enables inheritance for a path
+func (s *ACLSystem) EnableInheritance(path string) error {
+	inheritEnabled := true
+	_, err := s.Manager.UpdateACL(path, UpdateACLRequest{
+		InheritEnabled: &inheritEnabled,
+	})
+	return err
+}
 
-	permSet := make(map[string]bool)
-	for _, rule := range m.rules {
-		if !rule.Enabled || rule.Subject != subject {
-			continue
-		}
-		match := false
-		if rule.Recursive && len(path) >= len(rule.Path) && path[:len(rule.Path)] == rule.Path {
-			match = true
-		} else if path == rule.Path {
-			match = true
-		}
-		if match {
-			for _, p := range rule.Permissions {
-				permSet[p] = true
-			}
-		}
-	}
+// DisableInheritance disables inheritance for a path
+func (s *ACLSystem) DisableInheritance(path string) error {
+	inheritEnabled := false
+	_, err := s.Manager.UpdateACL(path, UpdateACLRequest{
+		InheritEnabled: &inheritEnabled,
+	})
+	return err
+}
 
-	result := make([]string, 0, len(permSet))
-	for p := range permSet {
-		result = append(result, p)
+// PropagateInheritance propagates inheritance from a parent to children
+func (s *ACLSystem) PropagateInheritance(parentPath string) error {
+	return s.Manager.PropagateInheritance(parentPath)
+}
+
+// GetAuditLog returns the audit log
+func (s *ACLSystem) GetAuditLog(limit int) []AuditEntry {
+	return s.Manager.GetAuditLog(limit)
+}
+
+// GetPermissionGroups returns predefined permission groups
+func (s *ACLSystem) GetPermissionGroups() []PermissionGroup {
+	return GetPermissionGroups()
+}
+
+// GetAllPermissions returns all available permissions
+func (s *ACLSystem) GetAllPermissions() []Permission {
+	return []Permission{
+		PermRead, PermWrite, PermDelete, PermExecute,
+		PermCreate, PermRename, PermMove, PermCopy,
+		PermViewAttr, PermModifyAttr, PermChangePerm,
+		PermTakeOwner, PermTraverse,
 	}
-	return result
+}
+
+// Sync is a helper for concurrent access
+type Sync struct {
+	mu sync.RWMutex
+}
+
+// NewSync creates a new Sync helper
+func NewSync() *Sync {
+	return &Sync{}
+}
+
+// Lock acquires a write lock
+func (s *Sync) Lock() {
+	s.mu.Lock()
+}
+
+// Unlock releases a write lock
+func (s *Sync) Unlock() {
+	s.mu.Unlock()
+}
+
+// RLock acquires a read lock
+func (s *Sync) RLock() {
+	s.mu.RLock()
+}
+
+// RUnlock releases a read lock
+func (s *Sync) RUnlock() {
+	s.mu.RUnlock()
 }
