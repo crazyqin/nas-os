@@ -2461,6 +2461,303 @@ info:
   title: NAS-OS API
 version: 2.253.80
 paths:
+  /acl:
+    get:
+      summary: List all ACLs
+      tags:
+      - acl
+      responses:
+        200:
+          description: Success
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              data:
+                type: array
+                items:
+                  $ref: "#/definitions/acl.ACL"
+              total:
+                type: integer
+    post:
+      summary: Create a new ACL
+      tags:
+      - acl
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/acl.CreateACLRequest"
+      responses:
+        201:
+          description: ACL created
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              data:
+                $ref: "#/definitions/acl.ACL"
+              message:
+                type: string
+        409:
+          description: ACL already exists
+  /acl/path/{path}:
+    get:
+      summary: Get ACL by path
+      tags:
+      - acl
+      parameters:
+      - in: path
+        name: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              data:
+                $ref: "#/definitions/acl.ACL"
+        404:
+          description: ACL not found
+    put:
+      summary: Update ACL
+      tags:
+      - acl
+      parameters:
+      - in: path
+        name: path
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/acl.UpdateACLRequest"
+      responses:
+        200:
+          description: ACL updated
+        404:
+          description: ACL not found
+    delete:
+      summary: Delete ACL
+      tags:
+      - acl
+      parameters:
+      - in: path
+        name: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: ACL deleted
+        404:
+          description: ACL not found
+  /acl/ace:
+    post:
+      summary: Add ACE to ACL
+      tags:
+      - acl
+      parameters:
+      - in: query
+        name: path
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/acl.AddACERequest"
+      responses:
+        201:
+          description: ACE added
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              data:
+                $ref: "#/definitions/acl.ACE"
+              message:
+                type: string
+        400:
+          description: Invalid request
+    put:
+      summary: Update ACE
+      tags:
+      - acl
+      parameters:
+      - in: query
+        name: path
+        required: true
+        type: string
+      - in: query
+        name: aceId
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/acl.UpdateACERequest"
+      responses:
+        200:
+          description: ACE updated
+        404:
+          description: ACE not found
+    delete:
+      summary: Remove ACE
+      tags:
+      - acl
+      parameters:
+      - in: query
+        name: path
+        required: true
+        type: string
+      - in: query
+        name: aceId
+        required: true
+        type: string
+      responses:
+        200:
+          description: ACE removed
+        404:
+          description: ACE not found
+  /acl/check:
+    post:
+      summary: Check access permission
+      tags:
+      - acl
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/acl.CheckAccessRequest"
+      responses:
+        200:
+          description: Access check result
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              data:
+                $ref: "#/definitions/acl.CheckAccessResponse"
+  /acl/effective:
+    get:
+      summary: Get effective permissions
+      tags:
+      - acl
+      parameters:
+      - in: query
+        name: subject
+        required: true
+        type: string
+      - in: query
+        name: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: Effective permissions
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              data:
+                $ref: "#/definitions/acl.EffectivePermissionsResponse"
+  /acl/propagate:
+    post:
+      summary: Propagate inheritance
+      tags:
+      - acl
+      parameters:
+      - in: query
+        name: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: Inheritance propagated
+  /acl/owner:
+    put:
+      summary: Set ACL owner
+      tags:
+      - acl
+      parameters:
+      - in: query
+        name: path
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            owner:
+              type: string
+      responses:
+        200:
+          description: Owner set
+  /acl/group:
+    put:
+      summary: Set ACL group
+      tags:
+      - acl
+      parameters:
+      - in: query
+        name: path
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            group:
+              type: string
+      responses:
+        200:
+          description: Group set
+  /acl/groups:
+    get:
+      summary: Get permission groups
+      tags:
+      - acl
+      responses:
+        200:
+          description: Permission groups
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              data:
+                type: array
+                items:
+                  $ref: "#/definitions/acl.PermissionGroup"
+  /acl/audit:
+    get:
+      summary: Get audit log
+      tags:
+      - acl
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      responses:
+        200:
+          description: Audit log entries
   /api/v1/alerts:
     get:
       description: 获取当前活动的告警列表
@@ -7480,3 +7777,236 @@ tags:
   name: perf
 - description: 系统信息 API - 系统状态、健康检查
   name: system
+
+# ACL System Definitions
+acl.Permission:
+  type: string
+  enum:
+  - read
+  - write
+  - delete
+  - execute
+  - create
+  - rename
+  - move
+  - copy
+  - view_attr
+  - modify_attr
+  - change_perm
+  - take_owner
+  - traverse
+
+acl.SubjectType:
+  type: string
+  enum:
+  - user
+  - group
+
+acl.AccessType:
+  type: string
+  enum:
+  - explicit
+  - inherited
+  - default
+
+acl.InheritanceType:
+  type: string
+  enum:
+  - full
+  - selective
+  - none
+  - container
+  - object
+
+acl.EntryType:
+  type: string
+  enum:
+  - file
+  - directory
+  - symlink
+
+acl.ACE:
+  type: object
+  properties:
+    id:
+      type: string
+    subject:
+      type: string
+    subject_type:
+      $ref: '#/definitions/acl.SubjectType'
+    permissions:
+      type: array
+      items:
+        $ref: '#/definitions/acl.Permission'
+    access_type:
+      $ref: '#/definitions/acl.AccessType'
+    allowed:
+      type: boolean
+    applies_to:
+      $ref: '#/definitions/acl.EntryType'
+    inherit_flags:
+      type: array
+      items:
+        $ref: '#/definitions/acl.InheritanceType'
+    effective_from:
+      type: string
+
+acl.ACL:
+  type: object
+  properties:
+    path:
+      type: string
+    entry_type:
+      $ref: '#/definitions/acl.EntryType'
+    owner:
+      type: string
+    group:
+      type: string
+    aces:
+      type: array
+      items:
+        $ref: '#/definitions/acl.ACE'
+    inherit_enabled:
+      type: boolean
+    inherit_permissions:
+      type: boolean
+    protected:
+      type: boolean
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+
+acl.CreateACLRequest:
+  type: object
+  required:
+  - path
+  - entry_type
+  - owner
+  properties:
+    path:
+      type: string
+    entry_type:
+      $ref: '#/definitions/acl.EntryType'
+    owner:
+      type: string
+    group:
+      type: string
+    inherit_enabled:
+      type: boolean
+    inherit_permissions:
+      type: boolean
+
+acl.UpdateACLRequest:
+  type: object
+  properties:
+    owner:
+      type: string
+    group:
+      type: string
+    inherit_enabled:
+      type: boolean
+    inherit_permissions:
+      type: boolean
+    protected:
+      type: boolean
+
+acl.AddACERequest:
+  type: object
+  required:
+  - subject
+  - subject_type
+  - permissions
+  properties:
+    subject:
+      type: string
+    subject_type:
+      $ref: '#/definitions/acl.SubjectType'
+    permissions:
+      type: array
+      items:
+        $ref: '#/definitions/acl.Permission'
+    allowed:
+      type: boolean
+    applies_to:
+      $ref: '#/definitions/acl.EntryType'
+    inherit_flags:
+      type: array
+      items:
+        $ref: '#/definitions/acl.InheritanceType'
+
+acl.UpdateACERequest:
+  type: object
+  properties:
+    permissions:
+      type: array
+      items:
+        $ref: '#/definitions/acl.Permission'
+    allowed:
+      type: boolean
+    applies_to:
+      $ref: '#/definitions/acl.EntryType'
+    inherit_flags:
+      type: array
+      items:
+        $ref: '#/definitions/acl.InheritanceType'
+
+acl.CheckAccessRequest:
+  type: object
+  required:
+  - subject
+  - path
+  - permission
+  properties:
+    subject:
+      type: string
+    path:
+      type: string
+    permission:
+      $ref: '#/definitions/acl.Permission'
+
+acl.CheckAccessResponse:
+  type: object
+  properties:
+    allowed:
+      type: boolean
+    subject:
+      type: string
+    path:
+      type: string
+    permission:
+      $ref: '#/definitions/acl.Permission'
+    reason:
+      type: string
+    source:
+      $ref: '#/definitions/acl.AccessType'
+    source_path:
+      type: string
+
+acl.EffectivePermissionsResponse:
+  type: object
+  properties:
+    subject:
+      type: string
+    path:
+      type: string
+    permissions:
+      type: array
+      items:
+        $ref: '#/definitions/acl.Permission'
+    access_entries:
+      type: array
+      items:
+        $ref: '#/definitions/acl.ACE'
+
+acl.PermissionGroup:
+  type: object
+  properties:
+    name:
+      type: string
+    permissions:
+      type: array
+      items:
+        $ref: '#/definitions/acl.Permission'
