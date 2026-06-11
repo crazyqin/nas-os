@@ -833,7 +833,10 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 监控中心模块就绪")
 
 	// 初始化统一搜索（对标群晖 Universal Search 增强）
-	unifiedSearchMgr := unifiedsearch.NewManager(unifiedsearch.DefaultSearchConfig())
+	unifiedSearchMgr, err := unifiedsearch.NewManager(unifiedsearch.DefaultSearchConfig(), logger)
+	if err != nil {
+		log.Printf("⚠️ 统一搜索初始化警告: %v", err)
+	}
 	log.Println("✅ 统一搜索模块就绪")
 
 	// v2.513.0 新增模块初始化
