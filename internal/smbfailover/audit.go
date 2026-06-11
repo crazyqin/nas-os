@@ -194,16 +194,20 @@ func (al *AuditLogger) Start() error {
 // Stop stops the audit logger
 func (al *AuditLogger) Stop() {
 	al.mu.Lock()
-	defer al.mu.Unlock()
-
 	if !al.running {
+		al.mu.Unlock()
 		return
 	}
-
 	close(al.stopCh)
+	al.mu.Unlock()
+
+	// Flush outside lock to avoid deadlock
 	al.flush()
+
+	al.mu.Lock()
 	al.fileWriter.Close()
 	al.running = false
+	al.mu.Unlock()
 
 	al.logger.Info("audit logger stopped")
 }

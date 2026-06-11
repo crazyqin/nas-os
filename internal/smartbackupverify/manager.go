@@ -219,10 +219,16 @@ func (m *Manager) verifyChecksum(backup *BackupInfo) CheckItem {
 			Duration: time.Since(start).Seconds(),
 		}
 	}
+	checksumDisplay := backup.Checksum
+	if len(checksumDisplay) > 8 {
+		checksumDisplay = checksumDisplay[:8] + "..."
+	} else {
+		checksumDisplay = checksumDisplay + "..."
+	}
 	return CheckItem{
 		Name:     "校验和验证",
 		Status:   VerifyStatusPassed,
-		Detail:   fmt.Sprintf("校验和匹配: %s", backup.Checksum[:8]+"..."),
+		Detail:   fmt.Sprintf("校验和匹配: %s", checksumDisplay),
 		Duration: time.Since(start).Seconds(),
 	}
 }
