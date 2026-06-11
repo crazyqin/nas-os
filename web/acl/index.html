@@ -808,7 +808,7 @@
 
         async function loadACL(path) {
             try {
-                const response = await fetch(`${API_BASE}${path}`);
+                const response = await fetch(`${API_BASE}/path${path}`);
                 const data = await response.json();
                 
                 if (data.code === 0) {
@@ -908,7 +908,7 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE}${currentPath}/aces`, {
+                const response = await fetch(`${API_BASE}/ace?path=${currentPath}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -937,7 +937,7 @@
             if (!confirm('确定要删除此ACE吗？')) return;
 
             try {
-                const response = await fetch(`${API_BASE}${currentPath}/aces/${aceId}`, {
+                const response = await fetch(`${API_BASE}/ace?path=${currentPath}&aceId=${aceId}`, {
                     method: 'DELETE'
                 });
 
@@ -966,7 +966,7 @@
             const protected_ = document.getElementById('editProtected').checked;
 
             try {
-                const response = await fetch(`${API_BASE}${currentPath}`, {
+                const response = await fetch(`${API_BASE}/path${currentPath}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -995,7 +995,7 @@
             if (!confirm('确定要将当前ACL的权限传播到所有子路径吗？')) return;
 
             try {
-                const response = await fetch(`${API_BASE}${currentPath}/propagate`, {
+                const response = await fetch(`${API_BASE}/propagate?path=${currentPath}`, {
                     method: 'POST'
                 });
 
