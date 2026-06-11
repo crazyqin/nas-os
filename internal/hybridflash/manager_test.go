@@ -2,6 +2,7 @@
 package hybridflash
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -692,5 +693,615 @@ func TestConcurrentAccess(t *testing.T) {
 	pools := manager.ListPools()
 	if len(pools) != 1 {
 		t.Errorf("期望 1 个池，实际 %d", len(pools))
+	}
+}
+
+// ========== ML Tiering Engine 测试 ==========
+
+func TestNewMLTieringEngine(t *testing.T) {
+	engine := NewMLTieringEngine(nil)
+
+	if engine == nil {
+		t.Fatal("NewMLTieringEngine 返回 nil")
+	}
+
+	if !engine.config.Enabled {
+		t.Error("期望 Enabled=true")
+	}
+
+	if engine.model == nil {
+		t.Error("model 未初始化")
+	}
+
+	if engine.featureStore == nil {
+		t.Error("featureStore 未初始化")
+	}
+}
+
+func TestMLTieringEnginePredict(t *testing.T) {
+	engine := NewMLTieringEngine(DefaultMLTieringConfig())
+
+	// 更新特征
+	now := time.Now()
+	for i := 0; i < 50; i++ {
+		engine.UpdateFeatures("block-1", now.Add(-time.Duration(i)*time.Minute), 4096, AccessPatternRandom, true)
+	}
+
+	// 预测
+	result := engine.Predict("block-1")
+
+	if result == nil {
+		t.Fatal("Predict 返回 nil")
+	}
+
+	if result.BlockID != "block-1" {
+		t.Errorf("期望 BlockID=block-1, 实际 %s", result.BlockID)
+	}
+
+	if result.HotProbability < 0 || result.HotProbability > 1 {
+		t.Errorf("HotProbability 应在 0-1 之间, 实际 %f", result.HotProbability)
+	}
+
+	if result.Confidence < 0 || result.Confidence > 1 {
+		t.Errorf("Confidence 应在 0-1 之间, 实际 %f", result.Confidence)
+	}
+}
+
+func TestMLTieringEngineNoData(t *testing.T) {
+	engine := NewMLTieringEngine(DefaultMLTieringConfig())
+
+	// 无数据预测
+	result := engine.Predict("non-existent")
+
+	if result.HotProbability != 0.0 {
+		t.Errorf("无数据时 HotProbability 应为 0, 实际 %f", result.HotProbability)
+	}
+
+	if result.Confidence != 0.0 {
+		t.Errorf("无数据时 Confidence 应为 0, 实际 %f", result.Confidence)
+	}
+}
+
+func TestMLTieringEngineTrain(t *testing.T) {
+	engine := NewMLTieringEngine(DefaultMLTieringConfig())
+
+	// 生成训练样本
+	samples := make([]*TrainingSample, 200)
+	for i := 0; i < 200; i++ {
+		label := 0.0
+		if i%2 == 0 {
+			label = 1.0
+		}
+		samples[i] = &TrainingSample{
+			Features: []float64{
+				float64(i) / 200.0,
+				float64(i) / 100.0,
+				0.5,
+				1.0,
+				float64(i) / 50.0,
+			},
+			Label:     label,
+			Timestamp: time.Now(),
+			BlockID:   fmt.Sprintf("block-%d", i),
+		}
+	}
+
+	// 训练
+	err := engine.Train(samples)
+	if err != nil {
+		t.Fatalf("训练失败: %v", err)
+	}
+
+	// 检查模型更新
+	model := engine.GetModel()
+	if model.Version == 0 {
+		t.Error("模型版本应大于 0")
+	}
+
+	if model.TrainedAt.IsZero() {
+		t.Error("TrainedAt 不应为零值")
+	}
+}
+
+func TestMLTieringEngineCollectSample(t *testing.T) {
+	engine := NewMLTieringEngine(DefaultMLTieringConfig())
+
+	// 先更新特征
+	now := time.Now()
+	for i := 0; i < 20; i++ {
+		engine.UpdateFeatures("block-1", now.Add(-time.Duration(i)*time.Minute), 4096, AccessPatternRandom, true)
+	}
+
+	// 收集训练样本
+	engine.CollectTrainingSample("block-1", true)
+
+	if engine.GetTrainingDataSize() != 1 {
+		t.Errorf("期望训练数据大小=1, 实际 %d", engine.GetTrainingDataSize())
+	}
+}
+
+func TestMLTieringEngineStats(t *testing.T) {
+	engine := NewMLTieringEngine(DefaultMLTieringConfig())
+
+	stats := engine.GetStats()
+
+	if stats == nil {
+		t.Fatal("GetStats 返回 nil")
+	}
+
+	if enabled, ok := stats["enabled"]; !ok || !enabled.(bool) {
+		t.Error("期望 enabled=true")
+	}
+}
+
+// ========== Smart Data Placer 测试 ==========
+
+func TestNewSmartDataPlacer(t *testing.T) {
+	logger := zap.NewNop()
+	mlEngine := NewMLTieringEngine(DefaultMLTieringConfig())
+	placer := NewSmartDataPlacer(logger, mlEngine, nil)
+
+	if placer == nil {
+		t.Fatal("NewSmartDataPlacer 返回 nil")
+	}
+
+	if !placer.config.Enabled {
+		t.Error("期望 Enabled=true")
+	}
+}
+
+func TestSmartDataPlacerAnalyze(t *testing.T) {
+	logger := zap.NewNop()
+	mlEngine := NewMLTieringEngine(DefaultMLTieringConfig())
+	placer := NewSmartDataPlacer(logger, mlEngine, DefaultPlacerConfig())
+
+	// 创建测试块
+	blocks := []*BlockAccessRecord{
+		{
+			BlockID:     "block-1",
+			PoolID:      "pool-1",
+			CurrentTier: FlashTypeHDD,
+			HeatLevel:   HeatLevelHot,
+			AccessCount: 100,
+			Size:        4096,
+		},
+		{
+			BlockID:     "block-2",
+			PoolID:      "pool-1",
+			CurrentTier: FlashTypeNVMe,
+			HeatLevel:   HeatLevelCold,
+			AccessCount: 1,
+			Size:        1024 * 1024,
+		},
+	}
+
+	// 更新 ML 特征
+	now := time.Now()
+	for i := 0; i < 50; i++ {
+		mlEngine.UpdateFeatures("block-1", now.Add(-time.Duration(i)*time.Minute), 4096, AccessPatternRandom, true)
+	}
+
+	decisions := placer.AnalyzeAndPlace("pool-1", blocks)
+
+	if decisions == nil {
+		t.Fatal("AnalyzeAndPlace 返回 nil")
+	}
+
+	t.Logf("生成了 %d 个放置决策", len(decisions))
+}
+
+func TestSmartDataPlacerStats(t *testing.T) {
+	logger := zap.NewNop()
+	mlEngine := NewMLTieringEngine(DefaultMLTieringConfig())
+	placer := NewSmartDataPlacer(logger, mlEngine, DefaultPlacerConfig())
+
+	stats := placer.GetStats()
+
+	if stats == nil {
+		t.Fatal("GetStats 返回 nil")
+	}
+
+	if stats.TotalPlacements != 0 {
+		t.Errorf("期望 TotalPlacements=0, 实际 %d", stats.TotalPlacements)
+	}
+}
+
+func TestSmartDataPlacerActivePlacements(t *testing.T) {
+	logger := zap.NewNop()
+	mlEngine := NewMLTieringEngine(DefaultMLTieringConfig())
+	placer := NewSmartDataPlacer(logger, mlEngine, DefaultPlacerConfig())
+
+	placements := placer.GetActivePlacements()
+
+	if len(placements) != 0 {
+		t.Errorf("期望 0 个活跃放置, 实际 %d", len(placements))
+	}
+}
+
+// ========== SLOG Manager 测试 ==========
+
+func TestNewSLOGManager(t *testing.T) {
+	logger := zap.NewNop()
+	manager := NewSLOGManager(logger, nil)
+
+	if manager == nil {
+		t.Fatal("NewSLOGManager 返回 nil")
+	}
+
+	if !manager.config.Enabled {
+		t.Error("期望 Enabled=true")
+	}
+}
+
+func TestSLOGManagerRegisterDevice(t *testing.T) {
+	logger := zap.NewNop()
+	manager := NewSLOGManager(logger, DefaultSLOGConfig())
+
+	device := &SLOGDevice{
+		ID:       "slog-1",
+		Name:     "NVMe SLOG",
+		Path:     "/dev/nvme0n1",
+		Type:     FlashTypeNVMe,
+		Capacity: 100 * 1024 * 1024 * 1024, // 100GB
+		Role:     FlashRoleSLOG,
+		Health:   100.0,
+	}
+
+	err := manager.RegisterDevice(device)
+	if err != nil {
+		t.Fatalf("注册设备失败: %v", err)
+	}
+
+	devices := manager.GetDevices()
+	if len(devices) != 1 {
+		t.Errorf("期望 1 个设备, 实际 %d", len(devices))
+	}
+
+	// 重复注册应该失败
+	err = manager.RegisterDevice(device)
+	if err == nil {
+		t.Error("重复注册应该返回错误")
+	}
+}
+
+func TestSLOGManagerUnregisterDevice(t *testing.T) {
+	logger := zap.NewNop()
+	manager := NewSLOGManager(logger, DefaultSLOGConfig())
+
+	device := &SLOGDevice{
+		ID:       "slog-1",
+		Name:     "NVMe SLOG",
+		Path:     "/dev/nvme0n1",
+		Type:     FlashTypeNVMe,
+		Capacity: 100 * 1024 * 1024 * 1024,
+		Role:     FlashRoleSLOG,
+		Health:   100.0,
+	}
+
+	manager.RegisterDevice(device)
+
+	err := manager.UnregisterDevice("slog-1")
+	if err != nil {
+		t.Fatalf("注销设备失败: %v", err)
+	}
+
+	devices := manager.GetDevices()
+	if len(devices) != 0 {
+		t.Errorf("期望 0 个设备, 实际 %d", len(devices))
+	}
+
+	// 注销不存在的设备应该失败
+	err = manager.UnregisterDevice("non-existent")
+	if err == nil {
+		t.Error("注销不存在的设备应该返回错误")
+	}
+}
+
+func TestSLOGManagerWrite(t *testing.T) {
+	logger := zap.NewNop()
+	manager := NewSLOGManager(logger, DefaultSLOGConfig())
+
+	device := &SLOGDevice{
+		ID:       "slog-1",
+		Name:     "NVMe SLOG",
+		Path:     "/dev/nvme0n1",
+		Type:     FlashTypeNVMe,
+		Capacity: 100 * 1024 * 1024 * 1024,
+		Role:     FlashRoleSLOG,
+		Health:   100.0,
+	}
+
+	manager.RegisterDevice(device)
+
+	write, err := manager.Write("pool-1", 0, 4096, []byte("test data"), "standard")
+	if err != nil {
+		t.Fatalf("写入失败: %v", err)
+	}
+
+	if write == nil {
+		t.Fatal("Write 返回 nil")
+	}
+
+	if write.PoolID != "pool-1" {
+		t.Errorf("期望 PoolID=pool-1, 实际 %s", write.PoolID)
+	}
+
+	stats := manager.GetStats()
+	if stats.TotalWrites != 1 {
+		t.Errorf("期望 TotalWrites=1, 实际 %d", stats.TotalWrites)
+	}
+}
+
+func TestSLOGManagerHealth(t *testing.T) {
+	logger := zap.NewNop()
+	manager := NewSLOGManager(logger, DefaultSLOGConfig())
+
+	device := &SLOGDevice{
+		ID:       "slog-1",
+		Name:     "NVMe SLOG",
+		Path:     "/dev/nvme0n1",
+		Type:     FlashTypeNVMe,
+		Capacity: 100 * 1024 * 1024 * 1024,
+		Role:     FlashRoleSLOG,
+		Health:   100.0,
+	}
+
+	manager.RegisterDevice(device)
+
+	health := manager.CheckHealth()
+
+	if health == nil {
+		t.Fatal("CheckHealth 返回 nil")
+	}
+
+	if status, ok := health["status"]; !ok || status != "healthy" {
+		t.Errorf("期望 status=healthy, 实际 %v", health["status"])
+	}
+}
+
+// ========== Metadata Optimizer 测试 ==========
+
+func TestNewMetadataOptimizer(t *testing.T) {
+	logger := zap.NewNop()
+	optimizer := NewMetadataOptimizer(logger, nil)
+
+	if optimizer == nil {
+		t.Fatal("NewMetadataOptimizer 返回 nil")
+	}
+
+	if !optimizer.config.Enabled {
+		t.Error("期望 Enabled=true")
+	}
+}
+
+func TestMetadataOptimizerShouldUseFlash(t *testing.T) {
+	logger := zap.NewNop()
+	config := DefaultMetadataConfig()
+	optimizer := NewMetadataOptimizer(logger, config)
+
+	// 小文件应该使用 flash
+	if !optimizer.ShouldUseFlash("/test/small.dat", 1024, false) {
+		t.Error("小文件应该使用 flash")
+	}
+
+	// 大文件不应该使用 flash
+	if optimizer.ShouldUseFlash("/test/large.dat", 10*1024*1024, false) {
+		t.Error("大文件不应该使用 flash")
+	}
+
+	// 元数据应该使用 flash
+	if !optimizer.ShouldUseFlash("/test/metadata", 1024, true) {
+		t.Error("元数据应该使用 flash")
+	}
+}
+
+func TestMetadataOptimizerRecordAccess(t *testing.T) {
+	logger := zap.NewNop()
+	optimizer := NewMetadataOptimizer(logger, DefaultMetadataConfig())
+
+	optimizer.RecordAccess("/test/file1.dat", 1024, false)
+	optimizer.RecordAccess("/test/file2.dat", 2048, true)
+
+	stats := optimizer.GetStats()
+
+	if stats.TotalEntries != 2 {
+		t.Errorf("期望 TotalEntries=2, 实际 %d", stats.TotalEntries)
+	}
+
+	if stats.SmallFileCount != 2 {
+		t.Errorf("期望 SmallFileCount=2, 实际 %d", stats.SmallFileCount)
+	}
+
+	if stats.MetadataFileCount != 1 {
+		t.Errorf("期望 MetadataFileCount=1, 实际 %d", stats.MetadataFileCount)
+	}
+}
+
+func TestMetadataOptimizerRecommendation(t *testing.T) {
+	logger := zap.NewNop()
+	optimizer := NewMetadataOptimizer(logger, DefaultMetadataConfig())
+
+	// 小文件推荐 NVMe
+	tier := optimizer.GetRecommendation("/test/small.dat", 1024, false)
+	if tier != FlashTypeNVMe {
+		t.Errorf("期望 NVMe, 实际 %s", tier)
+	}
+
+	// 大文件推荐 HDD
+	tier = optimizer.GetRecommendation("/test/large.dat", 10*1024*1024, false)
+	if tier != FlashTypeHDD {
+		t.Errorf("期望 HDD, 实际 %s", tier)
+	}
+}
+
+// ========== Cost Analyzer 测试 ==========
+
+func TestNewCostAnalyzer(t *testing.T) {
+	logger := zap.NewNop()
+	analyzer := NewCostAnalyzer(logger, nil)
+
+	if analyzer == nil {
+		t.Fatal("NewCostAnalyzer 返回 nil")
+	}
+
+	if !analyzer.config.Enabled {
+		t.Error("期望 Enabled=true")
+	}
+}
+
+func TestCostAnalyzerAnalyzeSchemes(t *testing.T) {
+	logger := zap.NewNop()
+	analyzer := NewCostAnalyzer(logger, DefaultCostConfig())
+
+	results := analyzer.AnalyzeTieringSchemes(100.0, 0.2)
+
+	if results == nil {
+		t.Fatal("AnalyzeTieringSchemes 返回 nil")
+	}
+
+	if len(results) != 5 {
+		t.Errorf("期望 5 个方案, 实际 %d", len(results))
+	}
+
+	// 验证每个方案都有成本
+	for _, r := range results {
+		if r.TotalCost <= 0 {
+			t.Errorf("方案 %s 的总成本应大于 0", r.Scenario)
+		}
+		if r.Performance == nil {
+			t.Errorf("方案 %s 的性能估算不应为 nil", r.Scenario)
+		}
+	}
+
+	// 检查是否有推荐方案
+	foundRecommended := false
+	for _, r := range results {
+		for _, rec := range r.Recommendations {
+			if rec == "★ 推荐方案: 性价比最高" {
+				foundRecommended = true
+			}
+		}
+	}
+
+	if !foundRecommended {
+		t.Error("应有推荐方案")
+	}
+}
+
+func TestCostAnalyzerEstimateSavings(t *testing.T) {
+	logger := zap.NewNop()
+	analyzer := NewCostAnalyzer(logger, DefaultCostConfig())
+
+	current := &CostAnalysisResult{
+		Scenario:   "全 HDD",
+		TotalCost:  1000.0,
+		Performance: &PerformanceEst{AvgLatency: 5.0},
+	}
+
+	optimal := &CostAnalysisResult{
+		Scenario:   "NVMe + HDD 混合",
+		TotalCost:  600.0,
+		Performance: &PerformanceEst{AvgLatency: 1.0},
+	}
+
+	savings := analyzer.EstimateCostSavings(current, optimal)
+
+	if savings == nil {
+		t.Fatal("EstimateCostSavings 返回 nil")
+	}
+
+	if savings["savings"] != 400.0 {
+		t.Errorf("期望节省 400, 实际 %v", savings["savings"])
+	}
+
+	if savings["savingsPercent"] != 40.0 {
+		t.Errorf("期望节省 40%%, 实际 %v%%", savings["savingsPercent"])
+	}
+}
+
+// ========== 集成测试 ==========
+
+func TestIntegrationMLTieringWithPlacer(t *testing.T) {
+	logger := zap.NewNop()
+	mlEngine := NewMLTieringEngine(DefaultMLTieringConfig())
+	placer := NewSmartDataPlacer(logger, mlEngine, DefaultPlacerConfig())
+
+	// 模拟数据访问
+	now := time.Now()
+	for i := 0; i < 100; i++ {
+		mlEngine.UpdateFeatures("hot-block", now.Add(-time.Duration(i)*time.Minute), 4096, AccessPatternRandom, true)
+	}
+
+	// 预测
+	prediction := mlEngine.Predict("hot-block")
+	if prediction == nil {
+		t.Fatal("预测失败")
+	}
+
+	t.Logf("热数据概率: %.2f, 置信度: %.2f", prediction.HotProbability, prediction.Confidence)
+
+	// 生成放置决策
+	blocks := []*BlockAccessRecord{
+		{
+			BlockID:     "hot-block",
+			CurrentTier: FlashTypeHDD,
+			HeatLevel:   HeatLevelHot,
+			AccessCount: 100,
+			Size:        4096,
+		},
+	}
+
+	decisions := placer.AnalyzeAndPlace("pool-1", blocks)
+	t.Logf("生成了 %d 个放置决策", len(decisions))
+}
+
+func TestIntegrationSLOGWithMetadata(t *testing.T) {
+	logger := zap.NewNop()
+
+	slogManager := NewSLOGManager(logger, DefaultSLOGConfig())
+	metadataOptimizer := NewMetadataOptimizer(logger, DefaultMetadataConfig())
+
+	// 注册 SLOG 设备
+	device := &SLOGDevice{
+		ID:       "slog-1",
+		Name:     "NVMe SLOG",
+		Path:     "/dev/nvme0n1",
+		Type:     FlashTypeNVMe,
+		Capacity: 100 * 1024 * 1024 * 1024,
+		Role:     FlashRoleSLOG,
+		Health:   100.0,
+	}
+
+	slogManager.RegisterDevice(device)
+
+	// 写入 SLOG
+	_, err := slogManager.Write("pool-1", 0, 4096, []byte("test"), "standard")
+	if err != nil {
+		t.Fatalf("SLOG 写入失败: %v", err)
+	}
+
+	// 记录元数据访问
+	metadataOptimizer.RecordAccess("/test/metadata", 512, true)
+
+	// 检查推荐
+	tier := metadataOptimizer.GetRecommendation("/test/metadata", 512, true)
+	if tier != FlashTypeNVMe {
+		t.Errorf("元数据应推荐 NVMe, 实际 %s", tier)
+	}
+}
+
+func TestIntegrationCostAnalysis(t *testing.T) {
+	logger := zap.NewNop()
+	analyzer := NewCostAnalyzer(logger, DefaultCostConfig())
+
+	// 分析不同容量下的方案
+	capacities := []float64{10, 50, 100, 500}
+	for _, cap := range capacities {
+		results := analyzer.AnalyzeTieringSchemes(cap, 0.2)
+		if len(results) == 0 {
+			t.Errorf("容量 %.0f TB 无分析结果", cap)
+		}
+
+		t.Logf("容量 %.0f TB: 最优方案成本 $%.2f", cap, results[0].TotalCost)
 	}
 }
