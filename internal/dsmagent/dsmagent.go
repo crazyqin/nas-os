@@ -122,6 +122,13 @@ type Agent struct {
 	isRunning   bool
 	taskQueue   chan *Task
 	resultChan  chan *TaskResult
+
+	// 新增模块：DSM Agent 增强功能
+	workflowEngine *WorkflowEngine    // 工作流引擎
+	toolRegistry   *ToolRegistry      // 工具注册中心
+	guardrails     *Guardrails        // 安全护栏
+	wizard         *GuidedWizard      // 引导式向导
+	diagnostic     *DiagnosticAgent   // 智能诊断代理
 }
 
 // Workflow defines an automated workflow
@@ -147,15 +154,39 @@ type WorkflowStep struct {
 func NewAgent(config AgentConfig) *Agent {
 	ctx, cancel := context.WithCancel(context.Background())
 	
+	// 初始化安全护栏
+	guardConfig := GuardrailsConfig{
+		MaxCPUUsage:      95.0,
+		MaxMemoryUsage:   95.0,
+		MaxDiskUsage:     95.0,
+		RequireApproval:  true,
+		RateLimitWindow:  1 * time.Minute,
+		MaxOpsPerWindow:  100,
+		AuditEnabled:     true,
+		MaxAuditEntries:  10000,
+	}
+	guardrails := NewGuardrails(guardConfig)
+	
+	// 初始化工具注册中心
+	toolRegistry := NewToolRegistry()
+	
+	// 初始化工作流引擎
+	workflowEngine := NewWorkflowEngine(toolRegistry, guardrails)
+	
 	agent := &Agent{
-		config:     config,
-		health:     &SystemHealth{},
-		tasks:      make(map[string]*Task),
-		workflows:  make(map[WorkflowType]*Workflow),
-		ctx:        ctx,
-		cancel:     cancel,
-		taskQueue:  make(chan *Task, 100),
-		resultChan: make(chan *TaskResult, 100),
+		config:         config,
+		health:         &SystemHealth{},
+		tasks:          make(map[string]*Task),
+		workflows:      make(map[WorkflowType]*Workflow),
+		ctx:            ctx,
+		cancel:         cancel,
+		taskQueue:      make(chan *Task, 100),
+		resultChan:     make(chan *TaskResult, 100),
+		workflowEngine: workflowEngine,
+		toolRegistry:   toolRegistry,
+		guardrails:     guardrails,
+		wizard:         NewGuidedWizard(),
+		diagnostic:     NewDiagnosticAgent(),
 	}
 	
 	// Register default workflows
@@ -557,5 +588,46 @@ func (a *Agent) GetAgentStatus() map[string]interface{} {
 		"running":     a.isRunning,
 		"task_count":  len(a.tasks),
 		"health":      a.health,
+		"modules": map[string]interface{}{
+			"workflow_engine": map[string]interface{}{
+				"templates": len(a.workflowEngine.templates),
+				"instances": len(a.workflowEngine.instances),
+			},
+			"tool_registry": a.toolRegistry.GetStats(),
+			"guardrails":    a.guardrails.GetConfig(),
+		},
 	}
+}
+
+// GetWorkflowEngine 获取工作流引擎
+func (a *Agent) GetWorkflowEngine() *WorkflowEngine {
+	return a.workflowEngine
+}
+
+// GetToolRegistry 获取工具注册中心
+func (a *Agent) GetToolRegistry() *ToolRegistry {
+	return a.toolRegistry
+}
+
+// GetGuardrails 获取安全护栏
+func (a *Agent) GetGuardrails() *Guardrails {
+	return a.guardrails
+}
+
+// GetWizard 获取引导式向导
+func (a *Agent) GetWizard() *GuidedWizard {
+	return a.wizard
+}
+
+// GetDiagnostic 获取智能诊断代理
+func (a *Agent) GetDiagnostic() *DiagnosticAgent {
+	return a.diagnostic
+}
+
+// RunDiagnostic 执行系统诊断
+func (a *Agent) RunDiagnostic() *DiagnosticSummary {
+	a.mu.RLock()
+	health := a.health
+	a.mu.RUnlock()
+	return a.diagnostic.RunDiagnosis(health)
 }
