@@ -1,3 +1,4 @@
+// Package unifiedsearch 提供标准 http.Handler 接口
 package unifiedsearch
 
 import (
@@ -21,19 +22,33 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/search/index", h.handleIndex)
 	mux.HandleFunc("/api/v1/search/stats", h.handleStats)
 	mux.HandleFunc("/api/v1/search/rebuild", h.handleRebuild)
+	mux.HandleFunc("/api/v1/search/suggestions", h.handleSuggestions)
 }
 
 // handleSearch handles search requests
 func (h *Handler) handleSearch(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodGet && r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var req SearchQuery
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
+
+	if r.Method == http.MethodGet {
+		// GET /api/v1/search?q=keyword
+		q := r.URL.Query().Get("q")
+		if q == "" {
+			http.Error(w, "query parameter 'q' is required", http.StatusBadRequest)
+			return
+		}
+		req = DefaultSearchQuery()
+		req.Query = q
+	} else {
+		// POST with JSON body
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
 	}
 
 	if req.PageSize == 0 {
@@ -103,4 +118,25 @@ func (h *Handler) handleRebuild(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.NewEncoder(w).Encode(map[string]string{"status": "rebuilt"})
+}
+
+// handleSuggestions returns search suggestions
+func (h *Handler) handleSuggestions(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	q := r.URL.Query().Get("q")
+	if q == "" {
+		http.Error(w, "query parameter 'q' is required", http.StatusBadRequest)
+		return
+	}
+
+	suggestions := h.manager.GetSuggestions(q, 10)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"suggestions": suggestions,
+	})
 }

@@ -1,5 +1,5 @@
 // Package unifiedsearch 提供统一全文搜索功能，支持文件名、文件内容、EXIF、标签、元数据的全文索引与搜索。
-// 参考群晖 Universal Search 实现，支持多类型搜索、模糊搜索、布尔查询、过滤器、高亮摘要等。
+// 对标 TrueNAS TrueSearch，实现亚秒级全文搜索，支持 bleve 倒排索引引擎。
 package unifiedsearch
 
 import (
@@ -25,6 +25,8 @@ const (
 	ContentTypeDocument ContentType = "document"
 	ContentTypeVideo    ContentType = "video"
 	ContentTypeMusic    ContentType = "music"
+	ContentTypeEmail    ContentType = "email"
+	ContentTypeNote     ContentType = "note"
 )
 
 // BooleanOp 布尔操作符
@@ -86,6 +88,7 @@ type SearchIndex struct {
 	CreatedAt   time.Time         `json:"created_at"`
 	ModifiedAt  time.Time         `json:"modified_at"`
 	IndexedAt   time.Time         `json:"indexed_at"`
+	Owner       string            `json:"owner,omitempty"` // 文件所有者
 }
 
 // SearchResult 搜索结果
@@ -123,6 +126,7 @@ type SearchQuery struct {
 	Highlight  bool          `json:"highlight,omitempty"`   // 是否高亮
 	Fuzzy      bool          `json:"fuzzy,omitempty"`       // 模糊搜索
 	FuzzyLevel int           `json:"fuzzy_level,omitempty"` // 模糊级别 1-2
+	UseRegex   bool          `json:"use_regex,omitempty"`   // 正则表达式
 }
 
 // SearchResponse 搜索响应
@@ -242,7 +246,7 @@ func DefaultIndexStats() *IndexStats {
 // IsValidContentType 检查内容类型是否有效
 func IsValidContentType(ct ContentType) bool {
 	switch ct {
-	case ContentTypeFile, ContentTypePhoto, ContentTypeDocument, ContentTypeVideo, ContentTypeMusic:
+	case ContentTypeFile, ContentTypePhoto, ContentTypeDocument, ContentTypeVideo, ContentTypeMusic, ContentTypeEmail, ContentTypeNote:
 		return true
 	default:
 		return false
