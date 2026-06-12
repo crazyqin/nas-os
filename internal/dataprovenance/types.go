@@ -93,6 +93,10 @@ type FileLineage struct {
 	FileID string `json:"file_id"`
 	// FilePath 文件路径.
 	FilePath string `json:"file_path"`
+	// DataType 数据类型.
+	DataType string `json:"data_type,omitempty"`
+	// DataClassification 数据分类标签.
+	DataClassification []ComplianceTag `json:"data_classification,omitempty"`
 	// Ancestors 祖先文件列表（从近到远）.
 	Ancestors []LineageNode `json:"ancestors"`
 	// Descendants 后代文件列表.
