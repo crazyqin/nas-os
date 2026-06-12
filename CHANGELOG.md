@@ -1,3 +1,34 @@
+## v2.594.0 (2026-06-13) - 竞品功能对标: 本地AI推理/NFS over RDMA/JSON-RPC 2.0/存储成本优化/STIG合规/API密钥管理
+
+### 新增功能
+- **本地AI推理引擎 (localai)** - 完全离线的AI模型推理，支持LLM/视觉/嵌入/音频多模态，多后端支持(CPU/CUDA/ROCm/Metal/Vulkan/OpenVINO)，模型生命周期管理，GPU资源监控，推理统计（对标飞牛fnOS AI本地端模型、群晖AI Console）
+- **NFS over RDMA 高性能存储 (nfsoverrdma)** - RDMA远程存储访问，支持RoCE/InfiniBand/iWARP，NFS导出管理，客户端连接监控，性能指标采集，连接测试工具（对标TrueNAS 25.04 NFS over RDMA企业功能）
+- **JSON-RPC 2.0 API框架 (jsonrpc)** - 标准JSON-RPC 2.0协议，批量请求支持，API密钥认证，频率限制，版本管理，方法注册（对标TrueNAS 25.04 JSON-RPC 2.0 API）
+- **智能存储成本优化 (smartstoragecostopt)** - 多层级存储成本分析，成本预测，优化建议生成，ROI计算，存储层级对比，成本趋势分析（对标群晖存储成本管理）
+- **STIG合规自动化报告 (stigreport)** - STIG规则管理，自动化合规检查，合规报告生成，定时扫描调度，风险等级评估，合规率统计（对标TrueNAS STIG Compliance）
+- **API密钥生命周期管理 (apikeylifecycle)** - 用户关联密钥，自动轮换策略，权限管理，IP白名单，审计日志，过期管理（对标TrueNAS 25.04 User-linked API Keys）
+
+### 竞品分析
+- 飞牛 fnOS: AI本地端模型融合、智能影视、AI相册、企业级ACL
+- 群晖 DSM 7.3: Synology Tiering智能分层、AI功能、存储效率、硬盘兼容性
+- TrueNAS 25.04: NFS over RDMA、LXC容器、JSON-RPC 2.0 API、ZFS Fast Dedup、STIG Compliance
+
+### 测试
+- 本地AI推理引擎: 12个测试用例（引擎创建/模型注册/加载/卸载/推理/嵌入/列表/资源/统计/历史/GPU设备）
+- NFS over RDMA: 10个测试用例（管理器/配置/导出CRUD/客户端/连接测试/性能指标）
+- JSON-RPC 2.0: 服务器/方法注册/API密钥管理/请求处理
+- 存储成本优化: 存储池管理/成本分析/预测/优化建议/ROI
+- STIG合规: 规则管理/检查/报告/调度/统计
+- API密钥管理: 密钥CRUD/轮换/权限/审计
+
+### CI修复
+- **dataprovenance: engine.go未提交修复** - 补充提交engine.go和types.go，修复CI构建错误
+
+### 版本号
+- v2.593.0 → v2.594.0
+
+---
+
 ## v2.593.0 (2026-06-12) - CI修复 + AI意图引擎 + 智能QoS + 合规保留策略
 
 ### CI修复
