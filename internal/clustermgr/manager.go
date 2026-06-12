@@ -1,334 +1,331 @@
-// Package clustermgr 提供分布式集群管理功能
+// Package clustermgr 提供集群管理与负载均衡能力
+// 对标群晖 Cluster Manager，支持多节点管理、负载均衡、故障转移
 package clustermgr
 
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 )
 
-// Manager 集群管理器.
+// Manager 集群管理器
 type Manager struct {
 	mu        sync.RWMutex
-	cluster   *Cluster
-	discovery *ServiceDiscovery
-	balancer  LoadBalancer
-	stats     ClusterConfig
-	cancel    context.CancelFunc
-	startTime time.Time
-
-	// 节点管理
-	nodes    map[string]*Node
-	leaderID string
-
-	// 配置
-	config ClusterConfig
-
-	// 回调函数
-	onNodeJoin     func(node *Node)
-	onNodeLeave    func(node *Node)
-	onNodeFail     func(node *Node)
-	onLeaderChange func(leaderID string)
+	config    *Config
+	nodes     map[string]*Node
+	scheduler *Scheduler
+	monitor   *Monitor
+	logger    Logger
 }
 
-// NewManager 创建集群管理器.
-func NewManager(config ClusterConfig) *Manager {
+// Config 配置
+type Config struct {
+	HeartbeatInterval    time.Duration // 心跳间隔
+	FailoverTimeout      time.Duration // 故障转移超时
+	MaxNodes             int           // 最大节点数
+	EnableAutoFailover   bool          // 启用自动故障转移
+	LoadBalanceAlgorithm string        // 负载均衡算法
+}
+
+// Node 节点信息
+type Node struct {
+	ID           string
+	Name         string
+	Address      string
+	Status       NodeStatus
+	Role         NodeRole
+	CPU          float64
+	Memory       float64
+	Disk         float64
+	Network      float64
+	Services     []string
+	LastHeartbeat time.Time
+	JoinedAt     time.Time
+}
+
+// NodeStatus 节点状态
+type NodeStatus string
+
+const (
+	NodeStatusOnline  NodeStatus = "online"
+	NodeStatusOffline NodeStatus = "offline"
+	NodeStatusDegraded NodeStatus = "degraded"
+	NodeStatusMaintenance NodeStatus = "maintenance"
+)
+
+// NodeRole 节点角色
+type NodeRole string
+
+const (
+	NodeRoleMaster  NodeRole = "master"
+	NodeRoleWorker  NodeRole = "worker"
+	NodeRoleStorage NodeRole = "storage"
+)
+
+// Scheduler 调度器
+type Scheduler struct {
+	mu        sync.RWMutex
+	algorithm string
+	rules     []ScheduleRule
+}
+
+// ScheduleRule 调度规则
+type ScheduleRule struct {
+	Name      string
+	Priority  int
+	Condition func(*Node, *Task) bool
+	Action    func(*Node, *Task) error
+}
+
+// Task 任务
+type Task struct {
+	ID        string
+	Type      string
+	Priority  int
+	Resources ResourceRequest
+	Status    TaskStatus
+	NodeID    string
+	CreatedAt time.Time
+}
+
+// ResourceRequest 资源请求
+type ResourceRequest struct {
+	CPU    float64
+	Memory int64
+	Disk   int64
+}
+
+// TaskStatus 任务状态
+type TaskStatus string
+
+const (
+	TaskStatusPending   TaskStatus = "pending"
+	TaskStatusRunning   TaskStatus = "running"
+	TaskStatusCompleted TaskStatus = "completed"
+	TaskStatusFailed    TaskStatus = "failed"
+)
+
+// Monitor 监控器
+type Monitor struct {
+	mu       sync.RWMutex
+	alerts   []Alert
+	metrics  map[string]*Metric
+}
+
+// Alert 告警
+type Alert struct {
+	ID        string
+	NodeID    string
+	Type      AlertType
+	Message   string
+	Severity  AlertSeverity
+	CreatedAt time.Time
+	Resolved  bool
+}
+
+// AlertType 告警类型
+type AlertType string
+
+const (
+	AlertTypeCPU     AlertType = "cpu"
+	AlertTypeMemory  AlertType = "memory"
+	AlertTypeDisk    AlertType = "disk"
+	AlertTypeNetwork AlertType = "network"
+	AlertTypeNodeDown AlertType = "node_down"
+)
+
+// AlertSeverity 告警级别
+type AlertSeverity string
+
+const (
+	AlertSeverityInfo     AlertSeverity = "info"
+	AlertSeverityWarning  AlertSeverity = "warning"
+	AlertSeverityCritical AlertSeverity = "critical"
+)
+
+// Metric 指标
+type Metric struct {
+	Name      string
+	Value     float64
+	Timestamp time.Time
+	Labels    map[string]string
+}
+
+// ClusterStatus 集群状态
+type ClusterStatus struct {
+	TotalNodes    int
+	OnlineNodes   int
+	OfflineNodes  int
+	TotalCPU      float64
+	TotalMemory   float64
+	TotalDisk     float64
+	ActiveTasks   int
+	PendingTasks  int
+	Alerts        []Alert
+}
+
+// Logger 日志接口
+type Logger interface {
+	Info(msg string, args ...interface{})
+	Error(msg string, args ...interface{})
+	Warn(msg string, args ...interface{})
+	Debug(msg string, args ...interface{})
+}
+
+// NewManager 创建新的集群管理器
+func NewManager(config *Config, logger Logger) *Manager {
 	return &Manager{
-		cluster: &Cluster{
-			ID:        generateClusterID(),
-			Name:      "nas-os-cluster",
-			Status:    ClusterStatusUnknown,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-			Nodes:     make(map[string]*Node),
+		config: config,
+		nodes:  make(map[string]*Node),
+		scheduler: &Scheduler{
+			algorithm: config.LoadBalanceAlgorithm,
+			rules:     []ScheduleRule{},
 		},
-		discovery: &ServiceDiscovery{
-			Services: make(map[string]*ServiceInfo),
+		monitor: &Monitor{
+			alerts:  []Alert{},
+			metrics: make(map[string]*Metric),
 		},
-		nodes:     make(map[string]*Node),
-		config:    config,
-		startTime: time.Now(),
+		logger: logger,
 	}
 }
 
-// Start 启动集群管理器.
+// Start 启动集群管理器
 func (m *Manager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	// 创建可取消的上下文
-	ctx, m.cancel = context.WithCancel(ctx)
+	// 启动心跳监控
+	go m.heartbeatMonitor(ctx)
 
-	// 初始化负载均衡器
-	m.balancer = NewLoadBalancer(m.config.LoadBalanceStrategy)
-
-	// 启动心跳检测
-	go m.heartbeatChecker(ctx)
-
-	// 启动服务发现清理
-	go m.serviceCleanup(ctx)
+	// 启动负载监控
+	go m.loadMonitor(ctx)
 
 	// 启动故障检测
 	go m.failureDetector(ctx)
 
-	// 启动统计更新
-	go m.statsUpdater(ctx)
-
-	log.Printf("[集群管理器] 启动成功，集群ID: %s", m.cluster.ID)
+	m.logger.Info("集群管理器已启动")
 	return nil
 }
 
-// Stop 停止集群管理器.
-func (m *Manager) Stop() {
+// AddNode 添加节点
+func (m *Manager) AddNode(node *Node) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	if m.cancel != nil {
-		m.cancel()
-		m.cancel = nil
-	}
-
-	log.Printf("[集群管理器] 已停止")
-}
-
-// GetCluster 获取集群信息.
-func (m *Manager) GetCluster() *Cluster {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	return m.cluster
-}
-
-// GetConfig 获取配置.
-func (m *Manager) GetConfig() ClusterConfig {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	return m.config
-}
-
-// UpdateConfig 更新配置.
-func (m *Manager) UpdateConfig(config ClusterConfig) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	// 验证配置
-	if config.HeartbeatInterval <= 0 {
-		return fmt.Errorf("心跳间隔必须大于0")
-	}
-	if config.HeartbeatTimeout <= 0 {
-		return fmt.Errorf("心跳超时必须大于0")
-	}
-	if config.MaxNodes <= 0 {
-		return fmt.Errorf("最大节点数必须大于0")
-	}
-
-	m.config = config
-	m.cluster.Config = config
-	log.Printf("[集群管理器] 配置已更新")
-	return nil
-}
-
-// Join 节点加入集群.
-func (m *Manager) Join(req *JoinRequest) (*JoinResponse, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	// 检查节点数限制
 	if len(m.nodes) >= m.config.MaxNodes {
-		return nil, fmt.Errorf("集群节点数已达上限: %d", m.config.MaxNodes)
+		return fmt.Errorf("已达到最大节点数: %d", m.config.MaxNodes)
 	}
 
-	// 检查节点是否已存在
-	if _, exists := m.nodes[req.NodeID]; exists {
-		return nil, fmt.Errorf("节点已存在: %s", req.NodeID)
+	if _, exists := m.nodes[node.ID]; exists {
+		return fmt.Errorf("节点已存在: %s", node.ID)
 	}
 
-	// 创建节点
-	node := &Node{
-		ID:            req.NodeID,
-		Name:          req.Name,
-		Address:       req.Address,
-		Role:          RoleFollower,
-		Status:        NodeStatusActive,
-		Weight:        req.Weight,
-		Zone:          req.Zone,
-		Tags:          req.Tags,
-		MaxConns:      req.MaxConns,
-		Metadata:      req.Metadata,
-		LastHeartbeat: time.Now(),
-		JoinTime:      time.Now(),
-	}
+	node.Status = NodeStatusOnline
+	node.JoinedAt = time.Now()
+	node.LastHeartbeat = time.Now()
+	m.nodes[node.ID] = node
 
-	// 添加到集群
-	m.nodes[req.NodeID] = node
-	m.cluster.AddNode(node)
-
-	// 如果是第一个节点，设为领导者
-	if len(m.nodes) == 1 {
-		node.Role = RoleLeader
-		m.leaderID = req.NodeID
-		m.cluster.LeaderID = req.NodeID
-	}
-
-	// 更新负载均衡器
-	m.balancer.UpdateNodes(m.getActiveNodes())
-
-	// 调用回调
-	if m.onNodeJoin != nil {
-		go m.onNodeJoin(node)
-	}
-
-	log.Printf("[集群管理器] 节点加入: %s (%s)", req.NodeID, req.Address)
-
-	// 构建响应
-	response := &JoinResponse{
-		Success:   true,
-		ClusterID: m.cluster.ID,
-		LeaderID:  m.leaderID,
-		Nodes:     m.getAllNodes(),
-		Config:    m.config,
-		Message:   "节点加入成功",
-	}
-
-	return response, nil
+	m.logger.Info("节点已添加: %s (%s)", node.Name, node.Address)
+	return nil
 }
 
-// Leave 节点离开集群.
-func (m *Manager) Leave(req *LeaveRequest) (*LeaveResponse, error) {
+// RemoveNode 移除节点
+func (m *Manager) RemoveNode(nodeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	node, exists := m.nodes[req.NodeID]
+	node, exists := m.nodes[nodeID]
 	if !exists {
-		return nil, fmt.Errorf("节点不存在: %s", req.NodeID)
+		return fmt.Errorf("节点不存在: %s", nodeID)
 	}
 
-	// 更新节点状态
-	node.Status = NodeStatusLeaving
-	node.LeaveTime = time.Now()
+	// 迁移服务
+	m.migrateServices(node)
 
-	// 从集群移除
-	delete(m.nodes, req.NodeID)
-	m.cluster.RemoveNode(req.NodeID)
-
-	// 如果离开的是领导者，需要选举新领导者
-	if req.NodeID == m.leaderID {
-		m.electLeader()
-	}
-
-	// 更新负载均衡器
-	m.balancer.UpdateNodes(m.getActiveNodes())
-
-	// 调用回调
-	if m.onNodeLeave != nil {
-		go m.onNodeLeave(node)
-	}
-
-	log.Printf("[集群管理器] 节点离开: %s (原因: %s)", req.NodeID, req.Reason)
-
-	return &LeaveResponse{
-		Success: true,
-		Message: "节点离开成功",
-	}, nil
+	delete(m.nodes, nodeID)
+	m.logger.Info("节点已移除: %s", node.Name)
+	return nil
 }
 
-// Heartbeat 处理心跳.
-func (m *Manager) Heartbeat(req *HeartbeatRequest) (*HeartbeatResponse, error) {
+// GetClusterStatus 获取集群状态
+func (m *Manager) GetClusterStatus() *ClusterStatus {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	status := &ClusterStatus{
+		TotalNodes: len(m.nodes),
+	}
+
+	for _, node := range m.nodes {
+		switch node.Status {
+		case NodeStatusOnline:
+			status.OnlineNodes++
+		case NodeStatusOffline:
+			status.OfflineNodes++
+		}
+
+		status.TotalCPU += node.CPU
+		status.TotalMemory += node.Memory
+		status.TotalDisk += node.Disk
+	}
+
+	status.Alerts = m.monitor.alerts
+	return status
+}
+
+// ScheduleTask 调度任务
+func (m *Manager) ScheduleTask(task *Task) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	node, exists := m.nodes[req.NodeID]
-	if !exists {
-		return nil, fmt.Errorf("节点不存在: %s", req.NodeID)
+	// 选择最佳节点
+	node := m.selectBestNode(task)
+	if node == nil {
+		return fmt.Errorf("没有可用节点")
 	}
 
-	// 更新节点状态
-	node.UpdateHeartbeat()
-	node.UpdateMetrics(req.CPUUsage, req.MemoryUsage, req.DiskUsage, req.LoadAvg)
-	node.Connections = req.Connections
+	task.NodeID = node.ID
+	task.Status = TaskStatusRunning
 
-	return &HeartbeatResponse{
-		Success:  true,
-		LeaderID: m.leaderID,
-		Version:  m.cluster.Version,
-		Message:  "心跳成功",
-	}, nil
+	m.logger.Info("任务已调度: %s -> %s", task.ID, node.Name)
+	return nil
 }
 
-// GetNode 获取节点信息.
-func (m *Manager) GetNode(id string) (*Node, bool) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	node, ok := m.nodes[id]
-	return node, ok
-}
+// selectBestNode 选择最佳节点
+func (m *Manager) selectBestNode(task *Task) *Node {
+	var bestNode *Node
+	var bestScore float64
 
-// ListNodes 列出所有节点.
-func (m *Manager) ListNodes() []*Node {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	nodes := make([]*Node, 0, len(m.nodes))
 	for _, node := range m.nodes {
-		nodes = append(nodes, node)
-	}
-	return nodes
-}
-
-// GetActiveNodes 获取活跃节点.
-func (m *Manager) GetActiveNodes() []*Node {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	return m.getActiveNodes()
-}
-
-// getActiveNodes 获取活跃节点（内部方法，需要锁）.
-func (m *Manager) getActiveNodes() []*Node {
-	var nodes []*Node
-	for _, node := range m.nodes {
-		if node.Status == NodeStatusActive {
-			nodes = append(nodes, node)
+		if node.Status != NodeStatusOnline {
+			continue
 		}
-	}
-	return nodes
-}
 
-// getAllNodes 获取所有节点（内部方法，需要锁）.
-func (m *Manager) getAllNodes() []*Node {
-	nodes := make([]*Node, 0, len(m.nodes))
-	for _, node := range m.nodes {
-		nodes = append(nodes, node)
-	}
-	return nodes
-}
-
-// electLeader 选举新领导者（内部方法，需要锁）.
-func (m *Manager) electLeader() {
-	// 简单选举：选择第一个活跃节点
-	for _, node := range m.nodes {
-		if node.Status == NodeStatusActive {
-			node.Role = RoleLeader
-			m.leaderID = node.ID
-			m.cluster.LeaderID = node.ID
-
-			// 调用回调
-			if m.onLeaderChange != nil {
-				go m.onLeaderChange(node.ID)
-			}
-
-			log.Printf("[集群管理器] 新领导者选举: %s", node.ID)
-			return
+		// 计算节点得分
+		score := m.calculateNodeScore(node, task)
+		if bestNode == nil || score > bestScore {
+			bestNode = node
+			bestScore = score
 		}
 	}
 
-	// 没有活跃节点
-	m.leaderID = ""
-	m.cluster.LeaderID = ""
-	log.Printf("[集群管理器] 无可用领导者")
+	return bestNode
 }
 
-// heartbeatChecker 心跳检测器.
-func (m *Manager) heartbeatChecker(ctx context.Context) {
+// calculateNodeScore 计算节点得分
+func (m *Manager) calculateNodeScore(node *Node, task *Task) float64 {
+	// 基于负载的得分
+	cpuScore := 100 - node.CPU
+	memoryScore := 100 - node.Memory
+	diskScore := 100 - node.Disk
+
+	// 加权平均
+	return (cpuScore*0.4 + memoryScore*0.3 + diskScore*0.3)
+}
+
+// heartbeatMonitor 心跳监控
+func (m *Manager) heartbeatMonitor(ctx context.Context) {
 	ticker := time.NewTicker(m.config.HeartbeatInterval)
 	defer ticker.Stop()
 
@@ -342,26 +339,66 @@ func (m *Manager) heartbeatChecker(ctx context.Context) {
 	}
 }
 
-// checkHeartbeats 检查所有节点心跳.
+// checkHeartbeats 检查心跳
 func (m *Manager) checkHeartbeats() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	now := time.Now()
 	for _, node := range m.nodes {
-		if node.Status == NodeStatusActive {
-			// 检查心跳是否超时
-			if now.Sub(node.LastHeartbeat) > m.config.HeartbeatTimeout {
-				node.Status = NodeStatusInactive
-				log.Printf("[集群管理器] 节点心跳超时: %s", node.ID)
+		if time.Since(node.LastHeartbeat) > m.config.HeartbeatInterval*3 {
+			if node.Status == NodeStatusOnline {
+				node.Status = NodeStatusOffline
+				m.addAlert(node.ID, AlertTypeNodeDown, fmt.Sprintf("节点 %s 离线", node.Name), AlertSeverityCritical)
+
+				if m.config.EnableAutoFailover {
+					go m.performFailover(node)
+				}
 			}
 		}
 	}
 }
 
-// failureDetector 故障检测器.
+// loadMonitor 负载监控
+func (m *Manager) loadMonitor(ctx context.Context) {
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			m.collectMetrics()
+		}
+	}
+}
+
+// collectMetrics 收集指标
+func (m *Manager) collectMetrics() {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	for _, node := range m.nodes {
+		// 检查CPU
+		if node.CPU > 90 {
+			m.addAlert(node.ID, AlertTypeCPU, fmt.Sprintf("节点 %s CPU使用率过高: %.1f%%", node.Name, node.CPU), AlertSeverityWarning)
+		}
+
+		// 检查内存
+		if node.Memory > 90 {
+			m.addAlert(node.ID, AlertTypeMemory, fmt.Sprintf("节点 %s 内存使用率过高: %.1f%%", node.Name, node.Memory), AlertSeverityWarning)
+		}
+
+		// 检查磁盘
+		if node.Disk > 90 {
+			m.addAlert(node.ID, AlertTypeDisk, fmt.Sprintf("节点 %s 磁盘使用率过高: %.1f%%", node.Name, node.Disk), AlertSeverityWarning)
+		}
+	}
+}
+
+// failureDetector 故障检测
 func (m *Manager) failureDetector(ctx context.Context) {
-	ticker := time.NewTicker(m.config.HeartbeatTimeout)
+	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
 
 	for {
@@ -374,262 +411,61 @@ func (m *Manager) failureDetector(ctx context.Context) {
 	}
 }
 
-// detectFailures 检测故障节点.
+// detectFailures 检测故障
 func (m *Manager) detectFailures() {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	for _, node := range m.nodes {
+		if node.Status == NodeStatusOffline {
+			m.logger.Warn("节点离线: %s", node.Name)
+		}
+	}
+}
+
+// performFailover 执行故障转移
+func (m *Manager) performFailover(failedNode *Node) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	now := time.Now()
-	for _, node := range m.nodes {
-		if node.Status == NodeStatusInactive {
-			// 检查是否超过故障超时
-			if now.Sub(node.LastHeartbeat) > m.config.HeartbeatTimeout*2 {
-				node.Status = NodeStatusFailed
-				log.Printf("[集群管理器] 节点故障: %s", node.ID)
+	m.logger.Info("执行故障转移: %s", failedNode.Name)
 
-				// 调用回调
-				if m.onNodeFail != nil {
-					go m.onNodeFail(node)
-				}
-
-				// 自动移除故障节点
-				if m.config.AutoRemoveFailed {
-					if now.Sub(node.LastHeartbeat) > m.config.FailedNodeTimeout {
-						delete(m.nodes, node.ID)
-						m.cluster.RemoveNode(node.ID)
-						log.Printf("[集群管理器] 自动移除故障节点: %s", node.ID)
-					}
-				}
-			}
-		}
+	// 迁移服务到其他节点
+	for _, service := range failedNode.Services {
+		m.migrateService(service, failedNode.ID)
 	}
-
-	// 如果领导者故障，重新选举
-	if m.leaderID != "" {
-		if leader, exists := m.nodes[m.leaderID]; exists {
-			if leader.Status == NodeStatusFailed {
-				m.electLeader()
-			}
-		} else {
-			m.electLeader()
-		}
-	}
-
-	// 更新负载均衡器
-	m.balancer.UpdateNodes(m.getActiveNodes())
-
-	// 更新集群状态
-	m.cluster.UpdateStatus()
 }
 
-// serviceCleanup 服务清理器.
-func (m *Manager) serviceCleanup(ctx context.Context) {
-	ticker := time.NewTicker(m.config.DiscoveryInterval)
-	defer ticker.Stop()
+// migrateServices 迁移服务
+func (m *Manager) migrateServices(fromNode *Node) {
+	for _, service := range fromNode.Services {
+		m.migrateService(service, fromNode.ID)
+	}
+}
 
-	for {
-		select {
-		case <-ctx.Done():
+// migrateService 迁移单个服务
+func (m *Manager) migrateService(service string, fromNodeID string) {
+	// 找到目标节点
+	for _, node := range m.nodes {
+		if node.ID != fromNodeID && node.Status == NodeStatusOnline {
+			node.Services = append(node.Services, service)
+			m.logger.Info("服务 %s 已从 %s 迁移到 %s", service, fromNodeID, node.ID)
 			return
-		case <-ticker.C:
-			m.cleanupExpiredServices()
 		}
 	}
+	m.logger.Error("无法迁移服务 %s: 没有可用节点", service)
 }
 
-// cleanupExpiredServices 清理过期服务.
-func (m *Manager) cleanupExpiredServices() {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	for id, service := range m.discovery.Services {
-		if service.IsExpired() {
-			delete(m.discovery.Services, id)
-			log.Printf("[集群管理器] 清理过期服务: %s", id)
-		}
+// addAlert 添加告警
+func (m *Manager) addAlert(nodeID string, alertType AlertType, message string, severity AlertSeverity) {
+	alert := Alert{
+		ID:        fmt.Sprintf("alert_%d", len(m.monitor.alerts)+1),
+		NodeID:    nodeID,
+		Type:      alertType,
+		Message:   message,
+		Severity:  severity,
+		CreatedAt: time.Now(),
 	}
-}
-
-// statsUpdater 统计更新器.
-func (m *Manager) statsUpdater(ctx context.Context) {
-	ticker := time.NewTicker(10 * time.Second)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-ticker.C:
-			m.updateStats()
-		}
-	}
-}
-
-// updateStats 更新统计信息.
-func (m *Manager) updateStats() {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	activeNodes := 0
-	failedNodes := 0
-	totalConns := 0
-
-	for _, node := range m.nodes {
-		switch node.Status {
-		case NodeStatusActive:
-			activeNodes++
-			totalConns += node.Connections
-		case NodeStatusFailed:
-			failedNodes++
-		}
-	}
-
-	// 更新集群统计
-	// 注意：这里简化处理，实际应该更新 ClusterStats
-	_ = activeNodes
-	_ = failedNodes
-	_ = totalConns
-}
-
-// RegisterService 注册服务.
-func (m *Manager) RegisterService(service *ServiceInfo) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	// 设置过期时间（默认1小时）
-	if service.ExpiresAt.IsZero() {
-		service.ExpiresAt = time.Now().Add(time.Hour)
-	}
-
-	m.discovery.RegisterService(service)
-	log.Printf("[集群管理器] 服务注册: %s (%s:%d)", service.Name, service.Address, service.Port)
-	return nil
-}
-
-// DeregisterService 注销服务.
-func (m *Manager) DeregisterService(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if m.discovery.DeregisterService(id) {
-		log.Printf("[集群管理器] 服务注销: %s", id)
-		return nil
-	}
-	return fmt.Errorf("服务不存在: %s", id)
-}
-
-// GetService 获取服务.
-func (m *Manager) GetService(id string) (*ServiceInfo, bool) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	return m.discovery.GetService(id)
-}
-
-// ListServices 列出所有服务.
-func (m *Manager) ListServices() []*ServiceInfo {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	services := make([]*ServiceInfo, 0, len(m.discovery.Services))
-	for _, service := range m.discovery.Services {
-		services = append(services, service)
-	}
-	return services
-}
-
-// GetHealthyServices 获取健康的服务.
-func (m *Manager) GetHealthyServices() []*ServiceInfo {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	return m.discovery.GetHealthyServices()
-}
-
-// GetServicesByName 按名称获取服务.
-func (m *Manager) GetServicesByName(name string) []*ServiceInfo {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	return m.discovery.GetServicesByName(name)
-}
-
-// SelectNode 选择节点（负载均衡）.
-func (m *Manager) SelectNode(strategy LoadBalanceStrategy, key string) (*Node, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	if m.balancer == nil {
-		return nil, fmt.Errorf("负载均衡器未初始化")
-	}
-
-	nodes := m.getActiveNodes()
-	if len(nodes) == 0 {
-		return nil, fmt.Errorf("无可用节点")
-	}
-
-	return m.balancer.Select(nodes, key)
-}
-
-// GetStats 获取集群统计.
-func (m *Manager) GetStats() map[string]interface{} {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	activeNodes := 0
-	failedNodes := 0
-	totalConns := 0
-
-	for _, node := range m.nodes {
-		switch node.Status {
-		case NodeStatusActive:
-			activeNodes++
-			totalConns += node.Connections
-		case NodeStatusFailed:
-			failedNodes++
-		}
-	}
-
-	return map[string]interface{}{
-		"clusterId":     m.cluster.ID,
-		"clusterName":   m.cluster.Name,
-		"clusterStatus": m.cluster.Status,
-		"leaderId":      m.leaderID,
-		"totalNodes":    len(m.nodes),
-		"activeNodes":   activeNodes,
-		"failedNodes":   failedNodes,
-		"totalConns":    totalConns,
-		"totalServices": len(m.discovery.Services),
-		"uptime":        time.Since(m.startTime).String(),
-		"startTime":     m.startTime,
-	}
-}
-
-// SetOnNodeJoin 设置节点加入回调.
-func (m *Manager) SetOnNodeJoin(callback func(node *Node)) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.onNodeJoin = callback
-}
-
-// SetOnNodeLeave 设置节点离开回调.
-func (m *Manager) SetOnNodeLeave(callback func(node *Node)) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.onNodeLeave = callback
-}
-
-// SetOnNodeFail 设置节点故障回调.
-func (m *Manager) SetOnNodeFail(callback func(node *Node)) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.onNodeFail = callback
-}
-
-// SetOnLeaderChange 设置领导者变更回调.
-func (m *Manager) SetOnLeaderChange(callback func(leaderID string)) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.onLeaderChange = callback
-}
-
-// generateClusterID 生成集群ID.
-func generateClusterID() string {
-	return fmt.Sprintf("cluster-%d", time.Now().UnixNano())
+	m.monitor.alerts = append(m.monitor.alerts, alert)
+	m.logger.Warn("告警: %s", message)
 }
