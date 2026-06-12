@@ -157,7 +157,7 @@ func TestRBACManager_FallbackToACL(t *testing.T) {
 		Path:        "/shared",
 		Subject:     "user1",
 		SubjectType: "user",
-		Permissions: []string{PermRead, PermWrite},
+		Permissions: []string{string(PermRead), string(PermWrite)},
 		Recursive:   true,
 		Priority:    10,
 	})
@@ -165,7 +165,7 @@ func TestRBACManager_FallbackToACL(t *testing.T) {
 	rm := NewRBACManager(aclMgr)
 
 	// No RBAC assignment, but ACL rule should grant access
-	if !rm.CheckPermission("user1", "/shared/docs", PermRead) {
+	if !rm.CheckPermission("user1", "/shared/docs", string(PermRead)) {
 		t.Error("ACL fallback should grant read access")
 	}
 }
