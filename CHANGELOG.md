@@ -1,14 +1,25 @@
-## v2.591.0 (2026-06-12) - 司礼监轮值: 集群管理器 + 修复构建问题
+## v2.591.0 (2026-06-12) - 存储效率增强 + 集群管理 + ACL修复
 
 ### 新增功能
 - **集群管理器** - 多节点统一管理、自动故障转移、负载均衡（轮询/最少连接/资源感知）、任务队列调度、实时指标监控（对标群晖 Cluster Manager）
+- **ZFS 快照生命周期管理器** - 自动快照调度、多级保留策略（时/日/周/月/年）、跨节点复制、过期自动清理、钩子支持（对标 TrueNAS 26 ZFS Snapshot、群晖 Snapshot Replication）
+- **内联块级去重引擎** - 实时块级去重、SHA-256 内容寻址存储、128KB 可配置块大小、LRU 索引驱逐、重复比率统计、流式处理接口（对标 TrueNAS 26 Fast Dedup、群晖 DSM 7.4 Storage Efficiency）
+- **存储健康预测系统** - 基于 SMART 数据的磁盘故障预测、温度/扇区/通电时间/SSD 磨损多维评估、0-100 健康评分、90天故障概率计算、剩余寿命预测、自动告警生成（对标群晖 Active Insight、TrueNAS SMART 监控）
 
 ### 修复
 - **ACL模块编译错误** - 修复 AuditEntry 类型重定义、Permission 类型转换问题
 - **Permission 常量** - 新增 PermAdmin、PermShare 权限常量
 
 ### 竞品分析
-- 群晖 DSM: Cluster Manager 多机统一管理、自动故障转移
+- 群晖 DSM 7.3/7.4: Cluster Manager/Tiering/AI Console/Storage Efficiency
+- TrueNAS 26: OpenZFS 2.4 混合闪存池/Fast Dedup/WebShare/LXC
+- 飞牛 fnOS: 企业级 ACL/安全中心/ARM 虚拟机
+
+### 测试
+- 集群管理器: 多节点管理/故障转移/负载均衡测试
+- ZFS 快照管理器: 14 个测试用例（策略CRUD/快照CRUD/过期清理/启停/统计）
+- 内联去重引擎: 11 个测试用例（唯一块/重复块/去重比率/流式处理/启停/索引管理）
+- 存储健康预测: 14 个测试用例（健康磁盘/高温/重映射扇区/SSD磨损/故障概率/寿命预测/告警）
 
 ### 版本号
 - v2.590.0 → v2.591.0
