@@ -21,6 +21,8 @@ const (
 	PermChangePerm   Permission = "change_perm"   // 更改权限
 	PermTakeOwner    Permission = "take_owner"    // 获取所有权
 	PermTraverse     Permission = "traverse"      // 遍历文件夹
+	PermAdmin        Permission = "admin"         // 管理员权限
+	PermShare        Permission = "share"         // 分享权限
 )
 
 // Permission represents a single permission type
@@ -211,7 +213,7 @@ func (p Permission) Validate() error {
 		PermRead: true, PermWrite: true, PermDelete: true, PermExecute: true,
 		PermCreate: true, PermRename: true, PermMove: true, PermCopy: true,
 		PermViewAttr: true, PermModifyAttr: true, PermChangePerm: true,
-		PermTakeOwner: true, PermTraverse: true,
+		PermTakeOwner: true, PermTraverse: true, PermAdmin: true, PermShare: true,
 	}
 	if !validPerms[p] {
 		return fmt.Errorf("invalid permission: %s", p)
