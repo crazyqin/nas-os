@@ -521,17 +521,23 @@ func TestHandler_StartStop(t *testing.T) {
 	}
 
 	// Double start → 409
-	resp2, _ := http.Post(srv.URL+"/api/ransombehaviorai/start", "", nil)
-	defer resp2.Body.Close()
-	if resp2.StatusCode != http.StatusConflict {
-		t.Errorf("expected 409 on double start, got %d", resp2.StatusCode)
+	errResp2, err := http.Post(srv.URL+"/api/ransombehaviorai/start", "", nil)
+	if err != nil {
+		t.Fatalf("POST /start (double) failed: %v", err)
+	}
+	defer errResp2.Body.Close()
+	if errResp2.StatusCode != http.StatusConflict {
+		t.Errorf("expected 409 on double start, got %d", errResp2.StatusCode)
 	}
 
 	// Stop
-	resp3, _ := http.Post(srv.URL+"/api/ransombehaviorai/stop", "", nil)
-	defer resp3.Body.Close()
-	if resp3.StatusCode != http.StatusOK {
-		t.Errorf("expected 200, got %d", resp3.StatusCode)
+	stopResp, err := http.Post(srv.URL+"/api/ransombehaviorai/stop", "", nil)
+	if err != nil {
+		t.Fatalf("POST /stop failed: %v", err)
+	}
+	defer stopResp.Body.Close()
+	if stopResp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200, got %d", stopResp.StatusCode)
 	}
 }
 
@@ -616,11 +622,14 @@ func TestHandler_Report_InvalidBody(t *testing.T) {
 	_, srv := setupTestHandlers(t, m)
 	defer srv.Close()
 
-	resp, _ := http.Post(srv.URL+"/api/ransombehaviorai/report", "application/json", bytes.NewReader([]byte("invalid")))
-	defer resp.Body.Close()
+	invalidResp, err := http.Post(srv.URL+"/api/ransombehaviorai/report", "application/json", bytes.NewReader([]byte("invalid")))
+	if err != nil {
+		t.Fatalf("POST /report (invalid) failed: %v", err)
+	}
+	defer invalidResp.Body.Close()
 
-	if resp.StatusCode != http.StatusBadRequest {
-		t.Errorf("expected 400, got %d", resp.StatusCode)
+	if invalidResp.StatusCode != http.StatusBadRequest {
+		t.Errorf("expected 400, got %d", invalidResp.StatusCode)
 	}
 }
 
@@ -721,11 +730,14 @@ func TestHandler_Config_InvalidPut(t *testing.T) {
 
 	req, _ := http.NewRequest(http.MethodPut, srv.URL+"/api/ransombehaviorai/config", bytes.NewReader([]byte("bad json")))
 	req.Header.Set("Content-Type", "application/json")
-	resp, _ := http.DefaultClient.Do(req)
-	defer resp.Body.Close()
+	invalidResp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("PUT /config (invalid) failed: %v", err)
+	}
+	defer invalidResp.Body.Close()
 
-	if resp.StatusCode != http.StatusBadRequest {
-		t.Errorf("expected 400, got %d", resp.StatusCode)
+	if invalidResp.StatusCode != http.StatusBadRequest {
+		t.Errorf("expected 400, got %d", invalidResp.StatusCode)
 	}
 }
 
