@@ -96,7 +96,7 @@ func (hc *HealthChecker) checkNode(node *ContainerHANode) {
 // pingNode ping节点
 func (hc *HealthChecker) pingNode(node *ContainerHANode) error {
 	// 尝试HTTP健康检查
-	addr := fmt.Sprintf("%s:%d", node.Address, node.Port)
+	addr := net.JoinHostPort(node.Address, fmt.Sprintf("%d", node.Port))
 	healthURL := fmt.Sprintf("http://%s/health", addr)
 	client := &http.Client{
 		Timeout: hc.timeout,

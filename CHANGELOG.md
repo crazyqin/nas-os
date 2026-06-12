@@ -1,3 +1,30 @@
+## v2.593.0 (2026-06-12) - CI修复 + AI意图引擎 + 智能QoS + 合规保留策略
+
+### CI修复
+- **webdav: TestStreamTransmitter_StreamWrite 断言修复** - 修正字节数期望值 25→26（"hello world streaming test"实际26字节）
+- **containerha: IPv6地址格式修复** - 使用 `net.JoinHostPort` 替代 `fmt.Sprintf("%s:%d")`，兼容IPv6地址
+- **ransombehaviorai: go vet 修复** - 修复4处使用resp前未检查error的问题
+
+### 新增功能
+- **AI意图引擎 (aiintent)** - 自然语言驱动存储管理，支持意图解析/参数提取/执行调度，涵盖存储创建/扩容/备份/迁移/权限/性能调优/成本优化/安全加固9大意图类型
+- **智能存储QoS引擎 (smartqos)** - 动态IO资源分配，基于应用类型(数据库/Web/备份/媒体/AI/归档)自动调整IOPS/带宽/延迟限制，支持突发容忍和默认策略
+- **合规数据保留策略管理 (smartretention)** - GDPR/HIPAA/SOX/PCI/ISO27001多合规框架支持，WORM(一次写入多次读取)保护，自动过期/提醒/删除，保留期延长/审计事件追踪
+
+### 竞品分析
+- 飞牛 fnOS: AI本地端模型融合、ARM虚拟机v0.9.1增强、企业级ACL(3→13种权限)
+- 群晖 DSM: DSM Agent AI自动化、不可变存储WORM、FIPS 140-3、智能电源管理
+- TrueNAS 25.10: NVMe-oF支持、400GbE网络、ZFS性能提升、Docker应用管理
+
+### 测试
+- AI意图引擎: 15个测试用例（解析/执行/取消/统计/多意图/参数提取）
+- 智能QoS: 22个测试用例（策略CRUD/节点管理/指标上报/限流评估/突发容忍）
+- 合规保留: 18个测试用例（规则CRUD/数据注册/WORM锁定/过期评估/自动删除/保留期延长）
+
+### 版本号
+- v2.592.0 → v2.593.0
+
+---
+
 ## v2.592.0 (2026-06-12) - 竞品功能对标: Proxmox备份/AI能耗/文件时间线/容器安全/AI任务调度/FIPS合规
 
 ### 新增功能

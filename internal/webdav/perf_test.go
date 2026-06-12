@@ -327,8 +327,8 @@ func TestStreamTransmitter_StreamWrite(t *testing.T) {
 		t.Fatalf("流式写入失败: %v", err)
 	}
 
-	if n != 25 {
-		t.Errorf("期望写入 25 字节, 实际=%d", n)
+	if n != 26 {
+		t.Errorf("期望写入 26 字节, 实际=%d", n)
 	}
 	if dst.String() != "hello world streaming test" {
 		t.Errorf("内容不匹配: %s", dst.String())
