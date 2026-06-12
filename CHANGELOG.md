@@ -1,3 +1,22 @@
+## v2.590.0 (2026-06-12) - 竞品功能对标: VLAN/Helm/Compose/NFSv4 ACL
+
+### 新增功能
+- **VLAN 网络管理** - IEEE 802.1Q VLAN 创建、配置、监控，支持多父接口、MTU 配置、标签管理
+- **Helm Chart 应用商店** - 仓库管理、Chart 搜索/安装/卸载、内置 bitnami/stable 仓库
+- **Docker Compose 可视化编排** - 项目管理、服务编排、扩缩容、状态监控
+- **NFSv4 ACL 权限管理** - 细粒度权限控制、ACE 条目管理、通配符支持、权限继承
+
+### 竞品分析
+- 参考 TrueNAS SCALE VLAN 网络分段功能
+- 参考 TrueNAS SCALE Helm Chart 应用商店
+- 参考 TrueNAS SCALE Docker Compose 导入功能
+- 参考群晖 DSM NFSv4 ACL 权限管理
+
+### 版本号
+- v2.589.0 → v2.590.0
+
+---
+
 ## v2.589.0 (2026-06-12) - 六部协同: 企业级ACL权限 + 混合闪存池 + 安全风险评估 + 集群管理
 
 ### 新增功能
