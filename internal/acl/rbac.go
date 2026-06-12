@@ -50,11 +50,11 @@ type RBACManager struct {
 	roles       map[string]*Role
 	assignments []*UserRoleAssignment
 	aclMgr      *Manager
-	auditLog    []AuditEntry
+	auditLog    []RBACAuditEntry
 }
 
-// AuditEntry records permission-related actions.
-type AuditEntry struct {
+// RBACAuditEntry records permission-related actions.
+type RBACAuditEntry struct {
 	Timestamp time.Time `json:"timestamp"`
 	Action    string    `json:"action"`
 	UserID    string    `json:"user_id"`
@@ -68,7 +68,7 @@ func NewRBACManager(aclMgr *Manager) *RBACManager {
 	rm := &RBACManager{
 		roles:    make(map[string]*Role),
 		aclMgr:   aclMgr,
-		auditLog: make([]AuditEntry, 0, 100),
+		auditLog: make([]RBACAuditEntry, 0, 100),
 	}
 	rm.initBuiltinRoles()
 	return rm
@@ -80,46 +80,46 @@ func (rm *RBACManager) initBuiltinRoles() {
 		{
 			ID: "owner", Name: "所有者", Description: "完全控制权限",
 			Permissions: []string{
-				PermReadFile, PermWriteFile, PermDeleteFile, PermCreateDir,
-				PermListDir, PermShareExternal, PermManageACL, PermViewMetadata,
-				PermModifyMetadata, PermExecuteScript, PermMountRemote,
-				PermBackup, PermRestore, PermRead, PermWrite, PermExecute,
-				PermAdmin, PermDelete, PermShare,
+				string(PermReadFile), string(PermWriteFile), string(PermDeleteFile), string(PermCreateDir),
+				string(PermListDir), string(PermShareExternal), string(PermManageACL), string(PermViewMetadata),
+				string(PermModifyMetadata), string(PermExecuteScript), string(PermMountRemote),
+				string(PermBackup), string(PermRestore), string(PermRead), string(PermWrite), string(PermExecute),
+				string(PermAdmin), string(PermDelete), string(PermShare),
 			},
 			Builtin: true,
 		},
 		{
 			ID: "editor", Name: "编辑者", Description: "读写和删除文件",
 			Permissions: []string{
-				PermReadFile, PermWriteFile, PermDeleteFile, PermCreateDir,
-				PermListDir, PermViewMetadata, PermModifyMetadata, PermBackup,
-				PermRead, PermWrite,
+				string(PermReadFile), string(PermWriteFile), string(PermDeleteFile), string(PermCreateDir),
+				string(PermListDir), string(PermViewMetadata), string(PermModifyMetadata), string(PermBackup),
+				string(PermRead), string(PermWrite),
 			},
 			Builtin: true,
 		},
 		{
 			ID: "viewer", Name: "查看者", Description: "只读访问",
 			Permissions: []string{
-				PermReadFile, PermListDir, PermViewMetadata, PermRead,
+				string(PermReadFile), string(PermListDir), string(PermViewMetadata), string(PermRead),
 			},
 			Builtin: true,
 		},
 		{
 			ID: "collaborator", Name: "协作者", Description: "读写和分享",
 			Permissions: []string{
-				PermReadFile, PermWriteFile, PermCreateDir, PermListDir,
-				PermShareExternal, PermViewMetadata, PermBackup, PermRead, PermWrite, PermShare,
+				string(PermReadFile), string(PermWriteFile), string(PermCreateDir), string(PermListDir),
+				string(PermShareExternal), string(PermViewMetadata), string(PermBackup), string(PermRead), string(PermWrite), string(PermShare),
 			},
 			Builtin: true,
 		},
 		{
 			ID: "admin", Name: "管理员", Description: "系统管理权限",
 			Permissions: []string{
-				PermReadFile, PermWriteFile, PermDeleteFile, PermCreateDir,
-				PermListDir, PermShareExternal, PermManageACL, PermViewMetadata,
-				PermModifyMetadata, PermExecuteScript, PermMountRemote,
-				PermBackup, PermRestore, PermRead, PermWrite, PermExecute,
-				PermAdmin, PermDelete, PermShare,
+				string(PermReadFile), string(PermWriteFile), string(PermDeleteFile), string(PermCreateDir),
+				string(PermListDir), string(PermShareExternal), string(PermManageACL), string(PermViewMetadata),
+				string(PermModifyMetadata), string(PermExecuteScript), string(PermMountRemote),
+				string(PermBackup), string(PermRestore), string(PermRead), string(PermWrite), string(PermExecute),
+				string(PermAdmin), string(PermDelete), string(PermShare),
 			},
 			Builtin: true,
 		},
@@ -237,7 +237,7 @@ func (rm *RBACManager) CheckPermission(userID, resource, permission string) bool
 			continue
 		}
 		for _, p := range role.Permissions {
-			if p == permission || p == PermAdmin {
+			if p == permission || p == string(PermAdmin) {
 				rm.logAudit("check", userID, resource, permission, "allowed")
 				return true
 			}
@@ -245,9 +245,16 @@ func (rm *RBACManager) CheckPermission(userID, resource, permission string) bool
 	}
 
 	// Fall back to ACL rules
-	if rm.aclMgr != nil && rm.aclMgr.CheckAccess(userID, resource, permission) {
-		rm.logAudit("check", userID, resource, permission, "allowed")
-		return true
+	if rm.aclMgr != nil {
+		resp := rm.aclMgr.CheckAccess(CheckAccessRequest{
+			Subject:    userID,
+			Path:       resource,
+			Permission: Permission(permission),
+		})
+		if resp.Allowed {
+			rm.logAudit("check", userID, resource, permission, "allowed")
+			return true
+		}
 	}
 
 	rm.logAudit("check", userID, resource, permission, "denied")
@@ -281,7 +288,7 @@ func (rm *RBACManager) ListRoles() []Role {
 }
 
 // GetAuditLog returns recent audit entries.
-func (rm *RBACManager) GetAuditLog(limit int) []AuditEntry {
+func (rm *RBACManager) GetAuditLog(limit int) []RBACAuditEntry {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
 
@@ -289,13 +296,13 @@ func (rm *RBACManager) GetAuditLog(limit int) []AuditEntry {
 		limit = len(rm.auditLog)
 	}
 	start := len(rm.auditLog) - limit
-	result := make([]AuditEntry, limit)
+	result := make([]RBACAuditEntry, limit)
 	copy(result, rm.auditLog[start:])
 	return result
 }
 
 func (rm *RBACManager) logAudit(action, userID, resource, detail, result string) {
-	rm.auditLog = append(rm.auditLog, AuditEntry{
+	rm.auditLog = append(rm.auditLog, RBACAuditEntry{
 		Timestamp: time.Now(),
 		Action:    action,
 		UserID:    userID,
