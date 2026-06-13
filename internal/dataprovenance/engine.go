@@ -2,7 +2,10 @@
 package dataprovenance
 
 import (
+	"bytes"
 	"crypto/sha256"
+	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -130,6 +133,53 @@ func (e *Engine) TraceLineage(fileID string) (*FileLineage, error) {
 			lineage.FilePath = r.FilePath
 		}
 	}
+
+	// 追踪祖先：通过 ParentID 查找直接父文件
+	currentFileID := fileID
+	recordIDs, exists := e.fileIndex[currentFileID]
+	if exists {
+		var parentID string
+		for _, rid := range recordIDs {
+			if r, ok := e.records[rid]; ok && r.ParentID != "" {
+				parentID = r.ParentID
+				break
+			}
+		}
+		if parentID != "" {
+			parentRecordIDs, parentExists := e.fileIndex[parentID]
+			if parentExists && len(parentRecordIDs) > 0 {
+				if parentRecord, ok := e.records[parentRecordIDs[0]]; ok {
+					lineage.Ancestors = append(lineage.Ancestors, LineageNode{
+						FileID:    parentID,
+						FilePath:  parentRecord.FilePath,
+						Operation: parentRecord.Operation,
+						UserID:    parentRecord.UserID,
+						Timestamp: parentRecord.Timestamp,
+					})
+				}
+			}
+		}
+	}
+
+	// 追踪后代：查找所有 ParentID 为当前 fileID 的记录
+	for otherFileID, otherRecordIDs := range e.fileIndex {
+		if otherFileID == fileID {
+			continue
+		}
+		for _, rid := range otherRecordIDs {
+			if r, ok := e.records[rid]; ok && r.ParentID == fileID {
+				lineage.Descendants = append(lineage.Descendants, LineageNode{
+					FileID:    otherFileID,
+					FilePath:  r.FilePath,
+					Operation: r.Operation,
+					UserID:    r.UserID,
+					Timestamp: r.Timestamp,
+				})
+				break // 每个后代文件只记录一次
+			}
+		}
+	}
+
 	return lineage, nil
 }
 
@@ -144,7 +194,7 @@ func (e *Engine) VerifyChain(chainID string) (bool, error) {
 	defer e.mu.RUnlock()
 	chain, ok := e.chains[chainID]
 	if !ok {
-		return false, fmt.Errorf("审计链 %s 不存在", chainID)
+		return false, ErrRecordNotFound
 	}
 	for i := 1; i < len(chain.Blocks); i++ {
 		if chain.Blocks[i].PreviousHash != chain.Blocks[i-1].Hash {
@@ -202,6 +252,11 @@ func (e *Engine) GetAuditChain(chainID string) (*AuditChain, error) {
 func (e *Engine) AddComplianceTag(dataID string, tag ComplianceTag) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
+	
+	if _, ok := e.fileIndex[dataID]; !ok {
+		return ErrFileNotFound
+	}
+	
 	e.complianceTags[dataID] = append(e.complianceTags[dataID], tag)
 	return nil
 }
@@ -211,11 +266,33 @@ func (e *Engine) QueryProvenance(query *ProvenanceQuery) ([]*ProvenanceRecord, e
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 
+	if query == nil {
+		return nil, ErrInvalidInput
+	}
+
 	results := make([]*ProvenanceRecord, 0)
 	for _, record := range e.records {
-		if matchFilter(record, &query.Filter) {
-			results = append(results, record)
+		if !matchFilter(record, &query.Filter) {
+			continue
 		}
+		// 合规过滤
+		if len(query.ComplianceFilter) > 0 {
+			compliance, ok := record.Metadata["compliance"]
+			if !ok {
+				continue
+			}
+			matched := false
+			for _, tag := range query.ComplianceFilter {
+				if string(tag) == compliance {
+					matched = true
+					break
+				}
+			}
+			if !matched {
+				continue
+			}
+		}
+		results = append(results, record)
 	}
 	return results, nil
 }
@@ -293,6 +370,33 @@ func (e *Engine) AnalyzeImpact(fileID string) (*ImpactResult, error) {
 		SourceFileID:  fileID,
 		AffectedFiles: make([]AffectedFile, 0),
 	}
+
+	// 获取源文件路径
+	if recordIDs, ok := e.fileIndex[fileID]; ok && len(recordIDs) > 0 {
+		if r, exists := e.records[recordIDs[0]]; exists {
+			result.SourceFilePath = r.FilePath
+		}
+	}
+
+	// 查找所有 ParentID 为当前 fileID 的文件
+	for otherFileID, otherRecordIDs := range e.fileIndex {
+		if otherFileID == fileID {
+			continue
+		}
+		for _, rid := range otherRecordIDs {
+			if r, ok := e.records[rid]; ok && r.ParentID == fileID {
+				result.AffectedFiles = append(result.AffectedFiles, AffectedFile{
+					FileID:     otherFileID,
+					FilePath:   r.FilePath,
+					Relation:   "derived",
+					AffectedAt: r.Timestamp,
+				})
+				break // 每个文件只记录一次
+			}
+		}
+	}
+	result.TotalAffected = len(result.AffectedFiles)
+
 	return result, nil
 }
 
@@ -324,7 +428,8 @@ func (e *Engine) ExportAuditTrail(req *AuditTrailExport) (*AuditTrailResult, err
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 
-	count := 0
+	// 收集符合条件的记录
+	filteredRecords := make([]*ProvenanceRecord, 0)
 	for _, record := range e.records {
 		if !req.StartTime.IsZero() && record.Timestamp.Before(req.StartTime) {
 			continue
@@ -332,14 +437,37 @@ func (e *Engine) ExportAuditTrail(req *AuditTrailExport) (*AuditTrailResult, err
 		if !req.EndTime.IsZero() && record.Timestamp.After(req.EndTime) {
 			continue
 		}
-		count++
+		filteredRecords = append(filteredRecords, record)
+	}
+
+	// 根据格式导出数据
+	var data []byte
+	var err error
+	switch req.Format {
+	case "json":
+		data, err = json.MarshalIndent(filteredRecords, "", "  ")
+	case "csv":
+		var buf bytes.Buffer
+		writer := csv.NewWriter(&buf)
+		writer.Write([]string{"ID", "FileID", "Operation", "UserID", "Timestamp"})
+		for _, r := range filteredRecords {
+			writer.Write([]string{r.ID, r.FileID, string(r.Operation), r.UserID, r.Timestamp.Format(time.RFC3339)})
+		}
+		writer.Flush()
+		data = buf.Bytes()
+	default:
+		return nil, ErrInvalidInput
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	return &AuditTrailResult{
 		ExportID:      fmt.Sprintf("export-%d", time.Now().UnixNano()),
 		Format:        req.Format,
 		GeneratedAt:   time.Now(),
-		TotalRecords:  count,
+		TotalRecords:  len(filteredRecords),
+		Data:          data,
 		ChainVerified: true,
 	}, nil
 }

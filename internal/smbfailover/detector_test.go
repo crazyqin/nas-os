@@ -142,12 +142,15 @@ func TestFailureDetector_NodeRecovery(t *testing.T) {
 		recoveredNode = nodeID
 	})
 
-	// Mark node as failed
-	health, _ := detector.GetNodeHealth("node-1")
-	health.mu.Lock()
-	health.State = NodeStateFailed
-	health.LastFailure = time.Now()
-	health.mu.Unlock()
+	// Mark node as failed - directly access internal nodes map
+	detector.mu.RLock()
+	node := detector.nodes["node-1"]
+	detector.mu.RUnlock()
+	
+	node.mu.Lock()
+	node.State = NodeStateFailed
+	node.LastFailure = time.Now()
+	node.mu.Unlock()
 
 	// Handle recovery
 	detector.handleNodeRecovery("node-1")
@@ -157,7 +160,7 @@ func TestFailureDetector_NodeRecovery(t *testing.T) {
 
 	assert.Equal(t, "node-1", recoveredNode)
 
-	health, _ = detector.GetNodeHealth("node-1")
+	health, _ := detector.GetNodeHealth("node-1")
 	assert.Equal(t, NodeStateRecovery, health.State)
 }
 
@@ -180,21 +183,25 @@ func TestFailureDetector_Quorum(t *testing.T) {
 	hasQuorum := detector.HasQuorum()
 	assert.True(t, hasQuorum)
 
-	// Mark one node as failed
-	health2, _ := detector.GetNodeHealth("node-2")
-	health2.mu.Lock()
-	health2.State = NodeStateFailed
-	health2.mu.Unlock()
+	// Mark one node as failed - directly access internal nodes map
+	detector.mu.RLock()
+	node2 := detector.nodes["node-2"]
+	detector.mu.RUnlock()
+	node2.mu.Lock()
+	node2.State = NodeStateFailed
+	node2.mu.Unlock()
 
 	// Should still have quorum (2/3 > 50%)
 	hasQuorum = detector.HasQuorum()
 	assert.True(t, hasQuorum)
 
 	// Mark another node as failed
-	health3, _ := detector.GetNodeHealth("node-3")
-	health3.mu.Lock()
-	health3.State = NodeStateFailed
-	health3.mu.Unlock()
+	detector.mu.RLock()
+	node3 := detector.nodes["node-3"]
+	detector.mu.RUnlock()
+	node3.mu.Lock()
+	node3.State = NodeStateFailed
+	node3.mu.Unlock()
 
 	// Should lose quorum (1/3 < 50%)
 	hasQuorum = detector.HasQuorum()
@@ -211,11 +218,13 @@ func TestFailureDetector_GetHealthyNodes(t *testing.T) {
 	detector.RegisterNode("node-2", "server2", net.ParseIP("192.168.1.11"))
 	detector.RegisterNode("node-3", "server3", net.ParseIP("192.168.1.12"))
 
-	// Mark one node as failed
-	health2, _ := detector.GetNodeHealth("node-2")
-	health2.mu.Lock()
-	health2.State = NodeStateFailed
-	health2.mu.Unlock()
+	// Mark one node as failed - directly access internal nodes map
+	detector.mu.RLock()
+	node2 := detector.nodes["node-2"]
+	detector.mu.RUnlock()
+	node2.mu.Lock()
+	node2.State = NodeStateFailed
+	node2.mu.Unlock()
 
 	healthy := detector.GetHealthyNodes()
 	assert.Len(t, healthy, 2)

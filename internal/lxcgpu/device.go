@@ -276,7 +276,7 @@ func (dm *DeviceManager) ListAvailableDevices() []*GPUDevice {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 
-	var devices []*GPUDevice
+	devices := make([]*GPUDevice, 0)
 	for _, d := range dm.devices {
 		if d.Available && len(d.Assignments) == 0 {
 			devices = append(devices, d)
@@ -290,7 +290,7 @@ func (dm *DeviceManager) GetDeviceForContainer(containerID string) []*GPUDevice 
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 
-	var result []*GPUDevice
+	result := make([]*GPUDevice, 0)
 	for _, d := range dm.devices {
 		for _, assign := range d.Assignments {
 			if assign.ContainerID == containerID && assign.State == AssignmentStateActive {
@@ -415,7 +415,7 @@ func (dm *DeviceManager) GetContainerGPUs(containerID string) []string {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 
-	var gpuAddrs []string
+	gpuAddrs := make([]string, 0)
 	for _, d := range dm.devices {
 		for _, assign := range d.Assignments {
 			if assign.ContainerID == containerID {

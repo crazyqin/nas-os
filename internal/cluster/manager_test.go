@@ -46,10 +46,13 @@ func TestGetNodes(t *testing.T) {
 	manager, _ := NewManager(config, logger)
 	defer manager.Shutdown()
 
-	// 初始应该没有节点
+	// 初始应该有本地节点
 	nodes := manager.GetNodes()
-	if len(nodes) != 0 {
-		t.Errorf("期望 0 个节点，实际有 %d 个", len(nodes))
+	if len(nodes) != 1 {
+		t.Errorf("期望 1 个节点（本地节点），实际有 %d 个", len(nodes))
+	}
+	if nodes[0].ID != "test-node-1" {
+		t.Errorf("期望节点 ID 为 test-node-1，实际为 %s", nodes[0].ID)
 	}
 
 	// 添加测试节点
@@ -68,14 +71,10 @@ func TestGetNodes(t *testing.T) {
 	manager.nodes[testNode.ID] = testNode
 	manager.nodesMutex.Unlock()
 
-	// 验证节点列表
+	// 验证节点列表（本地节点 + 测试节点）
 	nodes = manager.GetNodes()
-	if len(nodes) != 1 {
-		t.Errorf("期望 1 个节点，实际有 %d 个", len(nodes))
-	}
-
-	if nodes[0].ID != "test-node-2" {
-		t.Errorf("期望节点 ID 为 test-node-2，实际为 %s", nodes[0].ID)
+	if len(nodes) != 2 {
+		t.Errorf("期望 2 个节点，实际有 %d 个", len(nodes))
 	}
 }
 
@@ -109,14 +108,10 @@ func TestGetOnlineNodes(t *testing.T) {
 	manager.nodes[offlineNode.ID] = offlineNode
 	manager.nodesMutex.Unlock()
 
-	// 验证在线节点
+	// 验证在线节点（本地节点 + test-node-2）
 	onlineNodes := manager.GetOnlineNodes()
-	if len(onlineNodes) != 1 {
-		t.Errorf("期望 1 个在线节点，实际有 %d 个", len(onlineNodes))
-	}
-
-	if onlineNodes[0].ID != "test-node-2" {
-		t.Errorf("期望在线节点 ID 为 test-node-2，实际为 %s", onlineNodes[0].ID)
+	if len(onlineNodes) != 2 {
+		t.Errorf("期望 2 个在线节点，实际有 %d 个", len(onlineNodes))
 	}
 }
 
@@ -147,10 +142,10 @@ func TestRemoveNode(t *testing.T) {
 		t.Errorf("删除节点失败：%v", err)
 	}
 
-	// 验证节点已删除
+	// 验证节点已删除（本地节点仍在）
 	nodes := manager.GetNodes()
-	if len(nodes) != 0 {
-		t.Errorf("期望节点已删除，实际还有 %d 个", len(nodes))
+	if len(nodes) != 1 {
+		t.Errorf("期望还有 1 个节点（本地节点），实际还有 %d 个", len(nodes))
 	}
 
 	// 删除不存在的节点
