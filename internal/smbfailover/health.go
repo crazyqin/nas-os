@@ -449,6 +449,19 @@ func (hc *HealthChecker) notifyHealthChange(nodeID string, healthy bool) {
 	}
 }
 
+// processResultByNodeID processes a health check result for a node by ID
+func (hc *HealthChecker) processResultByNodeID(nodeID string, result *HealthResult) {
+	hc.mu.RLock()
+	node, ok := hc.nodes[nodeID]
+	hc.mu.RUnlock()
+
+	if !ok {
+		return
+	}
+
+	hc.processResult(node, result)
+}
+
 // IsNodeHealthy returns true if a node is healthy
 func (hc *HealthChecker) IsNodeHealthy(nodeID string) bool {
 	hc.mu.RLock()
@@ -493,6 +506,21 @@ func (hc *HealthChecker) GetNodeHealth(nodeID string) (*HealthNode, bool) {
 	}
 	node.mu.RUnlock()
 	return copy, true
+}
+
+// SetNodeHealthy sets the healthy status of a node directly
+func (hc *HealthChecker) SetNodeHealthy(nodeID string, healthy bool) {
+	hc.mu.Lock()
+	defer hc.mu.Unlock()
+
+	node, ok := hc.nodes[nodeID]
+	if !ok {
+		return
+	}
+
+	node.mu.Lock()
+	node.Healthy = healthy
+	node.mu.Unlock()
 }
 
 // GetNodeResult returns the latest health check result for a node
