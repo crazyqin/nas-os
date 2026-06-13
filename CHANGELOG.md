@@ -1,3 +1,29 @@
+## v2.595.0 (2026-06-13) - 竞品功能对标: DSM Agent编排/集群管理/增强RBAC/LXC容器HA/智能搜索
+
+### 新增功能
+- **DSM Agent编排引擎 (dsmagentorch)** - 对标群晖DSM Agent，支持MCP协议集成、工具注册、工作流编排、安全护栏、诊断能力、任务管理（对标群晖DSM Agent AI自动化运维）
+- **集群管理器2.0 (clustermgr2)** - 对标群晖Cluster Manager，支持多站点联合、边缘计算、负载均衡、工作负载迁移、集中化保护（对标群晖Cluster Manager多集群管理）
+- **增强版RBAC权限管理 (rbacenhanced)** - 对标群晖企业级RBAC，支持细粒度角色访问控制、ACL规则、审计日志、FIPS合规、动态权限继承（对标群晖RBAC + FIPS 140-3）
+- **LXC容器高可用 (lxcha)** - 对标TrueNAS LXC容器HA，支持容器故障转移、GPU直通、资源监控、快照管理、状态同步（对标TrueNAS 26 LXC容器HA）
+- **智能搜索2.0 (smartsearch2)** - 对标TrueNAS TrueSearch，支持亚秒级全文搜索、SSD索引、macOS Spotlight兼容、内容感知搜索（对标TrueNAS TrueSearch亚秒级搜索）
+
+### 竞品分析
+- 飞牛 fnOS: OpenClaw AI助手、ARM虚拟机v0.9.1、企业级ACL(3→13种)、AMD GPU加速、阿里云MaaS合作
+- 群晖 DSM 7.3/Enterprise: DSM Agent AI自动化、Cluster Manager多集群管理、AI Console本地模型、FIPS 140-3、RBAC、PAS7700全NVMe存储
+- TrueNAS 26: WebShare浏览器文件共享、TrueSearch亚秒级搜索、LXC容器HA、OpenZFS 2.4混合池、Ransomware检测、SMB HA有状态故障转移
+
+### 测试
+- DSM Agent编排: 14个测试用例（启动停止/工具注册注销/任务创建完成/安全护栏/诊断/统计）
+- 集群管理器: 13个测试用例（节点管理/工作负载部署迁移/策略/统计）
+- 增强RBAC: 17个测试用例（角色CRUD/用户管理/权限检查/ACL规则/审计日志）
+- LXC容器HA: 19个测试用例（容器生命周期/故障转移/GPU直通/统计）
+- 智能搜索: 9个测试用例（服务创建/启动停止/搜索/统计/配置）
+
+### CI修复
+- **rbacenhanced: CreateUser不再强制覆盖Enabled字段** - 修复CreateUser总是设置Enabled=true的问题，允许创建禁用用户
+
+### 版本号
+- v2.594.0 → v2.595.0
 ## v2.594.0 (2026-06-13) - 竞品功能对标: 本地AI推理/NFS over RDMA/JSON-RPC 2.0/存储成本优化/STIG合规/API密钥管理
 
 ### 新增功能
