@@ -93,6 +93,10 @@ func TestFailoverExecutor_ExecuteFailover(t *testing.T) {
 	detector.RegisterNode("node-2", "server2", []byte{192, 168, 1, 11})
 	detector.SetLocalNode("node-1")
 
+	// Register with synchronizer
+	synchronizer.AddNode("node-2", "server2", "192.168.1.11", 8080)
+	synchronizer.SetLocalNode("node-1")
+
 	// Start components
 	err := sessionManager.Start()
 	require.NoError(t, err)
@@ -123,6 +127,9 @@ func TestFailoverExecutor_ExecuteFailover(t *testing.T) {
 	ctx := context.Background()
 	err = executor.ExecuteFailover(ctx, "node-2", "manual test")
 	require.NoError(t, err)
+
+	// Wait for async callback
+	time.Sleep(50 * time.Millisecond)
 
 	// Verify
 	assert.True(t, failoverStarted)
@@ -165,6 +172,10 @@ func TestFailoverExecutor_ConcurrentFailover(t *testing.T) {
 	detector.RegisterNode("node-1", "server1", []byte{192, 168, 1, 10})
 	detector.RegisterNode("node-2", "server2", []byte{192, 168, 1, 11})
 	detector.SetLocalNode("node-1")
+
+	// Register with synchronizer
+	synchronizer.AddNode("node-2", "server2", "192.168.1.11", 8080)
+	synchronizer.SetLocalNode("node-1")
 
 	err := sessionManager.Start()
 	require.NoError(t, err)
@@ -235,7 +246,7 @@ func TestFailoverExecutor_NodeFailure(t *testing.T) {
 		ID:       "node-1",
 		Hostname: "server1",
 		IP:       []byte{192, 168, 1, 10},
-		State:    NodeStateStandby,
+		State:    NodeStateActive,
 		Priority: 5,
 	})
 
@@ -243,13 +254,17 @@ func TestFailoverExecutor_NodeFailure(t *testing.T) {
 		ID:       "node-2",
 		Hostname: "server2",
 		IP:       []byte{192, 168, 1, 11},
-		State:    NodeStateActive,
+		State:    NodeStateStandby,
 		Priority: 10,
 	})
 
 	detector.RegisterNode("node-1", "server1", []byte{192, 168, 1, 10})
 	detector.RegisterNode("node-2", "server2", []byte{192, 168, 1, 11})
 	detector.SetLocalNode("node-1")
+
+	// Register with synchronizer
+	synchronizer.AddNode("node-2", "server2", "192.168.1.11", 8080)
+	synchronizer.SetLocalNode("node-1")
 
 	err := sessionManager.Start()
 	require.NoError(t, err)
@@ -484,6 +499,10 @@ func TestFailoverExecutor_ManualFailover(t *testing.T) {
 	detector.RegisterNode("node-1", "server1", []byte{192, 168, 1, 10})
 	detector.RegisterNode("node-2", "server2", []byte{192, 168, 1, 11})
 	detector.SetLocalNode("node-1")
+
+	// Register with synchronizer
+	synchronizer.AddNode("node-2", "server2", "192.168.1.11", 8080)
+	synchronizer.SetLocalNode("node-1")
 
 	err := sessionManager.Start()
 	require.NoError(t, err)

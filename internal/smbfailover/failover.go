@@ -87,6 +87,7 @@ func NewFailoverExecutor(
 		auditLogger:    auditLogger,
 		nodes:          make(map[string]*ClusterNode),
 		eventHistory:   make([]FailoverEvent, 0, 100),
+		state:          FailoverStateIdle,
 		vipManager: &VIPManager{
 			vips:   make(map[string]*VIPConfig),
 			logger: logger,
