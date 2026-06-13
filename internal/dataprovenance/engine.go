@@ -455,6 +455,15 @@ func (e *Engine) ExportAuditTrail(req *AuditTrailExport) (*AuditTrailResult, err
 		}
 		writer.Flush()
 		data = buf.Bytes()
+	case "xml":
+		var buf bytes.Buffer
+		buf.WriteString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<audit_trail>\n")
+		for _, r := range filteredRecords {
+			fmt.Fprintf(&buf, "  <record id=\"%s\" file_id=\"%s\" operation=\"%s\" user_id=\"%s\" timestamp=\"%s\"/>\n",
+				r.ID, r.ID, string(r.Operation), r.UserID, r.Timestamp.Format(time.RFC3339))
+		}
+		buf.WriteString("</audit_trail>")
+		data = buf.Bytes()
 	default:
 		return nil, ErrInvalidInput
 	}

@@ -242,11 +242,8 @@ func TestFailureDetector_GetFailedNodes(t *testing.T) {
 	detector.RegisterNode("node-1", "server1", net.ParseIP("192.168.1.10"))
 	detector.RegisterNode("node-2", "server2", net.ParseIP("192.168.1.11"))
 
-	// Mark node as failed
-	health2, _ := detector.GetNodeHealth("node-2")
-	health2.mu.Lock()
-	health2.State = NodeStateFailed
-	health2.mu.Unlock()
+	// Mark node as failed using ForceNodeFailed
+	detector.ForceNodeFailed("node-2", "test failure")
 
 	failed := detector.GetFailedNodes()
 	assert.Len(t, failed, 1)
@@ -265,11 +262,8 @@ func TestFailureDetector_IsNodeHealthy(t *testing.T) {
 	// Node 1 should be healthy
 	assert.True(t, detector.IsNodeHealthy("node-1"))
 
-	// Mark node 2 as failed
-	health2, _ := detector.GetNodeHealth("node-2")
-	health2.mu.Lock()
-	health2.State = NodeStateFailed
-	health2.mu.Unlock()
+	// Mark node 2 as failed using ForceNodeFailed
+	detector.ForceNodeFailed("node-2", "test failure")
 
 	assert.False(t, detector.IsNodeHealthy("node-2"))
 
@@ -313,10 +307,8 @@ func TestFailureDetector_ForceNodeRecovery(t *testing.T) {
 
 	// Mark as failed
 	health, _ := detector.GetNodeHealth("node-1")
-	health.mu.Lock()
-	health.State = NodeStateFailed
-	health.LastFailure = time.Now()
-	health.mu.Unlock()
+	// Mark as failed using ForceNodeFailed
+	detector.ForceNodeFailed("node-1", "test failure")
 
 	var recoveredNode string
 	detector.SetRecoveryCallback(func(nodeID string) {
@@ -350,11 +342,8 @@ func TestFailureDetector_GetClusterHealth(t *testing.T) {
 	assert.Equal(t, 0, health["failed_nodes"])
 	assert.True(t, health["cluster_healthy"].(bool))
 
-	// Mark one failed
-	node2, _ := detector.GetNodeHealth("node-2")
-	node2.mu.Lock()
-	node2.State = NodeStateFailed
-	node2.mu.Unlock()
+	// Mark one failed using ForceNodeFailed
+	detector.ForceNodeFailed("node-2", "test failure")
 
 	health = detector.GetClusterHealth()
 	assert.Equal(t, 2, health["healthy_nodes"])
