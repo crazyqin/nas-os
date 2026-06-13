@@ -152,14 +152,20 @@ func TestRBACManager_AuditLog(t *testing.T) {
 
 func TestRBACManager_FallbackToACL(t *testing.T) {
 	aclMgr := NewManager()
-	aclMgr.AddRule(ACLRule{
-		ID:          "rule1",
+	
+	// 使用 ACE-based API 创建 ACL
+	aclMgr.CreateACL(CreateACLRequest{
 		Path:        "/shared",
+		Owner:       "admin",
+		EntryType:   EntryDirectory,
+	})
+	
+	// 添加 ACE 规则
+	aclMgr.AddACE("/shared", AddACERequest{
 		Subject:     "user1",
-		SubjectType: "user",
-		Permissions: []string{string(PermRead), string(PermWrite)},
-		Recursive:   true,
-		Priority:    10,
+		SubjectType: SubjectUser,
+		Permissions: []Permission{PermRead, PermWrite},
+		Allowed:     true,
 	})
 
 	rm := NewRBACManager(aclMgr)

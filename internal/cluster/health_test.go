@@ -293,8 +293,9 @@ func TestRemoveAlertRule(t *testing.T) {
 func TestClusterHealthStatus(t *testing.T) {
 	manager, hc := setupTestHealthChecker(t)
 
-	// 添加节点
+	// 清除自动添加的本地节点，使用测试专用节点
 	manager.nodesMutex.Lock()
+	manager.nodes = make(map[string]*Member)
 	manager.nodes["node-001"] = &Member{
 		ID:     "node-001",
 		Status: StatusOnline,
@@ -572,8 +573,9 @@ func TestStats(t *testing.T) {
 func TestToJSON(t *testing.T) {
 	manager, hc := setupTestHealthChecker(t)
 
-	// 添加节点
+	// 清除自动添加的本地节点，使用测试专用节点
 	manager.nodesMutex.Lock()
+	manager.nodes = make(map[string]*Member)
 	manager.nodes["node-001"] = &Member{
 		ID:     "node-001",
 		Status: StatusOnline,

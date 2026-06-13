@@ -3,6 +3,7 @@
 package cluster
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -160,7 +161,7 @@ func (m *Manager) RemoveNode(nodeID string) error {
 	defer m.nodesMutex.Unlock()
 
 	if _, exists := m.nodes[nodeID]; !exists {
-		return nil
+		return fmt.Errorf("节点不存在：%s", nodeID)
 	}
 
 	delete(m.nodes, nodeID)
