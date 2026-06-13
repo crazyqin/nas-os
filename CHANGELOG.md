@@ -1,3 +1,30 @@
+## v2.598.0 (2026-06-14) - CI修复 + 2FA双因素认证
+
+### 修复
+- **smbfailover**: 修复 FailoverExecutor 初始化 state 未设置为 Idle 导致的测试失败
+- **smbfailover**: 修复测试中使用 copy 修改无效的问题，添加 SetNodeHealthy/SetNodeSyncStatus 方法
+- **smbfailover**: 修复压缩测试数据过小问题
+- **healthpredictor**: 修复构建错误（未使用变量、缺失导入）
+
+### 新增功能
+- **双因素认证 (twofactor)** - 对标飞牛fnOS 2FA功能，支持TOTP验证码、备用码、QR码URL生成
+- **健康预测器测试 (healthpredictor)** - 添加单元测试覆盖核心组件
+
+### 竞品分析
+- 飞牛 fnOS: AI相册、2FA双重验证、Docker一键部署
+- 群晖 DSM 7.3: 智能数据分层、AI Console、增强安全性
+- TrueNAS: ZFS增强、企业级存储
+
+### 测试
+- smbfailover: 全部测试通过
+- twofactor: 7个测试用例
+- healthpredictor: 5个测试用例
+
+### 版本号
+- v2.597.0 → v2.598.0
+
+---
+
 ## v2.597.0 (2026-06-13) - 竞品功能对标: AI相册/智能标签/数据分层
 
 ### 新增功能
