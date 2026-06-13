@@ -1,3 +1,26 @@
+## v2.596.0 (2026-06-13) - 智能存储预测引擎 + CI修复
+
+### 新增功能
+- **智能存储预测引擎 (smartstoragepredict)** - AI驱动的存储容量预测，支持线性回归/指数增长/多项式/ARIMA/集成模型，自动告警级别计算，历史数据分析，批量预测，数据导出（对标群晖DSM 7.3存储效率提升）
+
+### 竞品分析
+- 群晖 DSM 7.3: Synology Tiering智能分层、AI功能、存储效率、硬盘兼容性
+- TrueNAS 25.04: Docker/LXC支持、FastDeduplication、RDMA
+- 飞牛 fnOS: ZFS支持、本地AI推理
+
+### CI修复
+- **familyfinance: dogsled lint修复** - 创建setupBudgetManagerOnly辅助函数，避免过多空白标识符
+- **backup/active: dogsled lint修复** - 创建testEnvResult结构体和setupTestEnvFull辅助函数
+- **apikeymgr: dogsled lint修复** - 使用err变量接收CreateKey返回值
+
+### 测试
+- 智能存储预测: 12个测试用例（预测器创建/存储池注册/使用量记录/数据不足预测/数据充足预测/统计/列表/历史/线性模型/指数模型/集成模型/告警级别）
+
+### 版本号
+- v2.595.0 → v2.596.0
+
+---
+
 ## v2.595.0 (2026-06-13) - 竞品功能对标: DSM Agent编排/集群管理/增强RBAC/LXC容器HA/智能搜索
 
 ### 新增功能
