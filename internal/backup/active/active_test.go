@@ -51,20 +51,58 @@ func setupTestEnv(t *testing.T) (string, *BackupManager, *Engine, *RestoreManage
 
 func setupTestEngine(t *testing.T) *Engine {
 	t.Helper()
-	engine := setupTestEngine(t)
-	return engine
+	tmp := setupTestEnvFull(t)
+	return tmp.Engine
+}
+
+func setupBackupManagerOnly(t *testing.T) *BackupManager {
+	t.Helper()
+	tmp := setupTestEnvFull(t)
+	return tmp.Mgr
+}
+
+func setupBackupManagerWithDir(t *testing.T) (string, *BackupManager) {
+	t.Helper()
+	tmp := setupTestEnvFull(t)
+	return tmp.TmpDir, tmp.Mgr
+}
+
+func setupDashboardAndMgr(t *testing.T) (*BackupManager, *DashboardHandler) {
+	t.Helper()
+	tmp := setupTestEnvFull(t)
+	return tmp.Mgr, tmp.Dashboard
 }
 
 func setupTestMgrRestore(t *testing.T) (*BackupManager, *RestoreManager) {
 	t.Helper()
-	mgr, restore := setupTestMgrRestore(t)
-	return mgr, restore
+	tmp := setupTestEnvFull(t)
+	return tmp.Mgr, tmp.Restore
 }
 
 func setupTestDashboard(t *testing.T) *DashboardHandler {
 	t.Helper()
-	dashboard := setupTestDashboard(t)
-	return dashboard
+	tmp := setupTestEnvFull(t)
+	return tmp.Dashboard
+}
+
+type testEnvResult struct {
+	TmpDir    string
+	Mgr       *BackupManager
+	Engine    *Engine
+	Restore   *RestoreManager
+	Dashboard *DashboardHandler
+}
+
+func setupTestEnvFull(t *testing.T) *testEnvResult {
+	t.Helper()
+	tmpDir, mgr, engine, restore, dashboard := setupTestEnv(t)
+	return &testEnvResult{
+		TmpDir:    tmpDir,
+		Mgr:       mgr,
+		Engine:    engine,
+		Restore:   restore,
+		Dashboard: dashboard,
+	}
 }
 
 func setupTestFull(t *testing.T) (*BackupManager, *Engine, *RestoreManager, *DashboardHandler) {
@@ -711,7 +749,7 @@ func TestRestoreManagerGetTask(t *testing.T) {
 // ==================== Dashboard 测试 ====================
 
 func TestDashboardSummary(t *testing.T) {
-	_, mgr, _, _, dashboard := setupTestEnv(t)
+	mgr, dashboard := setupDashboardAndMgr(t)
 
 	ctx := context.Background()
 	mgr.CreateJob(ctx, &BackupJob{
@@ -884,7 +922,7 @@ func TestAPIRunJob(t *testing.T) {
 // ==================== BackupManager 测试 ====================
 
 func TestBackupManagerCreateJob(t *testing.T) {
-	_, mgr, _, _, _ := setupTestEnv(t)
+	mgr := setupBackupManagerOnly(t)
 	ctx := context.Background()
 
 	job, err := mgr.CreateJob(ctx, &BackupJob{
@@ -917,7 +955,7 @@ func TestBackupManagerCreateJob(t *testing.T) {
 }
 
 func TestBackupManagerGetAndList(t *testing.T) {
-	_, mgr, _, _, _ := setupTestEnv(t)
+	mgr := setupBackupManagerOnly(t)
 	ctx := context.Background()
 
 	mgr.CreateJob(ctx, &BackupJob{
@@ -946,7 +984,7 @@ func TestBackupManagerGetAndList(t *testing.T) {
 }
 
 func TestBackupManagerRunBackup(t *testing.T) {
-	tmpDir, mgr, _, _, _ := setupTestEnv(t)
+	tmpDir, mgr := setupBackupManagerWithDir(t)
 	ctx := context.Background()
 
 	// 设置存储路径为临时目录
@@ -980,7 +1018,7 @@ func TestBackupManagerRunBackup(t *testing.T) {
 }
 
 func TestBackupManagerDeleteJob(t *testing.T) {
-	_, mgr, _, _, _ := setupTestEnv(t)
+	mgr := setupBackupManagerOnly(t)
 	ctx := context.Background()
 
 	job, _ := mgr.CreateJob(ctx, &BackupJob{
@@ -1003,7 +1041,7 @@ func TestBackupManagerDeleteJob(t *testing.T) {
 }
 
 func TestBackupManagerListSnapshots(t *testing.T) {
-	_, mgr, _, _, _ := setupTestEnv(t)
+	mgr := setupBackupManagerOnly(t)
 
 	snaps := mgr.ListSnapshots("")
 	if len(snaps) != 0 {
@@ -1012,7 +1050,7 @@ func TestBackupManagerListSnapshots(t *testing.T) {
 }
 
 func TestBackupManagerGetSnapshot(t *testing.T) {
-	_, mgr, _, _, _ := setupTestEnv(t)
+	mgr := setupBackupManagerOnly(t)
 
 	_, err := mgr.GetSnapshot("non-existent")
 	if err == nil {

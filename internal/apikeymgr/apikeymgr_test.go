@@ -156,11 +156,14 @@ func TestCleanupExpired(t *testing.T) {
 	mgr := NewAPIKeyManager(cfg)
 
 	// 创建一个立即过期的密钥
-	_, _, _ = mgr.CreateKey(CreateKeyRequest{
+	_, _, err := mgr.CreateKey(CreateKeyRequest{
 		UserID:    "user-001",
 		Name:      "expired-key",
 		ExpiresIn: -1, // 已过期
 	})
+	if err != nil {
+		t.Fatalf("CreateKey failed: %v", err)
+	}
 
 	count := mgr.CleanupExpired()
 	if count != 1 {
