@@ -17,6 +17,11 @@ func setupFinanceEngine(t *testing.T) *FinanceEngine {
 	return engine
 }
 
+func setupBudgetManagerOnly(t *testing.T) *BudgetManager {
+	_, budgetMgr, _, _, _ := setupTestEnvironment(t)
+	return budgetMgr
+}
+
 func setupTestEnvironment(t *testing.T) (*FinanceEngine, *BudgetManager, *InvestmentManager, *BillManager, *AnalyticsEngine) {
 	logger, _ := zap.NewDevelopment()
 	engine := NewFinanceEngine(logger)
@@ -246,7 +251,7 @@ func TestQueryTransactions(t *testing.T) {
 // ========== 预算管理测试 ==========
 
 func TestCreateBudget(t *testing.T) {
-	_, budgetMgr, _, _, _ := setupTestEnvironment(t)
+	budgetMgr := setupBudgetManagerOnly(t)
 
 	budget := &Budget{
 		CategoryID:   "cat-food",
@@ -262,7 +267,7 @@ func TestCreateBudget(t *testing.T) {
 }
 
 func TestRecordExpenseToBudget(t *testing.T) {
-	_, budgetMgr, _, _, _ := setupTestEnvironment(t)
+	budgetMgr := setupBudgetManagerOnly(t)
 
 	budget := &Budget{
 		CategoryID:   "cat-food",
@@ -283,7 +288,7 @@ func TestRecordExpenseToBudget(t *testing.T) {
 }
 
 func TestBudgetExceeded(t *testing.T) {
-	_, budgetMgr, _, _, _ := setupTestEnvironment(t)
+	budgetMgr := setupBudgetManagerOnly(t)
 
 	budget := &Budget{
 		CategoryID: "cat-food",
@@ -297,7 +302,7 @@ func TestBudgetExceeded(t *testing.T) {
 }
 
 func TestGetBudgetStatus(t *testing.T) {
-	_, budgetMgr, _, _, _ := setupTestEnvironment(t)
+	budgetMgr := setupBudgetManagerOnly(t)
 
 	_ = budgetMgr.CreateBudget(&Budget{CategoryID: "cat-food", Amount: 3000, Period: "monthly"})
 	_ = budgetMgr.CreateBudget(&Budget{CategoryID: "cat-transport", Amount: 1000, Period: "monthly"})
