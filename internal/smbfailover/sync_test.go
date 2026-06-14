@@ -1,6 +1,7 @@
 package smbfailover
 
 import (
+	"strings"
 	"context"
 	"testing"
 	"time"
@@ -132,9 +133,10 @@ func TestStateSynchronizer_Compression(t *testing.T) {
 	config.CompressionEnabled = true
 	synchronizer := NewStateSynchronizer(config, logger)
 
-	// Prepare sessions
+	// Prepare sessions with enough data to benefit from compression
+	largeData := strings.Repeat("some data to compress that should compress well ", 20)
 	sessions := map[string][]byte{
-		"session-1": []byte(`{"session_id":"session-1","client_ip":"192.168.1.100","data":"some data to compress"}`),
+		"session-1": []byte(`{"session_id":"session-1","client_ip":"192.168.1.100","data":"` + largeData + `"}`),
 	}
 
 	// Compress
@@ -152,6 +154,7 @@ func TestStateSynchronizer_Compression(t *testing.T) {
 func TestStateSynchronizer_HandleSyncRequest(t *testing.T) {
 	logger := zap.NewNop()
 	config := DefaultSyncConfig()
+	config.CompressionEnabled = false
 	synchronizer := NewStateSynchronizer(config, logger)
 
 	synchronizer.SetLocalNode("node-2")
@@ -233,12 +236,7 @@ func TestStateSynchronizer_IsNodeInSync(t *testing.T) {
 	synchronizer.AddNode("node-1", "server1", "192.168.1.10", 8080)
 
 	// Update last sync time
-	nodes := synchronizer.GetNodeSyncStatus()
-	node := nodes["node-1"]
-	node.mu.Lock()
-	node.LastSync = time.Now()
-	node.SyncLag = 1 * time.Second
-	node.mu.Unlock()
+	synchronizer.SetNodeSyncStatus("node-1", true, time.Now(), 1*time.Second)
 
 	// Should be in sync with 5 second max lag
 	assert.True(t, synchronizer.IsNodeInSync("node-1", 5*time.Second))

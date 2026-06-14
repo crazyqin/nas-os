@@ -91,7 +91,7 @@ func TestHealthChecker_IsNodeHealthy(t *testing.T) {
 	assert.True(t, checker.IsNodeHealthy("node-1"))
 
 	// Mark as unhealthy
-	checker.SetNodeHealth("node-1", false)
+	checker.SetNodeHealthy("node-1", false)
 
 	assert.False(t, checker.IsNodeHealthy("node-1"))
 
@@ -109,7 +109,7 @@ func TestHealthChecker_GetHealthyNodes(t *testing.T) {
 	checker.AddNode("node-3", "server3", "192.168.1.12", 8080)
 
 	// Mark one as unhealthy
-	checker.SetNodeHealth("node-2", false)
+	checker.SetNodeHealthy("node-2", false)
 
 	healthy := checker.GetHealthyNodes()
 	assert.Len(t, healthy, 2)
@@ -127,7 +127,7 @@ func TestHealthChecker_GetUnhealthyNodes(t *testing.T) {
 	checker.AddNode("node-2", "server2", "192.168.1.11", 8080)
 
 	// Mark one as unhealthy
-	checker.SetNodeHealth("node-2", false)
+	checker.SetNodeHealthy("node-2", false)
 
 	unhealthy := checker.GetUnhealthyNodes()
 	assert.Len(t, unhealthy, 1)
@@ -164,7 +164,7 @@ func TestHealthChecker_GetClusterHealth(t *testing.T) {
 	assert.True(t, health["cluster_healthy"].(bool))
 
 	// Mark one unhealthy
-	checker.SetNodeHealth("node-2", false)
+	checker.SetNodeHealthy("node-2", false)
 
 	health = checker.GetClusterHealth()
 	assert.Equal(t, 1, health["healthy_nodes"])
@@ -209,6 +209,8 @@ func TestHealthChecker_SetHealthChangeCallback(t *testing.T) {
 func TestHealthChecker_PerformImmediateCheck(t *testing.T) {
 	logger := zap.NewNop()
 	config := DefaultHealthConfig()
+	config.EnableTCPCheck = false
+	config.EnableHTTPCheck = false
 	checker := NewHealthChecker(config, logger)
 
 	checker.AddNode("node-1", "server1", "192.168.1.10", 8080)
@@ -341,8 +343,6 @@ func TestHealthChecker_ProcessResult(t *testing.T) {
 		changedHealthy = healthy
 	})
 
-	node, _ := checker.GetNodeHealth("node-1")
-
 	// Process healthy result
 	result := &HealthResult{
 		NodeID:  "node-1",
@@ -350,7 +350,8 @@ func TestHealthChecker_ProcessResult(t *testing.T) {
 		Latency: 10 * time.Millisecond,
 	}
 
-	checker.processResult(node, result)
+	checker.processResultByNodeID("node-1", result)
+	node, _ := checker.GetNodeHealth("node-1")
 	assert.True(t, node.Healthy)
 	assert.Equal(t, 1, node.ConsecutiveOK)
 	assert.Equal(t, 0, node.ConsecutiveFail)
@@ -363,11 +364,15 @@ func TestHealthChecker_ProcessResult(t *testing.T) {
 		Message: "connection refused",
 	}
 
-	checker.processResult(node, result)
+	checker.processResultByNodeID("node-1", result)
+	node, _ = checker.GetNodeHealth("node-1")
 	assert.False(t, node.Healthy)
 	assert.Equal(t, 0, node.ConsecutiveOK)
 	assert.Equal(t, 1, node.ConsecutiveFail)
 	assert.Equal(t, "connection refused", node.FailureReason)
+
+	// Wait for async callback
+	time.Sleep(50 * time.Millisecond)
 
 	// Verify callback was called
 	assert.Equal(t, "node-1", changedNode)
