@@ -388,3 +388,63 @@ func (idx *incrementIndex) needsRescan(path string, info *indexEntry) bool {
 	}
 	return existing.ModTime.Before(info.ModTime) || existing.Size != info.Size
 }
+
+// DedupMode 去重模式.
+type DedupMode string
+
+const (
+	ModeHardlink DedupMode = "hardlink" // 硬链接去重（btrfs COW式）
+	ModeSoftlink DedupMode = "softlink" // 符号链接去重
+	ModeReport   DedupMode = "report"   // 仅报告，不执行去重
+)
+
+// ScanStatus 扫描状态.
+type ScanStatus string
+
+const (
+	ScanStatusIdle     ScanStatus = "idle"
+	ScanStatusScanning ScanStatus = "scanning"
+	ScanStatusComplete ScanStatus = "complete"
+	ScanStatusFailed   ScanStatus = "failed"
+)
+
+// DedupConfig 去重配置.
+type DedupConfig struct {
+	Enabled        bool          `json:"enabled"`
+	Mode           DedupMode     `json:"mode"`
+	MinFileSize    int64         `json:"minFileSize"`
+	MaxFileSize    int64         `json:"maxFileSize"`
+	ScanInterval   time.Duration `json:"scanInterval"`
+	MaxConcurrency int           `json:"maxConcurrency"`
+	DryRun         bool          `json:"dryRun"`
+	AutoDedup      bool          `json:"autoDedup"`
+	DataDir        string        `json:"dataDir"`
+	ScanPaths      []string      `json:"scanPaths"`
+	ExcludePaths   []string      `json:"excludePaths"`
+	ExcludePatterns []string     `json:"excludePatterns"`
+}
+
+// FileHash 文件哈希信息.
+type FileHash struct {
+	Path      string    `json:"path"`
+	Size      int64     `json:"size"`
+	ModTime   time.Time `json:"modTime"`
+	SHA256    string    `json:"sha256"`
+	XXHash    string    `json:"xxhash"`
+	Inode     uint64    `json:"inode"`
+	DeviceID  uint64    `json:"deviceId"`
+	IsDeduped bool      `json:"isDeduped"`
+}
+
+// ScanRequest 扫描请求.
+type ScanRequest struct {
+	Paths     []string `json:"paths"`
+	DryRun    bool     `json:"dryRun"`
+	AutoDedup bool     `json:"autoDedup"`
+}
+
+// DedupRequest 去重请求.
+type DedupRequest struct {
+	Hashes []string `json:"hashes"`
+	DryRun bool     `json:"dryRun"`
+}
