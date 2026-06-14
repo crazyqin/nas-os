@@ -17,7 +17,9 @@
 #
 # v2.375.0 工部优化：增加构建重试机制，优化armv7超时策略
 #
-# 当前版本: v2.584.0（工部维护）
+# v2.600.0 工部维护：CI/CD 版本同步
+#
+# 当前版本: v2.600.0（工部维护）
 
 name: Docker Publish
 
@@ -80,7 +82,7 @@ jobs:
       docker-changed: ${{ steps.filter.outputs.docker }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       
@@ -139,20 +141,20 @@ jobs:
       armv7-digest: ${{ steps.build.outputs.digest }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
       
       # 仅 armv7 需要 QEMU
       - name: 设置 QEMU
         if: matrix.platform == 'armv7'
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: arm
       
       - name: 设置 Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@v3
       
       - name: 登录 GitHub Container Registry
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         if: github.event_name != 'pull_request'
         with:
           registry: ${{ env.REGISTRY }}
@@ -161,14 +163,14 @@ jobs:
 
       # Docker Hub 登录
       - name: 登录 Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         if: github.event_name != 'pull_request'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: 设置 Go 环境
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -187,7 +189,7 @@ jobs:
 
       - name: 构建并推送单架构镜像
         id: build
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
@@ -224,13 +226,13 @@ jobs:
       digest: ${{ steps.merge.outputs.digest }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
       
       - name: 设置 Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@v3
       
       - name: 登录 GitHub Container Registry
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -238,7 +240,7 @@ jobs:
 
       # Docker Hub 登录
       - name: 登录 Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -349,10 +351,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 登录 GitHub Container Registry
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -432,10 +434,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
       
       - name: 登录 GitHub Container Registry
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -505,17 +507,17 @@ jobs:
             suffix: cpu
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
       
       - name: 设置 QEMU
         if: matrix.variant == 'cpu'
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@v3
       
       - name: 设置 Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@v3
       
       - name: 登录 GitHub Container Registry
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         if: github.event_name != 'pull_request'
         with:
           registry: ${{ env.REGISTRY }}
@@ -528,7 +530,7 @@ jobs:
 
       # v2.255.0: 优化AI镜像构建缓存
       - name: 构建 AI 服务镜像 (${{ matrix.variant }})
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile.ai

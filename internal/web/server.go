@@ -1177,6 +1177,7 @@ func (s *Server) setupRoutes() {
 		// ========== 系统信息 ==========
 		api.GET("/system/info", s.getSystemInfo)
 		api.GET("/system/health", s.getHealth)
+		api.GET("/system/status", s.getSystemStatus)
 
 		// ========== 性能监控 ==========
 		if s.perfMgr != nil {
@@ -2476,4 +2477,8 @@ func (s *Server) getHealth(c *gin.Context) {
 		"code":    0,
 		"message": "healthy",
 	})
+}
+
+func (s *Server) getSystemStatus(c *gin.Context) {
+	system.GetSystemStatus(c)
 }

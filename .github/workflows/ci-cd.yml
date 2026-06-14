@@ -24,7 +24,11 @@
 # - 增加测试结果缓存
 # - 构建与测试并行执行
 #
-# 当前版本: v2.584.0（工部维护）
+# v2.600.0 工部维护：CI/CD 版本同步
+# - 所有 workflow 版本标记更新至 v2.600.0
+# - Actions 版本降级到已发布的稳定版本
+#
+# 当前版本: v2.600.0（工部维护）
 name: CI/CD
 
 on:
@@ -82,7 +86,7 @@ jobs:
       test-changed: ${{ steps.filter.outputs.test }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 检测变更
         uses: dorny/paths-filter@v3
@@ -132,7 +136,7 @@ jobs:
       test-packages: ${{ steps.test-packages.outputs.packages }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 记录构建时间戳
         id: timestamp
@@ -167,7 +171,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
       
       - name: 设置 Go（预热缓存）
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -216,7 +220,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
@@ -226,7 +230,7 @@ jobs:
             ~/.cache/go-build
           key: ${{ needs.prepare.outputs.go-cache-key }}
       - name: 设置 Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: false
@@ -239,10 +243,10 @@ jobs:
             ~/go/bin
           key: go-tools-${{ env.CACHE_VERSION }}-${{ runner.os }}
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v7
+        uses: golangci/golangci-lint-action@v6
         continue-on-error: true
         with:
-          version: v2.11.3
+          version: latest
           args: --timeout=10m --issues-exit-code=0
           skip-cache: true
       
@@ -268,7 +272,7 @@ jobs:
       security-events: write
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
@@ -278,7 +282,7 @@ jobs:
             ~/.cache/go-build
           key: ${{ needs.prepare.outputs.go-cache-key }}
       - name: 设置 Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: false
@@ -307,7 +311,7 @@ jobs:
       security-events: write
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 运行 Trivy 漏洞扫描
         uses: aquasecurity/trivy-action@master
@@ -348,7 +352,7 @@ jobs:
       SHARD_TOTAL: 6
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
@@ -358,7 +362,7 @@ jobs:
             ~/.cache/go-build
           key: ${{ needs.prepare.outputs.go-cache-key }}
       - name: 设置 Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: false
@@ -436,10 +440,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 设置 Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
 
@@ -587,7 +591,7 @@ jobs:
       CGO_ENABLED: 1
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
@@ -597,7 +601,7 @@ jobs:
             ~/.cache/go-build
           key: ${{ needs.prepare.outputs.go-cache-key }}
       - name: 设置 Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: false
@@ -675,7 +679,7 @@ jobs:
             arm: 7
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
@@ -685,7 +689,7 @@ jobs:
             ~/.cache/go-build
           key: ${{ needs.prepare.outputs.go-cache-key }}
       - name: 设置 Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: false
@@ -741,7 +745,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       # ========== 新增：创建必要目录 ==========
       - name: 准备 Docker 测试环境
@@ -892,7 +896,7 @@ jobs:
       - name: 生成构建汇总
         run: |
           BUILD_END=$(date +%s)
-          echo "## 📊 CI/CD 构建汇总 (v2.584.0)" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 CI/CD 构建汇总 (v2.600.0)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 任务 | 状态 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|------|" >> $GITHUB_STEP_SUMMARY
@@ -913,7 +917,7 @@ jobs:
           echo "**触发者:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "**运行 ID:** [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🚀 v2.584.0 工部维护" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 v2.600.0 工部维护" >> $GITHUB_STEP_SUMMARY
           echo "- 测试分片6个，智能均衡分配" >> $GITHUB_STEP_SUMMARY
           echo "- 测试与构建并行执行" >> $GITHUB_STEP_SUMMARY
           echo "- 编译产物缓存跨job复用" >> $GITHUB_STEP_SUMMARY

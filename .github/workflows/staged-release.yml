@@ -9,7 +9,9 @@
 #
 # v2.584.0: 采用 Matrix 策略分架构并行构建，解决 QEMU 超时问题
 #
-# 当前版本: v2.584.0（工部维护）
+# v2.600.0 工部维护：CI/CD 版本同步
+#
+# 当前版本: v2.600.0（工部维护）
 
 name: Staged Release
 
@@ -62,7 +64,7 @@ jobs:
       is-canary: ${{ steps.version.outputs.is_canary }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 确定版本
         id: version
@@ -93,10 +95,10 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 设置 Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -147,20 +149,20 @@ jobs:
             suffix: arm64
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 设置 Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@v3
 
       - name: 登录 GHCR
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
       - name: 设置 Go 环境
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -178,7 +180,7 @@ jobs:
         run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
 
       - name: 构建并推送单架构镜像
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
@@ -211,10 +213,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 设置 Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@v3
 
       - name: 登录 GHCR
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -307,26 +309,26 @@ jobs:
             suffix: armv7
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 设置 QEMU
         if: matrix.platform == 'armv7'
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: arm
 
       - name: 设置 Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@v3
 
       - name: 登录 GHCR
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
       - name: 设置 Go 环境
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -340,7 +342,7 @@ jobs:
           key: ${{ runner.os }}-go-full-${{ matrix.platform }}-${{ hashFiles('**/go.sum') }}
 
       - name: 构建并推送单架构镜像
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
@@ -373,10 +375,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 设置 Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@v3
 
       - name: 登录 GHCR
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}

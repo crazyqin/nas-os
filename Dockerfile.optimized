@@ -72,7 +72,7 @@ EOF
 RUN CGO_ENABLED=0 go build -ldflags="-w -s" -o /healthcheck /tmp/health.go
 
 # ========== 阶段三: 运行时（Alpine，< 200MB） ==========
-FROM alpine:3.20
+FROM alpine:3.21
 
 ARG VERSION=dev
 ARG BUILD_TIME
