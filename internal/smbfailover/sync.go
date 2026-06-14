@@ -606,6 +606,23 @@ func (ss *StateSynchronizer) GetNodeSyncStatus() map[string]*SyncEndpoint {
 	return result
 }
 
+// SetNodeSyncStatus sets the sync status of a node directly
+func (ss *StateSynchronizer) SetNodeSyncStatus(nodeID string, connected bool, lastSync time.Time, syncLag time.Duration) {
+	ss.mu.RLock()
+	node, ok := ss.nodes[nodeID]
+	ss.mu.RUnlock()
+
+	if !ok {
+		return
+	}
+
+	node.mu.Lock()
+	node.Connected = connected
+	node.LastSync = lastSync
+	node.SyncLag = syncLag
+	node.mu.Unlock()
+}
+
 // IsNodeInSync returns true if a node is in sync
 func (ss *StateSynchronizer) IsNodeInSync(nodeID string, maxLag time.Duration) bool {
 	ss.mu.RLock()
