@@ -272,7 +272,6 @@ func TestPreviewCache_GetStats(t *testing.T) {
 	}
 
 	cache := NewPreviewCache(config)
-	defer cache.Close()
 
 	// 创建测试文件.
 	testFile := filepath.Join(tmpDir, "test.txt")
@@ -289,6 +288,9 @@ func TestPreviewCache_GetStats(t *testing.T) {
 
 	cache.Set("stats_key", entry)
 
+	// 等待异步保存完成.
+	time.Sleep(100 * time.Millisecond)
+
 	stats := cache.GetStats()
 
 	if stats.TotalEntries != 1 {
@@ -302,6 +304,10 @@ func TestPreviewCache_GetStats(t *testing.T) {
 	if stats.MaxSize != 1024*1024 {
 		t.Errorf("MaxSize = %d, want %d", stats.MaxSize, 1024*1024)
 	}
+
+	// 关闭缓存并手动清理.
+	cache.Close()
+	os.RemoveAll(tmpDir)
 }
 
 func TestPreviewCache_Has(t *testing.T) {
