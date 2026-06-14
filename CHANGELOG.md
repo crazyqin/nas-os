@@ -1,3 +1,28 @@
+## v2.599.0 (2026-06-14) - 竞品功能对标: RDMA网络/LXC容器/CI修复
+
+### 新增功能
+- **RDMA网络管理器 (rdmanetwork)** - 对标 TrueNAS 25.04 RDMA 支持，支持 RoCE/InfiniBand/iWARP 协议、设备管理、连接管理、队列对配置、数据收发、统计监控
+- **LXC容器管理器 (lxcmanager)** - 对标 TrueNAS 25.04 LXC/Incus 容器支持，支持容器生命周期管理、资源限制、网络配置、卷挂载、端口映射、冻结/解冻
+
+### 修复
+- **filepreview**: 修复 TestPreviewCache_GetStats 临时目录清理问题
+- **smbfailover**: 合并远程更新解决冲突
+
+### 竞品分析
+- TrueNAS 25.04: RDMA支持(iSCSI/NFS)、LXC/Incus容器、Fast Deduplication、RAID-Z扩展
+- 群晖 DSM 7.3: Synology Tiering智能分层、AI功能、硬盘兼容性
+- 飞牛 fnOS: AI本地端模型、1.0版本发布
+
+### 测试
+- rdmanetwork: 14个测试用例（创建/启停/设备注册注销/连接断开/收发/设备列表/连接列表/统计/类型状态常量/配置/并发）
+- lxcmanager: 16个测试用例（创建/启停/容器创建启停重启删除/按名称获取/容器列表/运行容器列表/冻结解冻/资源更新/统计/状态常量/状态字符串/配置/并发/限制）
+- filepreview: TestPreviewCache_GetStats 修复通过
+
+### 版本号
+- v2.598.0 → v2.599.0
+
+---
+
 ## v2.598.0 (2026-06-14) - CI修复 + 2FA双因素认证
 
 ### 修复
