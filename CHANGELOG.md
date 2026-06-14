@@ -1,3 +1,25 @@
+## v2.602.0 (2026-06-15) - 新增系统健康诊断/能源管理/智能家居中枢
+
+### 新增功能
+- **系统健康诊断 (systemhealth)** - 实时监控CPU/内存/磁盘健康状态，自动评分、告警检测、自愈机制，对标群晖 Active Insight
+- **能源管理器 (energymanager)** - 智能功耗监控、多模式切换(性能/均衡/节能)、定时调度、电费估算、CO2减排统计，差异化创新功能
+- **智能家居中枢 (smarthub)** - MQTT设备集成、设备发现与管理、场景联动、自动化规则引擎，差异化创新功能
+
+### 竞品调研更新
+- **群晖 COMPUTEX 2026**: ChatPlus/Meet企业通讯、BeeCamera家庭监控、Deep Search AI搜索、GPU NAS支持
+- **TrueNAS 26**: TrueNAS Connect云端统一管理、勒索软件检测、LXC容器、OpenZFS 2.4
+- **飞牛 fnOS**: AMD GPU硬件加速、ARM架构支持(42款设备)
+
+### 优化
+- 修复 smartdedup 编译冲突，删除冗余 handlers.go 文件
+- 补充 smartdedup 类型定义(DedupConfig/FileHash/ScanRequest等)
+- 更新 go.mod 依赖(gopsutil v4)
+
+### 版本号
+- v2.601.0 → v2.602.0
+
+---
+
 ## v2.601.0 (2026-06-14) - 新增系统状态API
 
 ### 新增功能
