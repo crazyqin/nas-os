@@ -91,10 +91,7 @@ func TestHealthChecker_IsNodeHealthy(t *testing.T) {
 	assert.True(t, checker.IsNodeHealthy("node-1"))
 
 	// Mark as unhealthy
-	health, _ := checker.GetNodeHealth("node-1")
-	health.mu.Lock()
-	health.Healthy = false
-	health.mu.Unlock()
+	checker.SetNodeHealth("node-1", false)
 
 	assert.False(t, checker.IsNodeHealthy("node-1"))
 
@@ -112,10 +109,7 @@ func TestHealthChecker_GetHealthyNodes(t *testing.T) {
 	checker.AddNode("node-3", "server3", "192.168.1.12", 8080)
 
 	// Mark one as unhealthy
-	health2, _ := checker.GetNodeHealth("node-2")
-	health2.mu.Lock()
-	health2.Healthy = false
-	health2.mu.Unlock()
+	checker.SetNodeHealth("node-2", false)
 
 	healthy := checker.GetHealthyNodes()
 	assert.Len(t, healthy, 2)
@@ -133,10 +127,7 @@ func TestHealthChecker_GetUnhealthyNodes(t *testing.T) {
 	checker.AddNode("node-2", "server2", "192.168.1.11", 8080)
 
 	// Mark one as unhealthy
-	health2, _ := checker.GetNodeHealth("node-2")
-	health2.mu.Lock()
-	health2.Healthy = false
-	health2.mu.Unlock()
+	checker.SetNodeHealth("node-2", false)
 
 	unhealthy := checker.GetUnhealthyNodes()
 	assert.Len(t, unhealthy, 1)
@@ -173,10 +164,7 @@ func TestHealthChecker_GetClusterHealth(t *testing.T) {
 	assert.True(t, health["cluster_healthy"].(bool))
 
 	// Mark one unhealthy
-	node2, _ := checker.GetNodeHealth("node-2")
-	node2.mu.Lock()
-	node2.Healthy = false
-	node2.mu.Unlock()
+	checker.SetNodeHealth("node-2", false)
 
 	health = checker.GetClusterHealth()
 	assert.Equal(t, 1, health["healthy_nodes"])

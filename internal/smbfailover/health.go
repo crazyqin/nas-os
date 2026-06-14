@@ -171,6 +171,38 @@ func (hc *HealthChecker) SetHealthChangeCallback(fn func(nodeID string, healthy 
 	hc.onHealthChange = fn
 }
 
+// SetNodeHealth sets the health status of a node (for testing)
+func (hc *HealthChecker) SetNodeHealth(nodeID string, healthy bool) {
+	hc.mu.RLock()
+	node, ok := hc.nodes[nodeID]
+	hc.mu.RUnlock()
+
+	if !ok {
+		return
+	}
+
+	node.mu.Lock()
+	defer node.mu.Unlock()
+
+	if node.Healthy != healthy {
+		node.Healthy = healthy
+		if healthy {
+			node.LastOK = time.Now()
+			node.ConsecutiveOK++
+			node.ConsecutiveFail = 0
+		} else {
+			node.LastFailure = time.Now()
+			node.ConsecutiveFail++
+			node.ConsecutiveOK = 0
+		}
+
+		// Notify callback
+		if hc.onHealthChange != nil {
+			go hc.onHealthChange(nodeID, healthy)
+		}
+	}
+}
+
 // Start starts the health checker
 func (hc *HealthChecker) Start() error {
 	hc.mu.Lock()
