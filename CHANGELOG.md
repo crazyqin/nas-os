@@ -1,3 +1,35 @@
+## v2.601.0 (2026-06-14) - 新增系统状态API
+
+### 新增功能
+- **系统状态API (system/status)** - 提供系统运行状态、内存使用、Go运行时信息等实时数据，便于监控和运维
+
+### 优化
+- 更新VERSION至v2.601.0
+
+### 版本号
+- v2.600.0 → v2.601.0
+
+---
+
+## v2.600.0 (2026-06-14) - 竞品功能对标: WebShare浏览器共享/勒索防护/竞品调研更新
+
+### 新增功能
+- **WebShare浏览器文件共享 (websharebrowser)** - 对标 TrueNAS 26 WebShare，支持浏览器端文件浏览/上传/下载/预览、分享链接生成、权限控制、加密传输、多格式在线预览（对标 TrueNAS 26 WebShare 浏览器文件共享）
+- **勒索防护模块 (ransomdefender)** - 对标 TrueNAS Ransomware Defense，支持文件系统实时监控、异常行为检测（高频加密/批量重命名）、蜜罐文件陷阱、自动快照保护、威胁等级评估、告警通知（对标 TrueNAS Ransomware Defense 勒索防护）
+
+### 竞品调研更新
+- **飞牛 fnOS**: ARM虚拟机 v0.9.1 增强（快照/硬件直通）、企业级ACL（3→13种权限细分）、阿里云MaaS合作
+- **群晖 DSM**: DSM Agent AI自动化运维、Cluster Manager多集群管理、AI Console本地模型、FIPS 140-3、RBAC、PAS7700全NVMe存储
+- **TrueNAS 26**: WebShare浏览器文件共享、TrueSearch亚秒级全文搜索、LXC容器HA、OpenZFS 2.4混合池、Ransomware检测、SMB HA有状态故障转移
+
+### 文档
+- 新增 `docs/competitive-analysis.md` 竞品分析文档，对比飞牛/群晖/TrueNAS功能特点
+
+### 版本号
+- v2.599.0 → v2.600.0
+
+---
+
 ## v2.599.0 (2026-06-14) - 竞品功能对标: RDMA网络/LXC容器/CI修复
 
 ### 新增功能

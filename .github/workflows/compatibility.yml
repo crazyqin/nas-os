@@ -9,7 +9,9 @@
 # - 数据库迁移兼容性检查
 # - 依赖版本兼容性
 #
-# 当前版本: v2.584.0（工部维护）
+# v2.600.0 工部维护：CI/CD 版本同步
+#
+# 当前版本: v2.600.0（工部维护）
 
 name: Compatibility Check
 
@@ -49,10 +51,10 @@ jobs:
         os: [ubuntu-latest]
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 设置 Go ${{ matrix.go-version }}
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
           cache: false
@@ -115,7 +117,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 验证 docker-compose.yml
         run: |
@@ -190,12 +192,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: 设置 Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -246,7 +248,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -313,10 +315,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 设置 Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
