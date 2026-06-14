@@ -186,7 +186,6 @@ func TestPreviewCache_DeleteBySource(t *testing.T) {
 	}
 
 	cache := NewPreviewCache(config)
-	defer cache.Close()
 
 	// 创建测试文件.
 	testFile := filepath.Join(tmpDir, "test.txt")
@@ -207,6 +206,9 @@ func TestPreviewCache_DeleteBySource(t *testing.T) {
 		cache.Set(entry.Key, entry)
 	}
 
+	// 等待异步保存完成.
+	time.Sleep(100 * time.Millisecond)
+
 	// 删除源文件的所有缓存.
 	if err := cache.DeleteBySource(sourcePath); err != nil {
 		t.Fatalf("DeleteBySource() failed: %v", err)
@@ -217,6 +219,10 @@ func TestPreviewCache_DeleteBySource(t *testing.T) {
 	if stats.TotalEntries != 0 {
 		t.Errorf("TotalEntries = %d, want 0", stats.TotalEntries)
 	}
+
+	// 关闭缓存并手动清理.
+	cache.Close()
+	os.RemoveAll(tmpDir)
 }
 
 func TestPreviewCache_Clear(t *testing.T) {
@@ -358,7 +364,6 @@ func TestPreviewCache_Count(t *testing.T) {
 	}
 
 	cache := NewPreviewCache(config)
-	defer cache.Close()
 
 	if cache.Count() != 0 {
 		t.Errorf("Count() = %d, want 0", cache.Count())
@@ -379,9 +384,16 @@ func TestPreviewCache_Count(t *testing.T) {
 
 	cache.Set("count_key", entry)
 
+	// 等待异步保存完成.
+	time.Sleep(100 * time.Millisecond)
+
 	if cache.Count() != 1 {
 		t.Errorf("Count() = %d, want 1", cache.Count())
 	}
+
+	// 关闭缓存并手动清理.
+	cache.Close()
+	os.RemoveAll(tmpDir)
 }
 
 func TestPreviewCache_Size(t *testing.T) {
@@ -567,7 +579,6 @@ func TestPreviewCache_ListEntries(t *testing.T) {
 	}
 
 	cache := NewPreviewCache(config)
-	defer cache.Close()
 
 	// 创建测试文件.
 	testFile := filepath.Join(tmpDir, "test.txt")
@@ -586,8 +597,15 @@ func TestPreviewCache_ListEntries(t *testing.T) {
 		cache.Set(entry.Key, entry)
 	}
 
+	// 等待异步保存完成.
+	time.Sleep(100 * time.Millisecond)
+
 	entries := cache.ListEntries()
 	if len(entries) != 3 {
 		t.Errorf("ListEntries() length = %d, want 3", len(entries))
 	}
+
+	// 关闭缓存并手动清理.
+	cache.Close()
+	os.RemoveAll(tmpDir)
 }
