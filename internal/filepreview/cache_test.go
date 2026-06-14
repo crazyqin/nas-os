@@ -143,7 +143,6 @@ func TestPreviewCache_Delete(t *testing.T) {
 	}
 
 	cache := NewPreviewCache(config)
-	defer cache.Close()
 
 	// 创建测试文件.
 	testFile := filepath.Join(tmpDir, "test.txt")
@@ -160,6 +159,9 @@ func TestPreviewCache_Delete(t *testing.T) {
 
 	cache.Set("delete_key", entry)
 
+	// 等待异步保存完成.
+	time.Sleep(100 * time.Millisecond)
+
 	// 删除.
 	if err := cache.Delete("delete_key"); err != nil {
 		t.Fatalf("Delete() failed: %v", err)
@@ -170,6 +172,10 @@ func TestPreviewCache_Delete(t *testing.T) {
 	if err == nil {
 		t.Error("Expected error for deleted key")
 	}
+
+	// 关闭缓存并手动清理.
+	cache.Close()
+	os.RemoveAll(tmpDir)
 }
 
 func TestPreviewCache_DeleteBySource(t *testing.T) {
