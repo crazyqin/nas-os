@@ -22,6 +22,17 @@ func setupBudgetManagerOnly(t *testing.T) *BudgetManager {
 	return budgetMgr
 }
 
+func setupInvestmentManagerOnly(t *testing.T) *InvestmentManager {
+	logger, _ := zap.NewDevelopment()
+	return NewInvestmentManager(logger)
+}
+
+func setupBillManagerOnly(t *testing.T) *BillManager {
+	logger, _ := zap.NewDevelopment()
+	engine := NewFinanceEngine(logger)
+	return NewBillManager(logger, engine)
+}
+
 func setupTestEnvironment(t *testing.T) (*FinanceEngine, *BudgetManager, *InvestmentManager, *BillManager, *AnalyticsEngine) {
 	logger, _ := zap.NewDevelopment()
 	engine := NewFinanceEngine(logger)
@@ -314,7 +325,7 @@ func TestGetBudgetStatus(t *testing.T) {
 // ========== 投资管理测试 ==========
 
 func TestAddInvestment(t *testing.T) {
-	_, _, investMgr, _, _ := setupTestEnvironment(t)
+	investMgr := setupInvestmentManagerOnly(t)
 
 	inv := &Investment{
 		Name:         "沪深300ETF",
@@ -334,7 +345,7 @@ func TestAddInvestment(t *testing.T) {
 }
 
 func TestUpdatePrice(t *testing.T) {
-	_, _, investMgr, _, _ := setupTestEnvironment(t)
+	investMgr := setupInvestmentManagerOnly(t)
 
 	inv := &Investment{
 		Name:         "测试基金",
@@ -355,7 +366,7 @@ func TestUpdatePrice(t *testing.T) {
 }
 
 func TestGetPortfolioSummary(t *testing.T) {
-	_, _, investMgr, _, _ := setupTestEnvironment(t)
+	investMgr := setupInvestmentManagerOnly(t)
 
 	_ = investMgr.AddInvestment(&Investment{
 		Name: "基金A", Type: InvestmentTypeFund,
@@ -372,7 +383,7 @@ func TestGetPortfolioSummary(t *testing.T) {
 }
 
 func TestGetInvestmentRanking(t *testing.T) {
-	_, _, investMgr, _, _ := setupTestEnvironment(t)
+	investMgr := setupInvestmentManagerOnly(t)
 
 	_ = investMgr.AddInvestment(&Investment{
 		Name: "低收益", Type: InvestmentTypeFund,
@@ -391,7 +402,7 @@ func TestGetInvestmentRanking(t *testing.T) {
 // ========== 账单管理测试 ==========
 
 func TestCreateBill(t *testing.T) {
-	_, _, _, billMgr, _ := setupTestEnvironment(t)
+	billMgr := setupBillManagerOnly(t)
 
 	bill := &Bill{
 		Name:       "房租",
@@ -426,7 +437,7 @@ func TestPayBill(t *testing.T) {
 }
 
 func TestGetOverdueBills(t *testing.T) {
-	_, _, _, billMgr, _ := setupTestEnvironment(t)
+	billMgr := setupBillManagerOnly(t)
 
 	// 创建一个已过期的账单
 	bill := &Bill{
@@ -443,7 +454,7 @@ func TestGetOverdueBills(t *testing.T) {
 }
 
 func TestGetBillSummary(t *testing.T) {
-	_, _, _, billMgr, _ := setupTestEnvironment(t)
+	billMgr := setupBillManagerOnly(t)
 
 	_ = billMgr.CreateBill(&Bill{
 		Name: "房租", Amount: 3000, Cycle: BillCycleMonthly, DueDay: 1,
