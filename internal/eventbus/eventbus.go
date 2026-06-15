@@ -336,8 +336,15 @@ func (b *EventBus) GetDeadLetter() []*Event {
 func (b *EventBus) GetMetrics() *BusMetrics {
 	b.metrics.mu.Lock()
 	defer b.metrics.mu.Unlock()
-	m := *b.metrics
-	return &m
+	return &BusMetrics{
+		EventsPublished: b.metrics.EventsPublished,
+		EventsDelivered: b.metrics.EventsDelivered,
+		EventsFailed:    b.metrics.EventsFailed,
+		DeadLetters:     b.metrics.DeadLetters,
+		ActiveSubs:      b.metrics.ActiveSubs,
+		AvgDeliveryMs:   b.metrics.AvgDeliveryMs,
+		LastEventAt:     b.metrics.LastEventAt,
+	}
 }
 
 // Stop gracefully stops the event bus
