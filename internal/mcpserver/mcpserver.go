@@ -399,8 +399,16 @@ func (s *MCPServer) ListPrompts() []*Prompt {
 func (s *MCPServer) GetMetrics() *ServerMetrics {
 	s.metrics.mu.Lock()
 	defer s.metrics.mu.Unlock()
-	m := *s.metrics
-	return &m
+	return &ServerMetrics{
+		TotalRequests:   s.metrics.TotalRequests,
+		ToolInvocations: s.metrics.ToolInvocations,
+		ResourceReads:   s.metrics.ResourceReads,
+		PromptRequests:  s.metrics.PromptRequests,
+		ErrorCount:      s.metrics.ErrorCount,
+		AvgResponseMs:   s.metrics.AvgResponseMs,
+		LastRequestAt:   s.metrics.LastRequestAt,
+		StartTime:       s.metrics.StartTime,
+	}
 }
 
 // Stop gracefully stops the MCP server

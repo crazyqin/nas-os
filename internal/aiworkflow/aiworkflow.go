@@ -509,8 +509,15 @@ func (e *WorkflowEngine) CancelExecution(execID string) error {
 func (e *WorkflowEngine) GetMetrics() *EngineMetrics {
 	e.metrics.mu.Lock()
 	defer e.metrics.mu.Unlock()
-	m := *e.metrics
-	return &m
+	return &EngineMetrics{
+		TotalWorkflows:   e.metrics.TotalWorkflows,
+		TotalExecutions:  e.metrics.TotalExecutions,
+		SuccessfulRuns:   e.metrics.SuccessfulRuns,
+		FailedRuns:       e.metrics.FailedRuns,
+		AvgExecTimeMs:    e.metrics.AvgExecTimeMs,
+		ActiveExecutions: e.metrics.ActiveExecutions,
+		LastExecutionAt:  e.metrics.LastExecutionAt,
+	}
 }
 
 // Stop gracefully stops the engine
