@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.600.0 Stable (2026-06-14)
+> **最新版本**: v2.603.0 Stable (2026-06-15)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -16,6 +16,7 @@
 | 2 | 🤖 **本地LLM服务** | Ollama集成 + OpenAI兼容API，本地AI推理 | **私有化AI能力** - 零数据外泄，智能对话/文档处理 |
 | 3 | 🔐 **AI以文搜图** | CLIP本地推理，自然语言搜索照片 | **超越人脸识别** - "海边日落"、"孩子笑脸"精准匹配 |
 | 4 | ☁️ **多云存储挂载** | 阿里云/腾讯云/AWS/GDrive/OneDrive统一挂载 | **云本地化** - 6+平台透明读写，覆盖最广 |
+| 5 | 🔗 **MCP服务器集成** | Model Context Protocol，AI工具标准化连接 | **AI生态开放** - 对标群晖AI Console，标准化AI工具链 |
 
 > 💡 **竞品对标**: 群晖DSM、飞牛fnOS、TrueNAS均无上述四大功能 → [详细分析](docs/COMPETITIVE_ANALYSIS_2026Q2.md)
 
