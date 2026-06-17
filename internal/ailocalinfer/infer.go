@@ -14,7 +14,6 @@ import (
 	"sort"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
@@ -619,7 +618,7 @@ func (e *engine) ensureCacheSpace(model *Model) error {
 
 	// Evict least recently used model
 	evicted := e.modelCache.Evict()
-	if evicted != nil {
+	if evicted != "" {
 		if m, exists := e.models[evicted]; exists {
 			m.Status = ModelStatusUnloaded
 			m.LoadedAt = nil
