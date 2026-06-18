@@ -1,887 +1,435 @@
-// Package fleetmonitor 提供集群监控
-// 对标群晖 Active Insight，统一监控多台设备
+// Package fleetmonitor provides fleet-level monitoring for NAS-OS
+// fleetmonitor.go - Multi-node monitoring and cluster management
 package fleetmonitor
 
 import (
 	"encoding/json"
 	"fmt"
-	"os"
+	"log"
+	"net/http"
 	"sync"
 	"time"
 )
 
-// ========== 集群设备管理 ==========
-
-// ClusterDevice 集群设备
-type ClusterDevice struct {
-	ID              string            `json:"id"`
-	Name            string            `json:"name"`
-	Hostname        string            `json:"hostname"`
-	IPAddress       string            `json:"ip_address"`
-	Type            DeviceType        `json:"type"`
-	Model           string            `json:"model"`
-	SerialNumber    string            `json:"serial_number"`
-	OSVersion       string            `json:"os_version"`
-	FirmwareVersion string            `json:"firmware_version"`
-	Location        DeviceLocation    `json:"location"`
-	Resources       DeviceResources   `json:"resources"`
-	Status          DeviceStatus      `json:"status"`
-	Health          HealthStatus      `json:"health"`
-	Tags            []string          `json:"tags"`
-	Metadata        map[string]string `json:"metadata,omitempty"`
-	LastSeen        time.Time         `json:"last_seen"`
-	RegisteredAt    time.Time         `json:"registered_at"`
-}
-
-// DeviceType 设备类型
-type DeviceType string
+// NodeStatus represents the status of a node
+type NodeStatus string
 
 const (
-	DeviceTypeNAS     DeviceType = "nas"
-	DeviceTypeServer  DeviceType = "server"
-	DeviceTypeSwitch  DeviceType = "switch"
-	DeviceTypeUPS     DeviceType = "ups"
-	DeviceTypeRouter  DeviceType = "router"
-	DeviceTypeStorage DeviceType = "storage"
+	NodeStatusOnline  NodeStatus = "online"
+	NodeStatusOffline NodeStatus = "offline"
+	NodeStatusWarning NodeStatus = "warning"
+	NodeStatusError   NodeStatus = "error"
 )
 
-// DeviceLocation 设备位置
-type DeviceLocation struct {
-	Rack    string `json:"rack"`
-	Row     string `json:"row"`
-	Unit    int    `json:"unit"`
-	Site    string `json:"site"`
-	City    string `json:"city"`
-	Country string `json:"country"`
+// NodeType represents the type of node
+type NodeType string
+
+const (
+	NodeTypePrimary   NodeType = "primary"
+	NodeTypeSecondary NodeType = "secondary"
+	NodeTypeEdge      NodeType = "edge"
+	NodeTypeWorker    NodeType = "worker"
+)
+
+// Node represents a monitored node
+type Node struct {
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Hostname    string            `json:"hostname"`
+	IPAddress   string            `json:"ip_address"`
+	Type        NodeType          `json:"type"`
+	Status      NodeStatus        `json:"status"`
+	CPU         CPUInfo           `json:"cpu"`
+	Memory      MemoryInfo        `json:"memory"`
+	Disks       []DiskInfo        `json:"disks"`
+	Network     NetworkInfo       `json:"network"`
+	Uptime      time.Duration     `json:"uptime"`
+	LastSeen    time.Time         `json:"last_seen"`
+	Metadata    map[string]string `json:"metadata"`
+	Tags        []string          `json:"tags"`
 }
 
-// DeviceResources 设备资源
-type DeviceResources struct {
-	CPU         CPUInfo         `json:"cpu"`
-	Memory      MemoryInfo      `json:"memory"`
-	Storage     []StorageInfo   `json:"storage"`
-	Network     []NetworkInfo   `json:"network"`
-	Temperature TemperatureInfo `json:"temperature"`
-}
-
-// CPUInfo CPU 信息
+// CPUInfo represents CPU information
 type CPUInfo struct {
-	Model        string  `json:"model"`
-	Cores        int     `json:"cores"`
-	Threads      int     `json:"threads"`
-	FrequencyGHz float64 `json:"frequency_ghz"`
-	UsagePercent float64 `json:"usage_percent"`
-	LoadAvg1     float64 `json:"load_avg_1"`
-	LoadAvg5     float64 `json:"load_avg_5"`
-	LoadAvg15    float64 `json:"load_avg_15"`
+	Model       string    `json:"model"`
+	Cores       int       `json:"cores"`
+	Threads     int       `json:"threads"`
+	Usage       float64   `json:"usage"`       // 0-100
+	Temperature float64   `json:"temperature"` // Celsius
+	LoadAvg     [3]float64 `json:"load_avg"`   // 1, 5, 15 min
 }
 
-// MemoryInfo 内存信息
+// MemoryInfo represents memory information
 type MemoryInfo struct {
-	TotalGB      float64 `json:"total_gb"`
-	UsedGB       float64 `json:"used_gb"`
-	AvailableGB  float64 `json:"available_gb"`
-	UsagePercent float64 `json:"usage_percent"`
-	SwapTotalGB  float64 `json:"swap_total_gb"`
-	SwapUsedGB   float64 `json:"swap_used_gb"`
+	Total     uint64  `json:"total"`      // bytes
+	Used      uint64  `json:"used"`       // bytes
+	Available uint64  `json:"available"`  // bytes
+	Usage     float64 `json:"usage"`      // 0-100
+	SwapTotal uint64  `json:"swap_total"` // bytes
+	SwapUsed  uint64  `json:"swap_used"`  // bytes
 }
 
-// StorageInfo 存储信息
-type StorageInfo struct {
-	Name         string  `json:"name"`
-	Type         string  `json:"type"`
-	TotalGB      float64 `json:"total_gb"`
-	UsedGB       float64 `json:"used_gb"`
-	AvailableGB  float64 `json:"available_gb"`
-	UsagePercent float64 `json:"usage_percent"`
-	Health       string  `json:"health"`
-	Temperature  float64 `json:"temperature"`
+// DiskInfo represents disk information
+type DiskInfo struct {
+	Device      string  `json:"device"`
+	MountPoint  string  `json:"mount_point"`
+	FileSystem  string  `json:"file_system"`
+	Total       uint64  `json:"total"`       // bytes
+	Used        uint64  `json:"used"`        // bytes
+	Available   uint64  `json:"available"`   // bytes
+	Usage       float64 `json:"usage"`       // 0-100
+	Temperature float64 `json:"temperature"` // Celsius
+	Health      string  `json:"health"`
 }
 
-// NetworkInfo 网络信息
+// NetworkInfo represents network information
 type NetworkInfo struct {
-	Name      string `json:"name"`
-	SpeedMbps int    `json:"speed_mbps"`
-	IP        string `json:"ip"`
-	MAC       string `json:"mac"`
-	BytesSent int64  `json:"bytes_sent"`
-	BytesRecv int64  `json:"bytes_recv"`
-	Errors    int64  `json:"errors"`
-	Up        bool   `json:"up"`
+	Interfaces  []NetworkInterface `json:"interfaces"`
+	TotalRx     uint64             `json:"total_rx"`     // bytes
+	TotalTx     uint64             `json:"total_tx"`     // bytes
+	Connections int                `json:"connections"`
 }
 
-// TemperatureInfo 温度信息
-type TemperatureInfo struct {
-	CPU    float64 `json:"cpu"`
-	System float64 `json:"system"`
-	Disk   float64 `json:"disk"`
-	Max    float64 `json:"max"`
+// NetworkInterface represents a network interface
+type NetworkInterface struct {
+	Name    string `json:"name"`
+	IP      string `json:"ip"`
+	MAC     string `json:"mac"`
+	Speed   uint64 `json:"speed"`   // Mbps
+	RxBytes uint64 `json:"rx_bytes"`
+	TxBytes uint64 `json:"tx_bytes"`
+	Status  string `json:"status"`
 }
 
-// DeviceStatus 设备状态
-type DeviceStatus string
-
-const (
-	DeviceStatusOnline      DeviceStatus = "online"
-	DeviceStatusOffline     DeviceStatus = "offline"
-	DeviceStatusDegraded    DeviceStatus = "degraded"
-	DeviceStatusMaintenance DeviceStatus = "maintenance"
-)
-
-// HealthStatus 健康状态
-type HealthStatus string
-
-const (
-	HealthStatusHealthy  HealthStatus = "healthy"
-	HealthStatusWarning  HealthStatus = "warning"
-	HealthStatusCritical HealthStatus = "critical"
-	HealthStatusUnknown  HealthStatus = "unknown"
-)
-
-// ========== 监控指标 ==========
-
-// MetricPoint 指标点
-type MetricPoint struct {
-	Timestamp time.Time         `json:"timestamp"`
-	DeviceID  string            `json:"device_id"`
-	Metric    string            `json:"metric"`
-	Value     float64           `json:"value"`
-	Unit      string            `json:"unit"`
-	Tags      map[string]string `json:"tags,omitempty"`
-}
-
-// MetricSeries 指标序列
-type MetricSeries struct {
-	DeviceID string        `json:"device_id"`
-	Metric   string        `json:"metric"`
-	Unit     string        `json:"unit"`
-	Points   []MetricPoint `json:"points"`
-}
-
-// ========== 告警管理 ==========
-
-// Alert 告警
-type Alert struct {
-	ID             string            `json:"id"`
-	DeviceID       string            `json:"device_id"`
-	DeviceName     string            `json:"device_name"`
-	RuleID         string            `json:"rule_id"`
-	RuleName       string            `json:"rule_name"`
-	Level          AlertLevel        `json:"level"`
-	Category       AlertCategory     `json:"category"`
-	Title          string            `json:"title"`
-	Message        string            `json:"message"`
-	Value          float64           `json:"value"`
-	Threshold      float64           `json:"threshold"`
-	Status         AlertStatus       `json:"status"`
-	AcknowledgedBy string            `json:"acknowledged_by,omitempty"`
-	ResolvedAt     *time.Time        `json:"resolved_at,omitempty"`
-	Metadata       map[string]string `json:"metadata,omitempty"`
-	CreatedAt      time.Time         `json:"created_at"`
-	UpdatedAt      time.Time         `json:"updated_at"`
-}
-
-// AlertLevel 告警级别
+// AlertLevel represents the severity of an alert
 type AlertLevel string
 
 const (
-	AlertLevelInfo      AlertLevel = "info"
-	AlertLevelWarning   AlertLevel = "warning"
-	AlertLevelCritical  AlertLevel = "critical"
-	AlertLevelEmergency AlertLevel = "emergency"
+	AlertLevelInfo    AlertLevel = "info"
+	AlertLevelWarning AlertLevel = "warning"
+	AlertLevelError   AlertLevel = "error"
+	AlertLevelCritical AlertLevel = "critical"
 )
 
-// AlertCategory 告警分类
-type AlertCategory string
-
-const (
-	AlertCategoryCPU         AlertCategory = "cpu"
-	AlertCategoryMemory      AlertCategory = "memory"
-	AlertCategoryStorage     AlertCategory = "storage"
-	AlertCategoryNetwork     AlertCategory = "network"
-	AlertCategoryTemperature AlertCategory = "temperature"
-	AlertCategoryService     AlertCategory = "service"
-	AlertCategorySecurity    AlertCategory = "security"
-)
-
-// AlertStatus 告警状态
-type AlertStatus string
-
-const (
-	AlertStatusActive       AlertStatus = "active"
-	AlertStatusAcknowledged AlertStatus = "acknowledged"
-	AlertStatusResolved     AlertStatus = "resolved"
-	AlertStatusSuppressed   AlertStatus = "suppressed"
-)
-
-// AlertRule 告警规则
-type AlertRule struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Description string        `json:"description"`
-	Category    AlertCategory `json:"category"`
-	Metric      string        `json:"metric"`
-	Condition   string        `json:"condition"` // gt, lt, eq, gte, lte
-	Threshold   float64       `json:"threshold"`
-	Duration    int           `json:"duration"` // 秒
-	Level       AlertLevel    `json:"level"`
-	Enabled     bool          `json:"enabled"`
-	Actions     []AlertAction `json:"actions"`
-	CreatedAt   time.Time     `json:"created_at"`
+// Alert represents a monitoring alert
+type Alert struct {
+	ID        string     `json:"id"`
+	NodeID    string     `json:"node_id"`
+	Level     AlertLevel `json:"level"`
+	Category  string     `json:"category"`
+	Message   string     `json:"message"`
+	Details   string     `json:"details,omitempty"`
+	Timestamp time.Time  `json:"timestamp"`
+	Resolved  bool       `json:"resolved"`
+	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
 }
 
-// AlertAction 告警动作
-type AlertAction struct {
-	Type    string `json:"type"` // email, webhook, sms, script
-	Target  string `json:"target"`
-	Enabled bool   `json:"enabled"`
+// ClusterStats represents cluster-level statistics
+type ClusterStats struct {
+	TotalNodes      int            `json:"total_nodes"`
+	OnlineNodes     int            `json:"online_nodes"`
+	OfflineNodes    int            `json:"offline_nodes"`
+	WarningNodes    int            `json:"warning_nodes"`
+	TotalCPU        int            `json:"total_cpu"`
+	AvgCPUUsage     float64        `json:"avg_cpu_usage"`
+	TotalMemory     uint64         `json:"total_memory"`
+	TotalMemoryUsed uint64         `json:"total_memory_used"`
+	AvgMemoryUsage  float64        `json:"avg_memory_usage"`
+	TotalStorage    uint64         `json:"total_storage"`
+	TotalStorageUsed uint64        `json:"total_storage_used"`
+	AvgStorageUsage float64        `json:"avg_storage_usage"`
+	ActiveAlerts    int            `json:"active_alerts"`
+	Uptime          time.Duration  `json:"uptime"`
 }
 
-// ========== 集群监控管理器 ==========
-
-// FleetMonitor 集群监控管理器
-type FleetMonitor struct {
-	mu      sync.RWMutex
-	devices map[string]*ClusterDevice
-	metrics map[string][]MetricPoint
-	alerts  map[string]*Alert
-	rules   map[string]*AlertRule
-	config  MonitorConfig
-	stats   MonitorStats
+// Monitor manages fleet monitoring
+type Monitor struct {
+	nodes     map[string]*Node
+	alerts    map[string]*Alert
+	stats     *ClusterStats
+	mu        sync.RWMutex
+	startTime time.Time
+	hooks     []func(*Alert)
 }
 
-// MonitorConfig 监控配置
-type MonitorConfig struct {
-	MetricsRetentionDays int    `json:"metrics_retention_days"`
-	CollectionInterval   int    `json:"collection_interval"`  // 秒
-	AlertCheckInterval   int    `json:"alert_check_interval"` // 秒
-	MaxDevices           int    `json:"max_devices"`
-	MaxAlerts            int    `json:"max_alerts"`
-	MaxMetricsPerDevice  int    `json:"max_metrics_per_device"`
-	EnableAutoDiscovery  bool   `json:"enable_auto_discovery"`
-	DiscoverySubnet      string `json:"discovery_subnet"`
-	EnableNotifications  bool   `json:"enable_notifications"`
-	WebhookURL           string `json:"webhook_url"`
-	SMTPServer           string `json:"smtp_server"`
-	SMTPPort             int    `json:"smtp_port"`
-	AlertEmail           string `json:"alert_email"`
+// NewMonitor creates a new monitor instance
+func NewMonitor() *Monitor {
+	m := &Monitor{
+		nodes:     make(map[string]*Node),
+		alerts:    make(map[string]*Alert),
+		stats:     &ClusterStats{},
+		startTime: time.Now(),
+		hooks:     make([]func(*Alert), 0),
+	}
+	go m.collectStats()
+	return m
 }
 
-// MonitorStats 监控统计
-type MonitorStats struct {
-	TotalDevices   int       `json:"total_devices"`
-	OnlineDevices  int       `json:"online_devices"`
-	OfflineDevices int       `json:"offline_devices"`
-	TotalAlerts    int       `json:"total_alerts"`
-	ActiveAlerts   int       `json:"active_alerts"`
-	CriticalAlerts int       `json:"critical_alerts"`
-	WarningAlerts  int       `json:"warning_alerts"`
-	TotalMetrics   int       `json:"total_metrics"`
-	HealthScore    float64   `json:"health_score"`
-	LastCollection time.Time `json:"last_collection"`
-	LastAlertCheck time.Time `json:"last_alert_check"`
-}
-
-// NewFleetMonitor 创建集群监控管理器
-func NewFleetMonitor(config MonitorConfig) *FleetMonitor {
-	// 设置默认值
-	if config.MetricsRetentionDays == 0 {
-		config.MetricsRetentionDays = 30
-	}
-	if config.CollectionInterval == 0 {
-		config.CollectionInterval = 60
-	}
-	if config.AlertCheckInterval == 0 {
-		config.AlertCheckInterval = 30
-	}
-	if config.MaxDevices == 0 {
-		config.MaxDevices = 100
-	}
-	if config.MaxAlerts == 0 {
-		config.MaxAlerts = 10000
-	}
-	if config.MaxMetricsPerDevice == 0 {
-		config.MaxMetricsPerDevice = 100000
-	}
-	if config.SMTPPort == 0 {
-		config.SMTPPort = 587
-	}
-
-	return &FleetMonitor{
-		devices: make(map[string]*ClusterDevice),
-		metrics: make(map[string][]MetricPoint),
-		alerts:  make(map[string]*Alert),
-		rules:   make(map[string]*AlertRule),
-		config:  config,
-	}
-}
-
-// ========== 设备管理 ==========
-
-// RegisterDevice 注册设备
-func (m *FleetMonitor) RegisterDevice(device ClusterDevice) (*ClusterDevice, error) {
+// RegisterNode registers a new node for monitoring
+func (m *Monitor) RegisterNode(node *Node) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	if len(m.devices) >= m.config.MaxDevices {
-		return nil, fmt.Errorf("已达到最大设备数: %d", m.config.MaxDevices)
+	if node.ID == "" {
+		return fmt.Errorf("node ID is required")
 	}
 
-	if device.ID == "" {
-		device.ID = fmt.Sprintf("device-%s-%d", device.Hostname, time.Now().UnixNano())
+	node.LastSeen = time.Now()
+	if node.Status == "" {
+		node.Status = NodeStatusOnline
 	}
 
-	if _, exists := m.devices[device.ID]; exists {
-		return nil, fmt.Errorf("设备已存在: %s", device.ID)
-	}
-
-	device.Status = DeviceStatusOnline
-	device.Health = HealthStatusHealthy
-	device.LastSeen = time.Now()
-	device.RegisteredAt = time.Now()
-
-	m.devices[device.ID] = &device
-	m.updateStats()
-
-	return &device, nil
-}
-
-// UnregisterDevice 注销设备
-func (m *FleetMonitor) UnregisterDevice(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, exists := m.devices[id]; !exists {
-		return fmt.Errorf("设备不存在: %s", id)
-	}
-
-	// 删除设备的指标数据
-	delete(m.metrics, id)
-
-	// 删除设备相关的告警
-	for alertID, alert := range m.alerts {
-		if alert.DeviceID == id {
-			delete(m.alerts, alertID)
-		}
-	}
-
-	delete(m.devices, id)
-	m.updateStats()
-
+	m.nodes[node.ID] = node
+	log.Printf("Node registered: %s (%s)", node.Name, node.ID)
 	return nil
 }
 
-// GetDevice 获取设备
-func (m *FleetMonitor) GetDevice(id string) (*ClusterDevice, error) {
+// UnregisterNode removes a node from monitoring
+func (m *Monitor) UnregisterNode(nodeID string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, exists := m.nodes[nodeID]; !exists {
+		return fmt.Errorf("node not found: %s", nodeID)
+	}
+
+	delete(m.nodes, nodeID)
+	log.Printf("Node unregistered: %s", nodeID)
+	return nil
+}
+
+// UpdateNodeStatus updates a node's status and metrics
+func (m *Monitor) UpdateNodeStatus(nodeID string, node *Node) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	existing, exists := m.nodes[nodeID]
+	if !exists {
+		return fmt.Errorf("node not found: %s", nodeID)
+	}
+
+	existing.Status = node.Status
+	existing.CPU = node.CPU
+	existing.Memory = node.Memory
+	existing.Disks = node.Disks
+	existing.Network = node.Network
+	existing.LastSeen = time.Now()
+
+	// Check for alerts
+	m.checkNodeAlerts(existing)
+	return nil
+}
+
+// checkNodeAlerts checks for alert conditions on a node
+func (m *Monitor) checkNodeAlerts(node *Node) {
+	// CPU alert
+	if node.CPU.Usage > 90 {
+		m.createAlert(node.ID, AlertLevelWarning, "cpu", 
+			fmt.Sprintf("High CPU usage on %s: %.1f%%", node.Name, node.CPU.Usage))
+	}
+
+	// Memory alert
+	if node.Memory.Usage > 90 {
+		m.createAlert(node.ID, AlertLevelWarning, "memory",
+			fmt.Sprintf("High memory usage on %s: %.1f%%", node.Name, node.Memory.Usage))
+	}
+
+	// Disk alerts
+	for _, disk := range node.Disks {
+		if disk.Usage > 90 {
+			m.createAlert(node.ID, AlertLevelWarning, "disk",
+				fmt.Sprintf("High disk usage on %s (%s): %.1f%%", node.Name, disk.Device, disk.Usage))
+		}
+		if disk.Temperature > 60 {
+			m.createAlert(node.ID, AlertLevelError, "disk",
+				fmt.Sprintf("High disk temperature on %s (%s): %.1f°C", node.Name, disk.Device, disk.Temperature))
+		}
+	}
+}
+
+// createAlert creates a new alert
+func (m *Monitor) createAlert(nodeID string, level AlertLevel, category, message string) {
+	alert := &Alert{
+		ID:        fmt.Sprintf("%s-%s-%d", nodeID, category, time.Now().UnixNano()),
+		NodeID:    nodeID,
+		Level:     level,
+		Category:  category,
+		Message:   message,
+		Timestamp: time.Now(),
+	}
+
+	m.alerts[alert.ID] = alert
+	log.Printf("Alert created: %s", message)
+
+	// Notify hooks
+	for _, hook := range m.hooks {
+		go hook(alert)
+	}
+}
+
+// AddAlertHook adds a hook for alert notifications
+func (m *Monitor) AddAlertHook(hook func(*Alert)) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.hooks = append(m.hooks, hook)
+}
+
+// GetNode returns a node by ID
+func (m *Monitor) GetNode(nodeID string) (*Node, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	device, exists := m.devices[id]
+	node, exists := m.nodes[nodeID]
 	if !exists {
-		return nil, fmt.Errorf("设备不存在: %s", id)
+		return nil, fmt.Errorf("node not found: %s", nodeID)
 	}
-
-	return device, nil
+	return node, nil
 }
 
-// ListDevices 列出所有设备
-func (m *FleetMonitor) ListDevices() []*ClusterDevice {
+// ListNodes returns all monitored nodes
+func (m *Monitor) ListNodes() []*Node {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	result := make([]*ClusterDevice, 0, len(m.devices))
-	for _, d := range m.devices {
-		result = append(result, d)
+	nodes := make([]*Node, 0, len(m.nodes))
+	for _, node := range m.nodes {
+		nodes = append(nodes, node)
 	}
-
-	return result
+	return nodes
 }
 
-// UpdateDeviceStatus 更新设备状态
-func (m *FleetMonitor) UpdateDeviceStatus(id string, status DeviceStatus) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	device, exists := m.devices[id]
-	if !exists {
-		return fmt.Errorf("设备不存在: %s", id)
-	}
-
-	device.Status = status
-	device.LastSeen = time.Now()
-	m.updateStats()
-
-	return nil
-}
-
-// UpdateDeviceResources 更新设备资源
-func (m *FleetMonitor) UpdateDeviceResources(id string, resources DeviceResources) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	device, exists := m.devices[id]
-	if !exists {
-		return fmt.Errorf("设备不存在: %s", id)
-	}
-
-	device.Resources = resources
-	device.LastSeen = time.Now()
-
-	// 评估健康状态
-	device.Health = m.evaluateHealth(resources)
-
-	return nil
-}
-
-// evaluateHealth 评估健康状态
-func (m *FleetMonitor) evaluateHealth(resources DeviceResources) HealthStatus {
-	// CPU 使用率过高
-	if resources.CPU.UsagePercent > 90 {
-		return HealthStatusCritical
-	}
-	if resources.CPU.UsagePercent > 80 {
-		return HealthStatusWarning
-	}
-
-	// 内存使用率过高
-	if resources.Memory.UsagePercent > 95 {
-		return HealthStatusCritical
-	}
-	if resources.Memory.UsagePercent > 85 {
-		return HealthStatusWarning
-	}
-
-	// 存储使用率过高
-	for _, storage := range resources.Storage {
-		if storage.UsagePercent > 95 {
-			return HealthStatusCritical
-		}
-		if storage.UsagePercent > 90 {
-			return HealthStatusWarning
-		}
-	}
-
-	// 温度过高
-	if resources.Temperature.CPU > 90 {
-		return HealthStatusCritical
-	}
-	if resources.Temperature.CPU > 80 {
-		return HealthStatusWarning
-	}
-
-	return HealthStatusHealthy
-}
-
-// ========== 指标管理 ==========
-
-// RecordMetric 记录指标
-func (m *FleetMonitor) RecordMetric(point MetricPoint) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, exists := m.devices[point.DeviceID]; !exists {
-		return fmt.Errorf("设备不存在: %s", point.DeviceID)
-	}
-
-	if point.Timestamp.IsZero() {
-		point.Timestamp = time.Now()
-	}
-
-	key := point.DeviceID
-	m.metrics[key] = append(m.metrics[key], point)
-
-	// 限制指标数量
-	if len(m.metrics[key]) > m.config.MaxMetricsPerDevice {
-		m.metrics[key] = m.metrics[key][len(m.metrics[key])-m.config.MaxMetricsPerDevice:]
-	}
-
-	return nil
-}
-
-// GetMetrics 获取指标
-func (m *FleetMonitor) GetMetrics(deviceID, metric string, start, end time.Time) []MetricPoint {
+// GetAlerts returns alerts for a node or all alerts
+func (m *Monitor) GetAlerts(nodeID string, resolved bool) []*Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	result := make([]MetricPoint, 0)
-	points, exists := m.metrics[deviceID]
-	if !exists {
-		return result
-	}
-
-	for _, p := range points {
-		if metric != "" && p.Metric != metric {
-			continue
-		}
-		if !start.IsZero() && p.Timestamp.Before(start) {
-			continue
-		}
-		if !end.IsZero() && p.Timestamp.After(end) {
-			continue
-		}
-		result = append(result, p)
-	}
-
-	return result
-}
-
-// GetLatestMetrics 获取最新指标
-func (m *FleetMonitor) GetLatestMetrics(deviceID string) map[string]MetricPoint {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	result := make(map[string]MetricPoint)
-	points, exists := m.metrics[deviceID]
-	if !exists {
-		return result
-	}
-
-	// 获取每个指标的最新值
-	for _, p := range points {
-		existing, ok := result[p.Metric]
-		if !ok || p.Timestamp.After(existing.Timestamp) {
-			result[p.Metric] = p
+	alerts := make([]*Alert, 0)
+	for _, alert := range m.alerts {
+		if (nodeID == "" || alert.NodeID == nodeID) && alert.Resolved == resolved {
+			alerts = append(alerts, alert)
 		}
 	}
-
-	return result
+	return alerts
 }
 
-// ========== 告警管理 ==========
-
-// AddAlertRule 添加告警规则
-func (m *FleetMonitor) AddAlertRule(rule AlertRule) (*AlertRule, error) {
+// ResolveAlert marks an alert as resolved
+func (m *Monitor) ResolveAlert(alertID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	if rule.ID == "" {
-		rule.ID = fmt.Sprintf("rule-%s-%d", rule.Name, time.Now().UnixNano())
-	}
-
-	if _, exists := m.rules[rule.ID]; exists {
-		return nil, fmt.Errorf("规则已存在: %s", rule.ID)
-	}
-
-	rule.Enabled = true
-	rule.CreatedAt = time.Now()
-
-	m.rules[rule.ID] = &rule
-
-	return &rule, nil
-}
-
-// RemoveAlertRule 移除告警规则
-func (m *FleetMonitor) RemoveAlertRule(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, exists := m.rules[id]; !exists {
-		return fmt.Errorf("规则不存在: %s", id)
-	}
-
-	delete(m.rules, id)
-
-	return nil
-}
-
-// ListAlertRules 列出告警规则
-func (m *FleetMonitor) ListAlertRules() []*AlertRule {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	result := make([]*AlertRule, 0, len(m.rules))
-	for _, r := range m.rules {
-		result = append(result, r)
-	}
-
-	return result
-}
-
-// CreateAlert 创建告警
-func (m *FleetMonitor) CreateAlert(alert Alert) (*Alert, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if len(m.alerts) >= m.config.MaxAlerts {
-		return nil, fmt.Errorf("已达到最大告警数: %d", m.config.MaxAlerts)
-	}
-
-	if alert.ID == "" {
-		alert.ID = fmt.Sprintf("alert-%s-%s-%d", alert.DeviceID, alert.RuleID, time.Now().UnixNano())
-	}
-
-	alert.Status = AlertStatusActive
-	alert.CreatedAt = time.Now()
-	alert.UpdatedAt = time.Now()
-
-	m.alerts[alert.ID] = &alert
-	m.updateStats()
-
-	return &alert, nil
-}
-
-// AcknowledgeAlert 确认告警
-func (m *FleetMonitor) AcknowledgeAlert(id, acknowledgedBy string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	alert, exists := m.alerts[id]
+	alert, exists := m.alerts[alertID]
 	if !exists {
-		return fmt.Errorf("告警不存在: %s", id)
+		return fmt.Errorf("alert not found: %s", alertID)
 	}
 
-	alert.Status = AlertStatusAcknowledged
-	alert.AcknowledgedBy = acknowledgedBy
-	alert.UpdatedAt = time.Now()
-
-	m.updateStats()
-
-	return nil
-}
-
-// ResolveAlert 解决告警
-func (m *FleetMonitor) ResolveAlert(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	alert, exists := m.alerts[id]
-	if !exists {
-		return fmt.Errorf("告警不存在: %s", id)
-	}
-
+	alert.Resolved = true
 	now := time.Now()
-	alert.Status = AlertStatusResolved
 	alert.ResolvedAt = &now
-	alert.UpdatedAt = now
-
-	m.updateStats()
-
 	return nil
 }
 
-// ListAlerts 列出告警
-func (m *FleetMonitor) ListAlerts(level AlertLevel, status AlertStatus) []*Alert {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+// collectStats periodically collects cluster statistics
+func (m *Monitor) collectStats() {
+	ticker := time.NewTicker(time.Second * 10)
+	defer ticker.Stop()
 
-	result := make([]*Alert, 0)
-	for _, a := range m.alerts {
-		if level != "" && a.Level != level {
-			continue
-		}
-		if status != "" && a.Status != status {
-			continue
-		}
-		result = append(result, a)
-	}
-
-	return result
-}
-
-// GetAlert 获取告警
-func (m *FleetMonitor) GetAlert(id string) (*Alert, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	alert, exists := m.alerts[id]
-	if !exists {
-		return nil, fmt.Errorf("告警不存在: %s", id)
-	}
-
-	return alert, nil
-}
-
-// ========== 健康评估 ==========
-
-// GetFleetHealth 获取集群健康状态
-func (m *FleetMonitor) GetFleetHealth() *FleetHealth {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	health := &FleetHealth{
-		Timestamp:    time.Now(),
-		TotalDevices: len(m.devices),
-		Devices:      make(map[string]DeviceHealth),
-	}
-
-	var healthyCount, warningCount, criticalCount int
-
-	for id, device := range m.devices {
-		deviceHealth := DeviceHealth{
-			DeviceID: id,
-			Name:     device.Name,
-			Status:   device.Status,
-			Health:   device.Health,
+	for range ticker.C {
+		m.mu.Lock()
+		m.stats = &ClusterStats{
+			TotalNodes:   len(m.nodes),
+			Uptime:       time.Since(m.startTime),
+			ActiveAlerts: 0,
 		}
 
-		switch device.Health {
-		case HealthStatusHealthy:
-			healthyCount++
-		case HealthStatusWarning:
-			warningCount++
-		case HealthStatusCritical:
-			criticalCount++
-		}
+		var totalCPU, totalMemUsed, totalMemTotal, totalStorageUsed, totalStorageTotal uint64
+		var memCount, storageCount int
 
-		// 计算设备健康评分
-		deviceHealth.Score = m.calculateDeviceScore(device)
-		health.Devices[id] = deviceHealth
-	}
+		for _, node := range m.nodes {
+			switch node.Status {
+			case NodeStatusOnline:
+				m.stats.OnlineNodes++
+			case NodeStatusOffline:
+				m.stats.OfflineNodes++
+			case NodeStatusWarning:
+				m.stats.WarningNodes++
+			}
 
-	health.HealthyDevices = healthyCount
-	health.WarningDevices = warningCount
-	health.CriticalDevices = criticalCount
+			m.stats.TotalCPU += node.CPU.Cores
+			totalCPU += uint64(node.CPU.Usage * float64(node.CPU.Cores))
 
-	// 计算总体健康评分
-	if health.TotalDevices > 0 {
-		health.OverallScore = float64(healthyCount*100+warningCount*50) / float64(health.TotalDevices*100) * 100
-	} else {
-		health.OverallScore = 100
-	}
+			totalMemTotal += node.Memory.Total
+			totalMemUsed += node.Memory.Used
+			memCount++
 
-	// 确定总体健康状态
-	if criticalCount > 0 {
-		health.OverallHealth = HealthStatusCritical
-	} else if warningCount > 0 {
-		health.OverallHealth = HealthStatusWarning
-	} else {
-		health.OverallHealth = HealthStatusHealthy
-	}
-
-	return health
-}
-
-// calculateDeviceScore 计算设备健康评分
-func (m *FleetMonitor) calculateDeviceScore(device *ClusterDevice) float64 {
-	score := 100.0
-
-	// CPU 评分
-	if device.Resources.CPU.UsagePercent > 90 {
-		score -= 20
-	} else if device.Resources.CPU.UsagePercent > 80 {
-		score -= 10
-	} else if device.Resources.CPU.UsagePercent > 70 {
-		score -= 5
-	}
-
-	// 内存评分
-	if device.Resources.Memory.UsagePercent > 95 {
-		score -= 25
-	} else if device.Resources.Memory.UsagePercent > 85 {
-		score -= 15
-	} else if device.Resources.Memory.UsagePercent > 75 {
-		score -= 5
-	}
-
-	// 存储评分
-	for _, storage := range device.Resources.Storage {
-		if storage.UsagePercent > 95 {
-			score -= 20
-		} else if storage.UsagePercent > 90 {
-			score -= 10
-		} else if storage.UsagePercent > 80 {
-			score -= 5
-		}
-	}
-
-	// 温度评分
-	if device.Resources.Temperature.CPU > 90 {
-		score -= 20
-	} else if device.Resources.Temperature.CPU > 80 {
-		score -= 10
-	}
-
-	if score < 0 {
-		score = 0
-	}
-
-	return score
-}
-
-// FleetHealth 集群健康状态
-type FleetHealth struct {
-	Timestamp       time.Time               `json:"timestamp"`
-	TotalDevices    int                     `json:"total_devices"`
-	HealthyDevices  int                     `json:"healthy_devices"`
-	WarningDevices  int                     `json:"warning_devices"`
-	CriticalDevices int                     `json:"critical_devices"`
-	OverallScore    float64                 `json:"overall_score"`
-	OverallHealth   HealthStatus            `json:"overall_health"`
-	Devices         map[string]DeviceHealth `json:"devices"`
-}
-
-// DeviceHealth 设备健康状态
-type DeviceHealth struct {
-	DeviceID string       `json:"device_id"`
-	Name     string       `json:"name"`
-	Status   DeviceStatus `json:"status"`
-	Health   HealthStatus `json:"health"`
-	Score    float64      `json:"score"`
-}
-
-// ========== 辅助方法 ==========
-
-// updateStats 更新统计
-func (m *FleetMonitor) updateStats() {
-	m.stats.TotalDevices = len(m.devices)
-	m.stats.OnlineDevices = 0
-	m.stats.OfflineDevices = 0
-	m.stats.TotalAlerts = len(m.alerts)
-	m.stats.ActiveAlerts = 0
-	m.stats.CriticalAlerts = 0
-	m.stats.WarningAlerts = 0
-
-	for _, d := range m.devices {
-		switch d.Status {
-		case DeviceStatusOnline:
-			m.stats.OnlineDevices++
-		case DeviceStatusOffline:
-			m.stats.OfflineDevices++
-		}
-	}
-
-	for _, a := range m.alerts {
-		if a.Status == AlertStatusActive {
-			m.stats.ActiveAlerts++
-			switch a.Level {
-			case AlertLevelCritical, AlertLevelEmergency:
-				m.stats.CriticalAlerts++
-			case AlertLevelWarning:
-				m.stats.WarningAlerts++
+			for _, disk := range node.Disks {
+				totalStorageTotal += disk.Total
+				totalStorageUsed += disk.Used
+				storageCount++
 			}
 		}
+
+		if m.stats.TotalCPU > 0 {
+			m.stats.AvgCPUUsage = float64(totalCPU) / float64(m.stats.TotalCPU)
+		}
+		if memCount > 0 {
+			m.stats.TotalMemory = totalMemTotal
+			m.stats.TotalMemoryUsed = totalMemUsed
+			m.stats.AvgMemoryUsage = float64(totalMemUsed) / float64(totalMemTotal) * 100
+		}
+		if storageCount > 0 {
+			m.stats.TotalStorage = totalStorageTotal
+			m.stats.TotalStorageUsed = totalStorageUsed
+			m.stats.AvgStorageUsage = float64(totalStorageUsed) / float64(totalStorageTotal) * 100
+		}
+
+		for _, alert := range m.alerts {
+			if !alert.Resolved {
+				m.stats.ActiveAlerts++
+			}
+		}
+
+		m.mu.Unlock()
 	}
 }
 
-// GetStats 获取统计
-func (m *FleetMonitor) GetStats() MonitorStats {
+// GetStats returns cluster statistics
+func (m *Monitor) GetStats() *ClusterStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.stats
 }
 
-// SaveConfig 保存配置
-func (m *FleetMonitor) SaveConfig(path string) error {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+// RegisterRoutes registers HTTP routes for the monitor API
+func RegisterRoutes(mux *http.ServeMux, monitor *Monitor) {
+	mux.HandleFunc("/api/fleet/nodes", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			nodes := monitor.ListNodes()
+			json.NewEncoder(w).Encode(nodes)
+		case http.MethodPost:
+			var node Node
+			if err := json.NewDecoder(r.Body).Decode(&node); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			if err := monitor.RegisterNode(&node); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			w.WriteHeader(http.StatusCreated)
+			json.NewEncoder(w).Encode(node)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
 
-	data, err := json.MarshalIndent(m.config, "", "  ")
-	if err != nil {
-		return err
-	}
+	mux.HandleFunc("/api/fleet/stats", func(w http.ResponseWriter, r *http.Request) {
+		stats := monitor.GetStats()
+		json.NewEncoder(w).Encode(stats)
+	})
 
-	return os.WriteFile(path, data, 0640)
-}
-
-// LoadConfig 加载配置
-func (m *FleetMonitor) LoadConfig(path string) error {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	return json.Unmarshal(data, &m.config)
+	mux.HandleFunc("/api/fleet/alerts", func(w http.ResponseWriter, r *http.Request) {
+		alerts := monitor.GetAlerts("", false)
+		json.NewEncoder(w).Encode(alerts)
+	})
 }
