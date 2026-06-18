@@ -1,3 +1,22 @@
+## v2.606.0 (2026-06-18) - AI代理编排/集群监控/混合存储池/云管理连接器
+
+### 新增功能
+- **AI代理编排引擎 (aiagentorchestrator)** - 多代理协作框架，支持代理注册/任务分配/工作流编排/代理间消息通信，对标群晖DSM Agent AI自动化
+- **集群监控面板 (fleetmonitor)** - 多节点集群监控系统，支持节点健康检测/资源聚合统计/告警管理/Webhook通知，对标群晖Fleet-level Monitoring
+- **混合存储池优化 (hybridpool)** - 智能数据分层和缓存优化，支持四层存储架构(热/温/冷/归档)/智能数据放置/访问频率分析/自动晋升策略，对标TrueNAS OpenZFS 2.4混合闪存池
+- **云管理连接器 (cloudconnect)** - 多云统一管理平台，支持云连接管理/远程设备控制/命令执行/数据同步/Webhook事件，对标TrueNAS Connect云管理
+
+### 竞品对标
+- 对标群晖 COMPUTEX 2026：AI Agent编排、Fleet级监控、DSM NEXT
+- 对标 TrueNAS 26：混合存储池优化、OpenZFS 2.4混合闪存池、TrueNAS Connect
+- 对标飞牛 fnOS：云管理、远程设备控制
+
+### 修复
+- 修复 Actions CI 编译错误（ailocalinfer sync/atomic未使用导入、字符串nil比较）
+- 清理临时文件释放磁盘空间
+
+---
+
 ## v2.605.0 (2026-06-18) - 块级去重2.0/AI工作流可视化/智能分层/GPU加速/WebShare Pro/ML勒索防护
 
 ### 新增功能
