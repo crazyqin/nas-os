@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.603.0 Stable (2026-06-15)
+> **最新版本**: v2.607.0 Stable (2026-06-18)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -193,6 +193,12 @@
 | 🔧 **自愈存储** | 后台Scrub调度/Bitrot检测修复/多副本自动同步 | ✅ **v2.527.0新增** |
 | 🎭 **数字孪生** | NAS配置快照/虚拟实例/灾难恢复演练/拓扑可视化 | ✅ **v2.527.0新增** |
 | 🔐 **后量子加密** | NIST标准算法(Kyber/ML-KEM)/混合加密/密钥轮换 | ✅ **v2.527.0新增** |
+| 🎮 **AMD显卡硬件加速** | AMD显卡检测/VA-API视频转码/GCN5-RDNA4全覆盖/对标飞牛fnOS v1.1.29 | ✅ **v2.607.0新增** |
+| 🌐 **IPv6网络支持增强** | 双栈网络/隐私扩展/DHCPv6/DNS64/对标群晖DSM 7.4 | ✅ **v2.607.0新增** |
+| 🛡️ **安全加固模块** | CVE漏洞检测/安全评分/自动修复/合规检查/对标群晖安全更新 | ✅ **v2.607.0新增** |
+| 🤖 **OpenClaw应用集成** | NAS变身AI助手/应用部署/工作流管理/自动化任务/对标飞牛OpenClaw | ✅ **v2.607.0新增** |
+| 🎨 **云风格管理界面** | 现代化Web UI/响应式设计/深色模式/可定制仪表板/对标TrueNAS Connect | ✅ **v2.607.0新增** |
+| 💰 **存储成本智能分析** | 多维度成本对比/云vs本地/TCO报告/优化建议/成本预测 | ✅ **v2.607.0新增** |
 
 ## 快速开始
 
