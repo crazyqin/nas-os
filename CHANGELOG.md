@@ -1,3 +1,26 @@
+## v2.607.0 (2026-06-18) - AMD显卡加速/IPv6增强/安全加固/OpenClaw集成/云UI/成本分析
+
+### 新增功能
+- **AMD显卡硬件加速 (amdaccel)** - AMD显卡检测与管理，VA-API视频转码，支持GCN5到RDNA4架构全覆盖，对标飞牛fnOS v1.1.29
+- **IPv6网络支持增强 (ipv6net)** - 双栈网络配置，隐私扩展，DHCPv6客户端，DNS64支持，对标群晖DSM 7.4
+- **安全加固模块 (securityhardening)** - CVE漏洞检测与修复，安全评分系统（0-100），自动修复能力，合规检查，对标群晖安全更新
+- **OpenClaw应用集成 (openclaw)** - NAS变身AI助手平台，应用部署管理，工作流编排，自动化任务执行，对标飞牛OpenClaw集成
+- **云风格管理界面 (cloudui)** - 现代化Web管理界面，响应式设计，深色模式支持，可定制仪表板与小部件，对标TrueNAS Connect
+- **存储成本智能分析 (costanalysis)** - 多维度存储成本对比，云vs本地分析，TCO报告生成，优化建议，成本预测
+
+### 竞品对标
+- 对标飞牛fnOS：AMD显卡硬件加速、OpenClaw原生应用集成
+- 对标群晖DSM：IPv6网络支持、安全加固与CVE修复
+- 对标TrueNAS 26：云风格管理界面、混合存储池优化
+
+### 修复
+- 修复PreviewCache测试失败问题（TestPreviewCache_Has、TestPreviewCache_Clear）
+- 添加WaitGroup确保cleanupLoop协程正确关闭
+- Clear()方法现在删除索引文件而非异步保存
+- 解决临时目录清理时directory not empty错误
+
+---
+
 ## v2.606.0 (2026-06-18) - AI代理编排/集群监控/混合存储池/云管理连接器
 
 ### 新增功能
