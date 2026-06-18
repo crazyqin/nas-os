@@ -12,12 +12,13 @@ import (
 
 // PreviewCache 预览缓存管理器.
 type PreviewCache struct {
-	config  CacheConfig
-	entries map[string]*CacheEntry
-	mu      sync.RWMutex
-	stopCh  chan struct{}
-	stats   CacheStats
-	statsMu sync.Mutex
+	config    CacheConfig
+	entries   map[string]*CacheEntry
+	mu        sync.RWMutex
+	stopCh    chan struct{}
+	wg        sync.WaitGroup
+	stats     CacheStats
+	statsMu   sync.Mutex
 }
 
 // NewPreviewCache 创建预览缓存管理器.
@@ -48,6 +49,7 @@ func NewPreviewCache(config CacheConfig) *PreviewCache {
 	cache.loadIndex()
 
 	// 启动清理协程.
+	cache.wg.Add(1)
 	go cache.cleanupLoop()
 
 	return cache
@@ -187,8 +189,9 @@ func (c *PreviewCache) Clear() error {
 
 	c.entries = make(map[string]*CacheEntry)
 
-	// 保存索引.
-	go c.saveIndex()
+	// 删除索引文件.
+	indexPath := filepath.Join(c.config.CacheDir, "index.json")
+	os.Remove(indexPath)
 
 	return nil
 }
@@ -242,6 +245,7 @@ func (c *PreviewCache) Cleanup() (int, int64, error) {
 // Close 关闭缓存管理器.
 func (c *PreviewCache) Close() error {
 	close(c.stopCh)
+	c.wg.Wait()
 	return c.saveIndex()
 }
 
@@ -381,6 +385,8 @@ func (c *PreviewCache) cleanup() (int, int64, error) {
 
 // cleanupLoop 定期清理.
 func (c *PreviewCache) cleanupLoop() {
+	defer c.wg.Done()
+
 	ticker := time.NewTicker(c.config.CleanupInterval)
 	defer ticker.Stop()
 
