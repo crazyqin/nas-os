@@ -1,5 +1,6 @@
 // Package systemclone 提供系统克隆与镜像备份功能
 // 支持全盘克隆、增量镜像、系统恢复、PXE 网络部署
+// v2: 增加系统盘 RAID1 镜像保护、自动故障转移、健康监控、在线扩容迁移
 package systemclone
 
 import (
@@ -35,6 +36,59 @@ const (
 	FormatVMDK  ImageFormat = "vmdk"  // VMware 镜像
 	FormatISO   ImageFormat = "iso"   // ISO 镜像
 )
+
+// MirrorStatus 镜像状态
+type MirrorStatus string
+
+const (
+	MirrorStatusSyncing    MirrorStatus = "syncing"    // 同步中
+	MirrorStatusDegraded   MirrorStatus = "degraded"   // 降级（单盘运行）
+	MirrorStatusHealthy    MirrorStatus = "healthy"    // 健康（双盘同步）
+	MirrorStatusFailed     MirrorStatus = "failed"     // 故障
+	MirrorStatusRebuilding MirrorStatus = "rebuilding" // 重建中
+)
+
+// DiskRole 磁盘角色
+type DiskRole string
+
+const (
+	DiskRolePrimary   DiskRole = "primary"   // 主盘
+	DiskRoleSecondary DiskRole = "secondary" // 镜像盘
+	DiskRoleSpare     DiskRole = "spare"     // 热备盘
+)
+
+// HealthStatus 健康状态
+type HealthStatus string
+
+const (
+	HealthStatusGood     HealthStatus = "good"
+	HealthStatusWarning  HealthStatus = "warning"
+	HealthStatusCritical HealthStatus = "critical"
+	HealthStatusFailed   HealthStatus = "failed"
+)
+
+// FailoverTrigger 故障转移触发方式
+type FailoverTrigger string
+
+const (
+	FailoverTriggerAuto   FailoverTrigger = "auto"   // 自动
+	FailoverTriggerManual FailoverTrigger = "manual" // 手动
+)
+
+// MigrationStatus 迁移状态
+type MigrationStatus string
+
+const (
+	MigrationStatusPending   MigrationStatus = "pending"
+	MigrationStatusRunning   MigrationStatus = "running"
+	MigrationStatusCompleted MigrationStatus = "completed"
+	MigrationStatusFailed    MigrationStatus = "failed"
+	MigrationStatusCancelled MigrationStatus = "cancelled"
+)
+
+// ============================================================
+// 原有类型
+// ============================================================
 
 // DiskCloneTask 克隆任务
 type DiskCloneTask struct {
@@ -105,4 +159,119 @@ type CloneStats struct {
 	TotalRestores    int     `json:"totalRestores"`
 	AvgSpeedMBps     float64 `json:"avgSpeedMBps"`
 	AvgCloneTime     string  `json:"avgCloneTime"`
+}
+
+// ============================================================
+// 新增类型 - 系统盘 RAID1 镜像保护
+// ============================================================
+
+// SystemMirror 系统盘 RAID1 镜像配置
+type SystemMirror struct {
+	ID              string         `json:"id"`
+	Name            string         `json:"name"`
+	PrimaryDisk     string         `json:"primaryDisk"`     // 主盘 /dev/sda
+	SecondaryDisk   string         `json:"secondaryDisk"`   // 镜像盘 /dev/sdb
+	SpareDisks      []string       `json:"spareDisks"`      // 热备盘列表
+	Status          MirrorStatus   `json:"status"`
+	BootDisk        string         `json:"bootDisk"`        // 当前启动盘
+	LastSyncTime    *time.Time     `json:"lastSyncTime,omitempty"`
+	LastCheckTime   *time.Time     `json:"lastCheckTime,omitempty"`
+	SyncProgress    int            `json:"syncProgress"`    // 0-100
+	TotalSizeBytes  int64          `json:"totalSizeBytes"`
+	UsedSizeBytes   int64          `json:"usedSizeBytes"`
+	SyncSpeedMBps   float64        `json:"syncSpeedMBps"`
+	CreatedAt       time.Time      `json:"createdAt"`
+	UpdatedAt       time.Time      `json:"updatedAt"`
+}
+
+// DiskHealthInfo 磁盘健康信息
+type DiskHealthInfo struct {
+	Device          string       `json:"device"`          // /dev/sda
+	Role            DiskRole     `json:"role"`            // primary/secondary/spare
+	HealthStatus    HealthStatus `json:"healthStatus"`    // good/warning/critical/failed
+	Temperature     int          `json:"temperature"`     // 温度 °C
+	PowerOnHours    int64        `json:"powerOnHours"`    // 通电时间
+	ReallocatedSect int64        `json:"reallocatedSect"` // 重映射扇区数
+	PendingSect     int64        `json:"pendingSect"`     // 待映射扇区数
+	UncorrectableSect int64      `json:"uncorrectableSect"` // 不可修复扇区数
+	HealthScore     float64      `json:"healthScore"`     // 0-100 健康评分
+	LastError       string       `json:"lastError,omitempty"`
+	LastCheckTime   time.Time    `json:"lastCheckTime"`
+}
+
+// HealthMonitorConfig 健康监控配置
+type HealthMonitorConfig struct {
+	Enabled              bool    `json:"enabled"`
+	CheckIntervalSec     int     `json:"checkIntervalSec"`     // 检查间隔（秒）
+	TemperatureThreshold int     `json:"temperatureThreshold"` // 温度告警阈值
+	HealthScoreThreshold float64 `json:"healthScoreThreshold"` // 健康评分告警阈值
+	MaxReallocatedSect   int64   `json:"maxReallocatedSect"`   // 最大重映射扇区数
+	MaxPendingSect       int64   `json:"maxPendingSect"`       // 最大待映射扇区数
+	AutoFailover         bool    `json:"autoFailover"`         // 自动故障转移
+	FailoverDelaySec     int     `json:"failoverDelaySec"`     // 故障转移延迟（秒）
+	AlertWebhookURL      string  `json:"alertWebhookUrl"`      // 告警 Webhook URL
+}
+
+// FailoverEvent 故障转移事件
+type FailoverEvent struct {
+	ID              string         `json:"id"`
+	MirrorID        string         `json:"mirrorID"`
+	TriggerType     FailoverTrigger `json:"triggerType"`  // auto/manual
+	FailedDisk      string         `json:"failedDisk"`
+	FailedRole      DiskRole       `json:"failedRole"`
+	Reason          string         `json:"reason"`
+	NewBootDisk     string         `json:"newBootDisk"`
+	Status          string         `json:"status"`        // pending/completed/failed
+	ErrorMessage    string         `json:"errorMessage,omitempty"`
+	CreatedAt       time.Time      `json:"createdAt"`
+	CompletedAt     *time.Time     `json:"completedAt,omitempty"`
+}
+
+// MigrationTask 在线迁移任务
+type MigrationTask struct {
+	ID              string          `json:"id"`
+	MirrorID        string          `json:"mirrorID"`
+	SourceDisk      string          `json:"sourceDisk"`      // 被替换的盘
+	TargetDisk      string          `json:"targetDisk"`      // 新盘
+	Phase           string          `json:"phase"`           // sync/verify/switch
+	Status          MigrationStatus `json:"status"`
+	Progress        int             `json:"progress"`        // 0-100
+	BytesTotal      int64           `json:"bytesTotal"`
+	BytesCopied     int64           `json:"bytesCopied"`
+	SpeedMBps       float64         `json:"speedMBps"`
+	ETA             string          `json:"eta,omitempty"`
+	ErrorMessage    string          `json:"errorMessage,omitempty"`
+	CreatedAt       time.Time       `json:"createdAt"`
+	StartedAt       *time.Time      `json:"startedAt,omitempty"`
+	CompletedAt     *time.Time      `json:"completedAt,omitempty"`
+}
+
+// ExpandTask 扩容任务
+type ExpandTask struct {
+	ID              string          `json:"id"`
+	MirrorID        string          `json:"mirrorID"`
+	NewDisk         string          `json:"newDisk"`         // 新增的盘
+	OldDisk         string          `json:"oldDisk"`         // 被替换的盘
+	Phase           string          `json:"phase"`           // add/sync/verify/replace
+	Status          MigrationStatus `json:"status"`
+	Progress        int             `json:"progress"`
+	ErrorMessage    string          `json:"errorMessage,omitempty"`
+	CreatedAt       time.Time       `json:"createdAt"`
+	CompletedAt     *time.Time      `json:"completedAt,omitempty"`
+}
+
+// MirrorStats 镜像统计
+type MirrorStats struct {
+	TotalMirrors       int     `json:"totalMirrors"`
+	HealthyMirrors     int     `json:"healthyMirrors"`
+	DegradedMirrors    int     `json:"degradedMirrors"`
+	FailedMirrors      int     `json:"failedMirrors"`
+	TotalFailovers     int     `json:"totalFailovers"`
+	AutoFailovers      int     `json:"autoFailovers"`
+	ManualFailovers    int     `json:"manualFailovers"`
+	TotalMigrations    int     `json:"totalMigrations"`
+	SuccessfulMigrations int   `json:"successfulMigrations"`
+	TotalExpansions    int     `json:"totalExpansions"`
+	SuccessfulExpansions int   `json:"successfulExpansions"`
+	AvgSyncSpeedMBps   float64 `json:"avgSyncSpeedMBps"`
 }
