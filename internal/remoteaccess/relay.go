@@ -6,7 +6,6 @@ package remoteaccess
 import (
 	"bufio"
 	"context"
-	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"

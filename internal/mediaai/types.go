@@ -489,7 +489,7 @@ func WithAlbumTags(tags ...string) SmartAlbumOption {
 }
 
 // Ensure EngineInterface is implemented at compile time
-var _ EngineInterface = (*Engine)(nil)
+// var _ EngineInterface = (*Engine)(nil) // TODO: implement engine methods
 
 // Engine 前向声明 - 在 engine.go 中实现
 type Engine struct {

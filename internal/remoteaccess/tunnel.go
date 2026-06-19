@@ -4,6 +4,7 @@
 package remoteaccess
 
 import (
+	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
@@ -44,8 +45,8 @@ type SecureTunnel struct {
 	logger       *zap.Logger
 	config       SecureTunnelConfig
 	conn         net.Conn
-	sendCipher   *chacha20poly1305.Cipher
-	recvCipher   *chacha20poly1305.Cipher
+	sendCipher   cipher.AEAD
+	recvCipher   cipher.AEAD
 	sendNonce    uint64 // atomic
 	recvNonce    uint64 // atomic
 	bytesIn      int64  // atomic
