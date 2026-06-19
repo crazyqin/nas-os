@@ -1,10 +1,221 @@
 // Package appstore 应用依赖自动解析和冲突检测
+// 增强功能：语义化版本约束解析、智能冲突检测、依赖图分析
 package appstore
 
 import (
 	"fmt"
+	"regexp"
+	"strconv"
 	"strings"
 )
+
+// ========== 语义化版本约束 ==========
+
+// VersionInfo 版本信息
+// 支持 semver 格式：MAJOR.MINOR.PATCH[-prerelease][+build]
+type VersionInfo struct {
+	Major      int    `json:"major"`
+	Minor      int    `json:"minor"`
+	Patch      int    `json:"patch"`
+	PreRelease string `json:"preRelease,omitempty"`
+	Build      string `json:"build,omitempty"`
+	Original   string `json:"original"`
+}
+
+// semverRegex 语义化版本正则
+var semverRegex = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(?:-([\w.]+))?(?:\+([\w.]+))?$`)
+
+// ParseVersion 解析语义化版本字符串
+func ParseVersion(v string) (*VersionInfo, error) {
+	v = strings.TrimPrefix(v, "v")
+	// 支持简写: "1.2" -> "1.2.0", "3" -> "3.0.0"
+	parts := strings.SplitN(v, ".", 3)
+	for len(parts) < 3 {
+		parts = append(parts, "0")
+	}
+	v = strings.Join(parts, ".")
+
+	matches := semverRegex.FindStringSubmatch(v)
+	if matches == nil {
+		return nil, fmt.Errorf("无效的版本格式: %s", v)
+	}
+
+	major, _ := strconv.Atoi(matches[1])
+	minor, _ := strconv.Atoi(matches[2])
+	patch, _ := strconv.Atoi(matches[3])
+
+	return &VersionInfo{
+		Major:      major,
+		Minor:      minor,
+		Patch:      patch,
+		PreRelease: matches[4],
+		Build:      matches[5],
+		Original:   v,
+	}, nil
+}
+
+// Compare 比较两个版本: -1=v<other, 0=v==other, 1=v>other
+func (v *VersionInfo) Compare(other *VersionInfo) int {
+	if v.Major != other.Major {
+		if v.Major < other.Major {
+			return -1
+		}
+		return 1
+	}
+	if v.Minor != other.Minor {
+		if v.Minor < other.Minor {
+			return -1
+		}
+		return 1
+	}
+	if v.Patch != other.Patch {
+		if v.Patch < other.Patch {
+			return -1
+		}
+		return 1
+	}
+	// 预发布版本低于正式版本
+	if v.PreRelease == "" && other.PreRelease != "" {
+		return 1
+	}
+	if v.PreRelease != "" && other.PreRelease == "" {
+		return -1
+	}
+	if v.PreRelease != other.PreRelease {
+		if v.PreRelease < other.PreRelease {
+			return -1
+		}
+		return 1
+	}
+	return 0
+}
+
+// String 返回版本字符串
+func (v *VersionInfo) String() string {
+	s := fmt.Sprintf("%d.%d.%d", v.Major, v.Minor, v.Patch)
+	if v.PreRelease != "" {
+		s += "-" + v.PreRelease
+	}
+	if v.Build != "" {
+		s += "+" + v.Build
+	}
+	return s
+}
+
+// IsCompatible 检查版本是否满足约束
+func (v *VersionInfo) IsCompatible(constraint string) (bool, error) {
+	return CheckVersionConstraint(v.Original, constraint)
+}
+
+// VersionConstraint 版本约束解析器
+type VersionConstraint struct {
+	Operator string        `json:"operator"` // "=", ">", ">=", "<", "<=", "~", "^", "*"
+	Version  *VersionInfo  `json:"version"`
+	Raw      string        `json:"raw"`
+}
+
+// ParseConstraint 解析版本约束表达式
+// 支持: "1.0.0", ">=1.0.0", "~1.2.0", "^1.0.0", "*", "1.x", "1.2.x"
+func ParseConstraint(constraint string) (*VersionConstraint, error) {
+	constraint = strings.TrimSpace(constraint)
+	if constraint == "" || constraint == "*" {
+		return &VersionConstraint{Operator: "*", Raw: "*"}, nil
+	}
+
+	var op string
+	verStr := constraint
+
+	// 提取操作符
+	for _, prefix := range []string{">=", "<=", "~", "^", ">", "<", "="} {
+		if strings.HasPrefix(constraint, prefix) {
+			op = prefix
+			verStr = strings.TrimPrefix(constraint, prefix)
+			break
+		}
+	}
+	if op == "" {
+		op = "=" // 默认精确匹配
+	}
+
+	// 处理通配符版本 (1.x, 1.2.x)
+	verStr = strings.TrimSpace(verStr)
+	verStr = strings.ReplaceAll(verStr, "x", "0")
+	verStr = strings.ReplaceAll(verStr, "X", "0")
+	verStr = strings.ReplaceAll(verStr, "*", "0")
+
+	ver, err := ParseVersion(verStr)
+	if err != nil {
+		return nil, fmt.Errorf("解析版本约束 '%s' 失败: %w", constraint, err)
+	}
+
+	return &VersionConstraint{
+		Operator: op,
+		Version:  ver,
+		Raw:      constraint,
+	}, nil
+}
+
+// CheckVersionConstraint 检查版本是否满足约束
+func CheckVersionConstraint(version, constraint string) (bool, error) {
+	v, err := ParseVersion(version)
+	if err != nil {
+		return false, err
+	}
+	c, err := ParseConstraint(constraint)
+	if err != nil {
+		return false, err
+	}
+
+	switch c.Operator {
+	case "*":
+		return true, nil
+	case "=":
+		return v.Compare(c.Version) == 0, nil
+	case ">":
+		return v.Compare(c.Version) > 0, nil
+	case ">=":
+		return v.Compare(c.Version) >= 0, nil
+	case "<":
+		return v.Compare(c.Version) < 0, nil
+	case "<=":
+		return v.Compare(c.Version) <= 0, nil
+	case "~":
+		// 兼容补丁版本: ~1.2.3 允许 >=1.2.3, <1.3.0
+		if v.Major != c.Version.Major || v.Minor != c.Version.Minor {
+			return false, nil
+		}
+		return v.Compare(c.Version) >= 0, nil
+	case "^":
+		// 兼容次版本: ^1.2.3 允许 >=1.2.3, <2.0.0
+		if v.Major != c.Version.Major {
+			return false, nil
+		}
+		if v.Major == 0 {
+			// 0.x.y 特殊处理
+			if v.Minor != c.Version.Minor {
+				return false, nil
+			}
+			return v.Compare(c.Version) >= 0, nil
+		}
+		return v.Compare(c.Version) >= 0, nil
+	default:
+		return false, fmt.Errorf("不支持的操作符: %s", c.Operator)
+	}
+}
+
+// CheckMultipleConstraints 检查版本是否满足多个约束（AND 关系）
+func CheckMultipleConstraints(version string, constraints []string) (bool, error) {
+	for _, c := range constraints {
+		ok, err := CheckVersionConstraint(version, c)
+		if err != nil {
+			return false, err
+		}
+		if !ok {
+			return false, nil
+		}
+	}
+	return true, nil
+}
 
 // ========== 依赖解析器 ==========
 
