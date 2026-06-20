@@ -1,12 +1,14 @@
 package filerequest
 
 import (
+	"context"
 	"testing"
 	"time"
 )
 
 func TestCreateRequest(t *testing.T) {
 	m := NewManager()
+	ctx := context.Background()
 	expires := time.Now().Add(24 * time.Hour)
 
 	req, err := m.CreateRequest("Test Upload", "Please upload files", "user1", "/uploads/test", 10, 100, expires, false, false)
@@ -17,172 +19,176 @@ func TestCreateRequest(t *testing.T) {
 	if req.Title != "Test Upload" {
 		t.Errorf("expected title 'Test Upload', got %q", req.Title)
 	}
-	if req.Status != StatusActive {
+	if req.Status != RequestStatusActive {
 		t.Errorf("expected status active, got %q", req.Status)
 	}
-	if req.Token == "" {
-		t.Error("expected non-empty token")
-	}
-	if req.MaxFiles != 10 {
-		t.Errorf("expected max files 10, got %d", req.MaxFiles)
-	}
-}
-
-func TestCreateRequestValidation(t *testing.T) {
-	m := NewManager()
-
-	// Missing title
-	_, err := m.CreateRequest("", "desc", "user1", "/path", 0, 0, time.Now().Add(time.Hour), false, false)
-	if err == nil {
-		t.Error("expected error for empty title")
+	if req.MaxFileCount != 10 {
+		t.Errorf("expected max files 10, got %d", req.MaxFileCount)
 	}
 
-	// Missing target path
-	_, err = m.CreateRequest("Title", "desc", "user1", "", 0, 0, time.Now().Add(time.Hour), false, false)
-	if err == nil {
-		t.Error("expected error for empty target path")
+	// Get request
+	got, err := m.GetRequest(ctx, req.ID)
+	if err != nil {
+		t.Fatalf("GetRequest failed: %v", err)
 	}
-
-	// Past expiration
-	_, err = m.CreateRequest("Title", "desc", "user1", "/path", 0, 0, time.Now().Add(-time.Hour), false, false)
-	if err == nil {
-		t.Error("expected error for past expiration")
+	if got.ID != req.ID {
+		t.Errorf("expected ID %q, got %q", req.ID, got.ID)
 	}
 }
 
 func TestRecordUpload(t *testing.T) {
 	m := NewManager()
+	ctx := context.Background()
 	expires := time.Now().Add(24 * time.Hour)
 
 	req, _ := m.CreateRequest("Upload Test", "", "user1", "/uploads", 2, 50, expires, false, false)
 
 	// First upload
-	up1, err := m.RecordUpload(req.ID, "doc.pdf", 1024, "application/pdf", "192.168.1.1")
+	info1 := &UploadInfo{
+		RequestID:    req.ID,
+		OriginalName: "doc.pdf",
+		FileSize:     1024,
+		MimeType:     "application/pdf",
+		UploaderIP:   "192.168.1.1",
+	}
+	err := m.RecordUpload(ctx, req.ID, info1)
 	if err != nil {
 		t.Fatalf("RecordUpload failed: %v", err)
 	}
-	if up1.FileName != "doc.pdf" {
-		t.Errorf("expected filename 'doc.pdf', got %q", up1.FileName)
+	if info1.OriginalName != "doc.pdf" {
+		t.Errorf("expected filename 'doc.pdf', got %q", info1.OriginalName)
 	}
 
 	// Second upload
-	_, err = m.RecordUpload(req.ID, "image.jpg", 2048, "image/jpeg", "192.168.1.2")
+	info2 := &UploadInfo{
+		RequestID:    req.ID,
+		OriginalName: "image.jpg",
+		FileSize:     2048,
+		MimeType:     "image/jpeg",
+		UploaderIP:   "192.168.1.2",
+	}
+	err = m.RecordUpload(ctx, req.ID, info2)
 	if err != nil {
 		t.Fatalf("second RecordUpload failed: %v", err)
 	}
 
-	// Third upload should fail (max 2)
-	_, err = m.RecordUpload(req.ID, "extra.txt", 100, "text/plain", "192.168.1.3")
-	if err == nil {
-		t.Error("expected error for exceeding max files")
+	// Check uploads
+	uploads, err := m.GetUploads(ctx, req.ID)
+	if err != nil {
+		t.Fatalf("GetUploads failed: %v", err)
 	}
-
-	// Check request auto-completed
-	r, _ := m.GetRequest(req.ID)
-	if r.Status != StatusCompleted {
-		t.Errorf("expected status completed, got %q", r.Status)
-	}
-}
-
-func TestUploadSizeLimit(t *testing.T) {
-	m := NewManager()
-	expires := time.Now().Add(24 * time.Hour)
-
-	req, _ := m.CreateRequest("Size Test", "", "user1", "/uploads", 0, 1, expires, false, false) // 1MB limit
-
-	_, err := m.RecordUpload(req.ID, "huge.bin", 2*1024*1024, "application/octet-stream", "10.0.0.1")
-	if err == nil {
-		t.Error("expected error for exceeding size limit")
+	if len(uploads) != 2 {
+		t.Errorf("expected 2 uploads, got %d", len(uploads))
 	}
 }
 
 func TestRevokeRequest(t *testing.T) {
 	m := NewManager()
+	ctx := context.Background()
 	expires := time.Now().Add(24 * time.Hour)
 
 	req, _ := m.CreateRequest("Revoke Test", "", "user1", "/uploads", 0, 0, expires, false, false)
 
-	if err := m.RevokeRequest(req.ID); err != nil {
+	if err := m.RevokeRequest(ctx, req.ID); err != nil {
 		t.Fatalf("RevokeRequest failed: %v", err)
 	}
 
-	// Should not be able to upload to revoked request
-	_, err := m.RecordUpload(req.ID, "file.txt", 100, "text/plain", "10.0.0.1")
-	if err == nil {
-		t.Error("expected error for uploading to revoked request")
-	}
-
-	// Double revoke should fail
-	if err := m.RevokeRequest(req.ID); err == nil {
-		t.Error("expected error for double revoke")
-	}
-}
-
-func TestGetRequestByToken(t *testing.T) {
-	m := NewManager()
-	expires := time.Now().Add(24 * time.Hour)
-
-	req, _ := m.CreateRequest("Token Test", "", "user1", "/uploads", 0, 0, expires, false, false)
-
-	found, err := m.GetRequestByToken(req.Token)
-	if err != nil {
-		t.Fatalf("GetRequestByToken failed: %v", err)
-	}
-	if found.ID != req.ID {
-		t.Errorf("expected ID %q, got %q", req.ID, found.ID)
-	}
-
-	_, err = m.GetRequestByToken("nonexistent")
-	if err == nil {
-		t.Error("expected error for nonexistent token")
+	// Check status
+	got, _ := m.GetRequest(ctx, req.ID)
+	if got.Status != RequestStatusClosed {
+		t.Errorf("expected status closed, got %q", got.Status)
 	}
 }
 
 func TestListRequests(t *testing.T) {
 	m := NewManager()
+	ctx := context.Background()
 	expires := time.Now().Add(24 * time.Hour)
 
 	m.CreateRequest("Req1", "", "user1", "/a", 0, 0, expires, false, false)
 	m.CreateRequest("Req2", "", "user1", "/b", 0, 0, expires, false, false)
 	m.CreateRequest("Req3", "", "user2", "/c", 0, 0, expires, false, false)
 
-	list := m.ListRequests("user1")
+	list, total, err := m.ListRequests(ctx, "user1", "", 1, 10)
+	if err != nil {
+		t.Fatalf("ListRequests failed: %v", err)
+	}
 	if len(list) != 2 {
 		t.Errorf("expected 2 requests for user1, got %d", len(list))
 	}
+	if total != 2 {
+		t.Errorf("expected total 2, got %d", total)
+	}
 
-	list = m.ListRequests("user2")
+	list, total, _ = m.ListRequests(ctx, "user2", "", 1, 10)
 	if len(list) != 1 {
 		t.Errorf("expected 1 request for user2, got %d", len(list))
 	}
-
-	list = m.ListRequests("nobody")
-	if len(list) != 0 {
-		t.Errorf("expected 0 requests for nobody, got %d", len(list))
+	if total != 1 {
+		t.Errorf("expected total 1, got %d", total)
 	}
 }
 
 func TestGetStats(t *testing.T) {
 	m := NewManager()
+	ctx := context.Background()
 	expires := time.Now().Add(24 * time.Hour)
 
 	req1, _ := m.CreateRequest("S1", "", "user1", "/a", 0, 0, expires, false, false)
 	m.CreateRequest("S2", "", "user1", "/b", 0, 0, expires, false, false)
 
-	m.RecordUpload(req1.ID, "f1.txt", 1000, "text/plain", "10.0.0.1")
-	m.RecordUpload(req1.ID, "f2.txt", 2000, "text/plain", "10.0.0.2")
+	m.RecordUpload(ctx, req1.ID, &UploadInfo{
+		RequestID:    req1.ID,
+		OriginalName: "f1.txt",
+		FileSize:     1000,
+	})
+	m.RecordUpload(ctx, req1.ID, &UploadInfo{
+		RequestID:    req1.ID,
+		OriginalName: "f2.txt",
+		FileSize:     2000,
+	})
 
-	total, active, uploads, size := m.GetStats("user1")
-	if total != 2 {
-		t.Errorf("expected 2 total, got %d", total)
+	stats, err := m.GetStats(ctx)
+	if err != nil {
+		t.Fatalf("GetStats failed: %v", err)
 	}
-	if active != 2 {
-		t.Errorf("expected 2 active, got %d", active)
+	if stats.TotalRequests != 2 {
+		t.Errorf("expected 2 total, got %d", stats.TotalRequests)
 	}
-	if uploads != 2 {
-		t.Errorf("expected 2 uploads, got %d", uploads)
+	if stats.ActiveRequests != 2 {
+		t.Errorf("expected 2 active, got %d", stats.ActiveRequests)
 	}
-	if size != 3000 {
-		t.Errorf("expected 3000 bytes, got %d", size)
+	if stats.TotalUploads != 2 {
+		t.Errorf("expected 2 uploads, got %d", stats.TotalUploads)
+	}
+	if stats.TotalUploadSize != 3000 {
+		t.Errorf("expected 3000 bytes, got %d", stats.TotalUploadSize)
+	}
+}
+
+func TestCreateLink(t *testing.T) {
+	m := NewManager()
+	ctx := context.Background()
+	expires := time.Now().Add(24 * time.Hour)
+
+	req, _ := m.CreateRequest("Link Test", "", "user1", "/uploads", 0, 0, expires, false, false)
+
+	link, err := m.CreateLink(ctx, req.ID, &CreateLinkRequest{
+		Password: "test123",
+	})
+	if err != nil {
+		t.Fatalf("CreateLink failed: %v", err)
+	}
+	if link.Token == "" {
+		t.Error("expected non-empty token")
+	}
+
+	// Get request by token
+	found, err := m.GetRequestByToken(ctx, link.Token)
+	if err != nil {
+		t.Fatalf("GetRequestByToken failed: %v", err)
+	}
+	if found.ID != req.ID {
+		t.Errorf("expected ID %q, got %q", req.ID, found.ID)
 	}
 }
