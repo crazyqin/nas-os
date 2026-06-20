@@ -1,197 +1,290 @@
+// Package security 提供数据安全功能
+// 文件加密、密钥管理、审计日志、合规报告
 package security
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
-// ========== 防火墙类型 ==========
+// ========== 错误定义 ==========
 
-// FirewallRule 防火墙规则.
-type FirewallRule struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Enabled     bool      `json:"enabled"`
-	Action      string    `json:"action"`       // allow, deny, drop
-	Protocol    string    `json:"protocol"`     // tcp, udp, icmp, all
-	SourceIP    string    `json:"source_ip"`    // 源 IP/CIDR，空表示任意
-	DestIP      string    `json:"dest_ip"`      // 目标 IP/CIDR，空表示任意
-	SourcePort  string    `json:"source_port"`  // 源端口，空表示任意
-	DestPort    string    `json:"dest_port"`    // 目标端口，空表示任意
-	Direction   string    `json:"direction"`    // inbound, outbound
-	Interface   string    `json:"interface"`    // 网络接口，空表示任意
-	GeoLocation string    `json:"geo_location"` // 地理位置限制 (国家代码)
-	Priority    int       `json:"priority"`     // 规则优先级，数字越小优先级越高
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+var (
+	// ErrKeyNotFound 密钥未找到
+	ErrKeyNotFound = errors.New("密钥未找到")
+	// ErrEncryptionFailed 加密失败
+	ErrEncryptionFailed = errors.New("加密失败")
+	// ErrDecryptionFailed 解密失败
+	ErrDecryptionFailed = errors.New("解密失败")
+	// ErrInvalidPassword 无效密码
+	ErrInvalidPassword = errors.New("无效密码")
+	// ErrAuditNotFound 审计记录未找到
+	ErrAuditNotFound = errors.New("审计记录未找到")
+)
+
+// ========== 加密算法 ==========
+
+// EncryptionAlgorithm 加密算法
+type EncryptionAlgorithm string
+
+const (
+	AlgoAES256GCM EncryptionAlgorithm = "aes-256-gcm"
+	AlgoAES256CBC EncryptionAlgorithm = "aes-256-cbc"
+	AlgoChaCha20  EncryptionAlgorithm = "chacha20-poly1305"
+	AlgoXChaCha20 EncryptionAlgorithm = "xchacha20-poly1305"
+)
+
+// ========== 密钥管理 ==========
+
+// KeyType 密钥类型
+type KeyType string
+
+const (
+	KeyTypeMaster  KeyType = "master"  // 主密钥
+	KeyTypeData    KeyType = "data"    // 数据密钥
+	KeyTypeBackup  KeyType = "backup"  // 备份密钥
+	KeyTypeRecovery KeyType = "recovery" // 恢复密钥
+)
+
+// Key 密钥信息
+type Key struct {
+	ID          string              `json:"id"`
+	Name        string              `json:"name"`
+	Type        KeyType             `json:"type"`
+	Algorithm   EncryptionAlgorithm `json:"algorithm"`
+	KeySize     int                 `json:"key_size"` // bits
+	Version     int                 `json:"version"`
+	Status      KeyStatus           `json:"status"`
+	CreatedAt   time.Time           `json:"created_at"`
+	ExpiresAt   *time.Time          `json:"expires_at,omitempty"`
+	RotatedAt   *time.Time          `json:"rotated_at,omitempty"`
+	LastUsedAt  *time.Time          `json:"last_used_at,omitempty"`
+	Description string              `json:"description,omitempty"`
 }
 
-// IPBlacklistEntry IP 黑名单条目.
-type IPBlacklistEntry struct {
-	IP        string     `json:"ip"`
-	Reason    string     `json:"reason"`
-	ExpiresAt *time.Time `json:"expires_at,omitempty"` // 空表示永久
-	CreatedAt time.Time  `json:"created_at"`
+// KeyStatus 密钥状态
+type KeyStatus string
+
+const (
+	KeyStatusActive   KeyStatus = "active"
+	KeyStatusRotating KeyStatus = "rotating"
+	KeyStatusExpired  KeyStatus = "expired"
+	KeyStatusRevoked  KeyStatus = "revoked"
+)
+
+// KeyCreateRequest 创建密钥请求
+type KeyCreateRequest struct {
+	Name        string              `json:"name"`
+	Type        KeyType             `json:"type"`
+	Algorithm   EncryptionAlgorithm `json:"algorithm"`
+	KeySize     int                 `json:"key_size"`
+	ExpiresIn   int                 `json:"expires_in"` // days, 0=永不过期
+	Description string              `json:"description,omitempty"`
 }
 
-// IPWhitelistEntry IP 白名单条目.
-type IPWhitelistEntry struct {
-	IP        string    `json:"ip"`
-	Reason    string    `json:"reason"`
-	CreatedAt time.Time `json:"created_at"`
+// KeyRotateRequest 密钥轮换请求
+type KeyRotateRequest struct {
+	KeyID       string `json:"key_id"`
+	ReEncrypt   bool   `json:"re_encrypt"` // 是否重新加密现有数据
 }
 
-// GeoRestriction 地理位置限制.
-type GeoRestriction struct {
-	Enabled      bool     `json:"enabled"`
-	Mode         string   `json:"mode"`          // allowlist, blocklist
-	CountryCodes []string `json:"country_codes"` // 国家代码列表
+// ========== 文件加密 ==========
+
+// EncryptedFile 加密文件信息
+type EncryptedFile struct {
+	ID            string              `json:"id"`
+	OriginalPath  string              `json:"original_path"`
+	EncryptedPath string              `json:"encrypted_path"`
+	KeyID         string              `json:"key_id"`
+	Algorithm     EncryptionAlgorithm `json:"algorithm"`
+	OriginalSize  int64               `json:"original_size"`
+	EncryptedSize int64               `json:"encrypted_size"`
+	Checksum      string              `json:"checksum"`      // 原始文件校验和
+	IV            string              `json:"iv"`            // 初始化向量
+	Salt          string              `json:"salt,omitempty"` // 盐值
+	CreatedAt     time.Time           `json:"created_at"`
+	UpdatedAt     time.Time           `json:"updated_at"`
 }
 
-// FirewallConfig 防火墙配置.
-type FirewallConfig struct {
-	Enabled        bool           `json:"enabled"`
-	DefaultPolicy  string         `json:"default_policy"` // allow, deny
-	IPv6Enabled    bool           `json:"ipv6_enabled"`
-	GeoRestriction GeoRestriction `json:"geo_restriction"`
-	LogDropped     bool           `json:"log_dropped"` // 记录被丢弃的数据包
+// EncryptRequest 加密请求
+type EncryptRequest struct {
+	FilePath  string              `json:"file_path"`
+	KeyID     string              `json:"key_id"`
+	Algorithm EncryptionAlgorithm `json:"algorithm"`
+	DeleteOriginal bool           `json:"delete_original"`
 }
 
-// ========== 失败登录保护类型 ==========
-
-// Fail2BanConfig 失败登录保护配置.
-type Fail2BanConfig struct {
-	Enabled            bool     `json:"enabled"`
-	MaxAttempts        int      `json:"max_attempts"`         // 最大失败尝试次数
-	WindowMinutes      int      `json:"window_minutes"`       // 时间窗口（分钟）
-	BanDurationMinutes int      `json:"ban_duration_minutes"` // 封禁时长（分钟）
-	AutoUnban          bool     `json:"auto_unban"`           // 自动解封
-	NotifyOnBan        bool     `json:"notify_on_ban"`        // 封禁时通知
-	ProtectedServices  []string `json:"protected_services"`   // 保护的服务列表
+// DecryptRequest 解密请求
+type DecryptRequest struct {
+	EncryptedFileID string `json:"encrypted_file_id"`
+	OutputPath      string `json:"output_path,omitempty"`
+	DeleteEncrypted bool   `json:"delete_encrypted"`
 }
 
-// FailedLoginAttempt 失败登录尝试记录.
-type FailedLoginAttempt struct {
-	IP        string    `json:"ip"`
-	Username  string    `json:"username"`
-	Timestamp time.Time `json:"timestamp"`
-	UserAgent string    `json:"user_agent"`
-	Reason    string    `json:"reason"`
+// ========== 审计日志 ==========
+
+// AuditAction 审计动作
+type AuditAction string
+
+const (
+	ActionLogin         AuditAction = "login"
+	ActionLogout        AuditAction = "logout"
+	ActionFileRead      AuditAction = "file_read"
+	ActionFileWrite     AuditAction = "file_write"
+	ActionFileDelete    AuditAction = "file_delete"
+	ActionFileShare     AuditAction = "file_share"
+	ActionEncrypt       AuditAction = "encrypt"
+	ActionDecrypt       AuditAction = "decrypt"
+	ActionKeyCreate     AuditAction = "key_create"
+	ActionKeyRotate     AuditAction = "key_rotate"
+	ActionKeyRevoke     AuditAction = "key_revoke"
+	ActionConfigChange  AuditAction = "config_change"
+	ActionUserCreate    AuditAction = "user_create"
+	ActionUserDelete    AuditAction = "user_delete"
+	ActionPermissionChange AuditAction = "permission_change"
+)
+
+// AuditLog 审计日志
+type AuditLog struct {
+	ID        string      `json:"id"`
+	Timestamp time.Time   `json:"timestamp"`
+	UserID    string      `json:"user_id"`
+	Username  string      `json:"username"`
+	IP        string      `json:"ip"`
+	Action    AuditAction `json:"action"`
+	Resource  string      `json:"resource"`
+	Details   string      `json:"details,omitempty"`
+	Status    string      `json:"status"` // success, failure
+	Error     string      `json:"error,omitempty"`
+	UserAgent string      `json:"user_agent,omitempty"`
+	SessionID string      `json:"session_id,omitempty"`
 }
 
-// BannedIP 被封禁的 IP.
-type BannedIP struct {
-	IP        string    `json:"ip"`
-	Reason    string    `json:"reason"`
-	BannedAt  time.Time `json:"banned_at"`
-	ExpiresAt time.Time `json:"expires_at"`
-	Attempts  int       `json:"attempts"`
+// AuditSearchRequest 审计搜索请求
+type AuditSearchRequest struct {
+	UserID    string       `json:"user_id,omitempty"`
+	Action    AuditAction  `json:"action,omitempty"`
+	Resource  string       `json:"resource,omitempty"`
+	Status    string       `json:"status,omitempty"`
+	StartTime *time.Time   `json:"start_time,omitempty"`
+	EndTime   *time.Time   `json:"end_time,omitempty"`
+	IP        string       `json:"ip,omitempty"`
+	Page      int          `json:"page"`
+	PageSize  int          `json:"page_size"`
 }
 
-// AccountLockout 账户锁定状态.
-type AccountLockout struct {
-	Username    string     `json:"username"`
-	LockedAt    time.Time  `json:"locked_at"`
-	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
-	FailedCount int        `json:"failed_count"`
+// AuditSearchResult 审计搜索结果
+type AuditSearchResult struct {
+	Logs       []*AuditLog `json:"logs"`
+	Total      int         `json:"total"`
+	Page       int         `json:"page"`
+	PageSize   int         `json:"page_size"`
+	TotalPages int         `json:"total_pages"`
 }
 
-// ========== 安全审计类型 ==========
+// ========== 合规报告 ==========
 
-// AuditLogEntry 审计日志条目.
-type AuditLogEntry struct {
-	ID        string                 `json:"id"`
-	Timestamp time.Time              `json:"timestamp"`
-	Level     string                 `json:"level"`    // info, warning, error, critical
-	Category  string                 `json:"category"` // auth, firewall, system, file, config
-	Event     string                 `json:"event"`    // 事件类型
-	UserID    string                 `json:"user_id,omitempty"`
-	Username  string                 `json:"username,omitempty"`
-	IP        string                 `json:"ip,omitempty"`
-	UserAgent string                 `json:"user_agent,omitempty"`
-	Resource  string                 `json:"resource,omitempty"` // 操作的资源
-	Action    string                 `json:"action,omitempty"`   // 执行的操作
-	Details   map[string]interface{} `json:"details,omitempty"`  // 详细信息
-	Status    string                 `json:"status"`             // success, failure
+// ComplianceStandard 合规标准
+type ComplianceStandard string
+
+const (
+	StandardGDPR   ComplianceStandard = "gdpr"
+	StandardHIPAA  ComplianceStandard = "hipaa"
+	StandardSOC2   ComplianceStandard = "soc2"
+	StandardISO27001 ComplianceStandard = "iso27001"
+	StandardCustom ComplianceStandard = "custom"
+)
+
+// ComplianceReport 合规报告
+type ComplianceReport struct {
+	ID          string             `json:"id"`
+	Standard    ComplianceStandard `json:"standard"`
+	GeneratedAt time.Time          `json:"generated_at"`
+	PeriodStart time.Time          `json:"period_start"`
+	PeriodEnd   time.Time          `json:"period_end"`
+	Score       float64            `json:"score"` // 0-100
+	Status      string             `json:"status"` // compliant, non_compliant, partial
+	Summary     string             `json:"summary"`
+	Sections    []ReportSection    `json:"sections"`
+	Issues      []ComplianceIssue  `json:"issues"`
+	Recommendations []string       `json:"recommendations"`
 }
 
-// LoginLogEntry 登录日志条目.
-type LoginLogEntry struct {
-	ID        string    `json:"id"`
-	Timestamp time.Time `json:"timestamp"`
-	Username  string    `json:"username"`
-	IP        string    `json:"ip"`
-	UserAgent string    `json:"user_agent"`
-	Status    string    `json:"status"` // success, failure
-	Reason    string    `json:"reason,omitempty"`
-	MFAMethod string    `json:"mfa_method,omitempty"`
+// ReportSection 报告章节
+type ReportSection struct {
+	Title    string  `json:"title"`
+	Score    float64 `json:"score"`
+	Status   string  `json:"status"`
+	Details  string  `json:"details"`
 }
 
-// Alert 安全告警.
-type Alert struct {
-	ID           string                 `json:"id"`
-	Timestamp    time.Time              `json:"timestamp"`
-	Severity     string                 `json:"severity"` // low, medium, high, critical
-	Type         string                 `json:"type"`     // 告警类型
-	Title        string                 `json:"title"`
-	Description  string                 `json:"description"`
-	SourceIP     string                 `json:"source_ip,omitempty"`
-	Username     string                 `json:"username,omitempty"`
-	Details      map[string]interface{} `json:"details,omitempty"`
-	Acknowledged bool                   `json:"acknowledged"`
-	AckedBy      string                 `json:"acked_by,omitempty"`
-	AckedAt      *time.Time             `json:"acked_at,omitempty"`
+// ComplianceIssue 合规问题
+type ComplianceIssue struct {
+	ID          string `json:"id"`
+	Severity    string `json:"severity"` // critical, high, medium, low
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Remediation string `json:"remediation"`
 }
 
-// ========== 安全基线类型 ==========
+// ========== 统计 ==========
 
-// BaselineCheckResult 基线检查结果.
-type BaselineCheckResult struct {
-	CheckID     string                 `json:"check_id"`
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Category    string                 `json:"category"` // auth, network, system, file
-	Severity    string                 `json:"severity"` // low, medium, high, critical
-	Status      string                 `json:"status"`   // pass, fail, warning, skipped
-	Message     string                 `json:"message"`
-	Remediation string                 `json:"remediation,omitempty"` // 修复建议
-	Details     map[string]interface{} `json:"details,omitempty"`
+// SecurityStats 安全统计
+type SecurityStats struct {
+	TotalKeys       int     `json:"total_keys"`
+	ActiveKeys      int     `json:"active_keys"`
+	ExpiredKeys     int     `json:"expired_keys"`
+	EncryptedFiles  int     `json:"encrypted_files"`
+	TotalEncryptedSize int64 `json:"total_encrypted_size"`
+	TotalAuditLogs  int     `json:"total_audit_logs"`
+	FailedLogins    int     `json:"failed_logins"`
+	LastKeyRotation *time.Time `json:"last_key_rotation,omitempty"`
+	ComplianceScore float64 `json:"compliance_score"`
 }
 
-// BaselineReport 基线检查报告.
-type BaselineReport struct {
-	ReportID     string                `json:"report_id"`
-	Timestamp    time.Time             `json:"timestamp"`
-	OverallScore int                   `json:"overall_score"` // 0-100
-	TotalChecks  int                   `json:"total_checks"`
-	Passed       int                   `json:"passed"`
-	Failed       int                   `json:"failed"`
-	Warning      int                   `json:"warning"`
-	Skipped      int                   `json:"skipped"`
-	Results      []BaselineCheckResult `json:"results"`
+// ========== 配置 ==========
+
+// SecurityConfig 安全配置
+type SecurityConfig struct {
+	// 加密配置
+	DefaultAlgorithm EncryptionAlgorithm `json:"default_algorithm"`
+	DefaultKeySize   int                 `json:"default_key_size"`
+	KeyRotationDays  int                 `json:"key_rotation_days"`
+
+	// 审计配置
+	AuditEnabled     bool `json:"audit_enabled"`
+	AuditRetentionDays int `json:"audit_retention_days"`
+
+	// 密码策略
+	MinPasswordLength  int  `json:"min_password_length"`
+	RequireUppercase   bool `json:"require_uppercase"`
+	RequireLowercase   bool `json:"require_lowercase"`
+	RequireNumbers     bool `json:"require_numbers"`
+	RequireSpecial     bool `json:"require_special"`
+	PasswordExpiration int  `json:"password_expiration"` // days
+
+	// 会话配置
+	SessionTimeout     int  `json:"session_timeout"` // minutes
+	MaxLoginAttempts   int  `json:"max_login_attempts"`
+	LockoutDuration    int  `json:"lockout_duration"` // minutes
 }
 
-// Config 安全配置.
-type Config struct {
-	Firewall       FirewallConfig `json:"firewall"`
-	Fail2Ban       Fail2BanConfig `json:"fail2ban"`
-	GeoRestriction GeoRestriction `json:"geo_restriction"`
-	AuditEnabled   bool           `json:"audit_enabled"`
-	AlertEnabled   bool           `json:"alert_enabled"`
-}
-
-// ========== 通用响应类型 ==========
-
-// Response represents a generic API response.
-type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
-
-// Success creates a success response.
-func Success(data interface{}) Response {
-	return Response{Code: 0, Message: "success", Data: data}
-}
-
-// Error creates an error response.
-func Error(code int, message string) Response {
-	return Response{Code: code, Message: message}
+// DefaultSecurityConfig 默认配置
+func DefaultSecurityConfig() *SecurityConfig {
+	return &SecurityConfig{
+		DefaultAlgorithm:   AlgoAES256GCM,
+		DefaultKeySize:     256,
+		KeyRotationDays:    90,
+		AuditEnabled:       true,
+		AuditRetentionDays: 365,
+		MinPasswordLength:  12,
+		RequireUppercase:   true,
+		RequireLowercase:   true,
+		RequireNumbers:     true,
+		RequireSpecial:     true,
+		PasswordExpiration: 90,
+		SessionTimeout:     30,
+		MaxLoginAttempts:   5,
+		LockoutDuration:    15,
+	}
 }
