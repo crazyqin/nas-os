@@ -806,8 +806,8 @@ func TestMLPredictor(t *testing.T) {
 	if score < 0 || score > 1 {
 		t.Errorf("Prediction score out of range: %f", score)
 	}
-	if predictor.predictions != 1 {
-		t.Errorf("Expected 1 prediction count, got %d", predictor.predictions)
+	if predictor.Predictions != 1 {
+		t.Errorf("Expected 1 prediction count, got %d", predictor.Predictions)
 	}
 }
 

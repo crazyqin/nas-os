@@ -170,12 +170,12 @@ type PrefetchTask struct {
 
 // AccessPredictor ML访问预测器
 type AccessPredictor struct {
-	weights     map[string]float64 `json:"weights"`
-	features    []string           `json:"features"`
-	accuracy    float64            `json:"accuracy"`
-	trainedAt   time.Time          `json:"trained_at"`
-	predictions int64              `json:"predictions"`
-	hits        int64              `json:"hits"`
+	Weights     map[string]float64 `json:"weights"`
+	Features    []string           `json:"features"`
+	Accuracy    float64            `json:"accuracy"`
+	TrainedAt   time.Time          `json:"trained_at"`
+	Predictions int64              `json:"predictions"`
+	Hits        int64              `json:"hits"`
 }
 
 // PrefetchMetrics 预取指标
