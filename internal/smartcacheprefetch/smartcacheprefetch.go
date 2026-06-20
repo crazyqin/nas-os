@@ -39,13 +39,13 @@ func NewPrefetchEngine(config PrefetchConfig, logger *slog.Logger) *PrefetchEngi
 		predictions:   make(map[string]*Prediction),
 		prefetchQueue: make(chan *PrefetchTask, config.MaxQueueSize),
 		mlModel: &AccessPredictor{
-			weights: map[string]float64{
+			Weights: map[string]float64{
 				"frequency":  0.3,
 				"recency":    0.3,
 				"sequential": 0.2,
 				"periodic":   0.2,
 			},
-			features: []string{"frequency", "recency", "sequential", "periodic"},
+			Features: []string{"frequency", "recency", "sequential", "periodic"},
 		},
 		metrics: &PrefetchMetrics{
 			LayerStats: make(map[string]*LayerStats),
@@ -833,11 +833,11 @@ func (e *PrefetchEngine) totalCachedFiles() int {
 
 // updateMLWeights updates ML model weights based on prediction accuracy
 func (e *PrefetchEngine) updateMLWeights() {
-	if e.mlModel.predictions == 0 {
+	if e.mlModel.Predictions == 0 {
 		return
 	}
 
-	accuracy := float64(e.mlModel.hits) / float64(e.mlModel.predictions)
+	accuracy := float64(e.mlModel.Hits) / float64(e.mlModel.Predictions)
 
 	// Adjust weights based on accuracy
 	if accuracy > 0.8 {
@@ -846,28 +846,28 @@ func (e *PrefetchEngine) updateMLWeights() {
 	}
 
 	// Slightly randomize weights to explore better configurations
-	for key := range e.mlModel.weights {
-		e.mlModel.weights[key] *= (0.9 + 0.2*float64(time.Now().UnixNano()%100)/100.0)
+	for key := range e.mlModel.Weights {
+		e.mlModel.Weights[key] *= (0.9 + 0.2*float64(time.Now().UnixNano()%100)/100.0)
 	}
 
-	e.mlModel.accuracy = accuracy
-	e.mlModel.trainedAt = time.Now()
+	e.mlModel.Accuracy = accuracy
+	e.mlModel.TrainedAt = time.Now()
 }
 
 // trainModel retrains the ML model with accumulated data
 func (e *PrefetchEngine) trainModel() {
 	e.logger.Info("Training ML model",
 		"patterns", len(e.accessHistory),
-		"predictions", e.mlModel.predictions,
+		"predictions", e.mlModel.Predictions,
 	)
 
 	// Simplified model training
 	// In production, this would use actual ML algorithms
-	e.mlModel.trainedAt = time.Now()
+	e.mlModel.TrainedAt = time.Now()
 
 	// Calculate feature importance based on historical accuracy
-	if e.mlModel.predictions > 0 {
-		e.mlModel.accuracy = float64(e.mlModel.hits) / float64(e.mlModel.predictions)
+	if e.mlModel.Predictions > 0 {
+		e.mlModel.Accuracy = float64(e.mlModel.Hits) / float64(e.mlModel.Predictions)
 	}
 }
 
@@ -876,21 +876,21 @@ func (p *AccessPredictor) predict(fileID string, pattern *AccessPattern) float64
 	score := 0.0
 
 	// Frequency factor
-	score += pattern.Frequency * p.weights["frequency"]
+	score += pattern.Frequency * p.Weights["frequency"]
 
 	// Recency factor
 	if len(pattern.AccessTimes) > 0 {
 		recency := 1.0 / (1.0 + time.Since(pattern.AccessTimes[len(pattern.AccessTimes)-1]).Hours())
-		score += recency * p.weights["recency"]
+		score += recency * p.Weights["recency"]
 	}
 
 	// Sequential factor
-	score += pattern.Sequential * p.weights["sequential"]
+	score += pattern.Sequential * p.Weights["sequential"]
 
 	// Periodic factor
-	score += pattern.Periodic * p.weights["periodic"]
+	score += pattern.Periodic * p.Weights["periodic"]
 
-	p.predictions++
+	p.Predictions++
 	return math.Min(score, 1.0)
 }
 
