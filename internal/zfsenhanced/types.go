@@ -1,513 +1,591 @@
-// Package zfsenhanced 提供ZFS增强管理功能
+// Package zfsenhanced 提供 ZFS 增强功能，对标 TrueNAS 25.04 的 OpenZFS 2.4 特性。
+// 包括：RAID-Z 在线扩展、快速去重、混合存储池优化、数据完整性校验、快照管理、压缩算法选择。
 package zfsenhanced
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
 
-// PoolStatus 池状态
-type PoolStatus string
+// ============================================================================
+// RAID-Z 扩展
+// ============================================================================
+
+// RAIDZLevel RAID-Z 等级
+type RAIDZLevel int
 
 const (
-	// PoolStatusOnline 在线
-	PoolStatusOnline PoolStatus = "ONLINE"
-	// PoolStatusDegraded 降级
-	PoolStatusDegraded PoolStatus = "DEGRADED"
-	// PoolStatusFaulted 故障
-	PoolStatusFaulted PoolStatus = "FAULTED"
-	// PoolStatusOffline 离线
-	PoolStatusOffline PoolStatus = "OFFLINE"
-	// PoolStatusUnavail 不可用
-	PoolStatusUnavail PoolStatus = "UNAVAIL"
-	// PoolStatusRemoved 已移除
-	PoolStatusRemoved PoolStatus = "REMOVED"
+	RAIDZ1 RAIDZLevel = iota + 1 // RAID-Z1（单奇偶校验）
+	RAIDZ2                       // RAID-Z2（双奇偶校验）
+	RAIDZ3                       // RAID-Z3（三奇偶校验）
 )
 
-// RaidType RAID类型
-type RaidType string
-
-const (
-	// RaidTypeStripe 条带化
-	RaidTypeStripe RaidType = "stripe"
-	// RaidTypeMirror 镜像
-	RaidTypeMirror RaidType = "mirror"
-	// RaidTypeRaidz RAIDZ1
-	RaidTypeRaidz RaidType = "raidz"
-	// RaidTypeRaidz2 RAIDZ2
-	RaidTypeRaidz2 RaidType = "raidz2"
-	// RaidTypeRaidz3 RAIDZ3
-	RaidTypeRaidz3 RaidType = "raidz3"
-	// RaidTypeDRAID 分布式RAID
-	RaidTypeDRAID RaidType = "draid"
-)
-
-// CompressionType 压缩类型
-type CompressionType string
-
-const (
-	// CompressionOff 关闭
-	CompressionOff CompressionType = "off"
-	// CompressionLZ4 LZ4压缩
-	CompressionLZ4 CompressionType = "lz4"
-	// CompressionZSTD ZSTD压缩
-	CompressionZSTD CompressionType = "zstd"
-	// CompressionZSTD1 ZSTD-1
-	CompressionZSTD1 CompressionType = "zstd-1"
-	// CompressionZSTD3 ZSTD-3
-	CompressionZSTD3 CompressionType = "zstd-3"
-	// CompressionZSTD7 ZSTD-7
-	CompressionZSTD7 CompressionType = "zstd-7"
-	// CompressionZSTD19 ZSTD-19
-	CompressionZSTD19 CompressionType = "zstd-19"
-	// CompressionGZIP1 GZIP-1
-	CompressionGZIP1 CompressionType = "gzip-1"
-	// CompressionGZIP6 GZIP-6
-	CompressionGZIP6 CompressionType = "gzip-6"
-	// CompressionGZIP9 GZIP-9
-	CompressionGZIP9 CompressionType = "gzip-9"
-	// CompressionZLE ZLE
-	CompressionZLE CompressionType = "zle"
-	// CompressionLZJB LZJB
-	CompressionLZJB CompressionType = "lzjb"
-)
-
-// DedupMode 去重模式
-type DedupMode string
-
-const (
-	// DedupOff 关闭
-	DedupOff DedupMode = "off"
-	// DedupOn 开启
-	DedupOn DedupMode = "on"
-	// DedupVerify 校验去重
-	DedupVerify DedupMode = "verify"
-	// DedupSHA256 SHA256去重
-	DedupSHA256 DedupMode = "sha256"
-	// DedupSHA512 SHA512去重
-	DedupSHA512 DedupMode = "sha512"
-	// DedupSkein Skein去重
-	DedupSkein DedupMode = "skein"
-	// DedupEdonR Edon-R去重
-	DedupEdonR DedupMode = "edonr"
-)
-
-// AlertSeverity 告警严重级别
-type AlertSeverity string
-
-const (
-	// AlertSeverityInfo 信息
-	AlertSeverityInfo AlertSeverity = "info"
-	// AlertSeverityWarning 警告
-	AlertSeverityWarning AlertSeverity = "warning"
-	// AlertSeverityCritical 严重
-	AlertSeverityCritical AlertSeverity = "critical"
-	// AlertSeverityEmergency 紧急
-	AlertSeverityEmergency AlertSeverity = "emergency"
-)
-
-// AlertType 告警类型
-type AlertType string
-
-const (
-	// AlertTypePoolDegraded 池降级
-	AlertTypePoolDegraded AlertType = "pool_degraded"
-	// AlertTypeDiskFault 磁盘故障
-	AlertTypeDiskFault AlertType = "disk_fault"
-	// AlertTypeCapacityThreshold 容量阈值
-	AlertTypeCapacityThreshold AlertType = "capacity_threshold"
-	// AlertTypeScrubFailed Scrub失败
-	AlertTypeScrubFailed AlertType = "scrub_failed"
-	// AlertTypeChecksumError 校验和错误
-	AlertTypeChecksumError AlertType = "checksum_error"
-	// AlertTypeIOError IO错误
-	AlertTypeIOError AlertType = "io_error"
-	// AlertTypeResilverFailed 重建失败
-	AlertTypeResilverFailed AlertType = "resilver_failed"
-	// AlertTypeHighLatency 高延迟
-	AlertTypeHighLatency AlertType = "high_latency"
-)
-
-// SnapshotPolicy 快照策略
-type SnapshotPolicy struct {
-	ID            string    `json:"id"`
-	Name          string    `json:"name"`
-	PoolName      string    `json:"pool_name"`
-	Dataset       string    `json:"dataset"`
-	Schedule      string    `json:"schedule"`       // cron表达式
-	RetentionDays int       `json:"retention_days"` // 保留天数
-	MaxSnapshots  int       `json:"max_snapshots"`  // 最大快照数
-	Prefix        string    `json:"prefix"`         // 快照前缀
-	Recursive     bool      `json:"recursive"`      // 是否递归
-	Enabled       bool      `json:"enabled"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
-	LastSnapshot  time.Time `json:"last_snapshot,omitempty"`
-	AutoDestroy   bool      `json:"auto_destroy"` // 自动销毁过期快照
-}
-
-// SnapshotInfo 快照信息
-type SnapshotInfo struct {
-	Name         string            `json:"name"`
-	PoolName     string            `json:"pool_name"`
-	Dataset      string            `json:"dataset"`
-	SnapshotName string            `json:"snapshot_name"`
-	CreatedAt    time.Time         `json:"created_at"`
-	UsedBytes    int64             `json:"used_bytes"`
-	ReferBytes   int64             `json:"refer_bytes"`
-	Clones       []string          `json:"clones,omitempty"`
-	UserProps    map[string]string `json:"user_props,omitempty"`
-}
-
-// PoolConfig 池创建配置
-type PoolConfig struct {
-	Name        string          `json:"name"`
-	RaidType    RaidType        `json:"raid_type"`
-	Disks       []string        `json:"disks"`
-	Spares      []string        `json:"spares,omitempty"`
-	BlockSize   int             `json:"block_size,omitempty"` // 字节
-	Ashift      int             `json:"ashift,omitempty"`     // 2^ashift
-	Compression CompressionType `json:"compression,omitempty"`
-	Dedup       DedupMode       `json:"dedup,omitempty"`
-	Sync        string          `json:"sync,omitempty"` // standard, always, disabled
-	Atime       bool            `json:"atime,omitempty"`
-	Xattr       string          `json:"xattr,omitempty"` // on, off, sa
-	AutoExpand  bool            `json:"auto_expand,omitempty"`
-	Comment     string          `json:"comment,omitempty"`
-}
-
-// PoolInfo 池信息
-type PoolInfo struct {
-	Name           string            `json:"name"`
-	Status         PoolStatus        `json:"status"`
-	RaidType       RaidType          `json:"raid_type"`
-	SizeBytes      int64             `json:"size_bytes"`
-	UsedBytes      int64             `json:"used_bytes"`
-	FreeBytes      int64             `json:"free_bytes"`
-	UsedPercent    float64           `json:"used_percent"`
-	Fragmentation  float64           `json:"fragmentation"`
-	Health         string            `json:"health"`
-	ReadErrors     int64             `json:"read_errors"`
-	WriteErrors    int64             `json:"write_errors"`
-	ChecksumErrors int64             `json:"checksum_errors"`
-	Disks          []DiskInfo        `json:"disks"`
-	Spares         []DiskInfo        `json:"spares,omitempty"`
-	ScanStatus     string            `json:"scan_status"`
-	ScanProgress   float64           `json:"scan_progress"`
-	Timestamp      time.Time         `json:"timestamp"`
-	Properties     map[string]string `json:"properties,omitempty"`
-}
-
-// DiskInfo 磁盘信息
-type DiskInfo struct {
-	Name           string     `json:"name"`
-	Path           string     `json:"path"`
-	Status         PoolStatus `json:"status"`
-	SizeBytes      int64      `json:"size_bytes"`
-	ReadErrors     int64      `json:"read_errors"`
-	WriteErrors    int64      `json:"write_errors"`
-	ChecksumErrors int64      `json:"checksum_errors"`
-	State          string     `json:"state"`
-	IsSpare        bool       `json:"is_spare"`
-	IsLog          bool       `json:"is_log"`
-	IsCache        bool       `json:"is_cache"`
-	SMART          *SMARTInfo `json:"smart,omitempty"`
-}
-
-// SMARTInfo SMART信息
-type SMARTInfo struct {
-	Model              string `json:"model"`
-	Serial             string `json:"serial"`
-	Firmware           string `json:"firmware"`
-	Temperature        int    `json:"temperature"`
-	PowerOnHours       int64  `json:"power_on_hours"`
-	ReallocatedSectors int64  `json:"reallocated_sectors"`
-	PendingSectors     int64  `json:"pending_sectors"`
-	HealthStatus       string `json:"health_status"`
-}
-
-// Alert 告警信息
-type Alert struct {
-	ID         string        `json:"id"`
-	Type       AlertType     `json:"type"`
-	Severity   AlertSeverity `json:"severity"`
-	PoolName   string        `json:"pool_name"`
-	DiskName   string        `json:"disk_name,omitempty"`
-	Message    string        `json:"message"`
-	Details    string        `json:"details,omitempty"`
-	Timestamp  time.Time     `json:"timestamp"`
-	Acked      bool          `json:"acked"`
-	AckedAt    time.Time     `json:"acked_at,omitempty"`
-	AckedBy    string        `json:"acked_by,omitempty"`
-	Resolved   bool          `json:"resolved"`
-	ResolvedAt time.Time     `json:"resolved_at,omitempty"`
-}
-
-// AlertConfig 告警配置
-type AlertConfig struct {
-	CapacityWarningPercent   float64 `json:"capacity_warning_percent"`   // 80%
-	CapacityCriticalPercent  float64 `json:"capacity_critical_percent"`  // 90%
-	CapacityEmergencyPercent float64 `json:"capacity_emergency_percent"` // 95%
-	ChecksumErrorThreshold   int64   `json:"checksum_error_threshold"`
-	IOErrorThreshold         int64   `json:"io_error_threshold"`
-	LatencyWarningMs         float64 `json:"latency_warning_ms"`
-	LatencyCriticalMs        float64 `json:"latency_critical_ms"`
-	EnableEmailAlert         bool    `json:"enable_email_alert"`
-	EnableWebhookAlert       bool    `json:"enable_webhook_alert"`
-	WebhookURL               string  `json:"webhook_url,omitempty"`
-}
-
-// DefaultAlertConfig 默认告警配置
-func DefaultAlertConfig() AlertConfig {
-	return AlertConfig{
-		CapacityWarningPercent:   80,
-		CapacityCriticalPercent:  90,
-		CapacityEmergencyPercent: 95,
-		ChecksumErrorThreshold:   10,
-		IOErrorThreshold:         5,
-		LatencyWarningMs:         100,
-		LatencyCriticalMs:        500,
-		EnableEmailAlert:         false,
-		EnableWebhookAlert:       false,
+// String 返回 RAID-Z 等级名称
+func (r RAIDZLevel) String() string {
+	switch r {
+	case RAIDZ1:
+		return "raidz1"
+	case RAIDZ2:
+		return "raidz2"
+	case RAIDZ3:
+		return "raidz3"
+	default:
+		return "unknown"
 	}
 }
 
-// PerformanceMetrics 性能指标
-type PerformanceMetrics struct {
-	PoolName         string    `json:"pool_name"`
-	Timestamp        time.Time `json:"timestamp"`
-	ReadIOPS         int64     `json:"read_iops"`
-	WriteIOPS        int64     `json:"write_iops"`
-	ReadThroughput   int64     `json:"read_throughput"`  // bytes/s
-	WriteThroughput  int64     `json:"write_throughput"` // bytes/s
-	ReadLatencyMs    float64   `json:"read_latency_ms"`
-	WriteLatencyMs   float64   `json:"write_latency_ms"`
-	ARCMisses        int64     `json:"arc_misses"`
-	ARCHits          int64     `json:"arc_hits"`
-	ARCSizeBytes     int64     `json:"arc_size_bytes"`
-	ARCTargetBytes   int64     `json:"arc_target_bytes"`
-	L2ARCCacheHits   int64     `json:"l2arc_cache_hits"`
-	L2ARCCacheMisses int64     `json:"l2arc_cache_misses"`
-	L2ARCSizeBytes   int64     `json:"l2arc_size_bytes"`
-	ZILWriteBytes    int64     `json:"zil_write_bytes"`
-	ZILSyncCount     int64     `json:"zil_sync_count"`
-	CPUUsage         float64   `json:"cpu_usage"`
-	MemUsageBytes    int64     `json:"mem_usage_bytes"`
+// VDevState 虚拟设备状态
+type VDevState string
+
+const (
+	VDevStateOnline  VDevState = "online"
+	VDevStateDegraded VDevState = "degraded"
+	VDevStateFaulted VDevState = "faulted"
+	VDevStateExpanding VDevState = "expanding"
+	VDevStateRemoved VDevState = "removed"
+)
+
+// DiskState 磁盘状态
+type DiskState string
+
+const (
+	DiskStateOnline   DiskState = "online"
+	DiskStateOffline  DiskState = "offline"
+	DiskStateFaulted  DiskState = "faulted"
+	DiskStateSpare    DiskState = "spare"
+	DiskStateRemoving DiskState = "removing"
+)
+
+// VDev 虚拟设备
+type VDev struct {
+	ID         string      `json:"id"`
+	Name       string      `json:"name"`
+	Type       RAIDZLevel  `json:"type"`
+	State      VDevState   `json:"state"`
+	Disks      []Disk      `json:"disks"`
+	TotalBytes int64       `json:"total_bytes"`
+	UsedBytes  int64       `json:"used_bytes"`
+	FreeBytes  int64       `json:"free_bytes"`
+	ExpandPct  float64     `json:"expand_pct"` // 扩展进度 0-100
+	CreatedAt  time.Time   `json:"created_at"`
+	UpdatedAt  time.Time   `json:"updated_at"`
 }
 
-// ARCConfig ARC配置
-type ARCConfig struct {
-	MaxSizeBytes    int64   `json:"max_size_bytes"`
-	MinSizeBytes    int64   `json:"min_size_bytes"`
-	PrefetchEnabled bool    `json:"prefetch_enabled"`
-	HitRatePercent  float64 `json:"hit_rate_percent"`
-	SizeBytes       int64   `json:"size_bytes"`
-	TargetBytes     int64   `json:"target_bytes"`
-	Hits            int64   `json:"hits"`
-	Misses          int64   `json:"misses"`
+// Disk 磁盘设备
+type Disk struct {
+	ID         string     `json:"id"`
+	Path       string     `json:"path"`
+	State      DiskState  `json:"state"`
+	SizeBytes  int64      `json:"size_bytes"`
+	Serial     string     `json:"serial,omitempty"`
+	Model      string     `json:"model,omitempty"`
+	SlotNumber int        `json:"slot_number"`
+	InsertedAt *time.Time `json:"inserted_at,omitempty"`
 }
 
-// L2ARCConfig L2ARC配置
-type L2ARCConfig struct {
-	Enabled        bool     `json:"enabled"`
-	Devices        []string `json:"devices"`
-	SizeBytes      int64    `json:"size_bytes"`
-	WriteSizeBytes int64    `json:"write_size_bytes"`
-	Hits           int64    `json:"hits"`
-	Misses         int64    `json:"misses"`
-	HitRatePercent float64  `json:"hit_rate_percent"`
+// ExpandRequest RAID-Z 在线扩展请求
+type ExpandRequest struct {
+	VDevID  string `json:"vdev_id"`
+	DiskIDs []string `json:"disk_ids"`
 }
 
-// ZILConfig ZIL配置
-type ZILConfig struct {
-	Enabled          bool     `json:"enabled"`
-	Devices          []string `json:"devices"`
-	SyncDisabled     bool     `json:"sync_disabled"`
-	WriteBytes       int64    `json:"write_bytes"`
-	SyncCount        int64    `json:"sync_count"`
-	AvgSyncLatencyMs float64  `json:"avg_sync_latency_ms"`
+// ExpandResult 扩展结果
+type ExpandResult struct {
+	Success      bool       `json:"success"`
+	VDevID       string     `json:"vdev_id"`
+	DisksAdded   int        `json:"disks_added"`
+	NewCapacity  int64      `json:"new_capacity"`
+	ExpandStatus string     `json:"expand_status"`
+	StartedAt    time.Time  `json:"started_at"`
+	ETA          *time.Time `json:"eta,omitempty"`
 }
 
-// CapacityTrend 容量趋势
-type CapacityTrend struct {
-	Timestamp     time.Time `json:"timestamp"`
-	TotalBytes    int64     `json:"total_bytes"`
-	UsedBytes     int64     `json:"used_bytes"`
-	FreeBytes     int64     `json:"free_bytes"`
-	UsedPercent   float64   `json:"used_percent"`
-	GrowthRateDay float64   `json:"growth_rate_day"` // 每日增长字节
-	DaysUntilFull int       `json:"days_until_full"` // 预计几天后满
-}
+// ============================================================================
+// 快速去重 (Fast-Dedup)
+// ============================================================================
 
-// CompressionStats 压缩统计
-type CompressionStats struct {
-	PoolName          string          `json:"pool_name"`
-	Dataset           string          `json:"dataset"`
-	CompressRatio     float64         `json:"compress_ratio"`
-	CompressedBytes   int64           `json:"compressed_bytes"`
-	UncompressedBytes int64           `json:"uncompressed_bytes"`
-	SavedBytes        int64           `json:"saved_bytes"`
-	CompressionType   CompressionType `json:"compression_type"`
-	ReductionPercent  float64         `json:"reduction_percent"`
+// DedupPolicy 去重策略
+type DedupPolicy string
+
+const (
+	DedupPolicyNone     DedupPolicy = "none"
+	DedupPolicySHA256   DedupPolicy = "sha256"
+	DedupPolicyXXHash   DedupPolicy = "xxhash"
+	DedupPolicyMurmur3  DedupPolicy = "murmur3"
+)
+
+// DedupEntry 去重条目
+type DedupEntry struct {
+	Hash      string    `json:"hash"`
+	Algorithm DedupPolicy `json:"algorithm"`
+	Size      int64     `json:"size"`
+	RefCount  int64     `json:"ref_count"`
+	FirstSeen time.Time `json:"first_seen"`
+	LastSeen  time.Time `json:"last_seen"`
+	BlockPath string    `json:"block_path"`
 }
 
 // DedupStats 去重统计
 type DedupStats struct {
-	PoolName          string    `json:"pool_name"`
-	DedupMode         DedupMode `json:"dedup_mode"`
-	DedupRatio        float64   `json:"dedup_ratio"`
-	DedupTableSize    int64     `json:"dedup_table_size"`
-	DedupTableEntries int64     `json:"dedup_table_entries"`
-	SavedBytes        int64     `json:"saved_bytes"`
-	DuplicatesFound   int64     `json:"duplicates_found"`
-	MemoryUsageBytes  int64     `json:"memory_usage_bytes"`
+	TotalBlocks     int64         `json:"total_blocks"`
+	UniqueBlocks    int64         `json:"unique_blocks"`
+	DedupRatio      float64       `json:"dedup_ratio"`
+	SavedBytes      int64         `json:"saved_bytes"`
+	HashCollisions  int64         `json:"hash_collisions"`
+	ActiveEntries   int64         `json:"active_entries"`
+	DedupTableSize  int64         `json:"dedup_table_size"`
+	MemoryUsage     int64         `json:"memory_usage"`
+	LookupLatencyMs float64       `json:"lookup_latency_ms"`
+	Enabled         bool          `json:"enabled"`
+	Policy          DedupPolicy   `json:"policy"`
 }
 
-// MigrationTask 迁移任务
-type MigrationTask struct {
-	ID            string    `json:"id"`
-	SourcePool    string    `json:"source_pool"`
-	TargetPool    string    `json:"target_pool"`
-	Datasets      []string  `json:"datasets"`
-	Status        string    `json:"status"` // pending, running, completed, failed
-	Progress      float64   `json:"progress"`
-	BytesTotal    int64     `json:"bytes_total"`
-	BytesCopied   int64     `json:"bytes_copied"`
-	StartTime     time.Time `json:"start_time"`
-	EndTime       time.Time `json:"end_time,omitempty"`
-	EstimatedTime string    `json:"estimated_time,omitempty"`
-	ErrorMsg      string    `json:"error_msg,omitempty"`
+// DedupConfig 去重配置
+type DedupConfig struct {
+	Enabled        bool        `json:"enabled"`
+	Policy         DedupPolicy `json:"policy"`
+	MinBlockSize   int64       `json:"min_block_size"`
+	MaxBlockSize   int64       `json:"max_block_size"`
+	MemLimitMB     int64       `json:"mem_limit_mb"`
+	VerifyHash     bool        `json:"verify_hash"`
+	SyncIntervalMs int64       `json:"sync_interval_ms"`
 }
 
-// ========== 新增类型：ZFSDataset, RAIDZExpansion, IntegrityReport ==========
-
-// ZFSDataset ZFS数据集信息
-type ZFSDataset struct {
-	Name          string            `json:"name"`
-	PoolName      string            `json:"pool_name"`
-	Type          string            `json:"type"` // filesystem, volume
-	UsedBytes     int64             `json:"used_bytes"`
-	AvailBytes    int64             `json:"avail_bytes"`
-	ReferBytes    int64             `json:"refer_bytes"`
-	UsedPercent   float64           `json:"used_percent"`
-	MountPoint    string            `json:"mount_point"`
-	Compression   CompressionType   `json:"compression"`
-	Dedup         DedupMode         `json:"dedup"`
-	RecordSize    int               `json:"record_size"`
-	QuotaBytes    int64             `json:"quota_bytes"`
-	ReserveBytes  int64             `json:"reserve_bytes"`
-	SnapshotCount int               `json:"snapshot_count"`
-	Clones        []string          `json:"clones,omitempty"`
-	Properties    map[string]string `json:"properties,omitempty"`
-	CreatedAt     time.Time         `json:"created_at"`
-}
-
-// RAIDZExpansion RAID-Z扩展任务
-type RAIDZExpansion struct {
-	ID              string    `json:"id"`
-	PoolName        string    `json:"pool_name"`
-	Status          string    `json:"status"` // pending, running, completed, failed
-	OldRaidType     RaidType  `json:"old_raid_type"`
-	NewRaidType     RaidType  `json:"new_raid_type"`
-	NewDisks        []string  `json:"new_disks"`
-	Progress        float64   `json:"progress"`
-	StartTime       time.Time `json:"start_time"`
-	EndTime         time.Time `json:"end_time,omitempty"`
-	EstimatedTime   string    `json:"estimated_time,omitempty"`
-	BytesResilvered int64     `json:"bytes_resilvered"`
-	ErrorMsg        string    `json:"error_msg,omitempty"`
-}
-
-// IntegrityReport 数据完整性报告
-type IntegrityReport struct {
-	ID              string                 `json:"id"`
-	PoolName        string                 `json:"pool_name"`
-	GeneratedAt     time.Time              `json:"generated_at"`
-	OverallStatus   string                 `json:"overall_status"` // healthy, degraded, critical
-	HealthScore     float64                `json:"health_score"`
-	LastScrubTime   time.Time              `json:"last_scrub_time,omitempty"`
-	ScrubErrors     int64                  `json:"scrub_errors"`
-	ScrubRepaired   int64                  `json:"scrub_repaired"`
-	ChecksumErrors  int64                  `json:"checksum_errors"`
-	ReadErrors      int64                  `json:"read_errors"`
-	WriteErrors     int64                  `json:"write_errors"`
-	TotalDisks      int                    `json:"total_disks"`
-	HealthyDisks    int                    `json:"healthy_disks"`
-	DegradedDisks   int                    `json:"degraded_disks"`
-	FailedDisks     int                    `json:"failed_disks"`
-	DiskDetails     []DiskIntegrityDetail  `json:"disk_details"`
-	CheckResults    []IntegrityCheckResult `json:"check_results,omitempty"`
-	Recommendations []string               `json:"recommendations,omitempty"`
-}
-
-// DiskIntegrityDetail 磁盘完整性详情
-type DiskIntegrityDetail struct {
-	Name               string `json:"name"`
-	Path               string `json:"path"`
-	Status             string `json:"status"`
-	ReadErrors         int64  `json:"read_errors"`
-	WriteErrors        int64  `json:"write_errors"`
-	ChecksumErrors     int64  `json:"checksum_errors"`
-	SMARTHealth        string `json:"smart_health"`
-	Temperature        int    `json:"temperature"`
-	PowerOnHours       int64  `json:"power_on_hours"`
-	ReallocatedSectors int64  `json:"reallocated_sectors"`
-}
-
-// SnapshotCloneRequest 快照克隆请求
-type SnapshotCloneRequest struct {
-	Dataset       string `json:"dataset" binding:"required"`
-	SnapshotName  string `json:"snapshot_name" binding:"required"`
-	TargetDataset string `json:"target_dataset" binding:"required"`
-}
-
-// ExpandRAIDZRequest RAID-Z扩展请求
-type ExpandRAIDZRequest struct {
-	PoolName    string   `json:"pool_name" binding:"required"`
-	NewDisks    []string `json:"new_disks" binding:"required,min=1"`
-	NewRaidType string   `json:"new_raid_type,omitempty"`
-}
-
-// IOBottleneck IO瓶颈分析
-type IOBottleneck struct {
-	Device         string  `json:"device"`
-	Type           string  `json:"type"`        // read, write, mixed
-	Utilization    float64 `json:"utilization"` // 0-100%
-	AvgQueueDepth  float64 `json:"avg_queue_depth"`
-	AwaitMs        float64 `json:"await_ms"` // 平均等待时间
-	SVCTmMs        float64 `json:"svctm_ms"` // 平均服务时间
-	Recommendation string  `json:"recommendation"`
-}
-
-// PerformanceTuningRecommendation 性能调优建议
-type PerformanceTuningRecommendation struct {
-	Category    string `json:"category"` // arc, l2arc, zil, compression, dedup, blocksize
-	Current     string `json:"current"`
-	Recommended string `json:"recommended"`
-	Impact      string `json:"impact"` // high, medium, low
-	Description string `json:"description"`
-	Priority    int    `json:"priority"` // 1-5, 1最高
-}
-
-// PoolManager 池管理器
-type PoolManager struct {
-	mu               sync.RWMutex
-	pools            map[string]*PoolInfo
-	alertConfig      AlertConfig
-	alerts           []Alert
-	snapshotPolicies map[string]*SnapshotPolicy
-	capacityHistory  map[string][]CapacityTrend
-	metricsHistory   map[string][]PerformanceMetrics
-}
-
-// NewPoolManager 创建池管理器
-func NewPoolManager(alertConfig AlertConfig) *PoolManager {
-	return &PoolManager{
-		pools:            make(map[string]*PoolInfo),
-		alertConfig:      alertConfig,
-		alerts:           make([]Alert, 0),
-		snapshotPolicies: make(map[string]*SnapshotPolicy),
-		capacityHistory:  make(map[string][]CapacityTrend),
-		metricsHistory:   make(map[string][]PerformanceMetrics),
+// DefaultDedupConfig 返回默认去重配置
+func DefaultDedupConfig() *DedupConfig {
+	return &DedupConfig{
+		Enabled:        false,
+		Policy:         DedupPolicySHA256,
+		MinBlockSize:   4096,
+		MaxBlockSize:   128 * 1024, // 128KB
+		MemLimitMB:     512,
+		VerifyHash:     true,
+		SyncIntervalMs: 5000,
 	}
 }
+
+// ============================================================================
+// 混合存储池
+// ============================================================================
+
+// DeviceClass 设备类型
+type DeviceClass string
+
+const (
+	DeviceClassSpecial DeviceClass = "special"
+	DeviceClassDedup   DeviceClass = "dedup"
+	DeviceClassLog     DeviceClass = "log"
+	DeviceClassCache   DeviceClass = "cache"
+	DeviceClassData    DeviceClass = "data"
+)
+
+// HybridPool 混合存储池
+type HybridPool struct {
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	State       VDevState   `json:"state"`
+	DataVDevs   []VDev      `json:"data_vdevs"`
+	SpecialVDev *VDev       `json:"special_vdev,omitempty"`
+	LogVDev     *VDev       `json:"log_vdev,omitempty"`
+	CacheVDev   *VDev       `json:"cache_vdev,omitempty"`
+	TotalBytes  int64       `json:"total_bytes"`
+	UsedBytes   int64       `json:"used_bytes"`
+	FreeBytes   int64       `json:"free_bytes"`
+	DedupRatio  float64     `json:"dedup_ratio"`
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
+}
+
+// TieringPolicy 智能分层策略
+type TieringPolicy struct {
+	Enabled       bool    `json:"enabled"`
+	HotThreshold  float64 `json:"hot_threshold"`   // 热度分数阈值
+	WarmThreshold float64 `json:"warm_threshold"`
+	SSDTier       bool    `json:"ssd_tier"`         // 是否启用 SSD 分层
+	HDDTier       bool    `json:"hdd_tier"`         // 是否启用 HDD 分层
+	AutoPromote   bool    `json:"auto_promote"`     // 自动提升
+	AutoDemote    bool    `json:"auto_demote"`      // 自动降级
+	BlockSize     int64   `json:"block_size"`       // 分层块大小
+}
+
+// DefaultTieringPolicy 返回默认分层策略
+func DefaultTieringPolicy() *TieringPolicy {
+	return &TieringPolicy{
+		Enabled:       true,
+		HotThreshold:  70.0,
+		WarmThreshold: 30.0,
+		SSDTier:       true,
+		HDDTier:       true,
+		AutoPromote:   true,
+		AutoDemote:    true,
+		BlockSize:     128 * 1024, // 128KB
+	}
+}
+
+// ============================================================================
+// 数据完整性
+// ============================================================================
+
+// ScrubState Scrub 状态
+type ScrubState string
+
+const (
+	ScrubStateIdle     ScrubState = "idle"
+	ScrubStateRunning  ScrubState = "running"
+	ScrubStatePaused   ScrubState = "paused"
+	ScrubStateFinished ScrubState = "finished"
+	ScrubStateFailed   ScrubState = "failed"
+)
+
+// ScrubConfig Scrub 配置
+type ScrubConfig struct {
+	Enabled          bool          `json:"enabled"`
+	IntervalDays     int           `json:"interval_days"`
+	ThrottleIOPS     int           `json:"throttle_iops"`
+	ThrottleMBps     int           `json:"throttle_mbps"`
+	AutoRepair       bool          `json:"auto_repair"`
+	RepairRetries    int           `json:"repair_retries"`
+	PriorityClass    string        `json:"priority_class"`
+	ScheduleHour     int           `json:"schedule_hour"`
+	ScheduleMinute   int           `json:"schedule_minute"`
+}
+
+// DefaultScrubConfig 返回默认 Scrub 配置
+func DefaultScrubConfig() *ScrubConfig {
+	return &ScrubConfig{
+		Enabled:        true,
+		IntervalDays:   14,
+		ThrottleIOPS:   1000,
+		ThrottleMBps:   200,
+		AutoRepair:     true,
+		RepairRetries:  3,
+		PriorityClass:  "idle",
+		ScheduleHour:   2,
+		ScheduleMinute: 0,
+	}
+}
+
+// ScrubStatus Scrub 状态
+type ScrubStatus struct {
+	State          ScrubState  `json:"state"`
+	StartTime      *time.Time  `json:"start_time,omitempty"`
+	EndTime        *time.Time  `json:"end_time,omitempty"`
+	Progress       float64     `json:"progress"`        // 0-100
+	BytesScanned   int64       `json:"bytes_scanned"`
+	BytesTotal     int64       `json:"bytes_total"`
+	ErrorsFound    int64       `json:"errors_found"`
+	ErrorsRepaired int64       `json:"errors_repaired"`
+	ErrorsUnrepaired int64     `json:"errors_unrepaired"`
+	ScanRate       float64     `json:"scan_rate"`        // MB/s
+	ETA            *time.Time  `json:"eta,omitempty"`
+}
+
+// Checksum 校验和
+type Checksum struct {
+	Algorithm string `json:"algorithm"`
+	Value     string `json:"value"`
+	Size      int64  `json:"size"`
+}
+
+// ============================================================================
+// 快照管理
+// ============================================================================
+
+// Snapshot 快照
+type Snapshot struct {
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	Pool       string    `json:"pool"`
+	Dataset    string    `json:"dataset"`
+	FullName   string    `json:"full_name"` // pool/dataset@name
+	SizeBytes  int64     `json:"size_bytes"`
+	UsedBytes  int64     `json:"used_bytes"`
+	ReferBytes int64     `json:"refer_bytes"`
+	Clones     []string  `json:"clones,omitempty"`
+	IsClone    bool      `json:"is_clone"`
+	Origin     string    `json:"origin,omitempty"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
+// SnapshotCreateRequest 创建快照请求
+type SnapshotCreateRequest struct {
+	Pool      string `json:"pool"`
+	Dataset   string `json:"dataset"`
+	Name      string `json:"name"`
+	Recursive bool   `json:"recursive"`
+}
+
+// CloneRequest 克隆请求
+type CloneRequest struct {
+	SnapshotID  string `json:"snapshot_id"`
+	TargetPool  string `json:"target_pool"`
+	TargetName  string `json:"target_name"`
+}
+
+// RollbackRequest 回滚请求
+type RollbackRequest struct {
+	SnapshotID string `json:"snapshot_id"`
+	Force      bool   `json:"force"`
+}
+
+// SnapshotStats 快照统计
+type SnapshotStats struct {
+	TotalSnapshots  int64   `json:"total_snapshots"`
+	TotalUsedBytes  int64   `json:"total_used_bytes"`
+	TotalReferBytes int64   `json:"total_refer_bytes"`
+	OldestSnapshot  string  `json:"oldest_snapshot"`
+	NewestSnapshot  string  `json:"newest_snapshot"`
+	CloneCount      int64   `json:"clone_count"`
+}
+
+// ============================================================================
+// 压缩算法
+// ============================================================================
+
+// CompressionAlgorithm 压缩算法
+type CompressionAlgorithm string
+
+const (
+	CompressionLZ4   CompressionAlgorithm = "lz4"
+	CompressionZSTD  CompressionAlgorithm = "zstd"
+	CompressionZLE   CompressionAlgorithm = "zle"
+	CompressionOff   CompressionAlgorithm = "off"
+)
+
+// String 返回压缩算法名称
+func (c CompressionAlgorithm) String() string {
+	return string(c)
+}
+
+// CompressionLevel 压缩级别
+type CompressionLevel int
+
+const (
+	CompressionLevelFast CompressionLevel = 1    // 快速压缩
+	CompressionLevelBalanced CompressionLevel = 3 // 平衡
+	CompressionLevelBest CompressionLevel = 9    // 最佳压缩
+)
+
+// CompressionStats 压缩统计
+type CompressionStats struct {
+	Algorithm      CompressionAlgorithm `json:"algorithm"`
+	Level          CompressionLevel     `json:"level"`
+	OriginalBytes  int64                `json:"original_bytes"`
+	CompressedBytes int64               `json:"compressed_bytes"`
+	Ratio          float64              `json:"ratio"`
+	SpeedMBps      float64              `json:"speed_mbps"`
+	DecompressMBps float64              `json:"decompress_mbps"`
+}
+
+// CompressionConfig 压缩配置
+type CompressionConfig struct {
+	DefaultAlgo    CompressionAlgorithm `json:"default_algo"`
+	DefaultLevel   CompressionLevel     `json:"default_level"`
+	AdaptiveMode   bool                 `json:"adaptive_mode"`  // 自适应模式
+	MinRatio       float64              `json:"min_ratio"`      // 最小压缩比阈值
+	MaxCPUUsage    int                  `json:"max_cpu_usage"`  // 最大 CPU 使用率
+}
+
+// DefaultCompressionConfig 返回默认压缩配置
+func DefaultCompressionConfig() *CompressionConfig {
+	return &CompressionConfig{
+		DefaultAlgo:  CompressionLZ4,
+		DefaultLevel: CompressionLevelBalanced,
+		AdaptiveMode: true,
+		MinRatio:     1.1,
+		MaxCPUUsage:  50,
+	}
+}
+
+// ============================================================================
+// 池管理
+// ============================================================================
+
+// Pool ZFS 存储池
+type Pool struct {
+	ID           string          `json:"id"`
+	Name         string          `json:"name"`
+	State        VDevState       `json:"state"`
+	VDevs        []VDev          `json:"vdevs"`
+	HybridPool   *HybridPool     `json:"hybrid_pool,omitempty"`
+	TotalBytes   int64           `json:"total_bytes"`
+	UsedBytes    int64           `json:"used_bytes"`
+	FreeBytes    int64           `json:"free_bytes"`
+	FragmentPct  float64         `json:"fragment_pct"`
+	DedupRatio   float64         `json:"dedup_ratio"`
+	Compression  CompressionStats `json:"compression"`
+	ScrubStatus  ScrubStatus     `json:"scrub_status"`
+	SnapshotCount int64          `json:"snapshot_count"`
+	CreatedAt    time.Time       `json:"created_at"`
+	UpdatedAt    time.Time       `json:"updated_at"`
+}
+
+// PoolConfig 池配置
+type PoolConfig struct {
+	Name           string               `json:"name"`
+	Compression    CompressionAlgorithm `json:"compression"`
+	CompressionLvl CompressionLevel     `json:"compression_level"`
+	DedupPolicy    DedupPolicy          `json:"dedup_policy"`
+	TieringPolicy  *TieringPolicy       `json:"tiering_policy,omitempty"`
+	ScrubConfig    *ScrubConfig         `json:"scrub_config,omitempty"`
+	AutoExpand     bool                 `json:"auto_expand"`
+	Ashift         int                  `json:"ashift"` // 扇区大小指数 (9=512B, 12=4K)
+}
+
+// DefaultPoolConfig 返回默认池配置
+func DefaultPoolConfig(name string) *PoolConfig {
+	return &PoolConfig{
+		Name:           name,
+		Compression:    CompressionLZ4,
+		CompressionLvl: CompressionLevelBalanced,
+		DedupPolicy:    DedupPolicyNone,
+		TieringPolicy:  DefaultTieringPolicy(),
+		ScrubConfig:    DefaultScrubConfig(),
+		AutoExpand:     true,
+		Ashift:         12, // 4K 扇区
+	}
+}
+
+// ============================================================================
+// 引擎统计
+// ============================================================================
+
+// EngineStats 引擎总体统计
+type EngineStats struct {
+	Pools          int              `json:"pools"`
+	VDevs          int              `json:"vdevs"`
+	TotalCapacity  int64            `json:"total_capacity"`
+	TotalUsed      int64            `json:"total_used"`
+	TotalFree      int64            `json:"total_free"`
+	ScrubStatus    ScrubStatus      `json:"scrub_status"`
+	DedupStats     DedupStats       `json:"dedup_stats"`
+	SnapshotStats  SnapshotStats    `json:"snapshot_stats"`
+	Compression    CompressionStats `json:"compression"`
+	LastScrubTime  *time.Time       `json:"last_scrub_time,omitempty"`
+	NextScrubTime  *time.Time       `json:"next_scrub_time,omitempty"`
+}
+
+// ============================================================================
+// 错误定义
+// ============================================================================
+
+var (
+	ErrPoolNotFound       = fmt.Errorf("pool not found")
+	ErrVDevNotFound       = fmt.Errorf("vdev not found")
+	ErrDiskNotFound       = fmt.Errorf("disk not found")
+	ErrSnapshotNotFound   = fmt.Errorf("snapshot not found")
+	ErrCloneNotFound      = fmt.Errorf("clone not found")
+	ErrDiskAlreadyInUse   = fmt.Errorf("disk already in use")
+	ErrInvalidRAIDZLevel  = fmt.Errorf("invalid raidz level")
+	ErrPoolExists         = fmt.Errorf("pool already exists")
+	ErrScrubAlreadyRunning = fmt.Errorf("scrub already running")
+	ErrNoDataDisks        = fmt.Errorf("no data disks specified")
+	ErrInsufficientDisks  = fmt.Errorf("insufficient disks for raidz level")
+	ErrSnapshotHasClones  = fmt.Errorf("snapshot has clones, force required")
+	ErrReadOnlySnapshot   = fmt.Errorf("cannot modify read-only snapshot")
+	ErrDedupDisabled      = fmt.Errorf("dedup is disabled")
+	ErrCompressionFailed  = fmt.Errorf("compression failed")
+	ErrDecompressFailed   = fmt.Errorf("decompression failed")
+	ErrInvalidHash        = fmt.Errorf("invalid hash")
+	ErrChecksumMismatch   = fmt.Errorf("checksum mismatch")
+	ErrPoolReadOnly       = fmt.Errorf("pool is read-only")
+)
+
+// ============================================================================
+// 后端接口
+// ============================================================================
+
+// StorageBackend 存储后端接口
+type StorageBackend interface {
+	// 池操作
+	CreatePool(config *PoolConfig, disks []Disk) (*Pool, error)
+	DestroyPool(poolID string) error
+	GetPool(poolID string) (*Pool, error)
+	ListPools() ([]*Pool, error)
+
+	// VDev 操作
+	AddVDev(poolID string, vdev *VDev) error
+	RemoveVDev(poolID string, vdevID string) error
+	AttachDisk(vdevID string, disk Disk) error
+	DetachDisk(vdevID string, diskID string) error
+	ExpandVDev(vdevID string, disks []Disk) error
+
+	// 快照操作
+	CreateSnapshot(req *SnapshotCreateRequest) (*Snapshot, error)
+	DeleteSnapshot(snapshotID string) error
+	RollbackSnapshot(req *RollbackRequest) error
+	CloneSnapshot(req *CloneRequest) (*Snapshot, error)
+	ListSnapshots(poolID string) ([]*Snapshot, error)
+
+	// Scrub
+	StartScrub(poolID string) error
+	StopScrub(poolID string) error
+	GetScrubStatus(poolID string) (*ScrubStatus, error)
+
+	// 去重
+	EnableDedup(poolID string, config *DedupConfig) error
+	DisableDedup(poolID string) error
+	GetDedupStats(poolID string) (*DedupStats, error)
+
+	// 压缩
+	SetCompression(poolID string, algo CompressionAlgorithm, level CompressionLevel) error
+	GetCompressionStats(poolID string) (*CompressionStats, error)
+}
+
+// ============================================================================
+// 引擎
+// ============================================================================
+
+// Engine ZFS 增强功能引擎
+type Engine struct {
+	mu     sync.RWMutex
+	config *EngineConfig
+	logger Logger
+
+	backend StorageBackend
+
+	pools    map[string]*Pool
+	snapshots map[string]*Snapshot
+	dedupTable map[string]*DedupEntry
+
+	running bool
+	stopCh  chan struct{}
+	wg      sync.WaitGroup
+}
+
+// EngineConfig 引擎配置
+type EngineConfig struct {
+	Dedup        *DedupConfig        `json:"dedup,omitempty"`
+	Compression  *CompressionConfig  `json:"compression,omitempty"`
+	Scrub        *ScrubConfig        `json:"scrub,omitempty"`
+	Tiering      *TieringPolicy      `json:"tiering,omitempty"`
+	AutoExpand   bool                `json:"auto_expand"`
+}
+
+// DefaultEngineConfig 返回默认引擎配置
+func DefaultEngineConfig() *EngineConfig {
+	return &EngineConfig{
+		Dedup:       DefaultDedupConfig(),
+		Compression: DefaultCompressionConfig(),
+		Scrub:       DefaultScrubConfig(),
+		Tiering:     DefaultTieringPolicy(),
+		AutoExpand:  true,
+	}
+}
+
+// Logger 日志接口
+type Logger interface {
+	Info(msg string, keysAndValues ...interface{})
+	Warn(msg string, keysAndValues ...interface{})
+	Error(msg string, keysAndValues ...interface{})
+	Debug(msg string, keysAndValues ...interface{})
+}
+
+// nopLogger 空日志实现
+type nopLogger struct{}
+
+func (n *nopLogger) Info(msg string, keysAndValues ...interface{})  {}
+func (n *nopLogger) Warn(msg string, keysAndValues ...interface{})  {}
+func (n *nopLogger) Error(msg string, keysAndValues ...interface{}) {}
+func (n *nopLogger) Debug(msg string, keysAndValues ...interface{}) {}
