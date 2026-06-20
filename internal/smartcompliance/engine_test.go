@@ -15,7 +15,7 @@ func TestNewEngine(t *testing.T) {
 
 func TestDefaultRules(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	rules := engine.ListRules("")
 	if len(rules) < 5 {
 		t.Errorf("expected at least 5 default rules, got %d", len(rules))
@@ -24,12 +24,12 @@ func TestDefaultRules(t *testing.T) {
 
 func TestRunAudit(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	result, err := engine.RunAudit(StandardGDPR)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	
+
 	if result.Status != AuditStatusComplete {
 		t.Errorf("expected status complete, got %s", result.Status)
 	}
@@ -40,7 +40,7 @@ func TestRunAudit(t *testing.T) {
 
 func TestAccessPolicy(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	engine.AddAccessPolicy(&AccessPolicy{
 		ID:       "policy-1",
 		Subject:  "admin",
@@ -50,11 +50,11 @@ func TestAccessPolicy(t *testing.T) {
 		Priority: 100,
 		Enabled:  true,
 	})
-	
+
 	if !engine.CheckAccess("admin", "/api/v1/users", "read") {
 		t.Error("expected admin to have read access")
 	}
-	
+
 	if engine.CheckAccess("guest", "/api/v1/users", "read") {
 		t.Error("expected guest to be denied")
 	}
@@ -62,7 +62,7 @@ func TestAccessPolicy(t *testing.T) {
 
 func TestCheckAccessDefaultDeny(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	// 没有匹配的策略，默认拒绝
 	if engine.CheckAccess("user", "/secret", "read") {
 		t.Error("expected default deny")
@@ -71,11 +71,11 @@ func TestCheckAccessDefaultDeny(t *testing.T) {
 
 func TestGetComplianceStatus(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	engine.RunAudit(StandardGDPR)
-	
+
 	status := engine.GetComplianceStatus()
-	
+
 	if status["total_rules"] == 0 {
 		t.Error("expected rules to be present")
 	}

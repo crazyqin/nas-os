@@ -46,7 +46,7 @@ func (h *Handler) handlePlacement(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	var req struct {
 		Policy   RedundancyPolicy `json:"policy"`
 		DataSize int64            `json:"data_size"`
@@ -55,7 +55,7 @@ func (h *Handler) handlePlacement(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
 	}
-	
+
 	placement, err := h.engine.CalculatePlacement(&req.Policy, req.DataSize)
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
@@ -67,5 +67,5 @@ func (h *Handler) handlePlacement(w http.ResponseWriter, r *http.Request) {
 func writeJSON(w http.ResponseWriter, code int, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(v)
+	_ = json.NewEncoder(w).Encode(v)
 }

@@ -9,26 +9,26 @@ import (
 
 // APIKey API密钥.
 type APIKey struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Key         string    `json:"key"`
-	Secret      string    `json:"secret"`
-	Scopes      []string  `json:"scopes"`
-	RateLimit   int       `json:"rate_limit"` // requests per minute
-	Enabled     bool      `json:"enabled"`
-	CreatedAt   time.Time `json:"created_at"`
-	ExpiresAt   time.Time `json:"expires_at"`
-	LastUsedAt  time.Time `json:"last_used_at"`
-	Metadata    map[string]string `json:"metadata"`
+	ID         string            `json:"id"`
+	Name       string            `json:"name"`
+	Key        string            `json:"key"`
+	Secret     string            `json:"secret"`
+	Scopes     []string          `json:"scopes"`
+	RateLimit  int               `json:"rate_limit"` // requests per minute
+	Enabled    bool              `json:"enabled"`
+	CreatedAt  time.Time         `json:"created_at"`
+	ExpiresAt  time.Time         `json:"expires_at"`
+	LastUsedAt time.Time         `json:"last_used_at"`
+	Metadata   map[string]string `json:"metadata"`
 }
 
 // RateLimitConfig 限流配置.
 type RateLimitConfig struct {
-	ID         string `json:"id"`
-	APIKeyID   string `json:"api_key_id"`
-	WindowSec  int    `json:"window_sec"`
-	MaxRequests int   `json:"max_requests"`
-	BurstSize  int    `json:"burst_size"`
+	ID          string `json:"id"`
+	APIKeyID    string `json:"api_key_id"`
+	WindowSec   int    `json:"window_sec"`
+	MaxRequests int    `json:"max_requests"`
+	BurstSize   int    `json:"burst_size"`
 }
 
 // APIUsageStats API使用统计.
@@ -55,15 +55,15 @@ type APIEndpoint struct {
 
 // RequestLog 请求日志.
 type RequestLog struct {
-	ID          string    `json:"id"`
-	APIKeyID    string    `json:"api_key_id"`
-	Path        string    `json:"path"`
-	Method      string    `json:"method"`
-	StatusCode  int       `json:"status_code"`
-	LatencyMs   float64   `json:"latency_ms"`
-	IP          string    `json:"ip"`
-	UserAgent   string    `json:"user_agent"`
-	Timestamp   time.Time `json:"timestamp"`
+	ID         string    `json:"id"`
+	APIKeyID   string    `json:"api_key_id"`
+	Path       string    `json:"path"`
+	Method     string    `json:"method"`
+	StatusCode int       `json:"status_code"`
+	LatencyMs  float64   `json:"latency_ms"`
+	IP         string    `json:"ip"`
+	UserAgent  string    `json:"user_agent"`
+	Timestamp  time.Time `json:"timestamp"`
 }
 
 // Engine API网关增强引擎.
@@ -95,7 +95,7 @@ func NewEngine(logger *zap.Logger) *Engine {
 func (e *Engine) CreateAPIKey(key *APIKey) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	if key.ID == "" {
 		return ErrInvalidKeyID
 	}
@@ -120,7 +120,7 @@ func (e *Engine) GetAPIKey(id string) (*APIKey, bool) {
 func (e *Engine) ValidateAPIKey(keyStr string) (*APIKey, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	for _, key := range e.apiKeys {
 		if key.Key == keyStr && key.Enabled {
 			if !key.ExpiresAt.IsZero() && time.Now().After(key.ExpiresAt) {
@@ -136,7 +136,7 @@ func (e *Engine) ValidateAPIKey(keyStr string) (*APIKey, error) {
 func (e *Engine) ListAPIKeys() []*APIKey {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	keys := make([]*APIKey, 0, len(e.apiKeys))
 	for _, k := range e.apiKeys {
 		keys = append(keys, k)
@@ -148,7 +148,7 @@ func (e *Engine) ListAPIKeys() []*APIKey {
 func (e *Engine) RevokeAPIKey(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	key, ok := e.apiKeys[id]
 	if !ok {
 		return ErrKeyNotFound
@@ -162,7 +162,7 @@ func (e *Engine) RevokeAPIKey(id string) error {
 func (e *Engine) SetRateLimit(config *RateLimitConfig) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	if config.ID == "" {
 		return ErrInvalidConfigID
 	}
@@ -174,7 +174,7 @@ func (e *Engine) SetRateLimit(config *RateLimitConfig) error {
 func (e *Engine) RegisterEndpoint(endpoint *APIEndpoint) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	key := endpoint.Method + ":" + endpoint.Path
 	e.endpoints[key] = endpoint
 }
@@ -183,10 +183,10 @@ func (e *Engine) RegisterEndpoint(endpoint *APIEndpoint) {
 func (e *Engine) LogRequest(log *RequestLog) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	log.Timestamp = time.Now()
 	e.logs = append(e.logs, log)
-	
+
 	// 更新统计
 	if stats, ok := e.stats[log.APIKeyID]; ok {
 		stats.TotalCalls++
@@ -203,7 +203,7 @@ func (e *Engine) LogRequest(log *RequestLog) {
 func (e *Engine) GetUsageStats(apiKeyID string) *APIUsageStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	if stats, ok := e.stats[apiKeyID]; ok {
 		return stats
 	}
@@ -214,20 +214,20 @@ func (e *Engine) GetUsageStats(apiKeyID string) *APIUsageStats {
 func (e *Engine) GetGatewayStats() map[string]interface{} {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	activeKeys := 0
 	for _, k := range e.apiKeys {
 		if k.Enabled {
 			activeKeys++
 		}
 	}
-	
+
 	return map[string]interface{}{
-		"total_keys":    len(e.apiKeys),
-		"active_keys":   activeKeys,
+		"total_keys":      len(e.apiKeys),
+		"active_keys":     activeKeys,
 		"total_endpoints": len(e.endpoints),
-		"total_requests": len(e.logs),
-		"rate_limits":   len(e.rateLimits),
+		"total_requests":  len(e.logs),
+		"rate_limits":     len(e.rateLimits),
 	}
 }
 
@@ -235,16 +235,16 @@ func (e *Engine) GetGatewayStats() map[string]interface{} {
 func (e *Engine) GetRecentLogs(limit int) []*RequestLog {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	if limit > len(e.logs) {
 		limit = len(e.logs)
 	}
-	
+
 	start := len(e.logs) - limit
 	if start < 0 {
 		start = 0
 	}
-	
+
 	logs := make([]*RequestLog, limit)
 	copy(logs, e.logs[start:])
 	return logs

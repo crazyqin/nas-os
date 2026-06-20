@@ -10,6 +10,8 @@ import (
 // CloudProvider 云服务商.
 type CloudProvider string
 
+// 云服务商常量.
+// 存储类型常量.
 const (
 	ProviderAWS     CloudProvider = "aws"
 	ProviderAzure   CloudProvider = "azure"
@@ -22,24 +24,25 @@ const (
 // StorageClass 存储类型.
 type StorageClass string
 
+// 存储类型常量.
 const (
-	ClassHot    StorageClass = "hot"    // 热存储
-	ClassWarm   StorageClass = "warm"   // 温存储
-	ClassCold   StorageClass = "cold"   // 冷存储
+	ClassHot     StorageClass = "hot"     // 热存储
+	ClassWarm    StorageClass = "warm"    // 温存储
+	ClassCold    StorageClass = "cold"    // 冷存储
 	ClassArchive StorageClass = "archive" // 归档
 )
 
 // CloudAccount 云账号.
 type CloudAccount struct {
-	ID          string        `json:"id"`
-	Provider    CloudProvider `json:"provider"`
-	Name        string        `json:"name"`
-	AccessKey   string        `json:"access_key"`
-	SecretKey   string        `json:"secret_key"`
-	Region      string        `json:"region"`
-	Enabled     bool          `json:"enabled"`
-	LastSync    time.Time     `json:"last_sync"`
-	Metadata    map[string]string `json:"metadata"`
+	ID        string            `json:"id"`
+	Provider  CloudProvider     `json:"provider"`
+	Name      string            `json:"name"`
+	AccessKey string            `json:"access_key"`
+	SecretKey string            `json:"secret_key"`
+	Region    string            `json:"region"`
+	Enabled   bool              `json:"enabled"`
+	LastSync  time.Time         `json:"last_sync"`
+	Metadata  map[string]string `json:"metadata"`
 }
 
 // StorageCost 存储成本.
@@ -56,12 +59,12 @@ type StorageCost struct {
 
 // CostForecast 成本预测.
 type CostForecast struct {
-	AccountID    string    `json:"account_id"`
-	CurrentCost  float64   `json:"current_cost"`
-	ForecastCost float64   `json:"forecast_cost"`
-	Trend        string    `json:"trend"` // increasing/decreasing/stable
-	Confidence   float64   `json:"confidence"`
-	Period       string    `json:"period"`
+	AccountID    string  `json:"account_id"`
+	CurrentCost  float64 `json:"current_cost"`
+	ForecastCost float64 `json:"forecast_cost"`
+	Trend        string  `json:"trend"` // increasing/decreasing/stable
+	Confidence   float64 `json:"confidence"`
+	Period       string  `json:"period"`
 }
 
 // OptimizationRecommendation 优化建议.
@@ -99,7 +102,7 @@ func NewEngine(logger *zap.Logger) *Engine {
 func (e *Engine) AddAccount(account *CloudAccount) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	if account.ID == "" {
 		return ErrInvalidAccountID
 	}
@@ -127,7 +130,7 @@ func (e *Engine) GetAccount(id string) (*CloudAccount, bool) {
 func (e *Engine) ListAccounts() []*CloudAccount {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	accounts := make([]*CloudAccount, 0, len(e.accounts))
 	for _, a := range e.accounts {
 		accounts = append(accounts, a)
@@ -139,7 +142,7 @@ func (e *Engine) ListAccounts() []*CloudAccount {
 func (e *Engine) RecordCost(cost *StorageCost) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	if _, ok := e.accounts[cost.AccountID]; !ok {
 		return ErrAccountNotFound
 	}
@@ -152,7 +155,7 @@ func (e *Engine) RecordCost(cost *StorageCost) error {
 func (e *Engine) GetTotalCost() map[CloudProvider]float64 {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	totals := make(map[CloudProvider]float64)
 	for _, costs := range e.costs {
 		for _, c := range costs {
@@ -166,7 +169,7 @@ func (e *Engine) GetTotalCost() map[CloudProvider]float64 {
 func (e *Engine) GetCostByProvider(provider CloudProvider) float64 {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	total := 0.0
 	for _, costs := range e.costs {
 		for _, c := range costs {
@@ -182,11 +185,11 @@ func (e *Engine) GetCostByProvider(provider CloudProvider) float64 {
 func (e *Engine) ForecastCost(accountID string, period string) (*CostForecast, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	if _, ok := e.accounts[accountID]; !ok {
 		return nil, ErrAccountNotFound
 	}
-	
+
 	costs := e.costs[accountID]
 	if len(costs) == 0 {
 		return &CostForecast{
@@ -195,13 +198,13 @@ func (e *Engine) ForecastCost(accountID string, period string) (*CostForecast, e
 			Trend:     "stable",
 		}, nil
 	}
-	
+
 	// 计算当前月成本
 	currentCost := 0.0
 	for _, c := range costs {
 		currentCost += c.MonthlyCost
 	}
-	
+
 	// 简单预测：基于历史趋势
 	forecast := &CostForecast{
 		AccountID:    accountID,
@@ -211,7 +214,7 @@ func (e *Engine) ForecastCost(accountID string, period string) (*CostForecast, e
 		Confidence:   0.75,
 		Period:       period,
 	}
-	
+
 	return forecast, nil
 }
 
@@ -219,9 +222,9 @@ func (e *Engine) ForecastCost(accountID string, period string) (*CostForecast, e
 func (e *Engine) GenerateRecommendations() []*OptimizationRecommendation {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	var recommendations []*OptimizationRecommendation
-	
+
 	for _, costs := range e.costs {
 		for _, c := range costs {
 			// 热存储转温存储建议
@@ -238,7 +241,7 @@ func (e *Engine) GenerateRecommendations() []*OptimizationRecommendation {
 				}
 				recommendations = append(recommendations, rec)
 			}
-			
+
 			// 温存储转冷存储建议
 			if c.Class == ClassWarm && c.SizeBytes > 500*1024*1024*1024 { // >500GB
 				savings := c.MonthlyCost * 0.5
@@ -255,7 +258,7 @@ func (e *Engine) GenerateRecommendations() []*OptimizationRecommendation {
 			}
 		}
 	}
-	
+
 	return recommendations
 }
 
@@ -263,11 +266,11 @@ func (e *Engine) GenerateRecommendations() []*OptimizationRecommendation {
 func (e *Engine) GetCostBreakdown() map[string]interface{} {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	byProvider := make(map[string]float64)
 	byClass := make(map[string]float64)
 	totalCost := 0.0
-	
+
 	for _, costs := range e.costs {
 		for _, c := range costs {
 			byProvider[string(c.Provider)] += c.MonthlyCost
@@ -275,11 +278,11 @@ func (e *Engine) GetCostBreakdown() map[string]interface{} {
 			totalCost += c.MonthlyCost
 		}
 	}
-	
+
 	return map[string]interface{}{
-		"total_cost":  totalCost,
-		"by_provider": byProvider,
-		"by_class":    byClass,
+		"total_cost":    totalCost,
+		"by_provider":   byProvider,
+		"by_class":      byClass,
 		"account_count": len(e.accounts),
 	}
 }

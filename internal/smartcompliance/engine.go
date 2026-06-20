@@ -10,18 +10,21 @@ import (
 // ComplianceStandard 合规标准.
 type ComplianceStandard string
 
+// 合规标准常量.
 const (
-	StandardGDPR    ComplianceStandard = "gdpr"
-	StandardHIPAA   ComplianceStandard = "hipaa"
-	StandardSOC2    ComplianceStandard = "soc2"
+	StandardGDPR     ComplianceStandard = "gdpr"
+	StandardHIPAA    ComplianceStandard = "hipaa"
+	StandardSOC2     ComplianceStandard = "soc2"
 	StandardISO27001 ComplianceStandard = "iso27001"
-	StandardPCI     ComplianceStandard = "pci"
-	StandardCustom  ComplianceStandard = "custom"
+	StandardPCI      ComplianceStandard = "pci"
+	StandardCustom   ComplianceStandard = "custom"
 )
 
 // AuditStatus 审计状态.
 type AuditStatus string
 
+// 审计状态常量.
+// 合规标准常量.
 const (
 	AuditStatusPending  AuditStatus = "pending"
 	AuditStatusRunning  AuditStatus = "running"
@@ -32,6 +35,8 @@ const (
 // Severity 严重程度.
 type Severity string
 
+// 严重程度常量.
+// 合规标准常量.
 const (
 	SeverityLow      Severity = "low"
 	SeverityMedium   Severity = "medium"
@@ -80,29 +85,29 @@ type Finding struct {
 
 // AccessPolicy 访问策略.
 type AccessPolicy struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Subject     string    `json:"subject"`     // user/group/role
-	Resource    string    `json:"resource"`    // path/pattern
-	Actions     []string  `json:"actions"`     // read/write/delete/admin
-	Conditions  []string  `json:"conditions"`  // time/ip/mfa
-	Effect      string    `json:"effect"`      // allow/deny
-	Priority    int       `json:"priority"`
-	Enabled     bool      `json:"enabled"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	Subject    string    `json:"subject"`    // user/group/role
+	Resource   string    `json:"resource"`   // path/pattern
+	Actions    []string  `json:"actions"`    // read/write/delete/admin
+	Conditions []string  `json:"conditions"` // time/ip/mfa
+	Effect     string    `json:"effect"`     // allow/deny
+	Priority   int       `json:"priority"`
+	Enabled    bool      `json:"enabled"`
+	CreatedAt  time.Time `json:"created_at"`
 }
 
 // AccessAuditLog 访问审计日志.
 type AccessAuditLog struct {
-	ID         string    `json:"id"`
-	Subject    string    `json:"subject"`
-	Resource   string    `json:"resource"`
-	Action     string    `json:"action"`
-	Effect     string    `json:"effect"`
-	IP         string    `json:"ip"`
-	UserAgent  string    `json:"user_agent"`
-	Timestamp  time.Time `json:"timestamp"`
-	Reason     string    `json:"reason"`
+	ID        string    `json:"id"`
+	Subject   string    `json:"subject"`
+	Resource  string    `json:"resource"`
+	Action    string    `json:"action"`
+	Effect    string    `json:"effect"`
+	IP        string    `json:"ip"`
+	UserAgent string    `json:"user_agent"`
+	Timestamp time.Time `json:"timestamp"`
+	Reason    string    `json:"reason"`
 }
 
 // Engine 合规审计引擎.
@@ -139,7 +144,7 @@ func (e *Engine) initDefaultRules() {
 		{ID: "hipaa-002", Standard: StandardHIPAA, Code: "HIPAA-164", Name: "审计日志", Description: "维护完整的访问审计日志", Category: "audit", Severity: SeverityHigh},
 		{ID: "soc2-001", Standard: StandardSOC2, Code: "SOC2-CC6", Name: "逻辑访问", Description: "实施逻辑访问控制", Category: "access", Severity: SeverityHigh},
 	}
-	
+
 	for _, rule := range defaults {
 		rule.Enabled = true
 		if rule.Metadata == nil {
@@ -153,7 +158,7 @@ func (e *Engine) initDefaultRules() {
 func (e *Engine) AddRule(rule *ComplianceRule) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	if rule.ID == "" {
 		return ErrInvalidRuleID
 	}
@@ -176,7 +181,7 @@ func (e *Engine) GetRule(id string) (*ComplianceRule, bool) {
 func (e *Engine) ListRules(standard ComplianceStandard) []*ComplianceRule {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	var rules []*ComplianceRule
 	for _, r := range e.rules {
 		if standard == "" || r.Standard == standard {
@@ -190,23 +195,23 @@ func (e *Engine) ListRules(standard ComplianceStandard) []*ComplianceRule {
 func (e *Engine) RunAudit(standard ComplianceStandard) (*AuditResult, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	audit := &AuditResult{
 		ID:        generateID(),
 		Standard:  standard,
 		Status:    AuditStatusRunning,
 		StartTime: time.Now(),
 	}
-	
+
 	// 执行审计检查
 	var findings []Finding
 	passed, failed, warnings := 0, 0, 0
-	
+
 	for _, rule := range e.rules {
 		if !rule.Enabled || (standard != "" && rule.Standard != standard) {
 			continue
 		}
-		
+
 		// 模拟检查
 		finding := Finding{
 			RuleID:   rule.ID,
@@ -215,7 +220,7 @@ func (e *Engine) RunAudit(standard ComplianceStandard) (*AuditResult, error) {
 			Status:   "pass",
 			Message:  "检查通过",
 		}
-		
+
 		// 随机模拟一些失败（实际应检查真实配置）
 		if rule.Severity == SeverityCritical {
 			finding.Status = "warning"
@@ -225,10 +230,10 @@ func (e *Engine) RunAudit(standard ComplianceStandard) (*AuditResult, error) {
 		} else {
 			passed++
 		}
-		
+
 		findings = append(findings, finding)
 	}
-	
+
 	audit.Status = AuditStatusComplete
 	audit.EndTime = time.Now()
 	audit.TotalChecks = passed + failed + warnings
@@ -236,18 +241,18 @@ func (e *Engine) RunAudit(standard ComplianceStandard) (*AuditResult, error) {
 	audit.Failed = failed
 	audit.Warnings = warnings
 	audit.Findings = findings
-	
+
 	if audit.TotalChecks > 0 {
 		audit.Score = float64(passed) / float64(audit.TotalChecks) * 100
 	}
-	
+
 	e.audits[audit.ID] = audit
 	e.logger.Info("审计完成",
 		zap.String("id", audit.ID),
 		zap.String("standard", string(standard)),
 		zap.Float64("score", audit.Score),
 	)
-	
+
 	return audit, nil
 }
 
@@ -263,7 +268,7 @@ func (e *Engine) GetAudit(id string) (*AuditResult, bool) {
 func (e *Engine) AddAccessPolicy(policy *AccessPolicy) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	if policy.ID == "" {
 		return ErrInvalidPolicyID
 	}
@@ -276,11 +281,11 @@ func (e *Engine) AddAccessPolicy(policy *AccessPolicy) error {
 func (e *Engine) CheckAccess(subject, resource, action string) bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	// 按优先级检查策略
 	var matchedPolicy *AccessPolicy
 	highestPriority := -1
-	
+
 	for _, policy := range e.policies {
 		if !policy.Enabled {
 			continue
@@ -296,11 +301,11 @@ func (e *Engine) CheckAccess(subject, resource, action string) bool {
 			}
 		}
 	}
-	
+
 	if matchedPolicy == nil {
 		return false // 默认拒绝
 	}
-	
+
 	return matchedPolicy.Effect == "allow"
 }
 
@@ -308,7 +313,7 @@ func (e *Engine) CheckAccess(subject, resource, action string) bool {
 func (e *Engine) LogAccess(log *AccessAuditLog) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	log.Timestamp = time.Now()
 	e.logs = append(e.logs, log)
 }
@@ -317,7 +322,7 @@ func (e *Engine) LogAccess(log *AccessAuditLog) {
 func (e *Engine) GetComplianceStatus() map[string]interface{} {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	totalRules := len(e.rules)
 	enabledRules := 0
 	for _, r := range e.rules {
@@ -325,21 +330,21 @@ func (e *Engine) GetComplianceStatus() map[string]interface{} {
 			enabledRules++
 		}
 	}
-	
+
 	latestScore := 0.0
 	for _, a := range e.audits {
 		if a.Score > latestScore {
 			latestScore = a.Score
 		}
 	}
-	
+
 	return map[string]interface{}{
-		"total_rules":    totalRules,
-		"enabled_rules":  enabledRules,
-		"total_audits":   len(e.audits),
-		"total_policies": len(e.policies),
+		"total_rules":      totalRules,
+		"enabled_rules":    enabledRules,
+		"total_audits":     len(e.audits),
+		"total_policies":   len(e.policies),
 		"compliance_score": latestScore,
-		"audit_logs":     len(e.logs),
+		"audit_logs":       len(e.logs),
 	}
 }
 

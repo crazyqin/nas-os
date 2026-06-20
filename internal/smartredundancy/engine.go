@@ -10,6 +10,7 @@ import (
 // RedundancyLevel 冗余级别.
 type RedundancyLevel int
 
+// 冗余级别常量.
 const (
 	RedundancyNone RedundancyLevel = iota
 	RedundancyMirror
@@ -22,24 +23,25 @@ const (
 // NodeState 节点状态.
 type NodeState string
 
+// 节点状态常量.
 const (
-	NodeStateOnline  NodeState = "online"
-	NodeStateOffline NodeState = "offline"
+	NodeStateOnline   NodeState = "online"
+	NodeStateOffline  NodeState = "offline"
 	NodeStateDegraded NodeState = "degraded"
-	NodeStateSyncing NodeState = "syncing"
+	NodeStateSyncing  NodeState = "syncing"
 )
 
 // StorageNode 存储节点.
 type StorageNode struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Address     string        `json:"address"`
-	State       NodeState     `json:"state"`
-	Capacity    int64         `json:"capacity"`
-	Used        int64         `json:"used"`
-	Health      float64       `json:"health"` // 0-100
-	LastSeen    time.Time     `json:"last_seen"`
-	Metadata    map[string]string `json:"metadata"`
+	ID       string            `json:"id"`
+	Name     string            `json:"name"`
+	Address  string            `json:"address"`
+	State    NodeState         `json:"state"`
+	Capacity int64             `json:"capacity"`
+	Used     int64             `json:"used"`
+	Health   float64           `json:"health"` // 0-100
+	LastSeen time.Time         `json:"last_seen"`
+	Metadata map[string]string `json:"metadata"`
 }
 
 // RedundancyPolicy 冗余策略.
@@ -83,14 +85,14 @@ type NodeHealthMetrics struct {
 
 // FailoverEvent 故障转移事件.
 type FailoverEvent struct {
-	ID          string    `json:"id"`
-	SourceNode  string    `json:"source_node"`
-	TargetNode  string    `json:"target_node"`
-	Reason      string    `json:"reason"`
-	StartTime   time.Time `json:"start_time"`
-	EndTime     time.Time `json:"end_time"`
-	Status      string    `json:"status"`
-	DataSize    int64     `json:"data_size"`
+	ID         string    `json:"id"`
+	SourceNode string    `json:"source_node"`
+	TargetNode string    `json:"target_node"`
+	Reason     string    `json:"reason"`
+	StartTime  time.Time `json:"start_time"`
+	EndTime    time.Time `json:"end_time"`
+	Status     string    `json:"status"`
+	DataSize   int64     `json:"data_size"`
 }
 
 // NewEngine 创建智能冗余引擎.
@@ -110,7 +112,7 @@ func NewEngine(logger *zap.Logger) *Engine {
 func (e *Engine) RegisterNode(node *StorageNode) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	if node.ID == "" {
 		return ErrInvalidNodeID
 	}
@@ -135,7 +137,7 @@ func (e *Engine) GetNode(id string) (*StorageNode, bool) {
 func (e *Engine) ListNodes() []*StorageNode {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	nodes := make([]*StorageNode, 0, len(e.nodes))
 	for _, n := range e.nodes {
 		nodes = append(nodes, n)
@@ -147,7 +149,7 @@ func (e *Engine) ListNodes() []*StorageNode {
 func (e *Engine) GetOnlineNodes() []*StorageNode {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	var online []*StorageNode
 	for _, n := range e.nodes {
 		if n.State == NodeStateOnline {
@@ -161,7 +163,7 @@ func (e *Engine) GetOnlineNodes() []*StorageNode {
 func (e *Engine) UpdateNodeHealth(nodeID string, metrics *NodeHealthMetrics) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	if _, ok := e.nodes[nodeID]; !ok {
 		return ErrNodeNotFound
 	}
@@ -174,16 +176,16 @@ func (e *Engine) UpdateNodeHealth(nodeID string, metrics *NodeHealthMetrics) err
 func (e *Engine) CalculatePlacement(policy *RedundancyPolicy, dataSize int64) (*DataPlacement, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	online := e.getOnlineNodesSorted()
 	if len(online) < policy.MinNodes {
 		return nil, ErrInsufficientNodes
 	}
-	
+
 	placement := &DataPlacement{
 		Strategy: policy.Level.String(),
 	}
-	
+
 	switch policy.Level {
 	case RedundancyMirror:
 		placement.Primary = online[0].ID
@@ -206,7 +208,7 @@ func (e *Engine) CalculatePlacement(policy *RedundancyPolicy, dataSize int64) (*
 	default:
 		placement.Primary = online[0].ID
 	}
-	
+
 	return placement, nil
 }
 
@@ -218,7 +220,7 @@ func (e *Engine) getOnlineNodesSorted() []*StorageNode {
 			online = append(online, n)
 		}
 	}
-	
+
 	// 按健康度降序排序
 	for i := 0; i < len(online); i++ {
 		for j := i + 1; j < len(online); j++ {
@@ -234,15 +236,15 @@ func (e *Engine) getOnlineNodesSorted() []*StorageNode {
 func (e *Engine) TriggerFailover(sourceID, reason string) (*FailoverEvent, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	source, ok := e.nodes[sourceID]
 	if !ok {
 		return nil, ErrNodeNotFound
 	}
-	
+
 	// 标记源节点为离线
 	source.State = NodeStateOffline
-	
+
 	// 查找最佳目标节点
 	var target *StorageNode
 	bestHealth := -1.0
@@ -252,11 +254,11 @@ func (e *Engine) TriggerFailover(sourceID, reason string) (*FailoverEvent, error
 			bestHealth = n.Health
 		}
 	}
-	
+
 	if target == nil {
 		return nil, ErrNoAvailableTarget
 	}
-	
+
 	event := &FailoverEvent{
 		ID:         generateID(),
 		SourceNode: sourceID,
@@ -265,13 +267,13 @@ func (e *Engine) TriggerFailover(sourceID, reason string) (*FailoverEvent, error
 		StartTime:  time.Now(),
 		Status:     "in_progress",
 	}
-	
+
 	e.logger.Warn("触发故障转移",
 		zap.String("source", sourceID),
 		zap.String("target", target.ID),
 		zap.String("reason", reason),
 	)
-	
+
 	return event, nil
 }
 
@@ -279,10 +281,10 @@ func (e *Engine) TriggerFailover(sourceID, reason string) (*FailoverEvent, error
 func (e *Engine) GetClusterStatus() map[string]interface{} {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	total, online, offline, degraded := 0, 0, 0, 0
 	var totalCap, usedCap int64
-	
+
 	for _, n := range e.nodes {
 		total++
 		totalCap += n.Capacity
@@ -296,12 +298,12 @@ func (e *Engine) GetClusterStatus() map[string]interface{} {
 			degraded++
 		}
 	}
-	
+
 	return map[string]interface{}{
-		"total_nodes":  total,
-		"online":       online,
-		"offline":      offline,
-		"degraded":     degraded,
+		"total_nodes":    total,
+		"online":         online,
+		"offline":        offline,
+		"degraded":       degraded,
 		"total_capacity": totalCap,
 		"used_capacity":  usedCap,
 		"health_score":   e.calculateClusterHealth(),

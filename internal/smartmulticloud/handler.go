@@ -47,7 +47,7 @@ func (h *Handler) handleForecast(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	var req struct {
 		AccountID string `json:"account_id"`
 		Period    string `json:"period"`
@@ -56,7 +56,7 @@ func (h *Handler) handleForecast(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
 	}
-	
+
 	forecast, err := h.engine.ForecastCost(req.AccountID, req.Period)
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
@@ -77,5 +77,5 @@ func (h *Handler) handleRecommendations(w http.ResponseWriter, r *http.Request) 
 func writeJSON(w http.ResponseWriter, code int, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(v)
+	_ = json.NewEncoder(w).Encode(v)
 }

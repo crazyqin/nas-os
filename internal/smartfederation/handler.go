@@ -45,7 +45,7 @@ func (h *Handler) handleSync(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	var req struct {
 		SourceID string `json:"source_id"`
 		TargetID string `json:"target_id"`
@@ -55,7 +55,7 @@ func (h *Handler) handleSync(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
 	}
-	
+
 	job, err := h.engine.StartSyncJob(req.SourceID, req.TargetID, req.PolicyID)
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
@@ -67,5 +67,5 @@ func (h *Handler) handleSync(w http.ResponseWriter, r *http.Request) {
 func writeJSON(w http.ResponseWriter, code int, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(v)
+	_ = json.NewEncoder(w).Encode(v)
 }

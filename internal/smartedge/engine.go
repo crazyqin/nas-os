@@ -10,6 +10,8 @@ import (
 // DeviceType 设备类型.
 type DeviceType string
 
+// 设备类型常量.
+// 设备状态常量.
 const (
 	DeviceTypeSensor  DeviceType = "sensor"
 	DeviceTypeCamera  DeviceType = "camera"
@@ -22,48 +24,49 @@ const (
 // DeviceState 设备状态.
 type DeviceState string
 
+// 设备状态常量.
 const (
-	DeviceStateOnline    DeviceState = "online"
-	DeviceStateOffline   DeviceState = "offline"
+	DeviceStateOnline       DeviceState = "online"
+	DeviceStateOffline      DeviceState = "offline"
 	DeviceStateProvisioning DeviceState = "provisioning"
-	DeviceStateError     DeviceState = "error"
+	DeviceStateError        DeviceState = "error"
 )
 
 // IoTDevice IoT设备.
 type IoTDevice struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Type        DeviceType        `json:"type"`
-	State       DeviceState       `json:"state"`
-	Address     string            `json:"address"`
-	MACAddress  string            `json:"mac_address"`
-	Firmware    string            `json:"firmware"`
-	LastSeen    time.Time         `json:"last_seen"`
-	DataPoints  int64             `json:"data_points"`
-	Metadata    map[string]string `json:"metadata"`
+	ID         string            `json:"id"`
+	Name       string            `json:"name"`
+	Type       DeviceType        `json:"type"`
+	State      DeviceState       `json:"state"`
+	Address    string            `json:"address"`
+	MACAddress string            `json:"mac_address"`
+	Firmware   string            `json:"firmware"`
+	LastSeen   time.Time         `json:"last_seen"`
+	DataPoints int64             `json:"data_points"`
+	Metadata   map[string]string `json:"metadata"`
 }
 
-// Data采集 数据点.
+// DataPoint 数据采集点.
 type DataPoint struct {
-	DeviceID    string      `json:"device_id"`
-	Timestamp   time.Time   `json:"timestamp"`
-	Metric      string      `json:"metric"`
-	Value       float64     `json:"value"`
-	Unit        string      `json:"unit"`
-	Quality     int         `json:"quality"` // 0-100
-	Tags        map[string]string `json:"tags"`
+	DeviceID  string            `json:"device_id"`
+	Timestamp time.Time         `json:"timestamp"`
+	Metric    string            `json:"metric"`
+	Value     float64           `json:"value"`
+	Unit      string            `json:"unit"`
+	Quality   int               `json:"quality"` // 0-100
+	Tags      map[string]string `json:"tags"`
 }
 
 // EdgeRule 边缘规则.
 type EdgeRule struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	DeviceType  DeviceType `json:"device_type"`
-	Metric      string `json:"metric"`
-	Condition   string `json:"condition"` // gt/lt/eq/between
-	Threshold   float64 `json:"threshold"`
-	Action      string `json:"action"` // alert/store/forward
-	Enabled     bool    `json:"enabled"`
+	ID         string     `json:"id"`
+	Name       string     `json:"name"`
+	DeviceType DeviceType `json:"device_type"`
+	Metric     string     `json:"metric"`
+	Condition  string     `json:"condition"` // gt/lt/eq/between
+	Threshold  float64    `json:"threshold"`
+	Action     string     `json:"action"` // alert/store/forward
+	Enabled    bool       `json:"enabled"`
 }
 
 // DataPipeline 数据管道.
@@ -105,7 +108,7 @@ func NewEngine(logger *zap.Logger) *Engine {
 func (e *Engine) RegisterDevice(device *IoTDevice) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	if device.ID == "" {
 		return ErrInvalidDeviceID
 	}
@@ -134,7 +137,7 @@ func (e *Engine) GetDevice(id string) (*IoTDevice, bool) {
 func (e *Engine) ListDevices() []*IoTDevice {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	devices := make([]*IoTDevice, 0, len(e.devices))
 	for _, d := range e.devices {
 		devices = append(devices, d)
@@ -146,22 +149,22 @@ func (e *Engine) ListDevices() []*IoTDevice {
 func (e *Engine) IngestData(point *DataPoint) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	if _, ok := e.devices[point.DeviceID]; !ok {
 		return ErrDeviceNotFound
 	}
-	
+
 	if point.Timestamp.IsZero() {
 		point.Timestamp = time.Now()
 	}
-	
+
 	e.dataBuffer[point.DeviceID] = append(e.dataBuffer[point.DeviceID], point)
 	e.devices[point.DeviceID].DataPoints++
 	e.devices[point.DeviceID].LastSeen = time.Now()
-	
+
 	// 检查边缘规则
 	e.evaluateRules(point)
-	
+
 	return nil
 }
 
@@ -176,7 +179,7 @@ func (e *Engine) GetDataBuffer(deviceID string) []*DataPoint {
 func (e *Engine) CreateRule(rule *EdgeRule) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	if rule.ID == "" {
 		return ErrInvalidRuleID
 	}
@@ -193,7 +196,7 @@ func (e *Engine) evaluateRules(point *DataPoint) {
 		if rule.Metric != point.Metric {
 			continue
 		}
-		
+
 		triggered := false
 		switch rule.Condition {
 		case "gt":
@@ -203,7 +206,7 @@ func (e *Engine) evaluateRules(point *DataPoint) {
 		case "eq":
 			triggered = point.Value == rule.Threshold
 		}
-		
+
 		if triggered {
 			e.logger.Warn("边缘规则触发",
 				zap.String("rule", rule.Name),
@@ -218,7 +221,7 @@ func (e *Engine) evaluateRules(point *DataPoint) {
 func (e *Engine) CreatePipeline(pipeline *DataPipeline) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	if pipeline.ID == "" {
 		return ErrInvalidPipelineID
 	}
@@ -231,22 +234,22 @@ func (e *Engine) CreatePipeline(pipeline *DataPipeline) error {
 func (e *Engine) GetEdgeStats() map[string]interface{} {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	totalDataPoints := int64(0)
 	onlineDevices := 0
-	
+
 	for _, d := range e.devices {
 		totalDataPoints += d.DataPoints
 		if d.State == DeviceStateOnline {
 			onlineDevices++
 		}
 	}
-	
+
 	return map[string]interface{}{
-		"total_devices":    len(e.devices),
-		"online_devices":   onlineDevices,
+		"total_devices":     len(e.devices),
+		"online_devices":    onlineDevices,
 		"total_data_points": totalDataPoints,
-		"active_pipelines": len(e.pipelines),
-		"active_rules":     len(e.rules),
+		"active_pipelines":  len(e.pipelines),
+		"active_rules":      len(e.rules),
 	}
 }

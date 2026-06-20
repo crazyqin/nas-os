@@ -36,13 +36,13 @@ func (h *Handler) handleIngest(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	var point DataPoint
 	if err := json.NewDecoder(r.Body).Decode(&point); err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
 	}
-	
+
 	if err := h.engine.IngestData(&point); err != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		return
@@ -62,5 +62,5 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 func writeJSON(w http.ResponseWriter, code int, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(v)
+	_ = json.NewEncoder(w).Encode(v)
 }

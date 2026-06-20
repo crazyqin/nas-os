@@ -10,33 +10,34 @@ import (
 // ClusterState 集群状态.
 type ClusterState string
 
+// 集群状态常量.
 const (
-	ClusterStateActive  ClusterState = "active"
-	ClusterStateSyncing ClusterState = "syncing"
-	ClusterStateOffline ClusterState = "offline"
+	ClusterStateActive   ClusterState = "active"
+	ClusterStateSyncing  ClusterState = "syncing"
+	ClusterStateOffline  ClusterState = "offline"
 	ClusterStateDegraded ClusterState = "degraded"
 )
 
 // FederationCluster 联邦集群.
 type FederationCluster struct {
-	ID        string        `json:"id"`
-	Name      string        `json:"name"`
-	Endpoint  string        `json:"endpoint"`
-	State     ClusterState  `json:"state"`
-	Region    string        `json:"region"`
-	Nodes     int           `json:"nodes"`
-	Capacity  int64         `json:"capacity"`
-	Used      int64         `json:"used"`
-	LastSync  time.Time     `json:"last_sync"`
-	Metadata  map[string]string `json:"metadata"`
+	ID       string            `json:"id"`
+	Name     string            `json:"name"`
+	Endpoint string            `json:"endpoint"`
+	State    ClusterState      `json:"state"`
+	Region   string            `json:"region"`
+	Nodes    int               `json:"nodes"`
+	Capacity int64             `json:"capacity"`
+	Used     int64             `json:"used"`
+	LastSync time.Time         `json:"last_sync"`
+	Metadata map[string]string `json:"metadata"`
 }
 
 // SyncPolicy 同步策略.
 type SyncPolicy struct {
 	ID           string `json:"id"`
 	Name         string `json:"name"`
-	Interval     int    `json:"interval"` // seconds
-	Bandwidth    int64  `json:"bandwidth"` // bytes/sec limit
+	Interval     int    `json:"interval"`      // seconds
+	Bandwidth    int64  `json:"bandwidth"`     // bytes/sec limit
 	ConflictRule string `json:"conflict_rule"` // source_wins/target_wins/latest_wins
 	Compress     bool   `json:"compress"`
 	Encrypt      bool   `json:"encrypt"`
@@ -44,26 +45,26 @@ type SyncPolicy struct {
 
 // SyncJob 同步任务.
 type SyncJob struct {
-	ID         string    `json:"id"`
-	SourceID   string    `json:"source_id"`
-	TargetID   string    `json:"target_id"`
-	Status     string    `json:"status"` // pending/running/completed/failed
-	TotalBytes int64     `json:"total_bytes"`
-	SyncedBytes int64    `json:"synced_bytes"`
-	StartTime  time.Time `json:"start_time"`
-	EndTime    time.Time `json:"end_time"`
-	Error      string    `json:"error,omitempty"`
+	ID          string    `json:"id"`
+	SourceID    string    `json:"source_id"`
+	TargetID    string    `json:"target_id"`
+	Status      string    `json:"status"` // pending/running/completed/failed
+	TotalBytes  int64     `json:"total_bytes"`
+	SyncedBytes int64     `json:"synced_bytes"`
+	StartTime   time.Time `json:"start_time"`
+	EndTime     time.Time `json:"end_time"`
+	Error       string    `json:"error,omitempty"`
 }
 
 // CrossClusterQuery 跨集群查询.
 type CrossClusterQuery struct {
-	ID        string    `json:"id"`
-	Query     string    `json:"query"`
-	Clusters  []string  `json:"clusters"`
-	Status    string    `json:"status"`
+	ID        string        `json:"id"`
+	Query     string        `json:"query"`
+	Clusters  []string      `json:"clusters"`
+	Status    string        `json:"status"`
 	Results   []QueryResult `json:"results"`
-	StartTime time.Time `json:"start_time"`
-	EndTime   time.Time `json:"end_time"`
+	StartTime time.Time     `json:"start_time"`
+	EndTime   time.Time     `json:"end_time"`
 }
 
 // QueryResult 查询结果.
@@ -100,7 +101,7 @@ func NewEngine(logger *zap.Logger) *Engine {
 func (e *Engine) RegisterCluster(cluster *FederationCluster) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	if cluster.ID == "" {
 		return ErrInvalidClusterID
 	}
@@ -125,7 +126,7 @@ func (e *Engine) GetCluster(id string) (*FederationCluster, bool) {
 func (e *Engine) ListClusters() []*FederationCluster {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	clusters := make([]*FederationCluster, 0, len(e.clusters))
 	for _, c := range e.clusters {
 		clusters = append(clusters, c)
@@ -137,7 +138,7 @@ func (e *Engine) ListClusters() []*FederationCluster {
 func (e *Engine) CreateSyncPolicy(policy *SyncPolicy) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	if policy.ID == "" {
 		return ErrInvalidPolicyID
 	}
@@ -149,14 +150,14 @@ func (e *Engine) CreateSyncPolicy(policy *SyncPolicy) error {
 func (e *Engine) StartSyncJob(sourceID, targetID string, policyID string) (*SyncJob, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	if _, ok := e.clusters[sourceID]; !ok {
 		return nil, ErrClusterNotFound
 	}
 	if _, ok := e.clusters[targetID]; !ok {
 		return nil, ErrClusterNotFound
 	}
-	
+
 	job := &SyncJob{
 		ID:        generateID(),
 		SourceID:  sourceID,
@@ -165,13 +166,13 @@ func (e *Engine) StartSyncJob(sourceID, targetID string, policyID string) (*Sync
 		StartTime: time.Now(),
 	}
 	e.jobs[job.ID] = job
-	
+
 	e.logger.Info("同步任务已启动",
 		zap.String("job_id", job.ID),
 		zap.String("source", sourceID),
 		zap.String("target", targetID),
 	)
-	
+
 	return job, nil
 }
 
@@ -187,7 +188,7 @@ func (e *Engine) GetSyncJob(id string) (*SyncJob, bool) {
 func (e *Engine) ListSyncJobs() []*SyncJob {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	jobs := make([]*SyncJob, 0, len(e.jobs))
 	for _, j := range e.jobs {
 		jobs = append(jobs, j)
@@ -199,11 +200,11 @@ func (e *Engine) ListSyncJobs() []*SyncJob {
 func (e *Engine) GetFederationStatus() map[string]interface{} {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	totalCapacity := int64(0)
 	totalUsed := int64(0)
 	activeClusters := 0
-	
+
 	for _, c := range e.clusters {
 		totalCapacity += c.Capacity
 		totalUsed += c.Used
@@ -211,7 +212,7 @@ func (e *Engine) GetFederationStatus() map[string]interface{} {
 			activeClusters++
 		}
 	}
-	
+
 	return map[string]interface{}{
 		"total_clusters":   len(e.clusters),
 		"active_clusters":  activeClusters,
