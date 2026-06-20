@@ -269,8 +269,8 @@ func TestRunAssessment(t *testing.T) {
 		Name:        "Access Control",
 		Category:    "Security",
 	}
-	control1.Status = ControlImplemented
 	engine.AddControl(control1)
+	control1.Status = ControlImplemented
 
 	control2 := &Control{
 		ID:          "ctrl-002",
@@ -278,8 +278,8 @@ func TestRunAssessment(t *testing.T) {
 		Name:        "Encryption",
 		Category:    "Security",
 	}
-	control2.Status = ControlNotImplemented
 	engine.AddControl(control2)
+	control2.Status = ControlNotImplemented
 
 	control3 := &Control{
 		ID:          "ctrl-003",
@@ -287,8 +287,8 @@ func TestRunAssessment(t *testing.T) {
 		Name:        "Logging",
 		Category:    "Monitoring",
 	}
-	control3.Status = ControlPartial
 	engine.AddControl(control3)
+	control3.Status = ControlPartial
 
 	t.Run("run assessment on existing framework", func(t *testing.T) {
 		report, err := engine.RunAssessment("soc2")
@@ -544,7 +544,8 @@ func TestSearchAuditLogs(t *testing.T) {
 
 	t.Run("search by actor", func(t *testing.T) {
 		filter := &AuditLogFilter{
-			Actor: "user123",
+			Actor:     "user123",
+			EventType: EventTypeUnset,
 		}
 		results, err := engine.SearchAuditLogs(filter)
 		if err != nil {
@@ -570,7 +571,8 @@ func TestSearchAuditLogs(t *testing.T) {
 
 	t.Run("search with limit", func(t *testing.T) {
 		filter := &AuditLogFilter{
-			Limit: 3,
+			EventType: EventTypeUnset,
+			Limit:     3,
 		}
 		results, err := engine.SearchAuditLogs(filter)
 		if err != nil {
@@ -583,6 +585,7 @@ func TestSearchAuditLogs(t *testing.T) {
 
 	t.Run("search by IP address", func(t *testing.T) {
 		filter := &AuditLogFilter{
+			EventType: EventTypeUnset,
 			IPAddress: "192.168.1.2",
 		}
 		results, err := engine.SearchAuditLogs(filter)
@@ -597,6 +600,7 @@ func TestSearchAuditLogs(t *testing.T) {
 	t.Run("search by time range", func(t *testing.T) {
 		now := time.Now()
 		filter := &AuditLogFilter{
+			EventType: EventTypeUnset,
 			StartTime: now.Add(-1 * time.Hour),
 			EndTime:   now.Add(1 * time.Hour),
 		}
@@ -826,7 +830,8 @@ func TestEndToEnd(t *testing.T) {
 
 	// 8. 搜索审计日志
 	filter := &AuditLogFilter{
-		Actor: "admin",
+		Actor:     "admin",
+		EventType: EventTypeUnset,
 	}
 	logs, err := engine.SearchAuditLogs(filter)
 	if err != nil {

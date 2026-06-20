@@ -776,12 +776,16 @@ func (h *HealthHub) GetMetrics() *HealthMetrics {
 
 	// Count resolved incidents
 	resolved := 0
+	active := 0
 	for _, inc := range h.incidents {
 		if inc.Status == IncidentResolved || inc.Status == IncidentClosed {
 			resolved++
+		} else if inc.Status == IncidentOpen {
+			active++
 		}
 	}
 	metrics.ResolvedCount = resolved
+	metrics.IncidentCount = active
 
 	// Prediction accuracy
 	metrics.PredictionAccuracy = h.analyzer.accuracy
