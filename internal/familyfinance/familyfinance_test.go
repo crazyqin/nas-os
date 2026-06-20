@@ -18,7 +18,8 @@ func setupFinanceEngine(t *testing.T) *FinanceEngine {
 }
 
 func setupBudgetManagerOnly(t *testing.T) *BudgetManager {
-	_, budgetMgr, _, _, _ := setupTestEnvironment(t)
+	t.Helper()
+	_, budgetMgr, _, _, _ := setupTestEnvironment(t) //nolint:dogsled
 	return budgetMgr
 }
 
@@ -165,7 +166,7 @@ func TestGetTotalBalance(t *testing.T) {
 
 func TestAddTransaction(t *testing.T) {
 	t.Run("添加收入交易", func(t *testing.T) {
-		engine, _, _, _, _ := setupTestEnvironment(t)
+		engine, _, _, _, _ := setupTestEnvironment(t) //nolint:dogsled
 
 		tx := &Transaction{
 			AccountID:   "acc-test",
@@ -183,7 +184,7 @@ func TestAddTransaction(t *testing.T) {
 	})
 
 	t.Run("添加支出交易", func(t *testing.T) {
-		engine, _, _, _, _ := setupTestEnvironment(t)
+		engine, _, _, _, _ := setupTestEnvironment(t) //nolint:dogsled
 
 		tx := &Transaction{
 			AccountID:   "acc-test",
@@ -201,7 +202,7 @@ func TestAddTransaction(t *testing.T) {
 	})
 
 	t.Run("余额不足的支出", func(t *testing.T) {
-		engine, _, _, _, _ := setupTestEnvironment(t)
+		engine, _, _, _, _ := setupTestEnvironment(t) //nolint:dogsled
 
 		tx := &Transaction{
 			AccountID: "acc-test",
@@ -238,7 +239,7 @@ func TestTransferTransaction(t *testing.T) {
 }
 
 func TestQueryTransactions(t *testing.T) {
-	engine, _, _, _, _ := setupTestEnvironment(t)
+	engine, _, _, _, _ := setupTestEnvironment(t) //nolint:dogsled
 
 	// 添加多条交易
 	for i := 0; i < 5; i++ {
@@ -419,7 +420,7 @@ func TestCreateBill(t *testing.T) {
 }
 
 func TestPayBill(t *testing.T) {
-	engine, _, _, billMgr, _ := setupTestEnvironment(t)
+	engine, _, _, billMgr, _ := setupTestEnvironment(t) //nolint:dogsled
 
 	bill := &Bill{
 		Name:   "水电费",
@@ -471,7 +472,7 @@ func TestGetBillSummary(t *testing.T) {
 // ========== 分析引擎测试 ==========
 
 func TestGetFinancialSummary(t *testing.T) {
-	engine, _, _, _, analytics := setupTestEnvironment(t)
+	engine, _, _, _, analytics := setupTestEnvironment(t) //nolint:dogsled
 
 	// 添加一些交易
 	_ = engine.AddTransaction(&Transaction{
@@ -493,7 +494,7 @@ func TestGetFinancialSummary(t *testing.T) {
 }
 
 func TestGetSpendingByCategory(t *testing.T) {
-	engine, _, _, _, analytics := setupTestEnvironment(t)
+	engine, _, _, _, analytics := setupTestEnvironment(t) //nolint:dogsled
 
 	_ = engine.AddTransaction(&Transaction{
 		AccountID: "acc-test", Type: TransactionTypeExpense,
@@ -513,7 +514,7 @@ func TestGetSpendingByCategory(t *testing.T) {
 }
 
 func TestPredictCashFlow(t *testing.T) {
-	engine, _, _, _, analytics := setupTestEnvironment(t)
+	engine, _, _, _, analytics := setupTestEnvironment(t) //nolint:dogsled
 
 	// 添加历史交易
 	for i := 0; i < 6; i++ {

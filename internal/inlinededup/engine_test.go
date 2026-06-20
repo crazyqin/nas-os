@@ -30,7 +30,7 @@ func TestProcessDuplicateBlock(t *testing.T) {
 	e := newTestEngine()
 
 	data := []byte("duplicate data block")
-	_, _, _ = e.ProcessBlock(data)
+	_, _, _ = e.ProcessBlock(data) //nolint:dogsled
 	info, status, err := e.ProcessBlock(data)
 	if err != nil {
 		t.Fatalf("ProcessBlock failed: %v", err)
@@ -47,11 +47,11 @@ func TestDedupRatio(t *testing.T) {
 	e := newTestEngine()
 
 	// 写入 3 个唯一块 + 2 个重复块
-	_, _, _ = e.ProcessBlock([]byte("block-a"))
-	_, _, _ = e.ProcessBlock([]byte("block-b"))
-	_, _, _ = e.ProcessBlock([]byte("block-c"))
-	_, _, _ = e.ProcessBlock([]byte("block-a")) // 重复
-	_, _, _ = e.ProcessBlock([]byte("block-b")) // 重复
+	_, _, _ = e.ProcessBlock([]byte("block-a")) //nolint:dogsled
+	_, _, _ = e.ProcessBlock([]byte("block-b")) //nolint:dogsled
+	_, _, _ = e.ProcessBlock([]byte("block-c")) //nolint:dogsled
+	_, _, _ = e.ProcessBlock([]byte("block-a")) //nolint:dogsled // 重复
+	_, _, _ = e.ProcessBlock([]byte("block-b")) //nolint:dogsled // 重复
 
 	stats := e.GetStats()
 	if stats.TotalBlocks != 5 {
@@ -128,9 +128,9 @@ func TestGetBlockInfo(t *testing.T) {
 func TestIndexSize(t *testing.T) {
 	e := newTestEngine()
 
-	_, _, _ = e.ProcessBlock([]byte("a"))
-	_, _, _ = e.ProcessBlock([]byte("b"))
-	_, _, _ = e.ProcessBlock([]byte("a")) // 重复
+	_, _, _ = e.ProcessBlock([]byte("a")) //nolint:dogsled
+	_, _, _ = e.ProcessBlock([]byte("b")) //nolint:dogsled
+	_, _, _ = e.ProcessBlock([]byte("a")) //nolint:dogsled // 重复
 
 	if e.IndexSize() != 2 {
 		t.Errorf("expected index size 2, got %d", e.IndexSize())
@@ -140,7 +140,7 @@ func TestIndexSize(t *testing.T) {
 func TestResetStats(t *testing.T) {
 	e := newTestEngine()
 
-	_, _, _ = e.ProcessBlock([]byte("data"))
+	_, _, _ = e.ProcessBlock([]byte("data")) //nolint:dogsled
 	e.ResetStats()
 
 	stats := e.GetStats()
@@ -163,9 +163,9 @@ func TestSpaceSavedCalculation(t *testing.T) {
 	e := newTestEngine()
 
 	data := []byte("repeated block data for savings calc")
-	_, _, _ = e.ProcessBlock(data)
-	_, _, _ = e.ProcessBlock(data)
-	_, _, _ = e.ProcessBlock(data)
+	_, _, _ = e.ProcessBlock(data) //nolint:dogsled
+	_, _, _ = e.ProcessBlock(data) //nolint:dogsled
+	_, _, _ = e.ProcessBlock(data) //nolint:dogsled
 
 	stats := e.GetStats()
 	if stats.SavedBytes <= 0 {
