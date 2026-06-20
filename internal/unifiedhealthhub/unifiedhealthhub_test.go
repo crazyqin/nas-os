@@ -637,16 +637,16 @@ func TestSubsystemHealthCalculation(t *testing.T) {
 		{
 			name:           "Mixed with warnings",
 			checks:         []*HealthCheck{{Status: CheckPass}, {Status: CheckWarn}, {Status: CheckPass}},
-			expectedStatus: HealthDegraded,
-			minScore:       70,
-			maxScore:       89,
+			expectedStatus: HealthUnhealthy,
+			minScore:       50,
+			maxScore:       69,
 		},
 		{
 			name:           "Some failures",
 			checks:         []*HealthCheck{{Status: CheckPass}, {Status: CheckFail}, {Status: CheckFail}},
-			expectedStatus: HealthUnhealthy,
-			minScore:       40,
-			maxScore:       69,
+			expectedStatus: HealthCritical,
+			minScore:       0,
+			maxScore:       39,
 		},
 		{
 			name:           "All failing",

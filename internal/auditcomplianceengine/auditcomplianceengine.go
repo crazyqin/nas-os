@@ -258,30 +258,33 @@ const (
 type EventType int
 
 const (
-	EventAccess EventType = iota
-	EventModify
-	EventDelete
-	EventCreate
-	EventConfig
-	EventAuth
-	EventAdmin
+	EventTypeUnset EventType = -1
+	EventAccess    EventType = 0
+	EventModify    EventType = 1
+	EventDelete    EventType = 2
+	EventCreate    EventType = 3
+	EventConfig    EventType = 4
+	EventAuth      EventType = 5
+	EventAdmin     EventType = 6
 )
 
 type ActorType int
 
 const (
-	ActorUser ActorType = iota
-	ActorSystem
-	ActorAPI
-	ActorService
+	ActorTypeUnset ActorType = -1
+	ActorUser      ActorType = 0
+	ActorSystem    ActorType = 1
+	ActorAPI       ActorType = 2
+	ActorService   ActorType = 3
 )
 
 type ActionResult int
 
 const (
-	ActionSuccess ActionResult = iota
-	ActionFailure
-	ActionDenied
+	ActionResultUnset ActionResult = -1
+	ActionSuccess     ActionResult = 0
+	ActionFailure     ActionResult = 1
+	ActionDenied      ActionResult = 2
 )
 
 type ReportType int
@@ -786,7 +789,7 @@ func (e *ComplianceEngine) matchesFilter(entry *AuditEntry, filter *AuditLogFilt
 		return false
 	}
 
-	if filter.EventType >= 0 && entry.EventType != filter.EventType {
+	if filter.EventType != EventTypeUnset && entry.EventType != filter.EventType {
 		return false
 	}
 
@@ -794,7 +797,7 @@ func (e *ComplianceEngine) matchesFilter(entry *AuditEntry, filter *AuditLogFilt
 		return false
 	}
 
-	if filter.ActorType >= 0 && entry.ActorType != filter.ActorType {
+	if filter.ActorType != ActorTypeUnset && entry.ActorType != filter.ActorType {
 		return false
 	}
 
@@ -806,7 +809,7 @@ func (e *ComplianceEngine) matchesFilter(entry *AuditEntry, filter *AuditLogFilt
 		return false
 	}
 
-	if filter.Result >= 0 && entry.Result != filter.Result {
+	if filter.Result != ActionResultUnset && entry.Result != filter.Result {
 		return false
 	}
 
