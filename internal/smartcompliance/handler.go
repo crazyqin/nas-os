@@ -37,7 +37,7 @@ func (h *Handler) handleAudit(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	var req struct {
 		Standard ComplianceStandard `json:"standard"`
 	}
@@ -45,7 +45,7 @@ func (h *Handler) handleAudit(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
 	}
-	
+
 	result, err := h.engine.RunAudit(req.Standard)
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
@@ -68,7 +68,7 @@ func (h *Handler) handleAccessCheck(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	var req struct {
 		Subject  string `json:"subject"`
 		Resource string `json:"resource"`
@@ -78,7 +78,7 @@ func (h *Handler) handleAccessCheck(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
 	}
-	
+
 	allowed := h.engine.CheckAccess(req.Subject, req.Resource, req.Action)
 	writeJSON(w, http.StatusOK, map[string]bool{"allowed": allowed})
 }
@@ -86,5 +86,5 @@ func (h *Handler) handleAccessCheck(w http.ResponseWriter, r *http.Request) {
 func writeJSON(w http.ResponseWriter, code int, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(v)
+	_ = json.NewEncoder(w).Encode(v)
 }

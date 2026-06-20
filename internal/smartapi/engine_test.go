@@ -16,19 +16,19 @@ func TestNewEngine(t *testing.T) {
 
 func TestCreateAPIKey(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	key := &APIKey{
-		ID:     "key-1",
-		Name:   "test-key",
-		Key:    "sk-test-123",
-		Scopes: []string{"read", "write"},
+		ID:      "key-1",
+		Name:    "test-key",
+		Key:     "sk-test-123",
+		Scopes:  []string{"read", "write"},
 		Enabled: true,
 	}
-	
+
 	if err := engine.CreateAPIKey(key); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	
+
 	got, ok := engine.GetAPIKey("key-1")
 	if !ok {
 		t.Fatal("expected key to be registered")
@@ -40,13 +40,13 @@ func TestCreateAPIKey(t *testing.T) {
 
 func TestValidateAPIKey(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	engine.CreateAPIKey(&APIKey{
 		ID:      "key-1",
 		Key:     "sk-valid",
 		Enabled: true,
 	})
-	
+
 	key, err := engine.ValidateAPIKey("sk-valid")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -58,14 +58,14 @@ func TestValidateAPIKey(t *testing.T) {
 
 func TestValidateAPIKeyExpired(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	engine.CreateAPIKey(&APIKey{
 		ID:        "key-1",
 		Key:       "sk-expired",
 		Enabled:   true,
 		ExpiresAt: time.Now().Add(-1 * time.Hour),
 	})
-	
+
 	_, err := engine.ValidateAPIKey("sk-expired")
 	if err != ErrKeyExpired {
 		t.Errorf("expected ErrKeyExpired, got %v", err)
@@ -74,17 +74,17 @@ func TestValidateAPIKeyExpired(t *testing.T) {
 
 func TestRevokeAPIKey(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	engine.CreateAPIKey(&APIKey{
-		ID:     "key-1",
-		Key:    "sk-revoke",
+		ID:      "key-1",
+		Key:     "sk-revoke",
 		Enabled: true,
 	})
-	
+
 	if err := engine.RevokeAPIKey("key-1"); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	
+
 	key, _ := engine.GetAPIKey("key-1")
 	if key.Enabled {
 		t.Error("expected key to be disabled")
@@ -93,12 +93,12 @@ func TestRevokeAPIKey(t *testing.T) {
 
 func TestGetGatewayStats(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	engine.CreateAPIKey(&APIKey{ID: "k1", Enabled: true})
 	engine.CreateAPIKey(&APIKey{ID: "k2", Enabled: false})
-	
+
 	stats := engine.GetGatewayStats()
-	
+
 	if stats["total_keys"] != 2 {
 		t.Errorf("expected 2 total keys, got %v", stats["total_keys"])
 	}

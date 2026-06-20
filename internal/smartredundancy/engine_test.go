@@ -16,7 +16,7 @@ func TestNewEngine(t *testing.T) {
 
 func TestRegisterNode(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	node := &StorageNode{
 		ID:       "node-1",
 		Name:     "test-node",
@@ -25,11 +25,11 @@ func TestRegisterNode(t *testing.T) {
 		Capacity: 1024 * 1024 * 1024 * 1024, // 1TB
 		Health:   95.0,
 	}
-	
+
 	if err := engine.RegisterNode(node); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	
+
 	got, ok := engine.GetNode("node-1")
 	if !ok {
 		t.Fatal("expected node to be registered")
@@ -41,11 +41,11 @@ func TestRegisterNode(t *testing.T) {
 
 func TestRegisterNodeInvalidID(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	node := &StorageNode{
 		ID: "",
 	}
-	
+
 	if err := engine.RegisterNode(node); err != ErrInvalidNodeID {
 		t.Errorf("expected ErrInvalidNodeID, got %v", err)
 	}
@@ -53,11 +53,11 @@ func TestRegisterNodeInvalidID(t *testing.T) {
 
 func TestGetOnlineNodes(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	engine.RegisterNode(&StorageNode{ID: "1", State: NodeStateOnline, Health: 90})
 	engine.RegisterNode(&StorageNode{ID: "2", State: NodeStateOffline, Health: 50})
 	engine.RegisterNode(&StorageNode{ID: "3", State: NodeStateOnline, Health: 80})
-	
+
 	online := engine.GetOnlineNodes()
 	if len(online) != 2 {
 		t.Errorf("expected 2 online nodes, got %d", len(online))
@@ -66,7 +66,7 @@ func TestGetOnlineNodes(t *testing.T) {
 
 func TestCalculatePlacement(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	// 注册3个节点
 	for i := 1; i <= 3; i++ {
 		engine.RegisterNode(&StorageNode{
@@ -75,17 +75,17 @@ func TestCalculatePlacement(t *testing.T) {
 			Health: float64(90 + i),
 		})
 	}
-	
+
 	policy := &RedundancyPolicy{
 		Level:    RedundancyMirror,
 		MinNodes: 2,
 	}
-	
+
 	placement, err := engine.CalculatePlacement(policy, 1024*1024)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	
+
 	if placement.Primary == "" {
 		t.Error("expected primary node to be set")
 	}
@@ -96,14 +96,14 @@ func TestCalculatePlacement(t *testing.T) {
 
 func TestCalculatePlacementInsufficientNodes(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	engine.RegisterNode(&StorageNode{ID: "1", State: NodeStateOnline, Health: 90})
-	
+
 	policy := &RedundancyPolicy{
 		Level:    RedundancyMirror,
 		MinNodes: 3,
 	}
-	
+
 	_, err := engine.CalculatePlacement(policy, 1024)
 	if err != ErrInsufficientNodes {
 		t.Errorf("expected ErrInsufficientNodes, got %v", err)
@@ -112,12 +112,12 @@ func TestCalculatePlacementInsufficientNodes(t *testing.T) {
 
 func TestGetClusterStatus(t *testing.T) {
 	engine := NewEngine(zap.NewNop())
-	
+
 	engine.RegisterNode(&StorageNode{ID: "1", State: NodeStateOnline, Health: 90, Capacity: 1000, Used: 500})
 	engine.RegisterNode(&StorageNode{ID: "2", State: NodeStateOffline, Health: 0, Capacity: 2000, Used: 1000})
-	
+
 	status := engine.GetClusterStatus()
-	
+
 	if status["total_nodes"] != 2 {
 		t.Errorf("expected 2 total nodes, got %v", status["total_nodes"])
 	}
