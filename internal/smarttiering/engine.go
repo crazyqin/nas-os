@@ -2,6 +2,7 @@ package smarttiering
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -57,10 +58,12 @@ type StorageTier struct {
 	Description     string    `json:"description,omitempty"`
 	Type            TierType  `json:"type"`
 	Performance     string    `json:"performance"` // high, medium, low
+	PerformanceLevel int      `json:"performance_level"` // 3=hot, 2=warm, 1=cold, 0=archive
 	StoragePath     string    `json:"storage_path"`
 	TotalCapacity   int64     `json:"total_capacity"`
 	UsedCapacity    int64     `json:"used_capacity"`
 	AvailableSpace  int64     `json:"available_space"`
+	CostPerGB       float64   `json:"cost_per_gb"` // 每GB月成本
 	IsEncrypted     bool      `json:"is_encrypted"`
 	IsCompressed    bool      `json:"is_compressed"`
 	Status          TierStatus `json:"status"`
@@ -838,4 +841,179 @@ func randomString(n int) string {
 		b[i] = letters[time.Now().UnixNano()%int64(len(letters))]
 	}
 	return string(b)
+}
+
+// CostOptimizationReport 成本优化报告
+type CostOptimizationReport struct {
+	TotalStorageGB    int64              `json:"total_storage_gb"`
+	UsedStorageGB     int64              `json:"used_storage_gb"`
+	CurrentMonthlyCost float64           `json:"current_monthly_cost"`
+	OptimizedCost     float64            `json:"optimized_cost"`
+	PotentialSavings  float64            `json:"potential_savings"`
+	SavingsPercent    float64            `json:"savings_percent"`
+	TierBreakdown     map[string]*TierCostInfo `json:"tier_breakdown"`
+	Recommendations   []string           `json:"recommendations"`
+}
+
+// TierCostInfo 层级成本信息
+type TierCostInfo struct {
+	TierName     string  `json:"tier_name"`
+	StorageGB    int64   `json:"storage_gb"`
+	CostPerGB    float64 `json:"cost_per_gb"`
+	MonthlyCost  float64 `json:"monthly_cost"`
+	FilesCount   int     `json:"files_count"`
+}
+
+// GenerateCostReport 生成成本优化报告
+func (te *TieringEngine) GenerateCostReport() *CostOptimizationReport {
+	te.mu.RLock()
+	defer te.mu.RUnlock()
+
+	report := &CostOptimizationReport{
+		TierBreakdown:   make(map[string]*TierCostInfo),
+		Recommendations: make([]string, 0),
+	}
+
+	tierFileCounts := make(map[string]int)
+	for _, file := range te.files {
+		tierFileCounts[file.CurrentTierID]++
+	}
+
+	for _, tier := range te.tiers {
+		info := &TierCostInfo{
+			TierName:    tier.Name,
+			StorageGB:   tier.UsedCapacity / (1024 * 1024 * 1024),
+			CostPerGB:   tier.CostPerGB,
+			MonthlyCost: float64(tier.UsedCapacity) / (1024 * 1024 * 1024) * tier.CostPerGB,
+			FilesCount:  tierFileCounts[tier.ID],
+		}
+		report.TierBreakdown[tier.ID] = info
+		report.TotalStorageGB += tier.TotalCapacity / (1024 * 1024 * 1024)
+		report.UsedStorageGB += tier.UsedCapacity / (1024 * 1024 * 1024)
+		report.CurrentMonthlyCost += info.MonthlyCost
+	}
+
+	// 计算优化后成本（将冷数据迁移到更便宜的层级）
+	optimizedCost := report.CurrentMonthlyCost
+	for _, task := range te.migrationQ {
+		if task.Status != TaskStatusPending {
+			continue
+		}
+		currentTier, ok1 := te.tiers[task.SourceTierID]
+		if !ok1 {
+			continue
+		}
+		targetTier, ok2 := te.tiers[task.TargetTierID]
+		if !ok2 {
+			continue
+		}
+		fileSizeGB := float64(task.BytesTransfer) / (1024 * 1024 * 1024)
+		if fileSizeGB == 0 {
+			if file, ok := te.files[task.FileID]; ok {
+				fileSizeGB = float64(file.Size) / (1024 * 1024 * 1024)
+			}
+		}
+		if targetTier.CostPerGB < currentTier.CostPerGB {
+			optimizedCost -= fileSizeGB * (currentTier.CostPerGB - targetTier.CostPerGB)
+		}
+	}
+
+	report.OptimizedCost = optimizedCost
+	report.PotentialSavings = report.CurrentMonthlyCost - optimizedCost
+	if report.CurrentMonthlyCost > 0 {
+		report.SavingsPercent = (report.PotentialSavings / report.CurrentMonthlyCost) * 100
+	}
+
+	// 生成建议
+	if report.SavingsPercent > 5 {
+		report.Recommendations = append(report.Recommendations,
+			fmt.Sprintf("建议将 %.1f%% 的冷数据迁移到归档层，可节省 $%.2f/月", report.SavingsPercent, report.PotentialSavings))
+	}
+
+	hotDataGB := float64(0)
+	for _, file := range te.files {
+		if file.HeatScore > 0.7 {
+			hotDataGB += float64(file.Size) / (1024 * 1024 * 1024)
+		}
+	}
+	if hotDataGB > 0 {
+		report.Recommendations = append(report.Recommendations,
+			fmt.Sprintf("热数据共 %.1f GB，建议使用 NVMe SSD 存储以提升性能", hotDataGB))
+	}
+
+	return report
+}
+
+// PredictiveTiering 预测性分层 - 基于历史访问模式预测文件热度
+func (te *TieringEngine) PredictiveTiering() map[string]string {
+	te.mu.RLock()
+	defer te.mu.RUnlock()
+
+	result := make(map[string]string)
+	now := time.Now()
+
+	for _, file := range te.files {
+		if file.LastAccessed.IsZero() {
+			result[file.ID] = te.defaultColdTier()
+			continue
+		}
+
+		daysSinceAccess := now.Sub(file.LastAccessed).Hours() / 24
+		accessFrequency := float64(file.AccessCount)
+
+		// 预测未来7天热度
+		predictedHeat := accessFrequency / (daysSinceAccess + 1)
+
+		var targetTier string
+		switch {
+		case predictedHeat > 10:
+			targetTier = te.defaultHotTier()
+		case predictedHeat > 3:
+			targetTier = te.defaultWarmTier()
+		case predictedHeat > 0.5:
+			targetTier = te.defaultColdTier()
+		default:
+			targetTier = te.defaultArchiveTier()
+		}
+
+		result[file.ID] = targetTier
+	}
+
+	return result
+}
+
+func (te *TieringEngine) defaultHotTier() string {
+	for _, t := range te.tiers {
+		if t.PerformanceLevel >= 3 {
+			return t.ID
+		}
+	}
+	return ""
+}
+
+func (te *TieringEngine) defaultWarmTier() string {
+	for _, t := range te.tiers {
+		if t.PerformanceLevel == 2 {
+			return t.ID
+		}
+	}
+	return te.defaultHotTier()
+}
+
+func (te *TieringEngine) defaultColdTier() string {
+	for _, t := range te.tiers {
+		if t.PerformanceLevel == 1 {
+			return t.ID
+		}
+	}
+	return ""
+}
+
+func (te *TieringEngine) defaultArchiveTier() string {
+	for _, t := range te.tiers {
+		if t.PerformanceLevel == 0 {
+			return t.ID
+		}
+	}
+	return te.defaultColdTier()
 }
