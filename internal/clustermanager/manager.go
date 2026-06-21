@@ -358,3 +358,105 @@ func (m *ClusterManager) ListClusters() []*ClusterNode {
 	}
 	return clusters
 }
+
+// FailoverCheck 故障转移检查
+type FailoverResult struct {
+	FailedNodes    []string `json:"failed_nodes"`
+	FailoverNodes  []string `json:"failover_nodes"`
+	Actions        []string `json:"actions"`
+	Timestamp      time.Time `json:"timestamp"`
+}
+
+// PerformFailover 执行故障转移检查
+func (m *ClusterManager) PerformFailover() *FailoverResult {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	result := &FailoverResult{
+		FailedNodes:   make([]string, 0),
+		FailoverNodes: make([]string, 0),
+		Actions:       make([]string, 0),
+		Timestamp:     time.Now(),
+	}
+
+	for _, node := range m.nodes {
+		if node.Status == NodeStatusOffline || node.Status == NodeStatusError {
+			result.FailedNodes = append(result.FailedNodes, node.ID)
+
+			// 查找同组可用节点
+			for _, other := range m.nodes {
+				if other.ID != node.ID && other.Status == NodeStatusOnline {
+					if node.GroupID != "" && node.GroupID == other.GroupID {
+						result.FailoverNodes = append(result.FailoverNodes, other.ID)
+						result.Actions = append(result.Actions,
+							fmt.Sprintf("节点 %s 故障，切换到 %s", node.Name, other.Name))
+						break
+					}
+				}
+			}
+		}
+	}
+
+	return result
+}
+
+// LoadBalanceInfo 负载均衡信息
+type LoadBalanceInfo struct {
+	NodeID       string  `json:"node_id"`
+	NodeName     string  `json:"node_name"`
+	CPUUsage     float64 `json:"cpu_usage"`
+	MemoryUsage  float64 `json:"memory_usage"`
+	DiskUsage    float64 `json:"disk_usage"`
+	Connections  int     `json:"connections"`
+	LoadScore    float64 `json:"load_score"`
+}
+
+// GetLoadBalance 获取负载均衡信息
+func (m *ClusterManager) GetLoadBalance() []*LoadBalanceInfo {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	var result []*LoadBalanceInfo
+	for _, node := range m.nodes {
+		if node.Status != NodeStatusOnline {
+			continue
+		}
+
+		info := &LoadBalanceInfo{
+			NodeID:   node.ID,
+			NodeName: node.Name,
+		}
+
+		if cpu, ok := node.Metadata["cpu_usage"]; ok {
+			fmt.Sscanf(cpu, "%f", &info.CPUUsage)
+		}
+		if mem, ok := node.Metadata["memory_usage"]; ok {
+			fmt.Sscanf(mem, "%f", &info.MemoryUsage)
+		}
+		if disk, ok := node.Metadata["disk_usage"]; ok {
+			fmt.Sscanf(disk, "%f", &info.DiskUsage)
+		}
+
+		// 计算负载分数（越低越好）
+		info.LoadScore = (info.CPUUsage*0.4 + info.MemoryUsage*0.3 + info.DiskUsage*0.3)
+		result = append(result, info)
+	}
+
+	return result
+}
+
+// GetBestNode 获取最优节点（负载最低）
+func (m *ClusterManager) GetBestNode() *LoadBalanceInfo {
+	infos := m.GetLoadBalance()
+	if len(infos) == 0 {
+		return nil
+	}
+
+	best := infos[0]
+	for _, info := range infos[1:] {
+		if info.LoadScore < best.LoadScore {
+			best = info
+		}
+	}
+	return best
+}
