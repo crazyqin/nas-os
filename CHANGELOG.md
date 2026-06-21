@@ -1,16 +1,27 @@
-## v2.611.0 (2026-06-21) - 云端管理门户/应用商店2.0
+## v2.611.0 (2026-06-21) - GPU硬件检测/ACL权限审计
 
 ### 新增功能
-- **云端管理门户 (cloudportal)** - 多设备统一管理平台，支持设备注册/状态监控/远程访问/配置同步/会话管理，对标 TrueNAS Connect 云端管理
-- **应用商店2.0 (appmarket2)** - 增强型应用市场，支持Docker Compose部署/多市场聚合搜索/状态监控/自动更新
 
-### 竞品调研更新
-- **TrueNAS 26**: WebShare集成搜索、勒索检测保护、OpenZFS 2.4混合池、LXC容器支持、TrueNAS Connect云端管理
-- **群晖 COMPUTEX 2026**: DSM NEXT AI-Ready、ActiveProtect 2.0、GS3400分布式存储、PAS7700全闪阵列
-- **飞牛fnOS**: AMD GPU硬件加速全面支持、ARM架构公测版、Docker图形编排优化
+#### GPU硬件检测与监控 (gpudetect)
+- 自动检测NVIDIA/AMD/Intel GPU
+- GPU显存、温度、利用率实时监控
+- CUDA/ROCm/OpenCL后端自动选择
+- nvidia-smi/rocm-smi/lspci多源检测
+- 运行时统计信息更新
 
-### 版本号
-- v2.610.0 → v2.611.0
+#### ACL权限审计引擎 (aclaudit)
+- 细粒度访问审计日志（13种权限类型）
+- 访问模式追踪与分析
+- 异常行为检测（非工作时间、高频访问、拒绝访问）
+- 审计报告生成
+- 数据导出JSON格式
+- 可配置保留策略
+
+### 竞品功能对标
+- 对标飞牛fnOS AMD GPU适配（GCN5-RDNA4）
+- 对标飞牛fnOS 企业级ACL权限管理（13种细分选项）
+- 对标群晖DSM GPU信息显示
+- 对标TrueNAS 存储架构设计
 
 ---
 
