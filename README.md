@@ -1,10 +1,10 @@
 # NAS-OS 🖥️
 
-**中文** | [English](docs/README_EN.md)
+**中文** | English
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.613.0 Stable (2026-06-22)
+> **最新版本**: v2.615.0 Stable (2026-06-22)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -18,7 +18,7 @@
 | 4 | ☁️ **多云存储挂载** | 阿里云/腾讯云/AWS/GDrive/OneDrive统一挂载 | **云本地化** - 6+平台透明读写，覆盖最广 |
 | 5 | 🔗 **MCP服务器集成** | Model Context Protocol，AI工具标准化连接 | **AI生态开放** - 对标群晖AI Console，标准化AI工具链 |
 
-> 💡 **竞品对标**: 群晖DSM、飞牛fnOS、TrueNAS均无上述四大功能 → [详细分析](docs/COMPETITIVE_ANALYSIS_2026Q2.md)
+> 💡 **竞品对标**: 群晖DSM、飞牛fnOS、TrueNAS均无上述四大功能 → [详细分析](docs/competitive-analysis.md)
 
 ### 💾 企业级存储核心
 
@@ -78,7 +78,9 @@
 | ⚡ DPDK网络加速 | 用户态网络栈、RSS多队列、流表规则、QoS流量分类、零拷贝 | ✅ 完成 |
 | 🔌 SmartNIC/DPU卸载 | OVS/IPsec/TLS/压缩/RDMA卸载、SmartNIC设备管理与监控 | ✅ 完成 |
 | 🎮 GPU推理服务 | 多模型并发、模型热加载、显存管理、推理队列、多精度(FP16/INT8/INT4) | ✅ 完成 |
+| 🖥️ **GPU管理增强** | 多厂商GPU统一管理、显存智能分配、温度监控、性能调优 | ✅ **v2.615.0新增** |
 | 📰 下载器 | Transmission/qBittorrent 集成 | ✅ 完成 |
+| 🔗 **MCP协议增强** | MCP Server v2、工具注册中心、资源管理优化、HTTP/Stdio双传输 | ✅ **v2.615.0新增** |
 | 🚪 门禁管理 | 设备管理、卡片授权、AI行为分析（对标群晖AC100） | ✅ 完成 |
 | 🔎 AI深度搜索 | 语义搜索、OCR、视觉分析（对标群晖Deep Search） | ✅ 完成 |
 | 🤖 智能运维代理 | 工作流调度、健康监控、自动修复（对标群晖DSM Agent） | ✅ 完成 |
@@ -293,9 +295,8 @@ sudo nasd
 |------|------|
 | [快速入门](docs/GETTING_STARTED.md) | 5 分钟上手指南 |
 | [架构概览](docs/ARCHITECTURE.md) | 系统架构与模块说明 |
-| [品牌指南](docs/BRAND_GUIDELINES.md) | 品牌资源与使用规范 |
 | [API 文档](docs/api/) | REST API 接口参考 |
-| [竞品分析](docs/COMPETITIVE_ANALYSIS_2026Q2.md) | 与群晖/TrueNAS/飞牛对比 |
+| [竞品分析](docs/competitive-analysis.md) | 与群晖/TrueNAS/飞牛对比 |
 
 ## API 接口
 
@@ -342,7 +343,7 @@ sudo nasd
 | POST | /api/v1/immutable/quick-lock | 快速锁定 |
 | POST | /api/v1/immutable/batch-lock | 批量锁定 |
 
-完整 API 文档请查看 [docs/API_GUIDE.md](docs/API_GUIDE.md)
+完整 API 文档请查看 GitHub API文档
 
 ## 🏆 差异化优势（2026Q2竞品对标）
 
@@ -373,7 +374,7 @@ sudo nasd
 | 🔍 **全局搜索** | WebShare全文检索，对标TrueSearch | ✅ 已实现 |
 | 🖥️ **多系统管理** | CMS集中管理，对标TrueNAS Connect | ✅ 已实现 |
 
-> 详细竞品分析: [docs/COMPETITIVE_ANALYSIS_2026Q2.md](docs/COMPETITIVE_ANALYSIS_2026Q2.md)
+> 详细竞品分析: [docs/competitive-analysis.md](docs/competitive-analysis.md)
 
 ### 竞品对比矩阵
 
@@ -414,7 +415,7 @@ sudo nasd
 
 #### 🆚 三大核心功能详细对比
 
-**RAIDZ扩展对比** → [详细指南](docs/RAIDZ_EXPANSION_USER_GUIDE.md)
+**RAIDZ扩展对比** → 详见上方表格
 
 | 功能 | nas-os | TrueNAS 24.10 | 飞牛fnOS | 群晖 |
 |------|:------:|:-------------:|:--------:|:----:|
@@ -423,7 +424,7 @@ sudo nasd
 | 中断恢复 | 📋 | ✅ | ❌ | ❌ |
 | WebUI进度 | ✅ | ✅ 完善 | ❌ | ❌ |
 
-**照片管理对比** → [详细指南](docs/PHOTO_MANAGEMENT.md)
+**照片管理对比** → 详见上方表格
 
 | 功能 | nas-os | 飞牛fnOS | 群晖Photos | TrueNAS |
 |------|:------:|:--------:|:----------:|:-------:|
@@ -432,7 +433,7 @@ sudo nasd
 | 地图视图 | ✅ | ✅ | ✅ | ❌ |
 | 智能相册 | ✅ | ✅ | ✅ | ❌ |
 
-**云同步对比** → [详细指南](docs/CLOUD_SYNC_GUIDE.md)
+**云同步对比** → 详见上方表格
 
 | 功能 | nas-os | 群晖Cloud Sync | 飞牛fnOS | TrueNAS |
 |------|:------:|:--------------:|:--------:|:-------:|
@@ -444,7 +445,7 @@ sudo nasd
 | 加密传输 | ✅ AES-256 | ✅ | ❌ | ❌ |
 | 冲突策略 | ✅ 6种 | ✅ 3种 | ❌ | ❌ |
 
-> 详细竞品分析请查看 [docs/COMPETITOR_ANALYSIS.md](docs/COMPETITOR_ANALYSIS.md)
+> 详细竞品分析请查看 [docs/competitive-analysis.md](docs/competitive-analysis.md)
 > **差异化策略**: 以WriteOnce建立安全壁垒，以Fusion Pool优化成本效率，以AI相册领先用户体验
 > **新对标**: TrueNAS 25.10 RAIDZ扩展(OpenZFS 2.3)、群晖DSM 7.3共享标签(TrueNAS Connect Business多系统管理)
 
@@ -479,7 +480,7 @@ nas-os/
 
 ## 开发计划
 
-详细里程碑请查看 [MILESTONES.md](MILESTONES.md)
+详细里程碑请查看 GitHub Milestones
 
 ### 当前状态 (2026-03-20) - v2.490.61 Stable ✅
 

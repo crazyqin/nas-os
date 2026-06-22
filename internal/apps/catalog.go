@@ -300,13 +300,13 @@ func (c *Catalog) loadBuiltinTemplates() {
 						{Name: "data", ContainerPath: "/var/lib/postgresql/data", DefaultHostPath: "/opt/nas/apps/postgres/data", Description: "数据目录"},
 					},
 					Environment: map[string]string{
-						"POSTGRES_PASSWORD": "nas123456",
+						"POSTGRES_PASSWORD": "{{.postgres_password}}",
 						"TZ":                "Asia/Shanghai",
 					},
 					RestartPolicy: "unless-stopped",
 				},
 			},
-			Notes: "⚠️ 默认密码 nas123456，首次部署后务必修改！建议通过环境变量覆盖 POSTGRES_PASSWORD",
+			Notes: "⚠️ 首次部署时通过环境变量 postgres_password 设置密码，务必修改默认值！",
 		},
 		{
 			ID:          "redis",
