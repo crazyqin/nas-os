@@ -128,6 +128,8 @@ import (
 	"nas-os/internal/smbdirect"
 	"nas-os/internal/storagecostforecast"
 	"nas-os/internal/syslogserver"
+	"nas-os/internal/filetag"
+	"nas-os/internal/apikey"
 
 	_ "nas-os/docs/swagger" // Swagger 文档
 
@@ -278,6 +280,8 @@ type Server struct {
 	smbDirectMgr           *smbdirect.SMBDirectManager
 	storageCostForecastMgr *storagecostforecast.CostForecastEngine
 	smartNASRouterMgr      *smartnasrouter.Manager
+	filetagMgr           *filetag.Manager
+	apikeyMgr            *apikey.Manager
 }
 
 // NewServer 创建 Web 服务器.
@@ -880,6 +884,8 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	smbDirectMgr := smbdirect.New(smbdirect.DefaultConfig())
 	storageCostForecastMgr := storagecostforecast.New()
 	smartNASRouterMgr := smartnasrouter.NewManager(nil)
+	filetagMgr := filetag.NewManager()
+	apikeyMgr := apikey.NewManager()
 	log.Println("✅ v2.548.0 新增模块就绪")
 
 	s := &Server{
@@ -1056,6 +1062,8 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		smbDirectMgr:           smbDirectMgr,
 		storageCostForecastMgr: storageCostForecastMgr,
 		smartNASRouterMgr:      smartNASRouterMgr,
+		filetagMgr:           filetagMgr,
+		apikeyMgr:            apikeyMgr,
 	}
 
 	// 设置 WebDAV 认证函数
@@ -1675,6 +1683,12 @@ func (s *Server) setupRoutes() {
 		}
 		if s.smartNASRouterMgr != nil {
 			smartnasrouter.NewHandlers(s.smartNASRouterMgr).RegisterRoutes(api)
+		}
+		if s.filetagMgr != nil {
+			filetag.NewHandler(s.filetagMgr).RegisterRoutes(api)
+		}
+		if s.apikeyMgr != nil {
+			apikey.NewHandler(s.apikeyMgr).RegisterRoutes(api)
 		}
 		s.engine.NoRoute(gin.WrapH(newMux))
 
