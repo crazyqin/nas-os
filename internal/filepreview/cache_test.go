@@ -106,7 +106,6 @@ func TestPreviewCache_Get_Expired(t *testing.T) {
 	}
 
 	cache := NewPreviewCache(config)
-	defer cache.Close()
 
 	// 创建测试文件.
 	testFile := filepath.Join(tmpDir, "test.txt")
@@ -130,6 +129,9 @@ func TestPreviewCache_Get_Expired(t *testing.T) {
 	if err == nil {
 		t.Error("Expected error for expired key")
 	}
+
+	// 确保缓存先关闭，再清理临时目录
+	cache.Close()
 }
 
 func TestPreviewCache_Delete(t *testing.T) {
@@ -242,7 +244,6 @@ func TestPreviewCache_Clear(t *testing.T) {
 	}
 
 	cache := NewPreviewCache(config)
-	defer cache.Close()
 
 	// 创建测试文件.
 	testFile := filepath.Join(tmpDir, "test.txt")
@@ -271,6 +272,9 @@ func TestPreviewCache_Clear(t *testing.T) {
 	if stats.TotalEntries != 0 {
 		t.Errorf("TotalEntries = %d, want 0", stats.TotalEntries)
 	}
+
+	// 确保缓存先关闭，再清理临时目录
+	cache.Close()
 }
 
 func TestPreviewCache_GetStats(t *testing.T) {
