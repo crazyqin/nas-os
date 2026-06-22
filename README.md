@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.615.0 Stable (2026-06-22)
+> **最新版本**: v2.616.0 Stable (2026-06-23)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -100,6 +100,8 @@
 | 🛡️ AMFA | 智能多重验证/自适应安全策略 | ✅ 新增 |
 | 🚫 自动封锁 | SMB/NFS 防暴力破解/自动封禁 | ✅ 新增 |
 | 🔥 Hot Spare | 热备盘自动切换/RAID自愈 | ✅ 新增 |
+| 🔗 分布式共识 | Raft算法/领导者选举/日志复制/集群协调 | ✅ 新增 |
+| 🔒 不可变审计 | SHA-256哈希链/防篡改/Merkle验证/完整性告警 | ✅ 新增 |
 | 📊 Fusion Pool | 智能分层存储/热冷数据分离 | ✅ 新增 |
 | 📈 SSD健康监控 | 寿命预测/三级预警/健康评分 | ✅ 新增 |
 | 🤖 AI相册 | CLIP以文搜图/智能照片搜索 | ✅ 完成 |
