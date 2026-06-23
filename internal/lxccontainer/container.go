@@ -17,6 +17,97 @@ func NewContainerManager() *ContainerManager {
 	}
 }
 
+// Manager 统一管理器，整合容器、网络、模板管理.
+type Manager struct {
+	containers *ContainerManager
+	network    *NetworkManager
+	templates  *TemplateManager
+}
+
+// NewManager 创建统一管理器.
+func NewManager() *Manager {
+	return &Manager{
+		containers: NewContainerManager(),
+		network:    NewNetworkManager(),
+		templates:  NewTemplateManager(),
+	}
+}
+
+// CreateBridge 创建网桥.
+func (m *Manager) CreateBridge(name, subnet, gateway string) (*Bridge, error) {
+	return m.network.CreateBridge(name, subnet, gateway)
+}
+
+// AllocateIP 分配 IP 地址.
+func (m *Manager) AllocateIP(bridgeName string) (string, error) {
+	return m.network.AllocateIP(bridgeName)
+}
+
+// ReleaseIP 释放 IP 地址.
+func (m *Manager) ReleaseIP(bridgeName, ip string) error {
+	return m.network.ReleaseIP(bridgeName, ip)
+}
+
+// DeleteBridge 删除网桥.
+func (m *Manager) DeleteBridge(name string) error {
+	return m.network.DeleteBridge(name)
+}
+
+// CreateContainer 创建容器.
+func (m *Manager) CreateContainer(req CreateRequest) (*Container, error) {
+	// 验证模板存在
+	if !m.templates.Exists(req.Template) {
+		return nil, fmt.Errorf("模板 %s 不存在", req.Template)
+	}
+
+	// 验证网络配置
+	if req.Network.Mode == NetworkModeStatic && req.Network.IPAddress == "" {
+		return nil, fmt.Errorf("静态网络模式需要指定 IP 地址")
+	}
+
+	return m.containers.Create(req)
+}
+
+// StartContainer 启动容器.
+func (m *Manager) StartContainer(id string) error {
+	return m.containers.Start(id)
+}
+
+// StopContainer 停止容器.
+func (m *Manager) StopContainer(id string) error {
+	return m.containers.Stop(id)
+}
+
+// DeleteContainer 删除容器.
+func (m *Manager) DeleteContainer(id string) error {
+	return m.containers.Delete(id)
+}
+
+// GetStats 获取容器统计.
+func (m *Manager) GetStats(id string) (*Stats, error) {
+	return m.containers.GetStats(id)
+}
+
+// ContainerCount 返回容器数量.
+func (m *Manager) ContainerCount() int {
+	return m.containers.Count()
+}
+
+// ListTemplates 列出所有模板.
+func (m *Manager) ListTemplates() []*Template {
+	return m.templates.List()
+}
+
+// RegisterTemplate 注册模板.
+func (m *Manager) RegisterTemplate(t *Template) error {
+	return m.templates.Register(t)
+}
+
+// DeleteTemplate 删除模板.
+func (m *Manager) DeleteTemplate(name string) error {
+	return m.templates.Delete(name)
+}
+
 // Create 创建容器 (不启动).
 func (cm *ContainerManager) Create(req CreateRequest) (*Container, error) {
 	if req.Name == "" {
@@ -200,6 +291,23 @@ func (cm *ContainerManager) UpdateResources(id string, res ResourceLimit) error 
 	}
 	c.Resources = res
 	c.UpdatedAt = time.Now()
+	return nil
+}
+
+// validateResources 验证资源限制配置.
+func validateResources(res ResourceLimit) error {
+	if res.MemoryMB == 0 {
+		return fmt.Errorf("内存不能为0")
+	}
+	if res.CPUCores < 0 {
+		return fmt.Errorf("CPU核心数不能为负数")
+	}
+	if res.CPUPercent < 0 || res.CPUPercent > 100 {
+		return fmt.Errorf("CPU百分比必须在0-100之间")
+	}
+	if res.ProcessMax < 0 {
+		return fmt.Errorf("最大进程数不能为负数")
+	}
 	return nil
 }
 

@@ -3,6 +3,7 @@
 package ransomware
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -348,4 +349,117 @@ type DetectorStatus struct {
 
 	// ActiveThreats 当前活跃威胁数
 	ActiveThreats int `json:"activeThreats"`
+}
+
+// DetectionRule 检测规则
+type DetectionRule struct {
+	// ID 规则ID
+	ID string `json:"id"`
+
+	// Name 规则名称
+	Name string `json:"name"`
+
+	// Description 规则描述
+	Description string `json:"description"`
+
+	// Enabled 是否启用
+	Enabled bool `json:"enabled"`
+
+	// Level 检测级别
+	Level DetectionLevel `json:"level"`
+
+	// Pattern 匹配模式
+	Pattern string `json:"pattern"`
+
+	// Action 触发动作
+	Action ProtectionAction `json:"action"`
+
+	// Threshold 阈值
+	Threshold int `json:"threshold"`
+
+	// TimeWindowSec 时间窗口（秒）
+	TimeWindowSec int `json:"timeWindowSec"`
+}
+
+// Activity 检测活动记录
+type Activity struct {
+	// ID 活动ID
+	ID string `json:"id"`
+
+	// Timestamp 时间戳
+	Timestamp time.Time `json:"timestamp"`
+
+	// Type 活动类型
+	Type string `json:"type"`
+
+	// Description 描述
+	Description string `json:"description"`
+
+	// Level 威胁级别
+	Level ThreatLevel `json:"level"`
+
+	// FilePath 相关文件路径
+	FilePath string `json:"filePath,omitempty"`
+
+	// ActionTaken 采取的动作
+	ActionTaken ProtectionAction `json:"actionTaken,omitempty"`
+}
+
+// RansomwareDetector 勒索软件检测器
+	type RansomwareDetector struct {
+		config   DetectionConfig
+		rules    []*DetectionRule
+		stats    DetectionStats
+		activities []Activity
+		running  bool
+	}
+
+// NewRansomwareDetector 创建检测器
+func NewRansomwareDetector(config DetectionConfig) *RansomwareDetector {
+	return &RansomwareDetector{
+		config: config,
+		rules:  make([]*DetectionRule, 0),
+		activities: make([]Activity, 0),
+	}
+}
+
+// StartMonitoring 开始监控
+func (d *RansomwareDetector) StartMonitoring() {
+	d.running = true
+}
+
+// StopMonitoring 停止监控
+func (d *RansomwareDetector) StopMonitoring() {
+	d.running = false
+}
+
+// GetStats 获取统计信息
+func (d *RansomwareDetector) GetStats() map[string]interface{} {
+	return map[string]interface{}{
+		"is_monitoring": d.running,
+		"total_events":  d.stats.TotalEvents,
+		"threats_detected": d.stats.ThreatsDetected,
+	}
+}
+
+// ListRules 列出规则
+func (d *RansomwareDetector) ListRules() []*DetectionRule {
+	return d.rules
+}
+
+// AddRule 添加规则
+func (d *RansomwareDetector) AddRule(rule *DetectionRule) error {
+	if rule.Name == "" {
+		return fmt.Errorf("规则名称不能为空")
+	}
+	d.rules = append(d.rules, rule)
+	return nil
+}
+
+// GetActivities 获取活动记录
+func (d *RansomwareDetector) GetActivities(limit int) []Activity {
+	if limit > len(d.activities) {
+		limit = len(d.activities)
+	}
+	return d.activities[:limit]
 }
