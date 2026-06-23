@@ -9,12 +9,12 @@ import (
 
 // Handler HTTP 处理器
 type Handler struct {
-	manager *Manager
+	service *Service
 }
 
 // NewHandler 创建处理器
-func NewHandler(manager *Manager) *Handler {
-	return &Handler{manager: manager}
+func NewHandler(service *Service) *Handler {
+	return &Handler{service: service}
 }
 
 // RegisterRoutes 注册路由
@@ -23,7 +23,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/disk-health/disks/", h.handleDiskDetail)
 	mux.HandleFunc("/disk-health/alerts", h.handleAlerts)
 	mux.HandleFunc("/disk-health/scan", h.handleScan)
-	mux.HandleFunc("/disk-health/config", h.handleConfig)
+	mux.HandleFunc("/disk-health/summary", h.handleSummary)
 }
 
 // handleDisks 获取磁盘列表
@@ -33,9 +33,10 @@ func (h *Handler) handleDisks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	disks := h.manager.ScanDisks()
+	disks := h.service.GetAllDisks()
 	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"disks": disks,
+		"code": 0,
+		"data": disks,
 	})
 }
 
@@ -46,7 +47,7 @@ func (h *Handler) handleDiskDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 解析路径: /disk-health/disks/:device 或 /disk-health/disks/:device/smart 或 /disk-health/disks/:device/report
+	// 解析路径: /disk-health/disks/:device 或 /disk-health/disks/:device/smart
 	path := strings.TrimPrefix(r.URL.Path, "/disk-health/disks/")
 	parts := strings.Split(path, "/")
 
@@ -55,40 +56,41 @@ func (h *Handler) handleDiskDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	device := parts[0]
+	device := "/dev/" + parts[0]
 
 	if len(parts) == 1 {
 		// 获取磁盘详情
-		disk, exists := h.manager.GetDiskInfo(device)
+		disk, exists := h.service.GetDiskInfo(device)
 		if !exists {
 			http.Error(w, "Disk not found", http.StatusNotFound)
 			return
 		}
-		writeJSON(w, http.StatusOK, disk)
+		assessment, _ := h.service.GetAssessment(device)
+		writeJSON(w, http.StatusOK, map[string]interface{}{
+			"code": 0,
+			"data": map[string]interface{}{
+				"disk":       disk,
+				"assessment": assessment,
+			},
+		})
 		return
 	}
 
 	switch parts[1] {
 	case "smart":
 		// 获取 S.M.A.R.T. 属性
-		report, exists := h.manager.GetHealthReport(device)
+		disk, exists := h.service.GetDiskInfo(device)
 		if !exists {
 			http.Error(w, "Disk not found", http.StatusNotFound)
 			return
 		}
 		writeJSON(w, http.StatusOK, map[string]interface{}{
-			"device":     report.Device,
-			"attributes": report.Attributes,
+			"code": 0,
+			"data": map[string]interface{}{
+				"device":     device,
+				"attributes": disk.SMARTAttrs,
+			},
 		})
-
-	case "report":
-		// 获取健康报告
-		report, exists := h.manager.GetHealthReport(device)
-		if !exists {
-			http.Error(w, "Disk not found", http.StatusNotFound)
-			return
-		}
-		writeJSON(w, http.StatusOK, report)
 
 	default:
 		http.Error(w, "Unknown endpoint", http.StatusNotFound)
@@ -102,9 +104,13 @@ func (h *Handler) handleAlerts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	alerts := h.manager.CheckAlerts()
+	device := r.URL.Query().Get("device")
+	includeAcked := r.URL.Query().Get("includeAcked") == "true"
+
+	alerts := h.service.GetAlerts(device, includeAcked)
 	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"alerts": alerts,
+		"code": 0,
+		"data": alerts,
 	})
 }
 
@@ -115,33 +121,27 @@ func (h *Handler) handleScan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	disks := h.manager.ScanDisks()
+	// 后台执行扫描
+	go h.service.scanAllDisks()
+
 	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"status":  "completed",
-		"message": "扫描完成",
-		"count":   len(disks),
+		"code":    0,
+		"message": "扫描已启动",
 	})
 }
 
-// handleConfig 获取/更新告警配置
-func (h *Handler) handleConfig(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		config := h.manager.GetConfig()
-		writeJSON(w, http.StatusOK, config)
-
-	case http.MethodPut:
-		var config AlertConfig
-		if err := json.NewDecoder(r.Body).Decode(&config); err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
-			return
-		}
-		h.manager.UpdateConfig(config)
-		writeJSON(w, http.StatusOK, map[string]string{"status": "updated"})
-
-	default:
+// handleSummary 获取健康摘要
+func (h *Handler) handleSummary(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
+
+	summary := h.service.GetHealthSummary()
+	writeJSON(w, http.StatusOK, map[string]interface{}{
+		"code": 0,
+		"data": summary,
+	})
 }
 
 // writeJSON 写入 JSON 响应
@@ -149,4 +149,41 @@ func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
+}
+
+// getRiskLevel 获取风险等级
+func getRiskLevel(prob float64) string {
+	switch {
+	case prob >= 0.5:
+		return "critical"
+	case prob >= 0.2:
+		return "high"
+	case prob >= 0.1:
+		return "medium"
+	case prob >= 0.05:
+		return "low"
+	default:
+		return "minimal"
+	}
+}
+
+// getRecommendations 获取建议
+func getRecommendations(prob float64) []string {
+	var recs []string
+	if prob >= 0.5 {
+		recs = append(recs, "立即备份所有重要数据")
+		recs = append(recs, "准备替换磁盘")
+		recs = append(recs, "减少对磁盘的写入操作")
+	} else if prob >= 0.2 {
+		recs = append(recs, "尽快备份重要数据")
+		recs = append(recs, "监控磁盘状态")
+		recs = append(recs, "考虑购买备用磁盘")
+	} else if prob >= 0.1 {
+		recs = append(recs, "定期备份数据")
+		recs = append(recs, "保持磁盘良好散热")
+	} else {
+		recs = append(recs, "磁盘状态良好")
+		recs = append(recs, "继续定期检查")
+	}
+	return recs
 }

@@ -137,8 +137,8 @@ func TestListTasks(t *testing.T) {
 	manager := NewExtendedManager(DefaultUPSConfig())
 
 	_ = manager.AddDevice(&Device{ID: "dev1", Name: "UPS-1"})
-	_ = manager.CreateShutdownTask("dev1", "任务1", 60)
-	_ = manager.CreateShutdownTask("dev1", "任务2", 120)
+	_, _ = manager.CreateShutdownTask("dev1", "任务1", 60)
+	_, _ = manager.CreateShutdownTask("dev1", "任务2", 120)
 
 	tasks := manager.ListTasks()
 	assert.Len(t, tasks, 2)
