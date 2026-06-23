@@ -1,535 +1,345 @@
-// Package diskhealth 单元测试
 package diskhealth
 
 import (
-	"bytes"
-	"encoding/json"
-	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 )
 
-func TestNewManager(t *testing.T) {
-	m := NewManager()
-	if m == nil {
-		t.Fatal("NewManager() returned nil")
-	}
-	if m.disks == nil {
-		t.Error("disks map not initialized")
-	}
-	if m.history == nil {
-		t.Error("history map not initialized")
-	}
-}
+func TestDefaultPredictorConfig(t *testing.T) {
+	config := DefaultPredictorConfig()
 
-func TestManager_AddDisk(t *testing.T) {
-	m := NewManager()
-
-	disk := DiskInfo{
-		Device:       "sda",
-		Model:        "TestDisk",
-		Serial:       "123456",
-		Size:         1024 * 1024 * 1024 * 1024, // 1TB
-		Temperature:  45,
-		PowerOnHours: 1000,
-		HealthScore:  95.0,
-		SmartStatus:  "passed",
+	if config.CheckInterval != 1*time.Hour {
+		t.Errorf("expected CheckInterval 1h, got %v", config.CheckInterval)
 	}
-
-	m.AddDisk(disk)
-
-	disks := m.ScanDisks()
-	if len(disks) != 1 {
-		t.Fatalf("Expected 1 disk, got %d", len(disks))
+	if !config.EnableAI {
+		t.Error("expected EnableAI true")
 	}
-	if disks[0].Device != "sda" {
-		t.Errorf("Expected device sda, got %s", disks[0].Device)
+	if config.AlertThreshold != 70 {
+		t.Errorf("expected AlertThreshold 70, got %d", config.AlertThreshold)
+	}
+	if config.MaxHistoryDays != 90 {
+		t.Errorf("expected MaxHistoryDays 90, got %d", config.MaxHistoryDays)
+	}
+	if config.TemperatureWarn != 55 {
+		t.Errorf("expected TemperatureWarn 55, got %d", config.TemperatureWarn)
+	}
+	if config.TemperatureCrit != 65 {
+		t.Errorf("expected TemperatureCrit 65, got %d", config.TemperatureCrit)
 	}
 }
 
-func TestManager_RemoveDisk(t *testing.T) {
-	m := NewManager()
-
-	disk := DiskInfo{
-		Device:      "sda",
-		Model:       "TestDisk",
-		HealthScore: 95.0,
+func TestDiskStatus_Constants(t *testing.T) {
+	tests := []struct {
+		status   DiskStatus
+		expected string
+	}{
+		{DiskStatusHealthy, "healthy"},
+		{DiskStatusWarning, "warning"},
+		{DiskStatusCritical, "critical"},
+		{DiskStatusFailed, "failed"},
+		{DiskStatusUnknown, "unknown"},
 	}
 
-	m.AddDisk(disk)
-	m.RemoveDisk("sda")
-
-	disks := m.ScanDisks()
-	if len(disks) != 0 {
-		t.Errorf("Expected 0 disks, got %d", len(disks))
-	}
-}
-
-func TestManager_GetDiskInfo(t *testing.T) {
-	m := NewManager()
-
-	disk := DiskInfo{
-		Device:      "sda",
-		Model:       "TestDisk",
-		HealthScore: 95.0,
-	}
-
-	m.AddDisk(disk)
-
-	// 获取存在的磁盘
-	info, exists := m.GetDiskInfo("sda")
-	if !exists {
-		t.Fatal("Expected disk to exist")
-	}
-	if info.Device != "sda" {
-		t.Errorf("Expected device sda, got %s", info.Device)
-	}
-
-	// 获取不存在的磁盘
-	_, exists = m.GetDiskInfo("sdb")
-	if exists {
-		t.Error("Expected disk not to exist")
+	for _, tt := range tests {
+		if string(tt.status) != tt.expected {
+			t.Errorf("expected %s, got %s", tt.expected, string(tt.status))
+		}
 	}
 }
 
-func TestManager_GetHealthReport(t *testing.T) {
-	m := NewManager()
-
-	// 添加健康磁盘
-	disk := DiskInfo{
-		Device:      "sda",
-		Model:       "TestDisk",
-		HealthScore: 95.0,
-		Temperature: 40,
-		SmartStatus: "passed",
+func TestHealthScore_Constants(t *testing.T) {
+	if HealthScoreExcellent != 90 {
+		t.Errorf("expected HealthScoreExcellent 90, got %d", HealthScoreExcellent)
 	}
-	m.AddDisk(disk)
-
-	report, exists := m.GetHealthReport("sda")
-	if !exists {
-		t.Fatal("Expected report to exist")
-	}
-
-	if report.Status != "healthy" {
-		t.Errorf("Expected healthy status, got %s", report.Status)
-	}
-
-	// 添加警告磁盘
-	disk2 := DiskInfo{
-		Device:      "sdb",
-		Model:       "TestDisk2",
-		HealthScore: 65.0,
-		Temperature: 55,
-		SmartStatus: "passed",
-	}
-	m.AddDisk(disk2)
-
-	report2, exists := m.GetHealthReport("sdb")
-	if !exists {
-		t.Fatal("Expected report to exist")
-	}
-	if report2.Status != "warning" {
-		t.Errorf("Expected warning status, got %s", report2.Status)
-	}
-
-	// 添加严重磁盘
-	disk3 := DiskInfo{
-		Device:      "sdc",
-		Model:       "TestDisk3",
-		HealthScore: 40.0,
-		Temperature: 70,
-		SmartStatus: "failed",
-	}
-	m.AddDisk(disk3)
-
-	report3, exists := m.GetHealthReport("sdc")
-	if !exists {
-		t.Fatal("Expected report to exist")
-	}
-	if report3.Status != "critical" {
-		t.Errorf("Expected critical status, got %s", report3.Status)
+	if HealthScoreCritical != 10 {
+		t.Errorf("expected HealthScoreCritical 10, got %d", HealthScoreCritical)
 	}
 }
 
-func TestManager_CheckAlerts(t *testing.T) {
-	m := NewManager()
-
-	// 添加正常磁盘
-	disk1 := DiskInfo{
-		Device:      "sda",
-		Temperature: 40,
-		HealthScore: 95.0,
-		SmartStatus: "passed",
-	}
-	m.AddDisk(disk1)
-
-	alerts := m.CheckAlerts()
-	if len(alerts) != 0 {
-		t.Errorf("Expected 0 alerts, got %d", len(alerts))
+func TestAlertLevel_Constants(t *testing.T) {
+	tests := []struct {
+		level    AlertLevel
+		expected string
+	}{
+		{AlertLevelInfo, "info"},
+		{AlertLevelWarning, "warning"},
+		{AlertLevelCritical, "critical"},
+		{AlertLevelEmergency, "emergency"},
 	}
 
-	// 添加高温磁盘
-	disk2 := DiskInfo{
-		Device:      "sdb",
-		Temperature: 65,
-		HealthScore: 95.0,
-		SmartStatus: "passed",
-	}
-	m.AddDisk(disk2)
-
-	alerts = m.CheckAlerts()
-	if len(alerts) != 1 {
-		t.Errorf("Expected 1 alert, got %d", len(alerts))
-	}
-
-	// 添加低健康评分磁盘
-	disk3 := DiskInfo{
-		Device:      "sdc",
-		Temperature: 40,
-		HealthScore: 50.0,
-		SmartStatus: "passed",
-	}
-	m.AddDisk(disk3)
-
-	alerts = m.CheckAlerts()
-	if len(alerts) != 2 {
-		t.Errorf("Expected 2 alerts, got %d", len(alerts))
+	for _, tt := range tests {
+		if string(tt.level) != tt.expected {
+			t.Errorf("expected %s, got %s", tt.expected, string(tt.level))
+		}
 	}
 }
 
-func TestManager_GetHistory(t *testing.T) {
-	m := NewManager()
+func TestPredictiveAnalyzer_AddSnapshot(t *testing.T) {
+	analyzer := NewPredictiveAnalyzer()
 
-	// 添加磁盘
-	disk := DiskInfo{
-		Device:      "sda",
-		HealthScore: 95.0,
-	}
-	m.AddDisk(disk)
+	// 添加快照
+	analyzer.AddSnapshot("/dev/sda", &HealthSnapshot{
+		Timestamp:   time.Now(),
+		Score:       90,
+		Temperature: 45,
+	})
 
-	// 获取历史（应该为空）
-	history := m.GetHistory("sda")
-	if history != nil {
-		t.Errorf("Expected empty history, got %d records", len(history))
-	}
-}
-
-func TestManager_GetConfig(t *testing.T) {
-	m := NewManager()
-
-	config := m.GetConfig()
-	if config.TemperatureThreshold != 60 {
-		t.Errorf("Expected temperature threshold 60, got %d", config.TemperatureThreshold)
-	}
-	if config.HealthScoreThreshold != 70 {
-		t.Errorf("Expected health score threshold 70, got %f", config.HealthScoreThreshold)
+	// 验证历史记录
+	history := analyzer.GetHistory("/dev/sda", 30)
+	if len(history) != 1 {
+		t.Errorf("expected 1 snapshot, got %d", len(history))
 	}
 }
 
-func TestManager_UpdateConfig(t *testing.T) {
-	m := NewManager()
+func TestPredictiveAnalyzer_AnalyzeTrend(t *testing.T) {
+	analyzer := NewPredictiveAnalyzer()
 
-	newConfig := AlertConfig{
-		TemperatureThreshold:        70,
-		HealthScoreThreshold:        60,
-		ReallocatedSectorsThreshold: 50,
+	// 添加多个快照，模拟下降趋势
+	baseTime := time.Now().AddDate(0, 0, -10)
+	for i := 0; i < 10; i++ {
+		analyzer.AddSnapshot("/dev/sda", &HealthSnapshot{
+			Timestamp: baseTime.AddDate(0, 0, i),
+			Score:     HealthScore(90 - i*2),
+		})
 	}
 
-	m.UpdateConfig(newConfig)
-
-	config := m.GetConfig()
-	if config.TemperatureThreshold != 70 {
-		t.Errorf("Expected temperature threshold 70, got %d", config.TemperatureThreshold)
-	}
-}
-
-func TestHandler_Disks(t *testing.T) {
-	manager := NewManager()
-	handler := NewHandler(manager)
-
-	// 添加测试磁盘
-	disk := DiskInfo{
-		Device:      "sda",
-		Model:       "TestDisk",
-		HealthScore: 95.0,
-	}
-	manager.AddDisk(disk)
-
-	// 测试 GET /disk-health/disks
-	req := httptest.NewRequest(http.MethodGet, "/disk-health/disks", nil)
-	w := httptest.NewRecorder()
-
-	handler.handleDisks(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
+	trend, err := analyzer.AnalyzeTrend("/dev/sda")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
 
-	var response map[string]interface{}
-	json.NewDecoder(w.Body).Decode(&response)
-
-	disks, ok := response["disks"].([]interface{})
-	if !ok {
-		t.Fatal("Expected disks array in response")
+	if trend.CurrentScore != HealthScore(72) {
+		t.Errorf("expected current score 72, got %d", trend.CurrentScore)
 	}
-	if len(disks) != 1 {
-		t.Errorf("Expected 1 disk, got %d", len(disks))
+
+	if trend.TrendDirection != "down" {
+		t.Errorf("expected trend down, got %s", trend.TrendDirection)
 	}
 }
 
-func TestHandler_DiskDetail(t *testing.T) {
-	manager := NewManager()
-	handler := NewHandler(manager)
+func TestPredictiveAnalyzer_InsufficientData(t *testing.T) {
+	analyzer := NewPredictiveAnalyzer()
 
-	disk := DiskInfo{
-		Device:      "sda",
-		Model:       "TestDisk",
-		HealthScore: 95.0,
-	}
-	manager.AddDisk(disk)
+	// 只添加一个快照
+	analyzer.AddSnapshot("/dev/sda", &HealthSnapshot{
+		Timestamp: time.Now(),
+		Score:     90,
+	})
 
-	// 测试 GET /disk-health/disks/sda
-	req := httptest.NewRequest(http.MethodGet, "/disk-health/disks/sda", nil)
-	w := httptest.NewRecorder()
-
-	handler.handleDiskDetail(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
-	}
-
-	var response DiskInfo
-	json.NewDecoder(w.Body).Decode(&response)
-
-	if response.Device != "sda" {
-		t.Errorf("Expected device sda, got %s", response.Device)
+	_, err := analyzer.AnalyzeTrend("/dev/sda")
+	if err == nil {
+		t.Error("expected error for insufficient data")
 	}
 }
 
-func TestHandler_DiskSmart(t *testing.T) {
-	manager := NewManager()
-	handler := NewHandler(manager)
+func TestAlertManager_CheckAndAlert(t *testing.T) {
+	manager := NewAlertManager()
 
-	disk := DiskInfo{
-		Device:      "sda",
-		Model:       "TestDisk",
-		HealthScore: 95.0,
+	// 创建低健康评分的评估
+	disk := &DiskInfo{
+		Device:      "/dev/sda",
+		Temperature: 45,
 	}
-	manager.AddDisk(disk)
-
-	// 测试 GET /disk-health/disks/sda/smart
-	req := httptest.NewRequest(http.MethodGet, "/disk-health/disks/sda/smart", nil)
-	w := httptest.NewRecorder()
-
-	handler.handleDiskDetail(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
-	}
-}
-
-func TestHandler_DiskReport(t *testing.T) {
-	manager := NewManager()
-	handler := NewHandler(manager)
-
-	disk := DiskInfo{
-		Device:      "sda",
-		Model:       "TestDisk",
-		HealthScore: 95.0,
-		Temperature: 40,
-		SmartStatus: "passed",
-	}
-	manager.AddDisk(disk)
-
-	// 测试 GET /disk-health/disks/sda/report
-	req := httptest.NewRequest(http.MethodGet, "/disk-health/disks/sda/report", nil)
-	w := httptest.NewRecorder()
-
-	handler.handleDiskDetail(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
+	assessment := &HealthAssessment{
+		Device: "/dev/sda",
+		Score:  25, // 低于阈值
+		Status: DiskStatusCritical,
 	}
 
-	var response HealthReport
-	json.NewDecoder(w.Body).Decode(&response)
-
-	if response.Device != "sda" {
-		t.Errorf("Expected device sda, got %s", response.Device)
+	alerts := manager.CheckAndAlert(disk, assessment)
+	if len(alerts) == 0 {
+		t.Error("expected at least one alert")
 	}
-	if response.Status != "healthy" {
-		t.Errorf("Expected status healthy, got %s", response.Status)
+
+	// 验证告警
+	found := false
+	for _, a := range alerts {
+		if a.Level == AlertLevelCritical {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("expected critical level alert")
 	}
 }
 
-func TestHandler_Alerts(t *testing.T) {
-	manager := NewManager()
-	handler := NewHandler(manager)
+func TestAlertManager_CheckTemperatureAlert(t *testing.T) {
+	manager := NewAlertManager()
 
-	// 添加高温磁盘
-	disk := DiskInfo{
-		Device:      "sda",
-		Temperature: 65,
-		HealthScore: 95.0,
+	disk := &DiskInfo{
+		Device:      "/dev/sda",
+		Temperature: 70, // 超过阈值
 	}
-	manager.AddDisk(disk)
-
-	// 测试 GET /disk-health/alerts
-	req := httptest.NewRequest(http.MethodGet, "/disk-health/alerts", nil)
-	w := httptest.NewRecorder()
-
-	handler.handleAlerts(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
+	assessment := &HealthAssessment{
+		Device: "/dev/sda",
+		Score:  90,
+		Status: DiskStatusHealthy,
 	}
 
-	var response map[string]interface{}
-	json.NewDecoder(w.Body).Decode(&response)
+	alerts := manager.CheckAndAlert(disk, assessment)
 
-	alerts, ok := response["alerts"].([]interface{})
-	if !ok {
-		t.Fatal("Expected alerts array in response")
+	// 检查是否有温度告警
+	found := false
+	for _, a := range alerts {
+		if a.Level == AlertLevelCritical && a.Device == "/dev/sda" {
+			found = true
+		}
 	}
-	if len(alerts) != 1 {
-		t.Errorf("Expected 1 alert, got %d", len(alerts))
+	if !found {
+		t.Error("expected temperature alert")
 	}
 }
 
-func TestHandler_Scan(t *testing.T) {
-	manager := NewManager()
-	handler := NewHandler(manager)
+func TestAlertManager_AckAlert(t *testing.T) {
+	manager := NewAlertManager()
 
-	// 测试 POST /disk-health/scan
-	req := httptest.NewRequest(http.MethodPost, "/disk-health/scan", nil)
-	w := httptest.NewRecorder()
+	// 先创建一个告警
+	disk := &DiskInfo{Device: "/dev/sda", Temperature: 45}
+	assessment := &HealthAssessment{Device: "/dev/sda", Score: 20, Status: DiskStatusCritical}
+	alerts := manager.CheckAndAlert(disk, assessment)
 
-	handler.handleScan(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
+	if len(alerts) == 0 {
+		t.Fatal("no alerts generated")
 	}
 
-	var response map[string]interface{}
-	json.NewDecoder(w.Body).Decode(&response)
-
-	if response["status"] != "completed" {
-		t.Errorf("Expected status completed, got %v", response["status"])
-	}
-}
-
-func TestHandler_GetConfig(t *testing.T) {
-	manager := NewManager()
-	handler := NewHandler(manager)
-
-	// 测试 GET /disk-health/config
-	req := httptest.NewRequest(http.MethodGet, "/disk-health/config", nil)
-	w := httptest.NewRecorder()
-
-	handler.handleConfig(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
+	// 确认所有告警
+	for _, alert := range alerts {
+		err := manager.AckAlert(alert.ID)
+		if err != nil {
+			t.Fatalf("failed to ack alert %s: %v", alert.ID, err)
+		}
 	}
 
-	var response AlertConfig
-	json.NewDecoder(w.Body).Decode(&response)
+	// 验证告警已确认
+	allAlerts := manager.GetAlerts("/dev/sda", false)
+	if len(allAlerts) != 0 {
+		t.Errorf("expected 0 unacked alerts, got %d", len(allAlerts))
+	}
 
-	if response.TemperatureThreshold != 60 {
-		t.Errorf("Expected temperature threshold 60, got %d", response.TemperatureThreshold)
+	allAlerts = manager.GetAlerts("/dev/sda", true)
+	if len(allAlerts) == 0 {
+		t.Error("expected at least one alert when including acked")
 	}
 }
 
-func TestHandler_UpdateConfig(t *testing.T) {
-	manager := NewManager()
-	handler := NewHandler(manager)
+func TestAlertManager_GetRules(t *testing.T) {
+	manager := NewAlertManager()
+	rules := manager.GetRules()
 
-	newConfig := AlertConfig{
-		TemperatureThreshold:        70,
-		HealthScoreThreshold:        60,
-		ReallocatedSectorsThreshold: 50,
-	}
-
-	body, _ := json.Marshal(newConfig)
-	req := httptest.NewRequest(http.MethodPut, "/disk-health/config", bytes.NewBuffer(body))
-	w := httptest.NewRecorder()
-
-	handler.handleConfig(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
-	}
-
-	// 验证配置已更新
-	config := manager.GetConfig()
-	if config.TemperatureThreshold != 70 {
-		t.Errorf("Expected temperature threshold 70, got %d", config.TemperatureThreshold)
+	if len(rules) < 5 {
+		t.Errorf("expected at least 5 rules, got %d", len(rules))
 	}
 }
 
-func TestHandler_MethodNotAllowed(t *testing.T) {
-	manager := NewManager()
-	handler := NewHandler(manager)
+func TestAssessHealth_HealthyDisk(t *testing.T) {
+	collector := NewSMARTCollector()
 
-	// 测试错误的 HTTP 方法
-	req := httptest.NewRequest(http.MethodPost, "/disk-health/disks", nil)
-	w := httptest.NewRecorder()
+	info := &DiskInfo{
+		Device:       "/dev/sda",
+		Temperature:  40,
+		PowerOnHours: 10000,
+		SMARTAttrs:   []SMARTAttribute{},
+	}
 
-	handler.handleDisks(w, req)
+	assessment := collector.assessHealth(info)
 
-	if w.Code != http.StatusMethodNotAllowed {
-		t.Errorf("Expected status 405, got %d", w.Code)
+	if assessment.Score < 80 {
+		t.Errorf("expected high score for healthy disk, got %d", assessment.Score)
+	}
+	if assessment.Status != DiskStatusHealthy {
+		t.Errorf("expected healthy status, got %s", assessment.Status)
 	}
 }
 
-func TestHandler_NotFound(t *testing.T) {
-	manager := NewManager()
-	handler := NewHandler(manager)
+func TestAssessHealth_HighTemp(t *testing.T) {
+	collector := NewSMARTCollector()
 
-	// 测试不存在的磁盘
-	req := httptest.NewRequest(http.MethodGet, "/disk-health/disks/nonexistent", nil)
-	w := httptest.NewRecorder()
+	info := &DiskInfo{
+		Device:       "/dev/sda",
+		Temperature:  70, // 过高
+		PowerOnHours: 10000,
+		SMARTAttrs:   []SMARTAttribute{},
+	}
 
-	handler.handleDiskDetail(w, req)
+	assessment := collector.assessHealth(info)
 
-	if w.Code != http.StatusNotFound {
-		t.Errorf("Expected status 404, got %d", w.Code)
+	if assessment.Score >= 90 {
+		t.Error("expected score reduction for high temperature")
 	}
 }
 
-func TestManager_ScanDisksEmpty(t *testing.T) {
-	m := NewManager()
+func TestAssessHealth_ReallocatedSectors(t *testing.T) {
+	collector := NewSMARTCollector()
 
-	disks := m.ScanDisks()
-	if len(disks) != 0 {
-		t.Errorf("Expected 0 disks, got %d", len(disks))
+	info := &DiskInfo{
+		Device:       "/dev/sda",
+		Temperature:  40,
+		PowerOnHours: 10000,
+		SMARTAttrs: []SMARTAttribute{
+			{ID: 5, Name: "Reallocated_Sector_Ct", RawValue: 500, Failed: false},
+		},
+	}
+
+	assessment := collector.assessHealth(info)
+
+	if assessment.Score >= 80 {
+		t.Errorf("expected score reduction for reallocated sectors, got %d", assessment.Score)
+	}
+
+	if len(assessment.RiskFactors) == 0 {
+		t.Error("expected risk factors for reallocated sectors")
 	}
 }
 
-func TestManager_CheckAlertsEmpty(t *testing.T) {
-	m := NewManager()
+func TestAssessHealth_FailedSMART(t *testing.T) {
+	collector := NewSMARTCollector()
 
-	alerts := m.CheckAlerts()
-	if len(alerts) != 0 {
-		t.Errorf("Expected 0 alerts, got %d", len(alerts))
+	info := &DiskInfo{
+		Device:       "/dev/sda",
+		Temperature:  40,
+		PowerOnHours: 10000,
+		SMARTAttrs: []SMARTAttribute{
+			{ID: 5, Name: "Reallocated_Sector_Ct", Value: 1, Threshold: 10, Failed: true},
+		},
+	}
+
+	assessment := collector.assessHealth(info)
+
+	if assessment.Score >= 80 {
+		t.Error("expected score reduction for failed SMART attribute")
 	}
 }
 
-func TestManager_TimeField(t *testing.T) {
-	m := NewManager()
-
-	disk := DiskInfo{
-		Device:      "sda",
-		HealthScore: 95.0,
+func TestGetRiskLevel(t *testing.T) {
+	tests := []struct {
+		prob     float64
+		expected string
+	}{
+		{0.6, "critical"},
+		{0.3, "high"},
+		{0.15, "medium"},
+		{0.07, "low"},
+		{0.01, "minimal"},
 	}
-	m.AddDisk(disk)
 
-	info, _ := m.GetDiskInfo("sda")
-	if info.LastCheck.IsZero() {
-		t.Error("LastCheck should be set")
+	for _, tt := range tests {
+		result := getRiskLevel(tt.prob)
+		if result != tt.expected {
+			t.Errorf("for prob %f: expected %s, got %s", tt.prob, tt.expected, result)
+		}
 	}
-	if time.Since(info.LastCheck) > time.Second {
-		t.Error("LastCheck should be recent")
+}
+
+func TestGetRecommendations(t *testing.T) {
+	// 高概率
+	recs := getRecommendations(0.6)
+	if len(recs) < 2 {
+		t.Error("expected multiple recommendations for high probability")
+	}
+
+	// 低概率
+	recs = getRecommendations(0.01)
+	if len(recs) < 1 {
+		t.Error("expected at least one recommendation")
 	}
 }

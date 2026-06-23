@@ -1,5 +1,28 @@
 # NAS-OS 变更日志
 
+## v2.619.0 (2026-06-23) - 智能磁盘健康预测系统
+
+### 新增功能
+
+#### 智能磁盘健康预测 (diskhealth)
+- S.M.A.R.T. 数据实时采集与分析
+- AI 驱动的磁盘故障预测（基于线性回归趋势分析）
+- 健康评分系统（0-100分，自动评估磁盘状态）
+- 多级告警机制（info/warning/critical/emergency）
+- 风险因素识别（重分配扇区、温度过高、通电时间等）
+- 智能建议生成（根据故障概率推荐操作）
+- 历史趋势追踪与预测
+- RESTful API 接口
+- 参考群晖健康检查、TrueNAS S.M.A.R.T. 监控、飞牛 AI 能力
+
+### 修复
+
+#### CI/CD 修复
+- 修复 tiering 模块 TierTypeMemory 未定义问题
+- 修复 tiering 模块 WarmThreshold 缺失字段
+- 修复 ups 模块 CreateShutdownTask 返回值处理
+- 修复 integration 测试 int/int64 类型转换
+
 ## v2.618.0 (2026-06-23) - WebShare浏览器文件共享/AI智能文件搜索
 
 ### 新增功能

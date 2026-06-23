@@ -131,7 +131,7 @@ func (m *MockTieringManager) Migrate(ctx context.Context, req *tiering.MigrateRe
 		SourceTier:  req.SourceTier,
 		TargetTier:  req.TargetTier,
 		Action:      req.Action,
-		TotalFiles:  int64(len(req.Paths)),
+		TotalFiles:  len(req.Paths),
 		TotalBytes:  1000000000,
 	}
 

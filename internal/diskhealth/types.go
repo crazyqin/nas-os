@@ -1,208 +1,280 @@
-// Package diskhealth 硬盘健康监控
-// S.M.A.R.T. 数据采集、健康评分、预警
+// Package diskhealth 磁盘健康预测系统
+// 提供 S.M.A.R.T. 数据采集、AI 故障预测、主动告警等功能
 package diskhealth
 
 import (
+	"context"
+	"fmt"
 	"sync"
 	"time"
 )
 
+// DiskStatus 磁盘状态
+type DiskStatus string
+
+const (
+	DiskStatusHealthy  DiskStatus = "healthy"
+	DiskStatusWarning  DiskStatus = "warning"
+	DiskStatusCritical DiskStatus = "critical"
+	DiskStatusFailed   DiskStatus = "failed"
+	DiskStatusUnknown  DiskStatus = "unknown"
+)
+
+// HealthScore 健康评分 (0-100)
+type HealthScore int
+
+const (
+	HealthScoreExcellent HealthScore = 90
+	HealthScoreGood      HealthScore = 70
+	HealthScoreFair      HealthScore = 50
+	HealthScorePoor      HealthScore = 30
+	HealthScoreCritical  HealthScore = 10
+)
+
+// SMARTAttribute S.M.A.R.T. 属性
+type SMARTAttribute struct {
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Value      int    `json:"value"`
+	Worst      int    `json:"worst"`
+	Threshold  int    `json:"threshold"`
+	RawValue   int64  `json:"rawValue"`
+	Failed     bool   `json:"failed"`
+	Flags      string `json:"flags"`
+}
+
 // DiskInfo 磁盘信息
 type DiskInfo struct {
-	Device       string    `json:"device"`
-	Model        string    `json:"model"`
-	Serial       string    `json:"serial"`
-	Size         int64     `json:"size"`
-	Temperature  int       `json:"temperature"`
-	PowerOnHours int64     `json:"power_on_hours"`
-	HealthScore  float64   `json:"health_score"` // 0-100
-	SmartStatus  string    `json:"smart_status"` // passed, failed, unknown
-	LastCheck    time.Time `json:"last_check"`
+	Device      string           `json:"device"`      // /dev/sda
+	Model       string           `json:"model"`       // 磁盘型号
+	Serial      string           `json:"serial"`      // 序列号
+	Interface   string           `json:"interface"`   // SATA/NVMe/SCSI
+	Capacity    int64            `json:"capacity"`    // 字节
+	Firmware    string           `json:"firmware"`    // 固件版本
+	PowerOnHours int64           `json:"powerOnHours"` // 通电小时数
+	Temperature  int             `json:"temperature"` // 温度 ℃
+	SMARTAttrs  []SMARTAttribute `json:"smartAttributes"`
 }
 
-// SmartAttribute S.M.A.R.T. 属性
-type SmartAttribute struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	Value     int    `json:"value"`
-	Worst     int    `json:"worst"`
-	Threshold int    `json:"threshold"`
-	RawValue  int64  `json:"raw_value"`
-	Status    string `json:"status"` // ok, warning, critical
+// HealthAssessment 健康评估
+type HealthAssessment struct {
+	Device         string      `json:"device"`
+	Score          HealthScore `json:"score"`
+	Status         DiskStatus  `json:"status"`
+	PredictedLife  string      `json:"predictedLife"`  // 预计剩余寿命
+	FailureProb    float64     `json:"failureProb"`    // 30天内故障概率
+	RiskFactors    []string    `json:"riskFactors"`    // 风险因素
+	Recommendations []string   `json:"recommendations"` // 建议
+	AssessedAt     time.Time   `json:"assessedAt"`
+	NextCheck      time.Time   `json:"nextCheck"`
 }
 
-// HealthReport 健康报告
-type HealthReport struct {
-	Device     string           `json:"device"`
-	Score      float64          `json:"score"`
-	Status     string           `json:"status"` // healthy, warning, critical
-	Attributes []SmartAttribute `json:"attributes"`
-	Warnings   []string         `json:"warnings"`
-	Timestamp  time.Time        `json:"timestamp"`
+// AlertLevel 告警级别
+type AlertLevel string
+
+const (
+	AlertLevelInfo     AlertLevel = "info"
+	AlertLevelWarning  AlertLevel = "warning"
+	AlertLevelCritical AlertLevel = "critical"
+	AlertLevelEmergency AlertLevel = "emergency"
+)
+
+// Alert 告警
+type Alert struct {
+	ID        string     `json:"id"`
+	Device    string     `json:"device"`
+	Level     AlertLevel `json:"level"`
+	Title     string     `json:"title"`
+	Message   string     `json:"message"`
+	CreatedAt time.Time  `json:"createdAt"`
+	AckedAt   *time.Time `json:"ackedAt,omitempty"`
+	ResolvedAt *time.Time `json:"resolvedAt,omitempty"`
 }
 
-// AlertConfig 告警配置
-type AlertConfig struct {
-	TemperatureThreshold        int     `json:"temperature_threshold"`
-	HealthScoreThreshold        float64 `json:"health_score_threshold"`
-	ReallocatedSectorsThreshold int64   `json:"reallocated_sectors_threshold"`
+// PredictorConfig 预测器配置
+type PredictorConfig struct {
+	CheckInterval    time.Duration `json:"checkInterval"`    // 检查间隔
+	EnableAI         bool          `json:"enableAI"`         // 启用 AI 预测
+	AlertThreshold   int           `json:"alertThreshold"`   // 告警阈值
+	MaxHistoryDays   int           `json:"maxHistoryDays"`   // 历史数据保留天数
+	TemperatureWarn  int           `json:"temperatureWarn"`  // 温度告警阈值
+	TemperatureCrit  int           `json:"temperatureCrit"`  // 温度危险阈值
 }
 
-// HistoryRecord 历史记录
-type HistoryRecord struct {
-	Timestamp   time.Time `json:"timestamp"`
-	HealthScore float64   `json:"health_score"`
-	Temperature int       `json:"temperature"`
-	Status      string    `json:"status"`
-}
-
-// Manager 硬盘健康管理器
-type Manager struct {
-	mu      sync.RWMutex
-	disks   map[string]*DiskInfo
-	history map[string][]HistoryRecord
-	config  AlertConfig
-}
-
-// NewManager 创建健康管理器
-func NewManager() *Manager {
-	return &Manager{
-		disks:   make(map[string]*DiskInfo),
-		history: make(map[string][]HistoryRecord),
-		config: AlertConfig{
-			TemperatureThreshold:        60,
-			HealthScoreThreshold:        70,
-			ReallocatedSectorsThreshold: 100,
-		},
+// DefaultPredictorConfig 默认配置
+func DefaultPredictorConfig() PredictorConfig {
+	return PredictorConfig{
+		CheckInterval:   1 * time.Hour,
+		EnableAI:        true,
+		AlertThreshold:  70,
+		MaxHistoryDays:  90,
+		TemperatureWarn: 55,
+		TemperatureCrit: 65,
 	}
 }
 
-// ScanDisks 扫描磁盘
-func (m *Manager) ScanDisks() []DiskInfo {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+// DiskHealthPredictor 磁盘健康预测器
+type DiskHealthPredictor struct {
+	config      PredictorConfig
+	disks       map[string]*DiskInfo
+	assessments map[string]*HealthAssessment
+	alerts      []*Alert
+	mu          sync.RWMutex
+	ctx         context.Context
+	cancel      context.CancelFunc
+}
 
-	disks := make([]DiskInfo, 0, len(m.disks))
-	for _, d := range m.disks {
-		disks = append(disks, *d)
+// NewPredictor 创建预测器
+func NewPredictor(config PredictorConfig) *DiskHealthPredictor {
+	ctx, cancel := context.WithCancel(context.Background())
+	return &DiskHealthPredictor{
+		config:      config,
+		disks:       make(map[string]*DiskInfo),
+		assessments: make(map[string]*HealthAssessment),
+		alerts:      make([]*Alert, 0),
+		ctx:         ctx,
+		cancel:      cancel,
 	}
-	return disks
+}
+
+// Start 启动预测器
+func (p *DiskHealthPredictor) Start() error {
+	// 初始扫描
+	if err := p.scanDisks(); err != nil {
+		return fmt.Errorf("initial scan failed: %w", err)
+	}
+
+	// 启动定时检查
+	go p.runCheckLoop()
+	return nil
+}
+
+// Stop 停止预测器
+func (p *DiskHealthPredictor) Stop() {
+	p.cancel()
+}
+
+// GetAssessment 获取磁盘评估
+func (p *DiskHealthPredictor) GetAssessment(device string) (*HealthAssessment, bool) {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	assessment, ok := p.assessments[device]
+	return assessment, ok
+}
+
+// GetAllAssessments 获取所有评估
+func (p *DiskHealthPredictor) GetAllAssessments() []*HealthAssessment {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	result := make([]*HealthAssessment, 0, len(p.assessments))
+	for _, a := range p.assessments {
+		result = append(result, a)
+	}
+	return result
+}
+
+// GetAlerts 获取告警
+func (p *DiskHealthPredictor) GetAlerts(includeAcked bool) []*Alert {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	if includeAcked {
+		return p.alerts
+	}
+	var result []*Alert
+	for _, a := range p.alerts {
+		if a.AckedAt == nil {
+			result = append(result, a)
+		}
+	}
+	return result
+}
+
+// AckAlert 确认告警
+func (p *DiskHealthPredictor) AckAlert(alertID string) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	for _, a := range p.alerts {
+		if a.ID == alertID {
+			now := time.Now()
+			a.AckedAt = &now
+			return nil
+		}
+	}
+	return fmt.Errorf("alert %s not found", alertID)
 }
 
 // GetDiskInfo 获取磁盘信息
-func (m *Manager) GetDiskInfo(device string) (*DiskInfo, bool) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	disk, exists := m.disks[device]
-	if !exists {
-		return nil, false
-	}
-	return disk, true
+func (p *DiskHealthPredictor) GetDiskInfo(device string) (*DiskInfo, bool) {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	info, ok := p.disks[device]
+	return info, ok
 }
 
-// GetHealthReport 获取健康报告
-func (m *Manager) GetHealthReport(device string) (*HealthReport, bool) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	disk, exists := m.disks[device]
-	if !exists {
-		return nil, false
+// GetAllDisks 获取所有磁盘
+func (p *DiskHealthPredictor) GetAllDisks() []*DiskInfo {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	result := make([]*DiskInfo, 0, len(p.disks))
+	for _, d := range p.disks {
+		result = append(result, d)
 	}
-
-	report := &HealthReport{
-		Device:    device,
-		Score:     disk.HealthScore,
-		Timestamp: time.Now(),
-	}
-
-	// 确定状态
-	if disk.HealthScore >= 80 {
-		report.Status = "healthy"
-	} else if disk.HealthScore >= 60 {
-		report.Status = "warning"
-	} else {
-		report.Status = "critical"
-	}
-
-	// 检查警告
-	report.Warnings = m.checkWarnings(disk)
-
-	return report, true
+	return result
 }
 
-// CheckAlerts 检查告警
-func (m *Manager) CheckAlerts() []string {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+// RefreshDisk 刷新指定磁盘
+func (p *DiskHealthPredictor) RefreshDisk(device string) error {
+	return p.refreshDisk(device)
+}
 
-	var alerts []string
-	for _, disk := range m.disks {
-		if disk.Temperature > m.config.TemperatureThreshold {
-			alerts = append(alerts, "磁盘 "+disk.Device+" 温度过高: "+string(rune(disk.Temperature))+"°C")
+// scanDisks 扫描磁盘
+func (p *DiskHealthPredictor) scanDisks() error {
+	collector := NewSMARTCollector()
+	disks, err := collector.ScanDisks()
+	if err != nil {
+		return err
+	}
+
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	for _, disk := range disks {
+		p.disks[disk.Device] = disk
+		// 简单评估
+		assessment := collector.assessHealth(disk)
+		p.assessments[disk.Device] = assessment
+	}
+	return nil
+}
+
+// refreshDisk 刷新单个磁盘
+func (p *DiskHealthPredictor) refreshDisk(device string) error {
+	collector := NewSMARTCollector()
+	disk, err := collector.GetDiskInfo(device)
+	if err != nil {
+		return err
+	}
+
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	p.disks[device] = disk
+	assessment := collector.assessHealth(disk)
+	p.assessments[device] = assessment
+	return nil
+}
+
+// runCheckLoop 定时检查循环
+func (p *DiskHealthPredictor) runCheckLoop() {
+	ticker := time.NewTicker(p.config.CheckInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-p.ctx.Done():
+			return
+		case <-ticker.C:
+			p.scanDisks()
 		}
-		if disk.HealthScore < m.config.HealthScoreThreshold {
-			alerts = append(alerts, "磁盘 "+disk.Device+" 健康评分过低")
-		}
 	}
-	return alerts
-}
-
-// GetHistory 获取历史记录
-func (m *Manager) GetHistory(device string) []HistoryRecord {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	return m.history[device]
-}
-
-// GetConfig 获取告警配置
-func (m *Manager) GetConfig() AlertConfig {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	return m.config
-}
-
-// UpdateConfig 更新告警配置
-func (m *Manager) UpdateConfig(config AlertConfig) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	m.config = config
-}
-
-// AddDisk 添加磁盘
-func (m *Manager) AddDisk(info DiskInfo) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	info.LastCheck = time.Now()
-	m.disks[info.Device] = &info
-}
-
-// RemoveDisk 移除磁盘
-func (m *Manager) RemoveDisk(device string) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	delete(m.disks, device)
-	delete(m.history, device)
-}
-
-// checkWarnings 检查警告
-func (m *Manager) checkWarnings(disk *DiskInfo) []string {
-	var warnings []string
-
-	if disk.Temperature > m.config.TemperatureThreshold {
-		warnings = append(warnings, "温度过高")
-	}
-	if disk.HealthScore < m.config.HealthScoreThreshold {
-		warnings = append(warnings, "健康评分过低")
-	}
-	if disk.SmartStatus == "failed" {
-		warnings = append(warnings, "S.M.A.R.T. 检测失败")
-	}
-	return warnings
 }

@@ -15,6 +15,8 @@ const (
 	TierTypeHDD TierType = "hdd"
 	// TierTypeCloud 云存储层.
 	TierTypeCloud TierType = "cloud"
+	// TierTypeMemory 内存缓存层.
+	TierTypeMemory TierType = "memory"
 )
 
 // TierConfig 存储层配置.
@@ -37,6 +39,7 @@ type PolicyEngineConfig struct {
 	CheckInterval  time.Duration `json:"checkInterval"`
 	MaxConcurrent  int           `json:"maxConcurrent"`
 	HotThreshold   int64         `json:"hotThreshold,omitempty"`
+	WarmThreshold  int64         `json:"warmThreshold,omitempty"`
 	ColdAgeHours   int64         `json:"coldAgeHours,omitempty"`
 }
 
@@ -46,7 +49,8 @@ func DefaultPolicyEngineConfig() PolicyEngineConfig {
 		EnableAutoTier: true,
 		CheckInterval:  5 * time.Minute,
 		MaxConcurrent:  3,
-		HotThreshold:   10,
+		HotThreshold:   100,
+		WarmThreshold:  10,
 		ColdAgeHours:   720, // 30 days
 	}
 }
