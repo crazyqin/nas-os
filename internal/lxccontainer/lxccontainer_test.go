@@ -1,6 +1,7 @@
 package lxccontainer
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -349,7 +350,7 @@ func TestContainerCreateValidation(t *testing.T) {
 	cm := NewContainerManager()
 
 	// 空名称
-	_, err := cm.Create(CreateRequest{Template: "x"})
+	_, err := cm.Create(CreateRequest{Template: "ubuntu-22.04"})
 	if err == nil {
 		t.Error("空名称应返回错误")
 	}
@@ -363,8 +364,8 @@ func TestContainerCreateValidation(t *testing.T) {
 
 func TestContainerDuplicate(t *testing.T) {
 	cm := NewContainerManager()
-	cm.Create(CreateRequest{Name: "dup", Template: "x"})
-	_, err := cm.Create(CreateRequest{Name: "dup", Template: "x"})
+	cm.Create(CreateRequest{Name: "dup", Template: "ubuntu-22.04"})
+	_, err := cm.Create(CreateRequest{Name: "dup", Template: "ubuntu-22.04"})
 	if err == nil {
 		t.Error("重复创建应返回错误")
 	}
@@ -372,7 +373,7 @@ func TestContainerDuplicate(t *testing.T) {
 
 func TestContainerStartInvalidState(t *testing.T) {
 	cm := NewContainerManager()
-	c, _ := cm.Create(CreateRequest{Name: "inv", Template: "x"})
+	c, _ := cm.Create(CreateRequest{Name: "inv", Template: "ubuntu-22.04"})
 	cm.Start(c.ID)
 
 	// 运行中不能再次启动
@@ -384,7 +385,7 @@ func TestContainerStartInvalidState(t *testing.T) {
 
 func TestContainerStopInvalidState(t *testing.T) {
 	cm := NewContainerManager()
-	c, _ := cm.Create(CreateRequest{Name: "stop-inv", Template: "x"})
+	c, _ := cm.Create(CreateRequest{Name: "stop-inv", Template: "ubuntu-22.04"})
 
 	// 已停止不能再次停止
 	err := cm.Stop(c.ID)
@@ -395,7 +396,7 @@ func TestContainerStopInvalidState(t *testing.T) {
 
 func TestContainerRestartNotRunning(t *testing.T) {
 	cm := NewContainerManager()
-	c, _ := cm.Create(CreateRequest{Name: "restart-inv", Template: "x"})
+	c, _ := cm.Create(CreateRequest{Name: "restart-inv", Template: "ubuntu-22.04"})
 
 	err := cm.Restart(c.ID)
 	if err == nil {
@@ -405,8 +406,8 @@ func TestContainerRestartNotRunning(t *testing.T) {
 
 func TestContainerListByStatus(t *testing.T) {
 	cm := NewContainerManager()
-	cm.Create(CreateRequest{Name: "s1", Template: "x"})
-	c2, _ := cm.Create(CreateRequest{Name: "s2", Template: "x"})
+	cm.Create(CreateRequest{Name: "s1", Template: "ubuntu-22.04"})
+	c2, _ := cm.Create(CreateRequest{Name: "s2", Template: "ubuntu-22.04"})
 	err := cm.Start(c2.ID)
 	if err != nil {
 		t.Fatalf("启动容器失败: %v", err)
@@ -427,8 +428,8 @@ func TestContainerCount(t *testing.T) {
 	if cm.Count() != 0 {
 		t.Error("初始容器数应为 0")
 	}
-	cm.Create(CreateRequest{Name: "cnt1", Template: "x"})
-	cm.Create(CreateRequest{Name: "cnt2", Template: "x"})
+	cm.Create(CreateRequest{Name: "cnt1", Template: "ubuntu-22.04"})
+	cm.Create(CreateRequest{Name: "cnt2", Template: "ubuntu-22.04"})
 	if cm.Count() != 2 {
 		t.Errorf("期望 2 个容器, got %d", cm.Count())
 	}
@@ -436,7 +437,7 @@ func TestContainerCount(t *testing.T) {
 
 func TestContainerUpdateResources(t *testing.T) {
 	cm := NewContainerManager()
-	c, _ := cm.Create(CreateRequest{Name: "res", Template: "x"})
+	c, _ := cm.Create(CreateRequest{Name: "res", Template: "ubuntu-22.04"})
 
 	err := cm.UpdateResources(c.ID, ResourceLimit{CPUCores: 4, MemoryMB: 2048})
 	if err != nil {
@@ -457,7 +458,7 @@ func TestContainerUpdateResources(t *testing.T) {
 
 func TestContainerAddVolume(t *testing.T) {
 	cm := NewContainerManager()
-	c, _ := cm.Create(CreateRequest{Name: "vol", Template: "x"})
+	c, _ := cm.Create(CreateRequest{Name: "vol", Template: "ubuntu-22.04"})
 
 	err := cm.AddVolume(c.ID, VolumeMount{Source: "/data", Destination: "/mnt/data"})
 	if err != nil {
@@ -609,6 +610,159 @@ func TestManagerCreateWithInvalidNetwork(t *testing.T) {
 	})
 	if err == nil {
 		t.Error("无效网络配置应返回错误")
+	}
+}
+
+// ===== 快照管理测试 =====
+
+func TestSnapshotLifecycle(t *testing.T) {
+	mgr := NewManager()
+
+	// 创建容器
+	ct, err := mgr.CreateContainer(CreateRequest{
+		Name:      "snap-test",
+		Template:  "ubuntu-22.04",
+		Resources: ResourceLimit{CPUCores: 1, MemoryMB: 256, DiskGB: 10},
+		Network:   NetworkConfig{Mode: NetworkModeNone},
+	})
+	if err != nil {
+		t.Fatalf("创建容器失败: %v", err)
+	}
+
+	// 创建快照
+	snap, err := mgr.CreateSnapshot(SnapshotCreateRequest{
+		ContainerID: ct.ID,
+		Name:        "snap-1",
+	})
+	if err != nil {
+		t.Fatalf("创建快照失败: %v", err)
+	}
+	if snap.Status != SnapshotReady {
+		t.Errorf("快照应为 ready，实际 %s", snap.Status)
+	}
+	if snap.ContainerID != ct.ID {
+		t.Errorf("快照容器 ID 不匹配")
+	}
+
+	// 列出快照
+	snaps := mgr.ListSnapshots(ct.ID)
+	if len(snaps) != 1 {
+		t.Errorf("期望 1 个快照，实际 %d", len(snaps))
+	}
+
+	// 获取快照
+	got, err := mgr.GetSnapshot(snap.ID)
+	if err != nil {
+		t.Fatalf("获取快照失败: %v", err)
+	}
+	if got.Name != "snap-1" {
+		t.Errorf("快照名称应为 snap-1，实际 %s", got.Name)
+	}
+
+	// 恢复快照
+	err = mgr.RestoreSnapshot(SnapshotRestoreRequest{
+		SnapshotID:  snap.ID,
+		ContainerID: ct.ID,
+	})
+	if err != nil {
+		t.Fatalf("恢复快照失败: %v", err)
+	}
+
+	// 删除快照
+	err = mgr.DeleteSnapshot(snap.ID)
+	if err != nil {
+		t.Fatalf("删除快照失败: %v", err)
+	}
+
+	if mgr.ListSnapshots(ct.ID) != nil && len(mgr.ListSnapshots(ct.ID)) != 0 {
+		t.Error("快照应已清空")
+	}
+}
+
+func TestSnapshotDuplicateName(t *testing.T) {
+	mgr := NewManager()
+	ct, _ := mgr.CreateContainer(CreateRequest{
+		Name: "dup-snap", Template: "ubuntu-22.04",
+		Resources: ResourceLimit{CPUCores: 1, MemoryMB: 128, DiskGB: 5},
+		Network:   NetworkConfig{Mode: NetworkModeNone},
+	})
+
+	_, err := mgr.CreateSnapshot(SnapshotCreateRequest{ContainerID: ct.ID, Name: "same"})
+	if err != nil {
+		t.Fatalf("第一次创建快照失败: %v", err)
+	}
+	_, err = mgr.CreateSnapshot(SnapshotCreateRequest{ContainerID: ct.ID, Name: "same"})
+	if err == nil {
+		t.Error("重复快照名应返回错误")
+	}
+}
+
+func TestSnapshotRestoreNotFound(t *testing.T) {
+	mgr := NewManager()
+	ct, _ := mgr.CreateContainer(CreateRequest{
+		Name: "no-snap", Template: "ubuntu-22.04",
+		Resources: ResourceLimit{CPUCores: 1, MemoryMB: 128, DiskGB: 5},
+		Network:   NetworkConfig{Mode: NetworkModeNone},
+	})
+
+	err := mgr.RestoreSnapshot(SnapshotRestoreRequest{
+		SnapshotID: "nonexistent", ContainerID: ct.ID,
+	})
+	if err == nil {
+		t.Error("恢复不存在的快照应返回错误")
+	}
+}
+
+func TestSnapshotDeleteNonexistent(t *testing.T) {
+	mgr := NewManager()
+	err := mgr.DeleteSnapshot("nonexistent")
+	if err == nil {
+		t.Error("删除不存在的快照应返回错误")
+	}
+}
+
+func TestSnapshotContainerNotFound(t *testing.T) {
+	mgr := NewManager()
+	_, err := mgr.CreateSnapshot(SnapshotCreateRequest{
+		ContainerID: "nonexistent", Name: "x",
+	})
+	if err == nil {
+		t.Error("为不存在的容器创建快照应返回错误")
+	}
+}
+
+func TestSnapshotEmptyName(t *testing.T) {
+	mgr := NewManager()
+	ct, _ := mgr.CreateContainer(CreateRequest{
+		Name: "no-name", Template: "ubuntu-22.04",
+		Resources: ResourceLimit{CPUCores: 1, MemoryMB: 128, DiskGB: 5},
+		Network:   NetworkConfig{Mode: NetworkModeNone},
+	})
+	_, err := mgr.CreateSnapshot(SnapshotCreateRequest{ContainerID: ct.ID})
+	if err == nil {
+		t.Error("空快照名应返回错误")
+	}
+}
+
+func TestSnapshotMultiple(t *testing.T) {
+	mgr := NewManager()
+	ct, _ := mgr.CreateContainer(CreateRequest{
+		Name: "multi-snap", Template: "ubuntu-22.04",
+		Resources: ResourceLimit{CPUCores: 1, MemoryMB: 128, DiskGB: 5},
+		Network:   NetworkConfig{Mode: NetworkModeNone},
+	})
+
+	for i := 0; i < 5; i++ {
+		_, err := mgr.CreateSnapshot(SnapshotCreateRequest{
+			ContainerID: ct.ID, Name: fmt.Sprintf("snap-%d", i),
+		})
+		if err != nil {
+			t.Fatalf("创建快照 %d 失败: %v", i, err)
+		}
+	}
+
+	if len(mgr.ListSnapshots(ct.ID)) != 5 {
+		t.Errorf("期望 5 个快照，实际 %d", len(mgr.ListSnapshots(ct.ID)))
 	}
 }
 
