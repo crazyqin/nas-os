@@ -129,6 +129,39 @@ type Template struct {
 	Metadata    map[string]string `json:"metadata"`
 }
 
+// SnapshotStatus 快照状态.
+type SnapshotStatus string
+
+const (
+	SnapshotReady    SnapshotStatus = "ready"
+	SnapshotCreating SnapshotStatus = "creating"
+	SnapshotDeleting SnapshotStatus = "deleting"
+)
+
+// Snapshot 容器快照.
+type Snapshot struct {
+	ID          string            `json:"id"`
+	ContainerID string            `json:"containerId"`
+	Name        string            `json:"name"`
+	Status      SnapshotStatus    `json:"status"`
+	CreatedAt   time.Time         `json:"createdAt"`
+	SizeMB      uint64            `json:"sizeMb"`
+	State       Status            `json:"state"` // 快照时容器状态
+	Metadata    map[string]string `json:"metadata,omitempty"`
+}
+
+// SnapshotCreateRequest 创建快照请求.
+type SnapshotCreateRequest struct {
+	ContainerID string `json:"containerId"`
+	Name        string `json:"name"`
+}
+
+// SnapshotRestoreRequest 恢复快照请求.
+type SnapshotRestoreRequest struct {
+	SnapshotID  string `json:"snapshotId"`
+	ContainerID string `json:"containerId"`
+}
+
 // Stats 容器资源统计.
 type Stats struct {
 	CPUPercent  float64 `json:"cpuPercent"`
