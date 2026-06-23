@@ -17,11 +17,12 @@ func NewContainerManager() *ContainerManager {
 	}
 }
 
-// Manager 统一管理器，整合容器、网络、模板管理.
+// Manager 统一管理器，整合容器、网络、模板、快照管理.
 type Manager struct {
 	containers *ContainerManager
 	network    *NetworkManager
 	templates  *TemplateManager
+	snapshots  *SnapshotManager
 }
 
 // NewManager 创建统一管理器.
@@ -30,6 +31,7 @@ func NewManager() *Manager {
 		containers: NewContainerManager(),
 		network:    NewNetworkManager(),
 		templates:  NewTemplateManager(),
+		snapshots:  NewSnapshotManager(),
 	}
 }
 
