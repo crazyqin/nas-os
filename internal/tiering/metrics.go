@@ -245,9 +245,9 @@ func (m *Metrics) RecordMigrationComplete(task *MigrateTask, durationMs int64) {
 	m.migrationMetrics.RunningTasks--
 	m.migrationMetrics.CompletedTasks++
 	m.migrationMetrics.TotalBytesMigrated += task.ProcessedBytes
-	m.migrationMetrics.TotalFilesMigrated += task.ProcessedFiles
-	m.migrationMetrics.TotalBytesFailed += task.FailedFiles * (task.TotalBytes / max(task.TotalFiles, 1))
-	m.migrationMetrics.TotalFilesFailed += task.FailedFiles
+	m.migrationMetrics.TotalFilesMigrated += int64(task.ProcessedFiles)
+	m.migrationMetrics.TotalBytesFailed += int64(task.FailedFiles) * (task.TotalBytes / max(int64(task.TotalFiles), 1))
+	m.migrationMetrics.TotalFilesFailed += int64(task.FailedFiles)
 	m.migrationMetrics.TotalMigrationTimeMs += durationMs
 	m.migrationMetrics.AverageMigrationTimeMs = m.migrationMetrics.TotalMigrationTimeMs / m.migrationMetrics.CompletedTasks
 	m.migrationMetrics.LastMigrationTime = time.Now()
@@ -262,7 +262,7 @@ func (m *Metrics) RecordMigrationComplete(task *MigrateTask, durationMs int64) {
 		policyMetrics.ExecutionCount++
 		policyMetrics.SuccessCount++
 		policyMetrics.TotalBytes += task.ProcessedBytes
-		policyMetrics.TotalFiles += task.ProcessedFiles
+		policyMetrics.TotalFiles += int64(task.ProcessedFiles)
 		policyMetrics.LastRunTime = time.Now()
 	}
 }
@@ -275,7 +275,7 @@ func (m *Metrics) RecordMigrationFailure(task *MigrateTask) {
 	m.migrationMetrics.RunningTasks--
 	m.migrationMetrics.FailedTasks++
 	m.migrationMetrics.TotalBytesFailed += task.TotalBytes
-	m.migrationMetrics.TotalFilesFailed += task.TotalFiles
+	m.migrationMetrics.TotalFilesFailed += int64(task.TotalFiles)
 
 	// 按策略统计
 	if task.PolicyID != "" {

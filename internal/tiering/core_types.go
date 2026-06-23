@@ -36,6 +36,8 @@ type PolicyEngineConfig struct {
 	EnableAutoTier bool          `json:"enableAutoTier"`
 	CheckInterval  time.Duration `json:"checkInterval"`
 	MaxConcurrent  int           `json:"maxConcurrent"`
+	HotThreshold   int64         `json:"hotThreshold,omitempty"`
+	ColdAgeHours   int64         `json:"coldAgeHours,omitempty"`
 }
 
 // DefaultPolicyEngineConfig 默认策略引擎配置.
@@ -44,6 +46,8 @@ func DefaultPolicyEngineConfig() PolicyEngineConfig {
 		EnableAutoTier: true,
 		CheckInterval:  5 * time.Minute,
 		MaxConcurrent:  3,
+		HotThreshold:   10,
+		ColdAgeHours:   720, // 30 days
 	}
 }
 
@@ -103,6 +107,7 @@ type Policy struct {
 	ScheduleExpr    string        `json:"scheduleExpr,omitempty"`
 	DryRun          bool          `json:"dryRun"`
 	PreserveOrigin  bool          `json:"preserveOrigin"`
+	VerifyAfter     bool          `json:"verifyAfter,omitempty"`
 	Priority        int           `json:"priority"`
 	LastRun         time.Time     `json:"lastRun,omitempty"`
 	NextRun         time.Time     `json:"nextRun,omitempty"`
@@ -131,6 +136,7 @@ type FileAccessRecord struct {
 	AccessCount   int64           `json:"accessCount"`
 	AccessTime    time.Time       `json:"accessTime"`
 	LastAccess    time.Time       `json:"lastAccess"`
+	LastModified  time.Time       `json:"lastModified,omitempty"`
 	Frequency     AccessFrequency `json:"frequency"`
 	ReadBytes     int64           `json:"readBytes"`
 	WriteBytes    int64           `json:"writeBytes"`
@@ -237,10 +243,17 @@ type TierStats struct {
 
 // AccessStats 访问统计.
 type AccessStats struct {
-	TotalRecords int64                   `json:"totalRecords"`
-	TotalBytes   int64                   `json:"totalBytes"`
-	ByTier       map[TierType]*TierStats `json:"byTier"`
-	LastUpdated  time.Time               `json:"lastUpdated"`
+	TotalAccesses   int64                   `json:"totalAccesses"`
+	TotalRecords    int64                   `json:"totalRecords"`
+	TotalBytes      int64                   `json:"totalBytes"`
+	TotalFiles      int64                   `json:"totalFiles"`
+	TotalReadBytes  int64                   `json:"totalReadBytes"`
+	TotalWriteBytes int64                   `json:"totalWriteBytes"`
+	HotFiles        int64                   `json:"hotFiles"`
+	WarmFiles       int64                   `json:"warmFiles"`
+	ColdFiles       int64                   `json:"coldFiles"`
+	ByTier          map[TierType]*TierStats `json:"byTier"`
+	LastUpdated     time.Time               `json:"lastUpdated"`
 }
 
 // StatsReport 统计报告.
