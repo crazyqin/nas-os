@@ -136,6 +136,7 @@ func (m *ExtendedManager) AddDevice(device *Device) error {
 
 	device.ConnectedAt = time.Now()
 	device.LastSeen = time.Now()
+	device.Status = DeviceStatusOnline
 	m.devices[device.ID] = device
 
 	m.addEvent(EventDeviceConnected, device.ID, "设备已连接", nil)
