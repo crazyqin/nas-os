@@ -1,5 +1,48 @@
 # NAS-OS 变更日志
 
+## v2.620.0 (2026-06-24) - FreeIPA目录服务/备份仪表板/P2P文件共享Web界面
+
+### 新增功能
+
+#### FreeIPA 目录服务集成 (freeipa)
+- LDAP 用户/组同步与认证
+- 用户搜索与过滤（按用户名、邮箱、组、启用状态、UID范围）
+- 组搜索与过滤
+- TLS 安全连接支持
+- 自动定时同步（可配置间隔）
+- 同步结果统计（添加/更新/删除计数）
+- 目录服务状态监控与统计
+- RESTful API 接口（10个端点）
+- 参考 TrueNAS 24.04 Dragonfish FreeIPA 支持设计
+
+#### 备份仪表板 Widget (backupdashboard)
+- 备份概览（总任务数、活跃任务、成功率、健康评分）
+- 最近备份任务列表（状态、大小、耗时）
+- 存储使用趋势追踪（7天/30天）
+- 备份告警信息（info/warning/critical 级别）
+- 备份源状态监控（在线/离线/告警）
+- RESTful API 接口（6个端点）
+- 参考 TrueNAS 备份 Dashboard Widget 设计
+
+#### P2P 文件共享 Web 界面 (p2pwebshare)
+- 基于浏览器的文件共享链接生成
+- 密码保护支持
+- 下载次数限制
+- 过期时间控制（默认72小时）
+- 下载日志记录（IP、UA、时间）
+- 文件类型自动检测（图片/视频/音频/文档/压缩包）
+- 过期链接自动清理
+- 共享统计信息
+- RESTful API 接口（6个端点）
+- 参考飞牛 P2Pee 文件共享设计
+
+### 修复
+
+#### 测试修复
+- 修复 TestTiering_DefaultConfig 测试失败（CheckInterval/MaxConcurrent 默认值同步）
+- tiering 模块默认值从 types.go 迁移到 core_types.go 后测试未同步更新
+- 同步修复 manager_test.go 和 integration/tiering_test.go
+
 ## v2.619.0 (2026-06-23) - 智能磁盘健康预测系统
 
 ### 新增功能
