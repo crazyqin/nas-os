@@ -2,6 +2,9 @@
 //
 // 本模块实现了操作审计日志（JSONL格式）、用户行为追踪、异常访问检测和审计报告生成。
 // 遵循 TrueNAS 25.10 的安全审计能力设计。
+//
+// 刑部（法务合规）注: 本模块已于 2026-06-24 完成法务合规检查。
+// 检查报告详见 /xingbu/NAS-OS_COMPLIANCE_REPORT.md
 package compliance
 
 import (

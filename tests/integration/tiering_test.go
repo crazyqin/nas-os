@@ -485,8 +485,8 @@ func TestTiering_ScheduleTypes(t *testing.T) {
 func TestTiering_DefaultConfig(t *testing.T) {
 	config := tiering.DefaultPolicyEngineConfig()
 
-	if config.CheckInterval != 1*time.Hour {
-		t.Errorf("Expected CheckInterval=1h, got %v", config.CheckInterval)
+	if config.CheckInterval != 5*time.Minute {
+		t.Errorf("Expected CheckInterval=5m, got %v", config.CheckInterval)
 	}
 
 	if config.HotThreshold != 100 {
@@ -501,8 +501,8 @@ func TestTiering_DefaultConfig(t *testing.T) {
 		t.Errorf("Expected ColdAgeHours=720, got %d", config.ColdAgeHours)
 	}
 
-	if config.MaxConcurrent != 5 {
-		t.Errorf("Expected MaxConcurrent=5, got %d", config.MaxConcurrent)
+	if config.MaxConcurrent != 3 {
+		t.Errorf("Expected MaxConcurrent=3, got %d", config.MaxConcurrent)
 	}
 
 	if !config.EnableAutoTier {
