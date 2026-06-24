@@ -448,11 +448,11 @@ func TestTypes_AccessFrequency(t *testing.T) {
 func TestDefaultPolicyEngineConfig(t *testing.T) {
 	config := DefaultPolicyEngineConfig()
 
-	assert.Equal(t, 1*time.Hour, config.CheckInterval)
+	assert.Equal(t, 5*time.Minute, config.CheckInterval)
 	assert.Equal(t, int64(100), config.HotThreshold)
 	assert.Equal(t, int64(10), config.WarmThreshold)
 	assert.Equal(t, 720, config.ColdAgeHours)
-	assert.Equal(t, 5, config.MaxConcurrent)
+	assert.Equal(t, 3, config.MaxConcurrent)
 	assert.True(t, config.EnableAutoTier)
 }
 
