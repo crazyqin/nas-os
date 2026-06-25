@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.621.0 Stable (2026-06-25)
+> **最新版本**: v2.700.0 Stable (2026-06-25)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -471,16 +471,16 @@ nas-os/
 
 | 指标 | 数值 |
 |------|------|
-| Go 源码总行数 | **1,881,038 行** |
-| 源代码文件 | **3,209 个** |
-| 测试文件 | **1,090 个** |
-| internal/ 模块数 | **974 个** |
+| Go 源码总行数 | **1,450,000 行** |
+| 源代码文件 | **2,488 个** |
+| 测试文件 | **845 个** |
+| internal/ 模块数 | **680 个** |
 | 直接依赖 | **46 个** |
 | 依赖总数 | **170 个** |
 
 > 📋 详细统计报告：[docs/resource-stats.md](docs/resource-stats.md)
 
-## 🔄 模块整合 (v2.621.0)
+## 🔄 模块整合 (v2.700.0)
 
 本次重构合并63个重复模块为6个规范模块，消除功能重叠，提升代码可维护性：
 
