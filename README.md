@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.700.0 Stable (2026-06-25)
+> **最新版本**: v2.800.0 Stable (2026-06-25)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -480,7 +480,7 @@ nas-os/
 
 > 📋 详细统计报告：[docs/resource-stats.md](docs/resource-stats.md)
 
-## 🔄 模块整合 (v2.700.0)
+## 🔄 模块整合 (v2.800.0)
 
 本次重构合并63个重复模块为6个规范模块，消除功能重叠，提升代码可维护性：
 
@@ -869,3 +869,33 @@ sudo nasctl share create nfs backup --path /data/backup --network 192.168.1.0/24
 ## License
 
 MIT
+
+## 🚀 v2.800 存储引擎升级
+
+### ZFS完整管理器
+- 池管理: 创建/销毁/导入/导出/扫描
+- 数据集管理: 创建/删除/挂载/卸载/属性设置
+- ZVOL管理: 创建/调整大小/销毁
+- 快照管理: 创建/删除/回滚
+- 块级备份: Send/Receive/远程复制
+
+### NVMe-oF生产就绪
+- 多路径管理: RDMA/TCP双协议
+- 故障切换: 自动故障检测+切换
+- 健康监控: 实时路径状态监控
+- IO统计: 延迟/带宽/IOPS
+
+### Btrfs存储引擎
+- 池管理: 创建/挂载/卸载
+- 子卷管理: 创建/删除/列表
+- 快照: 创建/发送/接收
+- 在线RAID转换: RAID1/5/6/10
+- 设备管理: 热添加/移除
+- 碎片整理: 压缩模式
+
+### 块级增量备份
+- 全量备份: dd/zstd/lz4压缩
+- 增量备份: rsync差异同步
+- ZFS备份: 原生send/receive
+- 备份验证: SHA256校验
+- 自动清理: 保留策略配置
