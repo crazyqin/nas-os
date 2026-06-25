@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.800.0 Stable (2026-06-25)
+> **最新版本**: v2.900.0 Stable (2026-06-25)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -480,7 +480,7 @@ nas-os/
 
 > 📋 详细统计报告：[docs/resource-stats.md](docs/resource-stats.md)
 
-## 🔄 模块整合 (v2.800.0)
+## 🔄 模块整合 (v2.900.0)
 
 本次重构合并63个重复模块为6个规范模块，消除功能重叠，提升代码可维护性：
 
@@ -899,3 +899,23 @@ MIT
 - ZFS备份: 原生send/receive
 - 备份验证: SHA256校验
 - 自动清理: 保留策略配置
+
+## 🤖 v2.900 AI平台化
+
+### 统一AI推理平台 (aiplatform)
+- 多Provider注册: 支持Ollama/LocalAI/OpenAI等多后端
+- 模型注册表: 统一管理LLM/Embedding/Vision模型
+- 负载均衡: Round-Robin策略分配请求
+- 响应缓存: 5分钟TTL减少重复调用
+- 流式输出: SSE实时返回结果
+
+### RAG知识库 (ragserver)
+- 向量存储: 内存向量库+余弦相似度检索
+- 文档分块: 可配置chunk_size和overlap
+- 语义检索: TopK+阈值过滤
+- 集合管理: 创建/查询/列表
+
+### MCP协议增强 (mcpserver)
+- 工具注册: 标准MCP工具定义
+- 资源暴露: URI-based资源访问
+- 会话管理: 多会话支持
