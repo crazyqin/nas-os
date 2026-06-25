@@ -1,5 +1,37 @@
 # NAS-OS 变更日志
 
+## v2.621.0 (2026-06-25) - 模块整合重构
+
+### 重构优化
+
+本次重构合并63个重复功能模块为6个规范模块，消除功能重叠，提升代码可维护性：
+
+#### 合并统计
+- 删除 **63个**重复模块目录
+- 删除 **83,366行**重复代码（262文件变更）
+- 模块总数：1034 → 974
+- `go vet` 全部通过
+
+#### 合并明细
+
+| 功能域 | 保留模块 | 原模块数 | 说明 |
+|--------|----------|----------|------|
+| 勒索防护 | `ransomware` | 12 | 保留最强(ransomshield)，合并12个重复模块 |
+| 合规审计 | `compliance` | 15 | 保留最强(compliancereport)，合并14个重复模块 |
+| 存储分层 | `tiering` | 13 | 保留最强(tiering)，合并12个重复模块 |
+| AI相册 | `photoai` | 6 | 保留最强(photoai)，合并5个重复模块 |
+| 成本分析 | `costanalyzer` | 5 | 保留最强(smartcostoptimizer)，合并4个重复模块 |
+| 磁盘健康 | `diskhealth` | 5 | 保留最强(diskhealthai2)，合并4个重复模块 |
+| AI控制台 | `aiconsole` | 3 | 保留最强(aiconsoledatamask)，合并2个重复模块 |
+| AI Agent | `aiagentorch` | 2 | 保留最强(aiagentorch)，合并1个重复模块 |
+
+#### 保留的依赖模块（web/server.go引用）
+- `ransommldetect` - 勒索ML检测器
+- `activebackup` - 整机备份管理
+- `backupverify` - 备份验证
+
+---
+
 ## v2.620.0 (2026-06-24) - 六部协作新功能集
 
 ### 新增功能
