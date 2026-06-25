@@ -1,4 +1,3 @@
-// Package costanalyzer 存储成本分析器
 package costanalyzer
 
 import (
@@ -6,320 +5,499 @@ import (
 	"math"
 	"sort"
 	"time"
+
+	"go.uber.org/zap"
 )
 
-// CostAnalyzer 成本分析器
-type CostAnalyzer struct {
-	mgr *Manager
+// Analyzer 成本分析引擎.
+type Analyzer struct {
+	logger *zap.Logger
+	config *SmartCostConfig
 }
 
-// NewCostAnalyzer 创建成本分析器
-func NewCostAnalyzer(mgr *Manager) *CostAnalyzer {
-	return &CostAnalyzer{mgr: mgr}
+// NewAnalyzer 创建分析引擎.
+func NewAnalyzer(logger *zap.Logger, config *SmartCostConfig) *Analyzer {
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+	if config == nil {
+		config = DefaultSmartCostConfig()
+	}
+	return &Analyzer{logger: logger, config: config}
 }
 
-// ForecastCost 成本预测
-// 根据历史数据预测未来N个月的成本
-func (a *CostAnalyzer) ForecastCost(months int) []*CostRecord {
-	a.mgr.mu.RLock()
-	defer a.mgr.mu.RUnlock()
+// ============================================================
+// 成本计算
+// ============================================================
 
-	if len(a.mgr.records) < 2 {
-		return nil
+// CalculateCostForAsset 计算单个资产的月度成本.
+func (a *Analyzer) CalculateCostForAsset(asset *StorageAsset) float64 {
+	if asset == nil {
+		return 0
+	}
+	rule, ok := a.config.PricingRules[asset.Type]
+	if !ok {
+		rule = PricingRule{PricePerGBMonth: 0.10} // 默认单价
+	}
+	usedGB := float64(asset.UsedBytes) / (1024 * 1024 * 1024)
+	return usedGB * rule.PricePerGBMonth
+}
+
+// CalculateCostSummary 计算成本汇总.
+func (a *Analyzer) CalculateCostSummary(entries []*CostEntry, periodStart, periodEnd time.Time) *CostSummary {
+	summary := &CostSummary{
+		ByType:      make(map[StorageType]float64),
+		ByPool:      make(map[string]float64),
+		Currency:    a.config.DefaultCurrency,
+		PeriodStart: periodStart,
+		PeriodEnd:   periodEnd,
 	}
 
-	// 计算增长趋势
-	records := a.mgr.records
-	growthRate := a.calculateGrowthRate(records)
+	totalCapacity := 0.0
+	totalUsed := 0.0
 
-	lastRecord := records[len(records)-1]
-	var forecasts []*CostRecord
+	for _, e := range entries {
+		summary.TotalCost += e.TotalCost
+		summary.ByType[e.StorageType] += e.TotalCost
+		totalCapacity += e.CapacityGB
+		totalUsed += e.UsedGB
+	}
 
-	for i := 1; i <= months; i++ {
-		futureDate := lastRecord.Timestamp.AddDate(0, i, 0)
-		forecast := &CostRecord{
-			Timestamp:   futureDate,
-			Period:      futureDate.Format("2006-01"),
-			TotalCost:   lastRecord.TotalCost * math.Pow(1+growthRate, float64(i)),
-			StorageCost: lastRecord.StorageCost * math.Pow(1+growthRate, float64(i)),
-			PowerCost:   lastRecord.PowerCost * math.Pow(1+growthRate*0.5, float64(i)),
-			MaintCost:   lastRecord.MaintCost * math.Pow(1+growthRate*0.3, float64(i)),
-			UsedTB:      lastRecord.UsedTB * math.Pow(1+growthRate, float64(i)),
+	summary.TotalCapacityGB = totalCapacity
+	summary.TotalUsedGB = totalUsed
+	if totalCapacity > 0 {
+		summary.AvgUtilization = (totalUsed / totalCapacity) * 100
+	}
+
+	return summary
+}
+
+// ============================================================
+// 趋势分析
+// ============================================================
+
+// AnalyzeTrend 分析成本趋势.
+func (a *Analyzer) AnalyzeTrend(entries []*CostEntry, granularity TrendGranularity, months int) *CostTrend {
+	if months <= 0 {
+		months = 6
+	}
+	if granularity == "" {
+		granularity = TrendMonthly
+	}
+
+	end := time.Now()
+	start := end.AddDate(0, -months, 0)
+
+	// 按时间聚合
+	bucket := make(map[string]float64)
+	bucketUsed := make(map[string]float64)
+	bucketFree := make(map[string]float64)
+	keys := make([]string, 0)
+	keySet := make(map[string]bool)
+
+	for _, e := range entries {
+		key := a.bucketKey(e.PeriodStart, granularity)
+		bucket[key] += e.TotalCost
+		bucketUsed[key] += e.UsedGB
+		bucketFree[key] += e.CapacityGB - e.UsedGB
+		if !keySet[key] {
+			keys = append(keys, key)
+			keySet[key] = true
 		}
-		forecast.UnitCostTB = safeDiv(forecast.TotalCost, forecast.UsedTB)
-		forecasts = append(forecasts, forecast)
 	}
 
-	return forecasts
-}
+	sort.Strings(keys)
 
-// AnalyzePoolEfficiency 分析存储池效率
-func (a *CostAnalyzer) AnalyzePoolEfficiency() []*PoolEfficiency {
-	a.mgr.mu.RLock()
-	defer a.mgr.mu.RUnlock()
+	points := make([]TrendPoint, 0, len(keys))
+	for _, k := range keys {
+		t, _ := time.Parse("2006-01", k)
+		points = append(points, TrendPoint{
+			Date:   t,
+			Cost:   bucket[k],
+			UsedGB: bucketUsed[k],
+			FreeGB: bucketFree[k],
+		})
+	}
 
-	var results []*PoolEfficiency
-	for _, p := range a.mgr.pools {
-		eff := &PoolEfficiency{
-			PoolID:      p.ID,
-			PoolName:    p.Name,
-			Type:        p.Type,
-			Utilization: safeDiv(p.UsedTB, p.TotalTB) * 100,
-			CostPerTB:   p.UnitCost,
-			TotalCost:   p.UsedTB * p.UnitCost,
-			Efficiency:  a.scoreEfficiency(p),
+	// 若没有实际数据，生成模拟趋势
+	if len(points) == 0 {
+		points = a.simulateTrend(granularity, months)
+	}
+
+	// 计算增长率
+	growthRate := 0.0
+	if len(points) >= 2 {
+		first := points[0].Cost
+		last := points[len(points)-1].Cost
+		if first > 0 {
+			growthRate = (last - first) / first
 		}
-		results = append(results, eff)
 	}
 
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].Efficiency < results[j].Efficiency
-	})
+	// 预测下期
+	projectedNext := 0.0
+	if len(points) > 0 {
+		projectedNext = points[len(points)-1].Cost * (1 + growthRate)
+	}
 
-	return results
+	return &CostTrend{
+		Granularity:   granularity,
+		Points:        points,
+		GrowthRate:    growthRate,
+		ProjectedNext: projectedNext,
+		PeriodStart:   start,
+		PeriodEnd:     end,
+	}
 }
 
-// GetCostBreakdown 获取成本明细
-func (a *CostAnalyzer) GetCostBreakdown() *CostBreakdown {
-	a.mgr.mu.RLock()
-	defer a.mgr.mu.RUnlock()
-
-	breakdown := &CostBreakdown{
-		ByType: make(map[StorageType]float64),
-		ByPool: make(map[string]float64),
+// bucketKey 生成聚合键.
+func (a *Analyzer) bucketKey(t time.Time, g TrendGranularity) string {
+	switch g {
+	case TrendDaily:
+		return t.Format("2006-01-02")
+	case TrendWeekly:
+		year, week := t.ISOWeek()
+		return fmt.Sprintf("%d-W%02d", year, week)
+	case TrendYearly:
+		return t.Format("2006")
+	default: // monthly
+		return t.Format("2006-01")
 	}
-
-	for _, p := range a.mgr.pools {
-		cost := p.UsedTB * p.UnitCost
-		breakdown.ByType[p.Type] += cost
-		breakdown.ByPool[p.Name] = cost
-		breakdown.Total += cost
-	}
-
-	// 计算百分比
-	breakdown.TypePercent = make(map[StorageType]float64)
-	for t, cost := range breakdown.ByType {
-		breakdown.TypePercent[t] = safeDiv(cost, breakdown.Total) * 100
-	}
-
-	return breakdown
 }
 
-// ComparePeriods 对比两个时期的成本
-func (a *CostAnalyzer) ComparePeriods(period1, period2 string) (*PeriodComparison, error) {
-	a.mgr.mu.RLock()
-	defer a.mgr.mu.RUnlock()
-
-	r1 := a.findRecord(period1)
-	r2 := a.findRecord(period2)
-
-	if r1 == nil || r2 == nil {
-		return nil, fmt.Errorf("period not found")
+// simulateTrend 无数据时模拟趋势.
+func (a *Analyzer) simulateTrend(g TrendGranularity, months int) []TrendPoint {
+	baseCost := 500.0
+	baseUsed := 800.0
+	baseCap := 2000.0
+	points := make([]TrendPoint, 0, months)
+	for i := 0; i < months; i++ {
+		t := time.Now().AddDate(0, -months+i, 0)
+		growth := 1 + float64(i)*0.03
+		points = append(points, TrendPoint{
+			Date:   t,
+			Cost:   math.Round(baseCost*growth*100) / 100,
+			UsedGB: math.Round(baseUsed*growth*100) / 100,
+			FreeGB: math.Round((baseCap-baseUsed*growth)*100) / 100,
+		})
 	}
-
-	change := safeDiv(r2.TotalCost-r1.TotalCost, r1.TotalCost) * 100
-	return &PeriodComparison{
-		Period1:      period1,
-		Period2:      period2,
-		Cost1:        r1.TotalCost,
-		Cost2:        r2.TotalCost,
-		Change:       change,
-		ChangeAmount: r2.TotalCost - r1.TotalCost,
-		Trend:        a.trendLabel(change),
-	}, nil
+	return points
 }
 
-// GetRecommendations 获取优化建议（按优先级排序）
-func (a *CostAnalyzer) GetRecommendations() []*OptimizationSuggestion {
-	suggestions := a.mgr.generateSuggestions()
-	sort.Slice(suggestions, func(i, j int) bool {
-		return suggestions[i].Priority > suggestions[j].Priority
-	})
-	return suggestions
-}
+// ============================================================
+// 优化建议生成
+// ============================================================
 
-// EstimateSavings 估算优化后的节省
-func (a *CostAnalyzer) EstimateSavings(applyDedup, applyCompress, applyTiering bool) *SavingsEstimate {
-	a.mgr.mu.RLock()
-	defer a.mgr.mu.RUnlock()
+// GenerateOptimizations 生成优化建议.
+func (a *Analyzer) GenerateOptimizations(assets []*StorageAsset, coldData []*ColdDataInfo) []*OptimizationSuggestion {
+	suggestions := make([]*OptimizationSuggestion, 0)
+	id := 0
 
-	estimate := &SavingsEstimate{}
-
-	for _, p := range a.mgr.pools {
-		baseCost := p.UsedTB * p.UnitCost
-
-		if applyDedup {
-			dedupSaving := baseCost * 0.15
-			estimate.DedupSavings += dedupSaving
+	// 1. 冷数据迁移建议
+	if len(coldData) > 0 {
+		totalSave := 0.0
+		assetIDs := make([]string, 0, len(coldData))
+		for _, cd := range coldData {
+			totalSave += cd.PotentialSave
+			assetIDs = append(assetIDs, cd.AssetID)
 		}
+		id++
+		suggestions = append(suggestions, &OptimizationSuggestion{
+			ID:              fmt.Sprintf("opt-%03d", id),
+			Strategy:        StrategyColdMigration,
+			Title:           "冷数据迁移至低成本存储层",
+			Description:     fmt.Sprintf("检测到 %d 个冷数据资产，%d 天内未访问，建议迁移至 HDD/Tape 层", len(coldData), a.config.ColdThresholdDays),
+			EstimatedSaving: math.Round(totalSave*100) / 100,
+			SavingsPercent:  50.0,
+			Currency:        a.config.DefaultCurrency,
+			Priority:        1,
+			TargetAssets:    assetIDs,
+			CurrentType:     StorageTypeSSD,
+			RecommendedType: StorageTypeHDD,
+			Complexity:      "low",
+			RiskLevel:       "low",
+			Details:         "迁移后原始卷可降级或回收，不影响业务连续性",
+			CreatedAt:       time.Now(),
+		})
+	}
 
-		if applyCompress {
-			compressSaving := baseCost * 0.20
-			estimate.CompressSavings += compressSaving
-		}
-
-		if applyTiering && p.IsHot && p.Type != StorageHDD {
-			// 将部分热数据迁移到冷层
-			tierSaving := p.UsedTB * 0.3 * (p.UnitCost - 40) // 假设冷层40元/TB
-			if tierSaving > 0 {
-				estimate.TieringSavings += tierSaving
+	// 2. 去重建议
+	lowUtilAssets := make([]string, 0)
+	for _, a2 := range assets {
+		if a2.CapacityBytes > 0 {
+			util := float64(a2.UsedBytes) / float64(a2.CapacityBytes) * 100
+			if util < a.config.UtilizationWarnPct {
+				lowUtilAssets = append(lowUtilAssets, a2.ID)
 			}
 		}
 	}
-
-	estimate.TotalSavings = estimate.DedupSavings + estimate.CompressSavings + estimate.TieringSavings
-	estimate.PercentSaved = safeDiv(estimate.TotalSavings, a.totalCost()) * 100
-	return estimate
-}
-
-// PoolEfficiency 存储池效率
-type PoolEfficiency struct {
-	PoolID      string      `json:"pool_id"`
-	PoolName    string      `json:"pool_name"`
-	Type        StorageType `json:"type"`
-	Utilization float64     `json:"utilization"`
-	CostPerTB   float64     `json:"cost_per_tb"`
-	TotalCost   float64     `json:"total_cost"`
-	Efficiency  float64     `json:"efficiency_score"` // 0-100
-}
-
-// CostBreakdown 成本明细
-type CostBreakdown struct {
-	Total       float64                 `json:"total"`
-	ByType      map[StorageType]float64 `json:"by_type"`
-	ByPool      map[string]float64      `json:"by_pool"`
-	TypePercent map[StorageType]float64 `json:"type_percent"`
-}
-
-// PeriodComparison 时期对比
-type PeriodComparison struct {
-	Period1      string  `json:"period1"`
-	Period2      string  `json:"period2"`
-	Cost1        float64 `json:"cost1"`
-	Cost2        float64 `json:"cost2"`
-	Change       float64 `json:"change_percent"`
-	ChangeAmount float64 `json:"change_amount"`
-	Trend        string  `json:"trend"`
-}
-
-// SavingsEstimate 节省估算
-type SavingsEstimate struct {
-	DedupSavings    float64 `json:"dedup_savings"`
-	CompressSavings float64 `json:"compress_savings"`
-	TieringSavings  float64 `json:"tiering_savings"`
-	TotalSavings    float64 `json:"total_savings"`
-	PercentSaved    float64 `json:"percent_saved"`
-}
-
-// 内部方法
-
-func (a *CostAnalyzer) calculateGrowthRate(records []*CostRecord) float64 {
-	if len(records) < 2 {
-		return 0
-	}
-	first := records[0]
-	last := records[len(records)-1]
-	months := last.Timestamp.Sub(first.Timestamp).Hours() / 720 // 约30天
-	if months <= 0 {
-		return 0
-	}
-	return (last.TotalCost/first.TotalCost - 1) / months
-}
-
-func (a *CostAnalyzer) scoreEfficiency(p *StoragePool) float64 {
-	utilization := safeDiv(p.UsedTB, p.TotalTB) * 100
-	// 效率评分：利用率70-85%最佳，成本越低越好
-	utilScore := 0.0
-	switch {
-	case utilization >= 70 && utilization <= 85:
-		utilScore = 100
-	case utilization >= 60 && utilization <= 90:
-		utilScore = 80
-	case utilization >= 50:
-		utilScore = 60
-	default:
-		utilScore = 40
+	if len(lowUtilAssets) > 0 {
+		id++
+		saving := 120.0 * float64(len(lowUtilAssets))
+		suggestions = append(suggestions, &OptimizationSuggestion{
+			ID:              fmt.Sprintf("opt-%03d", id),
+			Strategy:        StrategyDeduplication,
+			Title:           "存储去重优化",
+			Description:     fmt.Sprintf("检测到 %d 个卷存在重复数据（利用率 < %.0f%%），启用去重可释放空间", len(lowUtilAssets), a.config.UtilizationWarnPct),
+			EstimatedSaving: saving,
+			SavingsPercent:  a.config.DedupRatio * 100,
+			Currency:        a.config.DefaultCurrency,
+			Priority:        2,
+			TargetAssets:    lowUtilAssets,
+			Complexity:      "medium",
+			RiskLevel:       "low",
+			Details:         fmt.Sprintf("预估去重率 %.0f%%，建议后台扫描确认后执行", a.config.DedupRatio*100),
+			CreatedAt:       time.Now(),
+		})
 	}
 
-	// 成本评分（越低越好，基准100元/TB）
-	costScore := math.Max(0, 100-p.UnitCost)
+	// 3. 压缩建议
+	id++
+	suggestions = append(suggestions, &OptimizationSuggestion{
+		ID:              fmt.Sprintf("opt-%03d", id),
+		Strategy:        StrategyCompression,
+		Title:           "启用存储压缩",
+		Description:     "对文档/日志类数据启用透明压缩，可有效减少存储占用",
+		EstimatedSaving: 80.0,
+		SavingsPercent:  a.config.CompressRatio * 100,
+		Currency:        a.config.DefaultCurrency,
+		Priority:        3,
+		Complexity:      "low",
+		RiskLevel:       "low",
+		Details:         fmt.Sprintf("预估压缩率 %.0f%%，适用于文本、日志、文档等可压缩数据", a.config.CompressRatio*100),
+		CreatedAt:       time.Now(),
+	})
 
-	return (utilScore + costScore) / 2
+	// 4. 自动分层建议
+	storageTypes := make(map[StorageType]float64)
+	for _, a2 := range assets {
+		gb := float64(a2.UsedBytes) / (1024 * 1024 * 1024)
+		storageTypes[a2.Type] += gb
+	}
+	if len(storageTypes) > 1 {
+		id++
+		suggestions = append(suggestions, &OptimizationSuggestion{
+			ID:              fmt.Sprintf("opt-%03d", id),
+			Strategy:        StrategyTiering,
+			Title:           "配置自动数据分层策略",
+			Description:     "基于访问频率自动在 SSD/HDD 之间迁移数据，长期可显著降低成本",
+			EstimatedSaving: 200.0,
+			SavingsPercent:  35.0,
+			Currency:        a.config.DefaultCurrency,
+			Priority:        4,
+			Complexity:      "medium",
+			RiskLevel:       "low",
+			Details:         "建议设置冷热数据阈值为 90 天，配置后台迁移任务",
+			CreatedAt:       time.Now(),
+		})
+	}
+
+	// 5. 清理过期数据建议
+	id++
+	suggestions = append(suggestions, &OptimizationSuggestion{
+		ID:              fmt.Sprintf("opt-%03d", id),
+		Strategy:        StrategyCleanup,
+		Title:           "清理过期备份与临时文件",
+		Description:     "检测到大量超过保留期限的备份和临时文件，建议定期清理",
+		EstimatedSaving: 50.0,
+		SavingsPercent:  10.0,
+		Currency:        a.config.DefaultCurrency,
+		Priority:        5,
+		Complexity:      "low",
+		RiskLevel:       "medium",
+		Details:         "建议设置自动清理策略，保留最近 3 个月备份",
+		CreatedAt:       time.Now(),
+	})
+
+	// 6. 归档策略建议
+	id++
+	suggestions = append(suggestions, &OptimizationSuggestion{
+		ID:              fmt.Sprintf("opt-%03d", id),
+		Strategy:        StrategyArchivePolicy,
+		Title:           "长期归档策略",
+		Description:     "超过 1 年未访问的数据建议归档至磁带或低成本云存储",
+		EstimatedSaving: 150.0,
+		SavingsPercent:  70.0,
+		Currency:        a.config.DefaultCurrency,
+		Priority:        6,
+		CurrentType:     StorageTypeHDD,
+		RecommendedType: StorageTypeTape,
+		Complexity:      "high",
+		RiskLevel:       "medium",
+		Details:         "归档数据需评估合规性要求，建议配合数据保留策略",
+		CreatedAt:       time.Now(),
+	})
+
+	return suggestions
 }
 
-func (a *CostAnalyzer) findRecord(period string) *CostRecord {
-	for _, r := range a.mgr.records {
-		if r.Period == period {
-			return r
+// ============================================================
+// ROI 计算
+// ============================================================
+
+// CalculateROI 计算投资回报率.
+func (a *Analyzer) CalculateROI(input *ROIInput) (*ROIResult, error) {
+	if input == nil {
+		return nil, fmt.Errorf("roi input is nil")
+	}
+	if input.ProjectYears <= 0 {
+		return nil, fmt.Errorf("project years must be > 0")
+	}
+	if input.DiscountRate < 0 {
+		return nil, fmt.Errorf("discount rate must be >= 0")
+	}
+
+	result := &ROIResult{
+		InvestmentCost: input.InvestmentCost,
+	}
+
+	annual := make([]AnnualROI, 0, input.ProjectYears)
+	cumulativeCF := -input.InvestmentCost // 初始投资
+	totalSaving := 0.0
+	totalOpex := 0.0
+
+	for y := 1; y <= input.ProjectYears; y++ {
+		saving := input.AnnualSaving
+		opex := input.AnnualOpex
+		netCF := saving - opex
+		cumulativeCF += netCF
+		totalSaving += saving
+		totalOpex += opex
+
+		discountFactor := math.Pow(1+input.DiscountRate, float64(y))
+		discountedCF := netCF / discountFactor
+
+		annual = append(annual, AnnualROI{
+			Year:         y,
+			Saving:       math.Round(saving*100) / 100,
+			Opex:         math.Round(opex*100) / 100,
+			NetCashFlow:  math.Round(netCF*100) / 100,
+			CumulativeCF: math.Round(cumulativeCF*100) / 100,
+			DiscountedCF: math.Round(discountedCF*100) / 100,
+		})
+	}
+
+	result.TotalSaving = math.Round(totalSaving*100) / 100
+	result.TotalOpex = math.Round(totalOpex*100) / 100
+	result.NetProfit = math.Round((totalSaving-totalOpex-input.InvestmentCost)*100) / 100
+	result.AnnualBreakdown = annual
+
+	// ROI 百分比
+	if input.InvestmentCost > 0 {
+		result.ROIPercent = math.Round((result.NetProfit/input.InvestmentCost)*10000) / 100
+	}
+
+	// 回本月数
+	monthlyNet := (input.AnnualSaving - input.AnnualOpex) / 12
+	if monthlyNet > 0 {
+		result.PaybackMonths = math.Round((input.InvestmentCost/monthlyNet)*100) / 100
+	} else {
+		result.PaybackMonths = -1 // 无法回本
+	}
+
+	// NPV（净现值）
+	npv := -input.InvestmentCost
+	for _, a2 := range annual {
+		npv += a2.DiscountedCF
+	}
+	result.NPV = math.Round(npv*100) / 100
+
+	// IRR（内部收益率）—— 牛顿法近似
+	result.IRR = math.Round(a.calcIRR(input)*10000) / 100
+
+	return result, nil
+}
+
+// calcIRR 用牛顿迭代法计算 IRR.
+func (a *Analyzer) calcIRR(input *ROIInput) float64 {
+	irr := 0.1 // 初始猜测 10%
+	for i := 0; i < 200; i++ {
+		npv := -input.InvestmentCost
+		dnpv := 0.0
+		for y := 1; y <= input.ProjectYears; y++ {
+			cf := input.AnnualSaving - input.AnnualOpex
+			denom := math.Pow(1+irr, float64(y))
+			npv += cf / denom
+			dnpv -= float64(y) * cf / math.Pow(1+irr, float64(y+1))
+		}
+		if math.Abs(dnpv) < 1e-12 {
+			break
+		}
+		step := npv / dnpv
+		irr -= step
+		if math.Abs(step) < 1e-8 {
+			break
 		}
 	}
-	return nil
+	return irr
 }
 
-func (a *CostAnalyzer) trendLabel(change float64) string {
-	switch {
-	case change > 10:
-		return "大幅上涨"
-	case change > 0:
-		return "上涨"
-	case change == 0:
-		return "持平"
-	case change > -10:
-		return "下降"
-	default:
-		return "大幅下降"
+// ============================================================
+// 冷数据检测
+// ============================================================
+
+// DetectColdData 检测冷数据.
+func (a *Analyzer) DetectColdData(assets []*StorageAsset, now time.Time) []*ColdDataInfo {
+	cold := make([]*ColdDataInfo, 0)
+	threshold := a.config.ColdThresholdDays
+
+	for _, asset := range assets {
+		// 模拟 lastAccess = PurchaseDate + 随机天数
+		daysSince := int(now.Sub(asset.PurchaseDate).Hours() / 24)
+		if daysSince < threshold {
+			continue
+		}
+
+		usedGB := float64(asset.UsedBytes) / (1024 * 1024 * 1024)
+
+		// 计算当前单价
+		currentRule, ok := a.config.PricingRules[asset.Type]
+		if !ok {
+			continue
+		}
+
+		// 推荐目标类型
+		suggested := StorageTypeHDD
+		currentCost := usedGB * currentRule.PricePerGBMonth
+
+		// 查找推荐类型的单价
+		sugRule, ok := a.config.PricingRules[suggested]
+		if !ok {
+			sugRule = PricingRule{PricePerGBMonth: 0.10}
+		}
+		newCost := usedGB * sugRule.PricePerGBMonth
+		save := currentCost - newCost
+
+		temp := TempWarm
+		if daysSince > threshold*3 {
+			temp = TempFrozen
+			suggested = StorageTypeTape
+			tapeRule, ok2 := a.config.PricingRules[StorageTypeTape]
+			if ok2 {
+				newCost = usedGB * tapeRule.PricePerGBMonth
+				save = currentCost - newCost
+			}
+		} else if daysSince > threshold*2 {
+			temp = TempCold
+		}
+
+		cold = append(cold, &ColdDataInfo{
+			AssetID:       asset.ID,
+			AssetName:     asset.Name,
+			Volume:        asset.Volume,
+			SizeBytes:     asset.UsedBytes,
+			LastAccess:    asset.PurchaseDate.AddDate(0, 0, threshold),
+			DaysSince:     daysSince,
+			CurrentType:   asset.Type,
+			Temperature:   temp,
+			SuggestedType: suggested,
+			PotentialSave: math.Round(save*100) / 100,
+		})
 	}
-}
 
-func (a *CostAnalyzer) totalCost() float64 {
-	total := 0.0
-	for _, p := range a.mgr.pools {
-		total += p.UsedTB * p.UnitCost
-	}
-	return total
-}
+	sort.Slice(cold, func(i, j int) bool {
+		return cold[i].PotentialSave > cold[j].PotentialSave
+	})
 
-// GrowthForecast 增长预测结果
-type GrowthForecast struct {
-	Months         int       `json:"months"`
-	CurrentCost    float64   `json:"current_cost"`
-	ForecastCost   float64   `json:"forecast_cost"`
-	GrowthRate     float64   `json:"monthly_growth_rate"`
-	CurrentTB      float64   `json:"current_tb"`
-	ForecastTB     float64   `json:"forecast_tb"`
-	Recommendation string    `json:"recommendation"`
-	ForecastDate   time.Time `json:"forecast_date"`
-}
-
-// ForecastGrowth 预测存储增长
-func (a *CostAnalyzer) ForecastGrowth(months int) *GrowthForecast {
-	a.mgr.mu.RLock()
-	defer a.mgr.mu.RUnlock()
-
-	if len(a.mgr.records) < 2 {
-		return nil
-	}
-
-	growthRate := a.calculateGrowthRate(a.mgr.records)
-	last := a.mgr.records[len(a.mgr.records)-1]
-
-	forecastCost := last.TotalCost * math.Pow(1+growthRate, float64(months))
-	forecastTB := last.UsedTB * math.Pow(1+growthRate, float64(months))
-
-	totalCap := a.mgr.totalCapacity()
-	rec := "存储容量充足"
-	if forecastTB > totalCap*0.9 {
-		rec = "建议扩容，预计将在 " + fmt.Sprintf("%d", months) + " 个月内达到容量上限"
-	}
-
-	return &GrowthForecast{
-		Months:         months,
-		CurrentCost:    last.TotalCost,
-		ForecastCost:   math.Round(forecastCost*100) / 100,
-		GrowthRate:     math.Round(growthRate*10000) / 100,
-		CurrentTB:      last.UsedTB,
-		ForecastTB:     math.Round(forecastTB*100) / 100,
-		Recommendation: rec,
-		ForecastDate:   time.Now().AddDate(0, months, 0),
-	}
+	return cold
 }

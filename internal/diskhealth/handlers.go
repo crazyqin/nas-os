@@ -1,189 +1,304 @@
-// Package diskhealth 硬盘健康监控 - HTTP 处理器
+// Package diskhealthai2 - HTTP API 处理器
 package diskhealth
 
 import (
-	"encoding/json"
 	"net/http"
-	"strings"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Handler HTTP 处理器
 type Handler struct {
-	service *Service
+	svc *DiskHealthService
 }
 
 // NewHandler 创建处理器
-func NewHandler(service *Service) *Handler {
-	return &Handler{service: service}
+func NewHandler(svc *DiskHealthService) *Handler {
+	return &Handler{svc: svc}
 }
 
 // RegisterRoutes 注册路由
-func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/disk-health/disks", h.handleDisks)
-	mux.HandleFunc("/disk-health/disks/", h.handleDiskDetail)
-	mux.HandleFunc("/disk-health/alerts", h.handleAlerts)
-	mux.HandleFunc("/disk-health/scan", h.handleScan)
-	mux.HandleFunc("/disk-health/summary", h.handleSummary)
+func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
+	group := router.Group("/diskhealthai2")
+	{
+		group.GET("/disks", h.ListDisks)
+		group.GET("/disks/:id/smart", h.GetSMART)
+		group.GET("/disks/:id/score", h.GetScore)
+		group.GET("/disks/:id/predict", h.Predict)
+		group.GET("/disks/:id/history", h.GetHistory)
+		group.GET("/groups", h.ListGroups)
+		group.GET("/groups/:id/health", h.GetGroupHealth)
+		group.GET("/advice", h.GetAdvice)
+		group.POST("/scan", h.TriggerScan)
+		group.GET("/dashboard", h.Dashboard)
+	}
 }
 
-// handleDisks 获取磁盘列表
-func (h *Handler) handleDisks(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
+// ListDisks 获取磁盘列表及健康状态
+// GET /api/v1/diskhealthai2/disks
+func (h *Handler) ListDisks(c *gin.Context) {
+	devices := h.svc.Analyzer.GetDevices()
+	var disks []DiskListItem
+
+	for _, device := range devices {
+		data, err := h.svc.Analyzer.GetLatestData(device)
+		if err != nil {
+			continue
+		}
+
+		score, err := h.svc.ScoreSys.Calculate(device)
+		if err != nil {
+			continue
+		}
+
+		disks = append(disks, DiskListItem{
+			Device:       device,
+			Model:        data.Model,
+			Serial:       data.Serial,
+			Status:       score.Status,
+			Score:        score.Score,
+			Grade:        score.Grade,
+			IsSSD:        data.IsSSD,
+			Capacity:     data.CapacityBytes,
+			Temperature:  data.Temperature,
+			PowerOnHours: data.PowerOnHours,
+		})
 	}
 
-	disks := h.service.GetAllDisks()
-	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"code": 0,
-		"data": disks,
+	c.JSON(http.StatusOK, APIResponse{
+		Success: true,
+		Data:    disks,
 	})
 }
 
-// handleDiskDetail 获取磁盘详情
-func (h *Handler) handleDiskDetail(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+// GetSMART 获取 SMART 详情
+// GET /api/v1/diskhealthai2/disks/:id/smart
+func (h *Handler) GetSMART(c *gin.Context) {
+	id := c.Param("id")
 
-	// 解析路径: /disk-health/disks/:device 或 /disk-health/disks/:device/smart
-	path := strings.TrimPrefix(r.URL.Path, "/disk-health/disks/")
-	parts := strings.Split(path, "/")
-
-	if len(parts) == 0 || parts[0] == "" {
-		http.Error(w, "Device required", http.StatusBadRequest)
-		return
-	}
-
-	device := "/dev/" + parts[0]
-
-	if len(parts) == 1 {
-		// 获取磁盘详情
-		disk, exists := h.service.GetDiskInfo(device)
-		if !exists {
-			http.Error(w, "Disk not found", http.StatusNotFound)
-			return
-		}
-		assessment, _ := h.service.GetAssessment(device)
-		writeJSON(w, http.StatusOK, map[string]interface{}{
-			"code": 0,
-			"data": map[string]interface{}{
-				"disk":       disk,
-				"assessment": assessment,
-			},
+	data, err := h.svc.Analyzer.GetLatestData(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, APIResponse{
+			Success: false,
+			Error:   err.Error(),
 		})
 		return
 	}
 
-	switch parts[1] {
-	case "smart":
-		// 获取 S.M.A.R.T. 属性
-		disk, exists := h.service.GetDiskInfo(device)
-		if !exists {
-			http.Error(w, "Disk not found", http.StatusNotFound)
-			return
-		}
-		writeJSON(w, http.StatusOK, map[string]interface{}{
-			"code": 0,
-			"data": map[string]interface{}{
-				"device":     device,
-				"attributes": disk.SMARTAttrs,
-			},
+	analysis, err := h.svc.Analyzer.Analyze(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIResponse{
+			Success: false,
+			Error:   err.Error(),
 		})
-
-	default:
-		http.Error(w, "Unknown endpoint", http.StatusNotFound)
-	}
-}
-
-// handleAlerts 获取告警列表
-func (h *Handler) handleAlerts(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	device := r.URL.Query().Get("device")
-	includeAcked := r.URL.Query().Get("includeAcked") == "true"
-
-	alerts := h.service.GetAlerts(device, includeAcked)
-	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"code": 0,
-		"data": alerts,
+	c.JSON(http.StatusOK, APIResponse{
+		Success: true,
+		Data: gin.H{
+			"smart_data": data,
+			"analysis":   analysis,
+		},
 	})
 }
 
-// handleScan 扫描磁盘
-func (h *Handler) handleScan(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+// GetScore 获取健康评分
+// GET /api/v1/diskhealthai2/disks/:id/score
+func (h *Handler) GetScore(c *gin.Context) {
+	id := c.Param("id")
+
+	score, err := h.svc.ScoreSys.Calculate(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, APIResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
 		return
 	}
 
-	// 后台执行扫描
-	go h.service.scanAllDisks()
-
-	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"code":    0,
-		"message": "扫描已启动",
+	c.JSON(http.StatusOK, APIResponse{
+		Success: true,
+		Data:    score,
 	})
 }
 
-// handleSummary 获取健康摘要
-func (h *Handler) handleSummary(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+// Predict 故障预测
+// GET /api/v1/diskhealthai2/disks/:id/predict
+func (h *Handler) Predict(c *gin.Context) {
+	id := c.Param("id")
+
+	prediction, err := h.svc.Predictor.Predict(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, APIResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
 		return
 	}
 
-	summary := h.service.GetHealthSummary()
-	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"code": 0,
-		"data": summary,
+	c.JSON(http.StatusOK, APIResponse{
+		Success: true,
+		Data:    prediction,
 	})
 }
 
-// writeJSON 写入 JSON 响应
-func writeJSON(w http.ResponseWriter, status int, data interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data)
+// GetHistory 获取历史趋势
+// GET /api/v1/diskhealthai2/disks/:id/history
+func (h *Handler) GetHistory(c *gin.Context) {
+	id := c.Param("id")
+
+	history := h.svc.Analyzer.GetHistory(id)
+	if len(history) == 0 {
+		c.JSON(http.StatusNotFound, APIResponse{
+			Success: false,
+			Error:   "无历史数据",
+		})
+		return
+	}
+
+	// 构建历史数据点
+	var points []HealthHistoryPoint
+	for _, data := range history {
+		score, err := h.svc.ScoreSys.Calculate(id)
+		if err != nil {
+			continue
+		}
+		points = append(points, HealthHistoryPoint{
+			Timestamp: data.CollectedAt,
+			Score:     score.Score,
+			Grade:     score.Grade,
+			Status:    score.Status,
+		})
+	}
+
+	c.JSON(http.StatusOK, APIResponse{
+		Success: true,
+		Data: HealthHistory{
+			Device: id,
+			Points: points,
+			Period: "全部历史",
+		},
+	})
 }
 
-// getRiskLevel 获取风险等级
-func getRiskLevel(prob float64) string {
-	switch {
-	case prob >= 0.5:
-		return "critical"
-	case prob >= 0.2:
-		return "high"
-	case prob >= 0.1:
-		return "medium"
-	case prob >= 0.05:
-		return "low"
-	default:
-		return "minimal"
-	}
+// ListGroups 获取磁盘组列表
+// GET /api/v1/diskhealthai2/groups
+func (h *Handler) ListGroups(c *gin.Context) {
+	groups := h.svc.GroupMgr.EvaluateAllGroups()
+
+	c.JSON(http.StatusOK, APIResponse{
+		Success: true,
+		Data:    groups,
+	})
 }
 
-// getRecommendations 获取建议
-func getRecommendations(prob float64) []string {
-	var recs []string
-	if prob >= 0.5 {
-		recs = append(recs, "立即备份所有重要数据")
-		recs = append(recs, "准备替换磁盘")
-		recs = append(recs, "减少对磁盘的写入操作")
-	} else if prob >= 0.2 {
-		recs = append(recs, "尽快备份重要数据")
-		recs = append(recs, "监控磁盘状态")
-		recs = append(recs, "考虑购买备用磁盘")
-	} else if prob >= 0.1 {
-		recs = append(recs, "定期备份数据")
-		recs = append(recs, "保持磁盘良好散热")
-	} else {
-		recs = append(recs, "磁盘状态良好")
-		recs = append(recs, "继续定期检查")
+// GetGroupHealth 获取磁盘组健康状态
+// GET /api/v1/diskhealthai2/groups/:id/health
+func (h *Handler) GetGroupHealth(c *gin.Context) {
+	id := c.Param("id")
+
+	group, err := h.svc.GroupMgr.EvaluateGroup(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, APIResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
+		return
 	}
-	return recs
+
+	c.JSON(http.StatusOK, APIResponse{
+		Success: true,
+		Data:    group,
+	})
+}
+
+// GetAdvice 获取维护建议列表
+// GET /api/v1/diskhealthai2/advice
+func (h *Handler) GetAdvice(c *gin.Context) {
+	advices, err := h.svc.Advisor.GenerateAdvice()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, APIResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, APIResponse{
+		Success: true,
+		Data:    advices,
+	})
+}
+
+// TriggerScan 触发全盘扫描
+// POST /api/v1/diskhealthai2/scan
+func (h *Handler) TriggerScan(c *gin.Context) {
+	scanID, startedAt := h.svc.ScanAllDisk()
+
+	c.JSON(http.StatusOK, APIResponse{
+		Success: true,
+		Data: ScanTriggerResponse{
+			ScanID:    scanID,
+			Status:    "started",
+			StartedAt: startedAt,
+		},
+		Message: "扫描任务已触发",
+	})
+}
+
+// Dashboard 仪表板汇总
+// GET /api/v1/diskhealthai2/dashboard
+func (h *Handler) Dashboard(c *gin.Context) {
+	devices := h.svc.Analyzer.GetDevices()
+
+	dashboard := DashboardData{
+		TotalDisks:  len(devices),
+		GeneratedAt: time.Now(),
+	}
+
+	worstScore := 100.0
+	var worstDisk string
+
+	for _, device := range devices {
+		score, err := h.svc.ScoreSys.Calculate(device)
+		if err != nil {
+			continue
+		}
+
+		switch score.Status {
+		case StatusHealthy:
+			dashboard.HealthyDisks++
+		case StatusWarning:
+			dashboard.WarningDisks++
+		case StatusCritical:
+			dashboard.CriticalDisks++
+		case StatusFailed:
+			dashboard.FailedDisks++
+		}
+
+		dashboard.AverageScore += score.Score
+
+		if score.Score < worstScore {
+			worstScore = score.Score
+			worstDisk = device
+		}
+	}
+
+	if dashboard.TotalDisks > 0 {
+		dashboard.AverageScore /= float64(dashboard.TotalDisks)
+	}
+
+	dashboard.WorstDisk = worstDisk
+	dashboard.WorstScore = worstScore
+	dashboard.Groups = len(h.svc.GroupMgr.ListGroups())
+
+	advices, _ := h.svc.Advisor.GenerateAdvice()
+	dashboard.Advices = len(advices)
+
+	c.JSON(http.StatusOK, APIResponse{
+		Success: true,
+		Data:    dashboard,
+	})
 }

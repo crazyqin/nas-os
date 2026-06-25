@@ -1,202 +1,157 @@
-// Package compliance 提供合规中心功能，包括 GDPR/CCPA 合规检查、数据分类扫描、合规报告生成等。
+// Package compliancereport 提供合规报告生成功能
 package compliance
 
 import (
+	"fmt"
 	"time"
 )
 
-// ==================== 合规规则相关 ====================
+// ComplianceStandard 合规标准.
+type ComplianceStandard string
 
-// ComplianceRule 合规规则
-type ComplianceRule struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Regulation  string    `json:"regulation"` // GDPR, CCPA, HIPAA 等
-	Category    string    `json:"category"`   // data-protection, privacy, security 等
-	Severity    string    `json:"severity"`   // critical, high, medium, low
-	Description string    `json:"description"`
-	Condition   string    `json:"condition"` // 规则条件
-	Action      string    `json:"action"`    // 触发动作
-	Enabled     bool      `json:"enabled"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+// 支持的合规标准.
+const (
+	StandardGDPR     ComplianceStandard = "gdpr"     // 欧盟通用数据保护条例
+	StandardSOC2     ComplianceStandard = "soc2"     // SOC2 服务组织控制
+	StandardDJBH     ComplianceStandard = "djbh"     // 等保 2.0
+	StandardISO27001 ComplianceStandard = "iso27001" // ISO/IEC 27001
+	StandardHIPAA    ComplianceStandard = "hipaa"    // 健康保险可携性与责任法案
+)
+
+// ScanStatus 扫描状态.
+type ScanStatus string
+
+const (
+	ScanStatusPending  ScanStatus = "pending"
+	ScanStatusRunning  ScanStatus = "running"
+	ScanStatusComplete ScanStatus = "complete"
+	ScanStatusFailed   ScanStatus = "failed"
+)
+
+// ComplianceStatus 合规状态.
+type ComplianceStatus string
+
+const (
+	StatusCompliant     ComplianceStatus = "compliant"      // 合规
+	StatusNonCompliant  ComplianceStatus = "non_compliant"  // 不合规
+	StatusPendingReview ComplianceStatus = "pending_review" // 待审查
+)
+
+// CheckCategory 扫描检查类别.
+type CheckCategory string
+
+const (
+	CategoryAccessControl  CheckCategory = "access_control"   // 访问控制审计
+	CategoryDataEncryption CheckCategory = "data_encryption"  // 数据加密状态
+	CategoryLogIntegrity   CheckCategory = "log_integrity"    // 日志完整性
+	CategoryBackup         CheckCategory = "backup"           // 备份合规性
+	CategoryNetwork        CheckCategory = "network_security" // 网络安全配置
+)
+
+// CheckItemStatus 检查项状态.
+type CheckItemStatus string
+
+const (
+	CheckItemPass    CheckItemStatus = "pass"
+	CheckItemFail    CheckItemStatus = "fail"
+	CheckItemWarning CheckItemStatus = "warning"
+	CheckItemSkip    CheckItemStatus = "skip"
+)
+
+// Severity 严重程度.
+type Severity string
+
+const (
+	SeverityLow      Severity = "low"
+	SeverityMedium   Severity = "medium"
+	SeverityHigh     Severity = "high"
+	SeverityCritical Severity = "critical"
+)
+
+// ReportFormat 报告格式.
+type ReportFormat string
+
+const (
+	FormatJSON ReportFormat = "json"
+	FormatPDF  ReportFormat = "pdf"
+)
+
+// StandardInfo 合规标准信息.
+type StandardInfo struct {
+	ID          ComplianceStandard `json:"id"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Version     string             `json:"version"`
+	Categories  []CheckCategory    `json:"categories"`
 }
 
-// RuleCategory 规则分类
-type RuleCategory struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
-
-// ==================== 扫描相关 ====================
-
-// ScanResult 扫描结果
-type ScanResult struct {
-	ID           string    `json:"id"`
-	RuleID       string    `json:"rule_id"`
-	ResourceID   string    `json:"resource_id"`
-	ResourceType string    `json:"resource_type"`
-	Status       string    `json:"status"` // compliant, non-compliant, warning
-	Details      string    `json:"details"`
-	Evidence     []string  `json:"evidence,omitempty"`
-	Remediation  string    `json:"remediation,omitempty"`
-	ScannedAt    time.Time `json:"scanned_at"`
-}
-
-// ScanRequest 扫描请求
+// ScanRequest 扫描请求.
 type ScanRequest struct {
-	Rules       []string `json:"rules,omitempty"`       // 指定规则ID，空则全部
-	Resources   []string `json:"resources,omitempty"`   // 指定资源，空则全部
-	Regulations []string `json:"regulations,omitempty"` // 指定法规
-	Async       bool     `json:"async,omitempty"`
+	Standard   ComplianceStandard `json:"standard" binding:"required"`
+	Categories []CheckCategory    `json:"categories,omitempty"` // 可选，指定扫描类别
+	Format     ReportFormat       `json:"format,omitempty"`     // 报告格式，默认 json
 }
 
-// ScanReport 扫描报告
-type ScanReport struct {
-	ID          string       `json:"id"`
-	ScanID      string       `json:"scan_id"`
-	Summary     ScanSummary  `json:"summary"`
-	Results     []ScanResult `json:"results"`
-	GeneratedAt time.Time    `json:"generated_at"`
+// ScanResult 单项扫描结果.
+type ScanResult struct {
+	CheckID   string          `json:"check_id"`
+	Category  CheckCategory   `json:"category"`
+	Name      string          `json:"name"`
+	Status    CheckItemStatus `json:"status"`
+	Severity  Severity        `json:"severity"`
+	Message   string          `json:"message"`
+	Details   string          `json:"details,omitempty"`
+	Timestamp time.Time       `json:"timestamp"`
 }
 
-// ScanSummary 扫描摘要
-type ScanSummary struct {
-	TotalChecked   int     `json:"total_checked"`
-	Compliant      int     `json:"compliant"`
-	NonCompliant   int     `json:"non_compliant"`
-	Warnings       int     `json:"warnings"`
-	ComplianceRate float64 `json:"compliance_rate"`
+// Remediation 整改建议.
+type Remediation struct {
+	CheckID     string   `json:"check_id"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Steps       []string `json:"steps"`
+	Priority    Severity `json:"priority"`
 }
 
-// ==================== 报告相关 ====================
-
-// ComplianceReport 合规报告
+// ComplianceReport 合规报告.
 type ComplianceReport struct {
-	ID              string           `json:"id"`
-	Title           string           `json:"title"`
-	Regulation      string           `json:"regulation"`
-	Period          ReportPeriod     `json:"period"`
-	Summary         ReportSummary    `json:"summary"`
-	Findings        []Finding        `json:"findings"`
-	Recommendations []Recommendation `json:"recommendations"`
-	Status          string           `json:"status"` // draft, final, submitted
-	GeneratedAt     time.Time        `json:"generated_at"`
-	ApprovedBy      string           `json:"approved_by,omitempty"`
-	ApprovedAt      *time.Time       `json:"approved_at,omitempty"`
+	ID               string             `json:"id"`
+	Standard         ComplianceStandard `json:"standard"`
+	Status           ScanStatus         `json:"status"`
+	ComplianceStatus ComplianceStatus   `json:"compliance_status"`
+	Score            int                `json:"score"` // 0-100
+	TotalChecks      int                `json:"total_checks"`
+	Passed           int                `json:"passed"`
+	Failed           int                `json:"failed"`
+	Warnings         int                `json:"warnings"`
+	Skipped          int                `json:"skipped"`
+	Results          []ScanResult       `json:"results"`
+	Remediations     []Remediation      `json:"remediations"`
+	Summary          string             `json:"summary"`
+	Format           ReportFormat       `json:"format"`
+	CreatedAt        time.Time          `json:"created_at"`
+	CompletedAt      *time.Time         `json:"completed_at,omitempty"`
 }
 
-// ReportPeriod 报告周期
-type ReportPeriod struct {
-	Start time.Time `json:"start"`
-	End   time.Time `json:"end"`
+// ComplianceStatusOverview 合规状态总览.
+type ComplianceStatusOverview struct {
+	OverallStatus      ComplianceStatus `json:"overall_status"`
+	OverallScore       int              `json:"overall_score"`
+	Standards          []StandardStatus `json:"standards"`
+	LastScanTime       *time.Time       `json:"last_scan_time,omitempty"`
+	TotalReports       int              `json:"total_reports"`
+	PendingRemediation int              `json:"pending_remediation"`
 }
 
-// ReportSummary 报告摘要
-type ReportSummary struct {
-	OverallScore   float64 `json:"overall_score"`
-	TotalIssues    int     `json:"total_issues"`
-	CriticalIssues int     `json:"critical_issues"`
-	ResolvedIssues int     `json:"resolved_issues"`
-	PendingIssues  int     `json:"pending_issues"`
+// StandardStatus 单个标准的合规状态.
+type StandardStatus struct {
+	Standard ComplianceStandard `json:"standard"`
+	Status   ComplianceStatus   `json:"status"`
+	Score    int                `json:"score"`
+	LastScan *time.Time         `json:"last_scan,omitempty"`
 }
 
-// Finding 发现问题
-type Finding struct {
-	ID          string     `json:"id"`
-	RuleID      string     `json:"rule_id"`
-	Severity    string     `json:"severity"`
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	Evidence    string     `json:"evidence"`
-	Status      string     `json:"status"` // open, in-progress, resolved
-	DetectedAt  time.Time  `json:"detected_at"`
-	ResolvedAt  *time.Time `json:"resolved_at,omitempty"`
-}
-
-// Recommendation 整改建议
-type Recommendation struct {
-	ID          string     `json:"id"`
-	FindingID   string     `json:"finding_id"`
-	Priority    string     `json:"priority"`
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	Effort      string     `json:"effort"` // low, medium, high
-	Deadline    *time.Time `json:"deadline,omitempty"`
-}
-
-// ==================== 整改计划相关 ====================
-
-// RemediationPlan 整改计划
-type RemediationPlan struct {
-	ID          string            `json:"id"`
-	ReportID    string            `json:"report_id"`
-	Title       string            `json:"description"`
-	Status      string            `json:"status"` // draft, active, completed
-	Items       []RemediationItem `json:"items"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
-	CompletedAt *time.Time        `json:"completed_at,omitempty"`
-}
-
-// RemediationItem 整改项
-type RemediationItem struct {
-	ID          string     `json:"id"`
-	FindingID   string     `json:"finding_id"`
-	Action      string     `json:"action"`
-	Assignee    string     `json:"assignee"`
-	Deadline    time.Time  `json:"deadline"`
-	Status      string     `json:"status"` // pending, in-progress, completed
-	CompletedAt *time.Time `json:"completed_at,omitempty"`
-	Notes       string     `json:"notes,omitempty"`
-}
-
-// ==================== 数据分类相关 ====================
-
-// DataClassification 数据分类
-type DataClassification struct {
-	ID           string            `json:"id"`
-	ResourceID   string            `json:"resource_id"`
-	ResourceType string            `json:"resource_type"`
-	Category     string            `json:"category"`    // PII, PHI, financial, confidential, public
-	Sensitivity  string            `json:"sensitivity"` // high, medium, low
-	Tags         []string          `json:"tags,omitempty"`
-	Metadata     map[string]string `json:"metadata,omitempty"`
-	Owner        string            `json:"owner"`
-	Location     string            `json:"location"`
-	UpdatedAt    time.Time         `json:"updated_at"`
-}
-
-// DataCategory 数据类别
-type DataCategory struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Guidelines  string `json:"guidelines"`
-}
-
-// ScanDataRequest 数据扫描请求
-type ScanDataRequest struct {
-	Path        string   `json:"path"`
-	Recursive   bool     `json:"recursive"`
-	Categories  []string `json:"categories,omitempty"`
-	MinFileSize int64    `json:"min_file_size,omitempty"`
-}
-
-// DataScanResult 数据扫描结果
-type DataScanResult struct {
-	ID              string               `json:"id"`
-	Path            string               `json:"path"`
-	Summary         DataScanSummary      `json:"summary"`
-	Classifications []DataClassification `json:"classifications"`
-	ScannedAt       time.Time            `json:"scanned_at"`
-}
-
-// DataScanSummary 数据扫描摘要
-type DataScanSummary struct {
-	TotalFiles    int            `json:"total_files"`
-	TotalSize     int64          `json:"total_bytes"`
-	ByCategory    map[string]int `json:"by_category"`
-	BySensitivity map[string]int `json:"by_sensitivity"`
+// GenerateID 生成唯一 ID.
+func GenerateID(prefix string) string {
+	return fmt.Sprintf("%s_%d", prefix, time.Now().UnixNano())
 }

@@ -1,564 +1,298 @@
-// Package costanalyzer 存储成本分析器 - 计算、分析和优化存储成本
+// Package smartcostoptimizer 提供智能存储成本优化功能，支持成本计算、趋势分析、
+// 优化建议生成、ROI 计算及报告导出，参考群晖 DSM 7.3 存储效率分析。
 package costanalyzer
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	"math"
-	"os"
-	"sync"
 	"time"
 )
 
-// StorageType 存储类型
+// StorageType 存储介质类型.
 type StorageType string
 
+// 存储类型常量定义.
 const (
-	StorageSSD    StorageType = "ssd"
-	StorageHDD    StorageType = "hdd"
-	StorageNVMe   StorageType = "nvme"
-	StorageHybrid StorageType = "hybrid"
+	// StorageTypeSSD 固态硬盘.
+	StorageTypeSSD StorageType = "ssd"
+	// StorageTypeHDD 机械硬盘.
+	StorageTypeHDD StorageType = "hdd"
+	// StorageTypeNVMe NVMe 高速盘.
+	StorageTypeNVMe StorageType = "nvme"
+	// StorageTypeTape 磁带归档.
+	StorageTypeTape StorageType = "tape"
+	// StorageTypeCloud 云存储.
+	StorageTypeCloud StorageType = "cloud"
+	// StorageTypeUnknown 未知类型.
+	StorageTypeUnknown StorageType = "unknown"
 )
 
-// CostUnit 成本单位（元/TB/月）
-type CostUnit struct {
-	Type     StorageType `json:"type"`
-	PriceTB  float64     `json:"price_per_tb_month"` // 每TB每月成本（元）
-	PowerKWH float64     `json:"power_kwh_month"`    // 每TB每月功耗成本
-	Lifespan int         `json:"lifespan_years"`     // 使用寿命（年）
-}
+// DataTemperature 数据温度（访问频率）.
+type DataTemperature string
 
-// StoragePool 存储池
-type StoragePool struct {
-	ID       string      `json:"id"`
-	Name     string      `json:"name"`
-	Type     StorageType `json:"type"`
-	TotalTB  float64     `json:"total_tb"`
-	UsedTB   float64     `json:"used_tb"`
-	UnitCost float64     `json:"unit_cost"` // 当前每TB月成本
-	IsHot    bool        `json:"is_hot"`    // 是否热数据层
-}
-
-// CostRecord 成本记录
-type CostRecord struct {
-	Timestamp   time.Time `json:"timestamp"`
-	Period      string    `json:"period"` // "2024-01", "2024-Q1"
-	TotalCost   float64   `json:"total_cost"`
-	StorageCost float64   `json:"storage_cost"`
-	PowerCost   float64   `json:"power_cost"`
-	MaintCost   float64   `json:"maintenance_cost"`
-	UsedTB      float64   `json:"used_tb"`
-	UnitCostTB  float64   `json:"unit_cost_per_tb"`
-}
-
-// OptimizationSuggestion 优化建议
-type OptimizationSuggestion struct {
-	ID          string  `json:"id"`
-	Type        string  `json:"type"` // "cold_migration", "dedup", "compress", "tiering"
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Savings     float64 `json:"estimated_savings"` // 预计节省金额（元/月）
-	Effort      string  `json:"effort"`            // "low", "medium", "high"
-	Priority    int     `json:"priority"`          // 1-5
-}
-
-// ROIReport 投资回报报告
-type ROIReport struct {
-	Investment     float64 `json:"investment"`      // 总投资
-	MonthlySavings float64 `json:"monthly_savings"` // 月节省
-	AnnualSavings  float64 `json:"annual_savings"`  // 年节省
-	PaybackMonths  float64 `json:"payback_months"`  // 回本周期（月）
-	ThreeYearROI   float64 `json:"three_year_roi"`  // 3年ROI百分比
-	FiveYearROI    float64 `json:"five_year_roi"`   // 5年ROI百分比
-}
-
-// CloudComparison 云存储对比
-type CloudComparison struct {
-	LocalCostTB    float64            `json:"local_cost_per_tb"`
-	CloudCosts     map[string]float64 `json:"cloud_costs"` // provider -> cost/tb/month
-	Savings        map[string]float64 `json:"savings"`     // provider -> savings/tb/month
-	Recommendation string             `json:"recommendation"`
-}
-
-// CostReport 综合成本报告
-type CostReport struct {
-	ID            string                    `json:"id"`
-	GeneratedAt   time.Time                 `json:"generated_at"`
-	TotalMonthly  float64                   `json:"total_monthly_cost"`
-	TotalCapacity float64                   `json:"total_capacity_tb"`
-	UsedCapacity  float64                   `json:"used_capacity_tb"`
-	Utilization   float64                   `json:"utilization_rate"`
-	CostPerTB     float64                   `json:"cost_per_tb"`
-	Trends        []*CostRecord             `json:"trends,omitempty"`
-	Suggestions   []*OptimizationSuggestion `json:"suggestions,omitempty"`
-	ROI           *ROIReport                `json:"roi,omitempty"`
-	CloudCompare  *CloudComparison          `json:"cloud_comparison,omitempty"`
-	Pools         []*StoragePool            `json:"pools"`
-}
-
-// Config 分析器配置
-type Config struct {
-	MaintCostPerTB   float64            `json:"maint_cost_per_tb"`  // 每TB每月维护成本
-	PowerCostKWH     float64            `json:"power_cost_kwh"`     // 每度电成本
-	CloudPrices      map[string]float64 `json:"cloud_prices"`       // 云存储价格
-	HotColdThreshold int                `json:"hot_cold_threshold"` // 热/冷数据天数阈值
-}
-
-// Manager 成本分析管理器
-type Manager struct {
-	mu       sync.RWMutex
-	config   *Config
-	pools    []*StoragePool
-	records  []*CostRecord
-	report   *CostReport
-	dataFile string
-}
-
-var (
-	// ErrPoolNotFound 存储池未找到
-	ErrPoolNotFound = errors.New("storage pool not found")
-	// ErrNoData 无数据
-	ErrNoData = errors.New("no data available")
+// 数据温度常量定义.
+const (
+	// TempHot 热数据，频繁访问.
+	TempHot DataTemperature = "hot"
+	// TempWarm 温数据，偶尔访问.
+	TempWarm DataTemperature = "warm"
+	// TempCold 冷数据，很少访问.
+	TempCold DataTemperature = "cold"
+	// TempFrozen 冻结数据，几乎不访问.
+	TempFrozen DataTemperature = "frozen"
 )
 
-// NewManager 创建成本分析管理器
-func NewManager(dataFile string) *Manager {
-	return &Manager{
-		config: &Config{
-			MaintCostPerTB: 5.0,
-			PowerCostKWH:   0.6,
-			CloudPrices: map[string]float64{
-				"aliyun_oss":  0.12,
-				"tencent_cos": 0.119,
-				"aws_s3":      0.17,
-				"azure_blob":  0.15,
-			},
-			HotColdThreshold: 90,
+// OptimizationStrategy 优化策略.
+type OptimizationStrategy string
+
+// 优化策略常量定义.
+const (
+	// StrategyColdMigration 冷数据迁移.
+	StrategyColdMigration OptimizationStrategy = "cold_migration"
+	// StrategyDeduplication 去重.
+	StrategyDeduplication OptimizationStrategy = "deduplication"
+	// StrategyCompression 压缩.
+	StrategyCompression OptimizationStrategy = "compression"
+	// StrategyTiering 自动分层.
+	StrategyTiering OptimizationStrategy = "tiering"
+	// StrategyCleanup 清理过期数据.
+	StrategyCleanup OptimizationStrategy = "cleanup"
+	// StrategyArchivePolicy 归档策略.
+	StrategyArchivePolicy OptimizationStrategy = "archive_policy"
+)
+
+// ExportFormat 导出格式.
+type ExportFormat string
+
+// 导出格式常量定义.
+const (
+	// ExportJSON JSON 格式.
+	ExportJSON ExportFormat = "json"
+	// ExportCSV CSV 格式.
+	ExportCSV ExportFormat = "csv"
+)
+
+// TrendGranularity 趋势粒度.
+type TrendGranularity string
+
+// 趋势粒度常量定义.
+const (
+	// TrendDaily 日粒度.
+	TrendDaily TrendGranularity = "daily"
+	// TrendWeekly 周粒度.
+	TrendWeekly TrendGranularity = "weekly"
+	// TrendMonthly 月粒度.
+	TrendMonthly TrendGranularity = "monthly"
+	// TrendYearly 年粒度.
+	TrendYearly TrendGranularity = "yearly"
+)
+
+// ============================================================
+// 存储资源与定价
+// ============================================================
+
+// StorageAsset 存储资产（设备/卷）.
+type StorageAsset struct {
+	ID            string      `json:"id"`
+	Name          string      `json:"name"`
+	Type          StorageType `json:"type"`
+	CapacityBytes int64       `json:"capacity_bytes"`
+	UsedBytes     int64       `json:"used_bytes"`
+	PurchaseCost  float64     `json:"purchase_cost"` // 购置成本
+	MonthlyOpex   float64     `json:"monthly_opex"`  // 月运营成本
+	WarrantyYears int         `json:"warranty_years"`
+	PurchaseDate  time.Time   `json:"purchase_date"`
+	Pool          string      `json:"pool"`
+	Volume        string      `json:"volume,omitempty"`
+	Provider      string      `json:"provider,omitempty"` // 本地/阿里云/AWS 等
+	Labels        []string    `json:"labels,omitempty"`
+	CreatedAt     time.Time   `json:"created_at"`
+}
+
+// PricingRule 定价规则.
+type PricingRule struct {
+	StorageType     StorageType `json:"storage_type"`
+	PricePerGBMonth float64     `json:"price_per_gb_month"` // 元/GB/月
+	TransferPerGB   float64     `json:"transfer_per_gb"`    // 元/GB 传输费
+	RetrievalPerGB  float64     `json:"retrieval_per_gb"`   // 元/GB 取回费
+	RequestPer1K    float64     `json:"request_per_1k"`     // 元/千次请求
+}
+
+// SmartCostConfig 智能成本优化器配置.
+type SmartCostConfig struct {
+	Enabled            bool                        `json:"enabled"`
+	DefaultCurrency    string                      `json:"default_currency"`
+	PricingRules       map[StorageType]PricingRule `json:"pricing_rules"`
+	ColdThresholdDays  int                         `json:"cold_threshold_days"`  // 未访问天数判定冷数据
+	UtilizationWarnPct float64                     `json:"utilization_warn_pct"` // 利用率低于此值告警
+	DedupRatio         float64                     `json:"dedup_ratio"`          // 预估去重率
+	CompressRatio      float64                     `json:"compress_ratio"`       // 预估压缩率
+	ReportRetention    int                         `json:"report_retention_days"`
+}
+
+// DefaultSmartCostConfig 返回默认配置.
+func DefaultSmartCostConfig() *SmartCostConfig {
+	return &SmartCostConfig{
+		Enabled:         true,
+		DefaultCurrency: "CNY",
+		PricingRules: map[StorageType]PricingRule{
+			StorageTypeNVMe:  {StorageTypeNVMe, 0.80, 0.15, 0.20, 0.01},
+			StorageTypeSSD:   {StorageTypeSSD, 0.50, 0.12, 0.15, 0.01},
+			StorageTypeHDD:   {StorageTypeHDD, 0.20, 0.08, 0.10, 0.005},
+			StorageTypeTape:  {StorageTypeTape, 0.05, 0.03, 0.30, 0.002},
+			StorageTypeCloud: {StorageTypeCloud, 0.15, 0.10, 0.25, 0.005},
 		},
-		dataFile: dataFile,
+		ColdThresholdDays:  90,
+		UtilizationWarnPct: 20.0,
+		DedupRatio:         0.30,
+		CompressRatio:      0.40,
+		ReportRetention:    365,
 	}
 }
 
-// Initialize 初始化管理器
-func (m *Manager) Initialize() error {
-	if err := m.load(); err != nil {
-		return err
-	}
-	if len(m.pools) == 0 {
-		m.pools = m.defaultPools()
-	}
-	return nil
+// ============================================================
+// 成本记录与汇总
+// ============================================================
+
+// CostEntry 单条成本记录.
+type CostEntry struct {
+	ID          string      `json:"id"`
+	AssetID     string      `json:"asset_id"`
+	AssetName   string      `json:"asset_name"`
+	StorageType StorageType `json:"storage_type"`
+	CapacityGB  float64     `json:"capacity_gb"`
+	UsedGB      float64     `json:"used_gb"`
+	PricePerGB  float64     `json:"price_per_gb_month"`
+	TotalCost   float64     `json:"total_cost"` // 本期总成本
+	PeriodStart time.Time   `json:"period_start"`
+	PeriodEnd   time.Time   `json:"period_end"`
+	RecordedAt  time.Time   `json:"recorded_at"`
 }
 
-func (m *Manager) defaultPools() []*StoragePool {
-	return []*StoragePool{
-		{ID: "pool-ssd-01", Name: "SSD热数据池", Type: StorageSSD, TotalTB: 4, UsedTB: 2.8, UnitCost: 150, IsHot: true},
-		{ID: "pool-hdd-01", Name: "HDD存储池", Type: StorageHDD, TotalTB: 16, UsedTB: 12.5, UnitCost: 40, IsHot: false},
-		{ID: "pool-nvme-01", Name: "NVMe缓存池", Type: StorageNVMe, TotalTB: 1, UsedTB: 0.6, UnitCost: 300, IsHot: true},
-	}
+// CostSummary 成本汇总.
+type CostSummary struct {
+	TotalCost       float64                 `json:"total_cost"`
+	TotalCapacityGB float64                 `json:"total_capacity_gb"`
+	TotalUsedGB     float64                 `json:"total_used_gb"`
+	AvgUtilization  float64                 `json:"avg_utilization_pct"`
+	ByType          map[StorageType]float64 `json:"by_type"`
+	ByPool          map[string]float64      `json:"by_pool"`
+	Currency        string                  `json:"currency"`
+	PeriodStart     time.Time               `json:"period_start"`
+	PeriodEnd       time.Time               `json:"period_end"`
 }
 
-// AnalyzeCost 执行成本分析
-func (m *Manager) AnalyzeCost() *CostReport {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+// ============================================================
+// 成本趋势
+// ============================================================
 
-	totalCost := 0.0
-	totalCap := 0.0
-	totalUsed := 0.0
-
-	for _, p := range m.pools {
-		poolCost := p.UsedTB * p.UnitCost
-		poolPower := p.UsedTB * m.estimatePower(p.Type)
-		poolMaint := p.UsedTB * m.config.MaintCostPerTB
-		totalCost += poolCost + poolPower + poolMaint
-		totalCap += p.TotalTB
-		totalUsed += p.UsedTB
-	}
-
-	utilization := 0.0
-	if totalCap > 0 {
-		utilization = totalUsed / totalCap
-	}
-
-	costPerTB := 0.0
-	if totalUsed > 0 {
-		costPerTB = totalCost / totalUsed
-	}
-
-	// 记录本月成本
-	record := &CostRecord{
-		Timestamp:   time.Now(),
-		Period:      time.Now().Format("2006-01"),
-		TotalCost:   totalCost,
-		StorageCost: totalCost * 0.7,
-		PowerCost:   totalCost * 0.15,
-		MaintCost:   totalCost * 0.15,
-		UsedTB:      totalUsed,
-		UnitCostTB:  costPerTB,
-	}
-	m.records = append(m.records, record)
-
-	report := &CostReport{
-		ID:            fmt.Sprintf("cost-%d", time.Now().UnixNano()),
-		GeneratedAt:   time.Now(),
-		TotalMonthly:  math.Round(totalCost*100) / 100,
-		TotalCapacity: totalCap,
-		UsedCapacity:  totalUsed,
-		Utilization:   math.Round(utilization*10000) / 100,
-		CostPerTB:     math.Round(costPerTB*100) / 100,
-		Trends:        m.getTrends(),
-		Suggestions:   m.generateSuggestions(),
-		ROI:           m.calculateROI(),
-		CloudCompare:  m.compareCloud(),
-		Pools:         m.pools,
-	}
-
-	m.report = report
-	m.save()
-	return report
+// TrendPoint 趋势数据点.
+type TrendPoint struct {
+	Date   time.Time `json:"date"`
+	Cost   float64   `json:"cost"`
+	UsedGB float64   `json:"used_gb"`
+	FreeGB float64   `json:"free_gb"`
 }
 
-// GetTrends 获取成本趋势
-func (m *Manager) GetTrends(period string) []*CostRecord {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	if period == "quarterly" {
-		return m.aggregateQuarterly()
-	}
-	return m.records
+// CostTrend 成本趋势分析结果.
+type CostTrend struct {
+	Granularity   TrendGranularity `json:"granularity"`
+	Points        []TrendPoint     `json:"points"`
+	GrowthRate    float64          `json:"growth_rate"`    // 成本增长率
+	ProjectedNext float64          `json:"projected_next"` // 下期预测成本
+	PeriodStart   time.Time        `json:"period_start"`
+	PeriodEnd     time.Time        `json:"period_end"`
 }
 
-// GetROI 计算ROI
-func (m *Manager) GetROI(investment float64) *ROIReport {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+// ============================================================
+// 优化建议
+// ============================================================
 
-	monthlySavings := 0.0
-	for _, s := range m.generateSuggestions() {
-		monthlySavings += s.Savings
-	}
-
-	return m.computeROI(investment, monthlySavings)
+// OptimizationSuggestion 智能优化建议.
+type OptimizationSuggestion struct {
+	ID              string               `json:"id"`
+	Strategy        OptimizationStrategy `json:"strategy"`
+	Title           string               `json:"title"`
+	Description     string               `json:"description"`
+	EstimatedSaving float64              `json:"estimated_saving"`
+	SavingsPercent  float64              `json:"savings_percent"`
+	Currency        string               `json:"currency"`
+	Priority        int                  `json:"priority"` // 1 最高
+	TargetAssets    []string             `json:"target_assets"`
+	CurrentType     StorageType          `json:"current_type,omitempty"`
+	RecommendedType StorageType          `json:"recommended_type,omitempty"`
+	Complexity      string               `json:"complexity"` // low/medium/high
+	RiskLevel       string               `json:"risk_level"` // low/medium/high
+	Details         string               `json:"details,omitempty"`
+	CreatedAt       time.Time            `json:"created_at"`
 }
 
-// CompareCloud 对比云存储成本
-func (m *Manager) CompareCloud() *CloudComparison {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	return m.compareCloud()
+// ============================================================
+// ROI 计算
+// ============================================================
+
+// ROIInput 投资回报率计算输入.
+type ROIInput struct {
+	InvestmentCost float64 `json:"investment_cost"` // 投资成本
+	AnnualSaving   float64 `json:"annual_saving"`   // 年节省
+	AnnualOpex     float64 `json:"annual_opex"`     // 年运维成本
+	ProjectYears   int     `json:"project_years"`   // 项目年限
+	DiscountRate   float64 `json:"discount_rate"`   // 折现率（如 0.08 = 8%）
 }
 
-// AddPool 添加存储池
-func (m *Manager) AddPool(pool *StoragePool) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.pools = append(m.pools, pool)
-	return m.save()
+// ROIResult 投资回报率计算结果.
+type ROIResult struct {
+	InvestmentCost  float64     `json:"investment_cost"`
+	TotalSaving     float64     `json:"total_saving"`
+	TotalOpex       float64     `json:"total_opex"`
+	NetProfit       float64     `json:"net_profit"`
+	ROIPercent      float64     `json:"roi_percent"`
+	PaybackMonths   float64     `json:"payback_months"`
+	NPV             float64     `json:"npv"` // 净现值
+	IRR             float64     `json:"irr"` // 内部收益率
+	AnnualBreakdown []AnnualROI `json:"annual_breakdown"`
 }
 
-// RemovePool 移除存储池
-func (m *Manager) RemovePool(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	for i, p := range m.pools {
-		if p.ID == id {
-			m.pools = append(m.pools[:i], m.pools[i+1:]...)
-			return m.save()
-		}
-	}
-	return ErrPoolNotFound
+// AnnualROI 年度 ROI 明细.
+type AnnualROI struct {
+	Year         int     `json:"year"`
+	Saving       float64 `json:"saving"`
+	Opex         float64 `json:"opex"`
+	NetCashFlow  float64 `json:"net_cash_flow"`
+	CumulativeCF float64 `json:"cumulative_cf"`
+	DiscountedCF float64 `json:"discounted_cf"`
 }
 
-// GetPools 获取所有存储池
-func (m *Manager) GetPools() []*StoragePool {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	return m.pools
+// ============================================================
+// 冷数据检测
+// ============================================================
+
+// ColdDataInfo 冷数据信息.
+type ColdDataInfo struct {
+	AssetID       string          `json:"asset_id"`
+	AssetName     string          `json:"asset_name"`
+	Volume        string          `json:"volume"`
+	Directory     string          `json:"directory,omitempty"`
+	SizeBytes     int64           `json:"size_bytes"`
+	LastAccess    time.Time       `json:"last_access"`
+	DaysSince     int             `json:"days_since_access"`
+	CurrentType   StorageType     `json:"current_type"`
+	Temperature   DataTemperature `json:"temperature"`
+	SuggestedType StorageType     `json:"suggested_type"`
+	PotentialSave float64         `json:"potential_save"`
 }
 
-// GetLatestReport 获取最新报告
-func (m *Manager) GetLatestReport() (*CostReport, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	if m.report == nil {
-		return nil, ErrNoData
-	}
-	return m.report, nil
-}
+// ============================================================
+// 报告导出
+// ============================================================
 
-// GetStats 获取统计概览
-func (m *Manager) GetStats() map[string]interface{} {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	totalCost := 0.0
-	totalUsed := 0.0
-	for _, p := range m.pools {
-		totalCost += p.UsedTB * p.UnitCost
-		totalUsed += p.UsedTB
-	}
-
-	return map[string]interface{}{
-		"pools":          len(m.pools),
-		"total_capacity": m.totalCapacity(),
-		"used_capacity":  totalUsed,
-		"monthly_cost":   totalCost,
-		"cost_per_tb":    safeDiv(totalCost, totalUsed),
-		"records":        len(m.records),
-	}
-}
-
-// UpdatePoolUsage 更新存储池使用量
-func (m *Manager) UpdatePoolUsage(id string, usedTB float64) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	for _, p := range m.pools {
-		if p.ID == id {
-			p.UsedTB = usedTB
-			return m.save()
-		}
-	}
-	return ErrPoolNotFound
-}
-
-// 内部方法
-
-func (m *Manager) estimatePower(t StorageType) float64 {
-	switch t {
-	case StorageSSD:
-		return 0.5 * m.config.PowerCostKWH
-	case StorageNVMe:
-		return 0.8 * m.config.PowerCostKWH
-	case StorageHDD:
-		return 1.2 * m.config.PowerCostKWH
-	default:
-		return 1.0 * m.config.PowerCostKWH
-	}
-}
-
-func (m *Manager) getTrends() []*CostRecord {
-	if len(m.records) > 12 {
-		return m.records[len(m.records)-12:]
-	}
-	return m.records
-}
-
-func (m *Manager) aggregateQuarterly() []*CostRecord {
-	quarterMap := make(map[string]*CostRecord)
-	for _, r := range m.records {
-		year := r.Timestamp.Year()
-		quarter := (r.Timestamp.Month()-1)/3 + 1
-		key := fmt.Sprintf("%d-Q%d", year, quarter)
-		if existing, ok := quarterMap[key]; ok {
-			existing.TotalCost += r.TotalCost
-			existing.StorageCost += r.StorageCost
-			existing.PowerCost += r.PowerCost
-			existing.MaintCost += r.MaintCost
-			existing.UsedTB = r.UsedTB // 取最新值
-		} else {
-			quarterMap[key] = &CostRecord{
-				Timestamp:   r.Timestamp,
-				Period:      key,
-				TotalCost:   r.TotalCost,
-				StorageCost: r.StorageCost,
-				PowerCost:   r.PowerCost,
-				MaintCost:   r.MaintCost,
-				UsedTB:      r.UsedTB,
-			}
-		}
-	}
-
-	var result []*CostRecord
-	for _, v := range quarterMap {
-		v.UnitCostTB = safeDiv(v.TotalCost, v.UsedTB)
-		result = append(result, v)
-	}
-	return result
-}
-
-func (m *Manager) generateSuggestions() []*OptimizationSuggestion {
-	var suggestions []*OptimizationSuggestion
-	id := 0
-
-	for _, p := range m.pools {
-		// 低利用率建议
-		if p.TotalTB > 0 && p.UsedTB/p.TotalTB < 0.3 {
-			id++
-			suggestions = append(suggestions, &OptimizationSuggestion{
-				ID:          fmt.Sprintf("opt-%d", id),
-				Type:        "consolidation",
-				Title:       fmt.Sprintf("合并低利用率存储池: %s", p.Name),
-				Description: fmt.Sprintf("利用率仅%.1f%%，建议合并到其他存储池", p.UsedTB/p.TotalTB*100),
-				Savings:     (p.TotalTB - p.UsedTB) * p.UnitCost * 0.3,
-				Effort:      "medium",
-				Priority:    3,
-			})
-		}
-
-		// HDD冷数据迁移
-		if p.Type == StorageHDD && p.IsHot == false && p.UsedTB > 10 {
-			id++
-			suggestions = append(suggestions, &OptimizationSuggestion{
-				ID:          fmt.Sprintf("opt-%d", id),
-				Type:        "cold_migration",
-				Title:       "冷数据归档",
-				Description: fmt.Sprintf("%s 中 %.1fTB 数据超过 %d 天未访问，建议归档", p.Name, p.UsedTB*0.3, m.config.HotColdThreshold),
-				Savings:     p.UsedTB * 0.3 * p.UnitCost * 0.5,
-				Effort:      "low",
-				Priority:    2,
-			})
-		}
-
-		// 去重建议
-		if p.UsedTB > 5 {
-			id++
-			dedupRatio := 0.15 // 预估15%去重率
-			suggestions = append(suggestions, &OptimizationSuggestion{
-				ID:          fmt.Sprintf("opt-%d", id),
-				Type:        "dedup",
-				Title:       fmt.Sprintf("启用去重: %s", p.Name),
-				Description: fmt.Sprintf("预计可节省 %.1fTB 空间（约15%%去重率）", p.UsedTB*dedupRatio),
-				Savings:     p.UsedTB * dedupRatio * p.UnitCost,
-				Effort:      "medium",
-				Priority:    3,
-			})
-		}
-
-		// 压缩建议
-		if p.UsedTB > 2 {
-			id++
-			compressRatio := 0.2 // 预估20%压缩率
-			suggestions = append(suggestions, &OptimizationSuggestion{
-				ID:          fmt.Sprintf("opt-%d", id),
-				Type:        "compress",
-				Title:       fmt.Sprintf("启用压缩: %s", p.Name),
-				Description: fmt.Sprintf("预计可节省 %.1fTB 空间（约20%%压缩率）", p.UsedTB*compressRatio),
-				Savings:     p.UsedTB * compressRatio * p.UnitCost,
-				Effort:      "low",
-				Priority:    2,
-			})
-		}
-	}
-
-	// 分层建议
-	if len(m.pools) > 1 {
-		id++
-		suggestions = append(suggestions, &OptimizationSuggestion{
-			ID:          fmt.Sprintf("opt-%d", id),
-			Type:        "tiering",
-			Title:       "优化数据分层策略",
-			Description: "建议将热数据放在SSD/NVMe，温数据放HDD，冷数据归档",
-			Savings:     m.totalCapacity() * 5,
-			Effort:      "high",
-			Priority:    4,
-		})
-	}
-
-	return suggestions
-}
-
-func (m *Manager) calculateROI() *ROIReport {
-	// 估算当前投资（硬件 + 3年运营）
-	hardwareCost := 0.0
-	for _, p := range m.pools {
-		hardwareCost += p.TotalTB * p.UnitCost * 12 * 3 // 3年的存储成本
-	}
-
-	monthlySavings := 0.0
-	for _, s := range m.generateSuggestions() {
-		monthlySavings += s.Savings
-	}
-
-	return m.computeROI(hardwareCost, monthlySavings)
-}
-
-func (m *Manager) computeROI(investment, monthlySavings float64) *ROIReport {
-	annualSavings := monthlySavings * 12
-	payback := safeDiv(investment, monthlySavings)
-	threeYearROI := safeDiv((annualSavings*3-investment), investment) * 100
-	fiveYearROI := safeDiv((annualSavings*5-investment), investment) * 100
-
-	return &ROIReport{
-		Investment:     math.Round(investment*100) / 100,
-		MonthlySavings: math.Round(monthlySavings*100) / 100,
-		AnnualSavings:  math.Round(annualSavings*100) / 100,
-		PaybackMonths:  math.Round(payback*10) / 10,
-		ThreeYearROI:   math.Round(threeYearROI*100) / 100,
-		FiveYearROI:    math.Round(fiveYearROI*100) / 100,
-	}
-}
-
-func (m *Manager) compareCloud() *CloudComparison {
-	localCost := 0.0
-	totalUsed := 0.0
-	for _, p := range m.pools {
-		localCost += p.UsedTB * p.UnitCost
-		totalUsed += p.UsedTB
-	}
-	localPerTB := safeDiv(localCost, totalUsed)
-
-	cloudCosts := make(map[string]float64)
-	savings := make(map[string]float64)
-	for provider, price := range m.config.CloudPrices {
-		cloudCosts[provider] = price
-		savings[provider] = localPerTB - price
-	}
-
-	recommendation := "本地存储"
-	for provider, saving := range savings {
-		if saving > 0 {
-			recommendation = fmt.Sprintf("本地存储更划算，比 %s 每TB每月节省 %.2f 元", provider, saving)
-			break
-		}
-	}
-
-	return &CloudComparison{
-		LocalCostTB:    localPerTB,
-		CloudCosts:     cloudCosts,
-		Savings:        savings,
-		Recommendation: recommendation,
-	}
-}
-
-func (m *Manager) totalCapacity() float64 {
-	total := 0.0
-	for _, p := range m.pools {
-		total += p.TotalTB
-	}
-	return total
-}
-
-func (m *Manager) load() error {
-	if m.dataFile == "" {
-		return nil
-	}
-	data, err := os.ReadFile(m.dataFile)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-		return err
-	}
-	return json.Unmarshal(data, &m.records)
-}
-
-func (m *Manager) save() error {
-	if m.dataFile == "" {
-		return nil
-	}
-	data, err := json.MarshalIndent(m.records, "", "  ")
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(m.dataFile, data, 0644)
-}
-
-func safeDiv(a, b float64) float64 {
-	if b == 0 {
-		return 0
-	}
-	return a / b
+// CostReport 智能成本报告.
+type CostReport struct {
+	ID          string                    `json:"id"`
+	ReportName  string                    `json:"report_name"`
+	Summary     *CostSummary              `json:"summary"`
+	Trend       *CostTrend                `json:"trend,omitempty"`
+	Suggestions []*OptimizationSuggestion `json:"suggestions,omitempty"`
+	ColdData    []*ColdDataInfo           `json:"cold_data,omitempty"`
+	ROI         *ROIResult                `json:"roi,omitempty"`
+	GeneratedAt time.Time                 `json:"generated_at"`
+	Format      ExportFormat              `json:"format"`
 }
