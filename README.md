@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.900.0 Stable (2026-06-25)
+> **最新版本**: v3.0.0-rc1 Stable (2026-06-25)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -480,7 +480,7 @@ nas-os/
 
 > 📋 详细统计报告：[docs/resource-stats.md](docs/resource-stats.md)
 
-## 🔄 模块整合 (v2.900.0)
+## 🔄 模块整合 (v3.0.0-rc1)
 
 本次重构合并63个重复模块为6个规范模块，消除功能重叠，提升代码可维护性：
 
@@ -919,3 +919,21 @@ MIT
 - 工具注册: 标准MCP工具定义
 - 资源暴露: URI-based资源访问
 - 会话管理: 多会话支持
+
+## 🏗️ v3.0.0-rc1 架构重构
+
+### 依赖注入框架 (arch)
+- Container: 统一服务/模块注册容器
+- Module接口: Init/Start/Stop/Health/Dependencies 生命周期
+- 拓扑排序: 自动解析模块依赖顺序
+- BaseModule: 可嵌入的默认实现
+- ModuleAdapter: 将现有Manager适配为Module接口
+- RouteRegistrar: 模块自动路由注册
+- 健康检查: 全模块健康状态监控
+- 模块重启: 支持单模块热重启
+
+### 设计原则
+- 模块自注册: 每个模块通过RegisterModule注册
+- 依赖声明: 模块通过Dependencies()声明依赖
+- 自动排序: 容器自动按拓扑序初始化/启动/停止
+- 解耦: 模块间通过Container获取依赖，无硬编码导入
