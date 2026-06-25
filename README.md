@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.620.0 Stable (2026-06-24)
+> **最新版本**: v2.621.0 Stable (2026-06-25)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -471,14 +471,31 @@ nas-os/
 
 | 指标 | 数值 |
 |------|------|
-| Go 源码总行数 | **1,964,504 行** |
-| 源代码文件 | **3,296 个** |
-| 测试文件 | **1,162 个** |
-| internal/ 模块数 | **960 个** |
+| Go 源码总行数 | **1,881,038 行** |
+| 源代码文件 | **3,209 个** |
+| 测试文件 | **1,090 个** |
+| internal/ 模块数 | **974 个** |
 | 直接依赖 | **46 个** |
 | 依赖总数 | **170 个** |
 
 > 📋 详细统计报告：[docs/resource-stats.md](docs/resource-stats.md)
+
+## 🔄 模块整合 (v2.621.0)
+
+本次重构合并63个重复模块为6个规范模块，消除功能重叠，提升代码可维护性：
+
+| 功能域 | 保留模块 | 说明 |
+|--------|----------|------|
+| 勒索防护 | `ransomware` | 12个模块合并，包含AI行为检测+蜜罐+取证 |
+| 合规审计 | `compliance` | 15个模块合并，支持CIS/STIG/GDPR多标准 |
+| 存储分层 | `tiering` | 13个模块合并，ML驱动智能分层 |
+| AI相册 | `photoai` | 6个模块合并，人脸识别+以文搜图 |
+| 成本分析 | `costanalyzer` | 5个模块合并，多维度TCO分析 |
+| 磁盘健康 | `diskhealth` | 5个模块合并，AI故障预测+健康评分 |
+| AI控制台 | `aiconsole` | 3个模块合并，本地LLM管理 |
+| AI Agent | `aiagentorch` | 2个模块合并，多Agent编排 |
+
+> 删除 **83,366行**重复代码，模块总数 1034 → 974
 
 ## 开发计划
 
