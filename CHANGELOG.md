@@ -1,5 +1,18 @@
 # NAS-OS 变更日志
 
+## v3.1.0 (2026-06-26) - 3.0 架构重构稳定化
+
+### 稳定化重点
+- 补齐 3.0 架构重构后的新模块测试：blockbackup、perfmon、ransommldetect、snapshotmgr、sysmonitor、clientthumb、lxcmanager、motionphoto、rdmanfs、secureboot、smbguard、teamfile、userapikey、websharepro、wormcomply。
+- 修复编译兼容问题：`ransommldetect.NewDetector/NewHandlers` 接入 logger 参数，`internal/web` 初始化与路由注册同步更新。
+- 清理重复定义：WebShare Pro 分享链接批量错误类型改为 `BatchShareError`，复用统一 `generateToken`，避免与批量操作模块冲突。
+- 修复测试稳定性：filepreview 缓存异步索引保存增加等待机制，避免 TempDir 清理竞态；tiering 默认配置测试统一 int64 断言。
+- 同步文档与资源统计到 v3.1.0。
+
+### 验证
+- `go test ./internal/blockbackup ./internal/perfmon ./internal/ransommldetect ./internal/snapshotmgr ./internal/sysmonitor ./internal/clientthumb ./internal/lxcmanager ./internal/motionphoto ./internal/rdmanfs ./internal/secureboot ./internal/smbguard ./internal/storagetiering ./internal/teamfile ./internal/userapikey ./internal/websharepro ./internal/wormcomply` 通过。
+- `go test ./internal/filepreview ./internal/websharepro ./internal/web ./cmd/nasd` 通过。
+
 ## v2.621.0 (2026-06-25) - 模块整合重构
 
 ### 重构优化

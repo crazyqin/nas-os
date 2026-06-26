@@ -451,7 +451,7 @@ func TestDefaultPolicyEngineConfig(t *testing.T) {
 	assert.Equal(t, 5*time.Minute, config.CheckInterval)
 	assert.Equal(t, int64(100), config.HotThreshold)
 	assert.Equal(t, int64(10), config.WarmThreshold)
-	assert.Equal(t, 720, config.ColdAgeHours)
+	assert.Equal(t, int64(720), config.ColdAgeHours)
 	assert.Equal(t, 3, config.MaxConcurrent)
 	assert.True(t, config.EnableAutoTier)
 }

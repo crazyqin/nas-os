@@ -27,8 +27,8 @@ func setupTestRouter(t *testing.T, m *Manager) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 	rg := r.Group("/api/v1")
-	h := NewHandlers(m, zap.NewNop())
-	h.RegisterRoutes(rg)
+	handlers := NewHandlers(m, zap.NewNop())
+	handlers.RegisterRoutes(rg)
 	return r
 }
 

@@ -12,13 +12,14 @@ import (
 
 // PreviewCache 预览缓存管理器.
 type PreviewCache struct {
-	config    CacheConfig
-	entries   map[string]*CacheEntry
-	mu        sync.RWMutex
-	stopCh    chan struct{}
-	wg        sync.WaitGroup
-	stats     CacheStats
-	statsMu   sync.Mutex
+	config  CacheConfig
+	entries map[string]*CacheEntry
+	mu      sync.RWMutex
+	stopCh  chan struct{}
+	wg      sync.WaitGroup
+	saveWg  sync.WaitGroup
+	stats   CacheStats
+	statsMu sync.Mutex
 }
 
 // NewPreviewCache 创建预览缓存管理器.
@@ -120,7 +121,7 @@ func (c *PreviewCache) Set(key string, entry *CacheEntry) error {
 	c.entries[key] = entry
 
 	// 保存索引.
-	go c.saveIndex()
+	c.saveIndexAsync()
 
 	return nil
 }
@@ -143,7 +144,7 @@ func (c *PreviewCache) Delete(key string) error {
 	delete(c.entries, key)
 
 	// 保存索引.
-	go c.saveIndex()
+	c.saveIndexAsync()
 
 	return nil
 }
@@ -169,7 +170,7 @@ func (c *PreviewCache) DeleteBySource(sourcePath string) error {
 	}
 
 	if len(keysToDelete) > 0 {
-		go c.saveIndex()
+		c.saveIndexAsync()
 	}
 
 	return nil
@@ -246,6 +247,7 @@ func (c *PreviewCache) Cleanup() (int, int64, error) {
 func (c *PreviewCache) Close() error {
 	close(c.stopCh)
 	c.wg.Wait()
+	c.saveWg.Wait()
 	return c.saveIndex()
 }
 
@@ -439,6 +441,15 @@ func (c *PreviewCache) loadIndex() error {
 	return nil
 }
 
+// saveIndexAsync asynchronously saves the cache index and tracks completion.
+func (c *PreviewCache) saveIndexAsync() {
+	c.saveWg.Add(1)
+	go func() {
+		defer c.saveWg.Done()
+		_ = c.saveIndex()
+	}()
+}
+
 // saveIndex 保存缓存索引.
 func (c *PreviewCache) saveIndex() error {
 	c.mu.RLock()
@@ -565,7 +576,7 @@ func (c *PreviewCache) InvalidateSource(sourcePath string) int {
 	}
 
 	if count > 0 {
-		go c.saveIndex()
+		c.saveIndexAsync()
 	}
 
 	return count
