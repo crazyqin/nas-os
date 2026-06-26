@@ -296,10 +296,21 @@ func (m *Manager) GetUnreadCount(userID string) int {
 
 // GetSyncDelta 获取增量同步数据.
 func (m *Manager) GetSyncDelta(userID, deviceID string, lastSyncTime time.Time) *SyncDelta {
-	// TODO: 实现实际的增量同步逻辑
+	items := m.syncService.ListItems(userID)
+	changes := make([]SyncChange, 0)
+	for _, item := range items {
+		if item.DeviceID != deviceID || !item.UpdatedAt.After(lastSyncTime) {
+			continue
+		}
+		action := "update"
+		if item.Status == SyncCompleted && item.CompletedAt != nil && item.CreatedAt.After(lastSyncTime) {
+			action = "create"
+		}
+		changes = append(changes, SyncChange{Path: item.RemotePath, Action: action, Checksum: item.Checksum, Size: item.FileSize, Mtime: item.UpdatedAt})
+	}
 	return &SyncDelta{
 		LastSyncTime: lastSyncTime,
-		Changes:      []SyncChange{},
+		Changes:      changes,
 		HasMore:      false,
 	}
 }

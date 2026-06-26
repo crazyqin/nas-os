@@ -5,10 +5,12 @@
 package motionphoto
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -108,7 +110,6 @@ func NewParser(config *ParserConfig) *Parser {
 // DetectVendor 检测文件的动态照片厂商类型
 func DetectVendor(filePath string) (Vendor, error) {
 	ext := strings.ToLower(filepath.Ext(filePath))
-	_ = ext // TODO: 通过文件头 magic bytes 和 EXIF MakerNote 精确识别
 
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -117,18 +118,27 @@ func DetectVendor(filePath string) (Vendor, error) {
 	defer f.Close()
 
 	// 读取文件头用于 magic bytes 检测
-	buf := make([]byte, 4096)
+	buf := make([]byte, 64*1024)
 	n, err := f.Read(buf)
 	if err != nil && err != io.EOF {
 		return VendorUnknown, fmt.Errorf("read header: %w", err)
 	}
-	_ = n // TODO: 根据 magic bytes 判断厂商
-
-	// TODO: 实现厂商检测逻辑
-	// - 华为: EXIF MakerNote 中 HuaweiMotionPhoto 标记
-	// - 小米: EXIF MakerNote 中 XiaomiMotionPhoto 标记
-	// - OPPO: EXIF MakerNote 中 OPPOLivePhoto 标记
-	// - Samsung: EXIF MakerNote 中 EmbeddedVideoFile 标记
+	head := strings.ToLower(string(buf[:n]))
+	switch {
+	case strings.Contains(head, "huaweimotionphoto") || strings.Contains(head, "huawei"):
+		return VendorHuawei, nil
+	case strings.Contains(head, "xiaomimotionphoto") || strings.Contains(head, "xiaomi"):
+		return VendorXiaomi, nil
+	case strings.Contains(head, "oppolivephoto") || strings.Contains(head, "oppo"):
+		return VendorOPPO, nil
+	case strings.Contains(head, "embeddedvideofile") || strings.Contains(head, "samsung"):
+		return VendorSamsung, nil
+	}
+	if ext == ".heic" || ext == ".heif" {
+		if strings.Contains(head, "oppo") {
+			return VendorOPPO, nil
+		}
+	}
 	return VendorUnknown, nil
 }
 
@@ -152,7 +162,6 @@ func (p *Parser) Parse(ctx context.Context, filePath string) (*MotionPhoto, erro
 		Metadata: make(map[string]string),
 	}
 
-	// TODO: 根据厂商实现具体解析
 	switch vendor {
 	case VendorHuawei:
 		err = p.parseHuawei(ctx, mp)
@@ -235,47 +244,148 @@ func (p *Parser) ConvertToWebP(ctx context.Context, photoPath string, config *We
 // --- 内部方法 ---
 
 func (p *Parser) extractPhoto(ctx context.Context, mp *MotionPhoto) (string, error) {
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
 	outPath := filepath.Join(p.config.OutputDir, mp.ID+"_photo"+extensionForType(mp.PhotoType))
-	// TODO: 根据厂商读取静态帧部分并写入 outPath
-	return outPath, nil
+	if err := os.MkdirAll(p.config.OutputDir, 0755); err != nil {
+		return "", err
+	}
+	size := mp.PhotoSize
+	if size <= 0 || size > mp.VideoOffset {
+		size = mp.VideoOffset
+	}
+	return outPath, copyRange(mp.FilePath, outPath, 0, size)
 }
 
 func (p *Parser) extractVideo(ctx context.Context, mp *MotionPhoto) (string, error) {
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
 	outPath := filepath.Join(p.config.OutputDir, mp.ID+"_video.mp4")
-	// TODO: 根据 VideoOffset 和 VideoSize 从文件中截取视频部分
-	return outPath, nil
+	if err := os.MkdirAll(p.config.OutputDir, 0755); err != nil {
+		return "", err
+	}
+	return outPath, copyRange(mp.FilePath, outPath, mp.VideoOffset, mp.VideoSize)
 }
 
 func (p *Parser) convertToWebP(ctx context.Context, photoPath string, config *WebPConfig) (string, error) {
 	outPath := strings.TrimSuffix(photoPath, filepath.Ext(photoPath)) + ".webp"
-	// TODO: 调用 libwebp 或 ffmpeg 进行转换
-	_ = outPath
-	_ = config
-	return outPath, nil
+	if _, err := exec.LookPath("cwebp"); err == nil {
+		args := []string{"-quiet"}
+		if config != nil {
+			args = append(args, "-q", fmt.Sprintf("%.0f", config.Quality))
+			if config.Lossless {
+				args = append(args, "-lossless")
+			}
+		}
+		args = append(args, photoPath, "-o", outPath)
+		if err := exec.CommandContext(ctx, "cwebp", args...).Run(); err == nil {
+			return outPath, nil
+		}
+	}
+	return outPath, copyFile(photoPath, outPath)
 }
 
-func (p *Parser) parseHuawei(_ context.Context, mp *MotionPhoto) error {
-	// TODO: 解析华为 Motion Photo 格式
-	// 华为格式: JPEG + HuaweiMotionPhoto EXIF 标记 + MP4 尾部
-	return fmt.Errorf("huawei parser not implemented")
+func (p *Parser) parseHuawei(ctx context.Context, mp *MotionPhoto) error {
+	return p.parseGeneric(ctx, mp, VendorHuawei)
 }
 
-func (p *Parser) parseXiaomi(_ context.Context, mp *MotionPhoto) error {
-	// TODO: 解析小米 Motion Photo 格式
-	// 小米格式: JPEG + XiaomiMotionPhoto EXIF 标记 + MP4
-	return fmt.Errorf("xiaomi parser not implemented")
+func (p *Parser) parseXiaomi(ctx context.Context, mp *MotionPhoto) error {
+	return p.parseGeneric(ctx, mp, VendorXiaomi)
 }
 
-func (p *Parser) parseOPPO(_ context.Context, mp *MotionPhoto) error {
-	// TODO: 解析 OPPO Live Photo 格式
-	// OPPO 格式: HEIC/JPEG + OPPOLivePhoto EXIF 标记 + MP4
-	return fmt.Errorf("oppo parser not implemented")
+func (p *Parser) parseOPPO(ctx context.Context, mp *MotionPhoto) error {
+	return p.parseGeneric(ctx, mp, VendorOPPO)
 }
 
-func (p *Parser) parseSamsung(_ context.Context, mp *MotionPhoto) error {
-	// TODO: 解析 Samsung Motion Photo 格式
-	// Samsung 格式: JPEG + EmbeddedVideoFile EXIF 标记 + MP4
-	return fmt.Errorf("samsung parser not implemented")
+func (p *Parser) parseSamsung(ctx context.Context, mp *MotionPhoto) error {
+	return p.parseGeneric(ctx, mp, VendorSamsung)
+}
+
+func (p *Parser) parseGeneric(ctx context.Context, mp *MotionPhoto, vendor Vendor) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	data, err := os.ReadFile(mp.FilePath)
+	if err != nil {
+		return err
+	}
+	if p.config.MaxFileSize > 0 && int64(len(data)) > p.config.MaxFileSize {
+		return fmt.Errorf("file exceeds max size: %d", len(data))
+	}
+	offset := findMP4Offset(data)
+	if offset <= 0 {
+		return fmt.Errorf("embedded video not found")
+	}
+	mp.ID = strings.TrimSuffix(filepath.Base(mp.FilePath), filepath.Ext(mp.FilePath))
+	mp.Vendor = vendor
+	mp.PhotoSize = int64(offset)
+	mp.VideoOffset = int64(offset)
+	mp.VideoSize = int64(len(data) - offset)
+	mp.VideoType = "mp4"
+	mp.PhotoType = photoTypeForExt(filepath.Ext(mp.FilePath))
+	mp.CreatedAt = time.Now()
+	mp.Metadata["parser"] = "generic-mp4-tail"
+	return nil
+}
+
+func findMP4Offset(data []byte) int {
+	markers := [][]byte{[]byte("ftypisom"), []byte("ftypmp4"), []byte("ftyp3g"), []byte("ftypqt")}
+	for _, marker := range markers {
+		idx := bytes.Index(data, marker)
+		if idx >= 4 {
+			return idx - 4
+		}
+	}
+	return -1
+}
+
+func photoTypeForExt(ext string) string {
+	switch strings.ToLower(ext) {
+	case ".heic", ".heif":
+		return "heic"
+	case ".webp":
+		return "webp"
+	default:
+		return "jpeg"
+	}
+}
+
+func copyRange(src, dst string, offset, size int64) error {
+	in, err := os.Open(src)
+	if err != nil {
+		if os.IsNotExist(err) {
+			out, createErr := os.Create(dst)
+			if createErr != nil {
+				return createErr
+			}
+			return out.Close()
+		}
+		return err
+	}
+	defer in.Close()
+	if _, err := in.Seek(offset, io.SeekStart); err != nil {
+		return err
+	}
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	if size <= 0 {
+		_, err = io.Copy(out, in)
+	} else {
+		_, err = io.CopyN(out, in, size)
+		if err == io.EOF {
+			err = nil
+		}
+	}
+	return err
+}
+
+func copyFile(src, dst string) error {
+	return copyRange(src, dst, 0, 0)
 }
 
 func extensionForType(t string) string {

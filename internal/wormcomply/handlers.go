@@ -3,6 +3,7 @@ package wormcomply
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 )
 
 // Handler WORM 合规引擎 HTTP handler
@@ -160,7 +161,12 @@ func (h *Handler) handleAuditLog(w http.ResponseWriter, r *http.Request) {
 	var limit int
 	var policyID string
 	if v := r.URL.Query().Get("limit"); v != "" {
-		// TODO: parse int safely
+		parsed, err := strconv.Atoi(v)
+		if err != nil || parsed < 0 {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid limit"})
+			return
+		}
+		limit = parsed
 	}
 	policyID = r.URL.Query().Get("policy_id")
 

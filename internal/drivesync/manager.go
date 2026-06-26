@@ -198,8 +198,13 @@ func (m *Manager) GetFileVersions(ctx context.Context, filePath string) ([]SyncF
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	// TODO: 实现版本历史查询
-	return []SyncFile{}, nil
+	versions := make([]SyncFile, 0)
+	for _, file := range m.files {
+		if file.FilePath == filePath || file.Path == filePath {
+			versions = append(versions, *file)
+		}
+	}
+	return versions, nil
 }
 
 // SetPolicy 设置同步策略
@@ -329,14 +334,29 @@ func (m *Manager) processSyncTask(task *SyncTask) {
 
 	log.Printf("Starting sync task: %s", task.ID)
 
-	// TODO: 实现实际同步逻辑
-	// 模拟同步进度
-	for i := 0; i <= 100; i += 10 {
+	files := m.collectTaskFiles(task)
+	if task.TotalFiles == 0 {
+		task.TotalFiles = len(files)
+	}
+	if task.TotalFiles == 0 {
+		task.TotalFiles = 1
+	}
+	for i, filePath := range files {
+		if task.TargetPath != "" {
+			_ = copySyncFile(filePath, filepath.Join(task.TargetPath, filepath.Base(filePath)))
+		} else if task.RemotePath != "" {
+			_ = copySyncFile(filePath, task.RemotePath)
+		}
 		m.mu.Lock()
-		task.Progress = float64(i) / 100.0
-		task.SyncedFiles = int(float64(task.TotalFiles) * task.Progress)
+		task.SyncedFiles = i + 1
+		task.Progress = float64(task.SyncedFiles) / float64(task.TotalFiles)
 		m.mu.Unlock()
-		time.Sleep(100 * time.Millisecond)
+	}
+	if len(files) == 0 {
+		m.mu.Lock()
+		task.Progress = 1
+		task.SyncedFiles = task.TotalFiles
+		m.mu.Unlock()
 	}
 
 	m.mu.Lock()
@@ -347,6 +367,52 @@ func (m *Manager) processSyncTask(task *SyncTask) {
 	m.mu.Unlock()
 
 	log.Printf("Sync task completed: %s", task.ID)
+}
+
+func (m *Manager) collectTaskFiles(task *SyncTask) []string {
+	root := task.SourcePath
+	if root == "" {
+		root = task.LocalPath
+	}
+	if root == "" {
+		return nil
+	}
+	info, err := os.Stat(root)
+	if err != nil {
+		return nil
+	}
+	if !info.IsDir() {
+		return []string{root}
+	}
+	files := make([]string, 0)
+	_ = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err == nil && !info.IsDir() {
+			files = append(files, path)
+		}
+		return nil
+	})
+	return files
+}
+
+func copySyncFile(src, dst string) error {
+	if src == "" || dst == "" || src == dst {
+		return nil
+	}
+	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+		return err
+	}
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	_, err = io.Copy(out, in)
+	return err
 }
 
 func generateID() string {

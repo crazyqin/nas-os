@@ -795,7 +795,74 @@ func (t *TokenTracker) matchFilter(r *UsageRecord, f *RecordFilter) bool {
 
 // updateSummaries 更新汇总缓存
 func (t *TokenTracker) updateSummaries(r *UsageRecord) {
-	// TODO: 实现增量更新汇总缓存
+	apply := func(summary *UsageSummary) {
+		if summary.RequestsByType == nil {
+			summary.RequestsByType = make(map[RequestType]int64)
+		}
+		if summary.HourlyDistribution == nil {
+			summary.HourlyDistribution = make(map[int]int64)
+		}
+		summary.TotalInputTokens += r.InputTokens
+		summary.TotalOutputTokens += r.OutputTokens
+		summary.TotalTokens += r.TotalTokens
+		summary.TotalInputCost += r.InputCost
+		summary.TotalOutputCost += r.OutputCost
+		summary.TotalCost += r.TotalCost
+		summary.TotalRequests++
+		if r.Success {
+			summary.SuccessRequests++
+		} else {
+			summary.FailedRequests++
+		}
+		if r.Streaming {
+			summary.StreamingRequests++
+		}
+		summary.RequestsByType[r.RequestType]++
+		summary.HourlyDistribution[r.Timestamp.Hour()]++
+		if summary.MaxTokensPerReq == 0 || r.TotalTokens > summary.MaxTokensPerReq {
+			summary.MaxTokensPerReq = r.TotalTokens
+		}
+		if summary.MinTokensPerReq == 0 || r.TotalTokens < summary.MinTokensPerReq {
+			summary.MinTokensPerReq = r.TotalTokens
+		}
+		if summary.TotalRequests > 0 {
+			summary.AvgTokensPerReq = float64(summary.TotalTokens) / float64(summary.TotalRequests)
+			summary.AvgCostPerReq = summary.TotalCost / float64(summary.TotalRequests)
+			summary.SuccessRate = float64(summary.SuccessRequests) / float64(summary.TotalRequests) * 100
+			summary.AvgLatencyMs = (summary.AvgLatencyMs*(summary.TotalRequests-1) + r.RequestDuration.Milliseconds()) / summary.TotalRequests
+		}
+		if summary.TotalTokens > 0 {
+			summary.AvgCostPerToken = summary.TotalCost / float64(summary.TotalTokens)
+		}
+	}
+	userSummary := t.userSummaries[r.UserID]
+	if userSummary == nil {
+		userSummary = &UsageSummary{UserID: r.UserID, UserName: r.UserName, PeriodStart: r.Timestamp, PeriodEnd: r.Timestamp}
+		t.userSummaries[r.UserID] = userSummary
+	}
+	if r.Timestamp.Before(userSummary.PeriodStart) {
+		userSummary.PeriodStart = r.Timestamp
+	}
+	if r.Timestamp.After(userSummary.PeriodEnd) {
+		userSummary.PeriodEnd = r.Timestamp
+	}
+	apply(userSummary)
+
+	modelSummary := t.modelSummaries[r.ModelID]
+	if modelSummary == nil {
+		modelSummary = &UsageSummary{PeriodStart: r.Timestamp, PeriodEnd: r.Timestamp}
+		t.modelSummaries[r.ModelID] = modelSummary
+	}
+	apply(modelSummary)
+
+	day := r.Timestamp.Format("2006-01-02")
+	dailySummary := t.dailySummaries[day]
+	if dailySummary == nil {
+		start := time.Date(r.Timestamp.Year(), r.Timestamp.Month(), r.Timestamp.Day(), 0, 0, 0, 0, r.Timestamp.Location())
+		dailySummary = &UsageSummary{PeriodStart: start, PeriodEnd: start.Add(24 * time.Hour)}
+		t.dailySummaries[day] = dailySummary
+	}
+	apply(dailySummary)
 }
 
 // sortRecordsByTime 按时间排序记录

@@ -149,7 +149,9 @@ func NewManager(config *ManagerConfig) *Manager {
 
 // CreateContainer 创建容器
 func (m *Manager) CreateContainer(ctx context.Context, cfg ContainerConfig) (*ContainerInfo, error) {
-	// TODO: 实际调用 lxc-create / lxc sdk 创建容器
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -186,7 +188,9 @@ func (m *Manager) CreateContainer(ctx context.Context, cfg ContainerConfig) (*Co
 
 // DestroyContainer 销毁容器
 func (m *Manager) DestroyContainer(ctx context.Context, name string) error {
-	// TODO: 实际调用 lxc-destroy 销毁容器
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -204,7 +208,9 @@ func (m *Manager) DestroyContainer(ctx context.Context, name string) error {
 
 // StartContainer 启动容器
 func (m *Manager) StartContainer(ctx context.Context, name string) error {
-	// TODO: 实际调用 lxc-start
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -224,7 +230,9 @@ func (m *Manager) StartContainer(ctx context.Context, name string) error {
 
 // StopContainer 停止容器
 func (m *Manager) StopContainer(ctx context.Context, name string) error {
-	// TODO: 实际调用 lxc-stop
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -242,7 +250,9 @@ func (m *Manager) StopContainer(ctx context.Context, name string) error {
 
 // PauseContainer 暂停容器
 func (m *Manager) PauseContainer(ctx context.Context, name string) error {
-	// TODO: 实际调用 lxc-freeze
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -284,7 +294,9 @@ func (m *Manager) ListContainers() []*ContainerInfo {
 
 // SetResourceLimits 设置资源限制
 func (m *Manager) SetResourceLimits(ctx context.Context, name string, limits ResourceLimits) error {
-	// TODO: 实际设置 cgroup 限制
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -305,7 +317,9 @@ func (m *Manager) SetResourceLimits(ctx context.Context, name string, limits Res
 
 // ConfigureNetwork 配置容器网络
 func (m *Manager) ConfigureNetwork(ctx context.Context, name string, netCfg NetworkConfig) error {
-	// TODO: 实际配置容器网络
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 

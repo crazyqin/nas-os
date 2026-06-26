@@ -107,7 +107,7 @@ func handleIncremental(args []string) {
 		}
 
 		fmt.Printf("开始增量备份：%s -> %s\n", *sourceDir, *destDir)
-		snapshot, err := ib.CreateSnapshot(context.TODO(), *sourceDir, *destDir, backup.SnapshotTypeInc)
+		snapshot, err := ib.CreateSnapshot(context.Background(), *sourceDir, *destDir, backup.SnapshotTypeInc)
 		if err != nil {
 			fmt.Printf("错误：%v\n", err)
 			os.Exit(1)

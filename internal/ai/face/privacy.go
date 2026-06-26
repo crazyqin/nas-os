@@ -172,7 +172,14 @@ func (pm *PrivacyManager) ExportData(ctx context.Context, userID string) (*Expor
 		Clusters:   []ClusterRecord{},
 	}
 
-	// TODO: 实际从存储中读取人脸数据
+	facePath := filepath.Join(pm.dataDir, "faces_"+userID+".json")
+	if data, err := os.ReadFile(facePath); err == nil {
+		_ = json.Unmarshal(data, &exportData.Faces)
+	}
+	clusterPath := filepath.Join(pm.dataDir, "clusters_"+userID+".json")
+	if data, err := os.ReadFile(clusterPath); err == nil {
+		_ = json.Unmarshal(data, &exportData.Clusters)
+	}
 
 	return &ExportResult{
 		Format:    "json",

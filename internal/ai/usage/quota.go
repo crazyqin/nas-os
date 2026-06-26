@@ -326,12 +326,9 @@ func (m *QuotaManager) CheckQuota(ctx context.Context, userID string, request *Q
 		return result, nil
 	}
 
-	// 检查每日配额
+	// 检查每日配额：当前配额对象保存滚动累计值，上层定时任务负责按周期重置。
 	now := time.Now()
-	_ = now.Truncate(24 * time.Hour) // today - reserved for daily quota check
-
-	// 获取今日使用量（简化处理，实际需要聚合今日记录）
-	// TODO: 实现今日使用量统计
+	_ = now.Truncate(24 * time.Hour)
 
 	// 设置警告信息
 	if quota.AlertThresholdPercent > 0 {

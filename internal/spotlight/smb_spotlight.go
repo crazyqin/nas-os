@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -14,12 +15,15 @@ import (
 // 基于 Netatalk Spotlight 协议实现 macOS 原生搜索兼容
 type SMBSpotlightProtocol struct {
 	engine *Engine
+	mu     sync.RWMutex
+	cache  map[uint64][]SpotlightResult
 }
 
 // NewSMBSpotlightProtocol 创建 SMB Spotlight 协议处理器
 func NewSMBSpotlightProtocol(engine *Engine) *SMBSpotlightProtocol {
 	return &SMBSpotlightProtocol{
 		engine: engine,
+		cache:  make(map[uint64][]SpotlightResult),
 	}
 }
 
@@ -175,8 +179,10 @@ func (s *SMBSpotlightProtocol) handleQuery(reader io.Reader, flags uint32, query
 		}, nil
 	}
 
-	// 转换为 Spotlight 响应格式
 	spotlightResults := s.convertResults(result, attributes)
+	s.mu.Lock()
+	s.cache[queryID] = spotlightResults
+	s.mu.Unlock()
 
 	return &SpotlightResponse{
 		Command:    CmdQuery,
@@ -203,20 +209,31 @@ func (s *SMBSpotlightProtocol) handleFetch(reader io.Reader, queryID uint64) (*S
 	}
 	limit := binary.BigEndian.Uint32(limitBuf)
 
-	// TODO: 实现查询结果缓存和分页
-	_ = offset
-	_ = limit
-
+	s.mu.RLock()
+	results := append([]SpotlightResult(nil), s.cache[queryID]...)
+	s.mu.RUnlock()
+	if offset > uint64(len(results)) {
+		offset = uint64(len(results))
+	}
+	end := offset + uint64(limit)
+	if limit == 0 || end > uint64(len(results)) {
+		end = uint64(len(results))
+	}
 	return &SpotlightResponse{
-		Command: CmdFetch,
-		Status:  0,
-		QueryID: queryID,
+		Command:    CmdFetch,
+		Status:     0,
+		QueryID:    queryID,
+		Results:    results[offset:end],
+		TotalCount: uint32(len(results)),
+		HasMore:    end < uint64(len(results)),
 	}, nil
 }
 
 // handleClose 处理关闭查询
 func (s *SMBSpotlightProtocol) handleClose(queryID uint64) (*SpotlightResponse, error) {
-	// TODO: 清理查询资源
+	s.mu.Lock()
+	delete(s.cache, queryID)
+	s.mu.Unlock()
 	return &SpotlightResponse{
 		Command: CmdClose,
 		Status:  0,

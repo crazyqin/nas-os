@@ -1,6 +1,8 @@
 package presto
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
 	"crypto/rand"
 	"crypto/rsa"
@@ -688,13 +690,28 @@ func generateSelfSignedCert() (*tls.Certificate, error) {
 	return tlsCert, nil
 }
 
-// 压缩解压工具函数（简化版，实际应使用 zstd 或 lz4）
+// 压缩解压工具函数。
 func compressData(data []byte, level int) ([]byte, error) {
-	// TODO: 实现 zstd 压缩
-	return data, nil
+	var buf bytes.Buffer
+	w, err := gzip.NewWriterLevel(&buf, level)
+	if err != nil {
+		w = gzip.NewWriter(&buf)
+	}
+	if _, err := w.Write(data); err != nil {
+		_ = w.Close()
+		return nil, err
+	}
+	if err := w.Close(); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }
 
 func decompressData(data []byte) ([]byte, error) {
-	// TODO: 实现 zstd 解压
-	return data, nil
+	r, err := gzip.NewReader(bytes.NewReader(data))
+	if err != nil {
+		return data, nil
+	}
+	defer r.Close()
+	return io.ReadAll(r)
 }

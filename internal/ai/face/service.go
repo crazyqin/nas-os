@@ -5,7 +5,9 @@ package face
 import (
 	"context"
 	"fmt"
+	"math"
 	"sync"
+	"time"
 )
 
 // Detector 人脸检测器接口
@@ -270,9 +272,12 @@ func generateServiceFaceID(imagePath string, region FaceRegion) string {
 }
 
 func currentTime() int64 {
-	return 0 // TODO: 使用实际时间
+	return time.Now().Unix()
 }
 
 func sqrt32(x float32) float32 {
-	return float32(0) // TODO: 实现sqrt
+	if x <= 0 {
+		return 0
+	}
+	return float32(math.Sqrt(float64(x)))
 }

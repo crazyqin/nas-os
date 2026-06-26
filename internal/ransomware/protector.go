@@ -320,13 +320,13 @@ func (p *Protector) RollbackToRecoveryPoint(recoveryPointID, targetPath string) 
 	// 标记为回滚中
 	rp.Status = RecoveryStatusRollback
 
-	// 执行回滚（简化实现：在实际系统中需要与存储层集成）
 	log.Printf("[RansomShield] 开始回滚: 恢复点=%s, 目标=%s", recoveryPointID, targetPath)
-
-	// TODO: 实际的回滚逻辑需要与 ZFS/Btrfs 快照集成
-	// 1. 创建当前状态的临时快照
-	// 2. 从恢复点恢复文件
-	// 3. 验证恢复完整性
+	if rp.Path != "" && targetPath != "" {
+		if err := copyPath(rp.Path, targetPath); err != nil {
+			rp.Status = RecoveryStatusReady
+			return fmt.Errorf("恢复文件失败: %w", err)
+		}
+	}
 
 	rp.Status = RecoveryStatusReady
 	p.rollbackCount++
@@ -393,15 +393,21 @@ func (p *Protector) GetBlockedProcesses() map[string]time.Time {
 
 // quarantineFile 隔离可疑文件
 func (p *Protector) quarantineFile(path string) {
+	quarantineDir := filepath.Join(filepath.Dir(path), ".ransomshield-quarantine")
+	if err := os.MkdirAll(quarantineDir, 0700); err != nil {
+		log.Printf("[RansomShield] 隔离目录创建失败: %v", err)
+		return
+	}
+	dst := filepath.Join(quarantineDir, filepath.Base(path)+"."+time.Now().Format("20060102150405"))
+	if err := os.Rename(path, dst); err != nil {
+		log.Printf("[RansomShield] 文件隔离失败: %v", err)
+		return
+	}
+	_ = os.Chmod(dst, 0400)
 	p.mu.Lock()
 	p.quarantineCount++
 	p.mu.Unlock()
-
-	// TODO: 实际隔离逻辑
-	// 1. 移动到隔离目录
-	// 2. 设置只读权限
-	// 3. 记录原始路径
-	log.Printf("[RansomShield] 文件已隔离: %s", path)
+	log.Printf("[RansomShield] 文件已隔离: %s -> %s", path, dst)
 }
 
 // ============================================================
@@ -640,4 +646,43 @@ func (p *Protector) countTriggeredHoneypots() int {
 		}
 	}
 	return count
+}
+
+func copyPath(src, dst string) error {
+	info, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+	if info.IsDir() {
+		return filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			rel, _ := filepath.Rel(src, path)
+			target := filepath.Join(dst, rel)
+			if info.IsDir() {
+				return os.MkdirAll(target, info.Mode())
+			}
+			return copyFile(path, target, info.Mode())
+		})
+	}
+	return copyFile(src, dst, info.Mode())
+}
+
+func copyFile(src, dst string, mode os.FileMode) error {
+	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+		return err
+	}
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+	out, err := os.OpenFile(dst, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, mode)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	_, err = out.ReadFrom(in)
+	return err
 }

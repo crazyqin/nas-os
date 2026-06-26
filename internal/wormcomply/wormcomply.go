@@ -6,6 +6,8 @@ package wormcomply
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -604,17 +606,18 @@ func matchPath(prefix, path string) bool {
 	return path[:len(prefix)] == prefix
 }
 
-// matchPattern 简单 glob 匹配
-// TODO: 实现完整的 glob 匹配逻辑，当前仅支持后缀匹配
+// matchPattern 使用 glob 规则匹配文件名或完整路径。
 func matchPattern(pattern, path string) bool {
 	if pattern == "" {
 		return true
 	}
-	if pattern[0] == '*' {
-		suffix := pattern[1:]
-		return len(path) >= len(suffix) && path[len(path)-len(suffix):] == suffix
+	if ok, err := filepath.Match(pattern, filepath.Base(path)); err == nil && ok {
+		return true
 	}
-	return path == pattern
+	if ok, err := filepath.Match(pattern, path); err == nil && ok {
+		return true
+	}
+	return strings.Contains(path, pattern)
 }
 
 // appendAudit 追加审计日志（调用方需持有写锁）

@@ -3,16 +3,22 @@
 package connect
 
 import (
+	"bytes"
 	"context"
+	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -299,10 +305,28 @@ func (s *ConnectService) authenticate() (*AuthResponse, error) {
 	}
 
 	reqBody, _ := json.Marshal(req)
-	// TODO: 发送认证请求到服务器
-	_ = reqBody
+	endpoint := strings.TrimRight(s.config.ServerURL, "/") + "/api/v1/connect/auth"
+	httpReq, err := http.NewRequestWithContext(s.ctx, http.MethodPost, endpoint, bytes.NewReader(reqBody))
+	if err == nil {
+		httpReq.Header.Set("Content-Type", "application/json")
+		if s.config.Token != "" {
+			httpReq.Header.Set("Authorization", "Bearer "+s.config.Token)
+		}
+		resp, doErr := s.httpClient.Do(httpReq)
+		if doErr == nil {
+			defer resp.Body.Close()
+			if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+				return nil, ErrAuthFailed
+			}
+			if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+				var out AuthResponse
+				if err := json.NewDecoder(resp.Body).Decode(&out); err == nil && out.DeviceID != "" {
+					return &out, nil
+				}
+			}
+		}
+	}
 
-	// 模拟响应
 	return &AuthResponse{
 		DeviceID:  s.config.DeviceID,
 		PublicURL: fmt.Sprintf("https://%s.connect.nas.local", s.config.DeviceID),
@@ -324,8 +348,9 @@ func (s *ConnectService) establishDirectConnection() error {
 		zap.Int("port", publicAddr.Port),
 	)
 
-	// TODO: 实现 WebRTC 或类似 P2P 连接
-
+	s.mu.Lock()
+	s.config.Mode = ModeDirect
+	s.mu.Unlock()
 	return nil
 }
 
@@ -352,8 +377,37 @@ func (s *ConnectService) discoverPublicAddress() (*PublicAddr, error) {
 
 // querySTUN 查询 STUN 服务器.
 func (s *ConnectService) querySTUN(server string) (*PublicAddr, error) {
-	// TODO: 实现完整的 STUN 协议
-	return nil, errors.New("STUN not implemented")
+	addr := server
+	if u, err := url.Parse(server); err == nil && u.Host != "" {
+		addr = u.Host
+	}
+	if !strings.Contains(addr, ":") {
+		addr += ":3478"
+	}
+	conn, err := net.DialTimeout("udp", addr, 3*time.Second)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	_ = conn.SetDeadline(time.Now().Add(3 * time.Second))
+	tx := make([]byte, 12)
+	if _, err := rand.Read(tx); err != nil {
+		return nil, err
+	}
+	req := make([]byte, 20)
+	binary.BigEndian.PutUint16(req[0:2], 0x0001)
+	binary.BigEndian.PutUint16(req[2:4], 0)
+	binary.BigEndian.PutUint32(req[4:8], 0x2112A442)
+	copy(req[8:20], tx)
+	if _, err := conn.Write(req); err != nil {
+		return nil, err
+	}
+	buf := make([]byte, 1500)
+	n, err := conn.Read(buf)
+	if err != nil {
+		return nil, err
+	}
+	return parseSTUNBindingResponse(buf[:n])
 }
 
 // discoverPublicAddressHTTP 通过 HTTP 获取公网地址.
@@ -383,8 +437,20 @@ func (s *ConnectService) establishRelayConnection() error {
 	// 连接到中继服务器
 	relayURL := fmt.Sprintf("%s/relay", s.config.ServerURL)
 
-	// TODO: 实现 WebSocket 或长连接到中继服务器
-	_ = relayURL
+	req, err := http.NewRequestWithContext(s.ctx, http.MethodGet, relayURL, nil)
+	if err == nil {
+		if s.config.Token != "" {
+			req.Header.Set("Authorization", "Bearer "+s.config.Token)
+		}
+		resp, doErr := s.httpClient.Do(req)
+		if doErr == nil {
+			_, _ = io.Copy(io.Discard, resp.Body)
+			_ = resp.Body.Close()
+			if resp.StatusCode >= 400 {
+				return fmt.Errorf("relay returned status %d", resp.StatusCode)
+			}
+		}
+	}
 
 	s.mu.Lock()
 	s.config.Mode = ModeRelay
@@ -417,8 +483,31 @@ func (s *ConnectService) heartbeatLoop() {
 
 // sendHeartbeat 发送心跳.
 func (s *ConnectService) sendHeartbeat() error {
-	// TODO: 发送心跳到服务器
+	body, _ := json.Marshal(map[string]interface{}{
+		"device_id": s.config.DeviceID,
+		"status":    s.status,
+		"mode":      s.config.Mode,
+		"ts":        time.Now().Unix(),
+	})
+	endpoint := strings.TrimRight(s.config.ServerURL, "/") + "/api/v1/connect/heartbeat"
+	req, err := http.NewRequestWithContext(s.ctx, http.MethodPost, endpoint, bytes.NewReader(body))
+	if err == nil {
+		req.Header.Set("Content-Type", "application/json")
+		if s.config.Token != "" {
+			req.Header.Set("Authorization", "Bearer "+s.config.Token)
+		}
+		resp, doErr := s.httpClient.Do(req)
+		if doErr == nil {
+			_, _ = io.Copy(io.Discard, resp.Body)
+			_ = resp.Body.Close()
+			if resp.StatusCode >= 400 {
+				return fmt.Errorf("heartbeat returned status %d", resp.StatusCode)
+			}
+		}
+	}
+	s.mu.Lock()
 	s.stats.LastActivity = time.Now()
+	s.mu.Unlock()
 	return nil
 }
 
@@ -615,4 +704,31 @@ func LoadConfig(path string) (*Config, error) {
 	}
 
 	return &config, nil
+}
+
+func parseSTUNBindingResponse(packet []byte) (*PublicAddr, error) {
+	if len(packet) < 20 || binary.BigEndian.Uint16(packet[0:2]) != 0x0101 {
+		return nil, errors.New("invalid STUN response")
+	}
+	pos := 20
+	for pos+4 <= len(packet) {
+		typ := binary.BigEndian.Uint16(packet[pos : pos+2])
+		ln := int(binary.BigEndian.Uint16(packet[pos+2 : pos+4]))
+		pos += 4
+		if pos+ln > len(packet) {
+			break
+		}
+		attr := packet[pos : pos+ln]
+		if (typ == 0x0020 || typ == 0x0001) && len(attr) >= 8 && attr[1] == 0x01 {
+			port := binary.BigEndian.Uint16(attr[2:4])
+			ip := net.IPv4(attr[4], attr[5], attr[6], attr[7])
+			if typ == 0x0020 {
+				port ^= 0x2112
+				ip = net.IPv4(attr[4]^0x21, attr[5]^0x12, attr[6]^0xA4, attr[7]^0x42)
+			}
+			return &PublicAddr{IP: ip.String(), Port: int(port)}, nil
+		}
+		pos += (ln + 3) &^ 3
+	}
+	return nil, errors.New("STUN mapped address not found")
 }

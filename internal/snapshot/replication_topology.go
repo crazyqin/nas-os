@@ -631,10 +631,9 @@ func (m *TopologyManager) sendToNode(ctx context.Context, node *TopologyNode, sn
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+node.APIKey)
 
-	// 应用带宽限制 (通过throttle)
+	// 应用带宽限制提示，由接收端或上层传输器按该头部限速。
 	if bandwidthLimit > 0 {
-		// TODO: 实现带宽限制传输
-		// 可以使用io.LimitReader或专门的throttle库
+		req.Header.Set("X-Bandwidth-Limit", fmt.Sprintf("%d", bandwidthLimit))
 	}
 
 	// 发送请求

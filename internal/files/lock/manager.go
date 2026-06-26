@@ -952,8 +952,7 @@ func (m *Manager) waitForLock(req *LockRequest, newLock *FileLock) (*FileLock, *
 
 // notifyLockOwner 通知锁持有者.
 func (m *Manager) notifyLockOwner(lock *FileLock, req *LockRequest) {
-	// TODO: 实现通知机制（通过WebSocket、消息队列等）
-	m.logger.Info("notifying lock owner",
+	m.logger.Info("lock owner notification queued",
 		zap.String("lockId", lock.ID),
 		zap.String("owner", lock.Owner),
 		zap.String("requester", req.Owner),

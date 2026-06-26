@@ -4,6 +4,7 @@ package session
 import (
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -605,9 +606,9 @@ func (p *DefaultNFSProvider) GetClients() ([]*NFSClient, error) {
 
 // KillClient 断开NFS客户端.
 func (p *DefaultNFSProvider) KillClient(clientID string) error {
-	// NFS 没有直接的断开命令，需要通过内核接口
-	// 写入到 /proc/fs/nfsd/clients/{id}/ctl
-	_ = fmt.Sprintf("/proc/fs/nfsd/clients/%s/ctl", clientID)
-	// TODO: 实际实现需要写入到 ctl 文件
-	return exec.CommandContext(context.Background(), "echo", "-1").Run()
+	ctl := fmt.Sprintf("/proc/fs/nfsd/clients/%s/ctl", clientID)
+	if err := os.WriteFile(ctl, []byte("-1\n"), 0200); err == nil {
+		return nil
+	}
+	return exec.CommandContext(context.Background(), "sh", "-c", fmt.Sprintf("printf -- '-1\n' > %s", ctl)).Run()
 }

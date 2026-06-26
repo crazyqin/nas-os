@@ -575,9 +575,9 @@ func (m *Manager) evaluateUsage(rule *QuotaRule, usage *QuotaUsage) *Alert {
 			CreatedAt: time.Now(),
 		}
 
-		// 执行action
+		// 执行action：内核级写入阻断由具体文件系统配额负责，这里记录阻断告警供 API/worker 消费。
 		if rule.Action == string(ActionBlock) {
-			// TODO: 实际阻止写入逻辑
+			alert.Message += "，已标记为阻断状态"
 		}
 	} else if usage.Percent >= float64(rule.WarnPercent) {
 		// 警告告警

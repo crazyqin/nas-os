@@ -4,7 +4,9 @@ package cloudfuse
 
 import (
 	"context"
+	"io"
 	"os"
+	"path/filepath"
 	"sync"
 	"syscall"
 	"time"
@@ -479,16 +481,78 @@ func (d *DirNode) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 
 // Read 实现 fs.HandleReader 接口.
 func (f *FileNode) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.ReadResponse) error {
-	// TODO: 实现文件读取逻辑
-	// 这需要从 provider 下载文件内容
-	return syscall.ENOSYS
+	local, cleanup, err := f.materialize(ctx)
+	if err != nil {
+		return err
+	}
+	if cleanup != nil {
+		defer cleanup()
+	}
+	file, err := os.Open(local)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	buf := make([]byte, req.Size)
+	n, err := file.ReadAt(buf, req.Offset)
+	if err != nil && err != io.EOF {
+		return err
+	}
+	resp.Data = buf[:n]
+	return nil
 }
 
 // Write 实现 fs.HandleWriter 接口.
 func (f *FileNode) Write(ctx context.Context, req *fuse.WriteRequest, resp *fuse.WriteResponse) error {
-	// TODO: 实现文件写入逻辑
 	if f.fs.config.ReadOnly {
 		return fuse.Errno(30) // EROFS - read-only file system
 	}
-	return syscall.ENOSYS
+	local, cleanup, err := f.materialize(ctx)
+	if err != nil && err != syscall.ENOENT {
+		return err
+	}
+	if cleanup != nil {
+		defer cleanup()
+	}
+	if err := os.MkdirAll(filepath.Dir(local), 0755); err != nil {
+		return err
+	}
+	file, err := os.OpenFile(local, os.O_CREATE|os.O_RDWR, 0644)
+	if err != nil {
+		return err
+	}
+	n, err := file.WriteAt(req.Data, req.Offset)
+	_ = file.Close()
+	resp.Size = n
+	if err != nil {
+		return err
+	}
+	return f.fs.provider.Upload(ctx, local, f.path)
+}
+
+func (f *FileNode) materialize(ctx context.Context) (string, func(), error) {
+	if f.fs.config.CacheDir != "" {
+		local := filepath.Join(f.fs.config.CacheDir, filepath.Clean(f.path))
+		if _, err := os.Stat(local); err == nil {
+			return local, nil, nil
+		}
+		if err := os.MkdirAll(filepath.Dir(local), 0755); err != nil {
+			return "", nil, err
+		}
+		if err := f.fs.provider.Download(ctx, f.path, local); err != nil {
+			return "", nil, err
+		}
+		return local, nil, nil
+	}
+	tmp, err := os.CreateTemp("", "cloudfuse-*")
+	if err != nil {
+		return "", nil, err
+	}
+	local := tmp.Name()
+	_ = tmp.Close()
+	if err := f.fs.provider.Download(ctx, f.path, local); err != nil {
+		_ = os.Remove(local)
+		return "", nil, err
+	}
+	return local, func() { _ = os.Remove(local) }, nil
 }

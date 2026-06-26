@@ -83,6 +83,11 @@ func (d *Detector) Scan(ctx context.Context) (*ScanResult, error) {
 	files, err := d.collectFiles(ctx)
 	if err != nil {
 		d.mu.Lock()
+		if ctx.Err() != nil {
+			d.result.Status = "cancelled"
+			d.mu.Unlock()
+			return d.result, nil
+		}
 		d.result.Status = "error"
 		d.result.Error = err.Error()
 		d.mu.Unlock()

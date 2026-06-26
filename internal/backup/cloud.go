@@ -110,7 +110,7 @@ func NewCloudBackup(cfg CloudConfig) (*CloudBackup, error) {
 func (cb *CloudBackup) initS3Client(cfg CloudConfig) (*s3.Client, error) {
 	creds := credentials.NewStaticCredentialsProvider(cfg.AccessKey, cfg.SecretKey, "")
 
-	s3Config, err := config.LoadDefaultConfig(context.TODO(),
+	s3Config, err := config.LoadDefaultConfig(context.Background(),
 		config.WithCredentialsProvider(creds),
 		config.WithRegion(cfg.Region),
 	)
@@ -193,7 +193,7 @@ func (cb *CloudBackup) uploadToS3(localPath, remotePath string) (*UploadResult, 
 		return nil, fmt.Errorf("获取文件信息失败：%w", err)
 	}
 
-	_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
+	_, err = client.PutObject(context.Background(), &s3.PutObjectInput{
 		Bucket:      aws.String(cfg.Bucket),
 		Key:         aws.String(key),
 		Body:        file,
@@ -283,7 +283,7 @@ func (cb *CloudBackup) downloadFromS3(remotePath, localPath string) (*DownloadRe
 	}
 	defer func() { _ = file.Close() }()
 
-	result, err := client.GetObject(context.TODO(), &s3.GetObjectInput{
+	result, err := client.GetObject(context.Background(), &s3.GetObjectInput{
 		Bucket: aws.String(cfg.Bucket),
 		Key:    aws.String(key),
 	})
@@ -380,7 +380,7 @@ func (cb *CloudBackup) listS3Backups(prefix string) ([]CloudBackupInfo, error) {
 
 	var backups []CloudBackupInfo
 	for paginator.HasMorePages() {
-		page, err := paginator.NextPage(context.TODO())
+		page, err := paginator.NextPage(context.Background())
 		if err != nil {
 			return nil, fmt.Errorf("列出对象失败：%w", err)
 		}
@@ -452,7 +452,7 @@ func (cb *CloudBackup) deleteS3Backup(remotePath string) error {
 		key = strings.TrimPrefix(key, fmt.Sprintf("s3://%s/", cfg.Bucket))
 	}
 
-	_, err := client.DeleteObject(context.TODO(), &s3.DeleteObjectInput{
+	_, err := client.DeleteObject(context.Background(), &s3.DeleteObjectInput{
 		Bucket: aws.String(cfg.Bucket),
 		Key:    aws.String(key),
 	})
@@ -511,7 +511,7 @@ func (cb *CloudBackup) verifyS3Backup(remotePath string) (bool, error) {
 		key = strings.TrimPrefix(key, fmt.Sprintf("s3://%s/", cfg.Bucket))
 	}
 
-	_, err := client.HeadObject(context.TODO(), &s3.HeadObjectInput{
+	_, err := client.HeadObject(context.Background(), &s3.HeadObjectInput{
 		Bucket: aws.String(cfg.Bucket),
 		Key:    aws.String(key),
 	})
@@ -564,7 +564,7 @@ func (cb *CloudBackup) checkS3Connection() (*ConnectionTestResult, error) {
 	cfg := cb.getCloudConfig()
 
 	// 尝试列出 bucket 中的对象（仅检查连接，不获取实际数据）
-	_, err := client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
+	_, err := client.ListObjectsV2(context.Background(), &s3.ListObjectsV2Input{
 		Bucket:  aws.String(cfg.Bucket),
 		MaxKeys: aws.Int32(1), // 只检查是否能连接，不获取大量数据
 	})

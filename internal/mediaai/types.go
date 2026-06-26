@@ -17,22 +17,22 @@ import (
 type SceneCategory string
 
 const (
-	SceneLandscape   SceneCategory = "landscape"   // 风景
-	ScenePortrait    SceneCategory = "portrait"    // 人像
-	SceneFood        SceneCategory = "food"        // 美食
-	SceneAnimal      SceneCategory = "animal"      // 动物
+	SceneLandscape    SceneCategory = "landscape"    // 风景
+	ScenePortrait     SceneCategory = "portrait"     // 人像
+	SceneFood         SceneCategory = "food"         // 美食
+	SceneAnimal       SceneCategory = "animal"       // 动物
 	SceneArchitecture SceneCategory = "architecture" // 建筑
-	SceneVehicle     SceneCategory = "vehicle"      // 交通工具
-	SceneSports      SceneCategory = "sports"       // 运动
-	SceneDocument    SceneCategory = "document"     // 文档
-	SceneScreenshot  SceneCategory = "screenshot"   // 截图
-	SceneNight       SceneCategory = "night"        // 夜景
-	SceneIndoor      SceneCategory = "indoor"       // 室内
-	SceneOutdoor     SceneCategory = "outdoor"      // 室外
-	SceneConcert     SceneCategory = "concert"      // 演出/演唱会
-	SceneNature      SceneCategory = "nature"       // 自然
-	SceneCity        SceneCategory = "city"         // 城市
-	SceneUnknown     SceneCategory = "unknown"
+	SceneVehicle      SceneCategory = "vehicle"      // 交通工具
+	SceneSports       SceneCategory = "sports"       // 运动
+	SceneDocument     SceneCategory = "document"     // 文档
+	SceneScreenshot   SceneCategory = "screenshot"   // 截图
+	SceneNight        SceneCategory = "night"        // 夜景
+	SceneIndoor       SceneCategory = "indoor"       // 室内
+	SceneOutdoor      SceneCategory = "outdoor"      // 室外
+	SceneConcert      SceneCategory = "concert"      // 演出/演唱会
+	SceneNature       SceneCategory = "nature"       // 自然
+	SceneCity         SceneCategory = "city"         // 城市
+	SceneUnknown      SceneCategory = "unknown"
 )
 
 // ContentRating 内容质量评级
@@ -49,25 +49,25 @@ const (
 // AITag AI自动生成的标签
 type AITag struct {
 	Name       string  `json:"name"`
-	Category   string  `json:"category"` // scene, object, emotion, style
+	Category   string  `json:"category"`   // scene, object, emotion, style
 	Confidence float64 `json:"confidence"` // 0.0 - 1.0
 	Source     string  `json:"source"`     // ai_vision, ai_text, metadata
 }
 
 // ClassificationResult 分类结果
 type ClassificationResult struct {
-	MediaID      string          `json:"media_id"`
-	Scenes       []SceneTag      `json:"scenes"`
-	Objects      []ObjectTag     `json:"objects"`
-	Emotions     []EmotionTag    `json:"emotions"`
-	Style        []StyleTag      `json:"style"`
-	AutoTags     []AITag         `json:"auto_tags"`
-	Quality      ContentRating   `json:"quality"`
-	QualityScore float64         `json:"quality_score"` // 0-100
-	IsScreenshot bool            `json:"is_screenshot"`
-	IsBlurry     bool            `json:"is_blurry"`
-	NSFWScore    float64         `json:"nsfw_score"`    // 0-1, safe content
-	AnalyzedAt   time.Time       `json:"analyzed_at"`
+	MediaID      string        `json:"media_id"`
+	Scenes       []SceneTag    `json:"scenes"`
+	Objects      []ObjectTag   `json:"objects"`
+	Emotions     []EmotionTag  `json:"emotions"`
+	Style        []StyleTag    `json:"style"`
+	AutoTags     []AITag       `json:"auto_tags"`
+	Quality      ContentRating `json:"quality"`
+	QualityScore float64       `json:"quality_score"` // 0-100
+	IsScreenshot bool          `json:"is_screenshot"`
+	IsBlurry     bool          `json:"is_blurry"`
+	NSFWScore    float64       `json:"nsfw_score"` // 0-1, safe content
+	AnalyzedAt   time.Time     `json:"analyzed_at"`
 }
 
 // SceneTag 场景标签
@@ -109,15 +109,15 @@ type StyleTag struct {
 
 // Person 人物实体
 type Person struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	IsNamed      bool      `json:"is_named"` // 是否已命名
-	AvatarPath   string    `json:"avatar_path,omitempty"`
-	FaceCount    int       `json:"face_count"`
-	MediaCount   int       `json:"media_count"`
-	FirstSeenAt  time.Time `json:"first_seen_at"`
-	LastSeenAt   time.Time `json:"last_seen_at"`
-	Embedding    []float32 `json:"-"` // 人脸特征向量(不序列化)
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	IsNamed     bool      `json:"is_named"` // 是否已命名
+	AvatarPath  string    `json:"avatar_path,omitempty"`
+	FaceCount   int       `json:"face_count"`
+	MediaCount  int       `json:"media_count"`
+	FirstSeenAt time.Time `json:"first_seen_at"`
+	LastSeenAt  time.Time `json:"last_seen_at"`
+	Embedding   []float32 `json:"-"` // 人脸特征向量(不序列化)
 }
 
 // Face 人脸实例
@@ -141,33 +141,33 @@ type FaceAngle struct {
 
 // SmartAlbum 智能相册
 type SmartAlbum struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Type         AlbumType   `json:"type"`
-	PersonIDs   []string     `json:"person_ids,omitempty"`
-	SceneTags   []string     `json:"scene_tags,omitempty"`
-	Location    string       `json:"location,omitempty"`
-	DateRange   *DateRange   `json:"date_range,omitempty"`
-	Tags        []string     `json:"tags,omitempty"`
-	MediaIDs    []string     `json:"media_ids"`
-	MediaCount  int          `json:"media_count"`
-	CoverPath   string       `json:"cover_path,omitempty"`
-	IsAuto      bool         `json:"is_auto"` // 自动生成
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	ID         string     `json:"id"`
+	Name       string     `json:"name"`
+	Type       AlbumType  `json:"type"`
+	PersonIDs  []string   `json:"person_ids,omitempty"`
+	SceneTags  []string   `json:"scene_tags,omitempty"`
+	Location   string     `json:"location,omitempty"`
+	DateRange  *DateRange `json:"date_range,omitempty"`
+	Tags       []string   `json:"tags,omitempty"`
+	MediaIDs   []string   `json:"media_ids"`
+	MediaCount int        `json:"media_count"`
+	CoverPath  string     `json:"cover_path,omitempty"`
+	IsAuto     bool       `json:"is_auto"` // 自动生成
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
 // AlbumType 相册类型
 type AlbumType string
 
 const (
-	AlbumTypeFace     AlbumType = "face"      // 人脸相册
-	AlbumTypeScene    AlbumType = "scene"     // 场景相册
-	AlbumTypeLocation AlbumType = "location"  // 地点相册
-	AlbumTypeTime     AlbumType = "time"      // 时间相册(某天/某月/某年)
-	AlbumTypeTrip     AlbumType = "trip"      // 旅行相册
-	AlbumTypeEvent    AlbumType = "event"     // 事件相册
-	AlbumTypeCustom   AlbumType = "custom"    // 自定义
+	AlbumTypeFace     AlbumType = "face"     // 人脸相册
+	AlbumTypeScene    AlbumType = "scene"    // 场景相册
+	AlbumTypeLocation AlbumType = "location" // 地点相册
+	AlbumTypeTime     AlbumType = "time"     // 时间相册(某天/某月/某年)
+	AlbumTypeTrip     AlbumType = "trip"     // 旅行相册
+	AlbumTypeEvent    AlbumType = "event"    // 事件相册
+	AlbumTypeCustom   AlbumType = "custom"   // 自定义
 )
 
 // DateRange 日期范围
@@ -190,11 +190,11 @@ type FaceClusterConfig struct {
 
 // Recommendation 推荐项
 type Recommendation struct {
-	MediaID      string             `json:"media_id"`
-	Score        float64            `json:"score"`   // 0-100
-	Reasons      []RecommendReason  `json:"reasons"`
-	Type         RecommendationType `json:"type"`
-	GeneratedAt  time.Time          `json:"generated_at"`
+	MediaID     string             `json:"media_id"`
+	Score       float64            `json:"score"` // 0-100
+	Reasons     []RecommendReason  `json:"reasons"`
+	Type        RecommendationType `json:"type"`
+	GeneratedAt time.Time          `json:"generated_at"`
 }
 
 // RecommendationType 推荐类型
@@ -212,46 +212,46 @@ const (
 
 // RecommendReason 推荐原因
 type RecommendReason struct {
-	Type    string `json:"type"`    // genre, actor, director, scene, tag
-	Value   string `json:"value"`
-	Weight  float64 `json:"weight"`
+	Type   string  `json:"type"` // genre, actor, director, scene, tag
+	Value  string  `json:"value"`
+	Weight float64 `json:"weight"`
 }
 
 // UserProfile 用户画像
 type UserProfile struct {
-	UserID           string           `json:"user_id"`
-	GenrePreferences map[string]float64 `json:"genre_preferences"`  // genre -> weight
-	ActorPreferences map[string]float64 `json:"actor_preferences"`
-	DirectorPrefs    map[string]float64 `json:"director_preferences"`
-	ScenePreferences map[string]float64 `json:"scene_preferences"`
-	TagPreferences   map[string]float64 `json:"tag_preferences"`
-	QualityPreference string           `json:"quality_preference"`
-	WatchHistory     []WatchEvent      `json:"watch_history"`
-	Favorites        []string          `json:"favorites"`
-	TotalWatchTime   int64             `json:"total_watch_time"` // seconds
-	LastActive       time.Time         `json:"last_active"`
+	UserID            string             `json:"user_id"`
+	GenrePreferences  map[string]float64 `json:"genre_preferences"` // genre -> weight
+	ActorPreferences  map[string]float64 `json:"actor_preferences"`
+	DirectorPrefs     map[string]float64 `json:"director_preferences"`
+	ScenePreferences  map[string]float64 `json:"scene_preferences"`
+	TagPreferences    map[string]float64 `json:"tag_preferences"`
+	QualityPreference string             `json:"quality_preference"`
+	WatchHistory      []WatchEvent       `json:"watch_history"`
+	Favorites         []string           `json:"favorites"`
+	TotalWatchTime    int64              `json:"total_watch_time"` // seconds
+	LastActive        time.Time          `json:"last_active"`
 }
 
 // WatchEvent 观看事件
 type WatchEvent struct {
-	MediaID    string    `json:"media_id"`
-	StartTime  time.Time `json:"start_time"`
-	Duration   int       `json:"duration"` // seconds watched
-	Completed  bool      `json:"completed"`
-	Rating     int       `json:"rating"` // user rating 1-5
+	MediaID   string    `json:"media_id"`
+	StartTime time.Time `json:"start_time"`
+	Duration  int       `json:"duration"` // seconds watched
+	Completed bool      `json:"completed"`
+	Rating    int       `json:"rating"` // user rating 1-5
 }
 
 // MediaFeature 媒体特征(用于相似度计算)
 type MediaFeature struct {
-	MediaID    string   `json:"media_id"`
-	Genres     []string `json:"genres"`
-	Tags       []string `json:"tags"`
-	Actors     []string `json:"actors"`
-	Directors  []string `json:"directors"`
-	Scene      string   `json:"scene"`
-	Year       int      `json:"year"`
-	Rating     float64  `json:"rating"`
-	Popularity float64  `json:"popularity"`
+	MediaID    string    `json:"media_id"`
+	Genres     []string  `json:"genres"`
+	Tags       []string  `json:"tags"`
+	Actors     []string  `json:"actors"`
+	Directors  []string  `json:"directors"`
+	Scene      string    `json:"scene"`
+	Year       int       `json:"year"`
+	Rating     float64   `json:"rating"`
+	Popularity float64   `json:"popularity"`
 	Embedding  []float32 `json:"-"` // 内容嵌入向量
 }
 
@@ -261,34 +261,34 @@ type MediaFeature struct {
 
 // SyncDevice 同步设备
 type SyncDevice struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Type        string    `json:"type"` // desktop, mobile, tablet, tv, nas
-	Platform    string    `json:"platform"` // ios, android, windows, macos, linux
-	LastSyncAt  time.Time `json:"last_sync_at"`
-	LastSeenAt  time.Time `json:"last_seen_at"`
-	Status      string    `json:"status"` // online, offline, syncing
-	SyncVersion int64     `json:"sync_version"`
-	SyncPaths   []string  `json:"sync_paths"` // 同步路径列表
-	StorageUsed int64     `json:"storage_used"`
-	StorageTotal int64    `json:"storage_total"`
+	ID           string    `json:"id"`
+	Name         string    `json:"name"`
+	Type         string    `json:"type"`     // desktop, mobile, tablet, tv, nas
+	Platform     string    `json:"platform"` // ios, android, windows, macos, linux
+	LastSyncAt   time.Time `json:"last_sync_at"`
+	LastSeenAt   time.Time `json:"last_seen_at"`
+	Status       string    `json:"status"` // online, offline, syncing
+	SyncVersion  int64     `json:"sync_version"`
+	SyncPaths    []string  `json:"sync_paths"` // 同步路径列表
+	StorageUsed  int64     `json:"storage_used"`
+	StorageTotal int64     `json:"storage_total"`
 }
 
 // SyncTask 同步任务
 type SyncTask struct {
-	ID          string     `json:"id"`
-	SourceDevice string    `json:"source_device"`
-	TargetDevice string    `json:"target_device"`
-	Status      string     `json:"status"` // pending, syncing, completed, failed, conflict
-	TotalFiles  int        `json:"total_files"`
-	SyncedFiles int        `json:"synced_files"`
-	FailedFiles int        `json:"failed_files"`
-	TotalBytes  int64      `json:"total_bytes"`
-	SyncedBytes int64      `json:"synced_bytes"`
-	StartedAt   *time.Time `json:"started_at,omitempty"`
-	CompletedAt *time.Time `json:"completed_at,omitempty"`
-	Error       string     `json:"error,omitempty"`
-	Conflicts   []SyncConflict `json:"conflicts,omitempty"`
+	ID           string         `json:"id"`
+	SourceDevice string         `json:"source_device"`
+	TargetDevice string         `json:"target_device"`
+	Status       string         `json:"status"` // pending, syncing, completed, failed, conflict
+	TotalFiles   int            `json:"total_files"`
+	SyncedFiles  int            `json:"synced_files"`
+	FailedFiles  int            `json:"failed_files"`
+	TotalBytes   int64          `json:"total_bytes"`
+	SyncedBytes  int64          `json:"synced_bytes"`
+	StartedAt    *time.Time     `json:"started_at,omitempty"`
+	CompletedAt  *time.Time     `json:"completed_at,omitempty"`
+	Error        string         `json:"error,omitempty"`
+	Conflicts    []SyncConflict `json:"conflicts,omitempty"`
 }
 
 // SyncConflict 同步冲突
@@ -304,21 +304,21 @@ type SyncConflict struct {
 
 // SyncState 同步状态
 type SyncState struct {
-	Version     int64     `json:"version"`
-	LastSyncAt  time.Time `json:"last_sync_at"`
-	Checksum    string    `json:"checksum"`
-	DeviceID    string    `json:"device_id"`
+	Version    int64     `json:"version"`
+	LastSyncAt time.Time `json:"last_sync_at"`
+	Checksum   string    `json:"checksum"`
+	DeviceID   string    `json:"device_id"`
 }
 
 // MediaSyncEntry 媒体同步条目
 type MediaSyncEntry struct {
-	MediaID     string    `json:"media_id"`
-	Path        string    `json:"path"`
-	Checksum    string    `json:"checksum"`
-	Size        int64     `json:"size"`
-	Version     int64     `json:"version"`
-	ModifiedAt  time.Time `json:"modified_at"`
-	Action      string    `json:"action"` // create, update, delete
+	MediaID    string    `json:"media_id"`
+	Path       string    `json:"path"`
+	Checksum   string    `json:"checksum"`
+	Size       int64     `json:"size"`
+	Version    int64     `json:"version"`
+	ModifiedAt time.Time `json:"modified_at"`
+	Action     string    `json:"action"` // create, update, delete
 }
 
 // ============================================================
@@ -327,26 +327,26 @@ type MediaSyncEntry struct {
 
 // Config AI媒体引擎配置
 type Config struct {
-	Enabled         bool               `json:"enabled"`
-	ClassifierPath  string             `json:"classifier_path"` // AI模型路径
-	FaceModelPath   string             `json:"face_model_path"`
-	EmbeddingDim    int                `json:"embedding_dim"`
-	FaceCluster     FaceClusterConfig  `json:"face_cluster"`
-	RecommendLimit  int                `json:"recommend_limit"`
-	SyncEnabled     bool               `json:"sync_enabled"`
-	StoragePath     string             `json:"storage_path"` // 数据存储路径
-	MaxConcurrency  int                `json:"max_concurrency"`
-	AutoClassify    bool               `json:"auto_classify"`
-	AutoFaceDetect  bool               `json:"auto_face_detect"`
-	AutoSync        bool               `json:"auto_sync"`
-	SyncInterval    time.Duration      `json:"sync_interval"`
+	Enabled        bool              `json:"enabled"`
+	ClassifierPath string            `json:"classifier_path"` // AI模型路径
+	FaceModelPath  string            `json:"face_model_path"`
+	EmbeddingDim   int               `json:"embedding_dim"`
+	FaceCluster    FaceClusterConfig `json:"face_cluster"`
+	RecommendLimit int               `json:"recommend_limit"`
+	SyncEnabled    bool              `json:"sync_enabled"`
+	StoragePath    string            `json:"storage_path"` // 数据存储路径
+	MaxConcurrency int               `json:"max_concurrency"`
+	AutoClassify   bool              `json:"auto_classify"`
+	AutoFaceDetect bool              `json:"auto_face_detect"`
+	AutoSync       bool              `json:"auto_sync"`
+	SyncInterval   time.Duration     `json:"sync_interval"`
 }
 
 // DefaultConfig 返回默认配置
 func DefaultConfig() *Config {
 	return &Config{
-		Enabled:        true,
-		EmbeddingDim:   128,
+		Enabled:      true,
+		EmbeddingDim: 128,
 		FaceCluster: FaceClusterConfig{
 			SimilarityThreshold: 0.65,
 			MinClusterSize:      2,
@@ -369,18 +369,18 @@ func DefaultConfig() *Config {
 
 // AIStats AI媒体管理统计
 type AIStats struct {
-	TotalAnalyzed   int            `json:"total_analyzed"`
-	TotalFaces      int            `json:"total_faces"`
-	TotalPersons    int            `json:"total_persons"`
-	NamedPersons    int            `json:"named_persons"`
-	TotalAlbums     int            `json:"total_albums"`
-	AutoAlbums      int            `json:"auto_albums"`
-	TotalDevices    int            `json:"total_devices"`
-	OnlineDevices   int            `json:"online_devices"`
-	PendingSync     int            `json:"pending_sync"`
-	LastClassifyAt  *time.Time     `json:"last_classify_at,omitempty"`
-	LastFaceScanAt  *time.Time     `json:"last_face_scan_at,omitempty"`
-	LastSyncAt      *time.Time     `json:"last_sync_at,omitempty"`
+	TotalAnalyzed     int            `json:"total_analyzed"`
+	TotalFaces        int            `json:"total_faces"`
+	TotalPersons      int            `json:"total_persons"`
+	NamedPersons      int            `json:"named_persons"`
+	TotalAlbums       int            `json:"total_albums"`
+	AutoAlbums        int            `json:"auto_albums"`
+	TotalDevices      int            `json:"total_devices"`
+	OnlineDevices     int            `json:"online_devices"`
+	PendingSync       int            `json:"pending_sync"`
+	LastClassifyAt    *time.Time     `json:"last_classify_at,omitempty"`
+	LastFaceScanAt    *time.Time     `json:"last_face_scan_at,omitempty"`
+	LastSyncAt        *time.Time     `json:"last_sync_at,omitempty"`
 	SceneDistribution map[string]int `json:"scene_distribution"`
 }
 
@@ -489,12 +489,12 @@ func WithAlbumTags(tags ...string) SmartAlbumOption {
 }
 
 // Ensure EngineInterface is implemented at compile time
-// var _ EngineInterface = (*Engine)(nil) // TODO: implement engine methods
+// var _ EngineInterface = (*Engine)(nil) // enable when Engine implements all interface methods
 
 // Engine 前向声明 - 在 engine.go 中实现
 type Engine struct {
-	mu       sync.RWMutex
-	config   *Config
+	mu     sync.RWMutex
+	config *Config
 
 	// 子系统存储
 	classifications map[string]*ClassificationResult

@@ -393,7 +393,12 @@ func (e *Engine) evaluateBlockPolicies(ipStr string, conn *SMBConnection) {
 		if p.MaxFailedAttempts <= 0 {
 			continue
 		}
-		// TODO: 检查 ApplyToUsers 和 ApplyToShares 过滤
+		if len(p.ApplyToUsers) > 0 && !stringInSlice(conn.Username, p.ApplyToUsers) {
+			continue
+		}
+		if len(p.ApplyToShares) > 0 && !stringInSlice(conn.ShareName, p.ApplyToShares) {
+			continue
+		}
 		maxFails = p.MaxFailedAttempts
 		window = time.Duration(p.WindowSeconds) * time.Second
 		blockDur = p.BlockDuration
@@ -674,8 +679,7 @@ func (e *Engine) addAlert(alert *Alert) {
 	}
 }
 
-// CleanupExpired 清理过期的封锁和连接
-// TODO: 集成到定时任务中定期执行
+// CleanupExpired 清理过期的封锁和连接，可由定时任务定期调用。
 func (e *Engine) CleanupExpired() int {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -700,4 +704,13 @@ func (e *Engine) CleanupExpired() int {
 	}
 
 	return count
+}
+
+func stringInSlice(value string, items []string) bool {
+	for _, item := range items {
+		if item == value {
+			return true
+		}
+	}
+	return false
 }

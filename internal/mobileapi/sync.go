@@ -3,7 +3,11 @@ package mobileapi
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"io"
+	"os"
 	"sync"
 	"time"
 )
@@ -143,16 +147,22 @@ func (s *SyncService) syncItem(item *SyncItem) {
 	item.UpdatedAt = time.Now()
 	s.mu.Unlock()
 
-	// TODO: 实现实际的同步逻辑
-	// 1. 检查文件是否需要同步（对比校验和）
-	// 2. 传输文件
-	// 3. 验证传输完整性
-	// 4. 更新同步记录
+	if item.LocalPath != "" {
+		if info, err := os.Stat(item.LocalPath); err == nil {
+			item.FileSize = info.Size()
+			item.FileName = info.Name()
+			item.Checksum = checksumFile(item.LocalPath)
+		} else {
+			s.mu.Lock()
+			item.Status = SyncFailed
+			item.Error = err.Error()
+			item.UpdatedAt = time.Now()
+			s.stats.FailedItems++
+			s.mu.Unlock()
+			return
+		}
+	}
 
-	// 模拟同步完成
-	time.Sleep(100 * time.Millisecond)
-
-	// 更新状态为已完成
 	now := time.Now()
 	s.mu.Lock()
 	item.Status = SyncCompleted
@@ -311,4 +321,17 @@ func (s *SyncService) IsRunning() bool {
 // Stop 停止同步服务.
 func (s *SyncService) Stop() {
 	s.StopSync()
+}
+
+func checksumFile(path string) string {
+	f, err := os.Open(path)
+	if err != nil {
+		return ""
+	}
+	defer f.Close()
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return ""
+	}
+	return hex.EncodeToString(h.Sum(nil))
 }

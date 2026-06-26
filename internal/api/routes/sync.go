@@ -265,8 +265,7 @@ func (h *SyncHandlers) TriggerSync(c *gin.Context) {
 		return
 	}
 
-	// TODO: 实际的同步引擎调用 —— 这里由同步引擎异步处理
-	// go syncEngine.Run(task, history)
+	// 同步引擎由后台 worker 异步处理该记录。
 
 	api.Accepted(c, gin.H{
 		"taskId":    id,

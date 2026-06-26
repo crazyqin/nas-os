@@ -3,6 +3,8 @@
 package backup
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -736,17 +738,35 @@ func (e *BlockBackupEngine) saveDedupIndex() error {
 }
 
 func compressBlock(data []byte) []byte {
-	// 使用gzip压缩 (简化实现)
-	// 实际应用中使用 zstd 或 lz4 获得更好的性能
-	return data // TODO: 实现压缩
+	if len(data) < CompressionThreshold {
+		return data
+	}
+	var buf bytes.Buffer
+	zw := gzip.NewWriter(&buf)
+	if _, err := zw.Write(data); err != nil {
+		return data
+	}
+	if err := zw.Close(); err != nil {
+		return data
+	}
+	compressed := buf.Bytes()
+	if len(compressed) >= len(data) {
+		return data
+	}
+	return compressed
 }
 
 func decompressBlock(data []byte) ([]byte, error) {
-	return data, nil // TODO: 实现解压
+	zr, err := gzip.NewReader(bytes.NewReader(data))
+	if err != nil {
+		return nil, err
+	}
+	defer zr.Close()
+	return io.ReadAll(zr)
 }
 
 func isCompressed(data []byte) bool {
-	return false // TODO: 实现压缩检测
+	return len(data) >= 2 && data[0] == 0x1f && data[1] == 0x8b
 }
 
 func parsePermission(perm string) os.FileMode {

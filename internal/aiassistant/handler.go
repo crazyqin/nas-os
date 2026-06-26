@@ -85,13 +85,22 @@ func (h *Handlers) query(c *gin.Context) {
 	})
 }
 
-// queryStream 流式查询（预留）
+// queryStream 流式查询。
 func (h *Handlers) queryStream(c *gin.Context) {
-	// TODO: 实现 SSE 或 WebSocket 流式响应
-	c.JSON(http.StatusNotImplemented, response{
-		Code:    1,
-		Message: "streaming not yet implemented",
-	})
+	var req QueryRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 1, Message: err.Error()})
+		return
+	}
+	resp, err := h.manager.ProcessQuery(c.Request.Context(), &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
+		return
+	}
+	c.Header("Content-Type", "text/event-stream")
+	c.Header("Cache-Control", "no-cache")
+	c.Header("Connection", "keep-alive")
+	c.SSEvent("message", resp)
 }
 
 // getSystemStatus 获取系统状态

@@ -659,7 +659,7 @@ func (sm *SyncManager) uploadToS3(client *s3.Client, bucket, localPath, key stri
 	}
 	defer func() { _ = file.Close() }()
 
-	_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
+	_, err = client.PutObject(context.Background(), &s3.PutObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 		Body:   file,

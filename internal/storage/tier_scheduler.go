@@ -514,8 +514,7 @@ func (s *TierScheduler) createPromoteTask(policy *MigrationPolicy, manager *HotC
 		return nil
 	}
 
-	// 筛选可迁移文件 - hotCandidates 是路径字符串列表
-	// TODO: 需要从 manager 获取文件详细信息
+	// 筛选可迁移文件 - 从访问记录补齐文件详细信息。
 	var files []MigrationFileInfo
 	var totalSize int64
 

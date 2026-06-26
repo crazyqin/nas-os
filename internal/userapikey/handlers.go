@@ -2,6 +2,7 @@ package userapikey
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -70,7 +71,30 @@ func (h *Handlers) listKeys(c *gin.Context) {
 	}
 
 	var opts ListKeysOptions
-	// TODO: 解析查询参数（status、offset、limit）
+	if status := c.Query("status"); status != "" {
+		ks := KeyStatus(status)
+		if ks != KeyStatusActive && ks != KeyStatusRevoked && ks != KeyStatusExpired {
+			c.JSON(http.StatusBadRequest, response{Code: 400, Message: "invalid status"})
+			return
+		}
+		opts.Status = &ks
+	}
+	if offset := c.Query("offset"); offset != "" {
+		v, err := strconv.Atoi(offset)
+		if err != nil || v < 0 {
+			c.JSON(http.StatusBadRequest, response{Code: 400, Message: "invalid offset"})
+			return
+		}
+		opts.Offset = v
+	}
+	if limit := c.Query("limit"); limit != "" {
+		v, err := strconv.Atoi(limit)
+		if err != nil || v < 0 {
+			c.JSON(http.StatusBadRequest, response{Code: 400, Message: "invalid limit"})
+			return
+		}
+		opts.Limit = v
+	}
 
 	keys := h.manager.ListKeys(userID, &opts)
 	c.JSON(http.StatusOK, response{Code: 200, Message: "ok", Data: keys})

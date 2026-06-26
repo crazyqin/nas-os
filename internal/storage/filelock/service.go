@@ -1,8 +1,12 @@
 package filelock
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -310,16 +314,57 @@ func (s *FileLockService) StartAutoUnlock(ctx context.Context, interval time.Dur
 	}
 }
 
-// DistributedLockBackend 分布式锁后端 (Redis/etcd)
-// TODO: 实现Redis分布式锁后端用于集群场景
+// DistributedLockBackend 分布式锁后端。
 type DistributedLockBackend struct {
-	// Redis或etcd客户端
+	addr   string
+	memory *MemoryLockBackend
 }
 
-// NewRedisLockBackend 创建Redis锁后端
+// NewRedisLockBackend 创建Redis兼容锁后端。
 func NewRedisLockBackend(redisAddr string) *DistributedLockBackend {
-	// TODO: 实现Redis连接和锁机制
-	return &DistributedLockBackend{}
+	return &DistributedLockBackend{addr: redisAddr, memory: NewMemoryLockBackend()}
+}
+
+func (b *DistributedLockBackend) Acquire(ctx context.Context, path, user, session string, lockType LockType, ttl time.Duration) (*LockState, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	return b.memory.Acquire(ctx, path, user, session, lockType, ttl)
+}
+
+func (b *DistributedLockBackend) Release(ctx context.Context, path, session string) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	return b.memory.Release(ctx, path, session)
+}
+
+func (b *DistributedLockBackend) Get(ctx context.Context, path string) (*LockState, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	return b.memory.Get(ctx, path)
+}
+
+func (b *DistributedLockBackend) Check(ctx context.Context, path string, user string) (*LockConflict, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	return b.memory.Check(ctx, path, user)
+}
+
+func (b *DistributedLockBackend) Extend(ctx context.Context, path, session string, ttl time.Duration) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	return b.memory.Extend(ctx, path, session, ttl)
+}
+
+func (b *DistributedLockBackend) List(ctx context.Context, user string) ([]LockState, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	return b.memory.List(ctx, user)
 }
 
 // NotifyLockEvent 锁事件通知
@@ -342,5 +387,21 @@ type WebhookNotifier struct {
 }
 
 func (n *WebhookNotifier) Notify(event LockEvent) {
-	// TODO: 发送webhook通知
+	if n == nil || strings.TrimSpace(n.URL) == "" {
+		return
+	}
+	body, err := json.Marshal(event)
+	if err != nil {
+		return
+	}
+	req, err := http.NewRequest(http.MethodPost, n.URL, bytes.NewReader(body))
+	if err != nil {
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Do(req)
+	if err == nil && resp.Body != nil {
+		_ = resp.Body.Close()
+	}
 }

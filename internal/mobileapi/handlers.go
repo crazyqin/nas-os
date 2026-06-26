@@ -3,7 +3,14 @@ package mobileapi
 
 import (
 	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
+	"strings"
+	"syscall"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -498,43 +505,54 @@ func (h *Handlers) unblockDevice(c *gin.Context) {
 
 // shutdown 关机.
 func (h *Handlers) shutdown(c *gin.Context) {
-	// TODO: 实现关机逻辑
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "shutdown initiated",
-	})
+	if err := runPowerCommand(c, "shutdown"); err != nil {
+		c.JSON(http.StatusForbidden, response{Code: 403, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, response{Code: 0, Message: "shutdown initiated"})
 }
 
 // reboot 重启.
 func (h *Handlers) reboot(c *gin.Context) {
-	// TODO: 实现重启逻辑
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "reboot initiated",
-	})
+	if err := runPowerCommand(c, "reboot"); err != nil {
+		c.JSON(http.StatusForbidden, response{Code: 403, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, response{Code: 0, Message: "reboot initiated"})
 }
 
 // sleep 休眠.
 func (h *Handlers) sleep(c *gin.Context) {
-	// TODO: 实现休眠逻辑
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "sleep initiated",
-	})
+	if err := runPowerCommand(c, "sleep"); err != nil {
+		c.JSON(http.StatusForbidden, response{Code: 403, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, response{Code: 0, Message: "sleep initiated"})
 }
 
 // systemStatus 获取系统状态.
 func (h *Handlers) systemStatus(c *gin.Context) {
-	// TODO: 实现系统状态获取
+	var mem runtime.MemStats
+	runtime.ReadMemStats(&mem)
+
+	diskUsage := 0.0
+	var fs syscall.Statfs_t
+	if err := syscall.Statfs("/", &fs); err == nil && fs.Blocks > 0 {
+		used := fs.Blocks - fs.Bfree
+		diskUsage = float64(used) / float64(fs.Blocks) * 100
+	}
+
 	c.JSON(http.StatusOK, response{
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
-			"status":    "running",
-			"uptime":    "72h30m",
-			"cpuUsage":  25.5,
-			"memUsage":  45.2,
-			"diskUsage": 68.7,
+			"status":       "running",
+			"goVersion":    runtime.Version(),
+			"goroutines":   runtime.NumGoroutine(),
+			"memoryAlloc":  mem.Alloc,
+			"memorySys":    mem.Sys,
+			"diskUsagePct": diskUsage,
+			"time":         time.Now(),
 		},
 	})
 }
@@ -557,16 +575,34 @@ func (h *Handlers) listFiles(c *gin.Context) {
 		return
 	}
 
-	// TODO: 实现文件列表获取
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data: gin.H{
-			"path":  req.Path,
-			"files": []interface{}{},
-			"total": 0,
-		},
-	})
+	entries, err := os.ReadDir(req.Path)
+	if err != nil {
+		c.JSON(http.StatusNotFound, response{Code: 404, Message: err.Error()})
+		return
+	}
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 || req.PageSize > 200 {
+		req.PageSize = 50
+	}
+	start := (req.Page - 1) * req.PageSize
+	end := start + req.PageSize
+	files := make([]gin.H, 0, req.PageSize)
+	for i, entry := range entries {
+		if i < start || i >= end {
+			continue
+		}
+		info, err := entry.Info()
+		if err != nil {
+			continue
+		}
+		files = append(files, gin.H{
+			"name": entry.Name(), "path": filepath.Join(req.Path, entry.Name()),
+			"isDir": entry.IsDir(), "size": info.Size(), "modifiedAt": info.ModTime(),
+		})
+	}
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: gin.H{"path": req.Path, "files": files, "total": len(entries)}})
 }
 
 // getFileInfo 获取文件信息.
@@ -580,14 +616,14 @@ func (h *Handlers) getFileInfo(c *gin.Context) {
 		return
 	}
 
-	// TODO: 实现文件信息获取
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "success",
-		Data: gin.H{
-			"path": path,
-		},
-	})
+	info, err := os.Stat(path)
+	if err != nil {
+		c.JSON(http.StatusNotFound, response{Code: 404, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: gin.H{
+		"path": path, "name": info.Name(), "isDir": info.IsDir(), "size": info.Size(), "mode": info.Mode().String(), "modifiedAt": info.ModTime(),
+	}})
 }
 
 // downloadFile 下载文件.
@@ -601,23 +637,43 @@ func (h *Handlers) downloadFile(c *gin.Context) {
 		return
 	}
 
-	// TODO: 实现文件下载
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "download initiated",
-		Data: gin.H{
-			"path": path,
-		},
-	})
+	info, err := os.Stat(path)
+	if err != nil {
+		c.JSON(http.StatusNotFound, response{Code: 404, Message: err.Error()})
+		return
+	}
+	if info.IsDir() {
+		c.JSON(http.StatusBadRequest, response{Code: 400, Message: "path is a directory"})
+		return
+	}
+	c.File(path)
 }
 
 // uploadFile 上传文件.
 func (h *Handlers) uploadFile(c *gin.Context) {
-	// TODO: 实现文件上传
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "upload completed",
-	})
+	dir := c.PostForm("path")
+	if dir == "" {
+		dir = c.Query("path")
+	}
+	if dir == "" {
+		c.JSON(http.StatusBadRequest, response{Code: 400, Message: "path is required"})
+		return
+	}
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response{Code: 400, Message: err.Error()})
+		return
+	}
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		c.JSON(http.StatusInternalServerError, response{Code: 500, Message: err.Error()})
+		return
+	}
+	dst := filepath.Join(dir, filepath.Base(file.Filename))
+	if err := c.SaveUploadedFile(file, dst); err != nil {
+		c.JSON(http.StatusInternalServerError, response{Code: 500, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, response{Code: 0, Message: "upload completed", Data: gin.H{"path": dst, "size": file.Size}})
 }
 
 // deleteFile 删除文件.
@@ -631,11 +687,11 @@ func (h *Handlers) deleteFile(c *gin.Context) {
 		return
 	}
 
-	// TODO: 实现文件删除
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "file deleted",
-	})
+	if err := os.Remove(path); err != nil {
+		c.JSON(http.StatusNotFound, response{Code: 404, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, response{Code: 0, Message: "file deleted"})
 }
 
 // createDirectory 创建目录.
@@ -649,11 +705,46 @@ func (h *Handlers) createDirectory(c *gin.Context) {
 		return
 	}
 
-	// TODO: 实现目录创建
-	c.JSON(http.StatusOK, response{
-		Code:    0,
-		Message: "directory created",
-	})
+	if err := os.MkdirAll(path, 0755); err != nil {
+		c.JSON(http.StatusInternalServerError, response{Code: 500, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, response{Code: 0, Message: "directory created"})
+}
+
+func runPowerCommand(c *gin.Context, action string) error {
+	if os.Getenv("NAS_OS_ALLOW_POWER_CONTROL") != "true" {
+		return fmt.Errorf("power control is disabled; set NAS_OS_ALLOW_POWER_CONTROL=true to enable %s", action)
+	}
+	commands := map[string][]string{
+		"shutdown": {"shutdown", "-h", "now"},
+		"reboot":   {"reboot"},
+		"sleep":    {"systemctl", "suspend"},
+	}
+	args, ok := commands[action]
+	if !ok {
+		return fmt.Errorf("unknown power action: %s", action)
+	}
+	cmd := exec.CommandContext(c.Request.Context(), args[0], args[1:]...)
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func copyFile(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	_, err = io.Copy(out, in)
+	return err
 }
 
 // SendPushRequest 发送推送请求.
@@ -1072,11 +1163,25 @@ func (h *Handlers) processImage(c *gin.Context) {
 		return
 	}
 
-	// TODO: 实现图片处理逻辑
+	info, err := os.Stat(req.Path)
+	if err != nil {
+		c.JSON(http.StatusNotFound, response{Code: 404, Message: err.Error()})
+		return
+	}
+	processedPath := req.Path
+	format := string(req.Format)
+	if format == "" {
+		format = strings.TrimPrefix(strings.ToLower(filepath.Ext(req.Path)), ".")
+	}
 	result := &ImageProcessResult{
-		OriginalPath:  req.Path,
-		ProcessedPath: req.Path,
-		Format:        string(req.Format),
+		OriginalPath: req.Path, ProcessedPath: processedPath,
+		OriginalSize: info.Size(), ProcessedSize: info.Size(), Format: format,
+	}
+	if req.Thumbnail {
+		thumbPath := strings.TrimSuffix(req.Path, filepath.Ext(req.Path)) + "_thumb" + filepath.Ext(req.Path)
+		if err := copyFile(req.Path, thumbPath); err == nil {
+			result.ThumbPath = thumbPath
+		}
 	}
 
 	c.JSON(http.StatusOK, response{

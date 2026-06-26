@@ -454,20 +454,31 @@ func (ti *ThreatIntelligence) MatchRansomNote(filename string) *MatchResult {
 	ti.stats.TotalLookups++
 	filename = strings.ToLower(filename)
 
+	var best *MatchResult
 	for _, sig := range ti.signatures {
 		for _, note := range sig.RansomNote {
-			if strings.Contains(filename, strings.ToLower(note)) {
+			noteLower := strings.ToLower(note)
+			if strings.Contains(filename, noteLower) {
+				confidence := 0.95
+				if filename == noteLower {
+					confidence = 1.0
+				}
 				result := &MatchResult{
 					Matched:     true,
 					Signature:   sig,
-					Confidence:  0.95,
+					Confidence:  confidence,
 					Description: fmt.Sprintf("勒索信匹配: %s (%s)", sig.Name, sig.Family),
 					MatchedAt:   time.Now(),
 				}
-				ti.stats.MatchesTotal++
-				return result
+				if best == nil || result.Confidence > best.Confidence || len(noteLower) > len(best.Signature.RansomNote[0]) {
+					best = result
+				}
 			}
 		}
+	}
+	if best != nil {
+		ti.stats.MatchesTotal++
+		return best
 	}
 
 	return &MatchResult{Matched: false, MatchedAt: time.Now()}
