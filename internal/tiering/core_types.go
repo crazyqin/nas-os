@@ -183,66 +183,66 @@ type MigrateError struct {
 
 // MigrateTask 迁移任务.
 type MigrateTask struct {
-	ID              string         `json:"id"`
-	PolicyID        string         `json:"policyId,omitempty"`
-	Status          MigrateStatus  `json:"status"`
-	SourceTier      TierType       `json:"sourceTier"`
-	TargetTier      TierType       `json:"targetTier"`
-	Action          PolicyAction   `json:"action"`
-	TotalFiles      int            `json:"totalFiles"`
-	TotalBytes      int64          `json:"totalBytes"`
-	ProcessedFiles  int            `json:"processedFiles"`
-	ProcessedBytes  int64          `json:"processedBytes"`
-	FailedFiles     int            `json:"failedFiles"`
-	Files           []MigrateFile  `json:"files"`
-	Errors          []MigrateError `json:"errors,omitempty"`
-	CreatedAt       time.Time      `json:"createdAt"`
-	StartedAt       time.Time      `json:"startedAt,omitempty"`
-	CompletedAt     time.Time      `json:"completedAt,omitempty"`
+	ID             string         `json:"id"`
+	PolicyID       string         `json:"policyId,omitempty"`
+	Status         MigrateStatus  `json:"status"`
+	SourceTier     TierType       `json:"sourceTier"`
+	TargetTier     TierType       `json:"targetTier"`
+	Action         PolicyAction   `json:"action"`
+	TotalFiles     int            `json:"totalFiles"`
+	TotalBytes     int64          `json:"totalBytes"`
+	ProcessedFiles int            `json:"processedFiles"`
+	ProcessedBytes int64          `json:"processedBytes"`
+	FailedFiles    int            `json:"failedFiles"`
+	Files          []MigrateFile  `json:"files"`
+	Errors         []MigrateError `json:"errors,omitempty"`
+	CreatedAt      time.Time      `json:"createdAt"`
+	StartedAt      time.Time      `json:"startedAt,omitempty"`
+	CompletedAt    time.Time      `json:"completedAt,omitempty"`
 }
 
 // MigrateRequest 迁移请求.
 type MigrateRequest struct {
-	Paths      []string     `json:"paths"`
-	SourceTier TierType     `json:"sourceTier"`
-	TargetTier TierType     `json:"targetTier"`
-	Action     PolicyAction `json:"action"`
-	Pattern    string       `json:"pattern,omitempty"`
-	MinSize    int64        `json:"minSize,omitempty"`
-	MaxSize    int64        `json:"maxSize,omitempty"`
+	Paths      []string      `json:"paths"`
+	SourceTier TierType      `json:"sourceTier"`
+	TargetTier TierType      `json:"targetTier"`
+	Action     PolicyAction  `json:"action"`
+	Pattern    string        `json:"pattern,omitempty"`
+	MinSize    int64         `json:"minSize,omitempty"`
+	MaxSize    int64         `json:"maxSize,omitempty"`
 	MinAge     time.Duration `json:"minAge,omitempty"`
-	DryRun     bool         `json:"dryRun"`
-	Preserve   bool         `json:"preserve"`
+	DryRun     bool          `json:"dryRun"`
+	Preserve   bool          `json:"preserve"`
 }
 
 // Status 分层状态.
 type Status struct {
-	Enabled       bool                    `json:"enabled"`
-	RunningTasks  int                     `json:"runningTasks"`
-	PendingTasks  int                     `json:"pendingTasks"`
-	LastMigration time.Time               `json:"lastMigration"`
+	Enabled       bool                     `json:"enabled"`
+	RunningTasks  int                      `json:"runningTasks"`
+	PendingTasks  int                      `json:"pendingTasks"`
+	LastMigration time.Time                `json:"lastMigration"`
 	Tiers         map[TierType]*TierConfig `json:"tiers"`
-	Policies      int                     `json:"policies"`
-	ActivePolicy  int                     `json:"activePolicy"`
+	Policies      int                      `json:"policies"`
+	ActivePolicy  int                      `json:"activePolicy"`
 }
 
 // TierStats 存储层统计.
 type TierStats struct {
-	Type          TierType `json:"type"`
-	Name          string   `json:"name"`
-	Capacity      int64    `json:"capacity"`
-	Used          int64    `json:"used"`
-	Available     int64    `json:"available"`
-	UsagePercent  float64  `json:"usagePercent"`
-	TotalFiles    int64    `json:"totalFiles"`
-	TotalBytes    int64    `json:"totalBytes"`
-	HotFiles      int64    `json:"hotFiles"`
-	HotBytes      int64    `json:"hotBytes"`
-	WarmFiles     int64    `json:"warmFiles"`
-	WarmBytes     int64    `json:"warmBytes"`
-	ColdFiles     int64    `json:"coldFiles"`
-	ColdBytes     int64    `json:"coldBytes"`
-	LastUpdated   time.Time `json:"lastUpdated"`
+	Type         TierType  `json:"type"`
+	Name         string    `json:"name"`
+	Capacity     int64     `json:"capacity"`
+	Used         int64     `json:"used"`
+	Available    int64     `json:"available"`
+	UsagePercent float64   `json:"usagePercent"`
+	TotalFiles   int64     `json:"totalFiles"`
+	TotalBytes   int64     `json:"totalBytes"`
+	HotFiles     int64     `json:"hotFiles"`
+	HotBytes     int64     `json:"hotBytes"`
+	WarmFiles    int64     `json:"warmFiles"`
+	WarmBytes    int64     `json:"warmBytes"`
+	ColdFiles    int64     `json:"coldFiles"`
+	ColdBytes    int64     `json:"coldBytes"`
+	LastUpdated  time.Time `json:"lastUpdated"`
 }
 
 // AccessStats 访问统计.
@@ -262,9 +262,9 @@ type AccessStats struct {
 
 // StatsReport 统计报告.
 type StatsReport struct {
-	GeneratedAt time.Time                `json:"generatedAt"`
-	Tiers       map[TierType]*TierStats  `json:"tiers"`
-	Summary     *Summary                 `json:"summary"`
+	GeneratedAt time.Time               `json:"generatedAt"`
+	Tiers       map[TierType]*TierStats `json:"tiers"`
+	Summary     *Summary                `json:"summary"`
 }
 
 // Summary 总体统计.
@@ -284,32 +284,32 @@ type Summary struct {
 
 // SSDCacheOptimizeResult SSD 缓存优化结果.
 type SSDCacheOptimizeResult struct {
-	StartTime          time.Time `json:"startTime"`
-	EndTime            time.Time `json:"endTime"`
-	Duration           time.Duration `json:"duration"`
-	Tier               TierType  `json:"tier"`
-	ColdFilesIdentified int      `json:"coldFilesIdentified"`
-	HotFilesIdentified  int      `json:"hotFilesIdentified"`
-	DemotedFiles       int       `json:"demotedFiles"`
-	DemotedBytes       int64     `json:"demotedBytes"`
-	PromotedFiles      int       `json:"promotedFiles"`
-	PromotedBytes      int64     `json:"promotedBytes"`
-	FailedDemotions    int       `json:"failedDemotions"`
-	FailedPromotions   int       `json:"failedPromotions"`
-	Tasks              []string  `json:"tasks"`
+	StartTime           time.Time     `json:"startTime"`
+	EndTime             time.Time     `json:"endTime"`
+	Duration            time.Duration `json:"duration"`
+	Tier                TierType      `json:"tier"`
+	ColdFilesIdentified int           `json:"coldFilesIdentified"`
+	HotFilesIdentified  int           `json:"hotFilesIdentified"`
+	DemotedFiles        int           `json:"demotedFiles"`
+	DemotedBytes        int64         `json:"demotedBytes"`
+	PromotedFiles       int           `json:"promotedFiles"`
+	PromotedBytes       int64         `json:"promotedBytes"`
+	FailedDemotions     int           `json:"failedDemotions"`
+	FailedPromotions    int           `json:"failedPromotions"`
+	Tasks               []string      `json:"tasks"`
 }
 
 // AutoMigrateResult 自动迁移结果.
 type AutoMigrateResult struct {
-	StartTime time.Time                      `json:"startTime"`
-	EndTime   time.Time                      `json:"endTime"`
-	Duration  time.Duration                  `json:"duration"`
+	StartTime time.Time                        `json:"startTime"`
+	EndTime   time.Time                        `json:"endTime"`
+	Duration  time.Duration                    `json:"duration"`
 	Tiers     map[TierType]*TierMigrationStats `json:"tiers"`
 }
 
 // TierMigrationStats 存储层迁移统计.
 type TierMigrationStats struct {
-	TierType         TierType             `json:"tierType"`
-	FilesToMigrate   []*FileAccessRecord  `json:"filesToMigrate,omitempty"`
+	TierType          TierType            `json:"tierType"`
+	FilesToMigrate    []*FileAccessRecord `json:"filesToMigrate,omitempty"`
 	TotalMigrateBytes int64               `json:"totalMigrateBytes"`
 }

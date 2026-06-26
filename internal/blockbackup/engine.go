@@ -13,40 +13,41 @@ import (
 
 // BlockBackupEngine 块级增量备份引擎
 type BlockBackupEngine struct {
-	logger    *zap.Logger
-	jobs      map[string]*BackupJob
-	snapshots map[string]*BlockSnapshot
-	mu        sync.RWMutex
-	config    BackupConfig
+	logger           *zap.Logger
+	jobs             map[string]*BackupJob
+	snapshots        map[string]*BlockSnapshot
+	mu               sync.RWMutex
+	config           BackupConfig
+	progressCallback ProgressCallback
 }
 
 // BackupConfig 备份配置
 type BackupConfig struct {
-	Compression     string `json:"compression"`      // lz4, zstd, gzip, none
-	BlockSize       int    `json:"block_size"`        // 块大小(字节)
-	MaxBandwidth    int    `json:"max_bandwidth"`     // 最大带宽(MB/s)
-	Parallel        int    `json:"parallel"`          // 并行数
-	RetentionDays   int    `json:"retention_days"`    // 保留天数
-	VerifyAfter     bool   `json:"verify_after"`      // 备份后验证
-	Encrypted       bool   `json:"encrypted"`         // 加密
-	EncryptionKey   string `json:"encryption_key"`    // 加密密钥
+	Compression   string `json:"compression"`    // lz4, zstd, gzip, none
+	BlockSize     int    `json:"block_size"`     // 块大小(字节)
+	MaxBandwidth  int    `json:"max_bandwidth"`  // 最大带宽(MB/s)
+	Parallel      int    `json:"parallel"`       // 并行数
+	RetentionDays int    `json:"retention_days"` // 保留天数
+	VerifyAfter   bool   `json:"verify_after"`   // 备份后验证
+	Encrypted     bool   `json:"encrypted"`      // 加密
+	EncryptionKey string `json:"encryption_key"` // 加密密钥
 }
 
 // BackupJob 备份任务
 type BackupJob struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Source      string        `json:"source"`       // 源路径或设备
-	Destination string        `json:"destination"`  // 目标路径
-	Type        string        `json:"type"`         // full, incremental
-	Status      string        `json:"status"`       // pending, running, completed, failed
-	Progress    int           `json:"progress"`     // 0-100
-	StartTime   time.Time     `json:"start_time"`
-	EndTime     time.Time     `json:"end_time"`
-	Size        uint64        `json:"size"`
-	Duration    time.Duration `json:"duration"`
-	Error       string        `json:"error,omitempty"`
-	BaseSnapshot string       `json:"base_snapshot"` // 增量基准快照
+	ID           string        `json:"id"`
+	Name         string        `json:"name"`
+	Source       string        `json:"source"`      // 源路径或设备
+	Destination  string        `json:"destination"` // 目标路径
+	Type         string        `json:"type"`        // full, incremental
+	Status       string        `json:"status"`      // pending, running, completed, failed
+	Progress     int           `json:"progress"`    // 0-100
+	StartTime    time.Time     `json:"start_time"`
+	EndTime      time.Time     `json:"end_time"`
+	Size         uint64        `json:"size"`
+	Duration     time.Duration `json:"duration"`
+	Error        string        `json:"error,omitempty"`
+	BaseSnapshot string        `json:"base_snapshot"` // 增量基准快照
 }
 
 // BlockSnapshot 块级快照
@@ -85,13 +86,13 @@ func NewBlockBackupEngine(logger *zap.Logger, config BackupConfig) *BlockBackupE
 func (bbe *BlockBackupEngine) CreateFullBackup(ctx context.Context, source, dest string) (*BackupJob, error) {
 	bbe.mu.Lock()
 	job := &BackupJob{
-		ID:        fmt.Sprintf("full-%d", time.Now().UnixNano()),
-		Name:      fmt.Sprintf("Full backup of %s", source),
-		Source:    source,
+		ID:          fmt.Sprintf("full-%d", time.Now().UnixNano()),
+		Name:        fmt.Sprintf("Full backup of %s", source),
+		Source:      source,
 		Destination: dest,
-		Type:      "full",
-		Status:    "pending",
-		StartTime: time.Now(),
+		Type:        "full",
+		Status:      "pending",
+		StartTime:   time.Now(),
 	}
 	bbe.jobs[job.ID] = job
 	bbe.mu.Unlock()
@@ -221,13 +222,13 @@ func (bbe *BlockBackupEngine) runIncrementalBackup(ctx context.Context, job *Bac
 func (bbe *BlockBackupEngine) CreateZFSBlockBackup(ctx context.Context, dataset, dest string, incremental bool, baseSnap string) (*BackupJob, error) {
 	bbe.mu.Lock()
 	job := &BackupJob{
-		ID:        fmt.Sprintf("zfs-%d", time.Now().UnixNano()),
-		Name:      fmt.Sprintf("ZFS backup of %s", dataset),
-		Source:    dataset,
+		ID:          fmt.Sprintf("zfs-%d", time.Now().UnixNano()),
+		Name:        fmt.Sprintf("ZFS backup of %s", dataset),
+		Source:      dataset,
 		Destination: dest,
-		Type:      "full",
-		Status:    "pending",
-		StartTime: time.Now(),
+		Type:        "full",
+		Status:      "pending",
+		StartTime:   time.Now(),
 	}
 	if incremental {
 		job.Type = "incremental"

@@ -116,11 +116,13 @@ import (
 	"nas-os/internal/spotlight"
 
 	// v2.542.0 新增模块
+	"nas-os/internal/apikey"
 	"nas-os/internal/containerimagecache"
 	"nas-os/internal/custombranding"
 	"nas-os/internal/digitallegacy"
 	"nas-os/internal/dlnamedia"
 	"nas-os/internal/dnsfilter"
+	"nas-os/internal/filetag"
 	"nas-os/internal/multiclusterfed"
 	"nas-os/internal/musicserver"
 	"nas-os/internal/photoai"
@@ -128,8 +130,6 @@ import (
 	"nas-os/internal/smbdirect"
 	"nas-os/internal/storagecostforecast"
 	"nas-os/internal/syslogserver"
-	"nas-os/internal/filetag"
-	"nas-os/internal/apikey"
 
 	_ "nas-os/docs/swagger" // Swagger 文档
 
@@ -280,8 +280,8 @@ type Server struct {
 	smbDirectMgr           *smbdirect.SMBDirectManager
 	storageCostForecastMgr *storagecostforecast.CostForecastEngine
 	smartNASRouterMgr      *smartnasrouter.Manager
-	filetagMgr           *filetag.Manager
-	apikeyMgr            *apikey.Manager
+	filetagMgr             *filetag.Manager
+	apikeyMgr              *apikey.Manager
 }
 
 // NewServer 创建 Web 服务器.
@@ -522,7 +522,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ Webhook通知集成就绪")
 
 	// 初始化 ML 勒索检测引擎（对标群晖 勒索防护增强）
-	ransomDetector := ransommldetect.NewDetector(ransommldetect.DefaultDetectorConfig())
+	ransomDetector := ransommldetect.NewDetector(ransommldetect.DefaultDetectorConfig(), logger)
 	ransomDetector.Start()
 	log.Println("✅ ML勒索检测引擎已启动")
 
@@ -1062,8 +1062,8 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		smbDirectMgr:           smbDirectMgr,
 		storageCostForecastMgr: storageCostForecastMgr,
 		smartNASRouterMgr:      smartNASRouterMgr,
-		filetagMgr:           filetagMgr,
-		apikeyMgr:            apikeyMgr,
+		filetagMgr:             filetagMgr,
+		apikeyMgr:              apikeyMgr,
 	}
 
 	// 设置 WebDAV 认证函数
@@ -1457,7 +1457,7 @@ func (s *Server) setupRoutes() {
 		webhook.NewHandlers(s.webhookMgr).RegisterRoutes(api)
 
 		// ML 勒索检测 API
-		ransommldetect.NewHandlers(s.ransomDetector).RegisterRoutes(api)
+		ransommldetect.NewHandlers(s.ransomDetector, s.logger).RegisterRoutes(api)
 
 		// 回收站自动清理 API
 		recyclecleaner.NewHandlers(s.recycleCleaner).RegisterRoutes(api)

@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.0.0 Stable (2026-06-25)
+> **最新版本**: v3.1.0 Stable (2026-06-26)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -33,6 +33,19 @@
 ---
 
 ## 特性
+
+
+### 🚀 v3.1.0 架构重构稳定化 ✅
+
+| 模块 | 说明 | 状态 |
+|------|------|------|
+| 💾 块级备份增强 | 增强引擎、REST API、增量/去重/恢复测试 | ✅ v3.1.0 稳定化 |
+| 📊 性能监控增强 | 指标采集、阈值告警、历史查询、HTTP API | ✅ v3.1.0 稳定化 |
+| 🛡️ ML 勒索检测 | 熵分析、写频异常、批量扩展名检测、响应 API | ✅ v3.1.0 稳定化 |
+| 📸 快照管理增强 | 保留策略、团队快照、ZFS 快照封装、扩展测试 | ✅ v3.1.0 稳定化 |
+| 🖥️ 系统监控增强 | CPU/内存/磁盘/网络指标、告警、API 测试 | ✅ v3.1.0 稳定化 |
+| 🔐 安全与协作模块 | Secure Boot、SMB Guard、WORM 合规、Team File、User API Key | ✅ v3.1.0 稳定化 |
+| 🌐 WebShare Pro | 协作、分享链接、WebRTC 分享命名冲突清理 | ✅ v3.1.0 稳定化 |
 
 ### 核心功能 ✅
 
