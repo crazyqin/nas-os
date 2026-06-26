@@ -39,7 +39,7 @@ type ShareLinkV2 struct {
 	// 显示名称
 	Name string `json:"name"`
 	// URL Token（用于公开访问）
-	Token string `json:"json:"token"`
+	Token string `json:"token"`
 	// 自定义路径 slug（支持中文，参考飞牛 DDNS 中文域名）
 	// 例：/s/项目文档 或 /s/共享文件
 	CustomSlug string `json:"customSlug,omitempty"`
