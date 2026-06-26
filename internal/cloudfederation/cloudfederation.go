@@ -622,6 +622,10 @@ func (m *Manager) runMigrationTask(taskID string) {
 		m.mu.Unlock()
 		return
 	}
+	if task.Status == MigrationStatusCancelled {
+		m.mu.Unlock()
+		return
+	}
 	task.Status = MigrationStatusInProgress
 	now := time.Now()
 	task.StartedAt = &now
