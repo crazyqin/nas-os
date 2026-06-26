@@ -305,22 +305,19 @@ func (m *Manager) scanPath(rootPath string, result *ScanResult, currentUser stri
 
 // extractUserFromPath 从路径提取用户信息.
 func (m *Manager) extractUserFromPath(path string) string {
-	// 常见的用户目录模式
-	patterns := []string{
-		"/home/",
-		"/Users/",
-		"/data/users/",
+	cleanPath := filepath.Clean(path)
+	parts := strings.Split(cleanPath, string(os.PathSeparator))
+	for i := len(parts) - 2; i >= 0; i-- {
+		if parts[i] == "home" || parts[i] == "Users" {
+			if parts[i+1] != "" {
+				return parts[i+1]
+			}
+		}
 	}
 
-	for _, pattern := range patterns {
-		idx := strings.Index(path, pattern)
-		if idx != -1 {
-			// 找到模式后的路径部分
-			afterPattern := path[idx+len(pattern):]
-			parts := strings.SplitN(afterPattern, "/", 2)
-			if len(parts) > 0 && parts[0] != "" {
-				return parts[0]
-			}
+	for i := len(parts) - 3; i >= 0; i-- {
+		if parts[i] == "data" && parts[i+1] == "users" && parts[i+2] != "" {
+			return parts[i+2]
 		}
 	}
 

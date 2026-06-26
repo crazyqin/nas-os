@@ -413,9 +413,12 @@ type ShredStats struct {
 
 // IsTempFile 判断文件是否为临时文件
 func IsTempFile(path string) bool {
-	tmpDir := os.TempDir()
-	if strings.HasPrefix(path, tmpDir) {
-		return true
+	cleanPath := filepath.Clean(path)
+	tmpDirs := []string{filepath.Clean(os.TempDir()), filepath.Clean("/tmp")}
+	for _, tmpDir := range tmpDirs {
+		if cleanPath == tmpDir || strings.HasPrefix(cleanPath, tmpDir+string(os.PathSeparator)) {
+			return true
+		}
 	}
 	base := filepath.Base(path)
 	return strings.HasPrefix(base, ".") || strings.HasSuffix(base, ".tmp") ||
