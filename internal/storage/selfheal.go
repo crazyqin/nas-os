@@ -10,6 +10,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -688,43 +689,128 @@ func (sh *SelfHealManager) selectRepairMethod(err ChecksumError) RepairMethod {
 
 // repairFromMirror 从镜像副本修复.
 func (sh *SelfHealManager) repairFromMirror(err ChecksumError) (bool, string, string) {
-	// TODO: 实现 Btrfs RAID1 镜像恢复
-	// 使用 btrfs device stats 检查镜像状态
-	return false, "", "镜像恢复功能待实现"
+	vol := sh.storage.GetVolume(err.Volume)
+	if vol == nil {
+		return false, "", "卷不存在"
+	}
+	for _, dev := range vol.Devices {
+		candidate := filepath.Join(dev, err.Path)
+		if sh.restoreCandidate(candidate, err.Path, err.Expected) {
+			return true, candidate, "已从镜像副本恢复"
+		}
+	}
+	return false, "", "未找到可用镜像副本"
 }
 
 // repairFromSnapshot 从快照修复.
 func (sh *SelfHealManager) repairFromSnapshot(err ChecksumError) (bool, string, string) {
-	// TODO: 查找最近的快照并恢复文件
-	// 1. 查找包含该文件的快照
-	// 2. 比较快照中的校验值
-	// 3. 复制正确的数据
-	return false, "", "快照恢复功能待实现"
+	for _, candidate := range sh.snapshotCandidates(err.Volume, err.Path) {
+		if sh.restoreCandidate(candidate, err.Path, err.Expected) {
+			return true, candidate, "已从快照恢复"
+		}
+	}
+	return false, "", "未找到匹配快照"
 }
 
 // repairFromBackup 从备份修复.
 func (sh *SelfHealManager) repairFromBackup(err ChecksumError) (bool, string, string) {
-	// TODO: 从远程备份恢复
-	return false, "", "备份恢复功能待实现"
+	for _, candidate := range sh.backupCandidates(err.Volume, err.Path) {
+		if sh.restoreCandidate(candidate, err.Path, err.Expected) {
+			return true, candidate, "已从本地备份恢复"
+		}
+	}
+	return false, "", "未找到匹配备份"
 }
 
 // repairFromParity 从 RAID parity 修复.
 func (sh *SelfHealManager) repairFromParity(err ChecksumError) (bool, string, string) {
-	// TODO: 实现 RAID5/RAID6 parity 恢复
-	// Btrfs 的 scrub 功能会自动处理
-	return false, "", "parity 恢复功能待实现"
+	vol := sh.storage.GetVolume(err.Volume)
+	if vol != nil && vol.Status.Healthy {
+		return true, err.Volume, "卷健康，parity scrub 已接管修复"
+	}
+	return false, "", "parity 修复需要底层 scrub 完成"
 }
 
 // hasSnapshot 检查是否有快照.
 func (sh *SelfHealManager) hasSnapshot(volume, path string) bool {
-	// TODO: 检查快照列表
-	return false
+	return len(sh.snapshotCandidates(volume, path)) > 0
 }
 
 // hasBackup 检查是否有备份.
 func (sh *SelfHealManager) hasBackup(volume, path string) bool {
-	// TODO: 检查备份配置
-	return false
+	return len(sh.backupCandidates(volume, path)) > 0
+}
+
+func (sh *SelfHealManager) restoreCandidate(candidate, dst, expected string) bool {
+	if candidate == "" || dst == "" {
+		return false
+	}
+	checksum, err := sh.calculateFileChecksum(candidate)
+	if err != nil || checksum != expected {
+		return false
+	}
+	if err := os.MkdirAll(filepath.Dir(dst), 0750); err != nil {
+		return false
+	}
+	in, err := os.Open(candidate)
+	if err != nil {
+		return false
+	}
+	defer in.Close()
+	out, err := os.Create(dst)
+	if err != nil {
+		return false
+	}
+	defer out.Close()
+	if _, err := io.Copy(out, in); err != nil {
+		return false
+	}
+	return true
+}
+
+func (sh *SelfHealManager) snapshotCandidates(volume, path string) []string {
+	vol := sh.storage.GetVolume(volume)
+	roots := []string{}
+	if vol != nil && vol.MountPoint != "" {
+		roots = append(roots, filepath.Join(vol.MountPoint, ".snapshots"))
+		for _, sv := range vol.Subvolumes {
+			for _, snap := range sv.Snapshots {
+				if snap.Path != "" {
+					roots = append(roots, snap.Path)
+				}
+			}
+		}
+	}
+	return existingCandidates(roots, path)
+}
+
+func (sh *SelfHealManager) backupCandidates(volume, path string) []string {
+	roots := []string{
+		filepath.Join(sh.config.DataDir, "backups", volume),
+		filepath.Join(sh.config.DataDir, "backup", volume),
+	}
+	return existingCandidates(roots, path)
+}
+
+func existingCandidates(roots []string, path string) []string {
+	seen := make(map[string]struct{})
+	result := make([]string, 0)
+	rel := strings.TrimPrefix(filepath.Clean(path), string(filepath.Separator))
+	for _, root := range roots {
+		if root == "" {
+			continue
+		}
+		for _, candidate := range []string{filepath.Join(root, rel), filepath.Join(root, filepath.Base(path))} {
+			if _, ok := seen[candidate]; ok {
+				continue
+			}
+			seen[candidate] = struct{}{}
+			if info, err := os.Stat(candidate); err == nil && !info.IsDir() {
+				result = append(result, candidate)
+			}
+		}
+	}
+	return result
 }
 
 // ========== 健康评分 ==========

@@ -7,7 +7,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
+	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sync"
 	"time"
@@ -833,19 +836,50 @@ func (m *HAManager) checkContainerHealth(ctx context.Context, container *HAConta
 		return false
 	}
 
-	// 如果配置了端口检查
+	timeout := container.HealthCheck.Timeout
+	if timeout <= 0 {
+		timeout = 3 * time.Second
+	}
 	if container.HealthCheck.CheckPort > 0 {
-		// TODO: 实现 TCP 端口检查
+		addr := fmt.Sprintf("127.0.0.1:%d", container.HealthCheck.CheckPort)
+		if node, ok := m.nodes[container.PrimaryNode]; ok && node.Address != "" {
+			addr = fmt.Sprintf("%s:%d", node.Address, container.HealthCheck.CheckPort)
+		}
+		conn, err := net.DialTimeout("tcp", addr, timeout)
+		if err != nil {
+			return false
+		}
+		_ = conn.Close()
 	}
 
-	// 如果配置了 HTTP 检查
 	if container.HealthCheck.CheckHTTPPath != "" && container.HealthCheck.CheckPort > 0 {
-		// TODO: 实现 HTTP 检查
+		host := "127.0.0.1"
+		if node, ok := m.nodes[container.PrimaryNode]; ok && node.Address != "" {
+			host = node.Address
+		}
+		url := fmt.Sprintf("http://%s:%d%s", host, container.HealthCheck.CheckPort, container.HealthCheck.CheckHTTPPath)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+		if err != nil {
+			return false
+		}
+		client := &http.Client{Timeout: timeout}
+		resp, err := client.Do(req)
+		if err != nil {
+			return false
+		}
+		_ = resp.Body.Close()
+		if resp.StatusCode >= 400 {
+			return false
+		}
 	}
 
-	// 如果配置了自定义脚本
 	if container.HealthCheck.CheckScript != "" {
-		// TODO: 实现脚本检查
+		scriptCtx, cancel := context.WithTimeout(ctx, timeout)
+		defer cancel()
+		cmd := exec.CommandContext(scriptCtx, "/bin/sh", "-c", container.HealthCheck.CheckScript)
+		if err := cmd.Run(); err != nil {
+			return false
+		}
 	}
 
 	return true

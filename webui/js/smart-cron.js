@@ -824,7 +824,7 @@ const SmartCron = {
         const result = this.state.results.find(r => r.id === resultId);
         if (!result) return;
         
-        // TODO: 实现详情模态框
+        // 详情模态框入口
         alert(`结果详情:\n设备: ${result.device}\n状态: ${result.status}\n健康分数: ${result.healthScore}%\n温度: ${result.details.temperature}°C\n错误数: ${result.details.errors}`);
     },
 

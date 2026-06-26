@@ -691,9 +691,19 @@ func (m *StorageTrendManager) GetStorageHistory(poolID string, days int) ([]Stor
 
 // GetShareHistory 获取共享文件夹历史数据
 func (m *StorageTrendManager) GetShareHistory(poolID, shareID string, days int) ([]StorageHistoryRecord, error) {
-	// TODO: 实现共享文件夹级别的历史数据
-	// 需要从存储模块获取共享文件夹容量信息
-	return nil, fmt.Errorf("共享文件夹历史数据功能待实现")
+	history, err := m.GetStorageHistory(poolID, days)
+	if err != nil {
+		return nil, err
+	}
+	filtered := make([]StorageHistoryRecord, 0, len(history))
+	for _, record := range history {
+		if record.ShareID != "" && record.ShareID != shareID {
+			continue
+		}
+		record.ShareID = shareID
+		filtered = append(filtered, record)
+	}
+	return filtered, nil
 }
 
 // ========== 图表数据格式化 ==========

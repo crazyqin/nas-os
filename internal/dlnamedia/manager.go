@@ -656,9 +656,38 @@ func (m *Manager) ControlPlayback(sessionID string, req ControlPlaybackRequest) 
 	case "seek":
 		session.Position = req.Position
 	case "next":
-		// TODO: 从队列中获取下一个
+		if queue, ok := m.queues[session.DeviceID]; ok && len(queue.Items) > 0 {
+			if queue.CurrentIndex+1 < len(queue.Items) {
+				queue.CurrentIndex++
+			} else if queue.RepeatMode == "all" {
+				queue.CurrentIndex = 0
+			} else {
+				session.State = PlayStateStopped
+				break
+			}
+			item := queue.Items[queue.CurrentIndex]
+			session.CurrentItem = item.MediaItem
+			if session.CurrentItem == nil {
+				session.CurrentItem = m.mediaItems[item.MediaID]
+			}
+			session.Position = 0
+		}
 	case "prev":
-		// TODO: 从队列中获取上一个
+		if queue, ok := m.queues[session.DeviceID]; ok && len(queue.Items) > 0 {
+			if queue.CurrentIndex > 0 {
+				queue.CurrentIndex--
+			} else if queue.RepeatMode == "all" {
+				queue.CurrentIndex = len(queue.Items) - 1
+			} else {
+				queue.CurrentIndex = 0
+			}
+			item := queue.Items[queue.CurrentIndex]
+			session.CurrentItem = item.MediaItem
+			if session.CurrentItem == nil {
+				session.CurrentItem = m.mediaItems[item.MediaID]
+			}
+			session.Position = 0
+		}
 	default:
 		return nil, fmt.Errorf("unknown action: %s", req.Action)
 	}

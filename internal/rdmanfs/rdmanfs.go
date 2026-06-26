@@ -1,8 +1,13 @@
 package rdmanfs
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -166,13 +171,36 @@ func NewManager(config *ManagerConfig) *Manager {
 
 // DetectRDMADevices 检测 RDMA 网卡
 func (m *Manager) DetectRDMADevices(ctx context.Context) ([]RDMADeviceInfo, error) {
-	// TODO: 实际通过 ibstat / rdma link 检测 RDMA 设备
 	m.mu.Lock()
 	defer m.mu.Unlock()
-
-	// 模拟检测
-	m.devices = []RDMADeviceInfo{}
-	return m.devices, nil
+	devices := make([]RDMADeviceInfo, 0)
+	base := "/sys/class/infiniband"
+	entries, err := os.ReadDir(base)
+	if err != nil {
+		m.devices = devices
+		return devices, nil
+	}
+	for _, e := range entries {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+		if !e.IsDir() {
+			continue
+		}
+		devPath := filepath.Join(base, e.Name())
+		portRoot := filepath.Join(devPath, "ports")
+		ports, _ := os.ReadDir(portRoot)
+		for _, pe := range ports {
+			pdir := filepath.Join(portRoot, pe.Name())
+			state := DeviceDown
+			if strings.Contains(strings.ToLower(readFileTrim(filepath.Join(pdir, "state"))), "active") {
+				state = DeviceUp
+			}
+			devices = append(devices, RDMADeviceInfo{Name: e.Name(), State: state, Protocol: ProtocolRoCEv2, NodeGUID: readFileTrim(filepath.Join(devPath, "node_guid")), PortGUID: readFileTrim(filepath.Join(pdir, "gid_attrs", "ndevs", "0")), PortNum: parseIntDefault(pe.Name(), 1), Mtu: parseIntDefault(readFileTrim(filepath.Join(pdir, "active_mtu")), 4096), Rate: int64(parseIntDefault(strings.Fields(readFileTrim(filepath.Join(pdir, "rate")))[0], 0)) * 1000 * 1000 * 1000, LinkLayer: readFileTrim(filepath.Join(pdir, "link_layer"))})
+		}
+	}
+	m.devices = devices
+	return devices, nil
 }
 
 // GetDevices 获取 RDMA 设备列表
@@ -223,7 +251,9 @@ func (m *Manager) GetNFSRDMAConfig() NFSRDMAConfig {
 
 // StartService 启动 NFS over RDMA 服务
 func (m *Manager) StartService(ctx context.Context) error {
-	// TODO: 实际启动 nfsrdma 服务
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -245,7 +275,9 @@ func (m *Manager) StartService(ctx context.Context) error {
 
 // StopService 停止 NFS over RDMA 服务
 func (m *Manager) StopService(ctx context.Context) error {
-	// TODO: 实际停止 nfsrdma 服务
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -307,7 +339,9 @@ func (m *Manager) ListExports() []NFSExport {
 
 // CollectStats 收集性能统计
 func (m *Manager) CollectStats(ctx context.Context) (*PerformanceStats, error) {
-	// TODO: 实际从 /proc/fs/nfsd 或 perf 采集
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -316,6 +350,17 @@ func (m *Manager) CollectStats(ctx context.Context) (*PerformanceStats, error) {
 		m.stats = &PerformanceStats{CollectAt: now}
 	}
 	m.stats.CollectAt = now
+	if f, err := os.Open("/proc/net/rpc/nfsd"); err == nil {
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			fields := strings.Fields(scanner.Text())
+			if len(fields) > 2 && fields[0] == "io" {
+				m.stats.BytesRead = int64(parseIntDefault(fields[1], 0))
+				m.stats.BytesWritten = int64(parseIntDefault(fields[2], 0))
+			}
+		}
+		_ = f.Close()
+	}
 	return m.stats, nil
 }
 
@@ -345,4 +390,24 @@ func (m *Manager) GetStatus() *RDMAServiceStatus {
 	}
 
 	return status
+}
+
+func readFileTrim(path string) string {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(b))
+}
+
+func parseIntDefault(s string, def int) int {
+	fields := strings.Fields(s)
+	if len(fields) > 0 {
+		s = fields[0]
+	}
+	v, err := strconv.Atoi(s)
+	if err != nil {
+		return def
+	}
+	return v
 }

@@ -5,6 +5,8 @@ package smartsearch
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -278,8 +280,17 @@ func (m *Manager) RebuildIndex(ctx context.Context) error {
 
 	// 清空现有索引
 	m.index = make(map[string]*IndexEntry)
-	// TODO: 实现实际的文件扫描和索引逻辑
-	return nil
+	root := m.storagePath
+	m.mu.Unlock()
+	defer m.mu.Lock()
+	return filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() {
+			return nil
+		}
+		entry := IndexEntry{FileID: path, FilePath: path, FileName: info.Name(), FileSize: info.Size(), ModTime: info.ModTime(), IndexedAt: time.Now(), FileType: detectFileType(path)}
+		m.index[entry.FileID] = &entry
+		return nil
+	})
 }
 
 func calculateScore(entry *IndexEntry, query string) float64 {
@@ -368,4 +379,23 @@ func hasAnyTag(fileTags, filterTags []string) bool {
 		}
 	}
 	return false
+}
+
+func detectFileType(path string) FileType {
+	switch strings.ToLower(filepath.Ext(path)) {
+	case ".jpg", ".jpeg", ".png", ".gif", ".webp":
+		return FileTypeImage
+	case ".mp4", ".mkv", ".avi", ".mov":
+		return FileTypeVideo
+	case ".mp3", ".flac", ".wav", ".aac":
+		return FileTypeAudio
+	case ".zip", ".tar", ".gz", ".rar", ".7z":
+		return FileTypeArchive
+	case ".go", ".js", ".ts", ".py", ".java", ".c", ".cpp", ".rs":
+		return FileTypeCode
+	case ".txt", ".md", ".pdf", ".doc", ".docx":
+		return FileTypeDocument
+	default:
+		return FileTypeOther
+	}
 }

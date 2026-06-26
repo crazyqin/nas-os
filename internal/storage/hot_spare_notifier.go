@@ -114,6 +114,8 @@ type NotificationManager struct {
 	lastNotified map[string]time.Time // 事件类型 -> 最后通知时间
 	templates    map[string]*template.Template
 	httpClient   *http.Client
+	history      []HotSpareEvent
+	mu           sync.RWMutex
 }
 
 // NewNotificationManager 创建通知管理器.
@@ -216,6 +218,12 @@ NAS-OS 存储管理系统
 
 // Send 发送通知.
 func (nm *NotificationManager) Send(event HotSpareEvent) error {
+	nm.mu.Lock()
+	nm.history = append(nm.history, event)
+	if len(nm.history) > 200 {
+		nm.history = nm.history[len(nm.history)-200:]
+	}
+	nm.mu.Unlock()
 	if !nm.config.Enabled {
 		return nil
 	}
@@ -726,7 +734,8 @@ func (api *NotificationAPI) TestNotification(c *gin.Context) {
 
 // GetHistory 获取通知历史.
 func (api *NotificationAPI) GetHistory(c *gin.Context) {
-	// 返回最近的通知历史
-	// TODO: 实现持久化存储
-	c.JSON(http.StatusOK, []interface{}{})
+	api.manager.mu.RLock()
+	history := append([]HotSpareEvent(nil), api.manager.history...)
+	api.manager.mu.RUnlock()
+	c.JSON(http.StatusOK, history)
 }

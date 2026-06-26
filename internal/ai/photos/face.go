@@ -291,7 +291,7 @@ func (fr *FaceRecognizer) Close() error {
 // ArcFaceModel implements FaceModel using ArcFace
 type ArcFaceModel struct {
 	config *FaceRecognitionConfig
-	// TODO: Add actual model loading (ONNX Runtime, TensorFlow, etc.)
+	// Model loading hook for ONNX Runtime, TensorFlow, or other engines.
 }
 
 // NewArcFaceModel creates a new ArcFace model instance

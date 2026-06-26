@@ -327,9 +327,13 @@ func (h *Handler) handleNetworks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: 列出网络
+	networks, err := h.manager.ListNetworks(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"networks": []Network{},
+		"networks": networks,
 	})
 }
 
@@ -339,9 +343,13 @@ func (h *Handler) handleVolumes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: 列出卷
+	volumes, err := h.manager.ListVolumes(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"volumes": []Volume{},
+		"volumes": volumes,
 	})
 }
 

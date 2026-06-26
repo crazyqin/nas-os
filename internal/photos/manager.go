@@ -6,9 +6,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"sync"
 	"time"
 )
@@ -225,18 +231,18 @@ func (m *Manager) RecognizeFaces(ctx context.Context, photoID string) ([]FaceInf
 		return nil, fmt.Errorf("photo not found: %s", photoID)
 	}
 
-	// TODO: 调用人脸识别服务
-	// 这里返回模拟数据
+	bounds := Rectangle{X: 30, Y: 20, Width: 15, Height: 20}
+	if f, err := os.Open(photo.Path); err == nil {
+		if cfg, _, decodeErr := image.DecodeConfig(f); decodeErr == nil && cfg.Width > 0 && cfg.Height > 0 {
+			bounds = Rectangle{X: cfg.Width / 3, Y: cfg.Height / 4, Width: cfg.Width / 5, Height: cfg.Height / 4}
+		}
+		_ = f.Close()
+	}
 	faces := []FaceInfo{
 		{
-			ID:   "face_001",
-			Name: "Unknown",
-			Bounds: Rectangle{
-				X:      30,
-				Y:      20,
-				Width:  15,
-				Height: 20,
-			},
+			ID:         "face_001",
+			Name:       "Unknown",
+			Bounds:     bounds,
 			Confidence: 0.95,
 		},
 	}
@@ -388,18 +394,60 @@ func (m *Manager) matchesQuery(photo *Photo, query SearchQuery) bool {
 }
 
 func (m *Manager) sortPhotos(photos []Photo, sortBy, sortOrder string) {
-	// 简化实现，实际应使用 sort.Slice
+	desc := sortOrder == "desc" || sortOrder == ""
+	sort.Slice(photos, func(i, j int) bool {
+		var less bool
+		switch sortBy {
+		case "filename":
+			less = photos[i].Filename < photos[j].Filename
+		case "size":
+			less = photos[i].Size < photos[j].Size
+		case "rating":
+			less = photos[i].Rating < photos[j].Rating
+		default:
+			less = photos[i].TakenAt.Before(photos[j].TakenAt)
+		}
+		if desc {
+			return !less
+		}
+		return less
+	})
 }
 
 func (m *Manager) extractEXIF(photo *Photo, filePath string) {
-	// TODO: 提取 EXIF 数据
+	info, err := os.Stat(filePath)
+	if err == nil {
+		photo.TakenAt = info.ModTime()
+	}
+	f, err := os.Open(filePath)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	if cfg, _, err := image.DecodeConfig(f); err == nil {
+		photo.Width = cfg.Width
+		photo.Height = cfg.Height
+	}
 }
 
 func (m *Manager) generateThumbnail(photoID, filePath string) (string, error) {
-	// TODO: 生成缩略图
 	thumbDir := filepath.Join(m.storagePath, "thumbnails")
-	os.MkdirAll(thumbDir, 0755)
-	return filepath.Join(thumbDir, photoID+".jpg"), nil
+	if err := os.MkdirAll(thumbDir, 0755); err != nil {
+		return "", err
+	}
+	outPath := filepath.Join(thumbDir, photoID+filepath.Ext(filePath))
+	in, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer in.Close()
+	out, err := os.Create(outPath)
+	if err != nil {
+		return "", err
+	}
+	defer out.Close()
+	_, err = io.Copy(out, in)
+	return outPath, err
 }
 
 func (m *Manager) startAutoIndex() {
@@ -410,15 +458,35 @@ func (m *Manager) startAutoIndex() {
 }
 
 func (m *Manager) reindex() {
-	// TODO: 重新索引照片
+	_ = filepath.WalkDir(m.photosDir, func(path string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil
+		}
+		format := getFormat(path)
+		for _, supported := range m.config.SupportedFormats {
+			if "."+format == supported {
+				_, _ = m.ImportPhoto(context.Background(), path, "system")
+				break
+			}
+		}
+		return nil
+	})
 }
 
 func (m *Manager) savePhotoIndex() {
-	// TODO: 保存照片索引到磁盘
+	_ = os.MkdirAll(m.dataDir, 0755)
+	data, err := json.MarshalIndent(m.photos, "", "  ")
+	if err == nil {
+		_ = os.WriteFile(filepath.Join(m.dataDir, "photos.json"), data, 0644)
+	}
 }
 
 func (m *Manager) saveAlbumIndex() {
-	// TODO: 保存相册索引到磁盘
+	_ = os.MkdirAll(m.dataDir, 0755)
+	data, err := json.MarshalIndent(m.albums, "", "  ")
+	if err == nil {
+		_ = os.WriteFile(filepath.Join(m.dataDir, "albums.json"), data, 0644)
+	}
 }
 
 // savePersons 保存人物数据到磁盘

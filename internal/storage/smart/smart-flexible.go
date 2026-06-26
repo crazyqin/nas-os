@@ -5,7 +5,10 @@ package smart
 import (
 	"context"
 	"fmt"
+	"io"
 	"os/exec"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -76,12 +79,18 @@ func (m *MonitorService) CreateSchedule(ctx context.Context, name string, cfg *S
 	cronEntry := fmt.Sprintf("%s /usr/sbin/smartctl -t %s %s >> /var/log/smart-tests.log 2>&1",
 		cfg.Schedule, cfg.TestType, cfg.Devices[0])
 
-	newCrontab := string(output) + cronEntry + "\n"
-	_ = newCrontab // TODO: implement crontab pipe
+	newCrontab := string(output)
+	if newCrontab != "" && !strings.HasSuffix(newCrontab, "\n") {
+		newCrontab += "\n"
+	}
+	newCrontab += cronEntry + "\n"
 
-	// Install new crontab
+	// Install new crontab.
 	cmd = exec.CommandContext(ctx, "crontab", "-")
-	cmd.Stdin = nil // TODO: pipe newCrontab
+	cmd.Stdin = strings.NewReader(newCrontab)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("install crontab: %w", err)
+	}
 
 	m.schedules[name] = cfg
 	return nil
@@ -147,14 +156,43 @@ func parseSmartOutput(device string, output []byte) *HealthStatus {
 		Device: device,
 	}
 
-	lines := string(output)
-	// TODO: Implement full parsing
-	for _, line := range splitLines(lines) {
-		if contains(line, "SMART overall-health") {
-			if contains(line, "PASSED") {
+	status.Health = "UNKNOWN"
+	for _, line := range splitLines(string(output)) {
+		lower := strings.ToLower(line)
+		switch {
+		case strings.Contains(lower, "smart overall-health") || strings.Contains(lower, "smart health status"):
+			if strings.Contains(lower, "passed") || strings.Contains(lower, "ok") {
 				status.Health = "PASSED"
-			} else if contains(line, "FAILED") {
+			} else if strings.Contains(lower, "failed") {
 				status.Health = "FAILED"
+			}
+		case strings.Contains(lower, "temperature_celsius") || strings.Contains(lower, "airflow_temperature_cel"):
+			fields := strings.Fields(line)
+			if len(fields) > 0 {
+				if v, err := strconv.Atoi(fields[len(fields)-1]); err == nil {
+					status.Temperature = v
+				}
+			}
+		case strings.Contains(lower, "power_on_hours"):
+			fields := strings.Fields(line)
+			if len(fields) > 0 {
+				if v, err := strconv.ParseUint(fields[len(fields)-1], 10, 64); err == nil {
+					status.PowerOnHours = v
+				}
+			}
+		case strings.Contains(lower, "read_error"):
+			fields := strings.Fields(line)
+			if len(fields) > 0 {
+				if v, err := strconv.ParseUint(fields[len(fields)-1], 10, 64); err == nil {
+					status.ReadErrors = v
+				}
+			}
+		case strings.Contains(lower, "write_error"):
+			fields := strings.Fields(line)
+			if len(fields) > 0 {
+				if v, err := strconv.ParseUint(fields[len(fields)-1], 10, 64); err == nil {
+					status.WriteErrors = v
+				}
 			}
 		}
 	}
@@ -176,8 +214,10 @@ func parseDiskList(output []byte) []string {
 
 // splitLines splits text into lines
 func splitLines(text string) []string {
-	result := make([]string, 0)
-	for _, line := range []string{} { // TODO: proper split
+	lines := strings.Split(strings.ReplaceAll(text, "\r\n", "\n"), "\n")
+	result := make([]string, 0, len(lines))
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
 		if line != "" {
 			result = append(result, line)
 		}
@@ -185,14 +225,14 @@ func splitLines(text string) []string {
 	return result
 }
 
-// contains checks if string contains substring
+// contains checks if string contains substring.
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) // TODO: proper check
+	return strings.Contains(s, substr)
 }
 
-// startsWith checks if string starts with prefix
+// startsWith checks if string starts with prefix.
 func startsWith(s, prefix string) bool {
-	return len(s) >= len(prefix) // TODO: proper check
+	return strings.HasPrefix(s, prefix)
 }
 
 // RunTest runs an immediate SMART test
@@ -208,6 +248,17 @@ func (m *MonitorService) GetTestProgress(ctx context.Context, device string) (in
 	if err != nil {
 		return 0, fmt.Errorf("smartctl failed: %w", err)
 	}
-	_ = output // TODO: Parse progress from output
+	text := string(output)
+	if strings.Contains(strings.ToLower(text), "self-test routine in progress") {
+		for _, field := range strings.Fields(text) {
+			field = strings.TrimSuffix(field, "%")
+			if v, err := strconv.Atoi(field); err == nil && v >= 0 && v <= 100 {
+				return 100 - v, nil
+			}
+		}
+	}
+	if _, err := io.Discard.Write(output); err != nil {
+		return 0, err
+	}
 	return 0, nil
 }

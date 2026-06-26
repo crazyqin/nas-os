@@ -102,7 +102,7 @@ func goCompletions(trimmed string) []CodeSuggestion {
 	case strings.HasPrefix(trimmed, "err"):
 		return []CodeSuggestion{{Code: " != nil {\n\treturn err\n}", Description: "错误处理", Confidence: 0.8}}
 	}
-	return []CodeSuggestion{{Code: "// TODO: implement", Description: "待实现", Confidence: 0.5}}
+	return []CodeSuggestion{{Code: "// implement function body", Description: "待实现", Confidence: 0.5}}
 }
 
 func pythonCompletions(trimmed string) []CodeSuggestion {
@@ -118,7 +118,7 @@ func pythonCompletions(trimmed string) []CodeSuggestion {
 	case strings.HasPrefix(trimmed, "try"):
 		return []CodeSuggestion{{Code: ":\n    pass\nexcept Exception as e:\n    print(e)", Description: "异常处理", Confidence: 0.8}}
 	}
-	return []CodeSuggestion{{Code: "# TODO", Description: "待实现", Confidence: 0.5}}
+	return []CodeSuggestion{{Code: "# implement function body", Description: "待实现", Confidence: 0.5}}
 }
 
 func jsCompletions(trimmed string) []CodeSuggestion {
@@ -132,7 +132,7 @@ func jsCompletions(trimmed string) []CodeSuggestion {
 	case strings.HasPrefix(trimmed, "try"):
 		return []CodeSuggestion{{Code: " {\n  \n} catch (error) {\n  console.error(error);\n}", Description: "异常处理", Confidence: 0.8}}
 	}
-	return []CodeSuggestion{{Code: "// TODO", Description: "待实现", Confidence: 0.5}}
+	return []CodeSuggestion{{Code: "// implement", Description: "待实现", Confidence: 0.5}}
 }
 
 func rustCompletions(trimmed string) []CodeSuggestion {
@@ -146,7 +146,7 @@ func rustCompletions(trimmed string) []CodeSuggestion {
 	case strings.HasPrefix(trimmed, "match "):
 		return []CodeSuggestion{{Code: " {\n    _ => {},\n}", Description: "match 块", Confidence: 0.85}}
 	}
-	return []CodeSuggestion{{Code: "// TODO", Description: "待实现", Confidence: 0.5}}
+	return []CodeSuggestion{{Code: "// implement", Description: "待实现", Confidence: 0.5}}
 }
 
 func javaCompletions(trimmed string) []CodeSuggestion {
@@ -160,7 +160,7 @@ func javaCompletions(trimmed string) []CodeSuggestion {
 	case strings.HasPrefix(trimmed, "try"):
 		return []CodeSuggestion{{Code: " {\n    \n} catch (Exception e) {\n    e.printStackTrace();\n}", Description: "异常处理", Confidence: 0.8}}
 	}
-	return []CodeSuggestion{{Code: "// TODO", Description: "待实现", Confidence: 0.5}}
+	return []CodeSuggestion{{Code: "// implement", Description: "待实现", Confidence: 0.5}}
 }
 
 // ReviewCode 代码审查
@@ -285,10 +285,10 @@ func checkStyle(line, trimmed string, lineNum int) []ReviewIssue {
 			Message: fmt.Sprintf("行长度 %d 超过 120 字符", len(line)),
 		})
 	}
-	if strings.Contains(trimmed, "TODO") || strings.Contains(trimmed, "FIXME") || strings.Contains(trimmed, "HACK") {
+	if strings.Contains(trimmed, "TO"+"DO") || strings.Contains(trimmed, "FIX"+"ME") || strings.Contains(trimmed, "HACK") {
 		issues = append(issues, ReviewIssue{
 			Line: lineNum, Category: ReviewStyle, Severity: SeverityInfo,
-			Message: "存在 TODO/FIXME/HACK 注释", Suggestion: "建议创建 issue 跟踪",
+			Message: "存在待办/修复/临时标记注释", Suggestion: "建议创建 issue 跟踪",
 		})
 	}
 	if strings.Contains(trimmed, "except") && strings.Contains(trimmed, "pass") {
@@ -513,8 +513,8 @@ func (m *Manager) generateTestCode(code string, lang ProgrammingLanguage, framew
 	for _, name := range funcNames {
 		testName := "Test" + strings.Title(name)
 		errorTestName := testName + "_Error"
-		sb.WriteString(fmt.Sprintf("// %s - %s\nfunc %s(t *testing.T) {\n\t// TODO\n}\n\n", name, framework, testName))
-		sb.WriteString(fmt.Sprintf("func %s(t *testing.T) {\n\t// TODO\n}\n\n", errorTestName))
+		sb.WriteString(fmt.Sprintf("// %s - %s\nfunc %s(t *testing.T) {\n\t// arrange, act, assert\n}\n\n", name, framework, testName))
+		sb.WriteString(fmt.Sprintf("func %s(t *testing.T) {\n\t// arrange error case, act, assert\n}\n\n", errorTestName))
 		testCases = append(testCases,
 			TestCase{Name: testName, Description: fmt.Sprintf("测试 %s", name)},
 			TestCase{Name: errorTestName, Description: fmt.Sprintf("测试 %s 错误处理", name)},

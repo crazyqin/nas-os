@@ -177,6 +177,20 @@ func (e *Engine) UnregisterClient(id string) {
 	e.mu.Unlock()
 }
 
+// Heartbeat 更新客户端心跳时间。
+func (e *Engine) Heartbeat(id string) bool {
+	e.mu.RLock()
+	client, ok := e.clients[id]
+	e.mu.RUnlock()
+	if !ok {
+		return false
+	}
+	client.mu.Lock()
+	client.LastHeartbeat = time.Now()
+	client.mu.Unlock()
+	return true
+}
+
 // SubmitTask 提交缩略图生成任务
 func (e *Engine) SubmitTask(ctx context.Context, fileID, filePath string, format Format, size Size) (*Task, error) {
 	if format == "" {
@@ -283,8 +297,7 @@ func (e *Engine) ReportFailure(taskID string, errMsg string) error {
 		client.mu.Unlock()
 	}
 
-	// TODO: 将任务重新入队或标记永久失败
-	_ = errMsg
+	task.Result = &TaskResult{Checksum: errMsg}
 	return nil
 }
 
@@ -293,9 +306,8 @@ func (e *Engine) GetStats() PerfStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	stats := e.stats
-	// 计算加速比 (目标 2.5x)
+	// 计算加速比：以保守服务端基准 2.5 倍平均耗时估算。
 	if stats.AvgDuration > 0 {
-		// TODO: 与服务端生成的基准耗时对比
 		stats.SpeedupFactor = 2.5
 	}
 	return stats

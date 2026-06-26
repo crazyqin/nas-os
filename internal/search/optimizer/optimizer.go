@@ -3,6 +3,7 @@
 package optimizer
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -333,10 +334,24 @@ func (ii *IncrementalIndexer) updateState(path string, info os.FileInfo) {
 // SaveState 保存索引状态到文件
 func (ii *IncrementalIndexer) SaveState() error {
 	ii.state.mu.RLock()
-	defer ii.state.mu.RUnlock()
+	snapshot := struct {
+		Files    map[string]FileMeta `json:"files"`
+		Version  int                 `json:"version"`
+		LastFull time.Time           `json:"lastFull"`
+	}{Files: make(map[string]FileMeta, len(ii.state.Files)), Version: ii.state.Version, LastFull: ii.state.LastFull}
+	for k, v := range ii.state.Files {
+		snapshot.Files[k] = v
+	}
+	ii.state.mu.RUnlock()
 
-	// TODO: 实现 JSON 序列化和文件保存
-	return nil
+	data, err := json.MarshalIndent(snapshot, "", "  ")
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Dir(ii.statePath), 0755); err != nil {
+		return err
+	}
+	return os.WriteFile(ii.statePath, data, 0644)
 }
 
 // LoadState 加载索引状态
@@ -384,11 +399,21 @@ func loadIndexState(path string) (*IndexState, error) {
 		}, nil
 	}
 
-	// TODO: 实现 JSON 反序列化
-	return &IndexState{
-		Files:   make(map[string]FileMeta),
-		Version: 1,
-	}, nil
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var state IndexState
+	if err := json.Unmarshal(data, &state); err != nil {
+		return nil, err
+	}
+	if state.Files == nil {
+		state.Files = make(map[string]FileMeta)
+	}
+	if state.Version == 0 {
+		state.Version = 1
+	}
+	return &state, nil
 }
 
 // ================== 索引压缩器 ==================

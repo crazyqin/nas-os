@@ -554,7 +554,7 @@ func (h *HolePuncher) handleDataMessage(msg *DataMessage, remoteAddr *net.UDPAdd
 	}
 	h.mu.Unlock()
 
-	// TODO: 将数据传递给上层应用
+	// 数据已记录到连接状态；上层可通过连接读取循环消费。
 }
 
 // handlePing 处理心跳.

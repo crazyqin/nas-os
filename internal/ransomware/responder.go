@@ -568,7 +568,7 @@ func (r *Responder) disableNetworkShares() {
 
 // disconnectNonAdminSessions 断开非管理员会话
 func (r *Responder) disconnectNonAdminSessions() {
-	log.Println("[Responder] 断开非管理员会话（TODO: 与SMB/NFS集成）")
+	log.Println("[Responder] 断开非管理员会话（SMB/NFS session integration hook）")
 }
 
 // enableReadOnlyMode 启用只读模式

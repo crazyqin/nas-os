@@ -7,7 +7,10 @@ package storage
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"nas-os/internal/api"
@@ -599,13 +602,34 @@ func (h *RAIDZExpandHandlers) estimateExpansion(c *gin.Context) {
 // @Router /raidz-expand/available-disks [get]
 // @Security BearerAuth
 func (h *RAIDZExpandHandlers) listAvailableDisks(c *gin.Context) {
-	// 简化实现：返回空列表（实际应从系统扫描）
-	disks := []DiskSlot{}
-
-	// TODO: 实际实现应扫描系统可用磁盘
-	// 使用 lsblk 或 smartctl 扫描未使用的磁盘
-
+	disks := scanAvailableDiskSlots()
 	api.OK(c, disks)
+}
+
+func scanAvailableDiskSlots() []DiskSlot {
+	entries, err := os.ReadDir("/sys/block")
+	if err != nil {
+		return []DiskSlot{}
+	}
+	disks := make([]DiskSlot, 0)
+	for _, entry := range entries {
+		name := entry.Name()
+		if strings.HasPrefix(name, "loop") || strings.HasPrefix(name, "ram") || strings.HasPrefix(name, "dm-") {
+			continue
+		}
+		sizeBytes, _ := os.ReadFile(filepath.Join("/sys/block", name, "size"))
+		sectors, _ := strconv.ParseInt(strings.TrimSpace(string(sizeBytes)), 10, 64)
+		modelBytes, _ := os.ReadFile(filepath.Join("/sys/block", name, "device/model"))
+		disks = append(disks, DiskSlot{
+			Path:      "/dev/" + name,
+			Model:     strings.TrimSpace(string(modelBytes)),
+			SizeGB:    int(sectors * 512 / 1024 / 1024 / 1024),
+			State:     "new",
+			IsNew:     true,
+			Indicator: "green",
+		})
+	}
+	return disks
 }
 
 // getDiskInfo 获取磁盘信息

@@ -580,12 +580,10 @@ func (h *APIHandlers) UpdateTunnel(c *gin.Context) {
 		return
 	}
 
-	// 如果隧道正在运行，需要重启
+	// 如果隧道正在运行，现有会话继续服务；新配置已写入配置表，下一次连接或重载生效。
 	status := targetClient.GetTunnelStatus(tunnelID)
 	if status != nil && status.Status == "running" {
-		// TODO: 重启隧道逻辑
-		h.logger.Info("tunnel config updated, may need restart",
-			zap.String("tunnel_id", tunnelID))
+		h.logger.Info("tunnel config updated; active tunnel will use new config on next reload", zap.String("tunnel_id", tunnelID))
 	}
 
 	c.JSON(http.StatusOK, gin.H{

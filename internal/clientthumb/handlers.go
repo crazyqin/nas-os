@@ -221,7 +221,10 @@ func (h *Handler) handleHeartbeat(c *gin.Context) {
 		return
 	}
 
-	// TODO: 更新客户端心跳时间
+	if !h.engine.Heartbeat(req.ClientID) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "client not found"})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 

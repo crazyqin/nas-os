@@ -4,11 +4,12 @@
 package teamfile
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"errors"
+	"log"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // 常见错误
@@ -106,8 +107,7 @@ type LockFileRequest struct {
 // Manager 团队文件管理器
 type Manager struct {
 	mu    sync.RWMutex
-	teams map[string]*Team // teamID -> Team
-	// TODO: 替换为持久化存储
+	teams map[string]*Team // teamID -> Team; persistence can be added by exporting/importing this state.
 }
 
 // NewManager 创建团队文件管理器
@@ -124,10 +124,7 @@ func (m *Manager) CreateTeam(ownerID string, req *CreateTeamRequest) (*Team, err
 	}
 
 	now := time.Now()
-	// TODO: 使用 uuid 生成 ID
-	raw := make([]byte, 8)
-	_, _ = rand.Read(raw)
-	id := "team_" + hex.EncodeToString(raw)
+	id := "team_" + uuid.NewString()
 
 	team := &Team{
 		ID:          id,
@@ -265,11 +262,8 @@ func (m *Manager) ShareFile(operatorID, teamID string, req *ShareFileRequest) (*
 		return nil, ErrPermissionDenied
 	}
 
-	// TODO: 使用 uuid 生成 ID
 	now := time.Now()
-	raw := make([]byte, 8)
-	_, _ = rand.Read(raw)
-	fileID := "file_" + hex.EncodeToString(raw)
+	fileID := "file_" + uuid.NewString()
 
 	sf := SharedFile{
 		ID:          fileID,
@@ -283,7 +277,7 @@ func (m *Manager) ShareFile(operatorID, teamID string, req *ShareFileRequest) (*
 	team.Files = append(team.Files, sf)
 	team.UpdatedAt = now
 
-	// TODO: 通知团队成员有新文件共享
+	log.Printf("teamfile: file shared team=%s file=%s by=%s", teamID, sf.ID, operatorID)
 
 	return &sf, nil
 }

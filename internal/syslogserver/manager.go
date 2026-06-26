@@ -3,11 +3,13 @@ package syslogserver
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"regexp"
 	"sort"
 	"strconv"
@@ -465,7 +467,24 @@ func (m *Manager) triggerAlert(rule *AlertRule, entry *SyslogEntry) {
 
 	log.Printf("[syslogserver] 告警触发: %s", alertEvent.Message)
 
-	// TODO: webhook 通知
+	if rule.NotifyType == "webhook" && rule.WebhookURL != "" {
+		go func() {
+			body, err := json.Marshal(alertEvent)
+			if err != nil {
+				return
+			}
+			req, err := http.NewRequest(http.MethodPost, rule.WebhookURL, bytes.NewReader(body))
+			if err != nil {
+				return
+			}
+			req.Header.Set("Content-Type", "application/json")
+			client := &http.Client{Timeout: 5 * time.Second}
+			resp, err := client.Do(req)
+			if err == nil && resp.Body != nil {
+				_ = resp.Body.Close()
+			}
+		}()
+	}
 }
 
 // archiveCleanupLoop 归档清理定时器.
@@ -539,7 +558,41 @@ func (m *Manager) alertCheckLoop() {
 
 // checkFrequencyAlerts 检查频率告警.
 func (m *Manager) checkFrequencyAlerts() {
-	// TODO: 实现频率告警逻辑
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	now := time.Now()
+	for _, rule := range m.alertRules {
+		if !rule.Enabled || rule.Type != "frequency" || rule.Frequency <= 0 {
+			continue
+		}
+		window := time.Duration(rule.WindowSec) * time.Second
+		if window <= 0 {
+			window = time.Minute
+		}
+		if rule.LastTrigger != nil && now.Sub(*rule.LastTrigger) < window {
+			continue
+		}
+		cutoff := now.Add(-window)
+		count := 0
+		var latest *SyslogEntry
+		for i := len(m.entries) - 1; i >= 0; i-- {
+			entry := m.entries[i]
+			if entry.Timestamp.Before(cutoff) {
+				break
+			}
+			if rule.Facility != "" && !strings.EqualFold(FacilityNames[entry.Facility], rule.Facility) {
+				continue
+			}
+			if rule.Severity != "" && !strings.EqualFold(SeverityNames[entry.Severity], rule.Severity) {
+				continue
+			}
+			count++
+			latest = entry
+		}
+		if count >= rule.Frequency && latest != nil {
+			m.triggerAlert(rule, latest)
+		}
+	}
 }
 
 // ========== 日志查询 API ==========

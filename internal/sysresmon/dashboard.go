@@ -2,7 +2,10 @@ package sysresmon
 
 import (
 	"math"
+	"os/exec"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -706,11 +709,31 @@ type TrendPoint struct {
 	NetDownload float64   `json:"netDownload"`
 }
 
-// GetTopProcesses 获取资源占用最高的进程（简化版，需要额外实现）
+// GetTopProcesses 获取资源占用最高的进程。
 func (d *Dashboard) GetTopProcesses(limit int) []ProcessInfo {
-	// TODO: 实现进程监控
-	// 需要使用 github.com/shirou/gopsutil/v3/process
-	return nil
+	if limit <= 0 {
+		limit = 10
+	}
+	out, err := exec.Command("ps", "-eo", "pid=,comm=,pcpu=,pmem=,stat=", "--sort=-pcpu").Output()
+	if err != nil {
+		return nil
+	}
+	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
+	result := make([]ProcessInfo, 0, limit)
+	for _, line := range lines {
+		fields := strings.Fields(line)
+		if len(fields) < 5 {
+			continue
+		}
+		pid, _ := strconv.ParseInt(fields[0], 10, 32)
+		cpu, _ := strconv.ParseFloat(fields[2], 64)
+		mem, _ := strconv.ParseFloat(fields[3], 32)
+		result = append(result, ProcessInfo{PID: int32(pid), Name: fields[1], CPUPercent: cpu, MemPercent: float32(mem), Status: fields[4]})
+		if len(result) >= limit {
+			break
+		}
+	}
+	return result
 }
 
 // ProcessInfo 进程信息

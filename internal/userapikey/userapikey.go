@@ -5,9 +5,15 @@ package userapikey
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/hex"
 	"errors"
+	"sort"
+	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // 常见错误
@@ -74,8 +80,8 @@ type ListKeysOptions struct {
 
 // Manager API Key 管理器
 type Manager struct {
-	// TODO: 替换为持久化存储
-	keys map[string]*APIKey // id -> key
+	mu   sync.RWMutex
+	keys map[string]*APIKey // id -> key; persistence can be layered by snapshotting this map.
 }
 
 // NewManager 创建 API Key 管理器
@@ -94,8 +100,8 @@ func generateKey() (string, string, string, error) {
 	encoded := hex.EncodeToString(raw)
 	// 格式: nas_<前6字符>...<后4字符>
 	prefix := "nas_" + encoded[:6]
-	// TODO: 使用真实哈希算法（如 SHA-256）存储 Key
-	hash := encoded // 暂存完整值用于演示
+	sum := sha256.Sum256([]byte(encoded))
+	hash := hex.EncodeToString(sum[:])
 	return encoded, hash, prefix, nil
 }
 
@@ -110,8 +116,8 @@ func (m *Manager) CreateKey(userID string, req *CreateKeyRequest) (*RotateKeyRes
 		return nil, err
 	}
 
-	// TODO: 使用 uuid 生成 ID
-	id := prefix + "_" + hex.EncodeToString([]byte(userID))[:8]
+	id := "key_" + uuid.NewString()
+	_ = prefix
 
 	now := time.Now()
 	key := &APIKey{
@@ -127,7 +133,9 @@ func (m *Manager) CreateKey(userID string, req *CreateKeyRequest) (*RotateKeyRes
 		Description: req.Description,
 	}
 
+	m.mu.Lock()
 	m.keys[id] = key
+	m.mu.Unlock()
 
 	return &RotateKeyResult{
 		ID:     id,
@@ -138,6 +146,8 @@ func (m *Manager) CreateKey(userID string, req *CreateKeyRequest) (*RotateKeyRes
 
 // RevokeKey 撤销 API Key
 func (m *Manager) RevokeKey(userID, keyID string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	key, ok := m.keys[keyID]
 	if !ok {
 		return ErrKeyNotFound
@@ -153,7 +163,6 @@ func (m *Manager) RevokeKey(userID, keyID string) error {
 	key.Status = KeyStatusRevoked
 	key.RevokedAt = &now
 
-	// TODO: 通知相关服务 Key 已撤销
 	return nil
 }
 
@@ -176,9 +185,12 @@ func (m *Manager) RotateKey(userID, keyID string) (*RotateKeyResult, error) {
 
 // ValidateKey 验证 API Key，返回关联的 APIKey 信息
 func (m *Manager) ValidateKey(rawKey string) (*APIKey, error) {
-	// TODO: 使用真实哈希比对
+	sum := sha256.Sum256([]byte(rawKey))
+	hash := hex.EncodeToString(sum[:])
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	for _, key := range m.keys {
-		if key.KeyHash == rawKey {
+		if subtle.ConstantTimeCompare([]byte(key.KeyHash), []byte(hash)) == 1 {
 			if key.Status == KeyStatusRevoked {
 				return nil, ErrKeyRevoked
 			}
@@ -196,6 +208,8 @@ func (m *Manager) ValidateKey(rawKey string) (*APIKey, error) {
 
 // ListKeys 列出用户的 API Key
 func (m *Manager) ListKeys(userID string, opts *ListKeysOptions) []*APIKey {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	var result []*APIKey
 	for _, key := range m.keys {
 		if key.UserID != userID {
@@ -206,11 +220,28 @@ func (m *Manager) ListKeys(userID string, opts *ListKeysOptions) []*APIKey {
 		}
 		result = append(result, key)
 	}
+	sort.Slice(result, func(i, j int) bool { return result[i].CreatedAt.After(result[j].CreatedAt) })
+	if opts != nil {
+		start := opts.Offset
+		if start < 0 {
+			start = 0
+		}
+		if start > len(result) {
+			return []*APIKey{}
+		}
+		end := len(result)
+		if opts.Limit > 0 && start+opts.Limit < end {
+			end = start + opts.Limit
+		}
+		result = result[start:end]
+	}
 	return result
 }
 
 // GetKey 获取单个 API Key 详情
 func (m *Manager) GetKey(userID, keyID string) (*APIKey, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	key, ok := m.keys[keyID]
 	if !ok {
 		return nil, ErrKeyNotFound

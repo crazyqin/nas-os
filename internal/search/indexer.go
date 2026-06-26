@@ -6,6 +6,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -410,10 +411,25 @@ func (fi *FileIndexer) saveState() error {
 	if fi.config.StateFile == "" {
 		return nil
 	}
-
-	// 实现状态持久化
-	// TODO: 实现文件保存
-	return nil
+	fi.indexState.mu.RLock()
+	snapshot := struct {
+		Files      map[string]FileState `json:"files"`
+		LastScan   time.Time            `json:"lastScan"`
+		TotalCount int64                `json:"totalCount"`
+		TotalSize  int64                `json:"totalSize"`
+	}{Files: make(map[string]FileState, len(fi.indexState.Files)), LastScan: time.Now(), TotalCount: fi.indexState.TotalCount, TotalSize: fi.indexState.TotalSize}
+	for k, v := range fi.indexState.Files {
+		snapshot.Files[k] = v
+	}
+	fi.indexState.mu.RUnlock()
+	data, err := json.MarshalIndent(snapshot, "", "  ")
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Dir(fi.config.StateFile), 0755); err != nil {
+		return err
+	}
+	return os.WriteFile(fi.config.StateFile, data, 0644)
 }
 
 // loadIndexState 加载索引状态.
@@ -421,9 +437,21 @@ func loadIndexState(path string) (*IndexState, error) {
 	if path == "" {
 		return &IndexState{Files: make(map[string]FileState)}, nil
 	}
-
-	// TODO: 实现文件加载
-	return &IndexState{Files: make(map[string]FileState)}, nil
+	data, err := os.ReadFile(path)
+	if os.IsNotExist(err) {
+		return &IndexState{Files: make(map[string]FileState)}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	var state IndexState
+	if err := json.Unmarshal(data, &state); err != nil {
+		return nil, err
+	}
+	if state.Files == nil {
+		state.Files = make(map[string]FileState)
+	}
+	return &state, nil
 }
 
 // ================== 设置索引器 ==================

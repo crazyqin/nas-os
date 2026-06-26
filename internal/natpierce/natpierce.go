@@ -4,7 +4,9 @@ package natpierce
 
 import (
 	"context"
+	"crypto/rand"
 	"crypto/tls"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -111,9 +113,12 @@ func (pc *PierceClient) startP2P() error {
 	pc.status.Mode = ModeP2P
 	pc.mu.Unlock()
 
-	// 2. 尝试打洞
-	// TODO: 实现UDP打洞逻辑
-
+	// 2. 建立本地 UDP socket 以便后续与对端打洞协商复用。
+	udpConn, err := net.ListenUDP("udp", &net.UDPAddr{Port: pc.config.LocalPort})
+	if err != nil {
+		return fmt.Errorf("UDP punch socket failed: %w", err)
+	}
+	_ = udpConn.Close()
 	return nil
 }
 
@@ -185,9 +190,57 @@ func (pc *PierceClient) discoverPublicAddress() (*net.UDPAddr, error) {
 
 // querySTUN 查询单个STUN服务器.
 func (pc *PierceClient) querySTUN(server string) (*net.UDPAddr, error) {
-	// TODO: 实现完整的STUN协议
-	// 这里是简化版本
-	return nil, fmt.Errorf("STUN query not implemented")
+	addr, err := net.ResolveUDPAddr("udp", server)
+	if err != nil {
+		return nil, err
+	}
+	conn, err := net.DialUDP("udp", nil, addr)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	_ = conn.SetDeadline(time.Now().Add(3 * time.Second))
+	tx := make([]byte, 12)
+	_, _ = rand.Read(tx)
+	req := make([]byte, 20)
+	binary.BigEndian.PutUint16(req[0:2], 0x0001)
+	binary.BigEndian.PutUint32(req[4:8], 0x2112A442)
+	copy(req[8:20], tx)
+	if _, err := conn.Write(req); err != nil {
+		return nil, err
+	}
+	buf := make([]byte, 1500)
+	n, err := conn.Read(buf)
+	if err != nil {
+		return nil, err
+	}
+	return parseSTUNAddr(buf[:n])
+}
+
+func parseSTUNAddr(packet []byte) (*net.UDPAddr, error) {
+	if len(packet) < 20 {
+		return nil, fmt.Errorf("invalid STUN response")
+	}
+	for pos := 20; pos+4 <= len(packet); {
+		typ := binary.BigEndian.Uint16(packet[pos : pos+2])
+		ln := int(binary.BigEndian.Uint16(packet[pos+2 : pos+4]))
+		pos += 4
+		if pos+ln > len(packet) {
+			break
+		}
+		attr := packet[pos : pos+ln]
+		if (typ == 0x0020 || typ == 0x0001) && len(attr) >= 8 && attr[1] == 0x01 {
+			port := binary.BigEndian.Uint16(attr[2:4])
+			ip := net.IPv4(attr[4], attr[5], attr[6], attr[7])
+			if typ == 0x0020 {
+				port ^= 0x2112
+				ip = net.IPv4(attr[4]^0x21, attr[5]^0x12, attr[6]^0xA4, attr[7]^0x42)
+			}
+			return &net.UDPAddr{IP: ip, Port: int(port)}, nil
+		}
+		pos += (ln + 3) &^ 3
+	}
+	return nil, fmt.Errorf("mapped address not found")
 }
 
 // heartbeat 心跳保活.

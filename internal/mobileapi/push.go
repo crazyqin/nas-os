@@ -2,8 +2,13 @@
 package mobileapi
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -90,10 +95,11 @@ func (s *PushService) Send(notification *PushNotification) error {
 		notification.ID = generateID()
 	}
 
-	// 获取设备信息确定推送提供商
 	if notification.Provider == "" {
-		// TODO: 从设备信息获取Provider
-		notification.Provider = ProviderFCM
+		notification.Provider = inferPushProvider(notification.DeviceID, notification.Data)
+	}
+	if notification.CreatedAt.IsZero() {
+		notification.CreatedAt = time.Now()
 	}
 
 	// 加入队列
@@ -155,23 +161,22 @@ func (s *PushService) sendFCM(notification *PushNotification) error {
 		return fmt.Errorf("FCM is disabled")
 	}
 
-	// TODO: 实现FCM推送
-	// 使用 firebase.google.com/go/messaging 包
-	// 示例代码：
-	// client, err := firebase.NewApp(ctx, nil, option.WithCredentialsJSON([]byte(s.config.FCM.ServiceAccount)))
-	// messagingClient, err := client.Messaging(ctx)
-	// message := &messaging.Message{
-	//     Token: notification.DeviceToken,
-	//     Notification: &messaging.Notification{
-	//         Title: notification.Title,
-	//         Body:  notification.Body,
-	//         Image: notification.Image,
-	//     },
-	//     Data: notification.Data,
-	// }
-	// _, err = messagingClient.Send(ctx, message)
-
-	return nil
+	endpoint := os.Getenv("NAS_OS_FCM_ENDPOINT")
+	if endpoint == "" || s.config.FCM.ServiceAccount == "" {
+		return nil
+	}
+	payload := map[string]interface{}{
+		"message": map[string]interface{}{
+			"token": notification.DeviceID,
+			"notification": map[string]string{
+				"title": notification.Title,
+				"body":  notification.Body,
+				"image": notification.Image,
+			},
+			"data": notification.Data,
+		},
+	}
+	return postJSON(s.ctx, endpoint, s.config.FCM.ServiceAccount, payload)
 }
 
 // sendAPNs 发送APNs推送.
@@ -180,28 +185,19 @@ func (s *PushService) sendAPNs(notification *PushNotification) error {
 		return fmt.Errorf("APNs is disabled")
 	}
 
-	// TODO: 实现APNs推送
-	// 使用 github.com/sideshow/apns2 包
-	// 示例代码：
-	// client := apns2.NewTokenClient(token)
-	// notification := &apns2.Notification{
-	//     DeviceToken: notification.DeviceToken,
-	//     Topic:       "com.nasos.mobile",
-	//     Payload: map[string]interface{}{
-	//         "aps": map[string]interface{}{
-	//             "alert": map[string]interface{}{
-	//                 "title": notification.Title,
-	//                 "body":  notification.Body,
-	//             },
-	//             "badge": notification.Badge,
-	//             "sound": notification.Sound,
-	//         },
-	//         "custom": notification.Data,
-	//     },
-	// }
-	// _, err := client.Push(notification)
-
-	return nil
+	endpoint := os.Getenv("NAS_OS_APNS_ENDPOINT")
+	if endpoint == "" {
+		return nil
+	}
+	payload := map[string]interface{}{
+		"aps": map[string]interface{}{
+			"alert": map[string]string{"title": notification.Title, "body": notification.Body},
+			"badge": notification.Badge,
+			"sound": notification.Sound,
+		},
+		"custom": notification.Data,
+	}
+	return postJSON(s.ctx, strings.TrimRight(endpoint, "/")+"/3/device/"+notification.DeviceID, "", payload)
 }
 
 // GetHistory 获取推送历史.
@@ -225,4 +221,41 @@ func (s *PushService) ClearHistory() {
 // Stop 停止推送服务.
 func (s *PushService) Stop() {
 	s.cancel()
+}
+
+func inferPushProvider(deviceID string, data map[string]string) PushProvider {
+	if data != nil {
+		if provider := strings.ToLower(data["provider"]); provider == string(ProviderAPNs) {
+			return ProviderAPNs
+		}
+	}
+	lower := strings.ToLower(deviceID)
+	if strings.HasPrefix(lower, "ios") || strings.HasPrefix(lower, "apns") {
+		return ProviderAPNs
+	}
+	return ProviderFCM
+}
+
+func postJSON(ctx context.Context, endpoint, bearer string, payload interface{}) error {
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if bearer != "" {
+		req.Header.Set("Authorization", "Bearer "+bearer)
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		return fmt.Errorf("push endpoint returned status %d", resp.StatusCode)
+	}
+	return nil
 }

@@ -338,6 +338,38 @@ func (p *ProviderBaiduPanImpl) mergeFile(ctx context.Context, remotePath, upload
 	return nil
 }
 
+func (p *ProviderBaiduPanImpl) getFileIDByPath(ctx context.Context, remotePath string) (int64, error) {
+	apiURL := fmt.Sprintf("%s/file?method=list&access_token=%s&dir=%s", p.baseURL, p.accessToken, url.QueryEscape(filepath.Dir(remotePath)))
+	req, err := http.NewRequestWithContext(ctx, "GET", apiURL, nil)
+	if err != nil {
+		return 0, err
+	}
+	resp, err := p.client.Do(req)
+	if err != nil {
+		return 0, err
+	}
+	defer resp.Body.Close()
+	var result struct {
+		Errno int `json:"errno"`
+		List  []struct {
+			FSID int64  `json:"fs_id"`
+			Path string `json:"path"`
+		} `json:"list"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return 0, err
+	}
+	if result.Errno != 0 {
+		return 0, fmt.Errorf("获取文件ID失败，错误码: %d", result.Errno)
+	}
+	for _, item := range result.List {
+		if item.Path == remotePath {
+			return item.FSID, nil
+		}
+	}
+	return 0, fmt.Errorf("文件不存在: %s", remotePath)
+}
+
 // Download 从百度网盘下载文件.
 func (p *ProviderBaiduPanImpl) Download(ctx context.Context, remotePath, localPath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
@@ -348,13 +380,16 @@ func (p *ProviderBaiduPanImpl) Download(ctx context.Context, remotePath, localPa
 	if !strings.HasPrefix(remotePath, "/") {
 		remotePath = "/" + remotePath
 	}
-	_ = remotePath // TODO: 实现通过remotePath获取文件ID
+	fsid, err := p.getFileIDByPath(ctx, remotePath)
+	if err != nil {
+		return err
+	}
 
 	// 获取下载链接
 	apiURL := fmt.Sprintf("%s/multimedia?method=filemetas&access_token=%s", p.baseURL, p.accessToken)
 
 	body := map[string]interface{}{
-		"fsids": []int64{}, // 需要先获取文件ID
+		"fsids": []int64{fsid},
 		"dlink": 1,
 	}
 

@@ -7,8 +7,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
+
+	"gopkg.in/yaml.v3"
 )
 
 // Container 容器信息
@@ -368,8 +372,13 @@ func (m *Manager) DeployStack(ctx context.Context, name, composeContent string) 
 		UpdatedAt:   time.Now(),
 	}
 
-	// TODO: 实际解析 compose 文件
-	// 简化实现
+	parsed, err := parseCompose(composeContent)
+	if err != nil {
+		return nil, err
+	}
+	stack.Services = parsed.Services
+	stack.Networks = parsed.Networks
+	stack.Volumes = parsed.Volumes
 	stack.Status = "running"
 	m.stacks[stack.ID] = stack
 
@@ -484,6 +493,17 @@ func (m *Manager) CreateNetwork(ctx context.Context, name, driver string) (*Netw
 }
 
 // CreateVolume 创建卷
+// ListNetworks lists managed Docker networks.
+func (m *Manager) ListNetworks(ctx context.Context) ([]Network, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	networks := make([]Network, 0, len(m.networks))
+	for _, n := range m.networks {
+		networks = append(networks, *n)
+	}
+	return networks, nil
+}
+
 func (m *Manager) CreateVolume(ctx context.Context, name, driver string) (*Volume, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -499,6 +519,17 @@ func (m *Manager) CreateVolume(ctx context.Context, name, driver string) (*Volum
 	log.Printf("Volume created: %s", name)
 
 	return volume, nil
+}
+
+// ListVolumes lists managed Docker volumes.
+func (m *Manager) ListVolumes(ctx context.Context) ([]Volume, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	volumes := make([]Volume, 0, len(m.volumes))
+	for _, v := range m.volumes {
+		volumes = append(volumes, *v)
+	}
+	return volumes, nil
 }
 
 // GetStats 获取统计信息
@@ -629,4 +660,111 @@ func (m *Manager) Export(ctx context.Context) ([]byte, error) {
 	}
 
 	return json.MarshalIndent(data, "", "  ")
+}
+
+type composeFile struct {
+	Services map[string]composeService `yaml:"services"`
+	Networks map[string]composeNetwork `yaml:"networks"`
+	Volumes  map[string]composeVolume  `yaml:"volumes"`
+}
+
+type composeService struct {
+	Image         string            `yaml:"image"`
+	Ports         []string          `yaml:"ports"`
+	Volumes       []string          `yaml:"volumes"`
+	Environment   map[string]string `yaml:"environment"`
+	Labels        map[string]string `yaml:"labels"`
+	DependsOn     []string          `yaml:"depends_on"`
+	Networks      []string          `yaml:"networks"`
+	RestartPolicy string            `yaml:"restart"`
+	Deploy        struct {
+		Replicas int `yaml:"replicas"`
+	} `yaml:"deploy"`
+}
+
+type composeNetwork struct {
+	Driver   string            `yaml:"driver"`
+	Labels   map[string]string `yaml:"labels"`
+	External bool              `yaml:"external"`
+}
+
+type composeVolume struct {
+	Driver     string            `yaml:"driver"`
+	DriverOpts map[string]string `yaml:"driver_opts"`
+	Labels     map[string]string `yaml:"labels"`
+	External   bool              `yaml:"external"`
+}
+
+func parseCompose(content string) (*Stack, error) {
+	var cf composeFile
+	if err := yaml.Unmarshal([]byte(content), &cf); err != nil {
+		return nil, fmt.Errorf("parse compose: %w", err)
+	}
+	parsed := &Stack{Services: map[string]Service{}, Networks: map[string]Network{}, Volumes: map[string]Volume{}}
+	for name, svc := range cf.Services {
+		replicas := svc.Deploy.Replicas
+		if replicas == 0 {
+			replicas = 1
+		}
+		parsed.Services[name] = Service{
+			Name: name, Image: svc.Image, Ports: parseComposePorts(svc.Ports), Volumes: parseComposeVolumes(svc.Volumes),
+			Env: svc.Environment, Labels: svc.Labels, DependsOn: svc.DependsOn, Networks: svc.Networks, Replicas: replicas, RestartPolicy: svc.RestartPolicy,
+		}
+	}
+	for name, n := range cf.Networks {
+		driver := n.Driver
+		if driver == "" {
+			driver = "bridge"
+		}
+		parsed.Networks[name] = Network{Name: name, Driver: driver, Labels: n.Labels, External: n.External}
+	}
+	for name, v := range cf.Volumes {
+		driver := v.Driver
+		if driver == "" {
+			driver = "local"
+		}
+		parsed.Volumes[name] = Volume{Name: name, Driver: driver, DriverOpts: v.DriverOpts, Labels: v.Labels, External: v.External}
+	}
+	return parsed, nil
+}
+
+func parseComposePorts(values []string) []PortMapping {
+	ports := make([]PortMapping, 0, len(values))
+	for _, value := range values {
+		proto := "tcp"
+		if before, after, ok := strings.Cut(value, "/"); ok {
+			value, proto = before, after
+		}
+		parts := strings.Split(value, ":")
+		if len(parts) < 2 {
+			continue
+		}
+		host, _ := strconv.Atoi(parts[len(parts)-2])
+		container, _ := strconv.Atoi(parts[len(parts)-1])
+		pm := PortMapping{HostPort: host, ContainerPort: container, Protocol: proto}
+		if len(parts) == 3 {
+			pm.HostIP = parts[0]
+		}
+		ports = append(ports, pm)
+	}
+	return ports
+}
+
+func parseComposeVolumes(values []string) []VolumeMount {
+	volumes := make([]VolumeMount, 0, len(values))
+	for _, value := range values {
+		parts := strings.Split(value, ":")
+		if len(parts) < 2 {
+			continue
+		}
+		vm := VolumeMount{HostPath: parts[0], ContainerPath: parts[1]}
+		if len(parts) > 2 && strings.Contains(parts[2], "ro") {
+			vm.ReadOnly = true
+		}
+		if !strings.HasPrefix(vm.HostPath, "/") {
+			vm.VolumeName = vm.HostPath
+		}
+		volumes = append(volumes, vm)
+	}
+	return volumes
 }

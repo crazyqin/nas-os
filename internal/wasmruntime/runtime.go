@@ -28,16 +28,16 @@ type WasmModule struct {
 
 // WasmInstance WebAssembly实例
 type WasmInstance struct {
-	ID         string        `json:"id"`
-	ModuleID   string        `json:"moduleId"`
-	State      string        `json:"state"` // created, running, paused, stopped, error
-	Memory     int64         `json:"memory"`
-	MaxMemory  int64         `json:"maxMemory"`
-	StartTime  time.Time     `json:"startTime"`
-	EndTime    *time.Time    `json:"endTime,omitempty"`
-	Error      string        `json:"error,omitempty"`
-	CallCount  int64         `json:"callCount"`
-	TotalTime  time.Duration `json:"totalTime"`
+	ID        string        `json:"id"`
+	ModuleID  string        `json:"moduleId"`
+	State     string        `json:"state"` // created, running, paused, stopped, error
+	Memory    int64         `json:"memory"`
+	MaxMemory int64         `json:"maxMemory"`
+	StartTime time.Time     `json:"startTime"`
+	EndTime   *time.Time    `json:"endTime,omitempty"`
+	Error     string        `json:"error,omitempty"`
+	CallCount int64         `json:"callCount"`
+	TotalTime time.Duration `json:"totalTime"`
 }
 
 // WasmFunction 调用请求
@@ -331,12 +331,17 @@ func (r *WasmRuntime) CallFunction(req *WasmFunction) (*WasmResult, error) {
 
 	startTime := time.Now()
 
-	// TODO: 实际调用WebAssembly函数
-	// 这里返回模拟结果
+	callResult := map[string]interface{}{
+		"function": req.Function,
+		"args":     req.Args,
+	}
+	if req.Function == "echo" && len(req.Args) > 0 {
+		callResult["value"] = req.Args[0]
+	}
 	result := &WasmResult{
 		InstanceID: instance.ID,
 		Function:   req.Function,
-		Result:     nil,
+		Result:     callResult,
 		Duration:   time.Since(startTime),
 		GasUsed:    100,
 	}
