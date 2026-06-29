@@ -120,6 +120,19 @@ func (p *DocumentPreviewer) GetDocumentInfo(ctx context.Context, filePath string
 
 // generatePDFPreview 生成 PDF 预览.
 func (p *DocumentPreviewer) generatePDFPreview(ctx context.Context, req *PreviewRequest) (*PreviewResult, error) {
+	// 检查是否为加密 PDF
+	encManager := NewEncryptedPDFManager()
+	encrypted, err := encManager.IsEncryptedPDF(ctx, req.FilePath)
+	if err != nil {
+		return nil, fmt.Errorf("检查 PDF 加密状态失败: %w", err)
+	}
+	if encrypted {
+		if req.Password == "" {
+			return nil, ErrPDFPasswordRequired
+		}
+		return encManager.GenerateEncryptedPDFPreview(ctx, req.FilePath, req.Password, req.PageNumber)
+	}
+
 	pageNum := req.PageNumber
 	if pageNum <= 0 {
 		pageNum = 1
