@@ -242,6 +242,55 @@ func (m *Manager) GetStats(ctx context.Context) (*RequestStats, error) {
 	return stats, nil
 }
 
+// CloseRequest 关闭请求，不再接受上传
+func (m *Manager) CloseRequest(ctx context.Context, id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	req, ok := m.requests[id]
+	if !ok {
+		return fmt.Errorf("request not found: %s", id)
+	}
+
+	req.Status = RequestStatusClosed
+	req.UpdatedAt = time.Now()
+	return nil
+}
+
+// DeleteUpload 删除已上传的文件记录
+func (m *Manager) DeleteUpload(ctx context.Context, requestID, uploadID string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	req, ok := m.requests[requestID]
+	if !ok {
+		return fmt.Errorf("request not found: %s", requestID)
+	}
+
+	uploads, ok := m.uploads[requestID]
+	if !ok {
+		return fmt.Errorf("no uploads found for request: %s", requestID)
+	}
+
+	found := false
+	for i, u := range uploads {
+		if u.ID == uploadID {
+			m.uploads[requestID] = append(uploads[:i], uploads[i+1:]...)
+			req.ReceivedFileCount--
+			req.ReceivedTotalSize -= u.FileSize
+			req.UpdatedAt = time.Now()
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return fmt.Errorf("upload not found: %s", uploadID)
+	}
+
+	return nil
+}
+
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)

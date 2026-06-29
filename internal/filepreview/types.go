@@ -199,6 +199,8 @@ type PreviewRequest struct {
 	Timestamp float64 `json:"timestamp,omitempty"`
 	// Format 输出格式.
 	Format string `json:"format,omitempty"`
+	// Password 加密文件的解锁密码（用于加密 PDF 等）.
+	Password string `json:"password,omitempty"`
 }
 
 // PreviewResult 预览结果.
