@@ -650,6 +650,9 @@ func (e *Engine) GetBudgetStatus() (*BudgetStatus, error) {
 		daysElapsed = 1
 	}
 	daysRemaining := int(time.Date(now.Year(), now.Month()+1, 0, 0, 0, 0, 0, now.Location()).Sub(now).Hours() / 24)
+	if daysRemaining == 0 {
+		daysRemaining = 1
+	}
 
 	budget := &Budget{
 		Name:             "用电预算",
