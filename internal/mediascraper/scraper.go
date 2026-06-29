@@ -190,7 +190,7 @@ func ParseFileName(filename string) (title string, year int, mediaType MediaType
 	// 匹配 "Title S01E02 2008" 格式（年份在季集号之后）
 	if m := tvWithYearAfterPattern.FindStringSubmatch(name); m != nil {
 		title = strings.TrimSpace(m[1])
-		year, _ = strconv.Atoi(m[3])
+		year, _ = strconv.Atoi(m[4])
 		return title, year, MediaTypeTVSeries, nil
 	}
 	if m := tvPattern.FindStringSubmatch(name); m != nil {
