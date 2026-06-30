@@ -10,7 +10,7 @@
 #
 # v2.600.0 工部维护：CI/CD 版本同步
 #
-# 当前版本: v2.620.0
+# 当前版本: v3.3.0
 
 name: Security Scan
 
@@ -48,7 +48,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -58,7 +58,7 @@ jobs:
           cache-dependency-path: go.sum
 
       - name: Restore Go build cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/go-build
           key: ${{ env.CACHE_VERSION }}-security-build-${{ hashFiles('go.sum') }}
@@ -100,7 +100,7 @@ jobs:
         continue-on-error: true
 
       - name: Archive security reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: security-reports-${{ github.sha }}
           path: |
@@ -132,7 +132,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -142,7 +142,7 @@ jobs:
           cache-dependency-path: go.sum
 
       - name: Restore Go build cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/go-build
           key: ${{ env.CACHE_VERSION }}-dep-check-${{ hashFiles('go.sum') }}

@@ -1,5 +1,24 @@
 # NAS-OS 变更日志
 
+## v3.4.0 (2026-06-29) - 竞品对标功能升级
+
+### 新功能（6个新模块）
+- SMB 有状态 HA 故障转移（smbhafailover）— 会话状态跨故障转移保持，客户端无需重新认证
+- 数据分层自定义规则（tieringrules）— 按访问频率/修改时间自动冷热分层
+- 邮件 OAuth 通知（emailoauth）— 支持 Gmail/Outlook OAuth2 授权发送通知
+- WebSocket API 现代化（wsapi）— JSON-RPC 2.0 + SCRAM-SHA-512 认证
+- 弹性存储加密（storencrypt）— 密码解锁加密存储空间
+- 邮件审核机制（mailaudit）— 敏感邮件发送/接收前管理员审核
+
+### CI/CD 修复
+- 修复 Benchmark workflow 超时问题（添加 timeout-minutes，减少 bench count）
+- 同步 VERSION 文件与代码版本
+
+### 竞品对标
+- TrueNAS 26: SMB HA、API 现代化
+- 群晖 DSM 7.3: 数据分层规则、文件锁定、邮件审核、存储加密
+- 飞牛 fnOS v1.2: 邮件 OAuth 通知
+
 ## v3.1.0 (2026-06-26) - 3.0 架构重构稳定化
 
 ### 稳定化重点
