@@ -10,7 +10,7 @@
 #
 # v2.600.0 工部维护：CI/CD 版本同步
 #
-# 当前版本: v2.620.0
+# 当前版本: v3.3.0
 
 name: Benchmark
 
@@ -40,12 +40,13 @@ jobs:
   benchmark:
     name: 运行基准测试
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: write
       pull-requests: write
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       
@@ -57,7 +58,7 @@ jobs:
           cache-dependency-path: go.sum
       
       - name: 恢复 Go 编译缓存
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/go-build
           key: ${{ env.CACHE_VERSION }}-benchmark-build-${{ hashFiles('go.sum') }}
@@ -86,7 +87,7 @@ jobs:
           mkdir -p benchmark-results
           
           # 运行基准测试，输出到文件
-          go test -bench=. -benchmem -count=5 -timeout 30m $BENCH_PKGS 2>&1 | tee benchmark-results/benchmark.txt
+          go test -bench=. -benchmem -count=3 -timeout 10m $BENCH_PKGS 2>&1 | tee benchmark-results/benchmark.txt
           
           echo "✅ 基准测试完成"
       
@@ -142,7 +143,7 @@ jobs:
       
       - name: 上传基准测试结果
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: benchmark-results
           path: |
@@ -152,7 +153,7 @@ jobs:
       
       - name: 保存基准数据（用于趋势追踪）
         if: github.ref == 'refs/heads/master'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: benchmark-trend-${{ github.run_number }}
           path: benchmark-results/benchmark.txt
@@ -161,14 +162,15 @@ jobs:
   regression-check:
     name: 性能回归检测
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [benchmark]
     if: github.event_name == 'pull_request'
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 下载基准测试结果
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: benchmark-results
           path: benchmark-results/

@@ -17,7 +17,7 @@
 #
 # v2.600.0 工部维护：CI/CD 版本同步
 #
-# 当前版本: v2.620.0
+# 当前版本: v3.3.0
 
 name: GitHub Release
 
@@ -71,7 +71,7 @@ jobs:
       previous-tag: ${{ steps.version.outputs.previous_tag }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       
@@ -141,7 +141,7 @@ jobs:
     
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       # v2.254.0: 优化缓存策略
       - name: 恢复 Go 模块缓存
@@ -181,7 +181,7 @@ jobs:
           sha256sum "$BINARY_NAME" "$CTL_NAME" > "checksums-${{ matrix.os }}-${{ matrix.arch }}.txt"
       
       - name: 上传构建产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: binaries-${{ matrix.os }}-${{ matrix.arch }}
           path: |
@@ -199,7 +199,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       # v2.377.0: Syft 下载重试机制（应对 GitHub 临时故障）
       - name: 安装 Syft（带重试）
@@ -234,7 +234,7 @@ jobs:
           echo "✅ SBOM 生成完成"
       
       - name: 上传 SBOM
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: sbom
           path: |
@@ -251,7 +251,7 @@ jobs:
       changelog: ${{ steps.changelog.outputs.changelog }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       
@@ -307,7 +307,7 @@ jobs:
           } >> $GITHUB_OUTPUT
       
       - name: 上传变更日志
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: changelog
           path: CHANGELOG.md
@@ -320,22 +320,22 @@ jobs:
     needs: [prepare-release, build-binaries, generate-sbom, generate-changelog]
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 下载所有构建产物
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: binaries-*
           merge-multiple: true
       
       - name: 下载 SBOM
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: sbom
           path: ./sbom
       
       - name: 下载变更日志
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: changelog
           path: .

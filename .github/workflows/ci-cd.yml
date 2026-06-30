@@ -28,7 +28,7 @@
 # - 所有 workflow 版本标记更新至 v2.600.0
 # - Actions 版本降级到已发布的稳定版本
 #
-# 当前版本: v2.620.0
+# 当前版本: v3.3.0
 name: CI/CD
 
 on:
@@ -86,7 +86,7 @@ jobs:
       test-changed: ${{ steps.filter.outputs.test }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 检测变更
         uses: dorny/paths-filter@v3
@@ -136,7 +136,7 @@ jobs:
       test-packages: ${{ steps.test-packages.outputs.packages }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 记录构建时间戳
         id: timestamp
@@ -220,7 +220,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
@@ -272,7 +272,7 @@ jobs:
       security-events: write
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
@@ -311,7 +311,7 @@ jobs:
       security-events: write
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 运行 Trivy 漏洞扫描
         uses: aquasecurity/trivy-action@master
@@ -352,7 +352,7 @@ jobs:
       SHARD_TOTAL: 6
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
@@ -422,7 +422,7 @@ jobs:
       
       - name: 上传分片测试结果
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: test-results-shard-${{ matrix.shard }}
           path: |
@@ -440,7 +440,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 设置 Go
         uses: actions/setup-go@v5
@@ -448,7 +448,7 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
 
       - name: 下载所有分片结果
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: test-results-shard-*
           path: ./shard-results
@@ -524,7 +524,7 @@ jobs:
       
       - name: 上传测试结果
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: test-results
           path: |
@@ -537,7 +537,7 @@ jobs:
       
       - name: 发布覆盖率徽章
         if: github.ref == 'refs/heads/master' && hashFiles('coverage-badge.json') != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: coverage-badge
           path: |
@@ -547,7 +547,7 @@ jobs:
       
       - name: 上传覆盖率趋势
         if: github.ref == 'refs/heads/master' && hashFiles('coverage-trend.json') != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: coverage-trend-${{ github.run_number }}
           path: coverage-trend.json
@@ -591,7 +591,7 @@ jobs:
       CGO_ENABLED: 1
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
@@ -652,7 +652,7 @@ jobs:
       
       - name: 上传集成测试结果
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: integration-test-results
           path: integration-test-output.txt
@@ -679,7 +679,7 @@ jobs:
             arm: 7
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
@@ -696,7 +696,7 @@ jobs:
 
       # v2.254.0: 增加编译产物缓存
       - name: Go 编译缓存
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/go-build
           key: ${{ env.CACHE_VERSION }}-build-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('go.sum') }}
@@ -729,7 +729,7 @@ jobs:
           cat checksums.txt
       
       - name: 上传构建产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: nas-os-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.arm && format('v{0}', matrix.arm) || '' }}
           path: |
@@ -745,7 +745,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # ========== 新增：创建必要目录 ==========
       - name: 准备 Docker 测试环境
@@ -813,7 +813,7 @@ jobs:
       
       - name: 上传 Docker 日志
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: docker-logs
           path: |
@@ -830,7 +830,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 下载所有构建产物
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: nas-os-*
           path: ./artifacts
@@ -860,7 +860,7 @@ jobs:
           cat ../all-checksums.txt
       
       - name: 上传整合校验和
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: all-checksums
           path: all-checksums.txt

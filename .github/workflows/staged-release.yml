@@ -11,7 +11,7 @@
 #
 # v2.600.0 工部维护：CI/CD 版本同步
 #
-# 当前版本: v2.620.0
+# 当前版本: v3.3.0
 
 name: Staged Release
 
@@ -64,7 +64,7 @@ jobs:
       is-canary: ${{ steps.version.outputs.is_canary }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 确定版本
         id: version
@@ -95,7 +95,7 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 设置 Go
         uses: actions/setup-go@v5
@@ -149,7 +149,7 @@ jobs:
             suffix: arm64
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 设置 Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -168,7 +168,7 @@ jobs:
           cache: true
 
       - name: Go 模块缓存
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/go/pkg/mod
@@ -199,7 +199,7 @@ jobs:
           outputs: type=docker,dest=/tmp/canary-${{ matrix.suffix }}.tar
 
       - name: 上传构建产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: canary-${{ matrix.suffix }}
           path: /tmp/canary-${{ matrix.suffix }}.tar
@@ -309,7 +309,7 @@ jobs:
             suffix: armv7
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 设置 QEMU
         if: matrix.platform == 'armv7'
@@ -334,7 +334,7 @@ jobs:
           cache: true
 
       - name: Go 模块缓存
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/go/pkg/mod
@@ -361,7 +361,7 @@ jobs:
           outputs: type=docker,dest=/tmp/release-${{ matrix.suffix }}.tar
 
       - name: 上传构建产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: release-${{ matrix.suffix }}
           path: /tmp/release-${{ matrix.suffix }}.tar

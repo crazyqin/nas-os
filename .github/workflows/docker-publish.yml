@@ -19,7 +19,7 @@
 #
 # v2.600.0 工部维护：CI/CD 版本同步
 #
-# 当前版本: v2.620.0
+# 当前版本: v3.3.0
 
 name: Docker Publish
 
@@ -82,7 +82,7 @@ jobs:
       docker-changed: ${{ steps.filter.outputs.docker }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       
@@ -141,7 +141,7 @@ jobs:
       armv7-digest: ${{ steps.build.outputs.digest }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       # 仅 armv7 需要 QEMU
       - name: 设置 QEMU
@@ -177,7 +177,7 @@ jobs:
 
       # Go 模块缓存（加速依赖下载）
       - name: Go 模块缓存
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/go/pkg/mod
@@ -209,7 +209,7 @@ jobs:
           outputs: type=docker,dest=/tmp/image-${{ matrix.suffix }}.tar
       
       - name: 上传构建产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: image-${{ matrix.suffix }}
           path: /tmp/image-${{ matrix.suffix }}.tar
@@ -226,7 +226,7 @@ jobs:
       digest: ${{ steps.merge.outputs.digest }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 设置 Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -351,7 +351,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 登录 GitHub Container Registry
         uses: docker/login-action@v3
@@ -409,7 +409,7 @@ jobs:
             --certificate-oidc-issuer="https://token.actions.githubusercontent.com" || echo "⚠️ 验证跳过（开发分支）"
 
       - name: 上传 SBOM
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: sbom-${{ env.SHORT_SHA }}
           path: |
@@ -434,7 +434,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 登录 GitHub Container Registry
         uses: docker/login-action@v3
@@ -507,7 +507,7 @@ jobs:
             suffix: cpu
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 设置 QEMU
         if: matrix.variant == 'cpu'
