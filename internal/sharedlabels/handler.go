@@ -1,164 +1,132 @@
+// Package sharedlabels 提供 REST API 处理器
 package sharedlabels
 
 import (
-	"encoding/json"
-	"net/http"
+	"nas-os/internal/api"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Handler HTTP 处理器
 type Handler struct {
-	manager *Manager
+	svc *Service
 }
 
 // NewHandler 创建处理器
-func NewHandler(manager *Manager) *Handler {
-	return &Handler{manager: manager}
+func NewHandler(svc *Service) *Handler {
+	return &Handler{svc: svc}
 }
 
-// RegisterRoutes 注册路由
-func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/api/v1/labels", h.handleLabels)
-	mux.HandleFunc("/api/v1/labels/stats", h.handleStats)
-	mux.HandleFunc("/api/v1/files/labels", h.handleFileLabels)
-}
-
-func (h *Handler) handleLabels(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		h.listLabels(w, r)
-	case http.MethodPost:
-		h.createLabel(w, r)
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+// RegisterRoutes 注册路由到 gin 路由组
+// 路由前缀: /api/v1/sharedlabels
+func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
+	g := rg.Group("/sharedlabels")
+	{
+		g.POST("/assign", h.assignLabels)   // 为文件分配标签
+		g.GET("/search", h.searchByLabels)  // 按标签搜索文件
+		g.GET("/list", h.listLabels)        // 列出所有标签
+		g.DELETE("/remove", h.removeLabels) // 移除文件标签
+		g.POST("/create", h.createLabel)    // 创建新标签
+		g.GET("/stats", h.getStats)         // 标签统计
 	}
 }
 
-func (h *Handler) listLabels(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	labelType := LabelType(r.URL.Query().Get("type"))
-	tenantID := r.URL.Query().Get("tenant_id")
+// assignLabels 为文件分配标签
+// POST /api/v1/sharedlabels/assign
+func (h *Handler) assignLabels(c *gin.Context) {
+	var req AssignLabelRequest
+	if err := api.BindAndValidate(c, &req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
 
-	labels, err := h.manager.ListLabels(ctx, labelType, tenantID)
+	result, err := h.svc.AssignLabels(c.Request.Context(), req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"labels": labels,
-		"total":  len(labels),
-	})
+	api.Created(c, gin.H{"assigned": result, "count": len(result)})
 }
 
-func (h *Handler) createLabel(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	var label Label
-	if err := json.NewDecoder(r.Body).Decode(&label); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+// searchByLabels 按标签搜索文件
+// GET /api/v1/sharedlabels/search?label_ids=xxx&label_ids=yyy
+func (h *Handler) searchByLabels(c *gin.Context) {
+	labelIDs := c.QueryArray("label_ids")
+	if len(labelIDs) == 0 {
+		api.BadRequest(c, "至少提供一个 label_ids 参数")
 		return
 	}
 
-	created, err := h.manager.CreateLabel(ctx, label)
+	result, err := h.svc.SearchByLabels(c.Request.Context(), labelIDs)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(created)
+	api.OK(c, gin.H{"files": result, "count": len(result)})
 }
 
-func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+// listLabels 列出所有标签
+// GET /api/v1/sharedlabels/list?type=team&tenant_id=xxx
+func (h *Handler) listLabels(c *gin.Context) {
+	labelType := LabelType(c.Query("type"))
+	tenantID := c.Query("tenant_id")
 
-	ctx := r.Context()
-	tenantID := r.URL.Query().Get("tenant_id")
-
-	stats, err := h.manager.GetStats(ctx, tenantID)
+	labels, err := h.svc.ListLabels(c.Request.Context(), labelType, tenantID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(stats)
+	api.OK(c, gin.H{"labels": labels, "total": len(labels)})
 }
 
-func (h *Handler) handleFileLabels(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		h.getFileLabels(w, r)
-	case http.MethodPost:
-		h.applyLabel(w, r)
-	case http.MethodDelete:
-		h.removeLabel(w, r)
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	}
-}
-
-func (h *Handler) getFileLabels(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	fileID := r.URL.Query().Get("file_id")
-	if fileID == "" {
-		http.Error(w, "file_id is required", http.StatusBadRequest)
+// removeLabels 移除文件标签
+// DELETE /api/v1/sharedlabels/remove
+func (h *Handler) removeLabels(c *gin.Context) {
+	var req RemoveLabelRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, "请求参数错误: "+err.Error())
 		return
 	}
 
-	labels, err := h.manager.GetFileLabels(ctx, fileID)
+	if err := h.svc.RemoveLabels(c.Request.Context(), req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OKWithMessage(c, "标签移除成功", nil)
+}
+
+// createLabel 创建新标签
+// POST /api/v1/sharedlabels/create
+func (h *Handler) createLabel(c *gin.Context) {
+	var req CreateLabelRequest
+	if err := api.BindAndValidate(c, &req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	label, err := h.svc.CreateLabel(c.Request.Context(), req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		api.Conflict(c, err.Error())
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"file_id": fileID,
-		"labels":  labels,
-	})
+	api.Created(c, label)
 }
 
-func (h *Handler) applyLabel(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	var req struct {
-		FileID    string `json:"file_id"`
-		FilePath  string `json:"file_path"`
-		LabelID   string `json:"label_id"`
-		AppliedBy string `json:"applied_by"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+// getStats 获取标签统计
+// GET /api/v1/sharedlabels/stats?tenant_id=xxx
+func (h *Handler) getStats(c *gin.Context) {
+	tenantID := c.Query("tenant_id")
+
+	stats, err := h.svc.GetStats(c.Request.Context(), tenantID)
+	if err != nil {
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	if err := h.manager.ApplyLabel(ctx, req.FileID, req.FilePath, req.LabelID, req.AppliedBy); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
-}
-
-func (h *Handler) removeLabel(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	fileID := r.URL.Query().Get("file_id")
-	labelID := r.URL.Query().Get("label_id")
-	if fileID == "" || labelID == "" {
-		http.Error(w, "file_id and label_id are required", http.StatusBadRequest)
-		return
-	}
-
-	if err := h.manager.RemoveLabel(ctx, fileID, labelID); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+	api.OK(c, stats)
 }
