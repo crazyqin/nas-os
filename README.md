@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.1.0 Stable (2026-06-26)
+> **最新版本**: v3.7.0 Stable (2026-07-02)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -34,6 +34,17 @@
 
 ## 特性
 
+
+
+### 🚀 v3.7.0 存储与应用生态增强 ✅
+
+| 模块 | 说明 | 状态 |
+|------|------|------|
+| 💾 RAIDZ vdev 扩展 | 扩展前健康检查、Dry Run、进度跟踪、取消/失败状态管理 | ✅ v3.7.0 新增 |
+| 📈 存储 ROI 分析 | 采购成本、容量利用率、寿命追踪、TCO/ROI 评分与优化建议 | ✅ v3.7.0 新增 |
+| 🎬 智能海报墙 | 媒体刮削、布局展示、播放进度同步、观影清单与推荐 | ✅ v3.7.0 新增 |
+| ⭐ 应用中心评价 | 评分评论、开发者回复、举报审核、统计聚合 | ✅ v3.7.0 新增 |
+| 🔐 NFS Kerberos 审计 | 认证事件、加密类型、风险告警与合规报告 | ✅ v3.7.0 新增 |
 
 ### 🚀 v3.1.0 架构重构稳定化 ✅
 

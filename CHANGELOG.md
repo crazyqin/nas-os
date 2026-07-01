@@ -1,5 +1,24 @@
 # NAS-OS 变更日志
 
+## v3.7.0 (2026-07-02) - 存储与应用生态增强
+
+### 新功能（5个新模块）
+- RAIDZ vdev 逐盘扩展（raidzexpand）— 扩展前健康检查、Dry Run、进度跟踪、取消/失败状态管理，参考 TrueNAS RAIDZ Expansion。
+- 存储 ROI 可视化分析（storageroi）— 磁盘采购成本、容量利用率、寿命追踪、TCO/ROI 评分与优化建议。
+- 智能海报墙（posterwall）— 媒体刮削、海报墙布局、多端播放进度同步、观影清单与推荐，参考飞牛 fnOS 影视墙。
+- 应用中心评价系统（appreview）— 评分评论、开发者回复、评价举报审核、统计聚合，参考群晖 DSM 套件中心评价。
+- NFS Kerberos 认证审计（nfspkaudit）— 认证事件记录、加密类型识别、风险告警、合规报告，参考企业 NFS 安全审计。
+
+### 验证
+- `go test ./internal/raidzexpand ./internal/storageroi ./internal/posterwall ./internal/appreview ./internal/nfspkaudit` 通过。
+- `go test ./...` 通过。
+- GitHub Actions：CI/CD、Security Scan、Docker Publish、Compatibility Check 全部成功。
+
+### 竞品对标
+- TrueNAS 24.10/26: RAIDZ 扩展、NVMe/存储健康能力。
+- 飞牛 fnOS: 影视刮削、海报墙体验。
+- 群晖 DSM: 应用中心评价、NFS Kerberos 安全审计。
+
 ## v3.4.0 (2026-06-29) - 竞品对标功能升级
 
 ### 新功能（6个新模块）
